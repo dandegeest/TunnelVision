@@ -1,67 +1,225 @@
 # TunnelVision
 
-**An agentic video director for creating seamless first-person journeys through impossible worlds.**
+**An agentic filmmaking experiment for directing continuous journeys through AI-imagined worlds.**
 
-TunnelVision explores a filmmaking workflow in which an AI agent plans, generates, evaluates, and repairs a continuous visual journey rather than generating isolated video clips.
+TunnelVision explores whether generative image and video models can be orchestrated into a system that doesn't simply create individual shots, but **directs an evolving journey through a continuous imagined world**.
 
-The project is inspired by a manually developed workflow used to create continuous first-person sequences for *Digging in the Dirt*, developed as part of my creative practice with [50:50](https://www.5050.dev/creators/dan-degeest). That process involved generating large numbers of candidate keyframes, selecting compatible start/end frame pairs, applying motion guidance, generating transitions, editing successful sequences together, and progressively restyling portions of the resulting video.
+The goal is a system that can decide where to go next, learn from human creative choices, maintain the visual and spatial logic of the world, and generate convincing continuous camera movement between selected viewpoints.
 
-TunnelVision investigates how much of that workflow can be intelligently automated while keeping the creator in control of the visual direction.
+## Origin
 
-## Concept
+TunnelVision builds directly on a manual generative filmmaking technique created by **Terran Boylan** and used in the AI music video for Peter Gabriel's *Digging in the Dirt*.
 
-A creator describes a world and how they want the journey through it to evolve.
+Terran's original workflow used successive generated frames to move a first-person camera through an imagined environment, with each selected frame becoming the visual foundation for the next step.
 
-For example:
+This project asks:
 
-> Descend through an endless underground concrete structure being slowly overtaken by organic growth. Begin photorealistic and become increasingly dreamlike and abstract.
+> **What happens if that process becomes self-directing?**
 
-TunnelVision then attempts to:
+Rather than replacing the original technique, this project attempts to understand, automate, and generalize it into an agentic filmmaking system.
 
-1. Generate candidate visual keyframes.
-2. Analyze their visual and semantic characteristics.
-3. Determine which frames are likely to produce strong transitions.
-4. Construct a path through the candidate frames.
-5. Generate motion-guided start/end frames.
-6. Generate first-person video transitions between keyframes.
-7. Evaluate the resulting transitions for continuity and motion.
-8. Regenerate or reroute around unsuccessful transitions.
-9. Assemble successful transitions into a seamless journey.
-10. Progressively restyle the journey according to the creator's desired visual arc.
+## The Core Idea
 
-## Human-Guided Visual Refinement
+A good next frame should:
 
-Before constructing the journey, TunnelVision may allow the creator to iteratively refine its understanding of their visual intent.
+> **Preserve the world's rules while changing the viewer's question.**
 
-Rather than treating **More Like This** as a simple image variation operation, the system can compare selected and rejected generations to infer why the creator preferred one image.
+TunnelVision maintains a sequence of canonical viewpoints:
 
-Over several rounds:
+`A → B → C → D → E → F → ...`
 
-**Prompt → Generate → Select → Evaluate → Refine Prompt → Generate**
+Each selected frame becomes both part of the visual history of the journey and the starting point for deciding where to go next.
 
-The resulting preferences can guide subsequent keyframe generation.
+The emerging loop is:
 
-## Architecture
+`OBSERVE → PROPOSE → GENERATE → EVALUATE → SELECT → MOVE`
 
-TunnelVision is designed around provider-independent components so that generation models can be replaced without changing the directing and evaluation pipeline.
+Human selections become creative feedback. Features that emerge accidentally can become preferences, landmarks, or even future routes.
 
-Initial areas of experimentation include:
+## Director + Cinematographer
 
-* Python orchestration
-* Image and video generation providers
-* Multimodal image/video evaluation
-* Image embeddings and similarity
-* Composition and perspective analysis
-* Graph-based keyframe path planning
-* Programmatic motion guidance
-* FFmpeg video processing
-* Agentic generation/evaluation/repair loops
-* Progressive video restyling
+The system is organized around real filmmaking responsibilities rather than implementation-oriented "AI agents."
 
-Generation providers will be abstracted behind common interfaces. Early prototypes may use Replicate, with Runway integration planned separately.
+### Director
+
+The **Director** decides where the journey should go next.
+
+It considers:
+
+- the current canonical frame
+- the journey so far
+- continuity with the established world
+- learned creative preferences
+- novelty and discovery
+- navigability
+- perceptible camera displacement
+
+An important prototype finding was that **scene evolution can masquerade as camera movement**.
+
+Several frames looked like successful progression when evaluated individually, but viewing the entire sequence as a reel revealed that the environment had changed while the camera appeared to remain almost stationary.
+
+The Director therefore needs to evaluate not only whether a candidate looks different, but whether it provides convincing evidence that the **camera itself has moved through space**.
+
+### Cinematographer
+
+The **Cinematographer** determines how to physically travel between the Director's canonical viewpoints.
+
+It considers:
+
+- continuous camera locomotion
+- parallax
+- foreground occlusion
+- route geometry
+- environment-specific motion cues
+- velocity continuity
+- shared canonical anchors
+
+Experiments revealed an important distinction:
+
+> **Visual continuity does not guarantee spatial traversability.**
+
+Video models can produce beautiful transitions while effectively dissolving or transforming one environment into another rather than moving a camera between them.
+
+A key breakthrough came from returning to Terran Boylan's original motion-prompting philosophy.
+
+Instead of instructing the model primarily to **arrive at the destination frame**, the prompt establishes continuous locomotion as the governing constraint:
+
+> **Never stop moving.**
+
+Using the same start and destination frames that previously produced a dissolve-like transition, this strategy generated substantially more convincing physical travel.
+
+Foreground objects passed the camera, natural occlusions provided opportunities to reconstruct unseen geometry, and strong parallax maintained the perception of movement through a continuous world.
+
+## Canonical Frames as Shared Anchors
+
+The ideal generated sequence looks like:
+
+`A → B | B → C | C → D | D → E`
+
+The final frame of `A → B` and the first frame of `B → C` are the **exact same canonical image B**.
+
+This creates an important constraint.
+
+The camera should arrive at B **while still moving** and depart from B **already moving**.
+
+Canonical frames should therefore behave like positions sampled from the middle of a continuous camera trajectory rather than places where the camera stops.
+
+This becomes especially important when constructing longer sequences. Individual video clips often ease into and out of their anchor frames. While aesthetically pleasing in isolation, repeated easing would expose every clip boundary:
+
+`accelerate → travel → decelerate → accelerate → travel → decelerate`
+
+TunnelVision ultimately needs **through-motion at shared canonical anchors**.
+
+## The Edit
+
+Ideally, there isn't much of one.
+
+If the Director produces:
+
+`A → B → C → D`
+
+and the Cinematographer successfully generates:
+
+`A → B`
+`B → C`
+`C → D`
+
+with identical shared anchors and continuous velocity, the finished journey should require little more than placing those clips back to back.
+
+The canonical sequence has already determined the edit.
+
+Rather than relying on an Editor agent to repair mismatched material afterward, TunnelVision attempts to push that complexity upstream and generate material that is **inherently editable**.
+
+## Preference Learning
+
+One of the discoveries from the manual prototype was that:
+
+> **Selection itself becomes a form of prompting.**
+
+When a generated candidate is selected, its visual characteristics become part of the reference context for the next generation.
+
+During the prototype, unexpected glowing mushrooms emerged in one generation. Selecting that frame allowed them to persist. They subsequently became an explicit navigational breadcrumb through the environment.
+
+This suggests a progression from:
+
+`accident → selection → preference → affordance → route`
+
+A future Director can learn from both selected and rejected candidates and gradually develop a model of the human collaborator's creative preferences.
+
+## The Reel as Working Memory
+
+The canonical reel is not merely a presentation of the finished journey.
+
+It can become part of the Director's **working visual memory**.
+
+Rather than evaluating every new frame only against its immediate predecessor, the agent can periodically review the growing sequence and ask:
+
+- Is the camera actually progressing?
+- Are we repeating compositions?
+- Is the world evolving coherently?
+- Are important visual motifs becoming meaningful?
+- Has aesthetic change begun substituting for spatial movement?
+- Does the journey still create curiosity about what comes next?
+
+The manual prototype demonstrated why this matters: weaknesses that were difficult to notice while selecting individual generations became immediately apparent when clicking through the complete reel.
+
+## Current Prototype
+
+The initial exploration uses:
+
+**Still generation**
+- Nano Banana Pro
+- Runway
+- 16:9
+- 2752 × 1536
+
+**Motion experiments**
+- Seedance 2.5
+- Krea
+- first/last-frame conditioning
+
+The prototype exploration log documents the prompts, selected and rejected frames, motion experiments, failures, and discoveries that led to the current architecture.
+
+See:
+
+[`TunnelVision_Prototype_Exploration_Log.html`](TunnelVision_Prototype_Exploration_Log.html)
+
+## First Coding Milestone
+
+The initial agentic implementation will focus on the **Director**.
+
+Given a current canonical frame:
+
+1. Propose several meaningful next-camera moves.
+2. Generate candidate viewpoints.
+3. Evaluate continuity, camera displacement, novelty, navigability, preference fit, and discovery.
+4. Present the strongest candidates for human selection.
+5. Update the preference state from that choice.
+6. Add the selected frame to the canonical reel.
+7. Periodically re-evaluate the sequence for weak spatial transitions.
+8. Repeat.
+
+The Cinematographer can then operate on accepted canonical frame pairs, using the continuous-locomotion principles established by the motion experiments.
 
 ## Status
 
-Early experimental prototype.
+**Experimental / hackathon prototype.**
 
-The initial goal is to determine whether automated keyframe analysis, path planning, motion guidance, and iterative evaluation can reliably improve the creation of seamless generative first-person video journeys.
+The project is currently moving from manual experimentation into implementation.
+
+The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
+
+## Acknowledgments
+
+**Terran Boylan** created the original manual TunnelVision workflow that inspired this project and used it in the AI music video for Peter Gabriel's *Digging in the Dirt*.
+
+This project builds on that foundation by exploring how the workflow can become self-directing, preference-learning, sequence-aware, and eventually capable of autonomously generating continuous motion between selected viewpoints.
+
+AI music video for Peter Gabriel's *Digging in the Dirt*:  
+https://www.5050.dev/videos/v/4bkjb3htbteraepxtc9cnb9rc7azp2
+
+## License
+
+Licensed under the **Apache License 2.0**.
+
+See [`LICENSE`](LICENSE) for details.
