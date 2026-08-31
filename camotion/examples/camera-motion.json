@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "camera": {
+    "vanishing_point": [0.52, 0.44],
+    "forward": 0.8,
+    "lateral": 0.0
+  },
+  "destination": {
+    "point": [0.55, 0.46],
+    "protect": true,
+    "bbox": [0.46, 0.32, 0.68, 0.82]
+  },
+  "exposure": {
+    "strength": 0.75,
+    "samples": 16
+  }
+}
