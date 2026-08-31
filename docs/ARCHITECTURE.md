@@ -45,7 +45,9 @@ masks, OpenCV, arrays, and warping. **v1 does not include depth.**
 
 Camotion v1 is a radial-exposure experiment inspired by TunnelTV
 motion-conditioning findings. It is not Terran Boylan's Photoshop
-workflow. See [IMPLEMENTATION.md](IMPLEMENTATION.md).
+workflow. See [IMPLEMENTATION.md](IMPLEMENTATION.md). v1 models
+**forward translation only** (radial expansion around a supplied focus
+of expansion). It does not implement strafing or turning / yaw.
 
 ## Intended later architecture
 
@@ -172,3 +174,5 @@ starts them.
 -   depth estimation implementation
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
+-   how a future Cinematographer derives changing camera geometry while
+    turning toward a user-selected destination

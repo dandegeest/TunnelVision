@@ -2,8 +2,7 @@
   "version": 1,
   "camera": {
     "vanishing_point": [0.52, 0.44],
-    "forward": 0.8,
-    "lateral": 0.0
+    "forward": 0.8
   },
   "destination": {
     "point": [0.55, 0.46],

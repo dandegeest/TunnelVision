@@ -57,7 +57,6 @@ class Camera(BaseModel):
 
     vanishing_point: NormalizedPoint
     forward: float = Field(ge=_MIN, le=_MAX)
-    lateral: float = Field(default=0.0, ge=-1.0, le=1.0)
 
     @field_validator("vanishing_point", mode="before")
     @classmethod

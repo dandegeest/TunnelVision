@@ -20,7 +20,8 @@ and are **not** specified here.
     Schema generated from the Pydantic models. That is an application
     concern, not a Camotion v1 concern.
 -   Keep v1 small. Do not add depth, segmentation, rotation, curved
-    paths, virtual shutter, or `B_in` / `B_out` to this version.
+    paths, virtual shutter, lateral translation / strafing, turning /
+    yaw, or `B_in` / `B_out` to this version.
 
 ## Coordinate convention
 
@@ -68,8 +69,7 @@ Boylan's depth-aware Photoshop workflow. See
   "version": 1,
   "camera": {
     "vanishing_point": [0.52, 0.44],
-    "forward": 0.8,
-    "lateral": 0.0
+    "forward": 0.8
   },
   "destination": {
     "point": [0.55, 0.46],
@@ -99,7 +99,6 @@ Boylan's depth-aware Photoshop workflow. See
 
 | Field | Type | Default | Constraints |
 | --- | --- | --- | --- |
-| `camera.lateral` | number | `0` | `[-1, 1]`. |
 | `destination` | object | omitted | If omitted, no destination protection. |
 | `destination.point` | `[x, y]` | none | Required if `destination` is present. Each in `[0, 1]`. |
 | `destination.protect` | boolean | `true` | Only meaningful if `destination` is present. |
@@ -114,41 +113,63 @@ No other fields are part of v1.
 -   Missing, non-integer, or any other value is a validation error.
 -   Camotion v1 must not coerce other versions to v1.
 
+### Motion terminology (v1)
+
+Camotion v1 models **only forward camera translation**, represented as
+radial expansion around a supplied focus of expansion.
+
+-   **`forward`** — forward camera translation. The intended v1 field
+    (not implemented in this contract pass) is:
+
+    ``` text
+    radial_vector(x, y) =
+        camera.forward * (
+            [x, y] - camera.vanishing_point
+        )
+    ```
+
+    Coordinates are normalized image coordinates. Do not implement this
+    field in this documentation/schema pass.
+
+-   **Lateral translation / strafing** — sideways camera translation.
+    Out of scope for v1. Not a turning model.
+
+-   **Turning / yaw** — changing facing while traveling. Out of scope
+    for v1.
+
+Strafing and turning are **different** camera motions and must not be
+conflated. A previous `camera.lateral` field described strafing; it is
+not part of v1. An off-center supplied focus of expansion is **valid v1
+geometry**, but v1 does not claim that this is a physically accurate
+model of a camera turn.
+
+How a future Cinematographer derives changing camera geometry while
+turning toward a user-selected destination is an **open question**. Do
+not design that solution here.
+
 ### `camera.vanishing_point`
 
 The focus of expansion for the v1 radial motion field: the image point
 pixels recede from as the camera advances.
 
 This is **perspective / motion geometry**, not the narrative
-destination. The two may be close on a straight path and diverge on a
-turn. Camotion does not infer it; the plan must supply it.
+destination. Camotion does not infer it; the plan must supply it. The
+two may be close or offset; offset is allowed and is still forward
+radial expansion, not yaw.
 
 ### `camera.forward`
 
-Unitless v1 magnitude of the **radial** component of the motion field.
+Unitless v1 magnitude of **forward camera translation** encoded as
+radial expansion around `vanishing_point`.
 
 -   `0` — no radial motion in the field.
 -   `1` — maximum radial displacement Camotion v1 will encode.
 
-This is a control for how strongly the field should communicate
-**forward camera travel**. It is **not** meters, millimeters, or a
-calibrated camera transform.
+This is **not** meters, millimeters, a calibrated camera transform,
+strafe, or yaw.
 
 `forward` sets the field. It is not the shutter. Smear amount along
 that field is `exposure.strength`.
-
-### `camera.lateral`
-
-Unitless v1 signed **horizontal** component mixed into the motion field.
-
--   `0` — pure radial field around `vanishing_point`.
--   positive — camera moves **right** relative to the scene (image
-    content shifts left).
--   negative — camera moves **left** relative to the scene (image
-    content shifts right).
--   `±1` — maximum lateral displacement Camotion v1 will encode.
-
-Also not a physical unit. v1 must honor the value, including `0`.
 
 ### `exposure.strength`
 
@@ -214,6 +235,8 @@ Do not add to this contract:
 
 -   depth maps or Z
 -   segmentation / instance masks
+-   lateral translation / strafing
+-   turning / yaw
 -   rotation, roll, 6-DOF, or curved paths
 -   separate arrival / departure plans (`B_in` / `B_out`)
 -   provider, prompt, or LLM fields
@@ -229,7 +252,8 @@ describes the radial motion geometry Camotion v1 uses.
 
 The UI, when it exists, exposes destination. Something later
 (human, experiment, or Cinematographer) derives geometry. Camotion
-only reads the numbers.
+only reads the numbers. Deriving a changing focus of expansion while
+**turning** toward a destination is an open question, not a v1 feature.
 
 ## Canonical vs conditioned frames
 
@@ -288,3 +312,5 @@ behind the adapter. That schema is not designed here.
 -   duration → shot count
 -   how vanishing point is derived from a destination (human vs model
     vs code)
+-   how a future Cinematographer derives changing camera geometry while
+    turning toward a user-selected destination (not strafing; not v1)

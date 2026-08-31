@@ -58,8 +58,14 @@ How that derivation works, including any use of depth, is an **open
 question**. Camotion v1 does not estimate depth or infer vanishing
 point; the plan supplies it.
 
-For straight motion, destination and focus of expansion may nearly
-coincide. During a turn they may diverge.
+For straight-ahead travel, destination and focus of expansion may
+nearly coincide. They may also be offset. An off-center supplied
+focus of expansion is valid Camotion v1 geometry; v1 does **not**
+treat that offset as a physically accurate camera turn. Lateral
+translation / strafing and turning / yaw are out of scope for v1 and
+must not be conflated. How a future Cinematographer derives changing
+camera geometry while turning toward a user-selected destination is
+an **open question**.
 
 ## Variable autonomy
 

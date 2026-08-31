@@ -43,11 +43,14 @@ performs the math.
 **v1** consumes only `image + CameraMotionPlan JSON` and emits one
 motion-conditioned still. See [DATA_MODEL.md](DATA_MODEL.md).
 
-Camotion v1 is a **radial-exposure experiment** (radial motion field,
+Camotion v1 is a **radial-exposure experiment** (forward radial motion
+field around a supplied focus of expansion, scaled by `camera.forward`,
 multisample exposure, protected destination). It is inspired by
 TunnelTV motion-conditioning findings. It is **not** a recreation or
 port of Terran Boylan's depth-aware Photoshop workflow, which used Z /
 depth, two blur operations, and destination protection.
+
+v1 does not implement lateral translation / strafing or turning / yaw.
 
 Camotion must not call LLMs or generation providers and must have no
 TypeScript or Node dependency.

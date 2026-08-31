@@ -19,7 +19,6 @@ def _plan(**overrides: object) -> dict:
         "camera": {
             "vanishing_point": [0.52, 0.44],
             "forward": 0.8,
-            "lateral": 0.0,
         },
         "destination": {
             "point": [0.55, 0.46],
@@ -40,7 +39,6 @@ def test_valid_example_file_round_trip() -> None:
     assert plan.version == 1
     assert plan.camera.vanishing_point == (0.52, 0.44)
     assert plan.camera.forward == 0.8
-    assert plan.camera.lateral == 0.0
     assert plan.destination is not None
     assert plan.destination.point == (0.55, 0.46)
     assert plan.destination.protect is True
@@ -56,13 +54,11 @@ def test_valid_plan_without_destination() -> None:
     assert plan.destination is None
 
 
-def test_defaults_lateral_and_protect() -> None:
+def test_defaults_protect() -> None:
     data = _plan()
-    del data["camera"]["lateral"]
     del data["destination"]["protect"]
     del data["destination"]["bbox"]
     plan = CameraMotionPlan.model_validate(data)
-    assert plan.camera.lateral == 0.0
     assert plan.destination is not None
     assert plan.destination.protect is True
     assert plan.destination.bbox is None
@@ -96,11 +92,6 @@ def test_out_of_range_normalized_coordinates() -> None:
 
     data = _plan()
     data["camera"]["forward"] = 1.01
-    with pytest.raises(ValidationError):
-        CameraMotionPlan.model_validate(data)
-
-    data = _plan()
-    data["camera"]["lateral"] = -1.1
     with pytest.raises(ValidationError):
         CameraMotionPlan.model_validate(data)
 
@@ -152,15 +143,18 @@ def test_invalid_exposure_samples() -> None:
 def test_unknown_fields_are_ignored() -> None:
     data = _plan()
     data["depth"] = "not-a-v1-field"
+    data["camera"]["lateral"] = -1.1
     data["camera"]["roll"] = 0.2
     data["destination"]["masks"] = ["seg"]
     data["exposure"]["B_out"] = True
     plan = CameraMotionPlan.model_validate(data)
     dumped = plan.model_dump()
     assert "depth" not in dumped
+    assert "lateral" not in dumped["camera"]
     assert "roll" not in dumped["camera"]
     assert "masks" not in dumped["destination"]
     assert "B_out" not in dumped["exposure"]
+    assert not hasattr(plan.camera, "lateral")
     assert plan.camera.forward == 0.8
 
 

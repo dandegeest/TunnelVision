@@ -59,12 +59,15 @@ attempting depth-aware methods.
 > convincingly communicate forward camera motion.**
 
 ``` text
-image + CameraMotionPlan JSON
-  → radial motion field
+image + CameraMotionPlan
+  → forward radial motion field around supplied focus of expansion
   → multisample exposure
   → protected destination
   → output image
 ```
+
+v1 does **not** implement lateral translation / strafing or turning /
+yaw. Those are different motions; do not encode a turn as a strafe.
 
 CLI:
 
@@ -97,16 +100,16 @@ camotion/
 ```
 
 v1 should: load PNG/JPEG; validate CameraMotionPlan v1; convert
-normalized coordinates; generate a radial forward-motion field around
-the supplied vanishing / focus point, mixed with `camera.lateral`;
-run spatially varying multisample exposure scaled by
-`exposure.strength` / `exposure.samples`; apply destination protection
-as specified; write the output; test validation, coordinates, flow
-direction, and protection.
+normalized coordinates; generate a **forward** radial motion field
+around the supplied vanishing / focus of expansion, scaled by
+`camera.forward` only; run spatially varying multisample exposure
+scaled by `exposure.strength` / `exposure.samples`; apply destination
+protection as specified; write the output; test validation,
+coordinates, flow direction, and protection.
 
 Do **not** add to this milestone: depth estimation, LLM calls, media
 APIs, UI, 6-DOF, segmentation, GPU rendering, video, `ShotPlan`,
-`B_in` / `B_out`.
+`B_in` / `B_out`, lateral translation / strafing, or turning / yaw.
 
 ## Later phases (not current work)
 
@@ -268,3 +271,5 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   duration → shot count
 -   depth estimation implementation
 -   final Cinematographer module boundaries
+-   how a future Cinematographer derives changing camera geometry while
+    turning toward a user-selected destination
