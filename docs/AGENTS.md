@@ -15,29 +15,49 @@ and audit the canonical sequence.
 
 Candidate evaluation can include continuity, perceptible camera
 displacement, novelty, navigability, preference fit and discovery.
+Automated scoring of displacement or traversal is an **open question**.
+PreferenceState schema is an **open question**. The Director is not
+being implemented in the Camotion v1 milestone.
 
 ## Cinematographer --- how do we physically get there?
 
 Inputs: accepted start/end canonical frames, intended destination/route,
 scene analysis and user overrides.
 
-Responsibilities: infer perspective/route geometry, identify destination
-and useful focus-of-expansion geometry, identify parallax-producing
-foreground objects and protected regions, produce ShotPlan and
-CameraMotionPlan JSON, fill a stable locomotion template, invoke
-Camotion, and evaluate actual traversal.
+Responsibilities (intended role, not a current module): infer
+perspective/route geometry, identify destination and useful
+focus-of-expansion geometry, identify parallax-producing foreground
+objects and protected regions, produce ShotPlan and CameraMotionPlan
+JSON, fill a stable locomotion template, invoke Camotion, and evaluate
+actual traversal.
+
+**Final Cinematographer module boundaries are an open question.** Do
+not scaffold a Cinematographer package alongside Camotion v1.
 
 ## Camotion Engine
 
 Camotion is **not an agent**. It is deterministic graphics code. The
-Cinematographer decides what motion should mean; Camotion performs the
-math.
+Cinematographer role (later) decides what motion should mean; Camotion
+performs the math.
+
+**v1** consumes only `image + CameraMotionPlan JSON` and emits one
+motion-conditioned still. See [DATA_MODEL.md](DATA_MODEL.md).
+
+Camotion v1 is a **radial-exposure experiment** (radial motion field,
+multisample exposure, protected destination). It is inspired by
+TunnelTV motion-conditioning findings. It is **not** a recreation or
+port of Terran Boylan's depth-aware Photoshop workflow, which used Z /
+depth, two blur operations, and destination protection.
+
+Camotion must not call LLMs or generation providers and must have no
+TypeScript or Node dependency.
 
 ## No Edit agent
 
 Do not initially model an Editor. Adjacent clips should share exact
 canonical handoff frames and preserve perceived motion. Assembly should
-become nearly mechanical.
+become nearly mechanical. Distinct `B_in` / `B_out` derivatives and
+whether they can hand off invisibly remain an **open question**.
 
 ## Stable locomotion principle
 
@@ -45,3 +65,9 @@ Generated motion prioritizes uninterrupted physical travel: camera
 continuously advances; foreground objects pass beside/behind it; strong
 parallax reveals new space ahead; thresholds, turns, occlusions and
 atmosphere can help preserve continuous locomotion.
+
+The genesis prompt that demonstrated this on Seedance 2.5 / Krea is
+recorded as an experimental artifact in
+[IMPLEMENTATION.md](IMPLEMENTATION.md). Preserve Terran Boylan /
+TunnelTV provenance. Do not treat that text as model-independent or as
+a Camotion input.

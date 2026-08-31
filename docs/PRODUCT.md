@@ -58,8 +58,17 @@ destination, perspective, foreground geometry and motion cues; produce
 structured shot/camera data; invoke Camotion for conditioned anchors;
 and prepare video-generation inputs.
 
+Camotion is deterministic graphics, not an agent. **Camotion v1** is a
+radial-exposure experiment inspired by TunnelTV motion-conditioning
+findings. It is **not** a port of Terran Boylan's depth-aware Photoshop
+workflow (Z/depth, multiple blur operations, destination protection).
+See [IMPLEMENTATION.md](IMPLEMENTATION.md) and
+[DATA_MODEL.md](DATA_MODEL.md).
+
 There is no separate Edit agent initially. Clean editing should emerge
-from exact canonical handoffs and convincing through-motion.
+from exact canonical handoffs and convincing through-motion. How to
+derive distinct arrival/departure derivatives (`B_in` / `B_out`) is an
+**open question** --- do not treat it as solved.
 
 ## Product principles
 
@@ -86,13 +95,28 @@ rules. **Krea** may be evaluated as another provider. Provider-specific
 structures must not leak into Director, Cinematographer, storyboard, or
 Camotion state.
 
+The MediaProvider contract must exist before Director code depends on
+generation. Do not implement providers as part of the Camotion
+milestone.
+
+When a video-generation request is specified, it must be able to
+represent a start frame, an end frame, optional additional reference
+images, and a prompt. Model- and provider-specific capabilities stay
+behind the adapter. That schema is not designed yet. Genesis locomotion
+prompts are experimental artifacts, not a vendor-neutral API.
+
 ## Initial experience
 
 Ask for a starting frame, freeform journey/story idea, and approximate
-duration. The Director infers an appropriate number of viewpoints and
-creates a canonical storyboard. The user can accept it, inspect
-alternatives, replace a selection, point to a different destination, and
-step through frames to audit spatial continuity.
+duration. A later Director may propose a canonical storyboard. The user
+can accept it, inspect alternatives, replace a selection, point to a
+different destination, and step through frames to audit spatial
+continuity.
+
+How duration maps to shot count is an **open question**. Do not treat
+"Director infers viewpoint count from duration" as a specified
+algorithm. This initial experience is the intended product, not the
+current code milestone (Camotion v1).
 
 ## Success criteria
 

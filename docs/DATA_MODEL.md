@@ -1,40 +1,67 @@
 # TunnelVision Data Model
 
-All image coordinates are normalized to `0..1`. Use Zod as the
-TypeScript source of truth for runtime-validated contracts.
+This document freezes **CameraMotionPlan v1** as the Camotion
+experiment contract. Other named objects are later application types
+and are **not** specified here.
 
 ## Design rules
 
-TunnelVision owns schemas, JSON remains human-readable, provider objects
-are normalized at boundaries, and semantic filmmaking data stays
-separate from deterministic rendering parameters.
+-   TunnelVision owns schemas. Provider objects are normalized at
+    adapter boundaries and must not appear in Camotion state.
+-   JSON is the language-neutral interchange format. Files remain
+    human-readable.
+-   Semantic filmmaking data (`ShotPlan`, prompts, journey state) stays
+    separate from deterministic rendering parameters
+    (`CameraMotionPlan`).
+-   **Camotion v1 implementation source of truth:** Python / Pydantic,
+    matching this spec. Camotion must have **no TypeScript or Node
+    dependency**.
+-   TypeScript / Zod may later mirror this contract or consume JSON
+    Schema generated from the Pydantic models. That is an application
+    concern, not a Camotion v1 concern.
+-   Keep v1 small. Do not add depth, segmentation, rotation, curved
+    paths, virtual shutter, or `B_in` / `B_out` to this version.
 
-## ShotPlan
+## Coordinate convention
 
-Semantic Cinematographer interpretation:
+All image coordinates in this contract are normalized.
 
-``` json
-{
-  "version": 1,
-  "environment": "old library",
-  "route": "forward through the central aisle toward the open doorway",
-  "destination": {
-    "description": "courtyard beyond the doorway",
-    "point": [0.55, 0.47]
-  },
-  "foreground_occluders": ["bookshelves", "skeletal figures", "door frame"],
-  "atmospheric_motion": ["dust", "translucent ghostly forms"],
-  "motion": {
-    "direction": "forward",
-    "turn": "slight_right",
-    "speed": "fast"
-  }
-}
+-   `(0, 0)` is the **top-left** of the image.
+-   `(1, 1)` is the **bottom-right** of the image.
+-   `x` increases to the right. `y` increases downward.
+
+For an image of width `W` and height `H` pixels:
+
+``` text
+pixel_x = normalized_x * (W - 1)
+pixel_y = normalized_y * (H - 1)
 ```
 
-## CameraMotionPlan
+Bounding boxes are `[left, top, right, bottom]` in the same normalized
+space.
 
-Formal Camotion input contract:
+-   `left < right`
+-   `top < bottom`
+-   every component is in `[0, 1]`
+-   the box is axis-aligned
+
+Points are `[x, y]` with both components in `[0, 1]`.
+
+## CameraMotionPlan v1
+
+Camotion public contract:
+
+``` text
+source image + CameraMotionPlan JSON -> motion-conditioned image
+```
+
+Camotion v1 is a **radial-exposure experiment**. It is inspired by
+TunnelTV motion-conditioning findings (continuous locomotion plus
+destination protection). It is **not** a recreation or port of Terran
+Boylan's depth-aware Photoshop workflow. See
+[IMPLEMENTATION.md](IMPLEMENTATION.md).
+
+### Example
 
 ``` json
 {
@@ -56,39 +83,208 @@ Formal Camotion input contract:
 }
 ```
 
-Initial Camotion consumes only numeric/geometric fields it needs.
+### Required fields
 
-Potential later additions: depth-map reference, segmentation mask,
-moving focus of expansion, rotation, virtual shutter, curved path and
-separate arrival/departure conditioning. Do not add them before
-experiments justify them.
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `version` | integer | Must be `1` for this contract. |
+| `camera` | object | Required. |
+| `camera.vanishing_point` | `[x, y]` | Each in `[0, 1]`. |
+| `camera.forward` | number | `[0, 1]`. |
+| `exposure` | object | Required. |
+| `exposure.strength` | number | `[0, 1]`. |
+| `exposure.samples` | integer | `2` .. `64` inclusive. |
+
+### Optional fields
+
+| Field | Type | Default | Constraints |
+| --- | --- | --- | --- |
+| `camera.lateral` | number | `0` | `[-1, 1]`. |
+| `destination` | object | omitted | If omitted, no destination protection. |
+| `destination.point` | `[x, y]` | none | Required if `destination` is present. Each in `[0, 1]`. |
+| `destination.protect` | boolean | `true` | Only meaningful if `destination` is present. |
+| `destination.bbox` | `[left, top, right, bottom]` | omitted | Valid bbox if present. |
+
+No other fields are part of v1.
+
+### `version`
+
+-   Required.
+-   Camotion v1 **accepts only** `1`.
+-   Missing, non-integer, or any other value is a validation error.
+-   Camotion v1 must not coerce other versions to v1.
+
+### `camera.vanishing_point`
+
+The focus of expansion for the v1 radial motion field: the image point
+pixels recede from as the camera advances.
+
+This is **perspective / motion geometry**, not the narrative
+destination. The two may be close on a straight path and diverge on a
+turn. Camotion does not infer it; the plan must supply it.
+
+### `camera.forward`
+
+Unitless v1 magnitude of the **radial** component of the motion field.
+
+-   `0` — no radial motion in the field.
+-   `1` — maximum radial displacement Camotion v1 will encode.
+
+This is a control for how strongly the field should communicate
+**forward camera travel**. It is **not** meters, millimeters, or a
+calibrated camera transform.
+
+`forward` sets the field. It is not the shutter. Smear amount along
+that field is `exposure.strength`.
+
+### `camera.lateral`
+
+Unitless v1 signed **horizontal** component mixed into the motion field.
+
+-   `0` — pure radial field around `vanishing_point`.
+-   positive — camera moves **right** relative to the scene (image
+    content shifts left).
+-   negative — camera moves **left** relative to the scene (image
+    content shifts right).
+-   `±1` — maximum lateral displacement Camotion v1 will encode.
+
+Also not a physical unit. v1 must honor the value, including `0`.
+
+### `exposure.strength`
+
+How far to integrate along the motion field. Analogous to shutter
+time, not camera speed.
+
+-   `0` — output equals the source image (no smear), aside from
+    trivial resampling if any.
+-   `1` — accumulate along the full v1 motion vectors.
+
+### `exposure.samples`
+
+Number of discrete taps along each motion path, including the unmoved
+source sample.
+
+-   Integer, `2` .. `64`.
+-   Higher values smooth the streak and cost more compute.
+-   v1 equal-weights samples in whatever working color space it uses.
+    Linear-light accumulation is **not** a v1 requirement.
+
+### `destination.protect`
+
+When `destination` is present and `protect` is `true`, Camotion reduces
+or removes motion accumulation in the protected region so that area
+stays comparatively sharp — the v1 stand-in for destination protection.
+
+When `protect` is `false`, the motion field is applied across the whole
+frame. `destination.bbox`, if present, is ignored.
+
+When `destination` is omitted, there is no protection (same visual
+result as `protect: false`).
+
+### `destination.bbox` absent
+
+If `destination` is present, `protect` is `true`, and `bbox` is omitted:
+
+-   Protect a default axis-aligned square centered on
+    `destination.point`.
+-   Half-extent is `0.10` in normalized coordinates on each axis
+    (full side `0.20`).
+-   Clip the square to `[0, 1]`.
+-   Edge feather is an implementation detail, not a JSON field.
+
+If `bbox` is present, protect that rectangle (with implementation
+feather), not the default square.
+
+### Unknown fields
+
+Camotion v1 **must ignore** unknown keys at any object level.
+
+-   Do not fail the plan because a future field is present
+    (`depth`, `masks`, `B_out`, and so on).
+-   Do not consume unknown fields.
+-   Do not require them.
+
+This keeps the JSON forward-compatible. v1 still **rejects** invalid
+known fields (wrong types, out of range, malformed points/bboxes,
+`version` ≠ `1`).
+
+### Out of scope for v1
+
+Do not add to this contract:
+
+-   depth maps or Z
+-   segmentation / instance masks
+-   rotation, roll, 6-DOF, or curved paths
+-   separate arrival / departure plans (`B_in` / `B_out`)
+-   provider, prompt, or LLM fields
+-   image paths (the image is a CLI/API input beside the JSON)
 
 ## Destination vs vanishing point
 
-**Destination** is where the Director/user wants to go.
+**Destination** (`destination.point`) is where the Director or user
+wants to go.
 
-**Vanishing point / focus of expansion** describes perspective/motion
-geometry.
+**Vanishing point / focus of expansion** (`camera.vanishing_point`)
+describes the radial motion geometry Camotion v1 uses.
 
-They may be close for straight travel and diverge during turns. The UI
-exposes destination; the Cinematographer derives geometry.
+The UI, when it exists, exposes destination. Something later
+(human, experiment, or Cinematographer) derives geometry. Camotion
+only reads the numbers.
 
 ## Canonical vs conditioned frames
 
 A canonical frame is pristine authoritative world state.
-Motion-conditioned assets are derivatives.
+Motion-conditioned assets are derivatives produced from a canonical
+image plus a `CameraMotionPlan`.
 
-A pristine B may eventually produce `B_in` and `B_out` for
-arrival/departure. Whether differing derivatives can hand off invisibly
-is unresolved and must not be treated as solved.
+Whether a later system should emit distinct `B_in` and `B_out`
+derivatives, and whether those can hand off invisibly, is an **open
+question**. v1 produces **one** output image per run.
 
-## Coordinates
+## ShotPlan (not a Camotion input)
 
-For image width `W`, height `H`:
+`ShotPlan` is a later semantic object for Cinematographer / prompt
+templating. It is **not** consumed by Camotion. The example below is
+illustrative only and is **not** a frozen contract.
 
-``` text
-pixel_x = normalized_x * W
-pixel_y = normalized_y * H
+``` json
+{
+  "version": 1,
+  "environment": "old library",
+  "route": "forward through the central aisle toward the open doorway",
+  "destination": {
+    "description": "courtyard beyond the doorway",
+    "point": [0.55, 0.47]
+  },
+  "foreground_occluders": ["bookshelves", "skeletal figures", "door frame"],
+  "atmospheric_motion": ["dust", "translucent ghostly forms"],
+  "motion": {
+    "direction": "forward",
+    "turn": "slight_right",
+    "speed": "fast"
+  }
+}
 ```
 
-Bounding boxes are `[left, top, right, bottom]`.
+## Later application types (unspecified)
+
+Do **not** design these until a later milestone needs them:
+
+-   Journey, CanonicalFrame, CandidateFrame, DirectorDecision
+-   PreferenceState
+-   ImageGenerationRequest, VideoGenerationRequest, GeneratedAsset
+-   duration → shot count
+-   automated traversal scores
+
+When a video-generation request is eventually specified, it must be
+able to represent start frame, end frame, optional additional
+reference images, and prompt. Model- and provider-specific knobs stay
+behind the adapter. That schema is not designed here.
+
+## Open questions
+
+-   `B_in` / `B_out` handoff strategy
+-   PreferenceState schema
+-   duration → shot count
+-   how vanishing point is derived from a destination (human vs model
+    vs code)
