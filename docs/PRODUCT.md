@@ -97,7 +97,10 @@ Development initially uses **Replicate**. If accepted to the Runway
 hackathon, add/swap a native **Runway** provider according to event
 rules. **Krea** may be evaluated as another provider. Provider-specific
 structures must not leak into Director, Cinematographer, storyboard, or
-Camotion state.
+Camotion state. Agent roles must not hardcode provider or model IDs. A
+reasoning provider should support configurable model routing by role
+or profile so Director, Cinematographer, and Evaluator may use
+different models.
 
 The MediaProvider contract must exist before Director code depends on
 generation. Do not implement providers as part of the Camotion

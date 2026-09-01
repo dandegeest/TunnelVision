@@ -1,0 +1,7 @@
+Analyze the attached first-person still.
+
+Identify the physically traversable forward route through this space and the destination the camera can actually reach. If a visually salient object is not on the ground-level route, it is not the destination.
+
+Then emit the JSON object specified in the system prompt: semantic route/destination fields plus CameraMotionPlan v1 geometry (vanishing_point, destination point and bbox, forward, exposure).
+
+The image is attached. Return JSON only.

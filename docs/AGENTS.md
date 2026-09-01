@@ -1,7 +1,9 @@
 # TunnelVision Filmmaking Roles
 
 Use real filmmaking responsibilities rather than implementation-oriented
-agent names.
+agent names. Do not hardcode provider or model IDs into a role.
+Routing belongs on a configurable reasoning-provider profile so
+Director, Cinematographer, and Evaluator may use different models.
 
 ## Director --- where do we go next?
 

@@ -65,8 +65,8 @@ The user manipulates a **destination**. Vanishing point / focus of
 expansion is derived later (human, experiment, or Cinematographer).
 How that derivation works, including any use of depth, is an **open
 question**. Camotion does not estimate depth or infer vanishing
-point; the plan supplies the vanishing point. Depth/CV observation
-stays outside Camotion.
+point; the plan supplies the vanishing point. Depth estimation and CV
+scene analysis stay outside Camotion.
 
 For straight-ahead travel, destination and focus of expansion may
 nearly coincide. They may also be offset. An off-center supplied

@@ -53,7 +53,7 @@ Points are `[x, y]` with both components in `[0, 1]`.
 Camotion public contract:
 
 ``` text
-canonical image + CameraMotionPlan JSON -> shooting-frame image
+image + CameraMotionPlan JSON -> shooting-frame image
 ```
 
 An optional near-weight / depth image may be supplied **beside** the
@@ -264,8 +264,9 @@ only reads the numbers. Deriving a changing focus of expansion while
 
 A **canonical** frame is pristine authoritative world state on the
 storyboard. A **shooting frame** is a Camotion derivative produced
-from a canonical image plus a `CameraMotionPlan` (and optional
-near-weight).
+from an image plus a `CameraMotionPlan` (and optional near-weight).
+TunnelVision currently supplies a canonical frame as that image.
+Camotion does not know what a canonical frame is.
 
 Canonical frames remain important. They are **not** currently supplied
 to the video model. Video generation currently receives shooting

@@ -17,7 +17,7 @@ modules, or a journey workspace runtime yet.
 ``` text
 camotion/     Python package, CLI
                 |
-         canonical image
+         image
          + CameraMotionPlan JSON
          + optional near-weight sidecar
                 |
@@ -40,7 +40,7 @@ Camotion is a standalone deterministic Python graphics package.
 
 Frozen plan contract:
 
-`canonical image + CameraMotionPlan JSON -> shooting-frame image`
+`image + CameraMotionPlan JSON -> shooting-frame image`
 
 An optional near-weight image may be supplied **beside** the JSON
 (`--depth`). It is not a CameraMotionPlan field. If omitted, behavior
@@ -57,8 +57,9 @@ Research split:
 Agent reasons  →  CV observes / measures  →  Camotion renders  →  video model films
 ```
 
-Depth/CV observation belongs outside Camotion. Camotion only applies a
-supplied near-weight map, if any, to the existing radial field.
+Depth estimation and CV scene analysis belong outside Camotion.
+Camotion may consume a supplied near-weight map and deterministically
+weight its motion field with it.
 
 Camotion v1 models **forward translation only** (radial expansion
 around a supplied focus of expansion). It is not Terran Boylan's
@@ -68,8 +69,10 @@ See [IMPLEMENTATION.md](IMPLEMENTATION.md).
 ### Canonical frames vs shooting frames
 
 **Canonical / pristine frames** are storyboard and world-state
-authority. They are Camotion inputs. They are **not** currently
-supplied to the video model.
+authority. They are **not** currently supplied to the video model.
+TunnelVision currently supplies a canonical frame as Camotion's image
+input. Camotion itself does not know what a canonical frame,
+storyboard, or world-state asset is.
 
 **Shooting frames** are Camotion-conditioned derivatives. They are
 what video generation currently receives as start and end images.
@@ -118,6 +121,10 @@ now.
 Director and Cinematographer are **filmmaking roles**, not current
 packages. Cinematographer module boundaries are an open question.
 
+Agent roles must not hardcode provider or model IDs. A later reasoning
+provider should support configurable model routing by role or profile
+so Director, Cinematographer, and Evaluator may use different models.
+
 ## Later media-provider boundary
 
 TunnelVision will own normalized request/response types. Director
@@ -161,10 +168,11 @@ Reasoning (later): environment, meaningful destination, route,
 occluders, candidate evaluation, preference.
 
 Deterministic code (Camotion now): coordinates, flow fields, exposure
-accumulation, destination protection, optional near-weight scaling of
-the existing radial field. Depth **estimation**, masks as CV products,
-and linear-light compositing stay outside Camotion unless a later
-experiment explicitly moves them.
+accumulation, destination-protection masks and blending, optional
+near-weight scaling of the existing radial field. Depth **estimation**,
+semantic segmentation, CV-derived scene masks, and linear-light
+compositing stay outside Camotion unless a later experiment explicitly
+moves them.
 
 ## Data ownership
 

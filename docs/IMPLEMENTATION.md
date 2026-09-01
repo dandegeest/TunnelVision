@@ -56,11 +56,11 @@ and is not a recreation of Terran's Photoshop script.
 
 ## Current code --- Camotion v1
 
-> **Take a canonical image and a CameraMotionPlan JSON file and produce
-> a shooting frame that communicates forward camera motion.**
+> **Take an image and a CameraMotionPlan JSON file and produce a
+> shooting frame that communicates forward camera motion.**
 
 ``` text
-canonical image + CameraMotionPlan
+image + CameraMotionPlan
   → forward radial motion field around supplied focus of expansion
   → optional near-weight multiplication (if --depth supplied)
   → multisample exposure
