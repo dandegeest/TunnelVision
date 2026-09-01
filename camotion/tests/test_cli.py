@@ -38,6 +38,61 @@ def test_cli_renders_example_plan(tmp_path: Path, capsys: pytest.CaptureFixture[
         assert written.mode == "RGB"
 
 
+def test_cli_with_depth(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    image = tmp_path / "input.png"
+    Image.new("RGB", (16, 10), color=(12, 34, 56)).save(image)
+    depth = tmp_path / "depth.png"
+    Image.new("L", (16, 10), color=200).save(depth)
+    output = tmp_path / "output.png"
+
+    code = main(
+        [
+            "--image",
+            str(image),
+            "--plan",
+            str(EXAMPLE),
+            "--depth",
+            str(depth),
+            "--output",
+            str(output),
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code == 0
+    assert str(output) in captured.out
+    assert output.exists()
+    with Image.open(output) as written:
+        assert written.size == (16, 10)
+        assert written.mode == "RGB"
+
+
+def test_cli_depth_dimension_mismatch(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    image = tmp_path / "input.png"
+    Image.new("RGB", (16, 10), color=(12, 34, 56)).save(image)
+    depth = tmp_path / "depth.png"
+    Image.new("L", (8, 8), color=255).save(depth)
+    output = tmp_path / "output.png"
+
+    code = main(
+        [
+            "--image",
+            str(image),
+            "--plan",
+            str(EXAMPLE),
+            "--depth",
+            str(depth),
+            "--output",
+            str(output),
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code == 1
+    assert "does not match image" in captured.err
+    assert not output.exists()
+
+
 def test_cli_missing_image(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     code = main(
         [

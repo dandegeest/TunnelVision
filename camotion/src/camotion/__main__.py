@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image, UnidentifiedImageError
 from pydantic import ValidationError
 
+from camotion.depth import load_near_weight
 from camotion.plan import load_plan
 from camotion.render import render
 
@@ -30,6 +31,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="CameraMotionPlan v1 JSON file",
     )
     parser.add_argument("--output", required=True, type=Path, help="Output PNG path")
+    parser.add_argument(
+        "--depth",
+        type=Path,
+        default=None,
+        help="Optional near-weight / depth image (white=near/full motion, black=far/none)",
+    )
     return parser
 
 
@@ -71,6 +78,9 @@ def main(argv: list[str] | None = None) -> int:
     if not args.plan.is_file():
         print(f"error: plan not found: {args.plan}", file=sys.stderr)
         return 1
+    if args.depth is not None and not args.depth.is_file():
+        print(f"error: depth not found: {args.depth}", file=sys.stderr)
+        return 1
 
     try:
         plan = load_plan(args.plan)
@@ -97,8 +107,22 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
+    near_weight = None
+    if args.depth is not None:
+        try:
+            near_weight = load_near_weight(args.depth)
+        except UnidentifiedImageError as exc:
+            print(f"error: cannot read depth: {exc}", file=sys.stderr)
+            return 1
+        except OSError as exc:
+            print(f"error: cannot read depth: {exc}", file=sys.stderr)
+            return 1
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+
     try:
-        output = render(image, plan)
+        output = render(image, plan, near_weight=near_weight)
         _save_image(args.output, output)
     except OSError as exc:
         print(f"error: cannot write output: {exc}", file=sys.stderr)
