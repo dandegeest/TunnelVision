@@ -1,9 +1,9 @@
 # TunnelVision UX Plan
 
 This is the intended product workspace. It is **not** the current
-implementation. The current code milestone is Camotion v1 only
-(`image + CameraMotionPlan JSON → motion-conditioned still`). Do not
-scaffold this UI yet.
+implementation. Current code is Camotion v1
+(`image + CameraMotionPlan JSON` → shooting-frame still; optional
+near-weight sidecar). Do not scaffold this UI yet.
 
 ## Primary workspace
 
@@ -35,6 +35,12 @@ re-evaluated.
 
 > **TunnelVision presents decisions, not generations.**
 
+**Canonical vs shooting frames.** The storyboard shows
+**canonical / pristine** frames: authoritative world-state images.
+Camotion derives **shooting frames** from them. Video generation
+currently receives those shooting frames. Canonical images remain on
+the storyboard; they are not currently passed to the video model.
+
 ## Frame modes
 
 **Variations** --- alternate candidate viewpoints.
@@ -43,9 +49,12 @@ re-evaluated.
 marker. The user clicks/drags elsewhere to mean **go there**. The user
 manipulates a destination, not a vanishing point.
 
-**Motion** --- Cinematographer interpretation and conditioned preview.
+**Motion** --- Cinematographer interpretation and Camotion shooting-frame
+preview.
 
 Depth maps, masks and confidence values belong under Inspect/Advanced.
+Camotion does not estimate depth. Optional near-weight maps are a
+sidecar input beside CameraMotionPlan, not a plan field.
 
 ## Destination interaction
 
@@ -55,8 +64,9 @@ bottom-right. See [DATA_MODEL.md](DATA_MODEL.md).
 The user manipulates a **destination**. Vanishing point / focus of
 expansion is derived later (human, experiment, or Cinematographer).
 How that derivation works, including any use of depth, is an **open
-question**. Camotion v1 does not estimate depth or infer vanishing
-point; the plan supplies it.
+question**. Camotion does not estimate depth or infer vanishing
+point; the plan supplies the vanishing point. Depth/CV observation
+stays outside Camotion.
 
 For straight-ahead travel, destination and focus of expansion may
 nearly coincide. They may also be offset. An off-center supplied
@@ -89,4 +99,5 @@ accept/replace a candidate, append it to the storyboard, allow
 destination redirection, and repeat.
 
 That slice depends on a MediaProvider contract and is **not** the
-current milestone. Current milestone: Camotion v1, no UI.
+current milestone. Current research is Camotion and shooting-frame
+experiments, with no UI.

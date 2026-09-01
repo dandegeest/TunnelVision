@@ -21,18 +21,23 @@ being implemented in the Camotion v1 milestone.
 
 ## Cinematographer --- how do we physically get there?
 
-Inputs: accepted start/end canonical frames, intended destination/route,
-scene analysis and user overrides.
+Inputs: accepted start/end **canonical** frames, intended
+destination/route, scene analysis and user overrides.
 
 Responsibilities (intended role, not a current module): infer
 perspective/route geometry, identify destination and useful
 focus-of-expansion geometry, identify parallax-producing foreground
 objects and protected regions, produce ShotPlan and CameraMotionPlan
-JSON, fill a stable locomotion template, invoke Camotion, and evaluate
-actual traversal.
+JSON, request any CV/depth observation **outside** Camotion, invoke
+Camotion to produce shooting frames, fill a stable locomotion template,
+and evaluate actual traversal.
+
+Video currently receives those shooting frames plus the locomotion
+prompt. Canonical frames stay storyboard/world-state authority; they
+are not currently video inputs.
 
 **Final Cinematographer module boundaries are an open question.** Do
-not scaffold a Cinematographer package alongside Camotion v1.
+not scaffold a Cinematographer package alongside Camotion.
 
 ## Camotion Engine
 
@@ -40,15 +45,18 @@ Camotion is **not an agent**. It is deterministic graphics code. The
 Cinematographer role (later) decides what motion should mean; Camotion
 performs the math.
 
-**v1** consumes only `image + CameraMotionPlan JSON` and emits one
-motion-conditioned still. See [DATA_MODEL.md](DATA_MODEL.md).
+The frozen v1 **plan** contract is `image + CameraMotionPlan JSON` and
+emits one shooting-frame still. See [DATA_MODEL.md](DATA_MODEL.md).
+An optional near-weight image may be supplied beside that contract.
+Camotion does not estimate depth, run CV, or call generators.
 
 Camotion v1 is a **radial-exposure experiment** (forward radial motion
 field around a supplied focus of expansion, scaled by `camera.forward`,
-multisample exposure, protected destination). It is inspired by
-TunnelTV motion-conditioning findings. It is **not** a recreation or
-port of Terran Boylan's depth-aware Photoshop workflow, which used Z /
-depth, two blur operations, and destination protection.
+multisample exposure, protected destination, optional near-weight
+scaling of that same field). It is inspired by TunnelTV
+motion-conditioning findings. It is **not** a recreation or port of
+Terran Boylan's depth-aware Photoshop workflow, which used Z / depth,
+two blur operations, and destination protection.
 
 v1 does not implement lateral translation / strafing or turning / yaw.
 
@@ -57,10 +65,10 @@ TypeScript or Node dependency.
 
 ## No Edit agent
 
-Do not initially model an Editor. Adjacent clips should share exact
-canonical handoff frames and preserve perceived motion. Assembly should
-become nearly mechanical. Distinct `B_in` / `B_out` derivatives and
-whether they can hand off invisibly remain an **open question**.
+Do not initially model an Editor. The storyboard handoff is the
+canonical frame. Video currently uses Camotion shooting frames as
+start/end images. Distinct `B_in` / `B_out` derivatives and whether
+they can hand off invisibly remain an **open question**.
 
 ## Stable locomotion principle
 

@@ -55,20 +55,24 @@ candidates, learn from selections, and maintain discovery.
 
 Decides **how to physically get there on camera**: determine route,
 destination, perspective, foreground geometry and motion cues; produce
-structured shot/camera data; invoke Camotion for conditioned anchors;
-and prepare video-generation inputs.
+structured shot/camera data; invoke Camotion to derive **shooting
+frames** from canonical frames; and prepare video-generation inputs
+from those shooting frames.
 
 Camotion is deterministic graphics, not an agent. **Camotion v1** is a
 radial-exposure experiment inspired by TunnelTV motion-conditioning
 findings. It is **not** a port of Terran Boylan's depth-aware Photoshop
 workflow (Z/depth, multiple blur operations, destination protection).
-See [IMPLEMENTATION.md](IMPLEMENTATION.md) and
+Optional depth weighting is a renderer sidecar, not part of
+CameraMotionPlan v1. See [IMPLEMENTATION.md](IMPLEMENTATION.md) and
 [DATA_MODEL.md](DATA_MODEL.md).
 
-There is no separate Edit agent initially. Clean editing should emerge
-from exact canonical handoffs and convincing through-motion. How to
-derive distinct arrival/departure derivatives (`B_in` / `B_out`) is an
-**open question** --- do not treat it as solved.
+There is no separate Edit agent initially. The storyboard keeps
+**canonical / pristine frames** as world-state authority. Video
+currently receives Camotion **shooting frames**, not those canonical
+images. How to derive distinct arrival/departure derivatives
+(`B_in` / `B_out`) is an **open question** --- do not treat it as
+solved.
 
 ## Product principles
 
@@ -99,11 +103,20 @@ The MediaProvider contract must exist before Director code depends on
 generation. Do not implement providers as part of the Camotion
 milestone.
 
-When a video-generation request is specified, it must be able to
-represent a start frame, an end frame, optional additional reference
-images, and a prompt. Model- and provider-specific capabilities stay
-behind the adapter. That schema is not designed yet. Genesis locomotion
-prompts are experimental artifacts, not a vendor-neutral API.
+The current intended video path is:
+
+``` text
+canonical A  →  optional CV / depth map  →  Camotion  →  shooting frame A'
+canonical B  →  optional CV / depth map  →  Camotion  →  shooting frame B'
+A' + B' + locomotion prompt  →  video model  →  continuous shot
+```
+
+A later video-generation request should represent a start shooting
+frame, an end shooting frame, and a prompt. Extra pristine/canonical
+reference images are **not** part of the current architecture. Model-
+and provider-specific capabilities stay behind the adapter. That
+schema is not designed yet. Genesis locomotion prompts are
+experimental artifacts, not a vendor-neutral API.
 
 ## Initial experience
 
@@ -116,7 +129,7 @@ continuity.
 How duration maps to shot count is an **open question**. Do not treat
 "Director infers viewpoint count from duration" as a specified
 algorithm. This initial experience is the intended product, not the
-current code milestone (Camotion v1).
+current Camotion research.
 
 ## Success criteria
 

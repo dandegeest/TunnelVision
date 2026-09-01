@@ -9,45 +9,80 @@ current code.
 
 ## Current implementation --- Camotion first
 
-After the next scaffold, the only application code should be:
+This repository is in a Camotion-first research stage. Application
+code today is the Python `camotion/` package and CLI. Do **not**
+create `web/`, `server/`, media providers, Director, Cinematographer
+modules, or a journey workspace runtime yet.
 
 ``` text
 camotion/     Python package, CLI
                 |
-         CameraMotionPlan JSON  (see DATA_MODEL.md)
+         canonical image
+         + CameraMotionPlan JSON
+         + optional near-weight sidecar
                 |
-         motion-conditioned PNG
+         shooting-frame PNG
 ```
 
 ``` bash
 python -m camotion --image input.png --plan camera-motion.json --output output.png
+python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --output output.png
 ```
 
--   **Exists now:** planning docs; genesis experiment record.
--   **Next to exist:** `camotion/` only.
+-   **Exists now:** planning docs; genesis experiment record; Camotion
+    v1 (radial field, multisample exposure, destination protection);
+    optional near-weight CLI/renderer input.
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
     media providers, Director, Cinematographer modules, journey
     workspace runtime.
 
 Camotion is a standalone deterministic Python graphics package.
 
-Public contract:
+Frozen plan contract:
 
-`source image + CameraMotionPlan JSON -> motion-conditioned image`
+`canonical image + CameraMotionPlan JSON -> shooting-frame image`
 
-It knows nothing about LLMs, prompting, Replicate, Runway, Krea, Node,
-or TunnelVision orchestration. It has **no TypeScript or Node
-dependency**. Pydantic implements CameraMotionPlan v1. JSON Schema for
-other languages, if any, can be generated from those models later.
+An optional near-weight image may be supplied **beside** the JSON
+(`--depth`). It is not a CameraMotionPlan field. If omitted, behavior
+matches the radial-only path.
 
-Python is used because later *optional* work may intersect depth,
-masks, OpenCV, arrays, and warping. **v1 does not include depth.**
+Camotion knows nothing about LLMs, prompting, Replicate, Runway, Krea,
+Node, or TunnelVision orchestration. It has **no TypeScript or Node
+dependency**. It does **not** estimate depth, run CV models, or call
+generators. Pydantic implements CameraMotionPlan v1.
 
-Camotion v1 is a radial-exposure experiment inspired by TunnelTV
-motion-conditioning findings. It is not Terran Boylan's Photoshop
-workflow. See [IMPLEMENTATION.md](IMPLEMENTATION.md). v1 models
-**forward translation only** (radial expansion around a supplied focus
-of expansion). It does not implement strafing or turning / yaw.
+Research split:
+
+``` text
+Agent reasons  →  CV observes / measures  →  Camotion renders  →  video model films
+```
+
+Depth/CV observation belongs outside Camotion. Camotion only applies a
+supplied near-weight map, if any, to the existing radial field.
+
+Camotion v1 models **forward translation only** (radial expansion
+around a supplied focus of expansion). It is not Terran Boylan's
+Photoshop workflow. It does not implement strafing or turning / yaw.
+See [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
+### Canonical frames vs shooting frames
+
+**Canonical / pristine frames** are storyboard and world-state
+authority. They are Camotion inputs. They are **not** currently
+supplied to the video model.
+
+**Shooting frames** are Camotion-conditioned derivatives. They are
+what video generation currently receives as start and end images.
+
+``` text
+canonical A  →  optional CV / depth  →  Camotion  →  A'
+canonical B  →  optional CV / depth  →  Camotion  →  B'
+A' + B' + locomotion prompt  →  video model
+```
+
+An extra pristine/canonical reference image is **not** part of the
+current generation contract. That idea was tested and is recorded in
+the exploration log; it is not current architecture.
 
 ## Intended later architecture
 
@@ -69,11 +104,11 @@ ShotPlan / prompts      image + video render
    |
 CameraMotionPlan JSON
    |
-Camotion Engine (Python; already specified)
+Camotion Engine (Python)
    |
-Motion-conditioned frame
+Shooting frame
    |
-   +--> video request: start, end, optional refs, prompt
+   +--> video request: shooting-frame start, shooting-frame end, prompt
 ```
 
 How Node (or another host) will invoke Camotion is **not decided**
@@ -98,24 +133,24 @@ interface MediaProvider {
 }
 ```
 
-When `VideoGenerationRequest` is designed, it must be able to
-represent:
+When `VideoGenerationRequest` is designed, the **current** intended
+inputs are:
 
--   start frame
--   end frame
--   optional additional reference images
+-   start shooting frame
+-   end shooting frame
 -   prompt
 -   model / provider-specific capabilities hidden behind the adapter
 
-Genesis used first/last-frame conditioning and, in some tests, an extra
-pristine reference. Those are capabilities the future request must
-*allow*, not fields to specify now.
+Canonical / pristine frames are not video inputs in the current
+architecture. Extra reference images were an experimental
+provider-side capability (recorded in the genesis log) and are **not**
+part of the current contract.
 
 Implement **ReplicateProvider** first, **after** the contract exists and
 **before** Director code calls generation. Add RunwayProvider if/when
 needed for the hackathon. Evaluate Krea only if useful. Do not
 scaffold unused adapters. Do not implement any provider as part of
-Camotion v1.
+Camotion work.
 
 Provider-specific types must not leak into CameraMotionPlan, Camotion,
 or later journey/storyboard state.
@@ -125,9 +160,11 @@ or later journey/storyboard state.
 Reasoning (later): environment, meaningful destination, route,
 occluders, candidate evaluation, preference.
 
-Deterministic code (Camotion now; more later): coordinates, flow
-fields, exposure accumulation, destination protection. Depth, masks,
-and linear-light compositing are later **if** experiments justify them.
+Deterministic code (Camotion now): coordinates, flow fields, exposure
+accumulation, destination protection, optional near-weight scaling of
+the existing radial field. Depth **estimation**, masks as CV products,
+and linear-light compositing stay outside Camotion unless a later
+experiment explicitly moves them.
 
 ## Data ownership
 
@@ -171,7 +208,11 @@ starts them.
 -   automated traversal scoring
 -   PreferenceState schema
 -   duration → shot count
--   depth estimation implementation
+-   how vanishing point is derived from a destination
+-   depth estimation as CV **outside** Camotion (not a Camotion module)
+-   whether a more photographic depth-dependent renderer should replace
+    or supplement current radial exposure (open; do not implement now)
+-   recursive-space / reconstituted-environment artifacts in video
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while

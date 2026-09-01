@@ -5,28 +5,28 @@
 Build uncertain technical ideas as small experiments before building
 infrastructure around them.
 
-**Current track (now):** Camotion v1 --- prove that a frozen
-`CameraMotionPlan` plus deterministic radial exposure can make a still
-communicate forward camera motion.
+**Current track (now):** Camotion v1 exists. A frozen
+`CameraMotionPlan` plus radial exposure produces shooting frames.
+Optional near-weight scaling is an experimental sidecar. Pause further
+tuning here and consolidate findings before the next renderer
+investigation.
 
 **Later track (not now):** Director / product --- automate the canonical
 still-journey loop, then Cinematographer / video. Those tracks must not
-be scaffolded until Camotion v1 is real.
+be scaffolded until this Camotion research checkpoint is absorbed.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
 remain an open question.
 
-## What exists vs what to scaffold
+## What exists vs what not to scaffold
 
-Planning docs in `docs/` are the current plan.
-
-**After this documentation pass, the next code step is to scaffold
-`camotion/` only.**
+Planning docs in `docs/` describe current architecture.
+`camotion/` is implemented.
 
 Do **not** create `web/`, `server/`, `providers/`, Director modules,
 Cinematographer modules, PreferenceState, journey workspace layout, or
-other application scaffolding in that step.
+other application scaffolding in this research stage.
 
 ## Camotion v1 is an experiment, not TunnelTV
 
@@ -49,21 +49,23 @@ pixels communicate forward motion?
 
 Credit for motion-conditioned keyframes, depth-aware blur, destination
 protection, and the generic continuous-motion prompting strategy remains
-with Terran Boylan / TunnelTV. Camotion v1 tests a simpler, depth-free
-stand-in so we can learn whether that class of cue is useful before
-attempting depth-aware methods.
+with Terran Boylan / TunnelTV. Camotion v1 is a simpler radial-exposure
+stand-in. Optional near-weight scaling was added experimentally
+**outside** CameraMotionPlan; Camotion still does not estimate depth
+and is not a recreation of Terran's Photoshop script.
 
-## Current code milestone
+## Current code --- Camotion v1
 
-> **Take an image and a CameraMotionPlan JSON file and make the pixels
-> convincingly communicate forward camera motion.**
+> **Take a canonical image and a CameraMotionPlan JSON file and produce
+> a shooting frame that communicates forward camera motion.**
 
 ``` text
-image + CameraMotionPlan
+canonical image + CameraMotionPlan
   → forward radial motion field around supplied focus of expansion
+  → optional near-weight multiplication (if --depth supplied)
   → multisample exposure
   → protected destination
-  → output image
+  → shooting-frame image
 ```
 
 v1 does **not** implement lateral translation / strafing or turning /
@@ -73,15 +75,18 @@ CLI:
 
 ``` bash
 python -m camotion --image input.png --plan camera-motion.json --output output.png
+python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --output output.png
 ```
 
 `--plan` is a **CameraMotionPlan** JSON file, not a `ShotPlan`.
+`--depth` is optional. CameraMotionPlan v1 stays frozen: no depth
+field.
 
 Contract: [DATA_MODEL.md](DATA_MODEL.md). Implementation language:
 Python / Pydantic. No TypeScript, Node, LLM, or media-provider
 dependency.
 
-Suggested package (when scaffolding `camotion/`):
+Package:
 
 ``` text
 camotion/
@@ -94,29 +99,31 @@ camotion/
     flow.py
     exposure.py
     masks.py
+    depth.py
     render.py
   tests/
   examples/
+  tuning/
 ```
 
-v1 should: load PNG/JPEG; validate CameraMotionPlan v1; convert
-normalized coordinates; generate a **forward** radial motion field
-around the supplied vanishing / focus of expansion, scaled by
-`camera.forward` only; run spatially varying multisample exposure
-scaled by `exposure.strength` / `exposure.samples`; apply destination
-protection as specified; write the output; test validation,
-coordinates, flow direction, and protection.
+`depth.py` scales the existing radial field by a supplied near-weight
+map. It does not estimate depth. Experimental map generation (Depth
+Anything V2 Small, relative per-image near-weight) lives outside the
+engine, currently as a `tuning/` utility.
 
-Do **not** add to this milestone: depth estimation, LLM calls, media
-APIs, UI, 6-DOF, segmentation, GPU rendering, video, `ShotPlan`,
-`B_in` / `B_out`, lateral translation / strafing, or turning / yaw.
+Do **not** add to Camotion: depth estimation, LLM calls, media APIs,
+UI, 6-DOF, segmentation, GPU rendering, video, `ShotPlan`, `B_in` /
+`B_out`, lateral translation / strafing, or turning / yaw.
 
 ## Later phases (not current work)
 
 These are ordered so that **the MediaProvider contract exists before
-Director code depends on it**. None of them are part of the Camotion
-milestone. Do not implement providers, Director, or Cinematographer
-while building Camotion v1.
+Director code depends on it**. Do not implement providers, Director, or
+Cinematographer while Camotion research is still open.
+
+The current intended video path is shooting-frame start, shooting-frame
+end, and locomotion prompt. Extra pristine/canonical reference images
+are not part of the current architecture.
 
 ### After Camotion v1 --- optional manual vision-to-JSON
 
@@ -134,15 +141,15 @@ a useful motion cue?
 Specify TunnelVision-owned image/video request types **before** any
 Director implementation calls a generator.
 
-The video request, when designed, must be able to represent:
+The video request, when designed, should represent:
 
--   start frame
--   end frame
--   optional additional reference images
+-   start shooting frame
+-   end shooting frame
 -   prompt
 -   model / provider-specific capabilities **hidden behind the adapter**
 
-Do **not** fully design that schema in this Camotion pass.
+Do **not** fully design that schema in this Camotion pass. Extra
+pristine reference images are not current architecture.
 
 Then implement **ReplicateProvider** first. Add RunwayProvider if/when
 the hackathon requires it. KreaProvider remains optional. Do not
@@ -167,12 +174,24 @@ Video is not required for that slice. PreferenceState, duration → shot
 count, and automated displacement scoring remain open questions --- do
 not invent schemas to unblock the slice.
 
-### Depth-aware Camotion
+### Optional depth weighting (experimental, not required)
 
-Only if v1 is useful **and** experiments justify it. Terran's original
-workflow used depth; v1 deliberately does not. A later depth-aware
-method is an **open implementation question**, not a scheduled v1
-follow-on with a designed algorithm.
+CameraMotionPlan v1 stays frozen. Near-weight is a sidecar renderer
+input: white / 1.0 = near = full motion; black / 0.0 = far = reduced
+motion. Depth estimation stays outside Camotion.
+
+On the Ghost Library still (`tuning/01.jpeg`), radial-only `01.3` is
+the baseline; `01.4` uses the same plan plus a relative near-weight
+map. The depth-weighted still improved foreground/background motion
+ordering. That does **not** make depth weighting a required production
+feature.
+
+A video run from conditioned start/end shooting frames, with no extra
+pristine reference, still showed a recursive-library artifact. That
+artifact is unresolved. A later renderer investigation (more
+photographic depth-dependent blur versus current radial
+exposure/displacement) is an **open question**. Do not implement it
+in this checkpoint. Do not remove existing depth support.
 
 ### Cinematographer integration
 
@@ -185,8 +204,9 @@ exists.
 
 ### Shoot Journey
 
-Later product action: plan/review canonical storyboard, condition
-anchors, render video, assemble in canonical order, surface failures.
+Later product action: plan/review canonical storyboard, derive shooting
+frames, render video from those shooting frames, assemble in canonical
+order, surface failures.
 
 ## Experimental artifact --- continuous-locomotion prompt
 
@@ -233,9 +253,12 @@ particles; no soundtrack.
 Scene-specific (not universal): "earthen ravine", roots, banks,
 vegetation.
 
-Krea `@img-1` extra references appeared in later tests. That is a
-**provider capability**, to be hidden behind a future adapter, not
-baked into Camotion or the core journey model.
+Krea `@img-1` extra pristine references appeared in later genesis
+tests. That is a **provider capability**. A subsequent control without
+the extra reference still showed the recursive-library artifact, so
+that extra reference is **not** current architecture and is **not**
+treated as the cause of the artifact. Do not bake extra pristine refs
+into Camotion or the core journey model.
 
 ## Development tools
 
@@ -246,7 +269,8 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. The current milestone is Camotion v1 only.
+tasks. The current pause is documentation and review, not a new
+Camotion algorithm.
 
 ## Hackathon strategy
 
@@ -269,7 +293,9 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   automated traversal scoring
 -   PreferenceState schema
 -   duration → shot count
--   depth estimation implementation
+-   depth estimation as CV outside Camotion
+-   photographic depth-dependent renderer vs current radial exposure
+-   recursive-space / reconstituted-environment video artifacts
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

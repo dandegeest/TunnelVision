@@ -53,8 +53,12 @@ Points are `[x, y]` with both components in `[0, 1]`.
 Camotion public contract:
 
 ``` text
-source image + CameraMotionPlan JSON -> motion-conditioned image
+canonical image + CameraMotionPlan JSON -> shooting-frame image
 ```
+
+An optional near-weight / depth image may be supplied **beside** the
+JSON as a renderer/CLI input. It is **not** a CameraMotionPlan field.
+If omitted, output matches the radial-only path.
 
 Camotion v1 is a **radial-exposure experiment**. It is inspired by
 TunnelTV motion-conditioning findings (continuous locomotion plus
@@ -240,7 +244,8 @@ Do not add to this contract:
 -   rotation, roll, 6-DOF, or curved paths
 -   separate arrival / departure plans (`B_in` / `B_out`)
 -   provider, prompt, or LLM fields
--   image paths (the image is a CLI/API input beside the JSON)
+-   image paths (the image, and any optional near-weight map, are
+    CLI/API inputs beside the JSON)
 
 ## Destination vs vanishing point
 
@@ -255,11 +260,16 @@ The UI, when it exists, exposes destination. Something later
 only reads the numbers. Deriving a changing focus of expansion while
 **turning** toward a destination is an open question, not a v1 feature.
 
-## Canonical vs conditioned frames
+## Canonical vs shooting frames
 
-A canonical frame is pristine authoritative world state.
-Motion-conditioned assets are derivatives produced from a canonical
-image plus a `CameraMotionPlan`.
+A **canonical** frame is pristine authoritative world state on the
+storyboard. A **shooting frame** is a Camotion derivative produced
+from a canonical image plus a `CameraMotionPlan` (and optional
+near-weight).
+
+Canonical frames remain important. They are **not** currently supplied
+to the video model. Video generation currently receives shooting
+frames as start and end images.
 
 Whether a later system should emit distinct `B_in` and `B_out`
 derivatives, and whether those can hand off invisibly, is an **open
@@ -300,10 +310,11 @@ Do **not** design these until a later milestone needs them:
 -   duration → shot count
 -   automated traversal scores
 
-When a video-generation request is eventually specified, it must be
-able to represent start frame, end frame, optional additional
-reference images, and prompt. Model- and provider-specific knobs stay
-behind the adapter. That schema is not designed here.
+When a video-generation request is eventually specified, the current
+intended inputs are start shooting frame, end shooting frame, and
+prompt. Extra pristine/canonical reference images are not part of the
+current architecture. Model- and provider-specific knobs stay behind
+the adapter. That schema is not designed here.
 
 ## Open questions
 
@@ -314,3 +325,5 @@ behind the adapter. That schema is not designed here.
     vs code)
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination (not strafing; not v1)
+-   whether a more photographic depth-dependent renderer should replace
+    current radial exposure (open; not a plan-schema question)
