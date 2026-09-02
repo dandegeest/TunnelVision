@@ -31,10 +31,13 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 
 -   **Exists now:** planning docs; genesis experiment record; Camotion
     v1 (radial field, multisample exposure, destination protection);
-    optional near-weight CLI/renderer input.
+    optional near-weight CLI/renderer input; Terran Boylan TunnelTV
+    Action reverse-engineering as **reference research** (not Camotion
+    implementation).
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
     media providers, Director, Cinematographer modules, journey
-    workspace runtime.
+    workspace runtime; the experimental depth-banded compositor (next
+    Camotion experiment, not this checkpoint).
 
 Camotion is a standalone deterministic Python graphics package.
 
@@ -65,6 +68,54 @@ Camotion v1 models **forward translation only** (radial expansion
 around a supplied focus of expansion). It is not Terran Boylan's
 Photoshop workflow. It does not implement strafing or turning / yaw.
 See [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
+### Implemented Camotion vs Terran Action research
+
+**Implemented now** (continuous near-weight path):
+
+``` text
+image + CameraMotionPlan JSON
+  → forward radial motion field
+  → optional near_weight multiplies that field
+  → multisample outgoing exposure
+  → destination-protection blend
+  → shooting-frame image
+```
+
+If no near-weight sidecar is supplied, the radial-only path is
+unchanged. Depth estimation remains outside Camotion. Optional
+near-weight is renderer/CLI input, not a CameraMotionPlan v1 field.
+Do not redefine the generic Camotion engine contract around
+TunnelVision-specific canonical-frame language.
+
+Terran Boylan's original **TunnelTV** Photoshop Action is now
+understood well enough to use as **reference research**. Reverse
+engineering that Action is not Camotion, and Camotion is **not** a
+port or reimplementation of it. Observations from the Action (Neural
+Filter depth, Zoom Blur 12 and Zoom Blur 8 layers, depth-derived
+masks, compositing over a pristine source) belong in
+[IMPLEMENTATION.md](IMPLEMENTATION.md) and the genesis log.
+
+**Our interpretation** of the observed Action, not a claim Terran
+made: the result is better described as **depth-banded, motion-aware
+exposure compositing** (strong zoom exposure, medium zoom exposure,
+and pristine source, each revealed by a depth-derived mask) than as
+one continuously depth-scaled radial blur. The strong mask itself
+also receives Zoom Blur 12, so the visibility boundary is spread
+along approximately the exposure direction. That motion-aware-mask
+behavior is an observation; whether it is why the treatment reads as
+photographic motion is a **hypothesis**.
+
+**Next experiment, not implemented and not decided:** a controlled
+Camotion renderer path testing deterministic depth-banded +
+motion-aware + multi-exposure compositing against the current
+continuous near-weight renderer, on the existing Ghost Library
+fixture. Treat it as an experimental path, not a replacement. Do not
+change CameraMotionPlan v1, add Photoshop-specific plan fields, move
+depth estimation into Camotion, or remove the current near-weight
+path. Preserve Camotion extensions beyond the original Action
+(Cinematographer-selected vanishing point, destination protection,
+external depth, normalized geometry, deterministic processing).
 
 ### Canonical frames vs shooting frames
 
@@ -218,8 +269,10 @@ starts them.
 -   duration → shot count
 -   how vanishing point is derived from a destination
 -   depth estimation as CV **outside** Camotion (not a Camotion module)
--   whether a more photographic depth-dependent renderer should replace
-    or supplement current radial exposure (open; do not implement now)
+-   whether a deterministic depth-banded, motion-aware multi-exposure
+    compositor is a more photographic / video-legible shooting frame
+    than the current continuous near-weight radial exposure (next
+    controlled experiment; not implemented; not a replacement decision)
 -   recursive-space / reconstituted-environment artifacts in video
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
