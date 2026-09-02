@@ -103,18 +103,21 @@ made: the result is better described as **depth-banded, motion-aware
 exposure compositing** than as one continuously depth-scaled radial
 blur.
 
-On the Ghost Library fixture, that experimental path produced a more
-photographic still (`tuning/01.5-banded-result.png`) and materially
-reduced, but did not eliminate, recursive-space reconstruction in the
-corresponding video (`tuning/01.5-banded-video.mp4`). This is one
-fixture, not a renderer replacement.
+On the Ghost Library fixture, that experimental path with **outgoing**
+start-frame exposure produced a more photographic still
+(`tuning/01.5-banded-result.png`) and materially reduced, but did not
+eliminate, recursive-space reconstruction in the corresponding video
+(`tuning/01.5-banded-video.mp4`). This is one fixture, not a renderer
+replacement. **01.5 outgoing orientation is the current working
+experimental baseline.**
 
-**Next experiment, not implemented:** whether reversing the temporal
-orientation of the **start** shooting frame (exposure history
-terminating at canonical A, rather than outgoing displacement from A)
-reduces the remaining first-second reconstruction, holding the
-depth-banded compositor and other Ghost Library controls as constant
-as practical. Do not treat this as `B_in` / `B_out` architecture.
+A later one-variable start-frame orientation test
+(`tuning/01.6-terminal-start-result.png`,
+`tuning/01.6-terminal-start-video.mp4`) reversed the exposure sample
+set so history terminated at canonical A. On Ghost Library that
+**worsened** the initial reconstruction. Do not adopt
+terminal-at-canonical start exposure. Do not treat the helper as
+`A_in` / `A_out` or `B_in` / `B_out` architecture.
 
 ### Canonical frames vs shooting frames
 
@@ -268,12 +271,13 @@ starts them.
 -   duration → shot count
 -   how vanishing point is derived from a destination
 -   depth estimation as CV **outside** Camotion (not a Camotion module)
--   whether start-frame temporal orientation (outgoing vs history
-    terminating at canonical A) causes the remaining first-second
-    reconstruction artifact (next controlled experiment; not
-    implemented; not `B_in` / `B_out` architecture)
+-   start-frame temporal orientation: **rejected on Ghost Library**
+    (terminal-at-canonical worsened initial reconstruction; 01.5
+    outgoing remains the working experimental baseline; not
+    `A_in` / `A_out` or `B_in` / `B_out` architecture)
 -   recursive-space / reconstituted-environment artifacts in video
-    (materially reduced on Ghost Library 01.5, not eliminated; one
+    (materially reduced on Ghost Library 01.5 outgoing, not
+    eliminated; 01.6 made the start-of-shot behavior worse; one
     fixture)
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion

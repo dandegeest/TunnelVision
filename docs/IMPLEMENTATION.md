@@ -6,14 +6,15 @@ Build uncertain technical ideas as small experiments before building
 infrastructure around them.
 
 **Current track (now):** Camotion v1 exists. Default `render()` remains
-the continuous near-weight radial-exposure path. An experimental
-depth-banded, motion-aware compositor was tested on Ghost Library
-(`tuning/01.5-banded-result.png`, `tuning/01.5-banded-video.mp4`):
-the still looked more photographic, and the video materially reduced
-but did not eliminate recursive-space reconstruction. That path is
-**not** the default renderer and is **not** a frozen baseline. The
-next Camotion milestone is a **controlled start-frame
-temporal-orientation experiment**.
+the continuous near-weight radial-exposure path. The experimental
+depth-banded, motion-aware compositor with **outgoing** start-frame
+exposure (`tuning/01.5-banded-result.png`,
+`tuning/01.5-banded-video.mp4`) is the current working Camotion
+research baseline on Ghost Library. It is **not** the default renderer
+and is **not** a universal/frozen replacement. A controlled
+start-frame temporal-orientation experiment (`01.6`) **rejected**
+terminal-at-canonical start exposure on that fixture. Do not start
+another Camotion renderer experiment in this checkpoint.
 
 **Later track (not now):** Director / product --- automate the canonical
 still-journey loop, then Cinematographer / video. After Camotion
@@ -133,22 +134,27 @@ Intended Camotion / Cinematographer research order:
 1.  Reverse-engineer Terran Boylan's TunnelTV Photoshop Action ---
     **complete enough**.
 2.  Controlled depth-banded, motion-aware compositor experiment ---
-    **completed successfully enough to continue** (Ghost Library 01.5;
-    not a permanent baseline).
-3.  Controlled start-frame temporal-orientation experiment --- **next**.
+    **completed successfully enough to continue** (Ghost Library 01.5
+    outgoing orientation; current working experimental baseline, not a
+    permanent/universal renderer replacement).
+3.  Controlled start-frame temporal-orientation experiment ---
+    **completed; rejected on Ghost Library**. Terminal-at-canonical
+    start exposure worsened the initial reconstruction. Keep the
+    experimental code and evidence; do not adopt that orientation.
 4.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
+    Do not start the next renderer experiment in this checkpoint.
 5.  Automated Cinematographer + Camotion Benchmark Harness.
 6.  Cross-style / cross-model experiments.
 
-Do **not** implement the temporal-orientation experiment in this
-documentation checkpoint. CameraMotionPlan v1 stays frozen. Default
-`render()` stays the continuous near-weight path.
+CameraMotionPlan v1 stays frozen. Default `render()` stays the
+continuous near-weight path. Do not formalize `A_in` / `A_out` or
+`B_in` / `B_out`.
 
 These later product phases remain ordered so that **the MediaProvider
 contract exists before Director code depends on it**. Do not implement
-providers, Director, or Cinematographer while start-frame
-temporal-orientation research is still open.
+providers, Director, or Cinematographer in this documentation
+checkpoint.
 
 The current intended video path is shooting-frame start, shooting-frame
 end, and locomotion prompt. Extra pristine/canonical reference images
@@ -274,20 +280,28 @@ On that fixture, the still read as more photographic than continuous
 near_weight 01.4, and the video **materially reduced** the previous
 multi-second recursive/reconstructed-space behavior. A shorter
 reconstruction artifact remained during approximately the first second.
-One fixture; default renderer not replaced.
+One fixture; default renderer not replaced. **01.5 outgoing
+orientation remains the working experimental baseline.**
 
-### Next Camotion milestone --- start-frame temporal orientation
+### Start-frame temporal-orientation experiment (completed; rejected)
 
-Test whether the remaining first-second artifact is caused by the
-**temporal orientation** of the start shooting frame (outgoing
-exposure from canonical A versus exposure history that terminates at
-A), holding the depth-banded compositor, depth input, strengths,
-masks, destination, locomotion prompt, video settings, and end
-shooting frame as constant as practical.
+One-variable A/B on Ghost Library: same 01.5 compositor, plan, depth,
+strengths, masks, destination, end shooting frame, and locomotion
+setup; only the start-frame sample set changed from outgoing
+`p - field*t` to terminal-at-canonical `p + field*t`.
 
-Do not implement that experiment in this documentation checkpoint.
-Do not formalize it as `B_in` / `B_out`. Do not replace default
-`render()`.
+Still: `tuning/01.6-terminal-start-result.png`. Video:
+`tuning/01.6-terminal-start-video.mp4`. Diagnostic:
+`tuning/analysis/01.6-vs-01.5-absdiff.png`.
+
+On that fixture, reversing start-frame orientation **worsened** the
+initial spatial reconstruction: a stronger collapse/retreat, then
+reconstruction, before coherent forward traversal. Reject
+terminal-at-canonical start exposure as the working hypothesis here.
+Retain 01.5 outgoing orientation. Keep the experimental helper and
+evidence; do not tune 01.6; do not introduce `A_in` / `A_out` or
+`B_in` / `B_out`; do not replace default `render()`. One fixture; not
+cross-scene validation.
 
 ### Cinematographer integration
 
@@ -365,9 +379,9 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint is documentation of the 01.5 experiment. The
-next Camotion engineering milestone is start-frame temporal
-orientation, not a silent replacement of the current renderer.
+tasks. This checkpoint is documentation of the 01.6 orientation
+result. Do not start another Camotion renderer experiment here, and
+do not silently replace default `render()`.
 
 ## Hackathon strategy
 
@@ -391,10 +405,13 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   PreferenceState schema
 -   duration → shot count
 -   depth estimation as CV outside Camotion
--   whether start-frame temporal orientation causes the remaining
-    first-second reconstruction (next experiment; not implemented)
+-   start-frame temporal orientation: **rejected on Ghost Library**
+    (terminal-at-canonical worsened the initial reconstruction; 01.5
+    outgoing remains the working experimental baseline; not
+    cross-scene)
 -   recursive-space / reconstituted-environment video artifacts
-    (reduced on Ghost Library 01.5, not eliminated)
+    (reduced on Ghost Library 01.5 outgoing, not eliminated; 01.6
+    made the start-of-shot behavior worse on that fixture)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination
