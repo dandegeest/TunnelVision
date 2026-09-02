@@ -44,13 +44,25 @@ def main() -> int:
         default=None,
         help="Directory for experimental mask PNGs (optional).",
     )
+    parser.add_argument(
+        "--terminal-at-canonical",
+        action="store_true",
+        help=(
+            "Use opposite exposure sample set (p + field*t) for strong/medium "
+            "images and the strong mask. Default is the 01.5 outgoing set."
+        ),
+    )
     args = parser.parse_args()
 
     plan = load_plan(args.plan)
     image = _load_image(args.image)
     near_weight = load_near_weight(args.depth)
     output, diagnostics = render_depth_banded(
-        image, plan, near_weight, return_diagnostics=True
+        image,
+        plan,
+        near_weight,
+        return_diagnostics=True,
+        terminal_at_canonical=args.terminal_at_canonical,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     _save_image(args.output, output)
@@ -60,6 +72,14 @@ def main() -> int:
         f"{args.depth} polarity=white=near/1.0 black=far/0.0 "
         f"min={float(near_weight.min()):.4f} max={float(near_weight.max()):.4f} "
         f"mean={float(near_weight.mean()):.4f}"
+    )
+    print(
+        "exposure_orientation="
+        + (
+            "terminal_at_canonical (p + field*t)"
+            if args.terminal_at_canonical
+            else "origin_at_canonical (p - field*t)"
+        )
     )
 
     if args.diagnostics is not None:

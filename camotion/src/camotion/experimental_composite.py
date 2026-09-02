@@ -27,7 +27,10 @@ from typing import Any
 
 import numpy as np
 
-from camotion.exposure import apply_multisample_exposure
+from camotion.exposure import (
+    apply_multisample_exposure,
+    apply_terminal_at_canonical_exposure,
+)
 from camotion.flow import forward_radial_motion_field
 from camotion.masks import apply_protection_blend, destination_protection_mask
 from camotion.plan import CameraMotionPlan
@@ -125,11 +128,16 @@ def strong_visibility_mask(
     samples: int,
     *,
     soften_sigma: float = STRONG_MASK_SOFTEN_SIGMA,
+    expose=apply_multisample_exposure,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Return ``(softened_before_exposure, motion_treated_mask)`` in ``[0, 1]``."""
+    """Return ``(softened_before_exposure, motion_treated_mask)`` in ``[0, 1]``.
+
+    ``expose`` must match the image-branch exposure used in the same
+    render so the strong mask and strong image share orientation.
+    """
     weight = np.clip(np.asarray(near_weight, dtype=np.float64), 0.0, 1.0)
     softened = np.clip(gaussian_blur(weight, soften_sigma), 0.0, 1.0)
-    exposed = apply_multisample_exposure(softened, motion_field, strength, samples)
+    exposed = expose(softened, motion_field, strength, samples)
     treated = np.clip(np.asarray(exposed, dtype=np.float64), 0.0, 1.0)
     return softened, treated
 
@@ -162,12 +170,17 @@ def render_depth_banded(
     return_diagnostics: bool = False,
     strong_mask_soften_sigma: float = STRONG_MASK_SOFTEN_SIGMA,
     medium_mask_soften_sigma: float = MEDIUM_MASK_SOFTEN_SIGMA,
+    terminal_at_canonical: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, dict[str, np.ndarray]]:
     """Depth-banded composite, then existing destination protection.
 
     Does not scale the motion field by near_weight. Depth enters only
     through the two visibility masks. Soften sigmas default to the
     experimental constants; overrides are for tests, not plan fields.
+
+    ``terminal_at_canonical=False`` is the 01.5 outgoing sample set
+    (``p - field*t``). ``True`` uses the opposite set (``p + field*t``)
+    for the strong image, medium image, and strong mask together.
     """
     array = np.asarray(image)
     if array.ndim not in (2, 3):
@@ -185,19 +198,21 @@ def render_depth_banded(
     strong_strength = float(plan.exposure.strength)
     medium_strength = strong_strength * MEDIUM_STRENGTH_RATIO
     samples = int(plan.exposure.samples)
+    expose = (
+        apply_terminal_at_canonical_exposure
+        if terminal_at_canonical
+        else apply_multisample_exposure
+    )
 
-    strong_exposed = apply_multisample_exposure(
-        array, field, strong_strength, samples
-    )
-    medium_exposed = apply_multisample_exposure(
-        array, field, medium_strength, samples
-    )
+    strong_exposed = expose(array, field, strong_strength, samples)
+    medium_exposed = expose(array, field, medium_strength, samples)
     strong_before, strong_mask = strong_visibility_mask(
         weight,
         field,
         strong_strength,
         samples,
         soften_sigma=strong_mask_soften_sigma,
+        expose=expose,
     )
     medium_mask = medium_visibility_mask(
         weight, soften_sigma=medium_mask_soften_sigma

@@ -107,6 +107,45 @@ def _restore_dtype(values: np.ndarray, dtype: np.dtype) -> np.ndarray:
     return np.clip(np.rint(values), info.min, info.max).astype(dtype)
 
 
+def _accumulate_exposure(
+    image: np.ndarray,
+    motion_field: np.ndarray,
+    strength: float,
+    samples: int,
+    *,
+    source_offset_sign: float,
+) -> np.ndarray:
+    """Average bilinear samples ``p + sign * field[p] * strength * t``.
+
+    ``source_offset_sign=-1`` is the existing outgoing set
+    ``p - field*t``. ``source_offset_sign=+1`` is the opposite set
+    ``p + field*t``. Averaging is commutative: reversing the ``t``
+    loop does not change the image.
+    """
+    image = _validate_image(image)
+    strength = _validate_strength(strength)
+    samples = _validate_samples(samples)
+    height, width = image.shape[:2]
+    field = _validate_motion_field(motion_field, height, width)
+
+    working = np.asarray(image, dtype=np.float64)
+    pixel_y, pixel_x = np.indices((height, width), dtype=np.float64)
+    dx_pixels = field[..., 0] * (width - 1)
+    dy_pixels = field[..., 1] * (height - 1)
+    signed_dx = source_offset_sign * dx_pixels * strength
+    signed_dy = source_offset_sign * dy_pixels * strength
+
+    accumulated = np.zeros_like(working, dtype=np.float64)
+    for index in range(samples):
+        t = index / (samples - 1)
+        source_x = pixel_x + signed_dx * t
+        source_y = pixel_y + signed_dy * t
+        accumulated += bilinear_sample(working, source_x, source_y)
+
+    averaged = accumulated / samples
+    return _restore_dtype(averaged, image.dtype)
+
+
 def apply_multisample_exposure(
     image: np.ndarray,
     motion_field: np.ndarray,
@@ -123,23 +162,34 @@ def apply_multisample_exposure(
     after converting the normalized field to pixel displacement with
     ``(width - 1)`` and ``(height - 1)``.
     """
-    image = _validate_image(image)
-    strength = _validate_strength(strength)
-    samples = _validate_samples(samples)
-    height, width = image.shape[:2]
-    field = _validate_motion_field(motion_field, height, width)
+    return _accumulate_exposure(
+        image,
+        motion_field,
+        strength,
+        samples,
+        source_offset_sign=-1.0,
+    )
 
-    working = np.asarray(image, dtype=np.float64)
-    pixel_y, pixel_x = np.indices((height, width), dtype=np.float64)
-    dx_pixels = field[..., 0] * (width - 1)
-    dy_pixels = field[..., 1] * (height - 1)
 
-    accumulated = np.zeros_like(working, dtype=np.float64)
-    for index in range(samples):
-        t = index / (samples - 1)
-        source_x = pixel_x - dx_pixels * strength * t
-        source_y = pixel_y - dy_pixels * strength * t
-        accumulated += bilinear_sample(working, source_x, source_y)
+def apply_terminal_at_canonical_exposure(
+    image: np.ndarray,
+    motion_field: np.ndarray,
+    strength: float,
+    samples: int,
+) -> np.ndarray:
+    """Same magnitude as ``apply_multisample_exposure``, opposite sample set.
 
-    averaged = accumulated / samples
-    return _restore_dtype(averaged, image.dtype)
+    Destination ``p`` averages
+
+        p + (motion_field[p] * strength * t_i)
+
+    so the trail lies on the opposite side of canonical geometry.
+    Experimental helper; not CameraMotionPlan and not default ``render()``.
+    """
+    return _accumulate_exposure(
+        image,
+        motion_field,
+        strength,
+        samples,
+        source_offset_sign=1.0,
+    )

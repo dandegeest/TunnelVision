@@ -5,7 +5,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from camotion.exposure import apply_multisample_exposure, bilinear_sample
+from camotion.exposure import (
+    apply_multisample_exposure,
+    apply_terminal_at_canonical_exposure,
+    bilinear_sample,
+)
 from camotion.flow import forward_radial_motion_field
 
 
@@ -59,6 +63,74 @@ def test_horizontal_impulse_smears_in_field_direction() -> None:
     assert result[2, 3] == pytest.approx(0.5)
     assert result[2, 1] == pytest.approx(0.0)
     assert result[2, 4] == pytest.approx(0.0)
+
+
+def test_terminal_at_canonical_smears_opposite_side() -> None:
+    image = np.zeros((5, 5), dtype=np.float64)
+    image[2, 2] = 1.0
+    field = _uniform_field(5, 5, 0.25, 0.0)
+    origin = apply_multisample_exposure(image, field, strength=1.0, samples=2)
+    terminal = apply_terminal_at_canonical_exposure(
+        image, field, strength=1.0, samples=2
+    )
+    assert origin[2, 2] == pytest.approx(0.5)
+    assert origin[2, 3] == pytest.approx(0.5)
+    assert origin[2, 1] == pytest.approx(0.0)
+    assert terminal[2, 2] == pytest.approx(0.5)
+    assert terminal[2, 1] == pytest.approx(0.5)
+    assert terminal[2, 3] == pytest.approx(0.0)
+    assert np.allclose(origin[2, :], terminal[2, ::-1])
+    assert not np.allclose(origin, terminal)
+    assert origin.sum() == pytest.approx(terminal.sum())
+    assert origin.max() == pytest.approx(terminal.max())
+
+
+def test_reversing_sample_iteration_does_not_change_outgoing_set() -> None:
+    image = np.array([[0.0, 0.0, 8.0, 0.0, 0.0]], dtype=np.float64)
+    field = _uniform_field(1, 5, 0.25, 0.0)
+    strength = 1.0
+    samples = 3
+    dx_pixels = 0.25 * 4
+    pixel_x = np.arange(5, dtype=np.float64)
+    pixel_y = np.zeros(5, dtype=np.float64)
+
+    forward_acc = np.zeros_like(image)
+    reverse_acc = np.zeros_like(image)
+    for index in range(samples):
+        t = index / (samples - 1)
+        forward_acc += bilinear_sample(
+            image, pixel_x - dx_pixels * strength * t, pixel_y
+        )
+    for index in range(samples - 1, -1, -1):
+        t = index / (samples - 1)
+        reverse_acc += bilinear_sample(
+            image, pixel_x - dx_pixels * strength * t, pixel_y
+        )
+    assert np.allclose(forward_acc / samples, reverse_acc / samples)
+    outgoing = apply_multisample_exposure(image, field, strength, samples)
+    assert np.allclose(outgoing, forward_acc / samples)
+
+
+def test_zero_motion_matches_both_orientations() -> None:
+    image = np.arange(12, dtype=np.float64).reshape(3, 4)
+    field = np.zeros((3, 4, 2), dtype=np.float64)
+    origin = apply_multisample_exposure(image, field, strength=1.0, samples=5)
+    terminal = apply_terminal_at_canonical_exposure(
+        image, field, strength=1.0, samples=5
+    )
+    assert np.allclose(origin, image)
+    assert np.allclose(terminal, image)
+    assert np.array_equal(origin, terminal)
+
+
+def test_terminal_orientation_is_deterministic() -> None:
+    image = np.linspace(0.0, 1.0, 25, dtype=np.float64).reshape(5, 5)
+    field = forward_radial_motion_field(5, 5, (0.5, 0.5), 1.0)
+    first = apply_terminal_at_canonical_exposure(image, field, 0.5, 8)
+    second = apply_terminal_at_canonical_exposure(image, field, 0.5, 8)
+    assert np.array_equal(first, second)
+    assert first.shape == image.shape
+    assert first.dtype == image.dtype
 
 
 def test_radial_center_stable_surroundings_integrate_outward() -> None:
@@ -155,6 +227,8 @@ def test_float_dtype_stays_floating() -> None:
     field = _uniform_field(2, 2, 0.0, 0.0)
     result = apply_multisample_exposure(image, field, strength=0.8, samples=3)
     assert np.issubdtype(result.dtype, np.floating)
+    terminal = apply_terminal_at_canonical_exposure(image, field, strength=0.8, samples=3)
+    assert terminal.dtype == image.dtype
 
 
 def test_finite_output_values() -> None:
