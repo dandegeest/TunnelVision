@@ -32,12 +32,12 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 -   **Exists now:** planning docs; genesis experiment record; Camotion
     v1 (radial field, multisample exposure, destination protection);
     optional near-weight CLI/renderer input; Terran Boylan TunnelTV
-    Action reverse-engineering as **reference research** (not Camotion
-    implementation).
+    Action reverse-engineering as reference research; an **experimental**
+    depth-banded, motion-aware compositor path (not the default
+    renderer).
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
     media providers, Director, Cinematographer modules, journey
-    workspace runtime; the experimental depth-banded compositor (next
-    Camotion experiment, not this checkpoint).
+    workspace runtime.
 
 Camotion is a standalone deterministic Python graphics package.
 
@@ -71,7 +71,7 @@ See [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
 ### Implemented Camotion vs Terran Action research
 
-**Implemented now** (continuous near-weight path):
+**Current default renderer** (continuous near-weight path; `render()`):
 
 ``` text
 image + CameraMotionPlan JSON
@@ -88,34 +88,33 @@ near-weight is renderer/CLI input, not a CameraMotionPlan v1 field.
 Do not redefine the generic Camotion engine contract around
 TunnelVision-specific canonical-frame language.
 
-Terran Boylan's original **TunnelTV** Photoshop Action is now
-understood well enough to use as **reference research**. Reverse
-engineering that Action is not Camotion, and Camotion is **not** a
-port or reimplementation of it. Observations from the Action (Neural
-Filter depth, Zoom Blur 12 and Zoom Blur 8 layers, depth-derived
-masks, compositing over a pristine source) belong in
-[IMPLEMENTATION.md](IMPLEMENTATION.md) and the genesis log.
+**Experimental implemented path** (not default; not a replacement):
+depth-banded, motion-aware compositing over pristine source, then the
+same destination-protection blend. Strong and medium radial exposures
+use the existing multisample machinery. The strong visibility mask is
+itself motion-treated. Invoked separately from normal `render()`.
+
+Terran Boylan's original **TunnelTV** Photoshop Action remains
+**reference research**. Camotion is **not** a port or reimplementation
+of it.
 
 **Our interpretation** of the observed Action, not a claim Terran
 made: the result is better described as **depth-banded, motion-aware
-exposure compositing** (strong zoom exposure, medium zoom exposure,
-and pristine source, each revealed by a depth-derived mask) than as
-one continuously depth-scaled radial blur. The strong mask itself
-also receives Zoom Blur 12, so the visibility boundary is spread
-along approximately the exposure direction. That motion-aware-mask
-behavior is an observation; whether it is why the treatment reads as
-photographic motion is a **hypothesis**.
+exposure compositing** than as one continuously depth-scaled radial
+blur.
 
-**Next experiment, not implemented and not decided:** a controlled
-Camotion renderer path testing deterministic depth-banded +
-motion-aware + multi-exposure compositing against the current
-continuous near-weight renderer, on the existing Ghost Library
-fixture. Treat it as an experimental path, not a replacement. Do not
-change CameraMotionPlan v1, add Photoshop-specific plan fields, move
-depth estimation into Camotion, or remove the current near-weight
-path. Preserve Camotion extensions beyond the original Action
-(Cinematographer-selected vanishing point, destination protection,
-external depth, normalized geometry, deterministic processing).
+On the Ghost Library fixture, that experimental path produced a more
+photographic still (`tuning/01.5-banded-result.png`) and materially
+reduced, but did not eliminate, recursive-space reconstruction in the
+corresponding video (`tuning/01.5-banded-video.mp4`). This is one
+fixture, not a renderer replacement.
+
+**Next experiment, not implemented:** whether reversing the temporal
+orientation of the **start** shooting frame (exposure history
+terminating at canonical A, rather than outgoing displacement from A)
+reduces the remaining first-second reconstruction, holding the
+depth-banded compositor and other Ghost Library controls as constant
+as practical. Do not treat this as `B_in` / `B_out` architecture.
 
 ### Canonical frames vs shooting frames
 
@@ -269,11 +268,13 @@ starts them.
 -   duration → shot count
 -   how vanishing point is derived from a destination
 -   depth estimation as CV **outside** Camotion (not a Camotion module)
--   whether a deterministic depth-banded, motion-aware multi-exposure
-    compositor is a more photographic / video-legible shooting frame
-    than the current continuous near-weight radial exposure (next
-    controlled experiment; not implemented; not a replacement decision)
+-   whether start-frame temporal orientation (outgoing vs history
+    terminating at canonical A) causes the remaining first-second
+    reconstruction artifact (next controlled experiment; not
+    implemented; not `B_in` / `B_out` architecture)
 -   recursive-space / reconstituted-environment artifacts in video
+    (materially reduced on Ghost Library 01.5, not eliminated; one
+    fixture)
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while

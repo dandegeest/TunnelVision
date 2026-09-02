@@ -5,19 +5,19 @@
 Build uncertain technical ideas as small experiments before building
 infrastructure around them.
 
-**Current track (now):** Camotion v1 exists. A frozen
-`CameraMotionPlan` plus radial exposure produces shooting frames.
-Optional near-weight scaling is an experimental sidecar. Reverse
-engineering of Terran Boylan's original TunnelTV Photoshop Action is
-complete enough to stop Action forensics. The next Camotion milestone
-is a **controlled renderer experiment** (not a replacement, not this
-documentation task): depth-banded, motion-aware, multi-exposure
-compositing versus the current continuous near-weight renderer, on the
-existing Ghost Library fixture.
+**Current track (now):** Camotion v1 exists. Default `render()` remains
+the continuous near-weight radial-exposure path. An experimental
+depth-banded, motion-aware compositor was tested on Ghost Library
+(`tuning/01.5-banded-result.png`, `tuning/01.5-banded-video.mp4`):
+the still looked more photographic, and the video materially reduced
+but did not eliminate recursive-space reconstruction. That path is
+**not** the default renderer and is **not** a frozen baseline. The
+next Camotion milestone is a **controlled start-frame
+temporal-orientation experiment**.
 
 **Later track (not now):** Director / product --- automate the canonical
-still-journey loop, then Cinematographer / video. After the Camotion
-renderer experiment (and any justified baseline freeze), the already
+still-journey loop, then Cinematographer / video. After Camotion
+renderer research (and any justified baseline freeze), the already
 planned next product-research milestone remains Automated
 Cinematographer + Camotion Benchmark Harness. Do not scaffold those
 tracks in this documentation checkpoint.
@@ -111,6 +111,7 @@ camotion/
     masks.py
     depth.py
     render.py
+    experimental_composite.py
   tests/
   examples/
   tuning/
@@ -130,25 +131,24 @@ UI, 6-DOF, segmentation, GPU rendering, video, `ShotPlan`, `B_in` /
 Intended Camotion / Cinematographer research order:
 
 1.  Reverse-engineer Terran Boylan's TunnelTV Photoshop Action ---
-    **complete enough to proceed** (this checkpoint).
-2.  Controlled Camotion renderer experiment: deterministic
-    depth-banded, motion-aware, multi-exposure compositing versus the
-    current continuous near-weight renderer, compared on the existing
-    Ghost Library fixture before any replacement decision.
-3.  Validate / freeze an updated Camotion baseline **if** that
-    experiment justifies it. Do not assume it will.
-4.  Automated Cinematographer + Camotion Benchmark Harness.
-5.  Cross-style / cross-model experiments.
+    **complete enough**.
+2.  Controlled depth-banded, motion-aware compositor experiment ---
+    **completed successfully enough to continue** (Ghost Library 01.5;
+    not a permanent baseline).
+3.  Controlled start-frame temporal-orientation experiment --- **next**.
+4.  Validate / freeze an updated Camotion baseline **if** justified.
+    Do not assume it will. Do not call 01.5 the permanent baseline.
+5.  Automated Cinematographer + Camotion Benchmark Harness.
+6.  Cross-style / cross-model experiments.
 
-Do **not** implement any of those remaining milestones in this
-documentation checkpoint. CameraMotionPlan v1 stays frozen. Do not add
-Photoshop-specific fields, blur amounts, depth bands, or renderer
-selection to the plan.
+Do **not** implement the temporal-orientation experiment in this
+documentation checkpoint. CameraMotionPlan v1 stays frozen. Default
+`render()` stays the continuous near-weight path.
 
 These later product phases remain ordered so that **the MediaProvider
 contract exists before Director code depends on it**. Do not implement
-providers, Director, or Cinematographer while the Camotion renderer
-experiment is still open.
+providers, Director, or Cinematographer while start-frame
+temporal-orientation research is still open.
 
 The current intended video path is shooting-frame start, shooting-frame
 end, and locomotion prompt. Extra pristine/canonical reference images
@@ -243,11 +243,8 @@ appears to be black = near, white = far before Terran's inversion
 **Our interpretation:** depth-banded, motion-aware exposure
 compositing, not "radial blur multiplied continuously by depth."
 
-**Our hypothesis, unproven in Camotion:** spreading the strong mask
-along the exposure direction may read as photographic motion rather
-than stretched geometry, and the recursive-space video artifact may
-relate more to the character of the current continuously depth-scaled
-radial exposure than to depth itself.
+The 01.5 experiment later provided supporting evidence for that
+interpretation on one fixture; it did not prove it generally.
 
 A diagnostic PNG at
 `camotion/tuning/analysis/01-terran-mask-polarity-analysis.png`
@@ -257,17 +254,40 @@ is **not** Photoshop Neural Filter depth, **not** Photoshop Radial
 Blur, **not** a pixel-faithful Action recreation, and **not** a
 Camotion renderer result.
 
-### Next Camotion milestone --- controlled compositor experiment
+### Depth-banded compositor experiment (completed enough to continue)
 
-Test a deterministic depth-banded + motion-aware + multi-exposure
-compositor against the current renderer on the Ghost Library fixture
-**before** any replacement decision. Experimental path only. Preserve
-Cinematographer-selected vanishing point, destination protection,
-external/interchangeable depth, normalized geometry, and
-deterministic/testable processing. Do not hardcode Photoshop values
-as the permanent public contract. Do not implement `B_in` / `B_out`,
-turning/yaw/strafe, Neural Filters, or video-architecture changes in
-that experiment.
+An experimental path (`experimental_composite.py`, invoked via
+`tuning/render_banded.py`, not default `render()`) composites:
+
+``` text
+pristine source
++ medium radial exposure × near/mid mask
++ strong radial exposure × motion-treated strong mask
+→ destination protection
+```
+
+Ghost Library still: `tuning/01.5-banded-result.png` (not a frozen
+baseline). Diagnostic masks live under `tuning/analysis/`. Corresponding
+video: `tuning/01.5-banded-video.mp4`.
+
+On that fixture, the still read as more photographic than continuous
+near_weight 01.4, and the video **materially reduced** the previous
+multi-second recursive/reconstructed-space behavior. A shorter
+reconstruction artifact remained during approximately the first second.
+One fixture; default renderer not replaced.
+
+### Next Camotion milestone --- start-frame temporal orientation
+
+Test whether the remaining first-second artifact is caused by the
+**temporal orientation** of the start shooting frame (outgoing
+exposure from canonical A versus exposure history that terminates at
+A), holding the depth-banded compositor, depth input, strengths,
+masks, destination, locomotion prompt, video settings, and end
+shooting frame as constant as practical.
+
+Do not implement that experiment in this documentation checkpoint.
+Do not formalize it as `B_in` / `B_out`. Do not replace default
+`render()`.
 
 ### Cinematographer integration
 
@@ -345,9 +365,9 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint is documentation only. The next Camotion
-engineering milestone is the controlled compositor experiment, not a
-silent replacement of the current renderer.
+tasks. This checkpoint is documentation of the 01.5 experiment. The
+next Camotion engineering milestone is start-frame temporal
+orientation, not a silent replacement of the current renderer.
 
 ## Hackathon strategy
 
@@ -371,10 +391,10 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   PreferenceState schema
 -   duration → shot count
 -   depth estimation as CV outside Camotion
--   whether depth-banded, motion-aware multi-exposure compositing
-    outperforms the current continuous near-weight renderer (next
-    experiment; not implemented)
+-   whether start-frame temporal orientation causes the remaining
+    first-second reconstruction (next experiment; not implemented)
 -   recursive-space / reconstituted-environment video artifacts
+    (reduced on Ghost Library 01.5, not eliminated)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination
