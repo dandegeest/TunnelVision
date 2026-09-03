@@ -16,16 +16,21 @@ universal/frozen replacement. 01.6 rejected terminal-at-canonical
 start exposure. 01.7 halved strength to 0.04: obvious initial
 recursion disappeared, but starting-geometry fidelity got worse.
 **0.04 is not promoted.** 01.8 added experimental route-preserved
-exposure at the same 0.08 strength. The still looks promising; Seedance
-2.5 via Krea video validation is currently **blocked**. Do not promote
-01.8. Do not treat route preservation as architecture.
+exposure at the same 0.08 strength. The still behaved spatially as
+intended. Seedance 2.5 via Krea later produced a real 01.8 video
+(`tuning/01.8-route-preserved-video.mp4`): the camera initially
+moved backward / retreated, then transitioned into forward
+traversal. That is an observation, not a promotion. **01.8 is not
+the directed baseline.** Do not treat route preservation as
+architecture.
 
-**Later track (not now):** Director / product --- automate the canonical
-still-journey loop, then Cinematographer / video. After Camotion
-renderer research (and any justified baseline freeze), the already
-planned next product-research milestone remains Automated
-Cinematographer + Camotion Benchmark Harness. Do not scaffold those
-tracks in this documentation checkpoint.
+**Later track (not now):** Next planned engineering is a reusable
+Replicate MediaProvider plus experiment runner, then controlled
+reruns of the historical Camotion experiments. That work has **not
+started**. After Camotion renderer research (and any justified
+baseline freeze), the already planned product-research milestone
+remains Automated Cinematographer + Camotion Benchmark Harness. Do
+not scaffold those tracks in this documentation checkpoint.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
@@ -151,27 +156,38 @@ Intended Camotion / Cinematographer research order:
     recursion disappeared; source-geometry authority got worse.
     **0.04 not promoted.** 01.5 / 0.08 remains the directed A→B
     video-tested working baseline. Not cross-scene or cross-model.
-5.  Controlled route-preserved exposure (01.8) --- **still-level
-    complete; video validation blocked**. Same 01.5 compositor and
-    0.08 strength. A geometric traversal corridor attenuates
-    strong/medium exposure inside the route. Still: stronger
-    peripheral motion retained, more canonical geometry in the
-    central corridor. Compact central features such as candles
-    appeared less discretely duplicated --- an observation, not a
-    proven mechanism. Direct comparison with Terran's original
-    Ghost Library reference suggested the largest change was in
-    the intended central region; do not treat pixel similarity as
-    an optimization target. Attempted Seedance 2.5 via Krea
-    generations of 01.8 were rejected three times; a rerun of the
-    previously accepted 01.5 control was also rejected. Therefore
-    the rejection is not evidence against 01.8. No video
-    conclusion. Keep the experimental code and evidence. Do not
-    promote 01.8. Do not add route preservation to CameraMotionPlan.
-6.  Validate / freeze an updated Camotion baseline **if** justified.
+5.  Controlled route-preserved exposure (01.8) --- **completed on
+    Ghost Library / Seedance 2.5; not promoted**. Same 01.5
+    compositor and 0.08 strength. A geometric traversal corridor
+    attenuates strong/medium exposure inside the route. Still:
+    stronger peripheral motion retained, more canonical geometry
+    in the central corridor. Compact central features such as
+    candles appeared less discretely duplicated --- an
+    observation, not a proven mechanism, and not claimed to have
+    caused any video behavior. Direct comparison with Terran's
+    original Ghost Library reference suggested the largest change
+    was in the intended central region; do not treat pixel
+    similarity as an optimization target. Transient Krea
+    rejections of 01.8, and of a 01.5 control rerun, are not
+    evidence against 01.8. Krea later accepted 01.8. The video
+    preserved enough motion conditioning to produce strong
+    forward traversal, but the opening showed an apparent
+    backward/retreat camera movement before transitioning into
+    forward travel. That is materially different from the desired
+    behavior. It raises the possibility that still-image exposure
+    cues may communicate motion magnitude, axis, and depth
+    without unambiguously communicating temporal direction. That
+    hypothesis is unproven and requires controlled follow-up. Keep
+    the experimental code and evidence. Do not promote 01.8. Do
+    not add route preservation to CameraMotionPlan. 01.5 / 0.08
+    remains the directed A→B video-tested working baseline.
+6.  Reusable Replicate MediaProvider + experiment runner, then
+    controlled reruns of the historical Camotion experiments ---
+    **planned next; not started**.
+7.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
-    Downstream Seedance validation of 01.8 remains pending.
-7.  Automated Cinematographer + Camotion Benchmark Harness.
-8.  Cross-style / cross-model experiments.
+8.  Automated Cinematographer + Camotion Benchmark Harness.
+9.  Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or

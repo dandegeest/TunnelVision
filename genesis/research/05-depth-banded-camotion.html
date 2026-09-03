@@ -246,7 +246,7 @@
 </section>
 <section class="ready-code" id="route-preservation">
 <div class="eyebrow">ROUTE PRESERVATION · SEPTEMBER 3, 2026</div>
-<h2>Route-preserved 0.08 exposure kept peripheral motion and clarified the central corridor. Video validation is blocked.</h2>
+<h2>Route-preserved 0.08 exposure kept peripheral motion and clarified the central corridor. Seedance later opened backward, then went forward.</h2>
 <p>This entry is a chronological research record after the 01.7 reduced-strength checkpoint. Previous history is unchanged. The Markdown docs remain current architecture. CameraMotionPlan v1 and default <code>render()</code> were not changed. Interpretations below are ours, not claims Terran Boylan made. Terran originated TunnelVision as a manual technique; this research is the agentic extension.</p>
 
 <div class="finding">
@@ -276,7 +276,7 @@
 <img alt="Experimental Ghost Library 01.8 route-preserved start shooting frame. Not promoted over 01.5." src="../../camotion/tuning/01.8-route-preserved-result.png"/>
 <figcaption>Peripheral smear remains strong. The central aisle and door read more like the canonical route. Not a Seedance result.</figcaption>
 </figure>
-<p>Visual inspection: 01.8 retained strong peripheral motion treatment, preserved more recognizable canonical geometry through the central traversal corridor, and did not merely reduce global exposure. Some compact central objects, especially mid-field candles, looked more like a single object with continuous blur. In 01.5 those candles had appeared as discrete doubled or repeated instances. That is an observation and a possible clue about multi-sample exposure of compact high-contrast features. It is not a proven mechanism and is not claimed to have caused Seedance's earlier reconstruction behavior.</p>
+<p>Visual inspection: 01.8 retained strong peripheral motion treatment, preserved more recognizable canonical geometry through the central traversal corridor, and did not merely reduce global exposure. Some compact central objects, especially mid-field candles, looked more like a single object with continuous blur. In 01.5 those candles had appeared as discrete doubled or repeated instances. That is an observation. A useful later-research hypothesis is that discrete multi-sample ghosting of compact high-contrast features may be interpreted differently by a video model than continuous-looking motion blur. That is not proven, and it is not claimed to have caused any video behavior.</p>
 </article>
 
 <article class="motion-test info">
@@ -285,15 +285,35 @@
 <p>Do not treat pixel similarity to Terran's image as an optimization target. Different blur kernels, Photoshop behavior, interpolation, and color handling can change pixels without changing the usefulness of the conditioning cue. Closer pixels are not the same as better Camotion.</p>
 </article>
 
+<article class="motion-test info">
+<div class="motion-head"><h3>Transient Krea rejections were not a 01.8 result</h3><span class="result-pill info">OPERATIONAL CONTEXT</span></div>
+<p>Krea initially rejected 01.8 generations multiple times. A subsequent 01.5 control using the same previously usable workflow was also rejected. Those transient rejections therefore could not be attributed to 01.8. Krea later accepted the 01.8 generation. Video validation is not blocked.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Corresponding Seedance 2.5 traversal</h3><span class="result-pill info">OBSERVATION, NOT A PROMOTION</span></div>
+<div class="test-meta">camotion/tuning/01.8-route-preserved-video.mp4 · same previous end shooting frame, locomotion prompt, and Seedance 2.5 / Krea workflow as the 01.5 video test · one fixture</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/01.8-route-preserved-video.mp4"></video>
+<p>01.8 preserved enough motion conditioning to eventually produce strong forward traversal, but the opening showed an apparent backward/retreat camera movement before transitioning into forward travel. That is materially different from the desired behavior.</p>
+<p>Record this as an observation. Do not say 01.8 solved recursion, that 01.8 is better than 01.5, that route preservation causes reverse motion, that the model definitively interpreted the blur backward, that the candles caused the reversal, or that temporal direction ambiguity is proven.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Exposure cues may not fix temporal direction</h3><span class="result-pill info">HYPOTHESIS, UNPROVEN</span></div>
+<p>The result raises the possibility that Camotion’s still-image exposure cues may communicate motion magnitude, motion axis / expansion geometry, and spatial depth/parallax cues without unambiguously communicating temporal direction. A motion-blurred still can be temporally ambiguous. The model may see evidence of motion along an axis without necessarily knowing which end of the exposure trail represents the current instant.</p>
+<p>This is especially interesting in relation to 01.6. 01.6 changed exposure orientation and produced a pronounced collapse/retreat/rebuild behavior on Seedance 2.5 via Krea. 01.8 retains 01.5’s outgoing orientation but selectively attenuates conditioning through the central route while retaining stronger peripheral motion treatment. The new backward-then-forward behavior suggests a possible conflict or ambiguity between preserved central route geometry, strongly motion-conditioned peripheral geometry, and temporal interpretation of the exposure cues.</p>
+<p>This is a hypothesis only. It may indicate a useful research question. It requires controlled follow-up. It is not a causal claim, and it does not rewrite the 01.5 / 01.6 / 01.7 observations.</p>
+</article>
+
 <article class="motion-test fail">
-<div class="motion-head"><h3>Seedance 2.5 via Krea validation is blocked</h3><span class="result-pill fail">NO VIDEO CONCLUSION</span></div>
-<p>We attempted the controlled 01.8 Seedance 2.5 video test through Krea. The 01.8 generation was rejected three times. We then reran the prior 01.5 control using the same previously usable workflow and settings. 01.5 was also rejected.</p>
-<p>Do not record the Krea rejection as evidence against 01.8. Because the previously accepted 01.5 control was also rejected, the failure cannot currently be attributed to route preservation. This is a provider/pipeline validation issue, not a Camotion experimental result. No moderation cause is claimed. There is no 01.8 video artifact.</p>
+<div class="motion-head"><h3>01.8 is not the new baseline</h3><span class="result-pill fail">NOT PROMOTED</span></div>
+<p>01.8 is a valuable experimental result: the still intervention behaved spatially as intended, central route geometry was better preserved, peripheral conditioning remained strong, compact-object ghosting changed in a potentially meaningful way, and the video exposed a new backward→forward temporal behavior. It is informative, not promoted.</p>
+<p>Retain 01.5 / 0.08 / outgoing depth-banded exposure as the current best video-tested directed A→B baseline. One fixture, one video model. No universal claim.</p>
 </article>
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>Keep 01.5 / 0.08 as the current video-tested directed A→B baseline. Keep the 01.8 implementation, config, still, and route mask as still-level evidence. The still-level hypothesis is promising. Downstream Seedance validation remains pending. Route preservation is experimental research code, not CameraMotionPlan and not canonical architecture. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. Stop here; do not begin 01.9 or a Replicate runner in this checkpoint.</p>
+<p>Keep 01.5 / 0.08 as the current video-tested directed A→B baseline. Keep the 01.8 implementation, config, still, route mask, and video as experimental evidence. Route preservation is experimental research code, not CameraMotionPlan and not canonical architecture. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. The next planned engineering work is a reusable Replicate MediaProvider plus experiment runner, then controlled reruns of the historical Camotion experiments. That work has not started. Do not begin 01.9 from this checkpoint.</p>
 </div>
 
 </section>
