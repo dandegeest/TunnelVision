@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Motion Experiments — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html" class="active">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+</nav>
+<main>
+<section class="motion-lab" id="motion">
+<div class="eyebrow">MOTION / TRAVERSAL EXPERIMENTS</div>
+<h2>Can independently generated canonical frames become one continuous physical journey?</h2>
+<p class="lab-intro">The still-image sequence was frozen before motion testing. The video experiments then treated selected stills as spatial anchors and asked a video model to infer the unseen traversal between them. The key distinction was not visual smoothness, but whether the camera appeared to move through a stable world instead of morphing, dissolving, or cutting from one endpoint to the next.</p>
+<div class="method-grid">
+<div class="method-card">
+<strong>Still-image generation</strong>
+<p><b>Model:</b> Nano Banana Pro</p>
+<p><b>Platform:</b> Runway</p>
+<p><b>Format:</b> 16:9 · 2752 × 1536</p>
+</div>
+<div class="method-card">
+<strong>Video traversal</strong>
+<p><b>Model:</b> Seedance 2.5</p>
+<p><b>Platform:</b> Krea</p>
+<p><b>Baseline:</b> 720p · 6 seconds · first/last frame only · no @ references</p>
+</div>
+</div>
+<article class="motion-test info">
+<div class="motion-head"><h3>Test 00 · A → alternate exterior endpoint</h3><span class="result-pill info">INFORMATIVE ACCIDENT</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · baseline prompt</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-01.mp4"></video>
+<p>The wrong exterior frame was accidentally used as the endpoint. The result nevertheless produced convincing physical traversal from the cave into an exterior environment. Because the endpoint was not canonical B, this clip is excluded from canonical sequence evaluation, but it established that the method could work at all.</p>
+</article>
+<article class="motion-test pass">
+<div class="motion-head"><h3>Test 01 · Canonical A → B</h3><span class="result-pill pass">PASS</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · first frame A · last frame B · no additional references</div>
+<div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves forward through the tunnel, passes completely through the opening into daylight, and continues forward across the exterior terrain until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-02.mp4"></video>
+<p>Seedance physically approached the cave opening, crossed the threshold, revealed the exterior geography, and arrived convincingly at B. This was the strongest evidence that a video model could infer unseen connective space between two independently generated stills.</p>
+<p><b>Important imperfection:</b> after exiting the cave, the terrain implies a step down, but the camera remains at a nearly fixed vertical height. The result feels more like a stabilized drone or camera rail than an embodied person walking. Spatial continuity passed; terrain-responsive body motion was only partial.</p>
+</article>
+<article class="motion-test fail">
+<div class="motion-head"><h3>Test 02 · B → C baseline</h3><span class="result-pill fail">FAIL</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · baseline approach</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-03.mp4"></video>
+<p>The clip remained visually smooth, but the world reorganized around the camera. Roots and earthen banks gradually reconciled into the destination instead of being passed in stable world space. Optical forward motion was present, but the dominant mechanism was a slow morph/dissolve rather than physical traversal.</p>
+</article>
+<article class="motion-test fail">
+<div class="motion-head"><h3>Test 03 · B → C with explicit anti-morph constraints</h3><span class="result-pill fail">FAIL</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · prompt changed, endpoints unchanged</div>
+<div class="prompt-box">First-person camera physically walks forward through the existing ravine from the starting viewpoint to the ending viewpoint. Environmental structures remain fixed in world space as the camera passes them: trees, exposed roots, earthen banks, and terrain must not transform, grow, dissolve, or rearrange to become the ending scene. Foreground objects move past the camera and behind it through natural parallax while newly revealed terrain appears ahead. Continuous forward locomotion through one stable physical environment, naturally arriving at the ending viewpoint. No morphing, dissolving, crossfading, or transformation of the environment.</div>
+<p>No embedded clip was retained for this attempt. The observed failure changed from a gradual morph to an abrupt hard cut: stronger language suppressed the dissolve behavior without producing the missing physical route. Prompting harder did not solve the geometry problem.</p>
+</article>
+<article class="motion-test fail">
+<div class="motion-head"><h3>Test 04 · B → X₁ waypoint · 6s</h3><span class="result-pill fail">FAIL</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · intermediate endpoint generated from B + C references</div>
+<div class="waypoint-row">
+<img alt="X1 intermediate traversal waypoint" src="../assets/images/motion-36.jpg"/>
+<div>
+<p><b>X₁</b> was generated with Nano Banana Pro using B and C as references, explicitly asking for a plausible intermediate camera position between the two. It is a traversal waypoint, not a canonical story frame.</p>
+<div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves continuously forward along the existing terrain until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
+</div>
+</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-04.mp4"></video>
+<p>The shorter spatial jump still did not induce genuine locomotion. Seedance largely held the camera position and slowly reconciled B into X₁, suggesting that waypoint insertion alone was not sufficient.</p>
+</article>
+<article class="motion-test fail">
+<div class="motion-head"><h3>Test 05 · B → X₁ waypoint · 4s</h3><span class="result-pill fail">FAIL</span></div>
+<div class="test-meta">Same B and X₁ frames · same prompt · only duration changed from 6s to 4s</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-05.mp4"></video>
+<p>Reducing duration did not materially rescue the traversal. This controlled test weakened the hypothesis that the 6-second duration was simply too long for the apparent distance between B and X₁.</p>
+</article>
+<article class="motion-test fail">
+<div class="motion-head"><h3>Test 06 · F → G threshold replication</h3><span class="result-pill fail">FAIL</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · first frame F · last frame G · no additional references</div>
+<div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves forward through the dark root opening, passes completely through the threshold, and continues forward into the newly revealed environment until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-06.mp4"></video>
+<p>This test deliberately asked whether the strong A → B result would generalize to another threshold-like transition later in the journey. It did not. The clip remained visually coherent, but the camera made little meaningful forward progress; the root, ledge, and mushroom structures reconciled toward G around the viewpoint instead of being physically traversed.</p>
+<p><b>Interpretation:</b> a narrative threshold is not enough. The endpoint images themselves must contain compatible spatial evidence that allows the video model to infer a route through a stable environment.</p>
+</article><article class="motion-test fail" id="motion-test-07">
+<div class="motion-head"><h3>Test 07 · B → D · skip the weak intermediate frame</h3><span class="result-pill fail">FAIL</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · first/last frame only · generalized baseline prompt</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-07.mp4"></video>
+<div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves continuously forward along the existing terrain until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
+<p><strong>Why we tried it:</strong> The reel suggested B → C barely encoded camera movement. Skipping C created a larger visual jump and tested whether a more clearly different endpoint would encourage actual traversal.</p>
+<p><strong>Result:</strong> It still favored dissolve/reconciliation over locomotion. A larger endpoint difference alone was not enough. One earlier attempt at this same test was invalidated by Seedance-generated audio triggering a copyright check; that run was excluded from the visual traversal evaluation.</p>
+</article><article class="motion-test pass breakthrough" id="motion-test-08">
+<div class="motion-head"><h3>Test 08 · B → D · Terran-derived continuous-motion strategy</h3><span class="result-pill pass">PASS</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · same B/D anchors · 720p · 6s · first/last frame only</div>
+<video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-08.mp4"></video>
+<div class="prompt-box">First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling deeper through the earthen ravine in uninterrupted forward motion, turning corners or passing beneath roots or around earthen banks or through vegetation, dust, fog, mist, or foreground objects if necessary to continue moving forward. The camera never stops advancing through the environment. Nearby roots, trees, rocks, and terrain pass beside the camera and move behind it as new terrain is continuously revealed ahead. Leaves, dust, and loose particles move naturally through the air as the camera passes. No music, no soundtrack, no dialogue.</div>
+<p><strong>Controlled comparison:</strong> The anchors were unchanged from Test 07. Only the prompting philosophy changed.</p>
+<p><strong>Result:</strong> Dramatically stronger physical travel. Foreground trunks and roots sweep past the camera, occlusions happen naturally, new terrain is continuously revealed, and strong parallax makes the shot read as movement through a space rather than B dissolving into D.</p>
+<p><strong>Important detail:</strong> Large foreground roots and trunks function almost like natural wipes. They give the model opportunities to reconstruct unseen geometry while preserving the viewer's perception of uninterrupted travel. Incidental motion such as the falling leaf adds temporal texture and additional optical-flow evidence without being the core reason the transition succeeds.</p>
+<p><strong>Remaining limitation:</strong> The traversal succeeds perceptually, but the clip still eases in at the beginning and eases out at the end. That is acceptable for a single shot, but repeated easing would expose every clip boundary in a longer stitched journey.</p>
+</article>
+<div class="finding">
+<strong>Terran's motion-conditioned anchor technique</strong>
+<p>In an August 29 check-in, Terran Boylan explained an important part of the original TunnelTV workflow used in <em>Digging in the Dirt</em> that had not yet been represented in this log: before video generation, he preprocessed the keyframes in Photoshop so they visually communicated that the camera was already moving. His script used two different blur operations, incorporated Z/depth information, and protected the intended destination area from blur.</p>
+<p>The practical effect is a depth-aware motion cue: nearby structures can streak strongly while the destination remains comparatively stable. This means the original technique combined <b>linguistic motion conditioning</b> in the prompt with <b>visual motion conditioning</b> in the endpoint frames.</p>
+<p><b>Credit boundary:</b> motion-conditioned keyframes, depth-aware blur, destination protection, and the generic continuous-motion prompting strategy come from Terran's original TunnelTV work. The experiments below test extensions of that approach inside the emerging agent architecture.</p>
+</div>
+<article class="motion-test pass" id="motion-test-09">
+<div class="motion-head"><h3>Test 09 · Terran library anchors + pristine start reference</h3><span class="result-pill pass">PASS</span></div>
+<div class="test-meta">Seedance 2.5 via Krea · motion-conditioned first/last frames · one pristine start-frame @ reference</div>
+<div class="prompt-box">First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling deeper through the earthen ravine in uninterrupted forward motion, turning corners or passing beneath roots or around earthen banks or through vegetation, dust, fog, mist, or foreground objects if necessary to continue moving forward. The camera never stops advancing through the environment. Nearby roots, trees, rocks, and terrain pass beside the camera and move behind it as new terrain is continuously revealed ahead. Leaves, dust, and loose particles move naturally through the air as the camera passes. Use @img-1 as visual references for the underlying environment, geometry, materials, and fine detail while following the motion established by the first and last frames.</div>
+<video controls playsinline preload="metadata" src="../assets/videos/motion-test-09.mp4"></video>
+<p><strong>Result:</strong> Convincing physical traversal from the old library through the doorway into the courtyard. Shelves, skeletons, and foreground structures pass the camera with strong parallax; the doorway functions as a real threshold; and the exterior is revealed after crossing it rather than dissolving into place.</p>
+<p><strong>Accidental control:</strong> The prompt still contained the earthen-ravine language from the previous forest experiment. Despite the semantic mismatch, the visual anchors dominated and the traversal remained strong. This suggests that the motion-conditioned endpoints and continuous-locomotion grammar are doing substantially more work than elaborate scene-specific prose.</p>
+<p><strong>New extension under test:</strong> Terran did not use pristine canonical images as additional references in the original TunnelTV workflow. Here, the pristine library frame was supplied as a visual reference while the motion-conditioned first/last frames remained the motion authority.</p>
+</article>
+<article class="motion-test pass" id="motion-test-10">
+<div class="motion-head"><h3>Test 10 · Same library shot + scene-aware locomotion prompt</h3><span class="result-pill info">SIMILAR RESULT</span></div>
+<div class="test-meta">Same motion-conditioned anchors and pristine start reference · scene-specific language substituted for the accidental ravine language</div>
+<div class="prompt-box">First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward through the old library toward the doorway and passing completely through it into the courtyard beyond in uninterrupted forward motion. The camera passes between bookshelves, skeletal figures, furniture, architectural structures, or foreground objects as necessary to continue moving forward. The camera never stops advancing through the environment. Nearby shelves, skeletons, furniture, door frames, and other foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses the doorway threshold and continues moving forward into the newly revealed courtyard. Dust, loose particles, and occasional translucent ghostly forms drift naturally through the air and pass around the moving camera, reinforcing its forward motion. Use @img-1, the pristine visual reference for the starting library environment, to preserve its geometry, materials, lighting, and fine detail while following the motion established by the first and last frames.</div>
+<video controls playsinline preload="metadata" src="../assets/videos/motion-test-10.mp4"></video>
+<p><strong>Result:</strong> Also strong, but not dramatically better than Test 09. The scene-aware language correctly describes the library, doorway, skeletons, courtyard, parallax, and ghostly atmospheric motion, yet the overall traversal behavior is broadly similar.</p>
+<p><strong>Interpretation:</strong> The Cinematographer probably should not ask an LLM to freely rewrite the whole video prompt for every shot. A stable, proven locomotion template can be filled from structured scene data: environment, route, destination, foreground occluders, atmospheric motion, speed, and slight steering. The more valuable reasoning effort may be geometric: where to go, what to protect, what should pass the camera, and how to condition the anchors.</p>
+</article>
+<div class="finding">
+<strong>At this stage, we hypothesized that canonical truth and motion-conditioned anchors can be separate assets</strong>
+<p>After Tests 09–10 we distinguished a pristine <b>canonical frame</b> from a derived <b>motion-conditioned frame</b>. At this stage we treated the canonical image as authoritative world state, and hypothesized that pristine originals might also be supplied to the video model as visual/reference authority for geometry, materials, lighting, and fine detail, while the conditioned frames remained the motion authority.</p>
+<p>We noted that a controlled test should compare clean S/E, motion-conditioned S/E, and motion-conditioned S/E plus pristine references. The library experiment at this stage had only the pristine start frame available. Later controls, recorded in the Camotion checkpoint below, changed this: extra pristine references are not current architecture, and they did not explain the recursive-library artifact.</p>
+</div>
+<div class="finding">
+<strong>Motion chapter takeaway</strong>
+<p><b>Visual continuity is not spatial traversability, and endpoint matching is not the same objective as locomotion.</b> Our destination-oriented prompts repeatedly encouraged Seedance to reconcile one frame into another. The successful B → D controlled test used the same anchors but changed the instruction hierarchy: continuous movement became the governing fact of the shot, while the environment was allowed to negotiate bends, occlusions, particles, and foreground objects in service of uninterrupted travel.</p>
+<p>This confirms the value of Terran Boylan's original TunnelTV motion language rather than replacing it. The new opportunity is to generalize that principle inside a Cinematographer agent: inspect the current world, infer appropriate route-taking, occluders, particles, moving objects, and motion cues for that environment, then construct a world-specific traversal prompt whose first priority is <em>never stop moving</em>.</p>
+</div><div class="finding anchor-finding" id="shared-anchor-finding">
+<strong>At this stage we treated shared canonical anchors as the ideal edit points</strong>
+<p>For adjacent clips A → B and B → C, we treated the strongest compositing case as the final frame of the first clip and the first frame of the second clip being the exact same canonical image B. Trimming away eased clip ends can remove the speed ramp, but it also sacrifices that exact shared visual handoff. The later Camotion checkpoint keeps canonical B as storyboard/world-state identity, while video currently receives shooting frames derived from those canonical images.</p>
+<p>The better target is therefore <b>through-motion at the anchor</b>: arrive at B while still moving, and depart from B already moving. B should behave like a position keyframe sampled from the middle of a continuous motion curve, not a place where the camera comes to rest.</p>
+<p>This gives the Cinematographer another responsibility: preserve anchor identity while maintaining non-zero perceived velocity through clip boundaries.</p>
+</div>
+</section><section class="summary" id="findings">
+<div class="eyebrow">WHAT THE PROTOTYPE TAUGHT US</div>
+<h2>The journey evolved through two coupled signals: where the world invited us to go, and which version of that world we wanted to keep exploring.</h2>
+<div class="summary-intro">
+<p>This was not only an experiment in spatial continuity. At every iteration we were also making directorial and aesthetic decisions. Those selections changed the reference image for the next generation, which meant preference could propagate visually even when it was not restated in the text prompt.</p>
+</div>
+<div class="takeaway-grid">
+<div>
+<strong>1. Spatial advancement needed explicit intent.</strong>
+<p>The first exterior attempt still showed the cave. We then explicitly placed the tunnel behind the camera. Later, literal distance became less useful than asking for the <em>next meaningful camera position</em> and requiring the previous foreground to be left behind.</p>
+</div>
+<div>
+<strong>2. Aesthetic selection shaped the world.</strong>
+<p>We consistently preferred images that were ominous, uncanny, strongly framed, and increasingly strange while still feeling physically connected to the same environment. Organic root architecture, enclosed routes, thresholds, dramatic scale changes, and unresolved destinations repeatedly won over safer or merely attractive alternatives.</p>
+</div>
+<div>
+<strong>3. The prompt became less descriptive over time.</strong>
+<p>The early prompts explicitly described geology, light, roots, soil, camera position, and visual continuity. As the world became established, the reference image carried more of that information. The text prompt could increasingly focus on movement, continuity, and what route to follow rather than repeatedly art-directing the image.</p>
+</div>
+<div>
+<strong>4. Selection itself became a form of prompting.</strong>
+<p>Choosing an image made its visual characteristics part of the next generation's context. We did not need to keep saying “make it more ominous” or “use larger roots.” By selecting the versions that embodied those qualities, the aesthetic preference traveled forward through the reference image itself.</p>
+</div>
+<div>
+<strong>5. Emergent details could be promoted into explicit instructions.</strong>
+<p>The glowing mushrooms were not planned. They first appeared as an incidental visual discovery. We selected the image containing them, they persisted in the evolving world, and eventually we explicitly followed them in the navigation prompt. A generated aesthetic detail became a functional route through the environment.</p>
+</div>
+<div>
+<strong>6. Weirdness worked best when it evolved from existing logic.</strong>
+<p>The strongest images did not introduce arbitrary fantasy objects. The world became stranger by exaggerating things already present: exposed roots became architecture, an opening became a threshold, a chasm changed the scale, and a giant root became a crossing. Novelty felt discovered rather than imposed.</p>
+</div>
+<div>
+<strong>7. A useful next frame does two jobs.</strong>
+<p>It must preserve enough visual and geographic continuity to feel like the same journey, while introducing enough new information to change what the viewer wants to know next. This became our working directorial test for candidate selection.</p>
+</div>
+<div>
+<strong>8. Human choices are training data for the director.</strong>
+<p>Every selection and rejection contains information about both navigation and taste: forward progress, curiosity, atmosphere, composition, scale, thresholds, and meaningful environmental discovery. A TunnelVision agent could accumulate those signals and use them when proposing future routes and evaluating candidates.</p>
+</div>
+<div id="takeaway-9">
+<strong>9. Scene evolution can masquerade as camera movement.</strong>
+<p>The lightbox reel made B → C, D → E, and F → G look much weaker spatially than they had during pairwise selection. The sequence could be aesthetically progressive while still failing to communicate that the camera physically changed position.</p>
+</div><div id="takeaway-10">
+<strong>10. The reel can become agent working memory.</strong>
+<p>A Director should not evaluate only the current candidate against the immediately previous frame. It can maintain the canonical reel, periodically audit the trajectory, detect near-stationary viewpoint changes, and regenerate weak links before motion generation begins.</p>
+</div><div id="takeaway-11">
+<strong>11. For video, continuous locomotion must outrank destination matching.</strong>
+<p>With identical B and D anchors, the baseline destination-oriented prompt dissolved between scenes while the Terran-derived prompt produced convincing travel. The successful strategy emphasized constant forward motion and let world-appropriate occlusions and foreground events help bridge imperfect geometry.</p>
+</div><div id="takeaway-12">
+<strong>12. Velocity continuity matters for long sequences.</strong>
+<p>The successful B → D traversal still eases in and out. For a single clip that feels polished; across many clips it would create a repeated accelerate → travel → decelerate rhythm that exposes every stitch.</p>
+</div><div id="takeaway-13">
+<strong>13. At this stage we treated canonical anchors as handoff frames, not stop frames.</strong>
+<p>The ideal A → B | B → C stitch, as we then understood it, preserves the exact same canonical B on both sides while maintaining through-motion. This keeps the sequence visually exact without requiring trims that replace the shared anchor with two merely similar interior frames. Later we separated storyboard canonical identity from the shooting frames actually sent to video; B_in / B_out remains an open question.</p>
+<div id="takeaway-14">
+<strong>14. Motion-conditioned anchors appear to carry a strong velocity prior.</strong>
+<p>Terran's library anchors produced convincing traversal even when the text prompt accidentally described a forest ravine. The visual motion signal and continuous-locomotion grammar appear to dominate much of the scene-specific wording.</p>
+</div><div id="takeaway-15">
+<strong>15. At this stage we hypothesized that pristine references and motion anchors can have different jobs.</strong>
+<p>Our first extension test used the motion-conditioned first/last frames to communicate movement while a pristine start image supplied clean visual identity. At the time this suggested a useful separation between canonical world truth and derived cinematography assets. A later control, recorded below, showed that removing the extra pristine reference did not eliminate the recursive-library artifact, so that extra reference is not treated as current architecture.</p>
+</div><div id="takeaway-16">
+<strong>16. Structured shot data is more valuable than freeform prompt invention.</strong>
+<p>Scene-aware prose did not substantially outperform the mismatched generic prompt. The Cinematographer can instead output a structured shot specification that feeds both a stable prompt template and deterministic motion-conditioning code.</p>
+</div><div id="takeaway-17">
+<strong>17. Variable autonomy can share one storyboard.</strong>
+<p>The Director can propose the entire canonical journey, while the user can intervene only where desired: open alternatives for a storyboard location, replace the Director's selection, or point to a different destination in the frame. Human selection is a source of direction and preference data, not a requirement for every step.</p>
+</div></div>
+<div class="evolution">
+<div class="change-label">AESTHETIC EVOLUTION</div>
+<p><strong>Earthen realism</strong> → eroded forest ravine → increasingly architectural roots → ominous threshold → impossible chasm → glowing mushrooms → root crossing → monumental tree opening.</p>
+<p>The final aesthetic was never specified as a destination. It emerged through repeated generation, selection, and reuse of the selected image as the next reference.</p>
+</div>
+<div class="evolution">
+<div class="change-label">PROMPT EVOLUTION</div>
+<p>
+<strong>Describe the desired scene in detail</strong> → force the old location behind the camera → test literal distance → request the next meaningful camera position → discover that selected frames can still leave the viewpoint nearly stationary → audit the growing reel for perceptible displacement → separate Director destination logic from Cinematographer locomotion logic.
+</p>
+<p>The long-term agent opportunity is to automate both layers: the Director chooses a genuinely new, traversable camera position, while the Cinematographer inspects that world and generates an environment-specific continuous-motion strategy.</p>
+</div>
+</section><section class="ready-code">
+<div class="eyebrow">WHAT THE EXPERIMENTS CHANGED</div>
+<h2>The project is ready to move from manual discovery into code</h2>
+<div class="insight-grid">
+<div class="insight-card">
+<strong>Selection is a form of prompting</strong>
+<p>Chosen images carry aesthetic and structural preferences forward through the reference itself. Repeated choices become useful preference data even when those qualities are not explicitly written into every prompt.</p>
+</div>
+<div class="insight-card">
+<strong>The world can invent its own affordances</strong>
+<p>The glowing mushrooms emerged unexpectedly, were selected, persisted, and eventually became an explicit navigational breadcrumb. Generated details can move from accident → preference → route.</p>
+</div>
+<div class="insight-card">
+<strong>Visual continuity is not traversability</strong>
+<p>A destination can belong beautifully to the same imagined world and still fail as a physical video transition. The Director eventually needs to reason about both desirability and reachability.</p>
+</div>
+</div>
+<div class="code-milestone">
+<strong>First coding milestone</strong>
+<p>Give TunnelVision one current frame. The Director proposes several meaningfully different next-camera moves; the image generator renders them; an evaluator ranks continuity, perceptible camera displacement, novelty, navigability, preference fit, and discovery; the human chooses one; that choice updates the preference state and becomes the next canonical frame. The growing reel is periodically re-audited so aesthetically strong but spatially stationary transitions can be repaired before video generation.</p>
+<div class="code-flow"><span>CURRENT FRAME</span><b>→</b><span>DIRECTOR</span><b>→</b><span>CANDIDATES</span><b>→</b><span>EVALUATOR</span><b>→</b><span>HUMAN PICK</span><b>→</b><span>LEARN + REPEAT</span></div>
+</div>
+<p class="scope-note"><b>Scope decision:</b> automated video repair does not need to block the first working agent. Motion can be attached afterward as a Cinematographer/evaluator stage that attempts traversal, scores the result, and either accepts it or feeds failure information back into frame selection/regeneration.</p>
+<div class="finding"><strong>Updated implementation direction</strong><p>The primary product surface is now a clean left-to-right <b>Storyboard</b> containing only canonical frames. The Director may generate the whole proposed journey from a starting image, story idea, and target duration. Clicking a storyboard location reveals candidate variations; selecting another candidate replaces that canonical frame and causes downstream frames to be re-evaluated. Clicking through canonical frames forward/backward remains the simplest human test of whether the journey actually travels.</p><p>A Direction view overlays the Director's chosen destination on a frame. The user can drag/click a different destination to override it. That normalized spatial intent becomes shared data for scene reasoning, route selection, vanishing-point/depth analysis, protected regions, motion conditioning, and prompt construction.</p></div>
+
+</section>
+
+
+<nav class="chapter-nav"><a href="01-origin-and-exploration.html" class="prev-link">← Origin & Exploration</a> <a href="03-pre-code-checkpoint.html" class="next-link">Pre-Code Checkpoint →</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

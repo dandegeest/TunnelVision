@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Camotion Research — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html" class="active">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+</nav>
+<main>
+<section class="ready-code" id="camotion-checkpoint">
+<div class="eyebrow">CAMOTION RESEARCH CHECKPOINT · AUGUST 31, 2026</div>
+<h2>Canonical frames stay world-state. Video currently receives shooting frames.</h2>
+<p>The Markdown docs are current architecture. This entry records how the Ghost Library Camotion experiments changed our hypotheses. We pause here before another renderer investigation.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>Camotion v1 could already turn a canonical still plus a frozen CameraMotionPlan into a radial-exposure shooting frame. Terran Boylan’s original TunnelTV workflow used motion-conditioned keyframes, more than one blur treatment, a Z/depth component, and destination protection. Camotion is our experiment, not a recreation of that Photoshop script. After radial-only Ghost Library stills, we wanted to know whether optional depth weighting would better approximate forward camera motion — and, separately, whether an extra pristine reference would help video generation.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Radial tuning on the Ghost Library</h3><span class="result-pill info">BASELINE</span></div>
+<div class="test-meta">camotion/tuning · 01.jpeg · CameraMotionPlan v1 · camera.forward = 1.0 · exposure.samples = 16</div>
+<p>We tuned exposure.strength on the same plan geometry:</p>
+<p><b>01.1</b> at strength <b>0.75</b> was an extreme stress test — strongly radial, not a usable photographic cue.</p>
+<p><b>01.2</b> at <b>0.20</b> was improved but still read as a hard zoom/radial smear.</p>
+<p><b>01.3</b> at <b>0.08</b> became the useful radial-only baseline. That plan is unchanged. The only intended later variable for 01.4 is depth weighting.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Comparison with Terran’s original Ghost Library motion frame</h3><span class="result-pill info">MOTIVE</span></div>
+<p>Direct comparison with Terran Boylan’s original TunnelTV Ghost Library motion-conditioned frame suggested an important difference from our radial-only 01.3 still: foreground objects had strong motion, while distant architecture and the window remained much clearer. That motivated investigating depth/Z weighting as an optional Camotion input, not as a CameraMotionPlan field and not as depth estimation inside Camotion.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Optional depth experiment · 01.4 still</h3><span class="result-pill pass">STILL-IMAGE IMPROVEMENT</span></div>
+<div class="test-meta">same plan as 01.3 · optional --depth sidecar · Depth Anything V2 Small relative near-weight · tuning/01-depth.png</div>
+<p>A standalone utility produced a relative near-weight map from 01.jpeg using Depth Anything V2 Small, with per-image normalization rather than metric physical depth. Camotion’s contract is white / 1.0 = near = full motion, black / 0.0 = far = reduced or no motion. Depth remains outside CameraMotionPlan v1. Camotion only multiplies the existing radial field by that map when --depth is supplied.</p>
+<p><b>01.4</b> used the exact same plan/settings as 01.3. The only meaningful variable was depth weighting. The still-image result was a strong visual improvement: foreground shelves received stronger motion, distant architecture stayed more stable, and the distant window remained crisp. At the still-image level, depth weighting materially improved the approximation of forward camera motion. We do <b>not</b> promote it to a proven required production feature.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Pristine/reference experiment</h3><span class="result-pill info">HYPOTHESIS UNDER TEST</span></div>
+<p>We explored separating visual authority from motion authority by giving the video model Camotion shooting frames plus an extra pristine canonical image as a reference. The generated shot contained a strange recursive / reconstituted-library effect early on. Later doorway-into-courtyard traversal was still strong. At that moment we suspected conflicting reference conditioning.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Control: no extra pristine reference</h3><span class="result-pill fail">HYPOTHESIS WEAKENED</span></div>
+<p>We generated using conditioned/blurred start <b>and</b> conditioned/blurred end frames plus the locomotion prompt. Pristine canonical images were not used by the video model. The strange recursive-library behavior still occurred.</p>
+<p>The extra pristine reference is therefore <b>not</b> considered necessary in the current generation contract, and the recursive-library effect cannot be attributed to that extra reference. The experiment was useful; it did not cause the recursion, and it is not current architecture.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Revisit Terran’s original frame</h3><span class="result-pill info">OPEN HYPOTHESIS</span></div>
+<p>We briefly wondered whether depth weighting itself caused the video model to read the image as two spaces. Direct visual review of Terran’s original motion-conditioned Ghost Library frame made that less convincing. His frame also clearly shows strong near-field motion, decreasing motion with depth, and a very stable/sharp distant window and central architecture. Depth-dependent motion itself appears consistent with Terran’s original technique.</p>
+<p>The revised open hypothesis: recursive-space behavior may be caused less by depth weighting itself and more by the <b>character</b> of Camotion’s current radial exposure/displacement rendering. Our renderer can look spatially stretched or warped in a way a generative video model may interpret as scene geometry, whereas Terran’s treatment reads more like photographic, depth-dependent motion blur applied within one continuous space.</p>
+<p>This is a hypothesis, not a conclusion. A likely future research direction is a more photographic depth-dependent spatially varying PSF / warp-and-accumulate renderer — not simply more or less 01.4 depth weighting. Do not implement that here. Do not remove depth support.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p><b>Canonical / pristine images</b> remain storyboard and world-state authority. They are Camotion inputs. They are not currently part of the video-generation request.</p>
+<p><b>Shooting frames</b> are Camotion-conditioned derivatives. Video currently receives those frames as start and end images, plus a locomotion prompt. Additional pristine reference conditioning is not part of the current architecture.</p>
+<p>Intended path: canonical A/B → optional CV/depth analysis outside Camotion → Camotion → shooting frames A′/B′ → video model.</p>
+<p>Split of labor: agent reasons → CV observes/measures → Camotion renders → video model films. Depth estimation and CV scene analysis do not belong inside Camotion. Camotion may consume a supplied near-weight map and deterministically weight its motion field. CameraMotionPlan v1 stays frozen.</p>
+<p>Depth weighting remains promising but experimental. The recursive-space artifact remains unresolved. Pause further experimentation here and consolidate findings before the next renderer investigation.</p>
+</div>
+
+</section>
+
+<section class="ready-code" id="cinematographer-benchmark">
+<div class="eyebrow">CINEMATOGRAPHER BENCHMARK · SEPTEMBER 1, 2026</div>
+<h2>A blind Ghost Library test became the first Cinematographer fixture.</h2>
+<p>This entry is a research-log note, not a model-selection decision and not a change to CameraMotionPlan. The Markdown docs remain current architecture. Fixture files live at <code>benchmarks/cinematographer/ghost-library/</code>.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>Replicate’s broad model catalog made per-agent model routing look useful: Director, Cinematographer, and Evaluator might not want the same vision/reasoning model. That is a routing problem, not a reason to hardcode model IDs into roles. We needed a controlled Cinematographer task before treating any ranking as architecture.</p>
+<p>The task was:</p>
+<p>pristine scene image → semantic route selection → normalized image geometry → CameraMotionPlan JSON.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Blind Ghost Library comparison</h3><span class="result-pill info">METHOD</span></div>
+<div class="test-meta">Scene: camotion/tuning/01.jpeg · human baseline established first in 01.3-plan.json · same system/user prompts · models did not see the baseline or each other · track traversability, destination, vanishing point, bbox, schema, tokens, latency, approximate cost</div>
+<p>Human reference, set before the calls: vanishing_point [0.50, 0.56], destination point [0.50, 0.61], destination = central doorway/threshold beneath the gothic window, bbox [0.445, 0.48, 0.555, 0.73], forward 1.0, exposure 0.08 / 16 samples.</p>
+<p>The critical semantic test: can the model distinguish a visually salient focal object from the physically traversable destination? The glowing gothic window is salient; the ground-level doorway is the route.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Claude Opus 4.6</h3><span class="result-pill fail">SEMANTIC MISS</span></div>
+<div class="test-meta">default · image resolution 0.5 · 1264 in / 603 out · ~11.35s · Replicate UI approx. $0.02</div>
+<p>Chose the central aisle and useful foreground/parallax objects, but took the glowing gothic window as the destination. Geometry: vanishing_point [0.50, 0.38], destination [0.50, 0.30], bbox [0.38, 0.12, 0.62, 0.50], forward 1.0. Schema drift: foreground_occluders became objects rather than strings; JSON wrapped in markdown despite instruction not to. Provisional read: strong scene comprehension, but visual salience overrode traversability on this fixture.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Gemini 3.1 Pro</h3><span class="result-pill pass">CLOSEST ON THIS FIXTURE</span></div>
+<div class="test-meta">thinking_level=high · temperature=1 · top_p=0.95 · 1685 in / 317 out · ~15.23s · Replicate UI approx. less than $0.01</div>
+<p>Independently produced a straight route down the central aisle and selected the doors/threshold rather than the window. Geometry: vanishing_point [0.48, 0.55], destination [0.48, 0.65], bbox [0.42, 0.50, 0.55, 0.85], forward 1.0. Good schema adherence; bare JSON. Very close to the manually reasoned spatial geometry on this one scene.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>GPT-5.2</h3><span class="result-pill info">SEMANTIC HIT, WEAK GROUNDING</span></div>
+<div class="test-meta">reasoning_effort=high · verbosity=low · 1230 in / 856 out including 433 reasoning · ~15.87s · Replicate UI approx. $0.01</div>
+<p>Correctly described the destination as the wooden door directly beneath the arched window, so it passed the traversability test. Geometry was substantially different from the human reference: vanishing_point [0.50, 0.29], destination [0.50, 0.83], bbox [0.42, 0.47, 0.58, 0.92], forward 1.0. Schema drift: foreground_occluders became objects with labels/bboxes.</p>
+</article>
+
+<div class="finding">
+<strong>What this changed</strong>
+<p>For this one scene only, a provisional Cinematographer ranking was Gemini 3.1 Pro, then GPT-5.2, then Claude Opus 4.6. That is not a general ranking and is not enough to permanently select a model. It does not belong in the canonical architecture docs.</p>
+<p>The useful result is that the models failed differently: Claude missed the traversable destination; GPT got the semantics and missed the coordinates; Gemini got both on this fixture. That supports keeping model IDs off the roles and routing Director, Cinematographer, and Evaluator independently.</p>
+<p>The Ghost Library still is now the first candidate fixture for a Cinematographer benchmark suite. Future models should get the same image and prompts without seeing the human baseline or prior outputs. Score semantic route/traversability, destination localization, vanishing-point localization, destination bbox quality, schema adherence, tokens, latency, and approximate cost. Costs recorded here are Replicate’s approximate displayed UI amounts, not exact calculated bills. Do not optimize Cinematographer model selection on cost alone; quality on the task remains primary.</p>
+</div>
+
+</section>
+
+<nav class="chapter-nav"><a href="03-pre-code-checkpoint.html" class="prev-link">← Pre-Code Checkpoint</a> <a href="05-depth-banded-camotion.html" class="next-link">Depth-Banded Camotion →</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Pre-Code Checkpoint — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html" class="active">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+</nav>
+<main>
+<section class="ready-code" id="checkpoint">
+<div class="eyebrow">PRE-IMPLEMENTATION CHECKPOINT · AUGUST 29, 2026</div>
+<h2>Manual discovery is giving way to a product and coding plan.</h2>
+<p>The prototype began as a manually directed sequence of image generations and motion tests. At this checkpoint, enough of the behavior has been discovered to define a coherent interactive application rather than continue accumulating isolated experiments.</p>
+<div class="insight-grid">
+<div class="insight-card"><strong>Storyboard is the workspace</strong><p>Canonical locations appear left-to-right as a standard storyboard. Candidate generations stay hidden until the user opens a location to inspect or replace the Director's choice. The same storyboard supports autonomous and collaborative use.</p></div>
+<div class="insight-card"><strong>Variable autonomy</strong><p>Given a start frame, story idea, and duration, the Director can build the proposed journey itself. Users can accept it, open alternatives, or override a destination by pointing directly into a frame. Their interventions become preference signals.</p></div>
+<div class="insight-card"><strong>Dark ride benchmark</strong><p>A slow-moving original dark-ride journey is an especially useful future subject test: constrained forward motion, sequential reveals, environmental storytelling, and an obvious requirement that every location remain physically reachable along one continuous route.</p></div>
+</div>
+<div class="finding"><strong>Structured JSON becomes the bridge</strong><p>A multimodal reasoning model should analyze semantic scene intent and emit structured data rather than arbitrary production prose. Example fields include environment, route, destination point/bounds, movement direction, slight steering, foreground occluders, atmospheric motion, confidence, and protected regions. Deterministic code consumes geometric fields for image processing; a stable prompt template consumes semantic fields for video generation.</p><p>Normalized 0–1 coordinates make the same spatial data resolution-independent across the LLM, UI, masks, motion renderer, and user interaction.</p></div>
+<div class="code-milestone"><strong>Emerging application architecture</strong><div class="code-flow"><span>START + STORY + DURATION</span><b>→</b><span>DIRECTOR / VISION LLM</span><b>→</b><span>SHOT JSON</span><b>→</b><span>RUNWAY IMAGE GENERATION</span><b>→</b><span>STORYBOARD</span><b>→</b><span>CINEMATOGRAPHER</span><b>→</b><span>MOTION-CONDITIONED S/E</span><b>→</b><span>RUNWAY VIDEO</span></div><p>Reasoning and media generation remain separate pathways: the LLM makes semantic/directorial decisions; Runway renders images and video. The planned SPA is TypeScript/React-oriented, with runtime schemas validating the structured contracts between those systems.</p></div>
+<p class="scope-note"><b>Next phase:</b> write the UX specification, technical architecture, data model, and milestone plan; then scaffold the application against those documents. This marks the boundary between the manual genesis experiments recorded above and implementation of TunnelVision itself.</p>
+
+</section>
+<section class="architecture">
+<div class="eyebrow">PROPOSED AUTOMATED LOOP · AUGUST 29, 2026</div>
+<h2>What we thought TunnelVision would automate at the pre-code checkpoint</h2>
+<p>This section records the August 29 proposed loop. It is not the later Camotion research checkpoint. At that moment we still treated motion-conditioned start/end frames as cinematography assets that might be paired with extra pristine references for video.</p>
+<div class="flow">
+<span>Start + story</span><b>→</b><span>Analyze scene</span><b>→</b><span>Director chooses route</span><b>→</b><span>Generate + evaluate</span><b>→</b><span>Canonical storyboard</span><b>→</b><span>Cinematographer shot JSON</span><b>→</b><span>Condition anchors + template prompt</span><b>→</b><span>Generate traversal</span>
+</div>
+<p>The Director and Cinematographer communicate through structured scene/shot data. The stable locomotion prompt remains mostly unchanged and is filled from semantic macros rather than freely rewritten. Geometric fields such as destination, depth, protected regions, and motion direction also drive deterministic preprocessing of motion-conditioned anchors.</p><p class="role-model-note"><b>Role model:</b> TunnelVision uses real filmmaking responsibilities rather than implementation-centric agent names. The Director decides where to go; the Cinematographer decides how to get there. The final sequence order itself is effectively the edit.</p>
+<div class="next"><strong>Director chooses where to go; Cinematographer makes the travel believable</strong><span>The Director generates and sequence-audits canonical stills for real viewpoint displacement. The Cinematographer then analyzes each accepted frame pair, infers world-appropriate occluders and motion cues, and builds a continuous-locomotion prompt based on Terran Boylan's original TunnelTV insight: movement is the governing constraint, not merely matching the destination.</span></div>
+
+</section>
+
+
+<nav class="chapter-nav"><a href="02-motion-experiments.html" class="prev-link">← Motion Experiments</a> <a href="04-camotion-research.html" class="next-link">Camotion Research →</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

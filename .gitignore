@@ -1,4 +1,8 @@
 /genesis/*/**
+!/genesis/assets/
+!/genesis/assets/**
+!/genesis/research/
+!/genesis/research/**
 **/.DS_Store
 __pycache__/
 *.py[cod]

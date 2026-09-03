@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Origin & Exploration — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html" class="active">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+</nav>
+<main>
+<section class="hero" id="origin">
+<div class="eyebrow">TUNNELVISION · PROTOTYPE STORY + EXPERIMENT LOG</div>
+<h1>TunnelVision</h1>
+<p class="dek">From a manually discovered generative-video technique to a self-directing visual exploration agent: the origin, hypotheses, experiments, failures, and architecture behind TunnelVision.</p>
+<div class="thesis">
+<strong>Working principle</strong>
+<span>A good next frame should preserve the world’s rules while changing the viewer’s question.</span>
+</div>
+</section><section class="story" id="story">
+<div class="eyebrow">ORIGIN + PROBLEM</div>
+<h2>From TunnelTV to TunnelVision</h2>
+
+<div class="story-grid">
+<div class="tunneltv-origin-copy">
+<figure class="tunneltv-origin-float"><img alt="TunnelTV logo from the original manual workflow" src="../assets/images/story-01.png"/></figure>
+<p>The lineage begins with <strong>Terran Boylan</strong> and the manually directed technique used in the AI music video for Peter Gabriel's <a href="https://www.5050.dev/videos/v/4bkjb3htbteraepxtc9cnb9rc7azp2" rel="noopener noreferrer" target="_blank"><em>Digging in the Dirt</em></a>. In the video, it appears as <strong>TunnelTV</strong>, a playful homage to MTV. By iteratively generating successive viewpoints, selecting the next frame, and carrying that image forward as the new visual reference, the manual workflow created the feeling of continuously traveling through an imagined environment.</p>
+<p><strong>TunnelVision</strong> is the agentic evolution of that idea: preserve the exploratory magic of TunnelTV while turning its painstaking human-directed loop into a system where an AI Director decides where the journey should go and an AI Cinematographer determines how to move the camera there. The ambition expands from a manually authored sequence into continuous exploration of potentially endless imagined worlds.</p>
+</div>
+<div class="story-card">
+<strong>TunnelTV → TunnelVision</strong>
+<p><b>TunnelTV:</b> manual filmmaking through an imagined world.<br/><b>TunnelVision:</b> agentic exploration and filmmaking through endless imagined worlds.</p>
+</div>
+</div>
+<div class="problem-strip">
+<div><b>Generative models are good at:</b><br/>making compelling individual images and clips.</div>
+<div><b>The harder problem is:</b><br/>maintaining a meaningful journey through an imagined world.</div>
+<div><b>TunnelVision explores:</b><br/>direction, continuity, preference learning, and traversability.</div>
+</div>
+<div class="thesis thesis-large">
+<strong>Working principle</strong>
+<span>A good next frame should preserve the world's rules while changing the viewer's question.</span>
+</div>
+<div aria-label="TunnelVision conceptual loop" class="loop-diagram">
+<span>OBSERVE</span><b>→</b><span>PROPOSE</span><b>→</b><span>GENERATE</span><b>→</b><span>EVALUATE</span><b>→</b><span>SELECT</span><b>→</b><span>MOVE</span>
+</div>
+<p class="story-note">The manual experiments below intentionally reproduce this loop by hand. The goal of the coded prototype is to turn those repeated decisions into an agent workflow.</p>
+
+</section>
+<div class="section-intro">
+<div class="eyebrow">STILL-IMAGE EXPLORATION</div>
+<h2>Teaching the journey what “forward” means</h2>
+<p>Using Nano Banana Pro through Runway, each selected frame became the reference for the next generation. Candidate selection was treated as data: spatial progression, aesthetic preference, emergent discoveries, and rejected compositions all shaped the next prompt.</p>
+</div><div class="frame-sequence">
+<strong>CANONICAL FRAME NOTATION</strong><br/>
+  Only frames selected into the continuing journey receive letters. The starting frame is <strong>A</strong>; subsequent selected frames are <strong>B–H</strong>. 
+  Rejected and unselected candidates remain unlettered. Traversal tests can therefore be referenced simply as <strong>A → B</strong>, <strong>B → C</strong>, and so on.
+</div><a id="exploration" class="section-anchor" aria-hidden="true"></a><section class="start-block">
+<div class="step-num">START</div>
+<div>
+<h2>Starting image</h2>
+<p>No map, storyboard, destination, mushrooms, chasm, bridge, or giant tree was planned in advance. The experiment began with a single first-person view from beneath the earth.</p>
+</div>
+<figure class="image-card">
+<div class="img-wrap"><span class="frame-badge">A</span><img alt="Initial reference image" loading="lazy" src="../assets/images/exploration-start-A.jpg"/></div>
+<figcaption>Initial reference image</figcaption>
+</figure>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">01</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Cross the threshold</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-start-A.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot, continuing forward from inside the earthen root-tunnel through the bright opening on the left and emerging outside into open air. The camera has passed beyond the threshold of the underground passage and now looks straight ahead across the landscape beyond it. The foreground at the very edges of frame still shows the rough lip of the earthen opening - eroded, ochre-and-terracotta soil with a few thin tree roots dangling into frame from the top edge - grounding the shot as a true continuation of the same tunnel exit. Beyond the opening, reveal a sunlit exterior landscape whose geology matches the tunnel's material logic: eroded sedimentary earth banks, exposed root systems from the trees above, and dry compacted soil, now overgrown with the trees whose roots were seen hanging inside. Daylight is bright, slightly cool white-blue, coming from a high sun, in strong contrast to the warm golden-orange interior tones left behind, with the transition of light logically brighter and cooler the further from the tunnel mouth. Natural depth: dappled sunlight filtering through a canopy of trees whose roots plunge into the eroded earth walls, tall grass and undergrowth on the forest floor, a soft haze in the distance. The perspective remains eye-level, first-person, looking forward along the same sightline as if a single continuous walk carried the viewer from underground into daylight.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid single">
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="badge rejected-badge">REJECTED</span><img alt="Candidate 1 — rejected intermediate: still at the cave mouth" loading="lazy" src="../assets/images/exploration-03.jpg"/></div>
+<figcaption>Candidate 1 — rejected intermediate: still at the cave mouth</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Result:</strong> The camera crossed the threshold, but the cave remained visible<br/><span>The prompt successfully carried the viewer through the opening, but it intentionally left the lip of the cave at the frame edges. That made the next problem obvious: to create a genuinely new location, we needed to move far enough forward that the previous location was completely behind the camera.</span></div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>Next intent: force true spatial advancement. The new prompt explicitly placed the camera roughly 20 feet outside and required the tunnel entrance to be completely out of view, behind the camera.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">02</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Force true spatial advancement, then explore the new location</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-03.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot, standing roughly 20 feet outside the underground root-tunnel, having fully exited it - the tunnel entrance is completely out of view, behind the camera. Looking forward across an exterior landscape that continues the physical and geological logic of the earthen tunnel it emerged from: eroded sedimentary earth banks, thick exposed tree roots plunging from the trees above into the ground, dry compacted ochre-and-terracotta soil transitioning into a natural forest floor with grass and undergrowth. The trees whose roots were seen dangling inside the tunnel now stand fully visible, tall and mature, their root systems clawing into the eroded earth around their bases. Daylight is bright and natural, consistent with the cool white-blue light seen glowing at the tunnel mouth, now filling the whole frame with soft dappled sunlight filtering through the canopy. A gentle haze softens the distance. Eye-level, first-person perspective, camera looking straight ahead, no trace of the tunnel entrance anywhere in frame.</p>
+<p class="note">Exact prompt used to create the first fully exterior frame. That successful frame was then used to create three additional variations.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-04.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 2" loading="lazy" src="../assets/images/exploration-05.jpg"/></div>
+<figcaption>Candidate 2</figcaption>
+</figure>
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">B</span><span class="badge">CHOSEN</span><img alt="Candidate 3 — Forest ravine with eroded walls and exposed roots" loading="lazy" src="../assets/images/exploration-06.jpg"/></div>
+<figcaption>Candidate 3 — Forest ravine with eroded walls and exposed roots</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-07.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Forest ravine with eroded walls and exposed roots<br/><span>The fully exterior frame solved the displacement problem. We then used it as the reference for three additional variations and selected Candidate 3 — the forest ravine with eroded walls and exposed roots — because it preserved the geology of the tunnel while establishing a strong, naturally navigable route deeper into the world.</span></div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>Key criterion established here: a selected frame must represent a meaningfully new camera position, not merely a changed view from the old one. From here, the existing sequence and Candidate 3 selection continue as documented.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">03</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Move deeper into the ravine</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-06.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot, continuing forward 20 to 30 feet along an eroded earthen channel from this exact viewpoint, deeper into the forest environment. The path is enclosed and strongly navigable, carved between steep banks of compacted ochre-terracotta soil, with thick gnarled tree roots breaking through the walls on either side and arching low overhead, some dangling down to partially obscure the upper frame like natural curtains. These root structures frame the journey on the left and right, funneling the eye down the channel. Pronounced depth: the channel curves subtly, so the destination ahead is partially obscured by a cluster of hanging roots and a jut of eroded earth, hinting at what lies beyond without revealing it. The exposed roots retain a slightly uncanny, almost sinewy and vein-like organic quality - thick, twisting, unnervingly deliberate in their shapes - keeping the mood eerie rather than becoming an ordinary scenic forest path. Dappled sunlight filters through the canopy above, creating pockets of light and deep shadow along the channel walls. Eye-level, first-person perspective, camera looking straight down the channel.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">C</span><span class="badge">CHOSEN</span><img alt="Candidate 1 — Root-lined corridor" loading="lazy" src="../assets/images/exploration-08.jpg"/></div>
+<figcaption>Candidate 1 — Root-lined corridor</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 2" loading="lazy" src="../assets/images/exploration-09.jpg"/></div>
+<figcaption>Candidate 2</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 3" loading="lazy" src="../assets/images/exploration-10.jpg"/></div>
+<figcaption>Candidate 3</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-11.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Root-lined corridor<br/><span>The route narrowed and the roots became more architectural. It felt like the world was beginning to evolve rather than merely repeat.</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>Enclosed, strongly navigable channel; roots framing left and right; pronounced depth; partially obscured destination; sinewy uncanny roots; eerie rather than scenic.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>Still using literal 20–30 ft movement, but now explicitly directing composition, route clarity, occlusion, and the uncanny quality we preferred.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>The next attempt exposed a problem: distance alone did not reliably force a genuinely new composition.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">04</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Failed advancement test</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-08.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot, having advanced approximately 20 to 30 feet further along the path shown in the reference image, now at a clearly new location deeper into the channel, not a repeat of the reference composition. Maintain physical and visual continuity with the forest, exposed earth, lighting, vegetation and massive root structures established in the reference. The route ahead is clear and inviting, with strong foreground, midground and background depth: in the foreground, thick roots break from the eroded banks; in the midground, the channel narrows and curves; in the background, the destination is partially obscured by a bend and a hanging mass of roots, teasing what lies further on. The exposed roots have evolved subtly into larger, more architectural forms - some arching overhead like ribs or buttresses, others fused together into wall-like lattices - remaining photorealistic and physically plausible while growing more uncanny, as if the earth itself were built rather than merely grown. Dappled, uneven light filters down through gaps in the canopy, catching the ridges of the roots and casting deep shadow into the crevices between them. Eye-level, first-person perspective, camera looking forward along the path.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-12.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 2" loading="lazy" src="../assets/images/exploration-13.jpg"/></div>
+<figcaption>Candidate 2</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 3" loading="lazy" src="../assets/images/exploration-14.jpg"/></div>
+<figcaption>Candidate 3</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-15.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision noselect"><strong>Decision:</strong> No canonical frame selected<br/><span>The images felt too much like variations of the same location instead of a journey advancing through space.</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>Larger, more architectural roots; rib / buttress / lattice shapes; deeper shadows; stronger foreground–midground–background staging; nature beginning to feel built.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>Explicitly demand a clearly new location, preserve continuity, and push the chosen root aesthetic farther while remaining physically plausible.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>Key discovery: stop treating movement as a metric. We switched to a semantic goal — a new camera position — and explicitly told the model the old foreground was now behind the camera.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">05</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Force a genuinely new camera position</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-08.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot from a new camera position, approximately 30 feet farther forward along the path than the reference image, having walked underneath and beyond the large foreground root arch shown in the reference - that arch and all of its foreground structures are now completely behind the camera and out of frame. This is a new location in the ongoing journey, not a variation of the reference composition. Newly revealed terrain stretches ahead: the eroded earthen channel opens into a wider hollow, flanked by fresh exposed-root formations climbing the banks, with a fallen, moss-covered root spanning partway across the path at midground height. Farther ahead, the channel bends around an outcrop of layered sedimentary rock, partially obscuring what lies beyond. The same continuous forest environment, geology, exposed-root ecosystem, and photorealistic style carry through, with dappled natural light filtering down through the canopy, consistent with the established lighting logic. Eye-level, first-person perspective, camera looking forward along the newly revealed path.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-16.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">D</span><span class="badge">CHOSEN</span><img alt="Candidate 2 — Ominous root-filled trench" loading="lazy" src="../assets/images/exploration-17.jpg"/></div>
+<figcaption>Candidate 2 — Ominous root-filled trench</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 3" loading="lazy" src="../assets/images/exploration-18.jpg"/></div>
+<figcaption>Candidate 3</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-19.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Ominous root-filled trench<br/><span>It finally felt like a new place. The image was stranger, darker, and more compelling without breaking continuity.</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>Newly revealed terrain, wider hollow, fresh root formations, partial obstructions, bends and outcrops that tease the next space rather than fully reveal it.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>The previous foreground root arch is explicitly behind the camera and out of frame — a key move from generating a variation toward traversing space.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>We replaced 'new camera position' with 'next meaningful camera position' so advancement could be driven by visual interest, not just displacement.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">06</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Let the environment choose the next meaningful beat</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-17.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot from the next meaningful camera position reached by continuing forward along the navigable route in the reference image, having physically traveled beyond the current foreground into newly revealed space - this is the next location in a continuous journey, not a variation of the reference composition. Preserve strong continuity with the same forest, terrain, exposed-root ecosystem, and lighting logic. The mood has grown more ominous and uncanny: the path narrows between walls of roots that have thickened and darkened, some twisting into shapes that almost resemble hunched figures or skeletal ribs. A new discovery appears ahead without breaking the established world: a wide, dark fissure splits the ground diagonally across the path, its edges lined with pale, exposed root fibers dangling into the crack, forcing a narrow ledge of solid earth to walk along. Beyond the fissure, the path continues into deeper shadow where the roots grow denser, raising the question of what lies further ahead. Dappled light dims noticeably compared to before, with longer shadows and a cooler tone. Eye-level, first-person perspective, camera looking forward along the path, photorealistic.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-20.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 2" loading="lazy" src="../assets/images/exploration-21.jpg"/></div>
+<figcaption>Candidate 2</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 3" loading="lazy" src="../assets/images/exploration-22.jpg"/></div>
+<figcaption>Candidate 3</figcaption>
+</figure>
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">E</span><span class="badge">CHOSEN</span><img alt="Candidate 4 — Dark root opening / threshold" loading="lazy" src="../assets/images/exploration-23.jpg"/></div>
+<figcaption>Candidate 4 — Dark root opening / threshold</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Dark root opening / threshold<br/><span>The roots formed an organic portal-like opening that created an irresistible next question: what is beyond it?</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>More ominous and uncanny; darker, thicker root walls; almost-figurative forms; a consequential discovery; cooler, dimmer light; a route that creates tension.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>Shift from distance as the main control to the next meaningful camera position. The prompt asks for a discovery that changes the viewer’s question.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>Instead of inventing what was beyond the opening, the next prompt simply asked the model to travel through the threshold and reveal what naturally exists there.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">07</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Cross the threshold</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-23.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot from the next meaningful camera position, having physically traveled through and beyond the dark root opening shown in the reference image - that opening and all of its foreground are now completely behind the camera and must not be reproduced in this frame. This is a new location in a continuous journey, not a variation of the reference composition. Preserve continuity with the same forest ecosystem, terrain, massive exposed-root structures, photorealistic style, and ominous, uncanny atmosphere. Beyond the threshold, the ground opens into a wide, sunken hollow where countless roots descend from an unseen ceiling of earth like a curtain of hanging vines, thinning toward the center to reveal a pale, diffused light source somewhere beyond, establishing a new route forward. Underfoot, the compacted soil gives way to smooth, water-worn stone, hinting at an old dry streambed. The new discovery: a cluster of strange, calcified root nodules cling to the walls of the hollow, pale and bulbous, unlike anything seen earlier in the journey. The atmosphere remains heavy and dim, with cool, muted light and a lingering sense of depth beyond the visible frame. Eye-level, first-person perspective, camera looking forward into the hollow.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-24.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">F</span><span class="badge">CHOSEN</span><img alt="Candidate 2 — Deep chasm with a narrow ledge and glowing mushrooms" loading="lazy" src="../assets/images/exploration-25.jpg"/></div>
+<figcaption>Candidate 2 — Deep chasm with a narrow ledge and glowing mushrooms</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 3" loading="lazy" src="../assets/images/exploration-26.jpg"/></div>
+<figcaption>Candidate 3</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-27.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Deep chasm with a narrow ledge and glowing mushrooms<br/><span>This was the largest leap in the journey: new scale, danger, darkness, and an unplanned visual breadcrumb — the glowing mushrooms.</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>Thresholds and discoveries that feel naturally evolved from the existing root world; stranger scale and atmosphere without arbitrary fantasy additions.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>Let the reference determine what lies beyond the threshold. The text stops predetermining the destination and asks the model to reveal it.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>For the first time, a newly generated detail became navigation input. The next prompt followed the mushrooms instead of merely saying 'forward'.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">08</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Follow an emergent visual breadcrumb</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-25.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot from the next meaningful camera position, having physically traveled forward along the narrow path beside the deep chasm shown in the reference image, following the route suggested by the small glowing white mushrooms - the current foreground and camera position from the reference are now completely behind the camera and must not be reproduced. This is the next location in a continuous journey, not a variation of the reference composition. Preserve geographic and visual continuity with the same earthen, root-bound environment, photorealistic style, and ominous, uncanny atmosphere. The path along the chasm's edge curves gently inward, and the glowing mushrooms now cluster more thickly in small colonies along fallen roots, marking the way forward with pools of soft white light. Ahead, the chasm narrows and is spanned by a thick, gnarled root forming a natural bridge across the gap, the mushrooms tracing its length as if guiding the way across. Beyond the bridge, the path continues into deeper darkness, raising the question of what lies further ahead. The atmosphere is hushed and heavy, the mushroom glow the only true light source. Eye-level, first-person perspective, camera looking forward toward the root bridge.</p>
+<p class="note">Exact prompt used in the prototype.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-28.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">G</span><span class="badge">CHOSEN</span><img alt="Candidate 2 — Mushroom-covered root spanning the chasm" loading="lazy" src="../assets/images/exploration-29.jpg"/></div>
+<figcaption>Candidate 2 — Mushroom-covered root spanning the chasm</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 3" loading="lazy" src="../assets/images/exploration-30.jpg"/></div>
+<figcaption>Candidate 3</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-31.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Mushroom-covered root spanning the chasm<br/><span>The breadcrumbs became a navigation system. The giant diagonal root created an obvious route across the gap without us asking for a bridge.</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>The glowing mushrooms become a recurring visual motif and navigational breadcrumb rather than a one-off decorative detail.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>Follow an affordance discovered by the model itself. A generated visual detail now contributes explicit navigation language to the next prompt.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>We kept the same prompt template and changed only the scene-specific navigation clause: follow the mushrooms across the massive root.</p>
+</div>
+</section>
+<section class="step">
+<div class="step-head">
+<div class="step-num">09</div>
+<div>
+<div class="eyebrow">ITERATION INTENT</div>
+<h2>Let the generated route invent a destination</h2>
+</div>
+</div>
+<div class="reference-row">
+<div>
+<h3>Reference entering this iteration</h3>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Reference frame" loading="lazy" src="../assets/images/exploration-29.jpg"/></div>
+<figcaption>Reference frame</figcaption>
+</figure>
+</div>
+<div class="prompt-panel">
+<h3>Prompt</h3>
+<p class="prompt">First-person point-of-view shot from the next meaningful camera position reached by continuing physically forward along the route suggested by the reference image, following the path of the small glowing white mushrooms across the massive root spanning the chasm. The camera has traveled beyond the current foreground into newly revealed space; the current foreground and camera position are now behind us and should not simply be reproduced. Preserve geographic and visual continuity with the same environment while revealing what naturally exists farther along this route and establishing a new navigable view that invites continued forward movement. This must be the next location in a continuous journey, not a variation of the reference image.</p>
+<p class="note">Exact prompt structure used for the final exploration round.</p>
+</div>
+</div>
+<h3 class="results-title">Generated results</h3>
+<div class="results-grid">
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 1" loading="lazy" src="../assets/images/exploration-32.jpg"/></div>
+<figcaption>Candidate 1</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 2" loading="lazy" src="../assets/images/exploration-33.jpg"/></div>
+<figcaption>Candidate 2</figcaption>
+</figure>
+<figure class="image-card chosen">
+<div class="img-wrap"><span class="frame-badge">H</span><span class="badge">CHOSEN</span><img alt="Candidate 3 — Gigantic tree/root structure with a tall dark opening" loading="lazy" src="../assets/images/exploration-34.jpg"/></div>
+<figcaption>Candidate 3 — Gigantic tree/root structure with a tall dark opening</figcaption>
+</figure>
+<figure class="image-card">
+<div class="img-wrap"><img alt="Candidate 4" loading="lazy" src="../assets/images/exploration-35.jpg"/></div>
+<figcaption>Candidate 4</figcaption>
+</figure>
+</div>
+<div class="decision"><strong>Selected:</strong> Gigantic tree/root structure with a tall dark opening<br/><span>The mushrooms converged toward a destination the system invented for itself. It felt like arrival somewhere new while leaving the journey unresolved.</span></div>
+<div class="intent-highlights">
+<div class="intent-card aesthetic">
+<span class="mini-label">MORE LIKE THIS · AESTHETIC SIGNAL</span>
+<p>Monumental root architecture, dramatic scale, a clear visual destination, and unresolved mystery — the strongest expression of the evolved world.</p>
+</div>
+<div class="intent-card prompt-shift">
+<span class="mini-label">PROMPT EVOLUTION</span>
+<p>Keep the stable traversal template and change only the scene-specific route. The reference image increasingly does the aesthetic prompting.</p>
+</div>
+</div>
+<div class="change">
+<div class="change-label">PROMPT / LOGIC CHANGE</div>
+<p>We stopped still-image exploration here. The next experiment is generating and evaluating motion between the selected canonical frames.</p>
+</div>
+</section>
+
+<section class="canonical-reel" id="canonical-reel"><div class="eyebrow">CANONICAL JOURNEY</div><h2>A → B → C → D → E → F → G → H</h2><p>The selected still-frame journey, shown as a compact filmstrip. Only frames chosen into the continuing journey appear here.</p><div class="filmstrip"><figure aria-label="Open canonical frame A in viewer" class="film-cell" data-lightbox-index="0" role="button" tabindex="0"><img alt="Canonical frame A" src="../assets/images/exploration-start-A.jpg"/><figcaption>A</figcaption></figure><figure aria-label="Open canonical frame B in viewer" class="film-cell" data-lightbox-index="1" role="button" tabindex="0"><img alt="Canonical frame B" src="../assets/images/exploration-06.jpg"/><figcaption>B</figcaption></figure><figure aria-label="Open canonical frame C in viewer" class="film-cell" data-lightbox-index="2" role="button" tabindex="0"><img alt="Canonical frame C" src="../assets/images/exploration-08.jpg"/><figcaption>C</figcaption></figure><figure aria-label="Open canonical frame D in viewer" class="film-cell" data-lightbox-index="3" role="button" tabindex="0"><img alt="Canonical frame D" src="../assets/images/exploration-17.jpg"/><figcaption>D</figcaption></figure><figure aria-label="Open canonical frame E in viewer" class="film-cell" data-lightbox-index="4" role="button" tabindex="0"><img alt="Canonical frame E" src="../assets/images/exploration-23.jpg"/><figcaption>E</figcaption></figure><figure aria-label="Open canonical frame F in viewer" class="film-cell" data-lightbox-index="5" role="button" tabindex="0"><img alt="Canonical frame F" src="../assets/images/exploration-25.jpg"/><figcaption>F</figcaption></figure><figure aria-label="Open canonical frame G in viewer" class="film-cell" data-lightbox-index="6" role="button" tabindex="0"><img alt="Canonical frame G" src="../assets/images/exploration-29.jpg"/><figcaption>G</figcaption></figure><figure aria-label="Open canonical frame H in viewer" class="film-cell" data-lightbox-index="7" role="button" tabindex="0"><img alt="Canonical frame H" src="../assets/images/exploration-34.jpg"/><figcaption>H</figcaption></figure></div></section>
+<section class="sequence-audit" id="sequence-audit">
+<div class="eyebrow">SEQUENCE-LEVEL REVIEW</div>
+<h2>The reel exposed a failure we missed while judging frames one at a time.</h2>
+<p class="audit-intro">Clicking through the canonical journey changed the diagnosis. Several selected frames preserved the world and advanced its aesthetic, but did not convincingly encode a new camera position. The environment evolved while the viewpoint stayed nearly stationary.</p>
+<div class="audit-grid">
+<div>
+<strong>B → C</strong>
+<p>Feels less like forward travel than a re-dressing of the same viewpoint: more roots and enclosure, but little unmistakable camera displacement.</p>
+</div>
+<div>
+<strong>D → E</strong>
+<p>The world becomes more ominous and architectural, but the camera again appears to remain in nearly the same place.</p>
+</div>
+<div>
+<strong>F → G</strong>
+<p>The scene changes dramatically, yet the new geography can read as transformation around a stationary camera rather than a location reached by traversal.</p>
+</div>
+</div>
+<div class="finding reel-finding">
+<strong>New Director criterion: perceptible camera displacement</strong>
+<p>A candidate should not count as spatial advancement merely because the scene is different. It should provide visual evidence that the camera itself moved: foreground landmarks passed behind it, occlusion relationships changed, perspective/parallax shifted, or genuinely new geography became visible.</p>
+<p>The reel therefore becomes more than presentation. A TunnelVision agent can keep the growing canonical sequence as working visual memory, periodically re-evaluate local transitions and the global trajectory, and repair frames that preserve style but fail to communicate movement.</p>
+</div>
+</section>
+
+<nav class="chapter-nav"><a href="02-motion-experiments.html" class="next-link">Motion Experiments →</a></nav>
+</main>
+<div aria-hidden="true" class="journey-lightbox" id="journey-lightbox"><div class="lb-backdrop" data-lb-close="true"></div><div aria-label="Canonical journey viewer" aria-modal="true" class="lb-dialog" role="dialog"><button aria-label="Close viewer" class="lb-close" type="button">×</button><button aria-label="Previous frame" class="lb-prev" type="button">‹</button><div class="lb-stage"><img alt="" class="lb-image"/><div class="lb-meta"><div class="lb-label"></div><div class="lb-counter"></div></div></div>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

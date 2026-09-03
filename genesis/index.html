@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>TunnelVision Research</title>
+<link rel="stylesheet" href="assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="index.html" class="nav-home">Home</a>
+  <a href="research/01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="research/02-motion-experiments.html">Motion Experiments</a>
+  <a href="research/03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="research/04-camotion-research.html">Camotion Research</a>
+  <a href="research/05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+</nav>
+<main>
+<div class="hero">
+<div class="eyebrow">RESEARCH LOG</div>
+<h1>TunnelVision</h1>
+<p class="dek">TunnelVision turns manually directed TunnelTV filmmaking into an agentic system. TunnelTV was developed by Terran Boylan for the AI music video <a href="https://www.5050.dev/videos/v/4bkjb3htbteraepxtc9cnb9rc7azp2" style="color:var(--accent)"><em>Digging in the Dirt</em></a>.</p>
+</div>
+
+<section style="padding:48px 0;border-bottom:1px solid var(--line)">
+<h2>Current research baseline</h2>
+<p>Ghost Library / Seedance 2.5, Camotion 01.5, depth-banded outgoing exposure, strength 0.08. Not universal; one fixture.</p>
+</section>
+
+<section style="padding:48px 0;border-bottom:1px solid var(--line)">
+<h2>Key findings</h2>
+<ul style="color:var(--muted);line-height:1.8;font-size:16px;padding-left:20px">
+<li>Visual continuity ≠ traversability</li>
+<li>Continuous locomotion prompting outranks destination matching</li>
+<li>Depth weighting improved motion conditioning on Ghost Library</li>
+<li>Terran's workflow is depth-banded exposure compositing, not one depth-scaled blur</li>
+<li>Motion-treating the strong depth mask was important in 01.5</li>
+<li>Terminal-at-canonical start exposure worsened Seedance behavior (01.6)</li>
+<li>Halving strength removed obvious recursion but weakened geometry authority (01.7)</li>
+<li>Directed A→B requires endpoint fidelity</li>
+</ul>
+</section>
+
+
+<section style="padding:48px 0;border-bottom:1px solid var(--line)">
+<h2>Research chapters</h2>
+<div style="display:grid;gap:12px;margin-top:16px">
+  <a href="research/01-origin-and-exploration.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">01 — Origin &amp; Exploration</a>
+  <a href="research/02-motion-experiments.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">02 — Motion Experiments</a>
+  <a href="research/03-pre-code-checkpoint.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">03 — Pre-Code Checkpoint</a>
+  <a href="research/04-camotion-research.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">04 — Camotion Research</a>
+  <a href="research/05-depth-banded-camotion.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">05 — Depth-Banded Camotion</a>
+</div>
+</section>
+
+<section style="padding:48px 0">
+<h3>Provenance</h3>
+<p style="color:var(--muted);font-size:14px">TunnelTV = Terran Boylan · TunnelVision = this project · <a href="https://www.5050.dev/videos/v/4bkjb3htbteraepxtc9cnb9rc7azp2" style="color:var(--accent)">Digging in the Dirt</a></p>
+</section>
+</main>
+<script src="assets/js/research.js"></script>
+</body>
+</html>

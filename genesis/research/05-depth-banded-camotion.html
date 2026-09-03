@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Depth-Banded Camotion — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html" class="active">Depth-Banded Camotion</a>
+</nav>
+<main>
+<section class="ready-code" id="terran-action">
+<div class="eyebrow">TERRAN ACTION FORENSICS · SEPTEMBER 2, 2026</div>
+<h2>We now read the Action as depth-banded compositing, not one continuous depth-scaled radial blur.</h2>
+<p>This entry is a chronological research record. The Markdown docs remain current architecture. Camotion code, tests, and CameraMotionPlan v1 are unchanged. TunnelTV is Terran Boylan’s original manual technique; TunnelVision is the agentic project. Camotion is not a port of Terran’s Photoshop Action. Interpretations and hypotheses below are ours, not claims Terran made.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>By 31 August 2026, optional near-weight scaling had improved the Ghost Library still, especially far-field stability, but video generation still produced a recursive / reconstructed-space effect. Direct comparison with Terran’s original TunnelTV Ghost Library motion frame showed similarly strong near-field motion and stable distant architecture. That weakened the hypothesis that depth weighting itself caused the recursion. We stopped speculative renderer work and asked Terran for higher-authority evidence of the original Action.</p>
+</div>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Known ingredient, then a still-image win</h3><span class="result-pill pass">PRIOR RESULT</span></div>
+<p>Depth was already a known TunnelTV ingredient. The 01.4 Ghost Library still applied a continuous near-weight multiplier to Camotion’s radial field. Relative to radial-only 01.3, distant architecture such as the gothic window stayed substantially more stable. At the still-image level, depth weighting looked like the right next variable.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Video still reconstructed the space</h3><span class="result-pill fail">UNRESOLVED ARTIFACT</span></div>
+<p>Video-generation tests from depth-weighted shooting frames still showed the strange recursive / reconstituted-library behavior. A control without an extra pristine reference still did. At that point it was easy to suspect that our new depth path was the cause.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Terran’s original frame weakened that suspicion</h3><span class="result-pill info">HYPOTHESIS WEAKENED</span></div>
+<p>Terran’s original Ghost Library motion-conditioned frame also uses strong near-field motion and keeps far architecture comparatively sharp. Depth-aware motion itself is consistent with the original technique. The remaining open question was the <b>character</b> of Camotion’s continuously depth-scaled radial exposure versus whatever Terran’s Action actually did.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Stop guessing. Obtain the Action.</h3><span class="result-pill info">DECISION</span></div>
+<p>We deliberately stopped speculative renderer changes. Terran supplied the original Photoshop <code>.ATN</code>, stored as <code>camotion/tuning/Auto-3D-Radial-Blur-Save-Close.ATN</code>.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Binary forensics, then ActionJSON</h3><span class="result-pill info">EVIDENCE</span></div>
+<div class="test-meta">primary export: camotion/tuning/async function auto3DRadialBlurSave.json</div>
+<p>Binary inspection of the <code>.ATN</code> showed Photoshop Neural Filter depth processing, multiple Radial Blur operations, Gaussian Blur, inversion, Levels, masks/selections, layer duplication/compositing, and merge/save/close. Before reverse engineering had to proceed entirely from the binary, Terran supplied a Photoshop batchPlay / ActionJSON-style export. That JSON is the primary evidence for the meaningful image-processing sequence.</p>
+<p>The embedded Neural Filter graph includes depth-related nodes such as <code>depthMapProviderV2Local</code>, <code>Depth_Estimation</code>, and <code>Depth_Estimation_Refinement2</code>. The important architectural fact is that Photoshop generates and refines a depth representation. The graph itself is not documented exhaustively here.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Observed layer/mask sequence</h3><span class="result-pill pass">ACTION OBSERVATION</span></div>
+<p>From the JSON, the meaningful stack is approximately:</p>
+<p><b>Background copy</b> — image = Zoom Blur 12 (method Zoom, quality Best, center 0.5, 0.5). Mask = Neural Filter depth, then Invert, Gaussian Blur radius 10, then the same Zoom Blur 12.</p>
+<p><b>Background copy 2</b> — image = Zoom Blur 8 (same method/quality/center). Mask = a second Neural Filter depth from the pristine source, then Levels composite input [203, 243], Invert, Gaussian Blur radius 2.</p>
+<p><b>Background</b> — pristine source, underneath.</p>
+<p>Photoshop then selects/merges, saves, and closes. This is an observation of Terran’s Action, not a Camotion implementation plan.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Major discovery: two exposures, not one scaled blur</h3><span class="result-pill pass">REVISED MODEL</span></div>
+<p>Terran’s result is better understood as Blur-12 + Blur-8 + pristine, composited through depth-derived masks, than as one continuously depth-scaled radial blur. <b>Interpretation (ours):</b> depth-banded, motion-aware exposure compositing. Near: Blur 12 dominates. Mid: Blur 12 fades, Blur 8 remains. Far: Blur 8 fades, pristine increasingly dominates.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Stronger discovery: the strong mask is itself zoom-blurred</h3><span class="result-pill pass">REVISED MODEL</span></div>
+<p>Current Camotion approximately does <code>radial_motion(x,y) × depth_weight(x,y)</code>, so the depth weighting stays spatially tied to original geometry. Terran’s Action instead approximately composites a motion-treated image through a motion-treated depth visibility mask. The boundary that controls where the blurred exposure contributes is itself spread along the exposure path.</p>
+<p><b>Hypothesis (ours, unproven in Camotion):</b> this may help depth boundaries read as integrated photographic motion rather than stretched/warped scene geometry.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Mask polarity (analysis, not a Terran claim)</h3><span class="result-pill info">INTERPRETATION</span></div>
+<p>Available evidence supports reading the Action’s working depth as approximately black = near, white = far — the same polarity as our Ghost Library depth proxy before we invert it for Camotion’s near-weight convention. After Invert, the strong mask is approximately white near / black far. Photoshop layer masks reveal with white, so Blur 12 dominates near geometry and disappears with depth. After Levels [203, 243] and Invert, the medium mask approximately reveals Blur 8 over near/mid geometry and suppresses it over the furthest range.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Diagnostic mask visualization</h3><span class="result-pill info">APPROXIMATION ONLY</span></div>
+<div class="test-meta">camotion/tuning/analysis/01-terran-mask-polarity-analysis.png · Ghost Library depth proxy · documented mask ops · approximate zoom-blur</div>
+<figure>
+<img alt="Diagnostic approximation of Terran Action mask polarity on the Ghost Library depth proxy. Not Photoshop Neural Filter depth, not Photoshop Radial Blur, not a Camotion result." src="../../camotion/tuning/analysis/01-terran-mask-polarity-analysis.png"/>
+<figcaption><b>Diagnostic approximation, not a faithful reconstruction.</b> This PNG is not Photoshop’s Neural Filter depth output, not Photoshop Radial Blur, not a pixel-faithful recreation of Terran’s Action, and not a Camotion renderer result. It exists only to reason about mask polarity and spatial behavior using the existing Ghost Library depth proxy and an approximate zoom-blur implementation.</figcaption>
+</figure>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Revised hypothesis for the recursive-space artifact</h3><span class="result-pill info">HYPOTHESIS</span></div>
+<p>The recursive-space issue may relate to the character of Camotion’s current continuously depth-scaled radial exposure/warping, while Terran’s layered, motion-aware mask treatment may produce a more photographic conditioning signal. This has not been proven. It replaces the weaker “depth weighting caused the recursion” hypothesis, which Terran’s original frame had already made less convincing.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>ATN / ActionJSON forensics are complete enough to stop reverse engineering and begin a controlled Camotion renderer experiment. That experiment is <b>not implemented</b> in this checkpoint.</p>
+<p>Next test: whether deterministic depth-banded + motion-aware + multi-exposure compositing produces a more photographic and generative-video-legible shooting frame than the current continuous depth-multiplier renderer. Treat it as an experimental path, not a replacement. Compare against the existing Ghost Library fixture before any renderer replacement decision.</p>
+<p>Preserve Camotion / TunnelVision extensions Terran’s Action did not have: Cinematographer-selected vanishing point rather than a fixed Photoshop center of 0.5, 0.5; destination protection; external/interchangeable depth; normalized geometry; deterministic/testable processing; later, context-aware parameters rather than permanently hardcoded 12 / 8 / 203–243.</p>
+<p>Do not change CameraMotionPlan v1. Do not add Photoshop fields to the plan. Do not move depth estimation into Camotion. Do not add Neural Filters. Do not implement B_in/B_out, turning/yaw/strafe, or video-architecture changes. Do not remove the current continuous near-weight path.</p>
+<p>Intended order after this record: controlled Camotion renderer experiment → validate/freeze an updated baseline if justified → Automated Cinematographer + Camotion Benchmark Harness → cross-style / cross-model experiments.</p>
+<p>Split of labor unchanged: agent reasons → CV observes/measures → Camotion renders → video model films.</p>
+</div>
+
+</section>
+<section class="ready-code" id="banded-compositor">
+<div class="eyebrow">DEPTH-BANDED COMPOSITOR · SEPTEMBER 2, 2026</div>
+<h2>Ghost Library 01.5 reduced recursive reconstruction. It did not eliminate it.</h2>
+<p>This entry is a chronological research record after the Terran Action checkpoint. The Markdown docs remain current architecture. CameraMotionPlan v1 and default <code>render()</code> were not changed. The experimental compositor is not a frozen baseline. Interpretations below are ours, not claims Terran Boylan made. TunnelTV is Terran’s original technique; TunnelVision is this project.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>ATN / ActionJSON reverse engineering suggested Terran’s result was depth-banded, motion-aware compositing, including Zoom Blur on the strong depth mask itself. We hypothesized that a Camotion experiment with that structure might be more photographic and more generative-video-legible than continuously depth-scaled radial exposure. That had not been tested.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Experimental path, default renderer left alone</h3><span class="result-pill info">METHOD</span></div>
+<p>We implemented a controlled experimental renderer without changing normal <code>render()</code> or CameraMotionPlan v1. It reuses existing radial multisample exposure at two strengths: a strong branch at the plan’s <code>exposure.strength</code>, and a medium branch at that strength × 8/12.</p>
+<p>A near/mid mask, derived from Camotion near_weight (white=near), controls the medium branch. A Gaussian-softened strong depth mask is itself passed through the same radial exposure before controlling the strong branch. Layers composite over pristine source; existing destination protection is applied last.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Ghost Library still 01.5</h3><span class="result-pill pass">STILL LOOKS MORE PHOTOGRAPHIC</span></div>
+<div class="test-meta">camotion/tuning/01.5-banded-result.png · same 01.4 plan · 01-depth.png as white=near near_weight · not a frozen baseline</div>
+<figure>
+<img alt="Experimental Ghost Library 01.5 depth-banded shooting frame. Not the default Camotion renderer." src="../../camotion/tuning/01.5-banded-result.png"/>
+<figcaption>Experimental comparison still, not a new production baseline. Qualitatively: strong near-shelf/figure motion, intermediate mid-depth motion, stable far architecture, a spatially legible doorway/window, receding shelves that read more like continuous depth than radially stretched geometry. Visual quality is not a mathematical proof.</figcaption>
+</figure>
+<p>Diagnostic masks (not renderer results): <code>tuning/analysis/01.5-banded-strong-mask-before.png</code>, <code>01.5-banded-strong-mask-after.png</code>, <code>01.5-banded-medium-mask.png</code>.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Corresponding Seedance traversal</h3><span class="result-pill pass">RECURSION MATERIALLY REDUCED</span></div>
+<div class="test-meta">camotion/tuning/01.5-banded-video.mp4 · same general locomotion setup as the prior Ghost Library test · one fixture</div>
+<p>The previous 01.4-era generation showed substantial recursive/reconstructed-space behavior across roughly the first 1–3 seconds. With the 01.5 banded shooting frame, that pathology was materially reduced. The generated shot remains recognizably within one library space through most of the early traversal, reaches the doorway, crosses the threshold, and continues into the courtyard.</p>
+<p>On the Ghost Library fixture, the depth-banded, motion-aware compositor produced a more photographic shooting frame and materially reduced the recursive-space reconstruction seen in the previous video-generation experiment. A shorter reconstruction artifact remained during approximately the first second.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Not solved</h3><span class="result-pill fail">PARTIAL SUCCESS</span></div>
+<p>The problem is not eliminated. Recursion is not solved. 01.5 is not universally better, not validated across scenes, and is not a permanent replacement for the continuous near_weight renderer. Terran’s method did not “directly solve” the problem. This is one fixture and one generated comparison.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Revised next hypothesis</h3><span class="result-pill info">HYPOTHESIS</span></div>
+<p>Supporting evidence: depth-banded, motion-aware compositing may be a more legible motion-conditioning representation for generative video than continuously depth-scaled radial exposure. Stronger than a still-only hypothesis because the video also improved. Still provisional.</p>
+<p>The remaining first-second reconstruction suggests a narrower question: <b>temporal orientation of the start shooting frame</b>. Current outgoing exposure is canonical A → displaced exposure history. For a start frame, the video model may instead benefit from displaced history that terminates at canonical A. Do not treat this as B_in/B_out architecture yet.</p>
+<p>The next controlled experiment should change only that start-frame orientation, holding the depth-banded compositor, depth, strengths, masks, destination, locomotion prompt, video settings, and end shooting frame as constant as practical. Not implemented in this checkpoint.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Checkpoint the depth-banded experiment before testing temporal orientation. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen.</p>
+</div>
+
+</section>
+<section class="ready-code" id="start-orientation">
+<div class="eyebrow">START-FRAME ORIENTATION · SEPTEMBER 2, 2026</div>
+<h2>Terminal-at-canonical start exposure worsened Ghost Library reconstruction.</h2>
+<p>This entry is a chronological research record after the 01.5 depth-banded compositor checkpoint. Previous history is unchanged. The Markdown docs remain current architecture. CameraMotionPlan v1 and default <code>render()</code> were not changed. Interpretations below are ours, not claims Terran Boylan made. TunnelTV is Terran’s original technique; TunnelVision is this project.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>01.5 outgoing start exposure materially reduced, but did not eliminate, recursive-space reconstruction. The remaining first-second artifact suggested that the start shooting frame might encode the wrong temporal orientation: canonical A as the origin of an outgoing trail, rather than the terminal/current position with motion history behind it. That was a hypothesis, not architecture.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>One-variable A/B</h3><span class="result-pill info">METHOD</span></div>
+<p>Control: Ghost Library 01.5 outgoing start frame plus the previously used end shooting frame, locomotion prompt, and video settings. Experiment: the same 01.5 compositor, plan, depth, strengths, masks, destination protection, and end frame; only the start-frame sample set changed from <code>p − field·t</code> to <code>p + field·t</code>. Strong image, medium image, and strong mask shared that orientation. Medium-mask construction was not changed. Reversing Python loop order would not have changed the image; the sample-position set was reversed.</p>
+<p>The experimental helper remains in code as evidence. It is not CameraMotionPlan, not default <code>render()</code>, and not <code>A_in</code>/<code>A_out</code> or <code>B_in</code>/<code>B_out</code> architecture.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Ghost Library still 01.6</h3><span class="result-pill info">OPPOSITE TRAIL GEOMETRY</span></div>
+<div class="test-meta">camotion/tuning/01.6-terminal-start-result.png · same 01.4 plan and 01-depth.png as 01.5 · only exposure orientation changed</div>
+<figure>
+<img alt="Experimental Ghost Library 01.6 terminal-at-canonical start shooting frame. Rejected as the working start-orientation hypothesis." src="../../camotion/tuning/01.6-terminal-start-result.png"/>
+<figcaption>Same compositor and inputs as 01.5; exposure history terminates at canonical A. Visual smear amount is similar, trails sit on the opposite side of geometry. Diagnostic abs-diff: tuning/analysis/01.6-vs-01.5-absdiff.png.</figcaption>
+</figure>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Corresponding Seedance traversal</h3><span class="result-pill fail">WORSE INITIAL RECONSTRUCTION</span></div>
+<div class="test-meta">camotion/tuning/01.6-terminal-start-video.mp4 · same previous end shooting frame, locomotion prompt, and duration/settings as the 01.5 video test · one fixture</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/01.6-terminal-start-video.mp4"></video>
+<p>On the Ghost Library fixture, reversing the start shooting frame’s exposure orientation so that exposure history terminates at canonical A worsened the initial spatial reconstruction. The video showed a stronger initial collapse/retreat and subsequent reconstruction before establishing coherent forward traversal.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Hypothesis rejected on this fixture</h3><span class="result-pill fail">REJECTED</span></div>
+<p>Reject terminal-at-canonical start exposure as the working hypothesis here. Retain the 01.5 outgoing exposure orientation as the current Camotion research baseline. Do not claim universal cross-scene validation. Do not remove the experimental implementation or evidence. Do not tune 01.6. Do not introduce A_in/A_out or B_in/B_out architecture. Do not start another experiment from this record.</p>
+<p>The negative result is useful: start-frame temporal orientation is causally relevant to the initial reconstruction on this fixture, and the outgoing 01.5 orientation is the better of the two tested directions.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.5 outgoing orientation as the working experimental baseline. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. Stop here; do not begin the next renderer experiment in this checkpoint.</p>
+</div>
+
+</section>
+<section class="ready-code" id="reduced-strength">
+<div class="eyebrow">REDUCED STRENGTH · SEPTEMBER 3, 2026</div>
+<h2>Halving start-frame strength removed obvious recursion and weakened source-geometry authority.</h2>
+<p>This entry is a chronological research record after the 01.6 temporal-orientation checkpoint. Previous history is unchanged. The Markdown docs remain current architecture. CameraMotionPlan v1 and default <code>render()</code> were not changed. Interpretations below are ours, not claims Terran Boylan made. TunnelTV is Terran’s original technique; TunnelVision is this project.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>01.5 outgoing depth-banded exposure at strength 0.08 remained the working Ghost Library baseline after 01.6 rejected terminal-at-canonical orientation. A brief first-second reconstruction still remained. The next one-variable hypothesis was that the start shooting frame was over-conditioned: too much motion-exposure strength might be causing Seedance 2.5 to reconstruct space at the beginning of the shot.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>One-variable A/B</h3><span class="result-pill info">METHOD</span></div>
+<p>Control: 01.5 depth-banded outgoing start frame, strength 0.08. Experiment: the same compositor, Ghost Library source, near_weight, outgoing orientation, medium/strong ratio 8/12, masks, softening, vanishing point, destination protection, sample count, previously used end shooting frame, locomotion prompt, and Seedance 2.5 settings. Only start-frame <code>exposure.strength</code> changed to 0.04. No new plan fields. Fixture: <code>tuning/01.7-banded-strength-004-plan.json</code>.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Ghost Library still 01.7</h3><span class="result-pill info">WEAKER PERIPHERAL EXPOSURE</span></div>
+<div class="test-meta">camotion/tuning/01.7-banded-strength-004-result.png · same 01.jpeg and 01-depth.png as 01.5 · outgoing p − field·t · strength 0.04</div>
+<figure>
+<img alt="Experimental Ghost Library 01.7 reduced-strength start shooting frame. Not promoted over 01.5." src="../../camotion/tuning/01.7-banded-strength-004-result.png"/>
+<figcaption>Same 01.5 path at half exposure strength. Peripheral smear is weaker; central architecture remains protected. Visual still-quality is not a video-generation verdict.</figcaption>
+</figure>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Corresponding Seedance 2.5 traversal</h3><span class="result-pill info">TRADEOFF, NOT A PROMOTION</span></div>
+<div class="test-meta">camotion/tuning/01.7-banded-strength-004-video.mp4 · same previous end shooting frame, locomotion prompt, and Seedance 2.5 settings as the 01.5 video test · one fixture</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/01.7-banded-strength-004-video.mp4"></video>
+<p>01.7 removed the obvious initial recursive/reconstructed-space event seen in 01.5. That is not simply a success. Seedance immediately reinterpreted/warped the starting spatial geometry more substantially. The generated library became a different/narrower inferred corridor rather than preserving the authored starting geometry as closely as directed A→B requires. Later forward traversal and doorway crossing remained coherent.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>0.04 is not the new baseline</h3><span class="result-pill fail">NOT PROMOTED</span></div>
+<p>Do not describe 01.7 simply as worse, and do not promote it because recursion disappeared. On this Ghost Library / Seedance 2.5 fixture, conditioning strength appears to trade off reconstruction behavior against source-geometry authority. Weaker start-frame exposure reduced obvious recursion and also reduced authority over the authored start.</p>
+<p>For directed A→B traversal, the conditioned start and end frames are authoritative shot endpoints. Generated boundary frames should match those supplied endpoints as closely as the video model permits, ideally pixel-perfect. Evaluation priority: endpoint fidelity, then coherent spatial traversal, then locomotion/parallax quality; creative scene evolution must not violate endpoint authority. That requirement is specific to directed A→B. Future Discovery / open-exploration generation may invent future geometry after an authoritative starting frame; that mode is not this experiment and is not current architecture.</p>
+<p>Retain 01.5 / 0.08 as the current working baseline for directed A→B research. One fixture, one video model. No universal claim.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.5 outgoing exposure at strength 0.08 as the directed A→B working baseline. Keep the 01.7 plan, still, and video as evidence of the tradeoff. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. Stop here; do not begin the next renderer experiment in this checkpoint.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Images are identified by visible content rather than generator filenames because the generation tool reused filenames during the experiment.</span>
+</footer>
+
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Images are identified by visible content rather than generator filenames because the generation tool reused filenames during the experiment.</span>
+</footer>
+<nav class="chapter-nav"><a href="04-camotion-research.html" class="prev-link">← Camotion Research</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>
