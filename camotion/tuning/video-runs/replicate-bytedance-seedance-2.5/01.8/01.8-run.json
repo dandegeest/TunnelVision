@@ -1,0 +1,43 @@
+{
+  "experiment": "01.8",
+  "provider": "replicate",
+  "requested_model": "bytedance/seedance-2.5",
+  "resolved_model": "bytedance/seedance-2.5",
+  "resolved_model_version": "hidden",
+  "prediction_id": "p8dsm07vrnrmt0d0d47b4s4688",
+  "start_image": {
+    "path": "camotion/tuning/01.8-route-preserved-result.png",
+    "sha256": "5f9c3bb8afb51cde59067f14349571cb2124db8c757307211f1b02912b5603d1",
+    "bytes": 1687771
+  },
+  "end_image": {
+    "path": "camotion/tuning/ghost-library-end-shooting-frame.jpeg",
+    "sha256": "f03f4da501520c359f09d41753213ea6c4e3cf8c2f60f94b2773bc53f1f1f306",
+    "bytes": 215443
+  },
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward through the old library toward the doorway and passing completely through it into the courtyard beyond in uninterrupted forward motion. The camera passes between bookshelves, skeletal figures, furniture, architectural structures, or foreground objects as necessary to continue moving forward. The camera never stops advancing through the environment. Nearby shelves, skeletons, furniture, door frames, and other foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses the doorway threshold and continues moving forward into the newly revealed courtyard. Dust, loose particles, and occasional translucent ghostly forms drift naturally through the air and pass around the moving camera, reinforcing its forward motion.",
+  "submitted_settings": {
+    "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward through the old library toward the doorway and passing completely through it into the courtyard beyond in uninterrupted forward motion. The camera passes between bookshelves, skeletal figures, furniture, architectural structures, or foreground objects as necessary to continue moving forward. The camera never stops advancing through the environment. Nearby shelves, skeletons, furniture, door frames, and other foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses the doorway threshold and continues moving forward into the newly revealed courtyard. Dust, loose particles, and occasional translucent ghostly forms drift naturally through the air and pass around the moving camera, reinforcing its forward motion.",
+    "image": "<local file upload: camotion/tuning/01.8-route-preserved-result.png>",
+    "last_frame_image": "<local file upload: camotion/tuning/ghost-library-end-shooting-frame.jpeg>",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4"
+  },
+  "manifest_sha256": "922af6fa8ec75874984d67f60e9366ee88eb6a3ac4cb5d7cc17b096d0d1eea3d",
+  "git_commit": "fb142f207190e618a6e9fb5d2f67089783c9f8a0",
+  "started_at": "2026-09-03T20:56:23.009Z",
+  "completed_at": "2026-09-03T20:59:12.130Z",
+  "elapsed_ms": 169121,
+  "status": "succeeded",
+  "provider_error": null,
+  "error_code": null,
+  "output": {
+    "filename": "01.8-result.mp4",
+    "path": "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/01.8-result.mp4",
+    "source_url": "https://replicate.delivery/xezq/RQezqbYrMHQTSSn0hC55aTx7iRbbP2dpolQPSByhZw0Pj8kLA/tmpyy7iy7z4.mp4"
+  }
+}

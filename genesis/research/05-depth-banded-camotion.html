@@ -313,7 +313,75 @@
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>Keep 01.5 / 0.08 as the current video-tested directed A→B baseline. Keep the 01.8 implementation, config, still, route mask, and video as experimental evidence. Route preservation is experimental research code, not CameraMotionPlan and not canonical architecture. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. The next planned engineering work is a reusable Replicate MediaProvider plus experiment runner, then controlled reruns of the historical Camotion experiments. That work has not started. Do not begin 01.9 from this checkpoint.</p>
+<p>Keep 01.5 / 0.08 as the current video-tested directed A→B baseline. Keep the 01.8 implementation, config, still, route mask, and video as experimental evidence. Route preservation is experimental research code, not CameraMotionPlan and not canonical architecture. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. A later controlled Replicate series is recorded below. This Krea observation is not retracted. Do not begin 01.9 from this checkpoint.</p>
+</div>
+
+</section>
+<section class="ready-code" id="replicate-controlled-series">
+<div class="eyebrow">CONTROLLED REPLICATE SERIES · SEPTEMBER 3, 2026</div>
+<h2>Same Camotion A′ frames on Replicate Seedance 2.5 did not reproduce the Krea reverse-motion openings.</h2>
+<p>This entry is a chronological research record after the 01.8 Krea video. Previous history is unchanged. The Markdown docs remain current architecture. CameraMotionPlan v1 and default <code>render()</code> were not changed. Interpretations below are ours, not claims Terran Boylan made.</p>
+
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>Krea Seedance 2.5 videos had associated 01.6 with a severe terminal-orientation collapse/retreat and 01.8 with a pronounced backward-then-forward opening. Those were observations on one provider path. A reusable Replicate MediaProvider and frozen historical batch made it possible to rerun 01.3–01.8 with the same B′, locomotion prompt, duration, model, and settings, changing only the Camotion-conditioned A′.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Frozen control</h3><span class="result-pill info">METHOD</span></div>
+<p>Provider: Replicate <code>bytedance/seedance-2.5</code>. Duration 6s, 720p, <code>aspect_ratio</code> adaptive, audio off, watermark off, mp4, no seed. Same historical Ghost Library end shooting frame and locomotion prompt as the 01.5 Replicate smoke test. Evidence lives at <code>camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/&lt;experiment&gt;/</code> as <code>&lt;experiment&gt;-result.mp4</code> and <code>&lt;experiment&gt;-run.json</code>. Historical Krea videos were not overwritten.</p>
+<p>Canonical frames remain world-state authority. Camotion produces shooting-frame motion conditioning. The video model may still improvise. Those three layers stay distinct.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.3 radial-only 0.08</h3><span class="result-pill info">SERIES MEMBER</span></div>
+<div class="test-meta">camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/01.3-result.mp4</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/01.3-result.mp4"></video>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.4 continuous depth-weighted 0.08</h3><span class="result-pill info">SERIES MEMBER</span></div>
+<div class="test-meta">camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.4/01.4-result.mp4</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.4/01.4-result.mp4"></video>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.5 depth-banded outgoing 0.08</h3><span class="result-pill info">CONSERVATIVE BASELINE</span></div>
+<div class="test-meta">camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-result.mp4 · conservative directed-traversal baseline on this Replicate series</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-result.mp4"></video>
+<p>01.5 remains the conservative directed A→B baseline. It is not a claim that 01.5 is the permanent renderer or the universal best result.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.6 terminal-oriented 0.08</h3><span class="result-pill info">DID NOT REPRODUCE KREA COLLAPSE</span></div>
+<div class="test-meta">camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.6/01.6-result.mp4</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.6/01.6-result.mp4"></video>
+<p>On this Replicate run, 01.6 did not reproduce the severe terminal-orientation collapse/retreat previously observed through Krea. The Krea 01.6 video remains prior evidence. That Krea behavior should not currently be treated as an intrinsic property of terminal-at-canonical Camotion exposure.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.7 depth-banded outgoing 0.04</h3><span class="result-pill info">OBSERVATION</span></div>
+<div class="test-meta">camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.7/01.7-result.mp4</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.7/01.7-result.mp4"></video>
+<p>01.7 produced an interesting near-camera creepy-hand interaction. Record that as an observation. 0.04 is still not promoted over 0.08.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.8 route-preserved 0.08</h3><span class="result-pill info">LEADING EXPERIMENTAL BRANCH</span></div>
+<div class="test-meta">camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/01.8-result.mp4</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/01.8-result.mp4"></video>
+<p>On this Replicate run, 01.8 did not reproduce the pronounced backward-then-forward behavior previously observed through Krea. The Krea 01.8 video remains prior evidence. That Krea opening should not currently be treated as an intrinsic property of route-preserved Camotion exposure.</p>
+<p>01.8 produced especially compelling environmental ghost motion. 01.8 is the leading experimental branch on this series. It is not promoted over 01.5 as the conservative directed-traversal baseline. Route preservation is not CameraMotionPlan.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Foreground motion as a locomotion witness</h3><span class="result-pill info">HYPOTHESIS, UNPROVEN</span></div>
+<p>An emerging observation from this series is that environmental and foreground motion can act as a perceptual witness to camera locomotion: nearby objects, particles, or figures moving past the camera help the shot read as travel rather than as a still being warped. Treat that as an observation and a research hypothesis, not a proven mechanism and not a new Camotion contract.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>The Replicate MediaProvider/batch pipeline is working end-to-end. Keep 01.5 as the conservative directed-traversal baseline. Keep 01.8 as the leading experimental branch. Do not treat the earlier Krea reverse-motion openings as intrinsic to 01.6 or 01.8. Do not begin 01.9. Do not change CameraMotionPlan or default <code>render()</code>.</p>
 </div>
 
 </section>

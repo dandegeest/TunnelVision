@@ -9,32 +9,26 @@ infrastructure around them.
 the continuous near-weight radial-exposure path. On Ghost Library /
 Seedance 2.5, the experimental depth-banded compositor with
 **outgoing** start-frame exposure at **strength 0.08**
-(`tuning/01.5-banded-result.png`, `tuning/01.5-banded-video.mp4`)
-remains the current **video-tested** working baseline for **directed
-A→B** research. It is **not** the default renderer and is **not** a
-universal/frozen replacement. 01.6 rejected terminal-at-canonical
-start exposure. 01.7 halved strength to 0.04: obvious initial
-recursion disappeared, but starting-geometry fidelity got worse.
-**0.04 is not promoted.** 01.8 added experimental route-preserved
-exposure at the same 0.08 strength. The still behaved spatially as
-intended. Seedance 2.5 via Krea later produced a real 01.8 video
-(`tuning/01.8-route-preserved-video.mp4`): the camera initially
-moved backward / retreated, then transitioned into forward
-traversal. That is an observation, not a promotion. **01.8 is not
-the directed baseline.** Do not treat route preservation as
-architecture.
+(`tuning/01.5-banded-result.png`) remains the conservative
+**directed-traversal baseline**. It is **not** the default renderer
+and is **not** a universal/frozen replacement. Historical Krea videos
+remain prior evidence and must not be overwritten.
 
-**Later track (not now):** Controlled reruns of the historical Camotion
-experiments on the same Replicate Seedance 2.5 path. The MediaProvider
-vertical slice and 01.5 Replicate smoke test succeeded (prediction
-`xepfh4612srmy0d0d3b9m3knj4`; evidence under
-`tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`). Historical
-Krea videos remain prior evidence and must not be overwritten. Batch
-manifests exist; the paid 01.3–01.8 rerun has not been executed. Do not
-begin 01.9. After Camotion renderer research (and any justified
-baseline freeze), the already planned product-research milestone
-remains Automated Cinematographer + Camotion Benchmark Harness. Do not
-scaffold Director, Cinematographer, or UI in this checkpoint.
+A controlled Replicate Seedance 2.5 series now exists for 01.3, 01.4,
+01.5, 01.6, 01.7, and 01.8 under
+`tuning/video-runs/replicate-bytedance-seedance-2.5/`. **01.8 is the
+leading experimental branch**, not a replacement for 01.5. 01.6 did
+not reproduce the severe terminal-orientation collapse/retreat
+previously seen through Krea. 01.8 did not reproduce the pronounced
+backward-then-forward opening previously seen through Krea. Those
+Krea behaviors should not currently be treated as intrinsic
+properties of the Camotion variants. Do not begin 01.9.
+
+**Later track (not now):** After Camotion renderer research (and any
+justified baseline freeze), the already planned product-research
+milestone remains Automated Cinematographer + Camotion Benchmark
+Harness. Do not scaffold Director, Cinematographer, or UI in this
+checkpoint.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
@@ -185,16 +179,17 @@ Intended Camotion / Cinematographer research order:
     behavior. It raises the possibility that still-image exposure
     cues may communicate motion magnitude, axis, and depth
     without unambiguously communicating temporal direction. That
-    hypothesis is unproven and requires controlled follow-up. Keep
-    the experimental code and evidence. Do not promote 01.8. Do
-    not add route preservation to CameraMotionPlan. 01.5 / 0.08
-    remains the directed A→B video-tested working baseline.
-6.  Reusable Replicate MediaProvider + experiment runner, then
-    controlled reruns of the historical Camotion experiments ---
-    **01.5 Replicate smoke test succeeded.** Batch manifests and a
-    dry-run runner exist for 01.3–01.8 on the frozen Seedance 2.5
-    settings. The paid historical batch has **not** been executed.
-    Do not overwrite historical Krea evidence. Do not begin 01.9.
+    hypothesis is unproven. Keep the experimental code and evidence.
+    Do not promote 01.8. Do not add route preservation to
+    CameraMotionPlan. 01.5 / 0.08 remains the conservative directed
+    A→B baseline. 01.8 is the leading experimental branch.
+6.  Reusable Replicate MediaProvider + controlled historical
+    reruns --- **completed on Ghost Library / Seedance 2.5 via
+    Replicate.** The MediaProvider/batch pipeline works end-to-end.
+    Frozen A′→B′ series: 01.3, 01.4, 01.5, 01.6, 01.7, 01.8 under
+    `tuning/video-runs/replicate-bytedance-seedance-2.5/`. Same B′,
+    prompt, duration, model, and settings; only Camotion A′ differs.
+    Historical Krea videos were not overwritten. Do not begin 01.9.
 7.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
 8.  Automated Cinematographer + Camotion Benchmark Harness.
@@ -398,14 +393,59 @@ fixture and one video model; no cross-scene or cross-model claim. Do
 not add a strength-architecture field; do not replace default
 `render()`.
 
+### Controlled Replicate historical series (completed)
+
+The Replicate MediaProvider, Seedance 2.5 adapter, and sequential
+batch runner now work end-to-end. Evidence filenames are
+self-identifying:
+`<experiment>/<experiment>-result.mp4` and
+`<experiment>/<experiment>-run.json`.
+
+Frozen control (same for every run): Ghost Library locomotion prompt,
+duration 6, 720p, `aspect_ratio` adaptive, `generate_audio` false,
+`watermark` false, `output_format` mp4, seed omitted, and the same
+historical B′
+(`tuning/ghost-library-end-shooting-frame.jpeg`). Only the
+Camotion-conditioned A′ differs.
+
+| experiment | A′ | Replicate video |
+| --- | --- | --- |
+| 01.3 | `tuning/01.3-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/01.3-result.mp4` |
+| 01.4 | `tuning/01.4-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.4/01.4-result.mp4` |
+| 01.5 | `tuning/01.5-banded-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-result.mp4` |
+| 01.6 | `tuning/01.6-terminal-start-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.6/01.6-result.mp4` |
+| 01.7 | `tuning/01.7-banded-strength-004-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.7/01.7-result.mp4` |
+| 01.8 | `tuning/01.8-route-preserved-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/01.8-result.mp4` |
+
+**01.5 remains the conservative directed-traversal baseline.** **01.8
+is the leading experimental branch**, not a promoted replacement and
+not CameraMotionPlan.
+
+On this Replicate series, 01.6 did **not** reproduce the severe
+terminal-orientation collapse/retreat previously observed through
+Krea. 01.8 did **not** reproduce the pronounced backward-then-forward
+opening previously observed through Krea. Those Krea behaviors should
+not currently be treated as intrinsic properties of the Camotion
+variants. Historical Krea videos remain prior provider-specific
+evidence.
+
+01.8 produced especially compelling environmental ghost motion. 01.7
+produced an interesting near-camera creepy-hand interaction. Emerging
+observation, not a proven mechanism: environmental and foreground
+motion can act as a **perceptual witness** to camera locomotion.
+Preserve the distinction among canonical spatial authority, Camotion
+motion conditioning, and generative-video improvisation.
+
+Do not begin 01.9. Do not treat this as a Camotion renderer freeze.
+
 ### Cinematographer integration
 
 Open question: module boundaries. Intended *role*: for accepted frame
 pairs, analyze route/geometry, emit ShotPlan, derive CameraMotionPlan,
 invoke Camotion, fill a locomotion template, call the video provider,
 and judge directed A→B shots by endpoint fidelity first, then
-traversal. Do not scaffold this until the role is needed and the
-MediaProvider video request exists.
+traversal. The MediaProvider video request now exists in `media/`.
+Do not scaffold Cinematographer until the role is needed.
 
 ### Shoot Journey
 
@@ -475,9 +515,9 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint is documentation of the 01.7 strength
-tradeoff. Do not start another Camotion renderer experiment here, and
-do not silently replace default `render()`.
+tasks. This checkpoint records the controlled Replicate historical
+series. Do not start 01.9, and do not silently replace default
+`render()`.
 
 ## Hackathon strategy
 
@@ -502,8 +542,9 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   duration → shot count
 -   depth estimation as CV outside Camotion
 -   start-frame temporal orientation: **rejected on Ghost Library**
-    (terminal-at-canonical worsened the initial reconstruction; 01.5
-    outgoing remains the working experimental baseline; not
+    (Krea 01.6 worsened the initial reconstruction; Replicate 01.6
+    did not reproduce that severe collapse/retreat; 01.5 outgoing
+    remains the conservative experimental baseline; not
     cross-scene)
 -   start-frame exposure strength: **0.04 not promoted** on Ghost
     Library / Seedance 2.5 (obvious recursion gone; starting-geometry
@@ -511,9 +552,14 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     baseline; conditioning-authority tradeoff; not cross-scene or
     cross-model)
 -   recursive-space / reconstituted-environment video artifacts
-    (reduced on Ghost Library 01.5 outgoing, not eliminated; 01.6
-    made the start-of-shot behavior worse; 01.7 removed the obvious
-    initial event at the cost of endpoint geometry authority)
+    (reduced on Ghost Library 01.5 outgoing, not eliminated; Krea
+    01.6 made the start-of-shot behavior worse; Replicate 01.6 did
+    not reproduce that severe collapse/retreat; 01.7 removed the
+    obvious initial event at the cost of endpoint geometry
+    authority)
+-   whether environmental/foreground motion can serve as a perceptual
+    witness to camera locomotion (observation from the Replicate
+    series; not a proven mechanism)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

@@ -31,12 +31,14 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     TunnelVision Action reverse-engineering as reference research; an **experimental**
     depth-banded, motion-aware compositor path (not the default
     renderer); a TypeScript `MediaProvider` contract and Replicate
-    Seedance 2.5 adapter (`media/`), plus a thin Camotion research
-    video runner. The 01.5 Replicate smoke test succeeded
-    (`tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`).
-    Camotion itself still knows nothing about Replicate. Local files
-    are passed to Replicate as bytes (`Buffer`); Node ReadStreams are
-    not auto-uploaded by the official SDK.
+    Seedance 2.5 adapter (`media/`), plus a sequential historical
+    batch runner. A controlled Replicate series exists for 01.3–01.8
+    (`tuning/video-runs/replicate-bytedance-seedance-2.5/`). 01.5
+    remains the conservative directed-traversal baseline; 01.8 is
+    the leading experimental branch. Camotion itself still knows
+    nothing about Replicate. Local files are passed to Replicate as
+    bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
+    official SDK.
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
     Director, Cinematographer modules, journey workspace runtime,
     image generation, Runway/Krea adapters.
@@ -117,9 +119,11 @@ fixture.** Tuning values are not architecture.
 A later one-variable start-frame orientation test
 (`tuning/01.6-terminal-start-result.png`,
 `tuning/01.6-terminal-start-video.mp4`) reversed the exposure sample
-set so history terminated at canonical A. On Ghost Library that
-**worsened** the initial reconstruction. Do not adopt
-terminal-at-canonical start exposure. Do not treat the helper as
+set so history terminated at canonical A. On Ghost Library / Krea
+that **worsened** the initial reconstruction. A later Replicate
+rerun of the same 01.6 A′ did **not** reproduce that severe
+collapse/retreat. Do not adopt terminal-at-canonical start exposure
+as the working hypothesis. Do not treat the helper as
 `A_in` / `A_out` or `B_in` / `B_out` architecture.
 
 Halving start-frame strength to 0.04 on the same 01.5 path
@@ -137,11 +141,15 @@ promoted baseline. On Ghost Library the still retained peripheral
 motion treatment and preserved more central route geometry
 (`tuning/01.8-route-preserved-result.png`). The later Seedance 2.5
 via Krea video (`tuning/01.8-route-preserved-video.mp4`) showed an
-apparent backward/retreat opening before forward traversal. That
-is an observation, not a promoted result. **01.5 / 0.08 remains
-the video-tested directed A→B baseline.** Do not treat pixel
-similarity to Terran's reference as architecture or as an
-optimization objective.
+apparent backward/retreat opening before forward traversal. A
+controlled Replicate rerun of the same 01.8 A′
+(`tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/01.8-result.mp4`)
+did **not** reproduce that pronounced backward-then-forward
+behavior. The Krea opening should not currently be treated as an
+intrinsic property of 01.8. **01.5 / 0.08 remains the conservative
+directed A→B baseline. 01.8 is the leading experimental branch.**
+Do not treat pixel similarity to Terran's reference as architecture
+or as an optimization objective.
 
 ### Canonical frames vs shooting frames
 
@@ -298,8 +306,9 @@ starts them.
 -   how vanishing point is derived from a destination
 -   depth estimation as CV **outside** Camotion (not a Camotion module)
 -   start-frame temporal orientation: **rejected on Ghost Library**
-    (terminal-at-canonical worsened initial reconstruction; 01.5
-    outgoing remains the working experimental baseline; not
+    (Krea 01.6 worsened initial reconstruction; Replicate 01.6 did
+    not reproduce that severe collapse/retreat; 01.5 outgoing
+    remains the conservative experimental baseline; not
     `A_in` / `A_out` or `B_in` / `B_out` architecture)
 -   start-frame exposure strength: **0.04 not promoted** on Ghost
     Library / Seedance 2.5 (obvious recursion gone; starting-geometry
@@ -307,9 +316,13 @@ starts them.
     baseline; not architecture)
 -   recursive-space / reconstituted-environment artifacts in video
     (materially reduced on Ghost Library 01.5 outgoing, not
-    eliminated; 01.6 made the start-of-shot behavior worse; 01.7
+    eliminated; Krea 01.6 made the start-of-shot behavior worse;
+    Replicate 01.6 did not reproduce that severe collapse; 01.7
     removed the obvious initial event at the cost of endpoint
-    geometry authority; one fixture / one model)
+    geometry authority; one fixture)
+-   whether environmental/foreground motion can serve as a perceptual
+    witness to camera locomotion (observation from the Replicate
+    series; not a proven mechanism)
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while
