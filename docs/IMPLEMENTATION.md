@@ -6,15 +6,17 @@ Build uncertain technical ideas as small experiments before building
 infrastructure around them.
 
 **Current track (now):** Camotion v1 exists. Default `render()` remains
-the continuous near-weight radial-exposure path. The experimental
-depth-banded, motion-aware compositor with **outgoing** start-frame
-exposure (`tuning/01.5-banded-result.png`,
-`tuning/01.5-banded-video.mp4`) is the current working Camotion
-research baseline on Ghost Library. It is **not** the default renderer
-and is **not** a universal/frozen replacement. A controlled
-start-frame temporal-orientation experiment (`01.6`) **rejected**
-terminal-at-canonical start exposure on that fixture. Do not start
-another Camotion renderer experiment in this checkpoint.
+the continuous near-weight radial-exposure path. On Ghost Library /
+Seedance 2.5, the experimental depth-banded compositor with
+**outgoing** start-frame exposure at **strength 0.08**
+(`tuning/01.5-banded-result.png`, `tuning/01.5-banded-video.mp4`)
+remains the current working baseline for **directed A→B** research.
+It is **not** the default renderer and is **not** a
+universal/frozen replacement. 01.6 rejected terminal-at-canonical
+start exposure. 01.7 halved strength to 0.04: obvious initial
+recursion disappeared, but starting-geometry fidelity got worse.
+**0.04 is not promoted.** Do not start another Camotion renderer
+experiment in this checkpoint.
 
 **Later track (not now):** Director / product --- automate the canonical
 still-journey loop, then Cinematographer / video. After Camotion
@@ -141,11 +143,16 @@ Intended Camotion / Cinematographer research order:
     **completed; rejected on Ghost Library**. Terminal-at-canonical
     start exposure worsened the initial reconstruction. Keep the
     experimental code and evidence; do not adopt that orientation.
-4.  Validate / freeze an updated Camotion baseline **if** justified.
+4.  Controlled start-frame strength reduction (0.08 → 0.04) ---
+    **completed on Ghost Library / Seedance 2.5**. Obvious initial
+    recursion disappeared; source-geometry authority got worse.
+    **0.04 not promoted.** 01.5 / 0.08 remains the directed A→B
+    working baseline. Not cross-scene or cross-model.
+5.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
     Do not start the next renderer experiment in this checkpoint.
-5.  Automated Cinematographer + Camotion Benchmark Harness.
-6.  Cross-style / cross-model experiments.
+6.  Automated Cinematographer + Camotion Benchmark Harness.
+7.  Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
@@ -159,6 +166,20 @@ checkpoint.
 The current intended video path is shooting-frame start, shooting-frame
 end, and locomotion prompt. Extra pristine/canonical reference images
 are not part of the current architecture.
+
+For **directed A→B** traversal, the conditioned start and end frames
+are authoritative shot endpoints. The generated video's boundary
+frames should match those supplied endpoints as closely as the video
+model permits, ideally pixel-perfect. Evaluation priority: (1)
+endpoint fidelity, (2) coherent spatial traversal between endpoints,
+(3) locomotion/parallax quality, (4) creative scene evolution only
+insofar as it does not violate endpoint authority. This is an
+evaluation/product requirement, not a CameraMotionPlan field.
+
+That endpoint-authority requirement is specifically for directed
+A→B. Future Discovery / open-exploration generation may intentionally
+permit the model to invent future geometry after an authoritative
+starting frame. Do not redesign architecture around that mode here.
 
 ### After Camotion v1 --- optional manual vision-to-JSON
 
@@ -303,14 +324,42 @@ evidence; do not tune 01.6; do not introduce `A_in` / `A_out` or
 `B_in` / `B_out`; do not replace default `render()`. One fixture; not
 cross-scene validation.
 
+### Reduced-strength start-frame experiment (completed; 0.04 not promoted)
+
+One-variable A/B on Ghost Library / Seedance 2.5: same 01.5
+depth-banded outgoing compositor, depth, masks, softening, VP,
+destination protection, sample count, end shooting frame, locomotion
+prompt, and model/settings; only start-frame `exposure.strength`
+changed from **0.08** to **0.04**. Medium remains `strength × 8/12`.
+Plan fixture: `tuning/01.7-banded-strength-004-plan.json`. Still:
+`tuning/01.7-banded-strength-004-result.png`. Video:
+`tuning/01.7-banded-strength-004-video.mp4`.
+
+01.7 **removed** the obvious initial recursive/reconstructed-space
+event seen in 01.5. It is **not** simply a success: Seedance
+immediately reinterpreted/warped the starting spatial geometry more
+substantially (a different/narrower inferred corridor) instead of
+preserving the authored starting geometry as closely as directed A→B
+requires. Later forward traversal and doorway crossing remained
+coherent.
+
+Do not describe 01.7 simply as worse either. It exposed a
+**conditioning-authority tradeoff** on this fixture: weaker
+conditioning reduced obvious recursion but also reduced authority over
+source geometry. **0.04 is not promoted over 0.08.** 01.5 / 0.08
+remains the current working baseline for directed A→B research. One
+fixture and one video model; no cross-scene or cross-model claim. Do
+not add a strength-architecture field; do not replace default
+`render()`.
+
 ### Cinematographer integration
 
 Open question: module boundaries. Intended *role*: for accepted frame
 pairs, analyze route/geometry, emit ShotPlan, derive CameraMotionPlan,
 invoke Camotion, fill a locomotion template, call the video provider,
-and judge traversal rather than endpoint resemblance. Do not scaffold
-this until the role is needed and the MediaProvider video request
-exists.
+and judge directed A→B shots by endpoint fidelity first, then
+traversal. Do not scaffold this until the role is needed and the
+MediaProvider video request exists.
 
 ### Shoot Journey
 
@@ -379,8 +428,8 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint is documentation of the 01.6 orientation
-result. Do not start another Camotion renderer experiment here, and
+tasks. This checkpoint is documentation of the 01.7 strength
+tradeoff. Do not start another Camotion renderer experiment here, and
 do not silently replace default `render()`.
 
 ## Hackathon strategy
@@ -409,9 +458,15 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     (terminal-at-canonical worsened the initial reconstruction; 01.5
     outgoing remains the working experimental baseline; not
     cross-scene)
+-   start-frame exposure strength: **0.04 not promoted** on Ghost
+    Library / Seedance 2.5 (obvious recursion gone; starting-geometry
+    fidelity worse; 01.5 / 0.08 remains directed A→B working
+    baseline; conditioning-authority tradeoff; not cross-scene or
+    cross-model)
 -   recursive-space / reconstituted-environment video artifacts
     (reduced on Ghost Library 01.5 outgoing, not eliminated; 01.6
-    made the start-of-shot behavior worse on that fixture)
+    made the start-of-shot behavior worse; 01.7 removed the obvious
+    initial event at the cost of endpoint geometry authority)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

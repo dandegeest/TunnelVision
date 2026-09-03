@@ -86,6 +86,16 @@ solved.
     spatial reachability must be evaluated explicitly.
 -   **Locomotion outranks destination matching.** Morphing/dissolving to
     the endpoint is failure.
+-   **Directed A→B preserves authored endpoints.** For a directed
+    traversal, A and B are authoritative shot endpoints. The generated
+    video's first and last frames should match the supplied start and
+    end frames as closely as the video model permits, ideally
+    pixel-perfect. Judge endpoint fidelity first, then coherent
+    spatial traversal, then locomotion/parallax quality; creative
+    scene evolution must not violate endpoint authority. This is a
+    directed-shot requirement. Future Discovery / open-exploration
+    generation may invent future geometry after an authoritative
+    starting frame; that mode is not current product behavior.
 -   **Structured intent, deterministic geometry.** AI reasons about
     filmmaking; code owns pixel math.
 -   **Provider independence.** TunnelVision owns its contracts;

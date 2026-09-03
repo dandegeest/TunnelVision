@@ -41,6 +41,13 @@ Camotion derives **shooting frames** from them. Video generation
 currently receives those shooting frames. Canonical images remain on
 the storyboard; they are not currently passed to the video model.
 
+For **directed A→B** shots, the supplied start and end frames
+(currently Camotion shooting frames derived from canonical A and B)
+are the shot endpoints. Generated boundary frames should match those
+endpoints as closely as the video model permits. Future Discovery /
+open-exploration generation is a different mode and is not the
+current storyboard contract.
+
 ## Frame modes
 
 **Variations** --- alternate candidate viewpoints.

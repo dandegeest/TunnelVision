@@ -108,8 +108,9 @@ start-frame exposure produced a more photographic still
 (`tuning/01.5-banded-result.png`) and materially reduced, but did not
 eliminate, recursive-space reconstruction in the corresponding video
 (`tuning/01.5-banded-video.mp4`). This is one fixture, not a renderer
-replacement. **01.5 outgoing orientation is the current working
-experimental baseline.**
+replacement. **01.5 outgoing orientation at strength 0.08 is the
+current working experimental baseline for directed A→B on this
+fixture.** Tuning values are not architecture.
 
 A later one-variable start-frame orientation test
 (`tuning/01.6-terminal-start-result.png`,
@@ -118,6 +119,13 @@ set so history terminated at canonical A. On Ghost Library that
 **worsened** the initial reconstruction. Do not adopt
 terminal-at-canonical start exposure. Do not treat the helper as
 `A_in` / `A_out` or `B_in` / `B_out` architecture.
+
+Halving start-frame strength to 0.04 on the same 01.5 path
+(`tuning/01.7-banded-strength-004-result.png`,
+`tuning/01.7-banded-strength-004-video.mp4`) removed the obvious
+initial recursion on Ghost Library / Seedance 2.5 but reduced
+authority over authored starting geometry. **0.04 is not promoted.**
+This is a fixture-level tradeoff, not a new renderer contract.
 
 ### Canonical frames vs shooting frames
 
@@ -135,6 +143,20 @@ canonical A  →  optional CV / depth  →  Camotion  →  A'
 canonical B  →  optional CV / depth  →  Camotion  →  B'
 A' + B' + locomotion prompt  →  video model
 ```
+
+For **directed A→B** traversal, A and B are the authored shot
+endpoints. Video currently receives shooting frames A' and B' derived
+from them. Those supplied start and end frames are authoritative: the
+generated video's boundary frames should match them as closely as the
+video model permits, ideally pixel-perfect. Evaluation priority: (1)
+endpoint fidelity, (2) coherent spatial traversal between endpoints,
+(3) locomotion/parallax quality, (4) creative scene evolution only
+insofar as it does not violate endpoint authority.
+
+This requirement is specific to directed A→B. Future Discovery /
+open-exploration generation may intentionally invent future geometry
+after an authoritative starting frame. That mode is not current
+architecture and is not designed here.
 
 An extra pristine/canonical reference image is **not** part of the
 current generation contract. That idea was tested and is recorded in
@@ -275,10 +297,15 @@ starts them.
     (terminal-at-canonical worsened initial reconstruction; 01.5
     outgoing remains the working experimental baseline; not
     `A_in` / `A_out` or `B_in` / `B_out` architecture)
+-   start-frame exposure strength: **0.04 not promoted** on Ghost
+    Library / Seedance 2.5 (obvious recursion gone; starting-geometry
+    fidelity worse; 01.5 / 0.08 remains directed A→B working
+    baseline; not architecture)
 -   recursive-space / reconstituted-environment artifacts in video
     (materially reduced on Ghost Library 01.5 outgoing, not
-    eliminated; 01.6 made the start-of-shot behavior worse; one
-    fixture)
+    eliminated; 01.6 made the start-of-shot behavior worse; 01.7
+    removed the obvious initial event at the cost of endpoint
+    geometry authority; one fixture / one model)
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while
