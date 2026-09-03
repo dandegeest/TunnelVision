@@ -29,7 +29,8 @@ experiments on the same Replicate Seedance 2.5 path. The MediaProvider
 vertical slice and 01.5 Replicate smoke test succeeded (prediction
 `xepfh4612srmy0d0d3b9m3knj4`; evidence under
 `tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`). Historical
-Krea videos remain prior evidence and must not be overwritten. Do not
+Krea videos remain prior evidence and must not be overwritten. Batch
+manifests exist; the paid 01.3–01.8 rerun has not been executed. Do not
 begin 01.9. After Camotion renderer research (and any justified
 baseline freeze), the already planned product-research milestone
 remains Automated Cinematographer + Camotion Benchmark Harness. Do not
@@ -190,9 +191,10 @@ Intended Camotion / Cinematographer research order:
     remains the directed A→B video-tested working baseline.
 6.  Reusable Replicate MediaProvider + experiment runner, then
     controlled reruns of the historical Camotion experiments ---
-    **01.5 Replicate smoke test succeeded.** Next: controlled
-    01.3–01.8 reruns on the frozen Seedance 2.5 settings. Do not
-    overwrite historical Krea evidence. Do not begin 01.9.
+    **01.5 Replicate smoke test succeeded.** Batch manifests and a
+    dry-run runner exist for 01.3–01.8 on the frozen Seedance 2.5
+    settings. The paid historical batch has **not** been executed.
+    Do not overwrite historical Krea evidence. Do not begin 01.9.
 7.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
 8.  Automated Cinematographer + Camotion Benchmark Harness.

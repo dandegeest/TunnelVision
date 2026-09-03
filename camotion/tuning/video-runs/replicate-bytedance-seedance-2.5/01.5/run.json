@@ -40,5 +40,6 @@
     "path": "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/result.mp4",
     "source_url": "https://replicate.delivery/xezq/3ygmpxV1tSapKVhKFP8wmd2Bu0mAnkcHo06eObuwhyNfM4JXA/tmpm7romx6p.mp4"
   },
-  "observed_cost_usd": 1.40
+  "observed_cost_usd": 1.40,
+  "observed_cost_source": "manual"
 }

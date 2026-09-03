@@ -74,7 +74,7 @@ test("run record serialization excludes secrets", () => {
   assertRecordIsSafe(record, "r8_supersecret");
   assert.equal("observed_cost_usd" in record, false);
   assertRecordIsSafe(
-    { ...record, observed_cost_usd: 1.4 },
+    { ...record, observed_cost_usd: 1.4, observed_cost_source: "manual" },
     "r8_supersecret",
   );
   assert.throws(

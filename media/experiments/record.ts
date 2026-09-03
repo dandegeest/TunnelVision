@@ -31,13 +31,38 @@ export type ExperimentRunRecord = {
     readonly source_url: string | null;
   } | null;
   /**
-   * Optional operator-recorded USD cost. Not returned by Replicate unless
-   * later sourced from the API; omit when unknown. Never required for success.
+   * Optional operator-recorded USD cost. Never required for success.
+   * `observed_cost_source` must be set when a cost is recorded:
+   * "manual" is operator-observed, "provider" is API-reported.
    */
   readonly observed_cost_usd?: number | null;
+  readonly observed_cost_source?: "manual" | "provider" | null;
 };
 
 const FORBIDDEN = ["REPLICATE_API_TOKEN", "auth", "authorization", "bearer"];
+
+export function isSuccessfulRunRecord(
+  record: Pick<ExperimentRunRecord, "status" | "output">,
+): boolean {
+  return record.status === "succeeded" && Boolean(record.output?.filename);
+}
+
+/**
+ * Manual operator-observed USD cost only. Provider/API-reported cost is
+ * ignored so batch estimates cannot treat a price quote as evidence.
+ */
+export function manualObservedCostUsd(
+  record: Pick<ExperimentRunRecord, "observed_cost_usd" | "observed_cost_source"> | null,
+): number | null {
+  if (!record || record.observed_cost_source !== "manual") {
+    return null;
+  }
+  const value = record.observed_cost_usd;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return null;
+  }
+  return value;
+}
 
 export function assertRecordIsSafe(record: ExperimentRunRecord, token?: string): void {
   const serialized = JSON.stringify(record);
