@@ -107,9 +107,9 @@
 </article>
 <div class="finding">
 <strong>Terran's motion-conditioned anchor technique</strong>
-<p>In an August 29 check-in, Terran Boylan explained an important part of the original TunnelTV workflow used in <em>Digging in the Dirt</em> that had not yet been represented in this log: before video generation, he preprocessed the keyframes in Photoshop so they visually communicated that the camera was already moving. His script used two different blur operations, incorporated Z/depth information, and protected the intended destination area from blur.</p>
+<p>In an August 29 check-in, Terran Boylan explained an important part of his original TunnelVision workflow, later used in <em>Digging in the Dirt</em>, that had not yet been represented in this log: before video generation, he preprocessed the keyframes in Photoshop so they visually communicated that the camera was already moving. His script used two different blur operations, incorporated Z/depth information, and protected the intended destination area from blur.</p>
 <p>The practical effect is a depth-aware motion cue: nearby structures can streak strongly while the destination remains comparatively stable. This means the original technique combined <b>linguistic motion conditioning</b> in the prompt with <b>visual motion conditioning</b> in the endpoint frames.</p>
-<p><b>Credit boundary:</b> motion-conditioned keyframes, depth-aware blur, destination protection, and the generic continuous-motion prompting strategy come from Terran's original TunnelTV work. The experiments below test extensions of that approach inside the emerging agent architecture.</p>
+<p><b>Credit boundary:</b> motion-conditioned keyframes, depth-aware blur, destination protection, and the generic continuous-motion prompting strategy come from Terran's original TunnelVision work. The experiments below test extensions of that approach inside the emerging agent architecture.</p>
 </div>
 <article class="motion-test pass" id="motion-test-09">
 <div class="motion-head"><h3>Test 09 · Terran library anchors + pristine start reference</h3><span class="result-pill pass">PASS</span></div>
@@ -118,7 +118,7 @@
 <video controls playsinline preload="metadata" src="../assets/videos/motion-test-09.mp4"></video>
 <p><strong>Result:</strong> Convincing physical traversal from the old library through the doorway into the courtyard. Shelves, skeletons, and foreground structures pass the camera with strong parallax; the doorway functions as a real threshold; and the exterior is revealed after crossing it rather than dissolving into place.</p>
 <p><strong>Accidental control:</strong> The prompt still contained the earthen-ravine language from the previous forest experiment. Despite the semantic mismatch, the visual anchors dominated and the traversal remained strong. This suggests that the motion-conditioned endpoints and continuous-locomotion grammar are doing substantially more work than elaborate scene-specific prose.</p>
-<p><strong>New extension under test:</strong> Terran did not use pristine canonical images as additional references in the original TunnelTV workflow. Here, the pristine library frame was supplied as a visual reference while the motion-conditioned first/last frames remained the motion authority.</p>
+<p><strong>New extension under test:</strong> Terran did not use pristine canonical images as additional references in his original TunnelVision workflow. Here, the pristine library frame was supplied as a visual reference while the motion-conditioned first/last frames remained the motion authority.</p>
 </article>
 <article class="motion-test pass" id="motion-test-10">
 <div class="motion-head"><h3>Test 10 · Same library shot + scene-aware locomotion prompt</h3><span class="result-pill info">SIMILAR RESULT</span></div>
@@ -136,7 +136,7 @@
 <div class="finding">
 <strong>Motion chapter takeaway</strong>
 <p><b>Visual continuity is not spatial traversability, and endpoint matching is not the same objective as locomotion.</b> Our destination-oriented prompts repeatedly encouraged Seedance to reconcile one frame into another. The successful B → D controlled test used the same anchors but changed the instruction hierarchy: continuous movement became the governing fact of the shot, while the environment was allowed to negotiate bends, occlusions, particles, and foreground objects in service of uninterrupted travel.</p>
-<p>This confirms the value of Terran Boylan's original TunnelTV motion language rather than replacing it. The new opportunity is to generalize that principle inside a Cinematographer agent: inspect the current world, infer appropriate route-taking, occluders, particles, moving objects, and motion cues for that environment, then construct a world-specific traversal prompt whose first priority is <em>never stop moving</em>.</p>
+<p>This confirms the value of Terran Boylan's original TunnelVision motion language rather than replacing it. The new opportunity is to generalize that principle inside a Cinematographer agent: inspect the current world, infer appropriate route-taking, occluders, particles, moving objects, and motion cues for that environment, then construct a world-specific traversal prompt whose first priority is <em>never stop moving</em>.</p>
 </div><div class="finding anchor-finding" id="shared-anchor-finding">
 <strong>At this stage we treated shared canonical anchors as the ideal edit points</strong>
 <p>For adjacent clips A → B and B → C, we treated the strongest compositing case as the final frame of the first clip and the first frame of the second clip being the exact same canonical image B. Trimming away eased clip ends can remove the speed ramp, but it also sacrifices that exact shared visual handoff. The later Camotion checkpoint keeps canonical B as storyboard/world-state identity, while video currently receives shooting frames derived from those canonical images.</p>

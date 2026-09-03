@@ -31,8 +31,8 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 
 -   **Exists now:** planning docs; genesis experiment record; Camotion
     v1 (radial field, multisample exposure, destination protection);
-    optional near-weight CLI/renderer input; Terran Boylan TunnelTV
-    Action reverse-engineering as reference research; an **experimental**
+    optional near-weight CLI/renderer input; Terran Boylan original
+    TunnelVision Action reverse-engineering as reference research; an **experimental**
     depth-banded, motion-aware compositor path (not the default
     renderer).
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
@@ -94,7 +94,7 @@ same destination-protection blend. Strong and medium radial exposures
 use the existing multisample machinery. The strong visibility mask is
 itself motion-treated. Invoked separately from normal `render()`.
 
-Terran Boylan's original **TunnelTV** Photoshop Action remains
+Terran Boylan's original **TunnelVision** Photoshop Action remains
 **reference research**. Camotion is **not** a port or reimplementation
 of it.
 

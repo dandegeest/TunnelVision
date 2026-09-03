@@ -8,20 +8,21 @@ The goal is a system that can decide where to go next, learn from human creative
 
 ## Origin
 
-TunnelVision builds on **TunnelTV**, a manual generative filmmaking technique created by **Terran Boylan** and used in the AI music video for Peter Gabriel's *Digging in the Dirt*. In the video, it appears as TunnelTV — a playful homage to MTV.
+**TunnelVision** originated with filmmaker **Terran Boylan**. He developed the concept and manual generative filmmaking technique through work for his own YouTube channel and video content, before the Peter Gabriel *Digging in the Dirt* project. The technique was later adapted for that film, where we used the playful name **TunnelTV** — an homage to MTV.
 
-Terran's TunnelTV workflow used successive generated frames to move a first-person camera through an imagined environment, with each selected frame becoming the visual foundation for the next step.
+Terran's original TunnelVision workflow used successive generated frames to move a first-person camera through an imagined environment, with each selected frame becoming the visual foundation for the next step.
 
-**TunnelVision** is the agentic evolution of that idea:
+This repository is agentic filmmaking research extending that original TunnelVision work:
 
-- **TunnelTV:** manual filmmaking through an imagined world.
-- **TunnelVision:** agentic exploration and filmmaking through endless imagined worlds.
+- **Original TunnelVision:** Terran Boylan's concept and manual filmmaking technique.
+- **TunnelTV:** playful DITD-era label for that application's adaptation of TunnelVision.
+- **Current research:** agentic exploration and filmmaking through imagined worlds, including Director/Cinematographer architecture and Camotion.
 
 This project asks:
 
 > **What happens if that process becomes self-directing?**
 
-Rather than replacing TunnelTV, this project attempts to understand, automate, and generalize it into a system where an AI Director decides where the journey should go and an AI Cinematographer determines how to move the camera there.
+Rather than replacing Terran's original technique, this research attempts to understand, automate, and generalize it into a system where an AI Director decides where the journey should go and an AI Cinematographer determines how to move the camera there.
 
 ## The Core Idea
 
@@ -85,7 +86,7 @@ Experiments revealed an important distinction:
 
 Video models can produce beautiful transitions while effectively dissolving or transforming one environment into another rather than moving a camera between them.
 
-A key breakthrough came from returning to Terran Boylan's original TunnelTV motion-prompting philosophy.
+A key breakthrough came from returning to Terran Boylan's original TunnelVision motion-prompting philosophy.
 
 Instead of instructing the model primarily to **arrive at the destination frame**, the prompt establishes continuous locomotion as the governing constraint:
 
@@ -216,9 +217,9 @@ The exploration phase intentionally documents failures as well as successes beca
 
 ## Acknowledgments
 
-**Terran Boylan** created **TunnelTV**, the original manual workflow that inspired this project, and used it in the AI music video for Peter Gabriel's *Digging in the Dirt*.
+**Terran Boylan** originated **TunnelVision**: the concept, the manual filmmaking technique, and the motion-conditioning workflow later examined in this research. He developed that work through his own YouTube and video practice. It was later adapted for the AI music video for Peter Gabriel's *Digging in the Dirt*, where we used the playful label **TunnelTV**.
 
-TunnelVision builds on that foundation by exploring how the TunnelTV loop can become self-directing, preference-learning, sequence-aware, and eventually capable of autonomously generating continuous motion between selected viewpoints.
+Later agentic Director/Cinematographer architecture and Camotion research in this repository are subsequent development built from that foundation, not a restatement of Terran's original system.
 
 AI music video for Peter Gabriel's *Digging in the Dirt*:  
 https://www.5050.dev/videos/v/4bkjb3htbteraepxtc9cnb9rc7azp2

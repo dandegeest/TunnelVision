@@ -2,14 +2,14 @@
 
 ## Product thesis
 
-TunnelVision turns the manually directed **TunnelTV** filmmaking
-technique into an agentic system for exploring and filming continuous
-journeys through imagined worlds.
+TunnelVision is agentic filmmaking research extending filmmaker
+**Terran Boylan's original TunnelVision** technique: a system for
+exploring and filming continuous journeys through imagined worlds.
 
-TunnelTV demonstrated that successive AI-generated viewpoints can be
-manually selected and carried forward to create the feeling of traveling
-through a coherent imagined environment. TunnelVision asks what happens
-when that loop becomes self-directing.
+Terran's original manual workflow showed that successive AI-generated
+viewpoints can be selected and carried forward to create the feeling of
+traveling through a coherent imagined environment. This research asks
+what happens when that loop becomes self-directing.
 
 > **Preserve the world's rules while changing the viewer's question.**
 
@@ -19,20 +19,28 @@ film is one traversal through that world.
 
 ## Origin and naming
 
-**TunnelTV** is the original manually directed technique demonstrated in
-the AI music video for Peter Gabriel's *Digging in the Dirt*. The
-workflow was developed by Terran Boylan and depends on deliberate human
-generation, selection, visual continuity, and motion conditioning.
+**TunnelVision** originated with filmmaker **Terran Boylan**. He
+developed the concept and manual filmmaking technique through work for
+his own YouTube channel and video content. That work predates the
+Peter Gabriel *Digging in the Dirt* project. The technique was later
+adapted for DITD, where we used the playful label **TunnelTV**.
 
-**TunnelVision** is the agentic evolution being built from that
-foundation.
+This repository keeps the TunnelVision name as a continuation of that
+lineage. The current research extends Terran's original concept and
+manual workflow into an agentic filmmaking system. It does not rename
+his technique, and TunnelTV is not the original name of the technique.
 
--   **TunnelTV:** manual filmmaking through an imagined world.
--   **TunnelVision:** agentic exploration and filmmaking through
-    potentially endless imagined worlds.
+-   **Original TunnelVision:** Terran Boylan's concept and manual
+    filmmaking technique, developed through his own video work.
+-   **TunnelTV:** playful DITD-era label for that application's
+    adaptation of TunnelVision.
+-   **Current TunnelVision research:** agentic Director /
+    Cinematographer architecture, Camotion, and later experiments
+    built from Terran's foundation.
 
-Preserve clear attribution to Terran Boylan and distinguish his original
-craft from later TunnelVision experiments and extensions.
+Preserve clear attribution to Terran Boylan for the original concept
+and manual craft, and distinguish that foundation from later agentic
+and Camotion work.
 
 ## User promise
 
@@ -60,9 +68,10 @@ frames** from canonical frames; and prepare video-generation inputs
 from those shooting frames.
 
 Camotion is deterministic graphics, not an agent. **Camotion v1** is a
-radial-exposure experiment inspired by TunnelTV motion-conditioning
-findings. It is **not** a port of Terran Boylan's depth-aware Photoshop
-workflow (Z/depth, multiple blur operations, destination protection).
+radial-exposure experiment that approximates and extends aspects of
+Terran Boylan's original TunnelVision motion-conditioning workflow. It
+is **not** a port of his depth-aware Photoshop workflow (Z/depth,
+multiple blur operations, destination protection).
 Optional depth weighting is a renderer sidecar, not part of
 CameraMotionPlan v1. See [IMPLEMENTATION.md](IMPLEMENTATION.md) and
 [DATA_MODEL.md](DATA_MODEL.md).

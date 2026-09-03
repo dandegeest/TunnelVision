@@ -60,8 +60,9 @@ An optional near-weight / depth image may be supplied **beside** the
 JSON as a renderer/CLI input. It is **not** a CameraMotionPlan field.
 If omitted, output matches the radial-only path.
 
-Camotion v1 is a **radial-exposure experiment**. It is inspired by
-TunnelTV motion-conditioning findings (continuous locomotion plus
+Camotion v1 is a **radial-exposure experiment**. It approximates and
+extends aspects of Terran Boylan's original TunnelVision
+motion-conditioning workflow (continuous locomotion plus
 destination protection). It is **not** a recreation or port of Terran
 Boylan's depth-aware Photoshop workflow. See
 [IMPLEMENTATION.md](IMPLEMENTATION.md).

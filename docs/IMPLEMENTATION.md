@@ -38,9 +38,9 @@ Do **not** create `web/`, `server/`, `providers/`, Director modules,
 Cinematographer modules, PreferenceState, journey workspace layout, or
 other application scaffolding in this research stage.
 
-## Camotion v1 is an experiment, not TunnelTV
+## Camotion v1 is an experiment, not Terran's Photoshop Action
 
-Terran Boylan's original **TunnelTV** motion-conditioning workflow, as
+Terran Boylan's original **TunnelVision** motion-conditioning workflow, as
 described in the genesis log, preprocessed keyframes in Photoshop so
 they already looked like the camera was moving. That known workflow
 included:
@@ -55,14 +55,15 @@ Camotion v1 is **not** a recreation or port of that Photoshop Action.
 The Action has now been reverse-engineered as **reference research**;
 that research does not make Camotion a reimplementation of Terran's
 script. Implemented Camotion remains a **radial-exposure experiment
-inspired by TunnelTV findings**: can a small geometric JSON plan plus
+that approximates and extends aspects of Terran's original TunnelVision
+workflow**: can a small geometric JSON plan plus
 a radial motion field, optional near-weight scaling, multisample
 exposure, and a protected destination make pixels communicate forward
 motion?
 
 Credit for motion-conditioned keyframes, depth-aware blur, destination
 protection, and the generic continuous-motion prompting strategy remains
-with Terran Boylan / TunnelTV. Camotion architecture, interpretation,
+with Terran Boylan and original TunnelVision. Camotion architecture, interpretation,
 and the compositor hypothesis below are ours, not Terran's claims.
 Optional near-weight scaling lives **outside** CameraMotionPlan;
 Camotion still does not estimate depth.
@@ -133,7 +134,7 @@ UI, 6-DOF, segmentation, GPU rendering, video, `ShotPlan`, `B_in` /
 
 Intended Camotion / Cinematographer research order:
 
-1.  Reverse-engineer Terran Boylan's TunnelTV Photoshop Action ---
+1.  Reverse-engineer Terran Boylan's original TunnelVision Photoshop Action ---
     **complete enough**.
 2.  Controlled depth-banded, motion-aware compositor experiment ---
     **completed successfully enough to continue** (Ghost Library 01.5
@@ -245,7 +246,7 @@ path.
 
 A video run from conditioned start/end shooting frames, with no extra
 pristine reference, still showed a recursive-library artifact. Terran
-Boylan's original TunnelTV Ghost Library motion frame also uses strong
+Boylan's original TunnelVision Ghost Library motion frame also uses strong
 near-field motion and stable far architecture, which weakened the
 hypothesis that depth weighting itself caused the recursion.
 
@@ -370,8 +371,8 @@ order, surface failures.
 ## Experimental artifact --- continuous-locomotion prompt
 
 Genesis video tests found that destination-matching prompts often
-**dissolved** one still into another, while Terran Boylan's TunnelTV
-continuous-motion language produced convincing travel on **Seedance
+**dissolved** one still into another, while Terran Boylan's original
+TunnelVision continuous-motion language produced convincing travel on **Seedance
 2.5 via Krea**.
 
 This is an experimental artifact, not a frozen product template and
@@ -381,7 +382,8 @@ Cinematographer should fill a stable grammar from structured scene
 data rather than freely rewriting the whole prompt. That templating
 system is not designed yet.
 
-Provenance: TunnelTV motion-prompting (Terran Boylan); documented in
+Provenance: Terran Boylan's original TunnelVision motion-prompting;
+documented in
 `genesis/TunnelVision_Prototype_Exploration_Log.html` Test 08
 (controlled B→D pass; same anchors as a failing destination-oriented
 prompt). Test 09 used the same locomotion grammar on motion-conditioned

@@ -55,8 +55,9 @@ Camotion does not estimate depth, run CV, or call generators.
 Camotion v1 is a **radial-exposure experiment** (forward radial motion
 field around a supplied focus of expansion, scaled by `camera.forward`,
 multisample exposure, protected destination, optional near-weight
-scaling of that same field). It is inspired by TunnelTV
-motion-conditioning findings. It is **not** a recreation or port of
+scaling of that same field). It approximates and extends aspects of
+Terran Boylan's original TunnelVision motion-conditioning workflow.
+It is **not** a recreation or port of
 Terran Boylan's depth-aware Photoshop workflow, which used Z / depth,
 two blur operations, and destination protection.
 
@@ -82,5 +83,5 @@ atmosphere can help preserve continuous locomotion.
 The genesis prompt that demonstrated this on Seedance 2.5 / Krea is
 recorded as an experimental artifact in
 [IMPLEMENTATION.md](IMPLEMENTATION.md). Preserve Terran Boylan /
-TunnelTV provenance. Do not treat that text as model-independent or as
+original TunnelVision provenance. Do not treat that text as model-independent or as
 a Camotion input.
