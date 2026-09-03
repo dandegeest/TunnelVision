@@ -308,15 +308,18 @@ Do **not** design these until a later milestone needs them:
 
 -   Journey, CanonicalFrame, CandidateFrame, DirectorDecision
 -   PreferenceState
--   ImageGenerationRequest, VideoGenerationRequest, GeneratedAsset
+-   ImageGenerationRequest, GeneratedAsset
 -   duration → shot count
 -   automated traversal scores
 
-When a video-generation request is eventually specified, the current
-intended inputs are start shooting frame, end shooting frame, and
-prompt. Extra pristine/canonical reference images are not part of the
-current architecture. Model- and provider-specific knobs stay behind
-the adapter. That schema is not designed here.
+`VideoGenerationRequest`, `GeneratedVideo`, and `MediaInput` now exist
+as TunnelVision-owned provider-boundary types in `media/src/types.ts`.
+They are not Camotion types and must not appear in CameraMotionPlan.
+
+Current video inputs: start shooting frame, optional end shooting
+frame, prompt, optional duration. Extra pristine/canonical reference
+images are not part of the current architecture. Model- and
+provider-specific knobs stay behind the adapter.
 
 ## Open questions
 

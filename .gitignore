@@ -10,3 +10,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 _pages/
+.env
+.env.local
+.env.*.local
+node_modules/
+media/dist/

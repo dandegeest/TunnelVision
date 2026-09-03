@@ -24,13 +24,16 @@ traversal. That is an observation, not a promotion. **01.8 is not
 the directed baseline.** Do not treat route preservation as
 architecture.
 
-**Later track (not now):** Next planned engineering is a reusable
-Replicate MediaProvider plus experiment runner, then controlled
-reruns of the historical Camotion experiments. That work has **not
-started**. After Camotion renderer research (and any justified
+**Later track (not now):** Controlled reruns of the historical Camotion
+experiments on the same Replicate Seedance 2.5 path. The MediaProvider
+vertical slice and 01.5 Replicate smoke test succeeded (prediction
+`xepfh4612srmy0d0d3b9m3knj4`; evidence under
+`tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`). Historical
+Krea videos remain prior evidence and must not be overwritten. Do not
+begin 01.9. After Camotion renderer research (and any justified
 baseline freeze), the already planned product-research milestone
-remains Automated Cinematographer + Camotion Benchmark Harness. Do
-not scaffold those tracks in this documentation checkpoint.
+remains Automated Cinematographer + Camotion Benchmark Harness. Do not
+scaffold Director, Cinematographer, or UI in this checkpoint.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
@@ -39,9 +42,13 @@ remain an open question.
 ## What exists vs what not to scaffold
 
 Planning docs in `docs/` describe current architecture.
-`camotion/` is implemented.
+`camotion/` is the Python renderer. `media/` is the video
+MediaProvider package. Credentials are environment variables
+(`REPLICATE_API_TOKEN` today), filled locally from gitignored
+`.env.local` and injected by the deployment platform in CI. See
+`media/README.md`.
 
-Do **not** create `web/`, `server/`, `providers/`, Director modules,
+Do **not** create `web/`, `server/`, Director modules,
 Cinematographer modules, PreferenceState, journey workspace layout, or
 other application scaffolding in this research stage.
 
@@ -183,7 +190,9 @@ Intended Camotion / Cinematographer research order:
     remains the directed A→B video-tested working baseline.
 6.  Reusable Replicate MediaProvider + experiment runner, then
     controlled reruns of the historical Camotion experiments ---
-    **planned next; not started**.
+    **01.5 Replicate smoke test succeeded.** Next: controlled
+    01.3–01.8 reruns on the frozen Seedance 2.5 settings. Do not
+    overwrite historical Krea evidence. Do not begin 01.9.
 7.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
 8.  Automated Cinematographer + Camotion Benchmark Harness.
@@ -194,9 +203,9 @@ continuous near-weight path. Do not formalize `A_in` / `A_out` or
 `B_in` / `B_out`.
 
 These later product phases remain ordered so that **the MediaProvider
-contract exists before Director code depends on it**. Do not implement
-providers, Director, or Cinematographer in this documentation
-checkpoint.
+contract exists before Director code depends on it**. The first
+video-only MediaProvider slice now lives in `media/`. Do not
+implement Director or Cinematographer in this checkpoint.
 
 The current intended video path is shooting-frame start, shooting-frame
 end, and locomotion prompt. Extra pristine/canonical reference images

@@ -10,18 +10,14 @@ current code.
 ## Current implementation --- Camotion first
 
 This repository is in a Camotion-first research stage. Application
-code today is the Python `camotion/` package and CLI. Do **not**
-create `web/`, `server/`, media providers, Director, Cinematographer
-modules, or a journey workspace runtime yet.
+code today is the Python `camotion/` package and a small TypeScript
+`media/` package for video generation. Do **not** create `web/`,
+`server/`, Director, Cinematographer modules, or a journey workspace
+runtime yet.
 
 ``` text
-camotion/     Python package, CLI
-                |
-         image
-         + CameraMotionPlan JSON
-         + optional near-weight sidecar
-                |
-         shooting-frame PNG
+camotion/     Python package, CLI (unchanged renderer)
+media/        MediaProvider + Replicate adapter (video only)
 ```
 
 ``` bash
@@ -34,10 +30,16 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     optional near-weight CLI/renderer input; Terran Boylan original
     TunnelVision Action reverse-engineering as reference research; an **experimental**
     depth-banded, motion-aware compositor path (not the default
-    renderer).
+    renderer); a TypeScript `MediaProvider` contract and Replicate
+    Seedance 2.5 adapter (`media/`), plus a thin Camotion research
+    video runner. The 01.5 Replicate smoke test succeeded
+    (`tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`).
+    Camotion itself still knows nothing about Replicate. Local files
+    are passed to Replicate as bytes (`Buffer`); Node ReadStreams are
+    not auto-uploaded by the official SDK.
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
-    media providers, Director, Cinematographer modules, journey
-    workspace runtime.
+    Director, Cinematographer modules, journey workspace runtime,
+    image generation, Runway/Krea adapters.
 
 Camotion is a standalone deterministic Python graphics package.
 
@@ -216,37 +218,26 @@ so Director, Cinematographer, and Evaluator may use different models.
 
 ## Later media-provider boundary
 
-TunnelVision will own normalized request/response types. Director
+TunnelVision owns normalized request/response types. Director
 implementation must depend on that contract, not on a vendor SDK.
 
-Sketch only --- **not a frozen schema, do not implement in the
-Camotion milestone:**
+The first implemented slice lives in `media/` and currently exposes
+**video generation only**:
 
 ``` ts
 interface MediaProvider {
-  generateImage(request: ImageGenerationRequest): Promise<GeneratedImage>;
   generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo>;
 }
 ```
 
-When `VideoGenerationRequest` is designed, the **current** intended
-inputs are:
+`VideoGenerationRequest` currently carries a start shooting frame, an
+optional end shooting frame, a prompt, and optional duration. Model-
+and provider-specific capabilities stay behind `ReplicateMediaProvider`
+and the Seedance 2.5 adapter. Extra pristine/canonical reference images
+are not part of the current contract.
 
--   start shooting frame
--   end shooting frame
--   prompt
--   model / provider-specific capabilities hidden behind the adapter
-
-Canonical / pristine frames are not video inputs in the current
-architecture. Extra reference images were an experimental
-provider-side capability (recorded in the genesis log) and are **not**
-part of the current contract.
-
-Implement **ReplicateProvider** first, **after** the contract exists and
-**before** Director code calls generation. Add RunwayProvider if/when
-needed for the hackathon. Evaluate Krea only if useful. Do not
-scaffold unused adapters. Do not implement any provider as part of
-Camotion work.
+Implement additional adapters (Runway, Krea) only if needed. Do not
+scaffold unused adapters. Do not import Replicate from Camotion.
 
 Provider-specific types must not leak into CameraMotionPlan, Camotion,
 or later journey/storyboard state.
@@ -268,11 +259,10 @@ moves them.
 **Frozen now:** CameraMotionPlan v1 --- [DATA_MODEL.md](DATA_MODEL.md).
 
 **Not specified yet:** Journey, CanonicalFrame, CandidateFrame,
-DirectorDecision, ShotPlan (illustrative only), GenerationRequest,
-GeneratedAsset, PreferenceState.
+DirectorDecision, ShotPlan (illustrative only), PreferenceState.
 
-External API objects are normalized at provider boundaries when those
-exist.
+External API objects are normalized at provider boundaries. The first
+video MediaProvider lives in `media/`.
 
 ## Later prototype workspace (not created yet)
 

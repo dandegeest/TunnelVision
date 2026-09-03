@@ -1,0 +1,24 @@
+{
+  "name": "tunnelvision-media",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "TunnelVision MediaProvider contract and Replicate adapter.",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "tsx --test tests/**/*.test.ts",
+    "experiment": "tsx experiments/cli.ts",
+    "config:check": "tsx src/cli/config-check.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "replicate": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}

@@ -121,9 +121,10 @@ reasoning provider should support configurable model routing by role
 or profile so Director, Cinematographer, and Evaluator may use
 different models.
 
-The MediaProvider contract must exist before Director code depends on
-generation. Do not implement providers as part of the Camotion
-milestone.
+The MediaProvider contract now exists in `media/` for **video
+generation only**. Director code must depend on that contract, not
+on a raw Replicate client. Do not implement image generation, Runway,
+or Krea adapters in this slice.
 
 The current intended video path is:
 
@@ -136,9 +137,10 @@ A' + B' + locomotion prompt  →  video model  →  continuous shot
 A later video-generation request should represent a start shooting
 frame, an end shooting frame, and a prompt. Extra pristine/canonical
 reference images are **not** part of the current architecture. Model-
-and provider-specific capabilities stay behind the adapter. That
-schema is not designed yet. Genesis locomotion prompts are
-experimental artifacts, not a vendor-neutral API.
+and provider-specific capabilities stay behind the adapter. The first
+TypeScript implementation of that request lives in `media/src/types.ts`.
+Genesis locomotion prompts are experimental artifacts, not a
+vendor-neutral API.
 
 ## Initial experience
 

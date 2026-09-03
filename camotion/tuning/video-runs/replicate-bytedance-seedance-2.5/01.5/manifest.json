@@ -1,0 +1,17 @@
+{
+  "experiment": "01.5",
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "start_image": "camotion/tuning/01.5-banded-result.png",
+  "end_image": "camotion/tuning/ghost-library-end-shooting-frame.jpeg",
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward through the old library toward the doorway and passing completely through it into the courtyard beyond in uninterrupted forward motion. The camera passes between bookshelves, skeletal figures, furniture, architectural structures, or foreground objects as necessary to continue moving forward. The camera never stops advancing through the environment. Nearby shelves, skeletons, furniture, door frames, and other foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses the doorway threshold and continues moving forward into the newly revealed courtyard. Dust, loose particles, and occasional translucent ghostly forms drift naturally through the air and pass around the moving camera, reinforcing its forward motion.",
+  "duration_seconds": 6,
+  "settings": {
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4"
+  },
+  "notes": "Smoke-test intent for the first Replicate MediaProvider vertical slice. A' is the committed 01.5 banded start shooting frame. B' is a byte-identical copy of the historical Ghost Library end shooting frame genesis/Video Exploration/c686d2c2-d600-40a4-90dc-340ed3a8d3d7.jpeg. Do not overwrite historical Krea videos. Settings map as closely as Replicate Seedance 2.5 allows; first/last-frame mode requires aspect_ratio adaptive. generate_audio is false because Krea audio previously triggered a copyright check and the locomotion prompt is silent."
+}

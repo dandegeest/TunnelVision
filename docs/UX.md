@@ -105,6 +105,7 @@ start frame/brief, generate a next viewpoint, show alternatives,
 accept/replace a candidate, append it to the storyboard, allow
 destination redirection, and repeat.
 
-That slice depends on a MediaProvider contract and is **not** the
-current milestone. Current research is Camotion and shooting-frame
-experiments, with no UI.
+That slice now has a MediaProvider video contract in `media/`. It is
+**not** the current UI milestone. Current research is Camotion shooting
+frames plus a Replicate video runner. The 01.5 Replicate smoke test
+succeeded. There is no UI.
