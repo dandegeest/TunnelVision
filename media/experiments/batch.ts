@@ -6,6 +6,7 @@ import { parseManifest, type ExperimentManifest } from "./manifest.ts";
 import {
   isSuccessfulRunRecord,
   manualObservedCostUsd,
+  evidenceRunFilename,
   type ExperimentRunRecord,
 } from "./record.ts";
 import {
@@ -110,9 +111,12 @@ export function frozenControlMismatch(
 
 export async function findExistingSuccessfulRun(
   outputDir: string,
+  experiment: string,
 ): Promise<ExperimentRunRecord | null> {
   try {
-    const raw = JSON.parse(await readFile(join(outputDir, "run.json"), "utf8"));
+    const raw = JSON.parse(
+      await readFile(join(outputDir, evidenceRunFilename(experiment)), "utf8"),
+    );
     if (!isSuccessfulRunRecord(raw)) {
       return null;
     }
@@ -246,7 +250,10 @@ async function runOne(
     );
   }
 
-  const existing = await findExistingSuccessfulRun(prepared.outputDir);
+  const existing = await findExistingSuccessfulRun(
+    prepared.outputDir,
+    experiment,
+  );
   if (existing && !options.rerunExisting) {
     return itemFromPrepared(
       options.repoRoot,
@@ -285,7 +292,10 @@ async function readControlManualCost(
   repoRoot: string,
   control: ExperimentManifest,
 ): Promise<number | null> {
-  const existing = await findExistingSuccessfulRun(outputDirFor(repoRoot, control));
+  const existing = await findExistingSuccessfulRun(
+    outputDirFor(repoRoot, control),
+    control.experiment,
+  );
   return manualObservedCostUsd(existing);
 }
 

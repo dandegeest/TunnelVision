@@ -14,7 +14,7 @@ import {
 } from "../src/index.ts";
 import { getOptionalEnv } from "../src/config/environment.ts";
 import { parseManifest, type ExperimentManifest } from "./manifest.ts";
-import { assertRecordIsSafe, type ExperimentRunRecord } from "./record.ts";
+import { assertRecordIsSafe, evidenceResultFilename, evidenceRunFilename, type ExperimentRunRecord } from "./record.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -121,7 +121,7 @@ export async function runExperiment(
     const result = await provider.generateVideo(prepared.request);
     const completedAt = (options.now ?? (() => new Date()))();
     await mkdir(prepared.outputDir, { recursive: true });
-    const filename = "result.mp4";
+    const filename = evidenceResultFilename(prepared.manifest.experiment);
     const outputPath = join(prepared.outputDir, filename);
     const bytes = await (options.fetchOutput ?? defaultFetch)(result.outputUrl);
     await writeFile(outputPath, bytes);
@@ -219,8 +219,11 @@ async function dryRunRecord(
     provider_error: null,
     error_code: null,
     output: {
-      filename: "result.mp4",
-      path: repoRelative(options.repoRoot, join(prepared.outputDir, "result.mp4")),
+      filename: evidenceResultFilename(prepared.manifest.experiment),
+      path: repoRelative(
+        options.repoRoot,
+        join(prepared.outputDir, evidenceResultFilename(prepared.manifest.experiment)),
+      ),
       source_url: null,
     },
   };
@@ -301,7 +304,7 @@ async function persist(
     await readFile(manifestPath),
   );
   await writeFile(
-    join(prepared.outputDir, "run.json"),
+    join(prepared.outputDir, evidenceRunFilename(prepared.manifest.experiment)),
     `${JSON.stringify(record, null, 2)}\n`,
   );
 }

@@ -66,8 +66,8 @@ test("run record serialization excludes secrets", () => {
     provider_error: null,
     error_code: null,
     output: {
-      filename: "result.mp4",
-      path: "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/result.mp4",
+      filename: "01.5-result.mp4",
+      path: "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-result.mp4",
       source_url: "https://replicate.delivery/x.mp4",
     },
   };
@@ -152,13 +152,13 @@ test("research runner calls MediaProvider rather than Replicate directly", async
   assert.equal(record.end_image?.sha256, sha256Bytes(end));
   assert.equal(
     record.output?.path,
-    "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/result.mp4",
+    "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-result.mp4",
   );
   const saved = JSON.parse(
     await readFile(
       join(
         repoRoot,
-        "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/run.json",
+        "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-run.json",
       ),
       "utf8",
     ),
@@ -196,7 +196,7 @@ test("runner records the provider error Replicate actually reports", async () =>
     await readFile(
       join(
         repoRoot,
-        "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/run.json",
+        "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/01.5-run.json",
       ),
       "utf8",
     ),

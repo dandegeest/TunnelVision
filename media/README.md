@@ -57,10 +57,13 @@ Local files are read as bytes. Node `ReadStream`s are not uploaded and
 produce HTTP 422 (`Expected: string, given: object`).
 
 Successful 01.5 smoke-test evidence lives at
-`camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`.
-Do not overwrite historical Krea videos. `observed_cost_usd` on a run
-record is optional evidence metadata. `observed_cost_source` must be
-`"manual"` for operator-observed cost or `"provider"` if an API later
-returns a price. Batch cost estimates read the successful 01.5 control
-run; they do not hardcode a price. If that evidence has no manual cost,
-the dollar estimate is omitted.
+`camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`
+(`01.5-result.mp4`, `01.5-run.json`). Run records and videos are named
+`<experiment>/<experiment>-run.json` and
+`<experiment>/<experiment>-result.mp4`. Do not overwrite historical
+Krea videos. `observed_cost_usd` on a run record is optional evidence
+metadata. `observed_cost_source` must be `"manual"` for
+operator-observed cost or `"provider"` if an API later returns a
+price. Batch cost estimates read the successful 01.5 control run
+record (`01.5-run.json`); they do not hardcode a price. If that
+evidence has no manual cost, the dollar estimate is omitted.

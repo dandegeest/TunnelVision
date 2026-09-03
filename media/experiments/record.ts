@@ -41,6 +41,14 @@ export type ExperimentRunRecord = {
 
 const FORBIDDEN = ["REPLICATE_API_TOKEN", "auth", "authorization", "bearer"];
 
+export function evidenceResultFilename(experiment: string): string {
+  return `${experiment}-result.mp4`;
+}
+
+export function evidenceRunFilename(experiment: string): string {
+  return `${experiment}-run.json`;
+}
+
 export function isSuccessfulRunRecord(
   record: Pick<ExperimentRunRecord, "status" | "output">,
 ): boolean {

@@ -14,7 +14,7 @@ import {
   runBenchmarkBatch,
 } from "../experiments/batch.ts";
 import { parseManifest } from "../experiments/manifest.ts";
-import { isSuccessfulRunRecord, manualObservedCostUsd } from "../experiments/record.ts";
+import { isSuccessfulRunRecord, manualObservedCostUsd, evidenceResultFilename, evidenceRunFilename } from "../experiments/record.ts";
 
 const prompt =
   "First person POV camera continuously moving forward through a spatially-contiguous environment";
@@ -112,14 +112,14 @@ async function writeSuccessfulRun(
     experiment,
   );
   await mkdir(outputDir, { recursive: true });
-  await writeFile(join(outputDir, "result.mp4"), Buffer.from("existing-mp4"));
+  await writeFile(join(outputDir, evidenceResultFilename(experiment)), Buffer.from("existing-mp4"));
   await writeFile(
-    join(outputDir, "run.json"),
+    join(outputDir, evidenceRunFilename(experiment)),
     `${JSON.stringify(
       {
         experiment,
         status: "succeeded",
-        output: { filename: "result.mp4", path: "x", source_url: null },
+        output: { filename: evidenceResultFilename(experiment), path: "x", source_url: null },
         ...(cost ?? {}),
       },
       null,
@@ -167,7 +167,7 @@ test("successful existing runs are skipped", async () => {
   const preserved = await readFile(
     join(
       repoRoot,
-      "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/result.mp4",
+      "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/01.3-result.mp4",
     ),
   );
   assert.equal(preserved.toString(), "existing-mp4");
@@ -190,7 +190,7 @@ test("explicit override permits rerun of a successful experiment", async () => {
   const rewritten = await readFile(
     join(
       repoRoot,
-      "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/result.mp4",
+      "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/01.3-result.mp4",
     ),
   );
   assert.equal(rewritten.toString(), "rerun-mp4");
@@ -240,7 +240,7 @@ test("failure stops subsequent execution and leaves earlier evidence", async () 
   const first = await readFile(
     join(
       repoRoot,
-      "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/result.mp4",
+      "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.3/01.3-result.mp4",
     ),
   );
   assert.equal(first.toString(), "ok-mp4");
@@ -249,7 +249,7 @@ test("failure stops subsequent execution and leaves earlier evidence", async () 
       readFile(
         join(
           repoRoot,
-          "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.6/result.mp4",
+          "camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.6/01.6-result.mp4",
         ),
       ),
   );
@@ -351,14 +351,14 @@ test("observed_cost_usd is optional evidence metadata", () => {
   assert.equal(
     isSuccessfulRunRecord({
       status: "succeeded",
-      output: { filename: "result.mp4", path: "x", source_url: null },
+      output: { filename: "01.5-result.mp4", path: "x", source_url: null },
     }),
     true,
   );
   assert.equal(
     isSuccessfulRunRecord({
       status: "failed",
-      output: { filename: "result.mp4", path: "x", source_url: null },
+      output: { filename: "01.5-result.mp4", path: "x", source_url: null },
     }),
     false,
   );
