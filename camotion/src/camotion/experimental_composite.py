@@ -11,6 +11,8 @@ Pipeline:
     strong mask   = expose(gaussian(near_weight), field, strength)
     medium mask   = gaussian(near-to-mid ramp of near_weight)
     composite     = strong over medium over pristine
+    optional 01.8 route-preservation attenuates strong/medium masks
+        in a geometric corridor (off by default; 01.5 unchanged)
     then existing destination-protection blend
 
 ``near_weight`` is Camotion convention: 1.0 = near, 0.0 = far.
@@ -51,6 +53,16 @@ MEDIUM_MASK_SOFTEN_SIGMA = 2.0
 #   near full  = 1 - 203/255  →  medium visibility 1
 MEDIUM_FAR_CUT = 1.0 - 243.0 / 255.0
 MEDIUM_NEAR_FULL = 1.0 - 203.0 / 255.0
+
+# 01.8 route-preservation corridor. Experimental-only; not plan fields.
+# Strength 1.0 would fully suppress motion in the corridor center; keep
+# below that so the route attenuates rather than becoming a hard hole.
+ROUTE_PRESERVATION_STRENGTH = 0.70
+# Full widths in normalized image x. Narrow near the vanishing point,
+# wider toward the bottom/foreground.
+ROUTE_CORRIDOR_TOP_WIDTH = 0.14
+ROUTE_CORRIDOR_BOTTOM_WIDTH = 0.48
+ROUTE_CORRIDOR_FEATHER = 0.10
 
 
 def _restore_dtype(values: np.ndarray, dtype: np.dtype) -> np.ndarray:
@@ -142,6 +154,83 @@ def strong_visibility_mask(
     return softened, treated
 
 
+def _normalized_grid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
+    xs = (
+        np.array([0.0], dtype=np.float64)
+        if width == 1
+        else np.linspace(0.0, 1.0, width, dtype=np.float64)
+    )
+    ys = (
+        np.array([0.0], dtype=np.float64)
+        if height == 1
+        else np.linspace(0.0, 1.0, height, dtype=np.float64)
+    )
+    return np.meshgrid(xs, ys, indexing="xy")
+
+
+def _smoothstep(edge0: np.ndarray | float, edge1: np.ndarray | float, value: np.ndarray) -> np.ndarray:
+    span = np.asarray(edge1, dtype=np.float64) - np.asarray(edge0, dtype=np.float64)
+    span = np.where(np.abs(span) < 1e-12, 1.0, span)
+    t = np.clip((value - edge0) / span, 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def route_preservation_mask(
+    width: int,
+    height: int,
+    vanishing_point: tuple[float, float],
+    destination_point: tuple[float, float] | None = None,
+    *,
+    top_width: float = ROUTE_CORRIDOR_TOP_WIDTH,
+    bottom_width: float = ROUTE_CORRIDOR_BOTTOM_WIDTH,
+    feather: float = ROUTE_CORRIDOR_FEATHER,
+) -> np.ndarray:
+    """Soft perspective corridor. 1 = preserve canonical, 0 = keep motion.
+
+    Apex at the vanishing point. Centerline passes through the destination
+    point when supplied. Width interpolates from ``top_width`` at the apex
+    to ``bottom_width`` at the bottom of the image. Edges are feathered.
+    """
+    if width < 1 or height < 1:
+        raise ValueError("width and height must be >= 1")
+    if top_width < 0.0 or bottom_width < 0.0:
+        raise ValueError("corridor widths must be >= 0")
+    if feather < 0.0:
+        raise ValueError("feather must be >= 0")
+
+    apex_x, apex_y = float(vanishing_point[0]), float(vanishing_point[1])
+    if destination_point is None:
+        dest_x, dest_y = apex_x, min(1.0, apex_y + 0.05)
+    else:
+        dest_x, dest_y = float(destination_point[0]), float(destination_point[1])
+
+    xs, ys = _normalized_grid(width, height)
+    denom = dest_y - apex_y
+    if abs(denom) < 1e-6:
+        center_x = np.full_like(xs, apex_x)
+    else:
+        center_x = apex_x + (dest_x - apex_x) * (ys - apex_y) / denom
+
+    progress = np.clip((ys - apex_y) / max(1.0 - apex_y, 1e-6), 0.0, 1.0)
+    full_width = top_width + progress * (bottom_width - top_width)
+    half_width = full_width * 0.5
+    distance = np.abs(xs - center_x)
+
+    inner = np.maximum(half_width - 0.5 * feather, 0.0)
+    outer = half_width + 0.5 * feather
+    preserve = 1.0 - _smoothstep(inner, outer, distance)
+    return np.clip(preserve, 0.0, 1.0)
+
+
+def _apply_route_preservation(
+    mask: np.ndarray,
+    route_mask: np.ndarray,
+    strength: float,
+) -> np.ndarray:
+    factor = 1.0 - float(strength) * np.clip(route_mask, 0.0, 1.0)
+    return np.clip(np.asarray(mask, dtype=np.float64) * factor, 0.0, 1.0)
+
+
 def _composite_layers(
     pristine: np.ndarray,
     medium_exposed: np.ndarray,
@@ -171,6 +260,11 @@ def render_depth_banded(
     strong_mask_soften_sigma: float = STRONG_MASK_SOFTEN_SIGMA,
     medium_mask_soften_sigma: float = MEDIUM_MASK_SOFTEN_SIGMA,
     terminal_at_canonical: bool = False,
+    route_preservation: bool = False,
+    route_preservation_strength: float = ROUTE_PRESERVATION_STRENGTH,
+    route_corridor_top_width: float = ROUTE_CORRIDOR_TOP_WIDTH,
+    route_corridor_bottom_width: float = ROUTE_CORRIDOR_BOTTOM_WIDTH,
+    route_corridor_feather: float = ROUTE_CORRIDOR_FEATHER,
 ) -> np.ndarray | tuple[np.ndarray, dict[str, np.ndarray]]:
     """Depth-banded composite, then existing destination protection.
 
@@ -181,6 +275,11 @@ def render_depth_banded(
     ``terminal_at_canonical=False`` is the 01.5 outgoing sample set
     (``p - field*t``). ``True`` uses the opposite set (``p + field*t``)
     for the strong image, medium image, and strong mask together.
+
+    ``route_preservation`` is the 01.8 experimental modifier. Off by
+    default so 01.5 behavior is unchanged. When on, a geometric corridor
+    attenuates strong/medium visibility before compositing. Destination
+    protection still runs afterward, unchanged.
     """
     array = np.asarray(image)
     if array.ndim not in (2, 3):
@@ -218,6 +317,23 @@ def render_depth_banded(
         weight, soften_sigma=medium_mask_soften_sigma
     )
 
+    route_mask = None
+    apply_route = bool(route_preservation) and float(route_preservation_strength) != 0.0
+    if apply_route:
+        dest_point = None if plan.destination is None else plan.destination.point
+        route_mask = route_preservation_mask(
+            width,
+            height,
+            plan.camera.vanishing_point,
+            dest_point,
+            top_width=route_corridor_top_width,
+            bottom_width=route_corridor_bottom_width,
+            feather=route_corridor_feather,
+        )
+        strength = float(np.clip(route_preservation_strength, 0.0, 1.0))
+        strong_mask = _apply_route_preservation(strong_mask, route_mask, strength)
+        medium_mask = _apply_route_preservation(medium_mask, route_mask, strength)
+
     composited = _composite_layers(
         array, medium_exposed, strong_exposed, medium_mask, strong_mask
     )
@@ -227,8 +343,11 @@ def render_depth_banded(
 
     if not return_diagnostics:
         return output
-    return output, {
+    diagnostics = {
         "strong_mask_before": strong_before,
         "strong_mask_after": strong_mask,
         "medium_mask": medium_mask,
     }
+    if route_mask is not None:
+        diagnostics["route_preservation_mask"] = route_mask
+    return output, diagnostics

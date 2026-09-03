@@ -52,6 +52,14 @@ def main() -> int:
             "images and the strong mask. Default is the 01.5 outgoing set."
         ),
     )
+    parser.add_argument(
+        "--route-preservation",
+        action="store_true",
+        help=(
+            "01.8 experimental: attenuate strong/medium exposure in a geometric "
+            "traversal corridor. Off by default (01.5 behavior)."
+        ),
+    )
     args = parser.parse_args()
 
     plan = load_plan(args.plan)
@@ -63,6 +71,7 @@ def main() -> int:
         near_weight,
         return_diagnostics=True,
         terminal_at_canonical=args.terminal_at_canonical,
+        route_preservation=args.route_preservation,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     _save_image(args.output, output)
@@ -81,6 +90,7 @@ def main() -> int:
             else "origin_at_canonical (p - field*t)"
         )
     )
+    print(f"route_preservation={args.route_preservation}")
 
     if args.diagnostics is not None:
         args.diagnostics.mkdir(parents=True, exist_ok=True)
@@ -90,6 +100,10 @@ def main() -> int:
             f"{stem}-strong-mask-after.png": diagnostics["strong_mask_after"],
             f"{stem}-medium-mask.png": diagnostics["medium_mask"],
         }
+        if "route_preservation_mask" in diagnostics:
+            paths[f"{stem}-route-preservation-mask.png"] = diagnostics[
+                "route_preservation_mask"
+            ]
         for name, mask in paths.items():
             path = args.diagnostics / name
             _save_mask(path, mask)

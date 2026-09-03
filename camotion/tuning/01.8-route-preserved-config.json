@@ -1,0 +1,17 @@
+{
+  "experiment": "01.8-route-preserved",
+  "not_a_camera_motion_plan": true,
+  "base_plan": "01.4-plan.json",
+  "image": "01.jpeg",
+  "depth": "01-depth.png",
+  "exposure_strength": 0.08,
+  "samples": 16,
+  "orientation": "outgoing",
+  "medium_strength_ratio": "8/12",
+  "route_preservation": true,
+  "route_preservation_strength": 0.70,
+  "route_corridor_top_width": 0.14,
+  "route_corridor_bottom_width": 0.48,
+  "route_corridor_feather": 0.10,
+  "notes": "Experimental-only Ghost Library fixture. Attenuates depth-banded exposure in a geometric traversal corridor. Not CameraMotionPlan v1."
+}
