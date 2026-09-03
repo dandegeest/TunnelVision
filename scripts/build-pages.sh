@@ -19,7 +19,6 @@ rm -rf "$OUT"
 cp -R "$REPO_ROOT/genesis/" "$OUT"
 
 # Remove files that are not part of the published site.
-rm -f "$OUT/split_site.py"
 rm -f "$OUT/.DS_Store"
 rm -rf "$OUT/Video Exploration"
 rm -rf "$OUT/Keyframe Exploration"
