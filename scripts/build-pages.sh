@@ -65,11 +65,14 @@ while IFS= read -r rel; do
     mkdir -p "$(dirname "$dest")"
     cp "$src" "$dest"
 done < <(
-    # Extract href="..." and src="..." values containing camotion/tuning
-    # from all genesis HTML files.
-    rg -oN '(?:src|href)="([^"]*camotion/tuning[^"]*)"' -r '$1' --no-filename \
-        "$REPO_ROOT/genesis/"*.html "$REPO_ROOT/genesis/research/"*.html 2>/dev/null \
-    | sort -u
+    # Extract href="..." and src="..." values containing camotion/tuning.
+    # Use grep (not rg) so this runs on GitHub-hosted Ubuntu runners.
+    grep -hEo '(src|href)="[^"]*camotion/tuning[^"]*"' \
+        "$REPO_ROOT"/genesis/*.html \
+        "$REPO_ROOT"/genesis/research/*.html 2>/dev/null \
+    | sed -E 's/^(src|href)="//; s/"$//' \
+    | sort -u \
+    || true
 )
 
 if [ "$MISSING" -gt 0 ]; then
@@ -81,12 +84,20 @@ fi
 #    genesis/research/ was two levels below repo root; now it is one level
 #    below the site root.
 for f in "$OUT"/research/*.html; do
-    sed -i '' 's|../../camotion/tuning|../camotion/tuning|g' "$f" 2>/dev/null \
-        || sed -i 's|../../camotion/tuning|../camotion/tuning|g' "$f"
+    if sed --version >/dev/null 2>&1; then
+        sed -i 's|../../camotion/tuning|../camotion/tuning|g' "$f"
+    else
+        sed -i '' 's|../../camotion/tuning|../camotion/tuning|g' "$f"
+    fi
 done
 
-EVIDENCE_COUNT=$(find "$OUT/camotion" -type f 2>/dev/null | wc -l | tr -d ' ')
-EVIDENCE_SIZE=$(du -sh "$OUT/camotion" 2>/dev/null | cut -f1)
+if [ -d "$OUT/camotion" ]; then
+    EVIDENCE_COUNT=$(find "$OUT/camotion" -type f | wc -l | tr -d ' ')
+    EVIDENCE_SIZE=$(du -sh "$OUT/camotion" | cut -f1)
+else
+    EVIDENCE_COUNT=0
+    EVIDENCE_SIZE=0
+fi
 
 echo "Pages staged in: $OUT"
 echo "Files: $(find "$OUT" -type f | wc -l | tr -d ' ')"
