@@ -244,11 +244,59 @@
 </div>
 
 </section>
-<footer>
-<strong>TunnelVision prototype log</strong>
-<span>Images are identified by visible content rather than generator filenames because the generation tool reused filenames during the experiment.</span>
-</footer>
+<section class="ready-code" id="route-preservation">
+<div class="eyebrow">ROUTE PRESERVATION · SEPTEMBER 3, 2026</div>
+<h2>Route-preserved 0.08 exposure kept peripheral motion and clarified the central corridor. Video validation is blocked.</h2>
+<p>This entry is a chronological research record after the 01.7 reduced-strength checkpoint. Previous history is unchanged. The Markdown docs remain current architecture. CameraMotionPlan v1 and default <code>render()</code> were not changed. Interpretations below are ours, not claims Terran Boylan made. Terran originated TunnelVision as a manual technique; this research is the agentic extension.</p>
 
+<div class="finding">
+<strong>What we believed going in</strong>
+<p>01.5 outgoing depth-banded exposure at strength 0.08 remained the video-tested Ghost Library / Seedance 2.5 baseline. 01.7 showed that globally halving strength to 0.04 removed obvious initial recursion but weakened source-geometry authority, so 0.04 was not promoted. The next hypothesis was spatial rather than another global strength cut: keep the stronger 0.08 cue in the periphery, and attenuate exposure along a soft geometric traversal corridor so more canonical route geometry remains.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>One-variable spatial modifier</h3><span class="result-pill info">METHOD</span></div>
+<p>Control: 01.5 depth-banded outgoing start frame, strength 0.08. Experiment: the same compositor, Ghost Library source, near_weight, outgoing orientation, medium/strong ratio 8/12, masks, softening, vanishing point, destination protection, and sample count. Only change: an experimental route-preservation corridor, off by default on the 01.5 path. Strength stayed 0.08. No CameraMotionPlan fields. No segmentation, depth model, or LLM. Fixture metadata: <code>tuning/01.8-route-preserved-config.json</code>.</p>
+<p>The corridor is a deterministic perspective wedge from the vanishing point through the destination: narrower near the vanishing point, wider toward the foreground, soft-feathered. Existing strong/medium visibility is multiplied by <code>(1 − 0.70 × corridor_mask)</code>. Destination protection still runs afterward, separately. Parameters used: top width 0.14, bottom width 0.48, feather 0.10, preservation strength 0.70.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Route-preservation mask</h3><span class="result-pill info">DIAGNOSTIC</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.8-route-preservation-mask.png · white = preserve canonical route · black = retain 01.5 motion treatment</div>
+<figure>
+<img alt="Soft geometric traversal-corridor mask used for Ghost Library 01.8. Not a segmentation model." src="../../camotion/tuning/analysis/01.8-route-preservation-mask.png"/>
+<figcaption>Perspective corridor used to attenuate exposure along the route. Not CameraMotionPlan. Not product architecture.</figcaption>
+</figure>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Ghost Library still 01.8</h3><span class="result-pill info">STILL-LEVEL, NOT A VIDEO VERDICT</span></div>
+<div class="test-meta">camotion/tuning/01.8-route-preserved-result.png · same 01.4 plan and 01-depth.png as 01.5 · outgoing p − field·t · strength 0.08 · route preservation on</div>
+<figure>
+<img alt="Experimental Ghost Library 01.8 route-preserved start shooting frame. Not promoted over 01.5." src="../../camotion/tuning/01.8-route-preserved-result.png"/>
+<figcaption>Peripheral smear remains strong. The central aisle and door read more like the canonical route. Not a Seedance result.</figcaption>
+</figure>
+<p>Visual inspection: 01.8 retained strong peripheral motion treatment, preserved more recognizable canonical geometry through the central traversal corridor, and did not merely reduce global exposure. Some compact central objects, especially mid-field candles, looked more like a single object with continuous blur. In 01.5 those candles had appeared as discrete doubled or repeated instances. That is an observation and a possible clue about multi-sample exposure of compact high-contrast features. It is not a proven mechanism and is not claimed to have caused Seedance's earlier reconstruction behavior.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Comparison with Terran's original Ghost Library frame</h3><span class="result-pill info">SPATIAL, NOT AN OPTIMIZATION TARGET</span></div>
+<p>01.5 and 01.8 were compared against Terran Boylan's original TunnelVision-conditioned Ghost Library reference. The images matched in dimensions, so the comparison was registered. 01.8 moved somewhat closer globally, but the more useful result was spatial: the largest improvement was in the central traversal region, while the periphery changed comparatively little. That matches the intended intervention.</p>
+<p>Do not treat pixel similarity to Terran's image as an optimization target. Different blur kernels, Photoshop behavior, interpolation, and color handling can change pixels without changing the usefulness of the conditioning cue. Closer pixels are not the same as better Camotion.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Seedance 2.5 via Krea validation is blocked</h3><span class="result-pill fail">NO VIDEO CONCLUSION</span></div>
+<p>We attempted the controlled 01.8 Seedance 2.5 video test through Krea. The 01.8 generation was rejected three times. We then reran the prior 01.5 control using the same previously usable workflow and settings. 01.5 was also rejected.</p>
+<p>Do not record the Krea rejection as evidence against 01.8. Because the previously accepted 01.5 control was also rejected, the failure cannot currently be attributed to route preservation. This is a provider/pipeline validation issue, not a Camotion experimental result. No moderation cause is claimed. There is no 01.8 video artifact.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.5 / 0.08 as the current video-tested directed A→B baseline. Keep the 01.8 implementation, config, still, and route mask as still-level evidence. The still-level hypothesis is promising. Downstream Seedance validation remains pending. Route preservation is experimental research code, not CameraMotionPlan and not canonical architecture. Default Camotion remains the continuous near-weight path. CameraMotionPlan v1 stays frozen. Stop here; do not begin 01.9 or a Replicate runner in this checkpoint.</p>
+</div>
+
+</section>
 <footer>
 <strong>TunnelVision prototype log</strong>
 <span>Images are identified by visible content rather than generator filenames because the generation tool reused filenames during the experiment.</span>

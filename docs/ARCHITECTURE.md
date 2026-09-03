@@ -127,6 +127,19 @@ initial recursion on Ghost Library / Seedance 2.5 but reduced
 authority over authored starting geometry. **0.04 is not promoted.**
 This is a fixture-level tradeoff, not a new renderer contract.
 
+An experimental **route-preservation** modifier (01.8; off by
+default) attenuates strong/medium visibility inside a geometric
+traversal corridor while leaving destination protection unchanged.
+It is not CameraMotionPlan, not default `render()`, and not a
+promoted baseline. On Ghost Library the still retained peripheral
+motion treatment and preserved more central route geometry
+(`tuning/01.8-route-preserved-result.png`). Seedance 2.5 via Krea
+video validation is currently blocked: 01.8 generations were
+rejected, and a rerun of the previously accepted 01.5 control was
+also rejected. **01.5 / 0.08 remains the video-tested directed A→B
+baseline.** Do not treat pixel similarity to Terran's reference as
+architecture or as an optimization objective.
+
 ### Canonical frames vs shooting frames
 
 **Canonical / pristine frames** are storyboard and world-state

@@ -10,13 +10,15 @@ the continuous near-weight radial-exposure path. On Ghost Library /
 Seedance 2.5, the experimental depth-banded compositor with
 **outgoing** start-frame exposure at **strength 0.08**
 (`tuning/01.5-banded-result.png`, `tuning/01.5-banded-video.mp4`)
-remains the current working baseline for **directed A→B** research.
-It is **not** the default renderer and is **not** a
+remains the current **video-tested** working baseline for **directed
+A→B** research. It is **not** the default renderer and is **not** a
 universal/frozen replacement. 01.6 rejected terminal-at-canonical
 start exposure. 01.7 halved strength to 0.04: obvious initial
 recursion disappeared, but starting-geometry fidelity got worse.
-**0.04 is not promoted.** Do not start another Camotion renderer
-experiment in this checkpoint.
+**0.04 is not promoted.** 01.8 added experimental route-preserved
+exposure at the same 0.08 strength. The still looks promising; Seedance
+2.5 via Krea video validation is currently **blocked**. Do not promote
+01.8. Do not treat route preservation as architecture.
 
 **Later track (not now):** Director / product --- automate the canonical
 still-journey loop, then Cinematographer / video. After Camotion
@@ -148,12 +150,28 @@ Intended Camotion / Cinematographer research order:
     **completed on Ghost Library / Seedance 2.5**. Obvious initial
     recursion disappeared; source-geometry authority got worse.
     **0.04 not promoted.** 01.5 / 0.08 remains the directed A→B
-    working baseline. Not cross-scene or cross-model.
-5.  Validate / freeze an updated Camotion baseline **if** justified.
+    video-tested working baseline. Not cross-scene or cross-model.
+5.  Controlled route-preserved exposure (01.8) --- **still-level
+    complete; video validation blocked**. Same 01.5 compositor and
+    0.08 strength. A geometric traversal corridor attenuates
+    strong/medium exposure inside the route. Still: stronger
+    peripheral motion retained, more canonical geometry in the
+    central corridor. Compact central features such as candles
+    appeared less discretely duplicated --- an observation, not a
+    proven mechanism. Direct comparison with Terran's original
+    Ghost Library reference suggested the largest change was in
+    the intended central region; do not treat pixel similarity as
+    an optimization target. Attempted Seedance 2.5 via Krea
+    generations of 01.8 were rejected three times; a rerun of the
+    previously accepted 01.5 control was also rejected. Therefore
+    the rejection is not evidence against 01.8. No video
+    conclusion. Keep the experimental code and evidence. Do not
+    promote 01.8. Do not add route preservation to CameraMotionPlan.
+6.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
-    Do not start the next renderer experiment in this checkpoint.
-6.  Automated Cinematographer + Camotion Benchmark Harness.
-7.  Cross-style / cross-model experiments.
+    Downstream Seedance validation of 01.8 remains pending.
+7.  Automated Cinematographer + Camotion Benchmark Harness.
+8.  Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or

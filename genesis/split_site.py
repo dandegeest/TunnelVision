@@ -689,7 +689,7 @@ def build_index():
 
 <section style="padding:48px 0;border-bottom:1px solid var(--line)">
 <h2>Current research baseline</h2>
-<p>Ghost Library / Seedance 2.5, Camotion 01.5, depth-banded outgoing exposure, strength 0.08. Not universal; one fixture.</p>
+<p>Ghost Library / Seedance 2.5, Camotion 01.5, depth-banded outgoing exposure, strength 0.08. Video-tested baseline. 01.8 still exists; its Seedance validation is blocked. Not universal; one fixture.</p>
 </section>
 
 <section style="padding:48px 0;border-bottom:1px solid var(--line)">
@@ -702,6 +702,7 @@ def build_index():
 <li>Motion-treating the strong depth mask was important in 01.5</li>
 <li>Terminal-at-canonical start exposure worsened Seedance behavior (01.6)</li>
 <li>Halving strength removed obvious recursion but weakened geometry authority (01.7)</li>
+<li>01.8 route preservation looked promising at still level; Seedance/Krea video validation is currently blocked</li>
 <li>Directed A→B requires endpoint fidelity</li>
 </ul>
 </section>
