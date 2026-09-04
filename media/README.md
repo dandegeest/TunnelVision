@@ -41,6 +41,23 @@ npm --prefix media run experiment -- --manifest media/experiments/manifests/01.5
 
 `--execute` is required for a paid Replicate call. Dry-run is the default.
 
+Prompt-control experiments are not Camotion 01.x IDs. The first camera-speed
+manifest holds 01.8 A′/B′ constant and changes only requested velocity:
+
+``` bash
+npm --prefix media run experiment -- --manifest media/experiments/manifests/prompt-control/camera-speed/seedance-slow.json
+npm --prefix media run experiment -- --manifest media/experiments/manifests/prompt-control/camera-speed/seedance-slow-embodied.json
+```
+
+Evidence for that family is stored under
+`camotion/tuning/video-runs/prompt-control/camera-speed/`, not beside the
+01.3–01.8 Camotion series. `seedance-slow-embodied` holds the
+seedance-slow frames, settings, and slow-speed phrase constant and adds
+only embodied walking camera language. Both Seedance prompt-control
+runs now have evidence under that family. Do not overwrite historical
+Krea or 01.x Replicate videos. Unvalidated product ideas from these
+runs are in `docs/RESEARCH_BACKLOG.md`.
+
 Historical Camotion reruns use a thin batch command above MediaProvider:
 
 ``` bash

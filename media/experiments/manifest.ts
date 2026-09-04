@@ -22,6 +22,15 @@ export type ExperimentManifest = {
     readonly seed?: number;
   };
   readonly notes?: string;
+  /**
+   * Optional evidence subtree under camotion/tuning/video-runs/.
+   * Historical Camotion 01.x reruns omit this and stay at
+   * video-runs/<provider>-<model>/<experiment>/. Prompt-control
+   * experiments use a family such as prompt-control/camera-speed so
+   * later provider comparisons can share a tree without entering the
+   * 01.x Camotion series.
+   */
+  readonly evidence_family?: string;
 };
 
 const REQUIRED_STRINGS = ["experiment", "provider", "model", "start_image", "prompt"] as const;
@@ -52,10 +61,32 @@ export function parseManifest(raw: unknown): ExperimentManifest {
   if (data.settings !== undefined && (typeof data.settings !== "object" || data.settings === null)) {
     throw new Error("manifest.settings must be an object when present");
   }
+  if (data.evidence_family !== undefined) {
+    if (typeof data.evidence_family !== "string") {
+      throw new Error("manifest.evidence_family must be a string when present");
+    }
+    assertSafeEvidenceFamily(data.evidence_family);
+  }
   if (JSON.stringify(data).includes("REPLICATE_API_TOKEN") || jsonHasToken(data)) {
     throw new Error("manifest must not contain secrets");
   }
   return data as ExperimentManifest;
+}
+
+export function assertSafeEvidenceFamily(family: string): void {
+  if (family.trim() === "" || family !== family.trim()) {
+    throw new Error("manifest.evidence_family must be a non-empty relative path");
+  }
+  if (family.startsWith("/") || family.includes("://") || family.includes("\\")) {
+    throw new Error("manifest.evidence_family must be a repository-relative path");
+  }
+  const parts = family.split("/");
+  if (parts.some((part) => part === "" || part === "." || part === "..")) {
+    throw new Error("manifest.evidence_family must not contain empty or parent segments");
+  }
+  if (!/^[A-Za-z0-9._/-]+$/.test(family)) {
+    throw new Error("manifest.evidence_family contains unsupported characters");
+  }
 }
 
 function jsonHasToken(value: unknown): boolean {

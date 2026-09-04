@@ -24,6 +24,16 @@ backward-then-forward opening previously seen through Krea. Those
 Krea behaviors should not currently be treated as intrinsic
 properties of the Camotion variants. Do not begin 01.9.
 
+A separate **prompt-control** family holds 01.8 shooting frames constant
+and varies linguistic camera instruction. It is **not** Camotion 01.9.
+On Ghost Library / Seedance 2.5, `seedance-slow` produced a perceptibly
+slower traversal than the fast 01.8 control while remaining
+dolly/Steadicam-like rather than literal walking.
+`seedance-slow-embodied` did not clearly add footstep-driven human
+locomotion. Those are one-run observations, not proof. Unvalidated
+product ideas from this work live in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not begin 01.9.
+
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark
@@ -190,6 +200,10 @@ Intended Camotion / Cinematographer research order:
     `tuning/video-runs/replicate-bytedance-seedance-2.5/`. Same B′,
     prompt, duration, model, and settings; only Camotion A′ differs.
     Historical Krea videos were not overwritten. Do not begin 01.9.
+    A parallel prompt-control family (`seedance-slow`,
+    `seedance-slow-embodied`) varies linguistic camera instruction
+    on frozen 01.8 A′/B′. That is not Camotion 01.9. See
+    [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
 7.  Validate / freeze an updated Camotion baseline **if** justified.
     Do not assume it will. Do not call 01.5 the permanent baseline.
 8.  Automated Cinematographer + Camotion Benchmark Harness.
@@ -438,6 +452,59 @@ motion conditioning, and generative-video improvisation.
 
 Do not begin 01.9. Do not treat this as a Camotion renderer freeze.
 
+### Prompt-control camera speed and embodiment
+
+This family is **not** Camotion 01.9 and is **not** a member of the
+01.3–01.8 A′ series. Camotion images and parameters are unchanged.
+Fast Seedance video control remains
+`tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/`.
+Settings for both runs: `bytedance/seedance-2.5`, duration 6, 720p,
+`aspect_ratio` adaptive, audio off, watermark off, mp4, seed omitted.
+
+**Observed (`seedance-slow`, prediction `yyyeyrq6vhrmy0d0dn2ad02q6g`).**
+The generated traversal was perceptibly slower and more deliberate
+than the fast 01.8 control while retaining continuous forward
+locomotion and completing the library → doorway → courtyard
+traversal. It still read as smooth dolly/Steadicam-like motion
+rather than literal human walking.
+
+**Interpretation, not proof.** With Camotion conditioning, A′/B′,
+model, duration, and generation settings held constant, changing the
+requested camera pace from fast to slow walking produced visibly
+slower forward locomotion while preserving the intended traversal.
+This supports treating camera pace as a possible Cinematographer-level
+semantic control implemented through linguistic conditioning. One
+stochastic generation with no fixed seed; no deterministic or
+cross-model claim.
+
+**Observed (`seedance-slow-embodied`, prediction
+`1jhz8g41rdrmy0d0dp0s0fj260`).** Control was `seedance-slow`. The
+requested embodied walking characteristics (eye-level walking POV,
+rhythmic vertical bob, side-to-side sway, explicitly not
+dolly/Steadicam) were not clearly perceptible. The traversal continued
+to read primarily as smooth/floating/dolly-like camera motion rather
+than recognizable footstep-driven human locomotion.
+
+**Interpretation, not proof.** Prompt conditioning demonstrated useful
+control over apparent camera pace in the tested Seedance traversal, but
+the tested embodiment prompt did not visibly convert the
+smooth/dolly-like traversal into natural human walking motion. This
+suggests that camera pace and camera embodiment may be distinct
+control problems and may require different conditioning mechanisms.
+Do not write that Seedance cannot produce walking motion; say only
+that the requested embodiment was not clearly expressed in this test.
+
+Evidence:
+
+`tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow/`
+
+`tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow-embodied/`
+
+Unvalidated product ideas (pace UI, embodiment, Prompt Only vs Auto,
+and related brainstorms) are in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement them
+here. Do not begin 01.9.
+
 ### Cinematographer integration
 
 Open question: module boundaries. Intended *role*: for accepted frame
@@ -515,9 +582,9 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records the controlled Replicate historical
-series. Do not start 01.9, and do not silently replace default
-`render()`.
+tasks. This checkpoint records Seedance prompt-control pace and
+embodiment runs plus an unvalidated research backlog. Do not start
+01.9, and do not silently replace default `render()`.
 
 ## Hackathon strategy
 
@@ -560,6 +627,10 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   whether environmental/foreground motion can serve as a perceptual
     witness to camera locomotion (observation from the Replicate
     series; not a proven mechanism)
+-   apparent camera pace vs camera embodiment as possibly distinct
+    Cinematographer controls (one Seedance pair; linguistic pace
+    looked useful, linguistic walking embodiment did not clearly
+    appear; not a schema)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

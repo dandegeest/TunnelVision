@@ -385,6 +385,35 @@
 </div>
 
 </section>
+<section class="ready-code" id="prompt-control-pace-embodiment">
+<div class="eyebrow">PROMPT-CONTROL · SEPTEMBER 4, 2026</div>
+<h2>Linguistic pace changed apparent speed; walking-embodiment language did not clearly change motion character.</h2>
+<p>This entry is a chronological record after the controlled Replicate 01.3–01.8 series. It is <strong>not</strong> Camotion 01.9. CameraMotionPlan v1 and default <code>render()</code> were not changed. These are one-run observations with no fixed seed. They are not proof, not deterministic control, and not a cross-model claim.</p>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>seedance-slow · camera pace</h3><span class="result-pill info">OBSERVATION</span></div>
+<div class="test-meta">camotion/tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow/seedance-slow-result.mp4 · prediction yyyeyrq6vhrmy0d0dn2ad02q6g</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow/seedance-slow-result.mp4"></video>
+<p>Control: existing 01.8 A′/B′ Seedance traversal with the frozen fast locomotion prompt. Only intended change: <code>at a constant, fast speed</code> → <code>at a constant, slow walking speed</code>.</p>
+<p><strong>Observed:</strong> the generated traversal was perceptibly slower and more deliberate than the fast control while retaining continuous forward locomotion and completing the library → doorway → courtyard traversal. It still read as smooth dolly/Steadicam-like motion rather than literal human walking.</p>
+<p><strong>Interpretation, not proof:</strong> with Camotion conditioning, A′/B′, model, duration, and generation settings held constant, changing the requested camera pace from fast to slow walking produced visibly slower forward locomotion while preserving the intended traversal. This supports treating camera pace as a possible Cinematographer-level semantic control implemented through linguistic conditioning.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>seedance-slow-embodied · camera embodiment</h3><span class="result-pill info">OBSERVATION</span></div>
+<div class="test-meta">camotion/tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow-embodied/seedance-slow-embodied-result.mp4 · prediction 1jhz8g41rdrmy0d0dp0s0fj260</div>
+<video controls="" playsinline="" preload="metadata" src="../../camotion/tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow-embodied/seedance-slow-embodied-result.mp4"></video>
+<p>Control: <code>seedance-slow</code>. The slow-walking-speed phrase was kept. Added language asked for natural eye-level walking POV, subtle rhythmic vertical bob, gentle side-to-side sway, and explicitly not dolly/Steadicam, while remaining human and not shaky.</p>
+<p><strong>Observed:</strong> the requested embodied walking characteristics were not clearly perceptible. The traversal continued to read primarily as smooth/floating/dolly-like camera motion rather than recognizable footstep-driven human locomotion.</p>
+<p><strong>Interpretation, not proof:</strong> prompt conditioning demonstrated useful control over apparent camera pace in the tested Seedance traversal, but the tested embodiment prompt did not visibly convert the smooth/dolly-like traversal into natural human walking motion. This suggests that camera pace and camera embodiment may be distinct control problems and may require different conditioning mechanisms. Do not conclude that Seedance cannot produce walking motion; say only that the requested embodiment was not clearly expressed in this test.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.5 as the conservative directed-traversal baseline and 01.8 as the leading experimental Camotion branch. Treat linguistic camera pace as a promising Cinematographer-level hypothesis, not a product control. Treat camera embodiment as an open research problem. Unvalidated UI/product brainstorms are recorded in the Markdown research backlog, not as architecture. Do not begin 01.9. Do not change CameraMotionPlan or default <code>render()</code>.</p>
+</div>
+
+</section>
 <footer>
 <strong>TunnelVision prototype log</strong>
 <span>Images are identified by visible content rather than generator filenames because the generation tool reused filenames during the experiment.</span>

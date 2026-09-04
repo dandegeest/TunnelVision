@@ -1,0 +1,18 @@
+{
+  "experiment": "seedance-slow-embodied",
+  "evidence_family": "prompt-control/camera-speed",
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "start_image": "camotion/tuning/01.8-route-preserved-result.png",
+  "end_image": "camotion/tuning/ghost-library-end-shooting-frame.jpeg",
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, slow walking speed. The camera moves like the natural eye-level POV of a person physically walking, with subtle rhythmic vertical bob and gentle side-to-side body sway from each step, rather than smooth dolly, Steadicam, or stabilized camera motion. The movement feels human and physically grounded, not shaky or erratic, traveling forward through the old library toward the doorway and passing completely through it into the courtyard beyond in uninterrupted forward motion. The camera passes between bookshelves, skeletal figures, furniture, architectural structures, or foreground objects as necessary to continue moving forward. The camera never stops advancing through the environment. Nearby shelves, skeletons, furniture, door frames, and other foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses the doorway threshold and continues moving forward into the newly revealed courtyard. Dust, loose particles, and occasional translucent ghostly forms drift naturally through the air and pass around the moving camera, reinforcing its forward motion.",
+  "duration_seconds": 6,
+  "settings": {
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4"
+  },
+  "notes": "Prompt-control camera-embodiment experiment. Not Camotion 01.9. Control is seedance-slow: same 01.8 A′/B′, frozen Seedance 2.5 settings, and the existing constant, slow walking speed language. The only added variable is embodied human walking camera motion versus smooth dolly/Steadicam. Do not overwrite historical Krea, 01.x Replicate, or seedance-slow videos."
+}

@@ -35,7 +35,11 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     batch runner. A controlled Replicate series exists for 01.3–01.8
     (`tuning/video-runs/replicate-bytedance-seedance-2.5/`). 01.5
     remains the conservative directed-traversal baseline; 01.8 is
-    the leading experimental branch. Camotion itself still knows
+    the leading experimental branch. A prompt-control family
+    (`tuning/video-runs/prompt-control/camera-speed/`) holds 01.8
+    A′/B′ constant and varies linguistic camera instruction; it is
+    not Camotion 01.9. Unvalidated product brainstorms live in
+    `docs/RESEARCH_BACKLOG.md`. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
     bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
     official SDK.
@@ -323,6 +327,10 @@ starts them.
 -   whether environmental/foreground motion can serve as a perceptual
     witness to camera locomotion (observation from the Replicate
     series; not a proven mechanism)
+-   apparent camera pace vs camera embodiment as possibly distinct
+    controls (one Seedance pair; linguistic pace looked useful,
+    linguistic walking embodiment did not clearly appear; not a
+    schema)
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while

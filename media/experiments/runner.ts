@@ -13,7 +13,7 @@ import {
   sha256File,
 } from "../src/index.ts";
 import { getOptionalEnv } from "../src/config/environment.ts";
-import { parseManifest, type ExperimentManifest } from "./manifest.ts";
+import { assertSafeEvidenceFamily, parseManifest, type ExperimentManifest } from "./manifest.ts";
 import { assertRecordIsSafe, evidenceResultFilename, evidenceRunFilename, type ExperimentRunRecord } from "./record.ts";
 
 const execFileAsync = promisify(execFile);
@@ -47,14 +47,18 @@ export type PreparedExperiment = {
 
 export function outputDirFor(repoRoot: string, manifest: ExperimentManifest): string {
   const modelSlug = manifest.model.replaceAll("/", "-");
-  return join(
-    repoRoot,
-    "camotion",
-    "tuning",
-    "video-runs",
-    `${manifest.provider}-${modelSlug}`,
-    manifest.experiment,
-  );
+  const providerModel = `${manifest.provider}-${modelSlug}`;
+  const root = join(repoRoot, "camotion", "tuning", "video-runs");
+  if (manifest.evidence_family) {
+    assertSafeEvidenceFamily(manifest.evidence_family);
+    return join(
+      root,
+      ...manifest.evidence_family.split("/"),
+      providerModel,
+      manifest.experiment,
+    );
+  }
+  return join(root, providerModel, manifest.experiment);
 }
 
 export async function prepareExperiment(
@@ -309,7 +313,7 @@ async function persist(
   );
 }
 
-async function gitCommit(repoRoot: string): Promise<string | null> {
+export async function gitCommit(repoRoot: string): Promise<string | null> {
   try {
     const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], {
       cwd: repoRoot,

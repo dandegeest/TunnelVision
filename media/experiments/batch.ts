@@ -299,6 +299,15 @@ async function readControlManualCost(
   return manualObservedCostUsd(existing);
 }
 
+/** Manual 01.5 control cost only. Returns null when that evidence has no operator-recorded price. */
+export async function historicalObservedCostUsd(
+  repoRoot: string,
+  controlExperiment: string = CONTROL_EXPERIMENT,
+): Promise<number | null> {
+  const control = await loadManifest(repoRoot, controlExperiment);
+  return readControlManualCost(repoRoot, control);
+}
+
 async function loadManifest(
   repoRoot: string,
   experiment: string,

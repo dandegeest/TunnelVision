@@ -109,4 +109,6 @@ That slice now has a MediaProvider video contract in `media/`. It is
 **not** the current UI milestone. Current research is Camotion shooting
 frames plus a Replicate video runner. A controlled 01.3–01.8 series
 exists. 01.5 remains the conservative directed-traversal baseline;
-01.8 is the leading experimental branch. There is no UI.
+01.8 is the leading experimental branch. Unvalidated cinematographer
+control ideas (pace, embodiment, Prompt Only vs Auto) are in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md), not current UI. There is no UI.

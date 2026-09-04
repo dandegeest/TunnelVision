@@ -105,6 +105,41 @@ test("output path is provider-and-experiment specific", () => {
   );
 });
 
+test("prompt-control evidence_family is outside the 01.x Camotion series", () => {
+  const dir = outputDirFor(
+    "/repo",
+    parseManifest(
+      validManifest({
+        experiment: "seedance-slow",
+        evidence_family: "prompt-control/camera-speed",
+      }),
+    ),
+  );
+  assert.equal(
+    dir,
+    join(
+      "/repo",
+      "camotion",
+      "tuning",
+      "video-runs",
+      "prompt-control",
+      "camera-speed",
+      "replicate-bytedance-seedance-2.5",
+      "seedance-slow",
+    ),
+  );
+});
+
+test("evidence_family parent segments are rejected", () => {
+  assert.throws(
+    () =>
+      parseManifest(
+        validManifest({ evidence_family: "prompt-control/../camera-speed" }),
+      ),
+    /parent segment/i,
+  );
+});
+
 test("research runner calls MediaProvider rather than Replicate directly", async () => {
   const repoRoot = await mkdtemp(join(tmpdir(), "tv-exp-"));
   await mkdir(join(repoRoot, "fixtures"));
