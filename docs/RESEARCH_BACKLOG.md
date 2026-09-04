@@ -153,35 +153,37 @@ as a current Camotion renderer experiment.
 
 ## Where the repeated-object appearance first emerges
 
-Unvalidated. Motivation for a future **01.10 diagnostic compositor
-ablation**. Do not implement from this file.
+01.10 Depth-Compositor Ablation is completed diagnostic evidence
+against the 01.8 baseline. Not a renderer promotion. No video test.
+See `docs/IMPLEMENTATION.md` and
+`camotion/tuning/analysis/01.10-compositor-ablation.json`.
 
-01.9 Adaptive Exposure Integration tested whether the remaining 01.8
-ghost-copy appearance was primarily sparse trajectory sampling. On
-Ghost Library / 0.08, densifying taps from 16 fixed samples to
-adaptive `<= 1` px spacing did **not** clearly remove the artifact.
-That hypothesis is not supported on this fixture. Sparse sampling is
-unlikely to be the dominant cause; the actual cause is unproven.
+**Observation.** On Ghost Library / 0.08, discrete repeated copies
+are already visible in the strong exposed image. Medium exposure
+also shows copies. The four foreground artifact crops have no
+material pristine contribution and are unchanged by route
+preservation and destination protection.
 
-**Open question:** where does the repeated-object appearance first
-emerge? Candidate stages to isolate include:
+**Interpretation, not proof.** Classification A, with E also
+supported. The multi-layer compositor hypothesis is **not
+supported as the origin of first appearance** on this fixture.
+01.9 already found that densifying equal-weight taps did not
+clearly remove the copies.
 
--   exposure of a single image layer
--   strong exposure layer
--   medium exposure layer
--   interaction between strong and medium layers
--   pristine-image contribution
--   depth-mask feathering
--   exposure of the strong visibility mask
--   final strong / medium / pristine compositing
+**UNTESTED 01.11 question:** 01.11 should characterize what spatial
+signal the current Camotion exposure operator actually produces
+before choosing a fix.
 
-The current working hypothesis is that multiple representations of
-the same scene feature may survive through different depth/exposure
-layers. That is **untested**. Do not state that the compositor is
-the cause.
+A future still-only diagnostic may compare existing 01.8 / 01.9
+exposure behavior with alternative exposure / operator families,
+using both Ghost Library artifact regions and simple synthetic
+fixtures such as points, lines, and small structured shapes. The
+purpose is to understand the exposure primitive / empirical
+point-spread behavior, not yet to select a new renderer.
 
-01.10 should diagnose before 01.11 attempts any fix. Do not begin
-01.10 from this file.
+Possible alternatives such as temporal weighting, line/PSF-style
+integration, or prefiltering remain untested candidates, not a
+chosen intervention. Do not begin 01.11 from this file.
 
 ## Camotion conditioning overlay / Cinematographer Inspector
 
@@ -235,4 +237,4 @@ explanation/inspection mode.
     hard bookends, short dissolves, or future interpolation /
     Smooth-Cut-like treatment.
 
-Do not begin Camotion 01.10 from this file.
+Do not begin Camotion 01.11 from this file.

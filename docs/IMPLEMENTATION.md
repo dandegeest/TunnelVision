@@ -36,7 +36,11 @@ dolly/Steadicam-like rather than literal walking.
 `seedance-slow-embodied` did not clearly add footstep-driven human
 locomotion. Those are one-run observations, not proof. Unvalidated
 product ideas from this work live in
-[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not begin 01.10.
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). 01.10 Depth-Compositor
+Ablation is completed still-only diagnostic evidence; the
+multi-layer compositor hypothesis was **not supported as the origin
+of first appearance** on this fixture. 01.10 is **not** promoted. Do
+not begin 01.11.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
@@ -213,13 +217,20 @@ Intended Camotion / Cinematographer research order:
     promoted.** Same 01.8 compositor, source, depth, strength, route
     preservation, and destination protection. Only change:
     path-length-adaptive exposure taps. Keep the opt-in code and
-    evidence. Do not start a Seedance/video test for 01.9. Do not
-    begin 01.10 from this checkpoint.
-8.  Validate / freeze an updated Camotion baseline **if** justified.
-    Do not assume it will. Do not promote 01.9. **01.8 remains the
-    current Camotion baseline.**
-9.  Automated Cinematographer + Camotion Benchmark Harness.
-10. Cross-style / cross-model experiments.
+    evidence. Do not start a Seedance/video test for 01.9.
+8.  Diagnostic compositor ablation (01.10) --- **completed on Ghost
+    Library still; classification A; compositor hypothesis not
+    supported as the origin of first appearance; not promoted.**
+    Same 01.8 source, geometry, 16-tap exposure, masks, route
+    preservation, and destination protection. Only change:
+    extraction of real 01.8 intermediates. Keep the diagnostic
+    code and evidence. Do not start a Seedance/video test for
+    01.10. Do not begin 01.11 from this checkpoint.
+9.  Validate / freeze an updated Camotion baseline **if** justified.
+    Do not assume it will. Do not promote 01.9 or 01.10. **01.8
+    remains the current Camotion baseline.**
+10. Automated Cinematographer + Camotion Benchmark Harness.
+11. Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
@@ -445,8 +456,8 @@ Camotion-conditioned A′ differs.
 
 **01.5 remains the conservative directed-traversal baseline.** **01.8
 Route-Preserved Exposure remains the current Camotion baseline**, not
-a CameraMotionPlan field. 01.9 is still-only evidence and is not
-promoted.
+a CameraMotionPlan field. 01.9 and 01.10 are still-only evidence
+and are not promoted.
 
 On this Replicate series, 01.6 did **not** reproduce the severe
 terminal-orientation collapse/retreat previously observed through
@@ -464,8 +475,9 @@ Preserve the distinction among canonical spatial authority, Camotion
 motion conditioning, and generative-video improvisation.
 
 Do not treat this as a Camotion renderer freeze. 01.9 Adaptive
-Exposure Integration is recorded below as a completed still-only
-experiment; it is not promoted.
+Exposure Integration and 01.10 Depth-Compositor Ablation are
+recorded below as completed still-only experiments; neither is
+promoted.
 
 ### Prompt-control camera speed and embodiment
 
@@ -518,7 +530,7 @@ Evidence:
 Unvalidated product ideas (pace UI, embodiment, Prompt Only vs Auto,
 and related brainstorms) are in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement them
-here. Do not begin 01.10.
+here. The later 01.10 diagnostic is recorded below.
 
 ### Adaptive exposure integration (01.9; completed still-only)
 
@@ -590,9 +602,111 @@ Evidence:
 -   `tuning/analysis/01.9-vs-01.5-absdiff.png`
 
 The next research question --- where the repeated-object appearance
-first emerges through compositor stages --- is untested. Capture it in
-[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement 01.10
-here. 01.10 should diagnose before 01.11 attempts any fix.
+first emerges through compositor stages --- is recorded below as
+completed 01.10 evidence. Do not begin 01.11 here.
+
+### Depth-compositor ablation (01.10; completed still-only diagnostic)
+
+01.10 Depth-Compositor Ablation asked where the repeated-object /
+ghost-copy appearance visible in the Ghost Library 01.8 conditioned
+frame first emerges.
+
+The working hypothesis going in was that multiple transformed
+representations of the same scene feature might survive through
+different exposure/depth layers (strong, medium, and pristine)
+and remain perceptually distinct. That hypothesis was **untested**
+before 01.10. 01.10 did not change CameraMotionPlan, default
+`render()`, 01.8 parameters, or 01.9 adaptive integration. It used
+the normal 01.8 fixed 16-tap exposure. The only purpose was to
+expose real intermediate states already inside the 01.8
+computation.
+
+**Actual 01.8 order, from code, not the conceptual description:**
+source → strong exposure → medium exposure → strong mask
+(gaussian, then expose) → medium mask (ramp, then gaussian) →
+**route preservation attenuates those masks** → strong over
+(medium over pristine) → destination-protection blend. Route
+preservation is a pre-composite mask attenuation, not a
+post-composite filter.
+
+Effective compositor weights implied by that over operator, and
+they sum to 1.0 per pixel:
+
+``` text
+w_strong   = S
+w_medium   = M * (1 - S)
+w_pristine = (1 - M) * (1 - S)
+```
+
+**Result: classification A.** The repeated-object appearance is
+already visible in the strong exposed image, independently of depth
+compositing. Medium exposure also shows discrete copies. **E is
+also supported:** the full pre-route depth-banded composite already
+contains the artifact, and 01.8 route preservation does not create
+it in the artifact-heavy foreground crops. The multi-layer
+compositor hypothesis is **not supported as the origin of first
+appearance** on this fixture.
+
+**Observation.** On candles, shelf edges, and skeleton structure,
+discrete radial copies are visible in `01-strong-exposure`. In the
+four foreground artifact crops (left-skeleton, left-lower-candle,
+right-skeleton, right-lower-candle), pristine effective weight
+above the diagnostic threshold 0.10 is 0.0, and stages 13, 16, 17,
+and 18 are byte-identical. Destination bbox vs source is identical.
+The 01.10 final diagnostic PNG is byte-identical to committed 01.8
+(SHA-256
+`5f9c3bb8afb51cde59067f14349571cb2124db8c757307211f1b02912b5603d1`).
+Pre-route weights reconstruct the depth-banded composite (max abs
+error `8.53e-14`) and sum to 1.0 (max abs error `2.22e-16`).
+Whole-image pre-route overlap at threshold > 0.10: strong∩medium
+74.5%; all three 6.7%. Global 16 vs 17 MAE 0.46 is the route
+corridor elsewhere, not those foreground copies. Destination
+protection 17 vs 18 MAE 0.0017. Compositing with the unexposed
+versus motion-processed strong mask is a small pixel change (global
+MAE 0.123, max 4) and does not create the discrete object copies.
+
+**Interpretation, not proof.** First appearance is upstream of
+depth-layer compositing on this fixture. Do not claim that the
+compositor can never matter, that strong/medium overlap is
+harmless, that the exposure operator's exact mechanism is proven,
+that 01.9 is contradicted, or that Terran's Photoshop renderer has
+been reproduced. 01.9 already found that densifying equal-weight
+taps did not clearly remove the copies; 01.10 localizes first
+appearance to that same exposure stage rather than to later
+compositing, route preservation, or destination protection.
+
+**Baseline.** 01.8 Route-Preserved Exposure remains the current
+Camotion baseline. 01.10 is preserved as diagnostic evidence and is
+**not** promoted. It is not a new renderer version. No
+Seedance/video test is warranted for 01.10 based on the still
+result. CameraMotionPlan v1 remains frozen. Default `render()`
+remains the continuous near-weight path. `render_depth_banded()`
+behavior is unchanged. Do not remove the diagnostic path; negative
+results are part of the Camotion research record.
+
+Evidence:
+
+-   `tuning/01.10-compositor-ablation-config.json`
+-   `tuning/analysis/01.10-compositor-ablation.json`
+-   `tuning/analysis/01.10/01.10-18-final-01.8.png` (byte-identical
+    to committed 01.8)
+-   `tuning/analysis/01.10/01.10-01-strong-exposure.png`
+-   `tuning/analysis/01.10/01.10-contact-sheet.png`
+-   `tuning/analysis/01.10/01.10-contribution-rgb.png`
+-   `tuning/analysis/01.10/01.10-effective-contributions.npz`
+
+The next research question is untested. 01.11 should characterize
+what spatial signal the current Camotion exposure operator actually
+produces **before** choosing a fix. A later still-only diagnostic
+may compare existing 01.8 / 01.9 exposure behavior with alternative
+exposure / operator families on Ghost Library artifact regions and
+on simple synthetic fixtures (points, lines, small structured
+shapes). The purpose is to understand the exposure primitive /
+empirical point-spread behavior, not yet to select a new renderer.
+Temporal weighting, line/PSF-style integration, and prefiltering
+remain untested candidates, not a chosen intervention. Capture the
+question in [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not
+implement 01.11 here.
 
 ### Cinematographer integration
 
@@ -671,11 +785,11 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records 01.9 Adaptive Exposure Integration as a
-completed still-only Camotion experiment whose sparse-sampling
-hypothesis was not supported. Keep 01.8 as the current Camotion
-baseline. Do not start 01.10, and do not silently replace default
-`render()`.
+tasks. This checkpoint records 01.10 Depth-Compositor Ablation as a
+completed still-only diagnostic whose multi-layer compositor
+hypothesis was not supported as the origin of first appearance.
+Keep 01.8 as the current Camotion baseline. Do not start 01.11, and
+do not silently replace default `render()`.
 
 ## Hackathon strategy
 
@@ -722,10 +836,12 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     Cinematographer controls (one Seedance pair; linguistic pace
     looked useful, linguistic walking embodiment did not clearly
     appear; not a schema)
--   where the remaining 01.8 repeated-object / ghost-copy appearance
-    first emerges through compositor stages (01.9 adaptive sampling
-    did not clearly remove it; 01.10 diagnostic ablation is
-    untested; do not treat the compositor as a proven cause)
+-   remaining 01.8 repeated-object / ghost-copy appearance: 01.9
+    adaptive sampling did not clearly remove it; 01.10 localized
+    first appearance to strong exposure, not compositor / route /
+    destination protection, on Ghost Library stills. 01.11 should
+    characterize the exposure operator's spatial signal before a
+    fix is chosen. Do not begin 01.11 from this checkpoint.
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

@@ -42,7 +42,10 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     (`tuning/video-runs/prompt-control/camera-speed/`) holds 01.8
     A′/B′ constant and varies linguistic camera instruction; it is
     not Camotion 01.9. Unvalidated product brainstorms live in
-    `docs/RESEARCH_BACKLOG.md`. Camotion itself still knows
+    `docs/RESEARCH_BACKLOG.md`. 01.10 Depth-Compositor Ablation is
+    completed still-only diagnostic evidence; the multi-layer
+    compositor hypothesis was not supported as the origin of first
+    appearance, and 01.10 is not promoted. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
     bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
     official SDK.
@@ -161,9 +164,13 @@ directed A→B baseline. 01.8 Route-Preserved Exposure remains the
 current Camotion baseline.** 01.9 Adaptive Exposure Integration
 (`tuning/01.9-adaptive-exposure-result.png`) densified taps along
 the same 01.8 trajectory; the sparse-sampling hypothesis was **not
-supported** on Ghost Library stills, and 01.9 is not promoted. Do
-not treat pixel similarity to Terran's reference as architecture
-or as an optimization objective.
+supported** on Ghost Library stills, and 01.9 is not promoted. 01.10
+Depth-Compositor Ablation extracted real 01.8 intermediates without
+changing the renderer; first appearance of the repeated-object
+look is in strong exposure, not later compositing / route /
+destination protection, on this fixture. 01.10 is not promoted and
+is not a new renderer version. Do not treat pixel similarity to
+Terran's reference as architecture or as an optimization objective.
 
 ### Canonical frames vs shooting frames
 
@@ -341,9 +348,11 @@ starts them.
     controls (one Seedance pair; linguistic pace looked useful,
     linguistic walking embodiment did not clearly appear; not a
     schema)
--   where the remaining 01.8 repeated-object / ghost-copy appearance
-    first emerges through compositor stages (01.9 did not clearly
-    remove it; 01.10 diagnostic ablation is untested)
+-   remaining 01.8 repeated-object / ghost-copy appearance: 01.9
+    did not clearly remove it; 01.10 localized first appearance to
+    strong exposure on Ghost Library stills, not compositor / route
+    / destination protection. 01.11 should characterize the
+    exposure operator's spatial signal before a fix is chosen
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while

@@ -1,0 +1,59 @@
+{
+  "experiment": "01.10-compositor-ablation",
+  "not_a_camera_motion_plan": true,
+  "not_a_new_renderer_version": true,
+  "control": "01.8-route-preserved",
+  "base_plan": "01.4-plan.json",
+  "image": "01.jpeg",
+  "depth": "01-depth.png",
+  "committed_01_8_result": "01.8-route-preserved-result.png",
+  "exposure_strength": 0.08,
+  "samples": 16,
+  "orientation": "outgoing",
+  "medium_strength_ratio": "8/12",
+  "adaptive_exposure": false,
+  "route_preservation": true,
+  "route_preservation_strength": 0.70,
+  "route_corridor_top_width": 0.14,
+  "route_corridor_bottom_width": 0.48,
+  "route_corridor_feather": 0.10,
+  "material_active_threshold": 0.10,
+  "crops": {
+    "left-skeleton": {
+      "x": 40,
+      "y": 260,
+      "width": 360,
+      "height": 420,
+      "note": "Left foreground veiled skeleton and nearby shelf edge"
+    },
+    "left-lower-candle": {
+      "x": 40,
+      "y": 680,
+      "width": 280,
+      "height": 260,
+      "note": "Lower-left candle bodies / flames and shelf"
+    },
+    "mid-left-candle": {
+      "x": 600,
+      "y": 720,
+      "width": 240,
+      "height": 200,
+      "note": "Mid-aisle left candle cluster"
+    },
+    "right-skeleton": {
+      "x": 1480,
+      "y": 220,
+      "width": 400,
+      "height": 480,
+      "note": "Right foreground veiled skeleton reaching to the shelf"
+    },
+    "right-lower-candle": {
+      "x": 1700,
+      "y": 680,
+      "width": 320,
+      "height": 260,
+      "note": "Lower-right candle bodies / flames and shelf edge"
+    }
+  },
+  "notes": "Diagnostic-only Ghost Library ablation of the 01.8 depth-banded compositor. Same source, plan, depth, 16-tap exposure, route preservation, and destination protection as 01.8. Does not use 01.9 adaptive exposure. Does not change CameraMotionPlan v1 or default render()."
+}

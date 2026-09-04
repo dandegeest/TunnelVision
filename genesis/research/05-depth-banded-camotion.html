@@ -447,7 +447,44 @@
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.9 as opt-in experimental evidence. Do not promote 01.9. Do not run Seedance/video on 01.9 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. A later 01.10 diagnostic compositor ablation may ask where the repeated-object appearance first emerges; that question is untested. Do not begin 01.10 from this checkpoint.</p>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.9 as opt-in experimental evidence. Do not promote 01.9. Do not run Seedance/video on 01.9 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. The later 01.10 diagnostic compositor ablation is recorded below.</p>
+</div>
+
+</section>
+<section class="ready-code" id="compositor-ablation-01-10">
+<div class="eyebrow">CAMOTION 01.10 · SEPTEMBER 4, 2026</div>
+<h2>Ghost copies are already visible in strong exposure. The compositor hypothesis is not supported as their origin.</h2>
+<p>This entry is a chronological still-only Camotion diagnostic after 01.9. It is <strong>not</strong> a video experiment and <strong>not</strong> a new renderer version. CameraMotionPlan v1 and default <code>render()</code> were not changed. 01.8 Route-Preserved Exposure remains the current Camotion baseline. 01.10 is not promoted.</p>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Diagnostic extraction, not a renderer change</h3><span class="result-pill info">METHOD</span></div>
+<p>Control: 01.8 route-preserved Ghost Library still. Same source, plan, depth, outgoing 16-tap exposure, strength 0.08, medium/strong ratio 8/12, masks, destination protection, and route-preservation corridor. 01.9 adaptive integration was not used. Only change: save real 01.8 intermediates. Fixture metadata: <code>tuning/01.10-compositor-ablation-config.json</code>.</p>
+<p>Actual 01.8 order from code: source → strong exposure → medium exposure → strong mask (gaussian, then expose) → medium mask → <strong>route preservation attenuates those masks</strong> → strong over (medium over pristine) → destination protection. Route preservation is a pre-composite mask attenuation. Effective weights <code>w_s = S</code>, <code>w_m = M(1−S)</code>, <code>w_p = (1−M)(1−S)</code> sum to 1.0. The 01.10 final PNG is byte-identical to committed 01.8 (SHA-256 <code>5f9c3bb8afb51cde59067f14349571cb2124db8c757307211f1b02912b5603d1</code>).</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Targeted crops across compositor stages</h3><span class="result-pill info">CLASSIFICATION A</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.10/01.10-contact-sheet.png · source → strong → medium → strong+medium → full depth-banded → route-preserved → final 01.8</div>
+<figure>
+<img alt="01.10 contact sheet of Ghost Library crops across 01.8 compositor stages. Diagnostic only. Not promoted." src="../../camotion/tuning/analysis/01.10/01.10-contact-sheet.png"/>
+<figcaption>Same crops across stages. Discrete copies are already visible in strong exposure. Not a Seedance result. Not promoted.</figcaption>
+</figure>
+<p><strong>Observed:</strong> on candles, shelf edges, and skeleton structure, discrete radial copies appear in strong exposure and independently in medium exposure. In the four foreground artifact crops, pristine effective weight above the diagnostic threshold 0.10 is 0.0, and strong+medium, full depth-banded, route-preserved, and final 01.8 are byte-identical. Destination bbox vs source is identical. Whole-image pre-route overlap at threshold &gt; 0.10: strong∩medium 74.5%; all three 6.7%. Global full vs route MAE 0.46 is the corridor elsewhere. Destination protection MAE 0.0017.</p>
+<p><strong>Interpretation, not proof:</strong> first appearance is upstream of depth-layer compositing on this fixture (classification A). E is also supported: the pre-route depth-banded composite already contains the artifact, and route preservation does not create it in those foreground crops. The multi-layer compositor hypothesis is not supported as the origin of first appearance. Do not claim that the compositor can never matter, that the exposure operator’s exact mechanism is proven, that 01.9 is contradicted, or that Terran’s Photoshop renderer has been reproduced.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Strong exposure before compositing</h3><span class="result-pill fail">COMPOSITOR HYPOTHESIS NOT SUPPORTED AS ORIGIN</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.10/01.10-01-strong-exposure.png · actual 01.8 strong exposed image, before depth compositing</div>
+<figure>
+<img alt="01.10 strong-exposure intermediate from the 01.8 Ghost Library renderer. Diagnostic only. Not promoted." src="../../camotion/tuning/analysis/01.10/01.10-01-strong-exposure.png"/>
+<figcaption>Strong exposure alone already shows the repeated-object appearance. Later compositor stages are not required for first emergence.</figcaption>
+</figure>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.10 as diagnostic evidence. Do not promote 01.10. Do not call it a new renderer version. Do not run Seedance/video on 01.10 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. A later 01.11 still-only diagnostic should characterize what spatial signal the current Camotion exposure operator actually produces before choosing a fix, including comparison with alternative exposure/operator families on Ghost Library artifact regions and simple synthetic fixtures. Temporal weighting, line/PSF-style integration, and prefiltering remain untested candidates, not a chosen intervention. Do not begin 01.11 from this checkpoint.</p>
 </div>
 
 </section>

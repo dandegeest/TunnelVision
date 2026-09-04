@@ -257,6 +257,32 @@ def _composite_layers(
     return strong * strong_a + medium_composite * (1.0 - strong_a)
 
 
+def effective_compositor_weights(
+    strong_mask: np.ndarray,
+    medium_mask: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per-pixel weights implied by ``_composite_layers``.
+
+    Strong over (medium over pristine):
+
+        w_strong   = S
+        w_medium   = M * (1 - S)
+        w_pristine = (1 - M) * (1 - S)
+
+    These sum to 1. Not a CameraMotionPlan field. Diagnostic only.
+    """
+    strong_a = np.clip(np.asarray(strong_mask, dtype=np.float64), 0.0, 1.0)
+    medium_a = np.clip(np.asarray(medium_mask, dtype=np.float64), 0.0, 1.0)
+    if strong_a.shape != medium_a.shape:
+        raise ValueError(
+            f"strong_mask shape {strong_a.shape} does not match medium_mask {medium_a.shape}"
+        )
+    w_strong = strong_a
+    w_medium = medium_a * (1.0 - strong_a)
+    w_pristine = (1.0 - medium_a) * (1.0 - strong_a)
+    return w_strong, w_medium, w_pristine
+
+
 def render_depth_banded(
     image: np.ndarray,
     plan: CameraMotionPlan,

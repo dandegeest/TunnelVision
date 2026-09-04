@@ -1,0 +1,524 @@
+{
+  "experiment": "01.10-compositor-ablation",
+  "control": "01.8-route-preserved",
+  "not_a_new_renderer_version": true,
+  "adaptive_exposure": false,
+  "image_shape": [
+    1152,
+    2048,
+    3
+  ],
+  "pipeline_order_from_code": [
+    "source",
+    "strong exposure (fixed 16-tap apply_multisample_exposure)",
+    "medium exposure (fixed 16-tap, strength * 8/12)",
+    "strong mask before motion = gaussian(near_weight, sigma=10)",
+    "strong mask after motion = expose(that gaussian, same field/strength/samples)",
+    "medium mask = gaussian(near-to-mid ramp, sigma=2)",
+    "route preservation attenuates strong and medium masks (pre-composite)",
+    "composite: strong over (medium over pristine)",
+    "destination-protection blend of pristine over that composite"
+  ],
+  "naming_notes": {
+    "06_medium_mask": "medium_visibility_mask output, before route attenuation",
+    "06_medium_mask_after_route": "mask actually used by 01.8 compositing",
+    "07_08_09": "pre-route effective weights used by 10-16 (depth compositor isolation)",
+    "07_08_09_after_route": "effective weights used by 17/18 after 01.8 route attenuation",
+    "16_unexposed_strong_mask": "same compositor as 16, but strong mask is 04 not 05"
+  },
+  "byte_identical_to_committed_01_8": true,
+  "byte_identical_to_render_depth_banded": true,
+  "committed_01_8_png_sha256": "5f9c3bb8afb51cde59067f14349571cb2124db8c757307211f1b02912b5603d1",
+  "final_18_png_sha256": "5f9c3bb8afb51cde59067f14349571cb2124db8c757307211f1b02912b5603d1",
+  "png_byte_identical_to_committed_01_8": true,
+  "pre_route_weight_stats": {
+    "strong": {
+      "min": 0.002790475874188985,
+      "max": 0.9514816812163316,
+      "mean": 0.3872038364385562
+    },
+    "medium": {
+      "min": 0.0,
+      "max": 0.8478350619315573,
+      "mean": 0.37002080874417037
+    },
+    "pristine": {
+      "min": 0.0,
+      "max": 0.997209524125811,
+      "mean": 0.24277535481727341
+    }
+  },
+  "after_route_weight_stats": {
+    "strong": {
+      "min": 0.0023622828616765446,
+      "max": 0.9514816812163316,
+      "mean": 0.37118072985466777
+    },
+    "medium": {
+      "min": 0.0,
+      "max": 0.8297365073509597,
+      "mean": 0.3382918784795977
+    },
+    "pristine": {
+      "min": 0.0,
+      "max": 0.9976377171383235,
+      "mean": 0.29052739166573455
+    }
+  },
+  "pre_route_weight_sum": {
+    "max_abs_error_from_one": 2.220446049250313e-16,
+    "mean_abs_error_from_one": 2.6509307805902085e-18,
+    "sums_to_one": true
+  },
+  "after_route_weight_sum": {
+    "max_abs_error_from_one": 2.220446049250313e-16,
+    "mean_abs_error_from_one": 3.98768994351537e-18,
+    "sums_to_one": true
+  },
+  "pre_route_overlap": {
+    "threshold": 0.1,
+    "strong_active_fraction": 0.7538350423177084,
+    "medium_active_fraction": 0.8017260233561198,
+    "pristine_active_fraction": 0.3134901258680556,
+    "strong_and_medium_fraction": 0.7449781629774306,
+    "strong_and_pristine_fraction": 0.0673251681857639,
+    "medium_and_pristine_fraction": 0.12407302856445312,
+    "all_three_fraction": 0.0673251681857639
+  },
+  "after_route_overlap": {
+    "threshold": 0.1,
+    "strong_active_fraction": 0.6971524556477865,
+    "medium_active_fraction": 0.7781571282280816,
+    "pristine_active_fraction": 0.3679949442545573,
+    "strong_and_medium_fraction": 0.6882955763075087,
+    "strong_and_pristine_fraction": 0.06514739990234375,
+    "medium_and_pristine_fraction": 0.15500895182291666,
+    "all_three_fraction": 0.06514739990234375
+  },
+  "reconstruction_max_abs_error": 8.526512829121202e-14,
+  "pairs": {
+    "full_vs_route": {
+      "mae": 0.4599199648256655,
+      "rmse": 2.2240512102890384,
+      "max": 61.0,
+      "changed_pixel_fraction": 0.13757154676649305,
+      "identical": false
+    },
+    "route_vs_final": {
+      "mae": 0.0017267862955729167,
+      "rmse": 0.04780614518407765,
+      "max": 3.0,
+      "changed_pixel_fraction": 0.001872592502170139,
+      "identical": false
+    },
+    "unexposed_strong_mask_vs_full": {
+      "mae": 0.12286956221969039,
+      "rmse": 0.3602120055435646,
+      "max": 4.0,
+      "changed_pixel_fraction": 0.23150507609049478,
+      "identical": false
+    },
+    "strong_vs_medium_exposure": {
+      "mae": 4.080166286892361,
+      "rmse": 6.357829943576282,
+      "max": 55.0,
+      "changed_pixel_fraction": 0.9505318535698785,
+      "identical": false
+    }
+  },
+  "destination_protection": {
+    "pixel_box": {
+      "x": 911,
+      "y": 552,
+      "width": 226,
+      "height": 289
+    },
+    "normalized_bbox": [
+      0.445,
+      0.48,
+      0.555,
+      0.73
+    ],
+    "source_vs_final": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max": 0.0,
+      "changed_pixel_fraction": 0.0,
+      "identical": true
+    },
+    "route_vs_final": {
+      "mae": 0.006272264241459207,
+      "rmse": 0.07983943425698625,
+      "max": 2.0,
+      "changed_pixel_fraction": 0.009630400832899531,
+      "identical": false
+    },
+    "protection_mask": {
+      "min": 0.9848353210646862,
+      "max": 1.0,
+      "mean": 0.9999475270625076
+    }
+  },
+  "crop_overlap_pre_route": {
+    "left-skeleton": {
+      "threshold": 0.1,
+      "strong_active_fraction": 1.0,
+      "medium_active_fraction": 1.0,
+      "pristine_active_fraction": 0.0,
+      "strong_and_medium_fraction": 1.0,
+      "strong_and_pristine_fraction": 0.0,
+      "medium_and_pristine_fraction": 0.0,
+      "all_three_fraction": 0.0
+    },
+    "left-lower-candle": {
+      "threshold": 0.1,
+      "strong_active_fraction": 1.0,
+      "medium_active_fraction": 1.0,
+      "pristine_active_fraction": 0.0,
+      "strong_and_medium_fraction": 1.0,
+      "strong_and_pristine_fraction": 0.0,
+      "medium_and_pristine_fraction": 0.0,
+      "all_three_fraction": 0.0
+    },
+    "mid-left-candle": {
+      "threshold": 0.1,
+      "strong_active_fraction": 0.5678541666666667,
+      "medium_active_fraction": 0.8104375,
+      "pristine_active_fraction": 0.5630625,
+      "strong_and_medium_fraction": 0.5678541666666667,
+      "strong_and_pristine_fraction": 0.13091666666666665,
+      "medium_and_pristine_fraction": 0.3735,
+      "all_three_fraction": 0.13091666666666665
+    },
+    "right-skeleton": {
+      "threshold": 0.1,
+      "strong_active_fraction": 1.0,
+      "medium_active_fraction": 1.0,
+      "pristine_active_fraction": 0.0,
+      "strong_and_medium_fraction": 1.0,
+      "strong_and_pristine_fraction": 0.0,
+      "medium_and_pristine_fraction": 0.0,
+      "all_three_fraction": 0.0
+    },
+    "right-lower-candle": {
+      "threshold": 0.1,
+      "strong_active_fraction": 1.0,
+      "medium_active_fraction": 0.9856610576923077,
+      "pristine_active_fraction": 0.0,
+      "strong_and_medium_fraction": 0.9856610576923077,
+      "strong_and_pristine_fraction": 0.0,
+      "medium_and_pristine_fraction": 0.0,
+      "all_three_fraction": 0.0
+    }
+  },
+  "crop_pairs": {
+    "left-skeleton": {
+      "source_vs_strong": {
+        "mae": 12.275368165784833,
+        "rmse": 17.32031912481805,
+        "max": 127.0,
+        "changed_pixel_fraction": 0.9963161375661376,
+        "identical": false
+      },
+      "strong_vs_medium": {
+        "mae": 3.607506613756614,
+        "rmse": 5.204718004481399,
+        "max": 34.0,
+        "changed_pixel_fraction": 0.9688624338624339,
+        "identical": false
+      },
+      "strong_plus_medium_vs_full": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "full_vs_route": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "route_vs_final": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "unexposed_strong_mask_vs_full": {
+        "mae": 0.1589594356261023,
+        "rmse": 0.4006223113252302,
+        "max": 4.0,
+        "changed_pixel_fraction": 0.32384259259259257,
+        "identical": false
+      }
+    },
+    "left-lower-candle": {
+      "source_vs_strong": {
+        "mae": 21.671163003663004,
+        "rmse": 32.29868163199289,
+        "max": 152.0,
+        "changed_pixel_fraction": 0.985989010989011,
+        "identical": false
+      },
+      "strong_vs_medium": {
+        "mae": 7.020934065934066,
+        "rmse": 10.829668582727802,
+        "max": 46.0,
+        "changed_pixel_fraction": 0.9559478021978022,
+        "identical": false
+      },
+      "strong_plus_medium_vs_full": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "full_vs_route": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "route_vs_final": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "unexposed_strong_mask_vs_full": {
+        "mae": 0.2979990842490842,
+        "rmse": 0.5876280937436336,
+        "max": 4.0,
+        "changed_pixel_fraction": 0.4420879120879121,
+        "identical": false
+      }
+    },
+    "mid-left-candle": {
+      "source_vs_strong": {
+        "mae": 15.578208333333333,
+        "rmse": 22.77447310038149,
+        "max": 131.0,
+        "changed_pixel_fraction": 0.9981458333333333,
+        "identical": false
+      },
+      "strong_vs_medium": {
+        "mae": 5.073736111111111,
+        "rmse": 7.58641695546865,
+        "max": 38.0,
+        "changed_pixel_fraction": 0.9791458333333334,
+        "identical": false
+      },
+      "strong_plus_medium_vs_full": {
+        "mae": 18.612430555555555,
+        "rmse": 30.113041425417144,
+        "max": 160.0,
+        "changed_pixel_fraction": 0.6036041666666667,
+        "identical": false
+      },
+      "full_vs_route": {
+        "mae": 0.85125,
+        "rmse": 1.7439379130130879,
+        "max": 12.0,
+        "changed_pixel_fraction": 0.5221666666666667,
+        "identical": false
+      },
+      "route_vs_final": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "unexposed_strong_mask_vs_full": {
+        "mae": 0.21144444444444443,
+        "rmse": 0.5088658413024443,
+        "max": 3.0,
+        "changed_pixel_fraction": 0.32116666666666666,
+        "identical": false
+      }
+    },
+    "right-skeleton": {
+      "source_vs_strong": {
+        "mae": 16.473949652777776,
+        "rmse": 22.677568571596126,
+        "max": 125.0,
+        "changed_pixel_fraction": 0.9969427083333333,
+        "identical": false
+      },
+      "strong_vs_medium": {
+        "mae": 5.200381944444445,
+        "rmse": 7.129371465984922,
+        "max": 41.0,
+        "changed_pixel_fraction": 0.9766979166666667,
+        "identical": false
+      },
+      "strong_plus_medium_vs_full": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "full_vs_route": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "route_vs_final": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "unexposed_strong_mask_vs_full": {
+        "mae": 0.15134027777777778,
+        "rmse": 0.38926569047088877,
+        "max": 2.0,
+        "changed_pixel_fraction": 0.30733333333333335,
+        "identical": false
+      }
+    },
+    "right-lower-candle": {
+      "source_vs_strong": {
+        "mae": 24.56296875,
+        "rmse": 34.87312012441012,
+        "max": 144.0,
+        "changed_pixel_fraction": 0.9975961538461539,
+        "identical": false
+      },
+      "strong_vs_medium": {
+        "mae": 8.003141025641026,
+        "rmse": 11.360027127879311,
+        "max": 55.0,
+        "changed_pixel_fraction": 0.978858173076923,
+        "identical": false
+      },
+      "strong_plus_medium_vs_full": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "full_vs_route": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "route_vs_final": {
+        "mae": 0.0,
+        "rmse": 0.0,
+        "max": 0.0,
+        "changed_pixel_fraction": 0.0,
+        "identical": true
+      },
+      "unexposed_strong_mask_vs_full": {
+        "mae": 0.3584375,
+        "rmse": 0.656092013950201,
+        "max": 4.0,
+        "changed_pixel_fraction": 0.5395072115384615,
+        "identical": false
+      }
+    }
+  },
+  "artifacts": [
+    "camotion/tuning/analysis/01.10/01.10-00-source.png",
+    "camotion/tuning/analysis/01.10/01.10-01-strong-exposure.png",
+    "camotion/tuning/analysis/01.10/01.10-02-medium-exposure.png",
+    "camotion/tuning/analysis/01.10/01.10-03-raw-near-weight.png",
+    "camotion/tuning/analysis/01.10/01.10-04-strong-mask-before-motion-processing.png",
+    "camotion/tuning/analysis/01.10/01.10-05-strong-mask-after-motion-processing.png",
+    "camotion/tuning/analysis/01.10/01.10-05-strong-mask-after-route.png",
+    "camotion/tuning/analysis/01.10/01.10-06-medium-mask.png",
+    "camotion/tuning/analysis/01.10/01.10-06-medium-mask-after-route.png",
+    "camotion/tuning/analysis/01.10/01.10-07-effective-strong-contribution.png",
+    "camotion/tuning/analysis/01.10/01.10-08-effective-medium-contribution.png",
+    "camotion/tuning/analysis/01.10/01.10-09-effective-pristine-contribution.png",
+    "camotion/tuning/analysis/01.10/01.10-07-effective-strong-contribution-after-route.png",
+    "camotion/tuning/analysis/01.10/01.10-08-effective-medium-contribution-after-route.png",
+    "camotion/tuning/analysis/01.10/01.10-09-effective-pristine-contribution-after-route.png",
+    "camotion/tuning/analysis/01.10/01.10-10-strong-only.png",
+    "camotion/tuning/analysis/01.10/01.10-11-medium-only.png",
+    "camotion/tuning/analysis/01.10/01.10-12-pristine-only.png",
+    "camotion/tuning/analysis/01.10/01.10-13-strong-plus-medium.png",
+    "camotion/tuning/analysis/01.10/01.10-14-strong-plus-pristine.png",
+    "camotion/tuning/analysis/01.10/01.10-15-medium-plus-pristine.png",
+    "camotion/tuning/analysis/01.10/01.10-16-full-depth-banded.png",
+    "camotion/tuning/analysis/01.10/01.10-16-full-depth-banded-unexposed-strong-mask.png",
+    "camotion/tuning/analysis/01.10/01.10-17-route-preserved.png",
+    "camotion/tuning/analysis/01.10/01.10-18-final-01.8.png",
+    "camotion/tuning/analysis/01.10/01.10-contribution-rgb.png",
+    "camotion/tuning/analysis/01.10/01.10-contribution-rgb-after-route.png",
+    "camotion/tuning/analysis/01.10/01.10-destination-protection-mask.png",
+    "camotion/tuning/analysis/01.10/01.10-route-preservation-mask.png",
+    "camotion/tuning/analysis/01.10/01.10-effective-contributions.npz",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-00-source.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-01-strong-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-02-medium-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-13-strong-plus-medium.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-16-full-depth-banded.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-17-route-preserved.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-skeleton-18-final-01-8.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-00-source.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-01-strong-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-02-medium-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-13-strong-plus-medium.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-16-full-depth-banded.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-17-route-preserved.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-left-lower-candle-18-final-01-8.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-00-source.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-01-strong-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-02-medium-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-13-strong-plus-medium.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-16-full-depth-banded.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-17-route-preserved.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-mid-left-candle-18-final-01-8.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-00-source.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-01-strong-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-02-medium-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-13-strong-plus-medium.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-16-full-depth-banded.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-17-route-preserved.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-skeleton-18-final-01-8.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-00-source.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-01-strong-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-02-medium-exposure.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-13-strong-plus-medium.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-16-full-depth-banded.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-17-route-preserved.png",
+    "camotion/tuning/analysis/01.10/crops/01.10-crop-right-lower-candle-18-final-01-8.png",
+    "camotion/tuning/analysis/01.10/01.10-contact-sheet.png"
+  ],
+  "visual_observations": {
+    "source": "Canonical Ghost Library still. One candle / skeleton / shelf edge per feature. JPEG softness is not Camotion ghost-copy.",
+    "01_strong_exposure": "Discrete repeated copies appear along the radial trajectory on candles, shelf edges, and skeleton structure.",
+    "02_medium_exposure": "The same features also show discrete copies, with shorter streaks than strong.",
+    "13_strong_plus_medium": "Foreground artifact crops are byte-identical to 16. Mixing strong+medium does not introduce a new first appearance; both layers already contain copies.",
+    "16_full_depth_banded": "Foreground artifact crops contain the repeated-object appearance before route preservation. Pristine weight is 0.0 in those four crops.",
+    "mid_left_candle": "This mid-aisle crop is the exception: pristine is materially active (all-three fraction 0.131). 13 vs 16 MAE 18.6. Route then changes this crop (MAE 0.85). First ghost copies are still visible in strong exposure here.",
+    "17_route_preserved": "left-skeleton, left-lower-candle, right-skeleton, and right-lower-candle are byte-identical to 16. Route is not the source of those copies.",
+    "18_final_01_8": "Destination protection is byte-identical to 17 in all five diagnostic crops. Destination bbox vs source is identical. PNG matches committed 01.8.",
+    "04_vs_05_unexposed_strong_mask": "Compositing with the unexposed strong mask vs motion-processed strong mask changes pixels (global MAE 0.123, max 4) but does not create the discrete object copies."
+  },
+  "classification": {
+    "status": "complete",
+    "letter": "A",
+    "also_supported": "E",
+    "first_stage": "01-strong-exposure",
+    "compositor_hypothesis": "not supported as the origin of first appearance on this fixture",
+    "notes": "A: repeated-object appearance is already visible in the strong exposed image, independently of depth compositing. Medium exposure also shows copies. E: the full pre-route depth-banded composite already contains the artifact; 01.8 route preservation does not create it in the artifact-heavy foreground crops (those crops are byte-identical 16 vs 17). B/C/D/F are not the best fit: strong and medium are not individually coherent; pristine is inactive in the four worst crops; motion-processed strong mask vs unexposed mask is a small pixel change; route does not introduce the copies.",
+    "hypothesis_for_01_11": "UNTESTED. 01.11 should characterize what spatial signal the current Camotion exposure operator actually produces before choosing a fix. A later still-only diagnostic may compare existing 01.8/01.9 exposure behavior with alternative exposure/operator families on Ghost Library artifact regions and on simple synthetic fixtures (points, lines, small structured shapes). The purpose is to understand the exposure primitive / empirical point-spread behavior, not yet to select a new renderer. Temporal weighting, line/PSF-style integration, and prefiltering remain untested candidates, not a chosen intervention."
+  }
+}
