@@ -117,7 +117,8 @@ character should not automatically be treated as the same control.
 ## Motion-state visual conditioning
 
 Open research hypothesis, motivated by `seedance-slow-embodied`. Not
-supported by current Camotion. Not CameraMotionPlan v1. Not 01.9.
+supported by current Camotion. Not CameraMotionPlan v1. Not a current
+renderer experiment.
 
 **Observation.** The explicit Seedance prompt requesting subtle
 rhythmic vertical bob, gentle side-to-side body sway, physically
@@ -148,7 +149,39 @@ all other variables constant and contrast:
 
 Do not add schema fields. Do not implement pitch, yaw, roll, or
 height controls. Do not alter CameraMotionPlan v1. Do not treat this
-as Camotion 01.9.
+as a current Camotion renderer experiment.
+
+## Where the repeated-object appearance first emerges
+
+Unvalidated. Motivation for a future **01.10 diagnostic compositor
+ablation**. Do not implement from this file.
+
+01.9 Adaptive Exposure Integration tested whether the remaining 01.8
+ghost-copy appearance was primarily sparse trajectory sampling. On
+Ghost Library / 0.08, densifying taps from 16 fixed samples to
+adaptive `<= 1` px spacing did **not** clearly remove the artifact.
+That hypothesis is not supported on this fixture. Sparse sampling is
+unlikely to be the dominant cause; the actual cause is unproven.
+
+**Open question:** where does the repeated-object appearance first
+emerge? Candidate stages to isolate include:
+
+-   exposure of a single image layer
+-   strong exposure layer
+-   medium exposure layer
+-   interaction between strong and medium layers
+-   pristine-image contribution
+-   depth-mask feathering
+-   exposure of the strong visibility mask
+-   final strong / medium / pristine compositing
+
+The current working hypothesis is that multiple representations of
+the same scene feature may survive through different depth/exposure
+layers. That is **untested**. Do not state that the compositor is
+the cause.
+
+01.10 should diagnose before 01.11 attempts any fix. Do not begin
+01.10 from this file.
 
 ## Camotion conditioning overlay / Cinematographer Inspector
 
@@ -202,4 +235,4 @@ explanation/inspection mode.
     hard bookends, short dissolves, or future interpolation /
     Smooth-Cut-like treatment.
 
-Do not begin Camotion 01.9 from this file.
+Do not begin Camotion 01.10 from this file.

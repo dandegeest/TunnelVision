@@ -19,6 +19,12 @@ _MAX_STRENGTH = 1.0
 _MIN_SAMPLES = 2
 _MAX_SAMPLES = 64
 
+# 01.9 experimental: per-pixel sample count from path length, not plan.samples.
+# Adjacent taps along the existing trajectory are spaced by at most this many
+# image pixels. Not a CameraMotionPlan field.
+ADAPTIVE_MAX_STEP_PIXELS = 1.0
+ADAPTIVE_MIN_SAMPLES = 2
+
 
 def _as_float(value: Any, *, name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
@@ -168,6 +174,136 @@ def apply_multisample_exposure(
         strength,
         samples,
         source_offset_sign=-1.0,
+    )
+
+
+def _validate_max_step_pixels(max_step_pixels: Any) -> float:
+    value = _as_float(max_step_pixels, name="max_step_pixels")
+    if value <= 0.0:
+        raise ValueError("max_step_pixels must be > 0")
+    return value
+
+
+def exposure_path_length_pixels(
+    motion_field: np.ndarray,
+    strength: float,
+    height: int,
+    width: int,
+) -> np.ndarray:
+    """Pixel-space length of the existing exposure trajectory at each pixel."""
+    strength = _validate_strength(strength)
+    field = _validate_motion_field(motion_field, height, width)
+    dx_pixels = field[..., 0] * (width - 1) * strength
+    dy_pixels = field[..., 1] * (height - 1) * strength
+    return np.hypot(dx_pixels, dy_pixels)
+
+
+def adaptive_sample_counts(
+    motion_field: np.ndarray,
+    strength: float,
+    height: int,
+    width: int,
+    *,
+    max_step_pixels: float = ADAPTIVE_MAX_STEP_PIXELS,
+) -> np.ndarray:
+    """Per-pixel tap count: ``max(2, ceil(L / max_step_pixels) + 1)``.
+
+    ``L`` is the existing motion-field path length in pixels. Longer paths
+    receive more samples; spatial spacing stays ``<= max_step_pixels``.
+    Zero-length paths use two identical endpoint taps. This is not
+    ``plan.exposure.samples`` and is not capped at 64.
+    """
+    max_step = _validate_max_step_pixels(max_step_pixels)
+    path_length = exposure_path_length_pixels(motion_field, strength, height, width)
+    counts = np.ceil(path_length / max_step).astype(np.int32) + 1
+    return np.maximum(counts, ADAPTIVE_MIN_SAMPLES)
+
+
+def _accumulate_adaptive_exposure(
+    image: np.ndarray,
+    motion_field: np.ndarray,
+    strength: float,
+    *,
+    max_step_pixels: float,
+    source_offset_sign: float,
+) -> np.ndarray:
+    """Same trajectory as ``_accumulate_exposure``, per-pixel tap density."""
+    image = _validate_image(image)
+    strength = _validate_strength(strength)
+    max_step = _validate_max_step_pixels(max_step_pixels)
+    height, width = image.shape[:2]
+    field = _validate_motion_field(motion_field, height, width)
+
+    working = np.asarray(image, dtype=np.float64)
+    pixel_y, pixel_x = np.indices((height, width), dtype=np.float64)
+    dx_pixels = field[..., 0] * (width - 1)
+    dy_pixels = field[..., 1] * (height - 1)
+    signed_dx = source_offset_sign * dx_pixels * strength
+    signed_dy = source_offset_sign * dy_pixels * strength
+    path_length = np.hypot(signed_dx, signed_dy)
+    counts = np.ceil(path_length / max_step).astype(np.int32) + 1
+    counts = np.maximum(counts, ADAPTIVE_MIN_SAMPLES)
+    n_max = int(counts.max())
+    denom = np.maximum(counts - 1, 1).astype(np.float64)
+
+    accumulated = np.zeros_like(working, dtype=np.float64)
+    for index in range(n_max):
+        active = counts > index
+        t = np.where(active, index / denom, 0.0)
+        sampled = bilinear_sample(
+            working,
+            pixel_x + signed_dx * t,
+            pixel_y + signed_dy * t,
+        )
+        if working.ndim == 3:
+            accumulated += sampled * active[..., np.newaxis]
+        else:
+            accumulated += sampled * active
+
+    if working.ndim == 3:
+        averaged = accumulated / counts[..., np.newaxis]
+    else:
+        averaged = accumulated / counts
+    return _restore_dtype(averaged, image.dtype)
+
+
+def apply_adaptive_multisample_exposure(
+    image: np.ndarray,
+    motion_field: np.ndarray,
+    strength: float,
+    *,
+    max_step_pixels: float = ADAPTIVE_MAX_STEP_PIXELS,
+) -> np.ndarray:
+    """Outgoing exposure with path-length-adaptive tap density.
+
+    Trajectory, bilinear sampling, and equal-weight averaging match
+    ``apply_multisample_exposure``. Only the number of taps varies per
+    pixel so adjacent samples are at most ``max_step_pixels`` apart.
+    Experimental helper; not CameraMotionPlan and not default ``render()``.
+    """
+    return _accumulate_adaptive_exposure(
+        image,
+        motion_field,
+        strength,
+        max_step_pixels=max_step_pixels,
+        source_offset_sign=-1.0,
+    )
+
+
+def apply_adaptive_terminal_at_canonical_exposure(
+    image: np.ndarray,
+    motion_field: np.ndarray,
+    strength: float,
+    *,
+    max_step_pixels: float = ADAPTIVE_MAX_STEP_PIXELS,
+) -> np.ndarray:
+    """Opposite sample set of ``apply_adaptive_multisample_exposure``."""
+    return _accumulate_adaptive_exposure(
+        image,
+        motion_field,
+        strength,
+        max_step_pixels=max_step_pixels,
+        source_offset_sign=1.0,
     )
 
 

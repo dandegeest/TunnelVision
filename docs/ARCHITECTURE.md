@@ -34,8 +34,11 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     Seedance 2.5 adapter (`media/`), plus a sequential historical
     batch runner. A controlled Replicate series exists for 01.3–01.8
     (`tuning/video-runs/replicate-bytedance-seedance-2.5/`). 01.5
-    remains the conservative directed-traversal baseline; 01.8 is
-    the leading experimental branch. A prompt-control family
+    remains the conservative directed-traversal baseline. **01.8
+    Route-Preserved Exposure remains the current Camotion
+    baseline.** 01.9 Adaptive Exposure Integration is completed
+    still-only evidence; the sparse-sampling hypothesis was not
+    supported, and 01.9 is not promoted. A prompt-control family
     (`tuning/video-runs/prompt-control/camera-speed/`) holds 01.8
     A′/B′ constant and varies linguistic camera instruction; it is
     not Camotion 01.9. Unvalidated product brainstorms live in
@@ -101,6 +104,9 @@ depth-banded, motion-aware compositing over pristine source, then the
 same destination-protection blend. Strong and medium radial exposures
 use the existing multisample machinery. The strong visibility mask is
 itself motion-treated. Invoked separately from normal `render()`.
+Optional 01.8 route-preservation and 01.9 adaptive exposure are
+opt-in flags on that path; both default off. 01.9 did not replace
+`apply_multisample_exposure()`.
 
 Terran Boylan's original **TunnelVision** Photoshop Action remains
 **reference research**. Camotion is **not** a port or reimplementation
@@ -151,8 +157,12 @@ controlled Replicate rerun of the same 01.8 A′
 did **not** reproduce that pronounced backward-then-forward
 behavior. The Krea opening should not currently be treated as an
 intrinsic property of 01.8. **01.5 / 0.08 remains the conservative
-directed A→B baseline. 01.8 is the leading experimental branch.**
-Do not treat pixel similarity to Terran's reference as architecture
+directed A→B baseline. 01.8 Route-Preserved Exposure remains the
+current Camotion baseline.** 01.9 Adaptive Exposure Integration
+(`tuning/01.9-adaptive-exposure-result.png`) densified taps along
+the same 01.8 trajectory; the sparse-sampling hypothesis was **not
+supported** on Ghost Library stills, and 01.9 is not promoted. Do
+not treat pixel similarity to Terran's reference as architecture
 or as an optimization objective.
 
 ### Canonical frames vs shooting frames
@@ -331,6 +341,9 @@ starts them.
     controls (one Seedance pair; linguistic pace looked useful,
     linguistic walking embodiment did not clearly appear; not a
     schema)
+-   where the remaining 01.8 repeated-object / ghost-copy appearance
+    first emerges through compositor stages (01.9 did not clearly
+    remove it; 01.10 diagnostic ablation is untested)
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while

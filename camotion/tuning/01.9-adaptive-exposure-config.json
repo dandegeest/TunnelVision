@@ -1,0 +1,22 @@
+{
+  "experiment": "01.9-adaptive-exposure",
+  "not_a_camera_motion_plan": true,
+  "control": "01.8-route-preserved",
+  "base_plan": "01.4-plan.json",
+  "image": "01.jpeg",
+  "depth": "01-depth.png",
+  "exposure_strength": 0.08,
+  "plan_samples_unused_for_integration": 16,
+  "orientation": "outgoing",
+  "medium_strength_ratio": "8/12",
+  "route_preservation": true,
+  "route_preservation_strength": 0.70,
+  "route_corridor_top_width": 0.14,
+  "route_corridor_bottom_width": 0.48,
+  "route_corridor_feather": 0.10,
+  "adaptive_exposure": true,
+  "adaptive_max_step_pixels": 1.0,
+  "adaptive_min_samples": 2,
+  "adaptive_sample_formula": "max(2, ceil(path_length_pixels / max_step_pixels) + 1)",
+  "notes": "Experimental-only Ghost Library fixture. Same 01.8 compositor, source, depth, strength, route preservation, and destination protection. Only change: path-length-adaptive exposure sampling along the existing trajectory. Not CameraMotionPlan v1. Not a promotion over 01.8."
+}

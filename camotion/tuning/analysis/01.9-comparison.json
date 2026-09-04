@@ -1,0 +1,103 @@
+{
+  "image_shape": [
+    1152,
+    2048,
+    3
+  ],
+  "pairs": [
+    {
+      "pair": "01.9 vs 01.8",
+      "mae": 0.2505234612358941,
+      "rmse": 0.5518715250224187,
+      "max": 7.0,
+      "changed_pixel_fraction": 0.4133720397949219,
+      "mean_a": 38.69456270005968,
+      "mean_b": 38.69635518391927,
+      "mean_delta": 0.0017924838595959613
+    },
+    {
+      "pair": "01.9 vs 01.5",
+      "mae": 0.6870692217791522,
+      "rmse": 2.2658101090268326,
+      "max": 61.0,
+      "changed_pixel_fraction": 0.5175442165798612,
+      "mean_a": 38.63149586430303,
+      "mean_b": 38.69635518391927,
+      "mean_delta": 0.06485931961624658
+    },
+    {
+      "pair": "01.8 vs 01.5",
+      "mae": 0.45221484148943863,
+      "rmse": 2.2183682188365155,
+      "max": 61.0,
+      "changed_pixel_fraction": 0.13119210137261283,
+      "mean_a": 38.63149586430303,
+      "mean_b": 38.69456270005968,
+      "mean_delta": 0.06306683575665062
+    },
+    {
+      "pair": "01.9 vs source",
+      "mae": 9.38720816153067,
+      "rmse": 16.43251292648515,
+      "max": 154.0,
+      "changed_pixel_fraction": 0.8008655971950955,
+      "mean_a": 37.58983329490379,
+      "mean_b": 38.69635518391927,
+      "mean_delta": 1.1065218890154824
+    },
+    {
+      "pair": "01.8 vs source",
+      "mae": 9.256870552345559,
+      "rmse": 16.173799202018532,
+      "max": 148.0,
+      "changed_pixel_fraction": 0.800818125406901,
+      "mean_a": 37.58983329490379,
+      "mean_b": 38.69456270005968,
+      "mean_delta": 1.1047294051558865
+    }
+  ],
+  "regions_mae_01_9_vs_01_8": {
+    "full": 0.2505234612358941,
+    "center_200": 0.000825,
+    "top_left_200": 0.21055,
+    "bottom_left_200": 0.21985,
+    "bottom_right_200": 0.33839166666666665,
+    "top_right_200": 0.21073333333333333
+  },
+  "destination_bbox_mae_01_9_vs_01_8": 0.0,
+  "destination_bbox_identical": true,
+  "brightness": {
+    "source": 37.58983329490379,
+    "01.5": 38.63149586430303,
+    "01.8": 38.69456270005968,
+    "01.9": 38.69635518391927
+  },
+  "route_preservation_mask_identical_to_01_8": true,
+  "adaptive_sampling": {
+    "max_step_pixels": 1.0,
+    "count_min": 2,
+    "count_max": 98,
+    "count_mean": 51.88689676920573,
+    "path_length_min": 0.0532826425771004,
+    "path_length_max": 96.76395506096266,
+    "path_length_mean": 50.38662827392019,
+    "spacing_max": 0.9999999600967473,
+    "spacing_mean": 0.986657692683928,
+    "01_8_fixed_samples": 16,
+    "01_8_spacing_at_max_path": 6.45093033739751
+  },
+  "artifact": {
+    "path": "camotion/tuning/01.9-adaptive-exposure-result.png",
+    "sha256": "420f8c7c1a422685d8bf9c26dc24ef5af9fa521735d274dd9d4c2de4757c95e8",
+    "bytes": 1640716
+  },
+  "runtime": {
+    "01.9_render_seconds_real": 50.05,
+    "01.8_rerender_seconds_real_approx": 10.16,
+    "note": "timed on this machine with /usr/bin/time -p for 01.9; 01.8 rerender was ~10s in the same session"
+  },
+  "terran_og": {
+    "compared": false,
+    "reason": "Terran Boylan original Ghost Library motion-conditioned reference is not in this repository"
+  }
+}

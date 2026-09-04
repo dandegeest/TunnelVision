@@ -60,6 +60,15 @@ def main() -> int:
             "traversal corridor. Off by default (01.5 behavior)."
         ),
     )
+    parser.add_argument(
+        "--adaptive-exposure",
+        action="store_true",
+        help=(
+            "01.9 experimental: densify exposure taps along the existing "
+            "trajectory so adjacent samples are at most one image pixel apart. "
+            "Off by default (01.5/01.8 fixed sample count)."
+        ),
+    )
     args = parser.parse_args()
 
     plan = load_plan(args.plan)
@@ -72,6 +81,7 @@ def main() -> int:
         return_diagnostics=True,
         terminal_at_canonical=args.terminal_at_canonical,
         route_preservation=args.route_preservation,
+        adaptive_exposure=args.adaptive_exposure,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     _save_image(args.output, output)
@@ -91,6 +101,14 @@ def main() -> int:
         )
     )
     print(f"route_preservation={args.route_preservation}")
+    print(f"adaptive_exposure={args.adaptive_exposure}")
+    if "adaptive_sample_counts" in diagnostics:
+        counts = diagnostics["adaptive_sample_counts"]
+        print(
+            "adaptive_sample_counts="
+            f"min={int(counts.min())} max={int(counts.max())} "
+            f"mean={float(counts.mean()):.2f}"
+        )
 
     if args.diagnostics is not None:
         args.diagnostics.mkdir(parents=True, exist_ok=True)
@@ -104,6 +122,10 @@ def main() -> int:
             paths[f"{stem}-route-preservation-mask.png"] = diagnostics[
                 "route_preservation_mask"
             ]
+        if "adaptive_sample_counts" in diagnostics:
+            counts = np.asarray(diagnostics["adaptive_sample_counts"], dtype=np.float64)
+            peak = float(counts.max()) if float(counts.max()) > 0.0 else 1.0
+            paths[f"{stem}-adaptive-sample-counts.png"] = counts / peak
         for name, mask in paths.items():
             path = args.diagnostics / name
             _save_mask(path, mask)

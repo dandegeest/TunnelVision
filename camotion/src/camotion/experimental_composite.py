@@ -13,6 +13,8 @@ Pipeline:
     composite     = strong over medium over pristine
     optional 01.8 route-preservation attenuates strong/medium masks
         in a geometric corridor (off by default; 01.5 unchanged)
+    optional 01.9 adaptive exposure densifies taps along that same
+        trajectory (off by default; 01.5/01.8 unchanged)
     then existing destination-protection blend
 
 ``near_weight`` is Camotion convention: 1.0 = near, 0.0 = far.
@@ -30,6 +32,10 @@ from typing import Any
 import numpy as np
 
 from camotion.exposure import (
+    ADAPTIVE_MAX_STEP_PIXELS,
+    adaptive_sample_counts,
+    apply_adaptive_multisample_exposure,
+    apply_adaptive_terminal_at_canonical_exposure,
     apply_multisample_exposure,
     apply_terminal_at_canonical_exposure,
 )
@@ -265,6 +271,8 @@ def render_depth_banded(
     route_corridor_top_width: float = ROUTE_CORRIDOR_TOP_WIDTH,
     route_corridor_bottom_width: float = ROUTE_CORRIDOR_BOTTOM_WIDTH,
     route_corridor_feather: float = ROUTE_CORRIDOR_FEATHER,
+    adaptive_exposure: bool = False,
+    adaptive_max_step_pixels: float = ADAPTIVE_MAX_STEP_PIXELS,
 ) -> np.ndarray | tuple[np.ndarray, dict[str, np.ndarray]]:
     """Depth-banded composite, then existing destination protection.
 
@@ -280,6 +288,12 @@ def render_depth_banded(
     default so 01.5 behavior is unchanged. When on, a geometric corridor
     attenuates strong/medium visibility before compositing. Destination
     protection still runs afterward, unchanged.
+
+    ``adaptive_exposure`` is the 01.9 experimental modifier. Off by
+    default so 01.5/01.8 sampling stays fixed. When on, strong/medium
+    images and the strong mask use path-length-adaptive tap density
+    along the same trajectory. ``plan.exposure.samples`` is unused for
+    those integrations.
     """
     array = np.asarray(image)
     if array.ndim not in (2, 3):
@@ -297,11 +311,26 @@ def render_depth_banded(
     strong_strength = float(plan.exposure.strength)
     medium_strength = strong_strength * MEDIUM_STRENGTH_RATIO
     samples = int(plan.exposure.samples)
-    expose = (
-        apply_terminal_at_canonical_exposure
-        if terminal_at_canonical
-        else apply_multisample_exposure
-    )
+    if adaptive_exposure:
+        adaptive_expose = (
+            apply_adaptive_terminal_at_canonical_exposure
+            if terminal_at_canonical
+            else apply_adaptive_multisample_exposure
+        )
+
+        def expose(image_branch, motion, strength, _samples):
+            return adaptive_expose(
+                image_branch,
+                motion,
+                strength,
+                max_step_pixels=adaptive_max_step_pixels,
+            )
+    else:
+        expose = (
+            apply_terminal_at_canonical_exposure
+            if terminal_at_canonical
+            else apply_multisample_exposure
+        )
 
     strong_exposed = expose(array, field, strong_strength, samples)
     medium_exposed = expose(array, field, medium_strength, samples)
@@ -350,4 +379,12 @@ def render_depth_banded(
     }
     if route_mask is not None:
         diagnostics["route_preservation_mask"] = route_mask
+    if adaptive_exposure:
+        diagnostics["adaptive_sample_counts"] = adaptive_sample_counts(
+            field,
+            strong_strength,
+            height,
+            width,
+            max_step_pixels=adaptive_max_step_pixels,
+        )
     return output, diagnostics

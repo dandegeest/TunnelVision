@@ -16,13 +16,17 @@ remain prior evidence and must not be overwritten.
 
 A controlled Replicate Seedance 2.5 series now exists for 01.3, 01.4,
 01.5, 01.6, 01.7, and 01.8 under
-`tuning/video-runs/replicate-bytedance-seedance-2.5/`. **01.8 is the
-leading experimental branch**, not a replacement for 01.5. 01.6 did
-not reproduce the severe terminal-orientation collapse/retreat
-previously seen through Krea. 01.8 did not reproduce the pronounced
-backward-then-forward opening previously seen through Krea. Those
-Krea behaviors should not currently be treated as intrinsic
-properties of the Camotion variants. Do not begin 01.9.
+`tuning/video-runs/replicate-bytedance-seedance-2.5/`. **01.8
+Route-Preserved Exposure remains the current Camotion baseline.**
+01.5 remains the conservative directed-traversal video baseline on
+this fixture. 01.9 Adaptive Exposure Integration is completed
+still-only evidence; the sparse-sampling hypothesis was **not
+supported**. 01.9 is **not** promoted. 01.6 did not reproduce the
+severe terminal-orientation collapse/retreat previously seen through
+Krea. 01.8 did not reproduce the pronounced backward-then-forward
+opening previously seen through Krea. Those Krea behaviors should not
+currently be treated as intrinsic properties of the Camotion
+variants.
 
 A separate **prompt-control** family holds 01.8 shooting frames constant
 and varies linguistic camera instruction. It is **not** Camotion 01.9.
@@ -32,7 +36,7 @@ dolly/Steadicam-like rather than literal walking.
 `seedance-slow-embodied` did not clearly add footstep-driven human
 locomotion. Those are one-run observations, not proof. Unvalidated
 product ideas from this work live in
-[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not begin 01.9.
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not begin 01.10.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
@@ -199,15 +203,23 @@ Intended Camotion / Cinematographer research order:
     Frozen A′→B′ series: 01.3, 01.4, 01.5, 01.6, 01.7, 01.8 under
     `tuning/video-runs/replicate-bytedance-seedance-2.5/`. Same B′,
     prompt, duration, model, and settings; only Camotion A′ differs.
-    Historical Krea videos were not overwritten. Do not begin 01.9.
+    Historical Krea videos were not overwritten.
     A parallel prompt-control family (`seedance-slow`,
     `seedance-slow-embodied`) varies linguistic camera instruction
     on frozen 01.8 A′/B′. That is not Camotion 01.9. See
     [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
-7.  Validate / freeze an updated Camotion baseline **if** justified.
-    Do not assume it will. Do not call 01.5 the permanent baseline.
-8.  Automated Cinematographer + Camotion Benchmark Harness.
-9.  Cross-style / cross-model experiments.
+7.  Controlled adaptive exposure integration (01.9) --- **completed
+    on Ghost Library still; hypothesis not supported; not
+    promoted.** Same 01.8 compositor, source, depth, strength, route
+    preservation, and destination protection. Only change:
+    path-length-adaptive exposure taps. Keep the opt-in code and
+    evidence. Do not start a Seedance/video test for 01.9. Do not
+    begin 01.10 from this checkpoint.
+8.  Validate / freeze an updated Camotion baseline **if** justified.
+    Do not assume it will. Do not promote 01.9. **01.8 remains the
+    current Camotion baseline.**
+9.  Automated Cinematographer + Camotion Benchmark Harness.
+10. Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
@@ -432,8 +444,9 @@ Camotion-conditioned A′ differs.
 | 01.8 | `tuning/01.8-route-preserved-result.png` | `tuning/video-runs/replicate-bytedance-seedance-2.5/01.8/01.8-result.mp4` |
 
 **01.5 remains the conservative directed-traversal baseline.** **01.8
-is the leading experimental branch**, not a promoted replacement and
-not CameraMotionPlan.
+Route-Preserved Exposure remains the current Camotion baseline**, not
+a CameraMotionPlan field. 01.9 is still-only evidence and is not
+promoted.
 
 On this Replicate series, 01.6 did **not** reproduce the severe
 terminal-orientation collapse/retreat previously observed through
@@ -450,7 +463,9 @@ motion can act as a **perceptual witness** to camera locomotion.
 Preserve the distinction among canonical spatial authority, Camotion
 motion conditioning, and generative-video improvisation.
 
-Do not begin 01.9. Do not treat this as a Camotion renderer freeze.
+Do not treat this as a Camotion renderer freeze. 01.9 Adaptive
+Exposure Integration is recorded below as a completed still-only
+experiment; it is not promoted.
 
 ### Prompt-control camera speed and embodiment
 
@@ -503,7 +518,81 @@ Evidence:
 Unvalidated product ideas (pace UI, embodiment, Prompt Only vs Auto,
 and related brainstorms) are in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement them
-here. Do not begin 01.9.
+here. Do not begin 01.10.
+
+### Adaptive exposure integration (01.9; completed still-only)
+
+01.9 Adaptive Exposure Integration tested whether the repeated-object
+/ ghost-copy appearance remaining in 01.8 was primarily caused by
+sparse sampling of the exposure trajectory.
+
+01.8 used 16 fixed taps. On the Ghost Library fixture, the longest
+exposure trajectory left approximately 6.45 px between adjacent
+samples.
+
+01.9 changed **only** the exposure integration density by using
+adaptive sampling:
+
+``` text
+n = max(2, ceil(L / 1.0) + 1)
+```
+
+where `L` is the exposure-path length in pixels. On the Ghost
+Library / 0.08 fixture this produced 2–98 taps per pixel (mean
+51.9), with maximum adjacent spacing `<= 1.0` px. All other
+relevant 01.8 behavior remained unchanged: route geometry, depth
+logic, destination protection, route preservation, motion strength,
+outgoing orientation, and CameraMotionPlan v1.
+
+**Result: the hypothesis was not supported by this fixture.** Despite
+the large increase in exposure sampling density, 01.9 produced only
+small pixel differences from 01.8 and did not clearly remove the
+repeated-object appearance in candles, shelves, skeletons, and
+similar high-contrast features.
+
+Quantitative evidence vs 01.8 (uint8): MAE 0.251, RMSE 0.552, max
+channel difference 7, mean delta +0.002. Center 200×200 MAE 0.0008.
+Destination bbox identical. Route-preservation mask identical. 01.9
+runtime approximately 50.05 s versus an 01.8 rerender of
+approximately 10 s (~5×) without a correspondingly meaningful visual
+change. Terran Boylan's original Ghost Library reference still was
+not in the repository; no Terran OG comparison was invented.
+
+**Observation.** Increasing trajectory sampling density from fixed 16
+taps to adaptive `<= 1` px spacing did not clearly remove the
+repeated-object appearance in this fixture.
+
+**Interpretation, not proof.** Sparse exposure sampling is unlikely to
+be the **dominant** cause of the remaining ghost-copy appearance in
+the Ghost Library 01.8 result. Do not claim that sparse sampling can
+never matter, that adaptive exposure is universally ineffective, that
+the artifact's actual cause has been proven, that the compositor is
+definitely responsible, or that Terran's Photoshop renderer has been
+reproduced or explained.
+
+**Baseline.** 01.8 Route-Preserved Exposure remains the current
+Camotion baseline. 01.9 is preserved as experimental evidence and is
+**not** promoted. No Seedance/video test is warranted for 01.9 based
+on the still result. CameraMotionPlan v1 remains frozen. Default
+`render()` remains the continuous near-weight path and still calls
+`apply_multisample_exposure()`. `render_depth_banded()` defaults to
+`adaptive_exposure=False`. A normal 01.8 rerender remained
+byte-identical to the committed 01.8 result. Do not remove the opt-in
+01.9 path; negative results are part of the Camotion research record.
+
+Evidence:
+
+-   `tuning/01.9-adaptive-exposure-result.png` (SHA-256
+    `420f8c7c1a422685d8bf9c26dc24ef5af9fa521735d274dd9d4c2de4757c95e8`)
+-   `tuning/01.9-adaptive-exposure-config.json`
+-   `tuning/analysis/01.9-comparison.json`
+-   `tuning/analysis/01.9-vs-01.8-absdiff.png`
+-   `tuning/analysis/01.9-vs-01.5-absdiff.png`
+
+The next research question --- where the repeated-object appearance
+first emerges through compositor stages --- is untested. Capture it in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement 01.10
+here. 01.10 should diagnose before 01.11 attempts any fix.
 
 ### Cinematographer integration
 
@@ -582,9 +671,11 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records Seedance prompt-control pace and
-embodiment runs plus an unvalidated research backlog. Do not start
-01.9, and do not silently replace default `render()`.
+tasks. This checkpoint records 01.9 Adaptive Exposure Integration as a
+completed still-only Camotion experiment whose sparse-sampling
+hypothesis was not supported. Keep 01.8 as the current Camotion
+baseline. Do not start 01.10, and do not silently replace default
+`render()`.
 
 ## Hackathon strategy
 
@@ -631,6 +722,10 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     Cinematographer controls (one Seedance pair; linguistic pace
     looked useful, linguistic walking embodiment did not clearly
     appear; not a schema)
+-   where the remaining 01.8 repeated-object / ghost-copy appearance
+    first emerges through compositor stages (01.9 adaptive sampling
+    did not clearly remove it; 01.10 diagnostic ablation is
+    untested; do not treat the compositor as a proven cause)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

@@ -381,7 +381,7 @@
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>The Replicate MediaProvider/batch pipeline is working end-to-end. Keep 01.5 as the conservative directed-traversal baseline. Keep 01.8 as the leading experimental branch. Do not treat the earlier Krea reverse-motion openings as intrinsic to 01.6 or 01.8. Do not begin 01.9. Do not change CameraMotionPlan or default <code>render()</code>.</p>
+<p>The Replicate MediaProvider/batch pipeline is working end-to-end. Keep 01.5 as the conservative directed-traversal baseline. Keep 01.8 as the leading experimental branch. Do not treat the earlier Krea reverse-motion openings as intrinsic to 01.6 or 01.8. Do not change CameraMotionPlan or default <code>render()</code>. The later 01.9 still-only checkpoint is recorded below.</p>
 </div>
 
 </section>
@@ -410,7 +410,44 @@
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>Keep 01.5 as the conservative directed-traversal baseline and 01.8 as the leading experimental Camotion branch. Treat linguistic camera pace as a promising Cinematographer-level hypothesis, not a product control. Treat camera embodiment as an open research problem. Unvalidated UI/product brainstorms are recorded in the Markdown research backlog, not as architecture. Do not begin 01.9. Do not change CameraMotionPlan or default <code>render()</code>.</p>
+<p>Keep 01.5 as the conservative directed-traversal baseline and 01.8 as the then-leading experimental Camotion branch. Treat linguistic camera pace as a promising Cinematographer-level hypothesis, not a product control. Treat camera embodiment as an open research problem. Unvalidated UI/product brainstorms are recorded in the Markdown research backlog, not as architecture. CameraMotionPlan and default <code>render()</code> were not changed. The later 01.9 still-only checkpoint is recorded below.</p>
+</div>
+
+</section>
+<section class="ready-code" id="adaptive-exposure-01-9">
+<div class="eyebrow">CAMOTION 01.9 · SEPTEMBER 4, 2026</div>
+<h2>Denser exposure sampling did not clearly remove 01.8 ghost copies.</h2>
+<p>This entry is a chronological still-only Camotion record after the prompt-control Seedance pair. It is <strong>not</strong> a video experiment. CameraMotionPlan v1 and default <code>render()</code> were not changed. 01.8 Route-Preserved Exposure remains the current Camotion baseline. 01.9 is not promoted.</p>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>One-variable sampling-density test</h3><span class="result-pill info">METHOD</span></div>
+<p>Control: 01.8 route-preserved Ghost Library still. Experiment: the same compositor, source, depth, outgoing orientation, strength 0.08, medium/strong ratio 8/12, masks, destination protection, and route-preservation corridor. Only change: path-length-adaptive exposure taps along the existing trajectory. Fixture metadata: <code>tuning/01.9-adaptive-exposure-config.json</code>.</p>
+<p>01.8 used 16 fixed taps. On this fixture the longest exposure path left approximately 6.45 px between adjacent samples. 01.9 used <code>n = max(2, ceil(L / 1.0) + 1)</code>, producing 2–98 taps per pixel (mean 51.9) with maximum adjacent spacing ≤ 1.0 px. <code>apply_multisample_exposure()</code> remains the 01.8 baseline. <code>render_depth_banded()</code> defaults to <code>adaptive_exposure=False</code>. A normal 01.8 rerender remained byte-identical to the committed 01.8 result.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Ghost Library still 01.9</h3><span class="result-pill fail">HYPOTHESIS NOT SUPPORTED</span></div>
+<div class="test-meta">camotion/tuning/01.9-adaptive-exposure-result.png · SHA-256 420f8c7c1a422685d8bf9c26dc24ef5af9fa521735d274dd9d4c2de4757c95e8 · same 01.8 conditioning except adaptive taps</div>
+<figure>
+<img alt="Experimental Ghost Library 01.9 adaptive-exposure start shooting frame. Not promoted over 01.8." src="../../camotion/tuning/01.9-adaptive-exposure-result.png"/>
+<figcaption>01.9 still. Destination and central corridor match 01.8. Not a Seedance result. Not promoted.</figcaption>
+</figure>
+<p><strong>Observed:</strong> despite the large increase in sampling density, 01.9 produced only small pixel differences from 01.8 and did not clearly remove the repeated-object appearance in candles, shelves, skeletons, and similar high-contrast features. MAE vs 01.8 0.251, RMSE 0.552, max channel difference 7, mean delta +0.002. Center 200×200 MAE 0.0008. Destination bbox identical. Runtime about 50 s versus an 01.8 rerender of about 10 s (approximately 5×) without a correspondingly meaningful visual change.</p>
+<p><strong>Interpretation, not proof:</strong> sparse exposure sampling is unlikely to be the dominant cause of the remaining ghost-copy appearance in the Ghost Library 01.8 result. Do not claim that sparse sampling can never matter, that adaptive exposure is universally ineffective, that the artifact’s actual cause has been proven, that the compositor is definitely responsible, or that Terran’s Photoshop renderer has been reproduced. Terran’s original Ghost Library reference still was not in the repository; no Terran OG comparison was invented.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01.9 vs 01.8 absolute difference</h3><span class="result-pill info">SUPPORTING METRIC ONLY</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.9-vs-01.8-absdiff.png · 8× gain visualization · raw max channel difference 7</div>
+<figure>
+<img alt="Amplified absolute difference between 01.9 and 01.8 Ghost Library stills. Metrics are supporting evidence only." src="../../camotion/tuning/analysis/01.9-vs-01.8-absdiff.png"/>
+<figcaption>Difference is concentrated in the periphery. The protected destination is black (identical). Visual behavior remains the research target.</figcaption>
+</figure>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.9 as opt-in experimental evidence. Do not promote 01.9. Do not run Seedance/video on 01.9 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. A later 01.10 diagnostic compositor ablation may ask where the repeated-object appearance first emerges; that question is untested. Do not begin 01.10 from this checkpoint.</p>
 </div>
 
 </section>
