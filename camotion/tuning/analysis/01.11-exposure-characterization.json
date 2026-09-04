@@ -1,0 +1,629 @@
+{
+  "experiment": "01.11-exposure-characterization",
+  "not_a_new_renderer_version": true,
+  "exposure_equation_from_code": {
+    "gather": "dest[p] = (1/N) sum_i bilinear(source, p - v[p]*strength*t_i)",
+    "t_i": "i / (N-1)",
+    "field_to_pixels": "v_pixels = v_normalized * (width-1, height-1)",
+    "01.8": "N=16 equal weights, outgoing sign -1",
+    "01.9": "N=max(2, ceil(L)+1) per pixel, equal weights, same trajectory"
+  },
+  "synthetic": {
+    "size": 256,
+    "vanishing_point": [
+      0.5,
+      0.5
+    ],
+    "forward": 1.0,
+    "strength": 0.4,
+    "point_xy": [
+      32,
+      32
+    ],
+    "point_path_length_pixels": 54.02295808265224,
+    "path_length_min": 0.282842712474618,
+    "path_length_max": 72.12489168102785,
+    "path_length_at_point": 54.02295808265224,
+    "primitives": {
+      "point": {
+        "xy": [
+          32,
+          32
+        ],
+        "kind": "point"
+      },
+      "vertical_line": {
+        "x": 32,
+        "y0": 96,
+        "y1": 160,
+        "kind": "vline"
+      },
+      "horizontal_line": {
+        "y": 32,
+        "x0": 96,
+        "x1": 176,
+        "kind": "hline"
+      },
+      "outlined_square": {
+        "x": 176,
+        "y": 40,
+        "size": 20,
+        "kind": "outline"
+      },
+      "filled_square": {
+        "x": 40,
+        "y": 176,
+        "size": 16,
+        "kind": "filled"
+      }
+    },
+    "energy": {
+      "00_source": {
+        "mean": 1.863784790039062,
+        "max": 254.99999999999997,
+        "sum": 122144.99999999997,
+        "nonzero_fraction": 0.0073089599609375
+      },
+      "01_fixed_16_box": {
+        "mean": 2.330718994140625,
+        "max": 111.99999999999999,
+        "sum": 152746.0,
+        "nonzero_fraction": 0.12030029296875
+      },
+      "02_dense_box": {
+        "mean": 2.36444091796875,
+        "max": 113.0,
+        "sum": 154956.0,
+        "nonzero_fraction": 0.154876708984375
+      },
+      "03_weighted_dense": {
+        "mean": 2.5978546142578125,
+        "max": 159.0,
+        "sum": 170253.0,
+        "nonzero_fraction": 0.153778076171875
+      },
+      "04_forward_line": {
+        "mean": 1.86212158203125,
+        "max": 114.99999999999999,
+        "sum": 122036.0,
+        "nonzero_fraction": 0.1390838623046875
+      },
+      "05_prefilter_dense": {
+        "mean": 2.3674163818359375,
+        "max": 111.99999999999999,
+        "sum": 155151.0,
+        "nonzero_fraction": 0.1678009033203125
+      }
+    },
+    "point_response": {
+      "01_fixed_16_box": {
+        "path_length_pixels": 54.02295808265224,
+        "sample_count": 56.0,
+        "peak_count": 9.0,
+        "peak_to_valley": 0.942667768595041,
+        "active_fraction": 0.5178571428571429,
+        "integrated_intensity": 129.13454375310738,
+        "source_end_mean": 5.256642644628097,
+        "far_end_mean": 0.0,
+        "source_over_far": Infinity,
+        "max": 16.0,
+        "mean": 2.4905362455726068
+      },
+      "02_dense_box": {
+        "path_length_pixels": 54.02295808265224,
+        "sample_count": 56.0,
+        "peak_count": 14.0,
+        "peak_to_valley": 0.5995530578512396,
+        "active_fraction": 1.0,
+        "integrated_intensity": 160.86702050713745,
+        "source_end_mean": 3.587795041322315,
+        "far_end_mean": 3.0,
+        "source_over_far": 1.1959316804407718,
+        "max": 4.999999999999999,
+        "mean": 2.996007319952774
+      },
+      "03_weighted_dense": {
+        "path_length_pixels": 54.02295808265224,
+        "sample_count": 56.0,
+        "peak_count": 13.0,
+        "peak_to_valley": 0.9320955252773434,
+        "active_fraction": 0.9821428571428571,
+        "integrated_intensity": 208.37592845713658,
+        "source_end_mean": 0.5016965289256202,
+        "far_end_mean": 4.999999999999999,
+        "source_over_far": 0.10033930578512407,
+        "max": 7.104000000000018,
+        "mean": 3.8329383707201887
+      },
+      "04_forward_line": {
+        "path_length_pixels": 54.02295808265224,
+        "sample_count": 56.0,
+        "peak_count": 6.0,
+        "peak_to_valley": 0.9444440036730947,
+        "active_fraction": 1.0,
+        "integrated_intensity": 563.0985323597031,
+        "source_end_mean": 3.587795041322315,
+        "far_end_mean": 45.0,
+        "source_over_far": 0.07972877869605145,
+        "max": 45.0,
+        "mean": 10.683617001180636
+      },
+      "05_prefilter_dense": {
+        "path_length_pixels": 54.02295808265224,
+        "sample_count": 56.0,
+        "peak_count": 7.0,
+        "peak_to_valley": 0.4871107976317245,
+        "active_fraction": 1.0,
+        "integrated_intensity": 68.22577965675731,
+        "source_end_mean": 1.5016965289256201,
+        "far_end_mean": 1.0,
+        "source_over_far": 1.5016965289256201,
+        "max": 1.9497388429752103,
+        "mean": 1.2582087367178276
+      },
+      "00_source": {
+        "path_length_pixels": 54.02295808265224,
+        "sample_count": 56.0,
+        "peak_count": 0.0,
+        "peak_to_valley": 0.9066975206611575,
+        "active_fraction": 0.03571428571428571,
+        "integrated_intensity": 148.60451850495022,
+        "source_end_mean": 55.758426446280964,
+        "far_end_mean": 0.0,
+        "source_over_far": Infinity,
+        "max": 254.99999999999997,
+        "mean": 4.978430932703658
+      }
+    },
+    "point_trajectory_exits_frame": true,
+    "point_smear_end_raw": [
+      -6.200000000000003,
+      -6.200000000000003
+    ],
+    "point_smear_end_clipped": [
+      0.0,
+      0.0
+    ],
+    "in_bounds_path_length_pixels": 45.254833995939045,
+    "in_bounds_point_response": {
+      "01_fixed_16_box": {
+        "path_length_pixels": 45.183,
+        "sample_count": 47.0,
+        "peak_count": 9.0,
+        "peak_to_valley": 0.943,
+        "active_fraction": 0.617,
+        "integrated_intensity": 129.132,
+        "source_end_mean": 5.28,
+        "far_end_mean": 3.996,
+        "source_over_far": 1.321,
+        "max": 16.0,
+        "mean": 2.967
+      },
+      "02_dense_box": {
+        "path_length_pixels": 45.183,
+        "sample_count": 47.0,
+        "peak_count": 13.0,
+        "peak_to_valley": 0.6,
+        "active_fraction": 1.0,
+        "integrated_intensity": 134.393,
+        "source_end_mean": 3.731,
+        "far_end_mean": 2.859,
+        "source_over_far": 1.305,
+        "max": 5.0,
+        "mean": 2.995
+      },
+      "03_weighted_dense": {
+        "path_length_pixels": 45.183,
+        "sample_count": 47.0,
+        "peak_count": 12.0,
+        "peak_to_valley": 0.932,
+        "active_fraction": 0.979,
+        "integrated_intensity": 164.269,
+        "source_end_mean": 0.463,
+        "far_end_mean": 4.559,
+        "source_over_far": 0.102,
+        "max": 7.104,
+        "mean": 3.609
+      },
+      "04_forward_line": {
+        "path_length_pixels": 45.183,
+        "sample_count": 47.0,
+        "peak_count": 10.0,
+        "peak_to_valley": 0.938,
+        "active_fraction": 1.0,
+        "integrated_intensity": 167.433,
+        "source_end_mean": 3.731,
+        "far_end_mean": 12.996,
+        "source_over_far": 0.287,
+        "max": 40.642,
+        "mean": 4.112
+      },
+      "05_prefilter_dense": {
+        "path_length_pixels": 45.183,
+        "sample_count": 47.0,
+        "peak_count": 7.0,
+        "peak_to_valley": 0.487,
+        "active_fraction": 1.0,
+        "integrated_intensity": 59.386,
+        "source_end_mean": 1.463,
+        "far_end_mean": 1.0,
+        "source_over_far": 1.463,
+        "max": 1.95,
+        "mean": 1.308
+      }
+    },
+    "point_response_note": "The synthetic point at (32,32) with strength 0.40 smears toward the corner and the geometric endpoint is outside the 256\u00b2 frame. Raw far-end metrics, especially forward-line max=45, include bilinear/splat clamp at the border. In-bounds metrics truncate the profile to samples whose query coordinate is inside the image. 01.8 vs 01.9 continuity is already decided on the in-bounds portion: 01.8 has gaps (active_fraction 0.62, zeros between beads); 01.9 never drops to zero (active_fraction 1.0). Dense peak_count remains high because bilinear/uint8 ripple still creates local maxima on a filled path; peak_count is not a copy-count."
+  },
+  "operators": {
+    "01_fixed_16_box": {
+      "label": "01.8 fixed-16 box",
+      "kind": "control",
+      "normalization": "convex combination / weighted average"
+    },
+    "02_dense_box": {
+      "label": "01.9 dense box",
+      "kind": "control",
+      "normalization": "convex combination / weighted average"
+    },
+    "03_weighted_dense": {
+      "label": "triangular weighted dense",
+      "kind": "candidate",
+      "normalization": "convex combination / weighted average"
+    },
+    "04_forward_line": {
+      "label": "forward line splat",
+      "kind": "candidate",
+      "normalization": "forward deposit of source intensity along motion segment; energy approximately conserved per source pixel"
+    },
+    "05_prefilter_dense": {
+      "label": "prefilter \u03c3=1 + dense box",
+      "kind": "candidate",
+      "normalization": "convex combination / weighted average"
+    }
+  },
+  "prefilter_sigma": 1.0,
+  "ghost_library": {
+    "strength": 0.08,
+    "samples": 16,
+    "vanishing_point": [
+      0.5,
+      0.56
+    ],
+    "forward": 1.0,
+    "full_fixed_16_matches_01_10_strong_exposure": true,
+    "candidate_domain": "padded artifact crops, not full-resolution permutations",
+    "crop_pad_pixels": 128,
+    "crop_energy": {
+      "left-skeleton": {
+        "00_source": {
+          "mean": 27.789622736772486,
+          "max": 142.6032,
+          "sum": 4201790.9578,
+          "nonzero_fraction": 0.9999801587301588
+        },
+        "01_fixed_16_box": {
+          "mean": 28.6097287989418,
+          "max": 80.5444,
+          "sum": 4325790.9944,
+          "nonzero_fraction": 1.0
+        },
+        "02_dense_box": {
+          "mean": 28.19173036111111,
+          "max": 115.97059999999999,
+          "sum": 4262589.6306,
+          "nonzero_fraction": 1.0
+        },
+        "03_weighted_dense": {
+          "mean": 28.192472298941798,
+          "max": 120.89840000000001,
+          "sum": 4262701.8116,
+          "nonzero_fraction": 1.0
+        },
+        "04_forward_line": {
+          "mean": 27.262695776455022,
+          "max": 113.61760000000001,
+          "sum": 4122119.6013999996,
+          "nonzero_fraction": 1.0
+        },
+        "05_prefilter_dense": {
+          "mean": 28.190930265873018,
+          "max": 110.0428,
+          "sum": 4262468.6562,
+          "nonzero_fraction": 1.0
+        }
+      },
+      "left-lower-candle": {
+        "00_source": {
+          "mean": 57.835846019230765,
+          "max": 234.5794,
+          "sum": 4210449.5901999995,
+          "nonzero_fraction": 1.0
+        },
+        "01_fixed_16_box": {
+          "mean": 52.91773618956044,
+          "max": 162.84980000000002,
+          "sum": 3852411.1946,
+          "nonzero_fraction": 1.0
+        },
+        "02_dense_box": {
+          "mean": 57.65463530494505,
+          "max": 226.73020000000002,
+          "sum": 4197257.4502,
+          "nonzero_fraction": 1.0
+        },
+        "03_weighted_dense": {
+          "mean": 57.67603576648351,
+          "max": 227.98,
+          "sum": 4198815.4037999995,
+          "nonzero_fraction": 1.0
+        },
+        "04_forward_line": {
+          "mean": 56.160214497252746,
+          "max": 221.5938,
+          "sum": 4088463.6154,
+          "nonzero_fraction": 1.0
+        },
+        "05_prefilter_dense": {
+          "mean": 57.65494478846153,
+          "max": 225.94279999999998,
+          "sum": 4197279.980599999,
+          "nonzero_fraction": 1.0
+        }
+      },
+      "mid-left-candle": {
+        "00_source": {
+          "mean": 64.59221998749999,
+          "max": 234.88259999999997,
+          "sum": 3100426.5593999997,
+          "nonzero_fraction": 1.0
+        },
+        "01_fixed_16_box": {
+          "mean": 63.642101283333325,
+          "max": 185.71459999999996,
+          "sum": 3054820.8615999995,
+          "nonzero_fraction": 1.0
+        },
+        "02_dense_box": {
+          "mean": 64.83782609583332,
+          "max": 222.3078,
+          "sum": 3112215.6525999997,
+          "nonzero_fraction": 1.0
+        },
+        "03_weighted_dense": {
+          "mean": 64.84719237083334,
+          "max": 227.8826,
+          "sum": 3112665.2338,
+          "nonzero_fraction": 1.0
+        },
+        "04_forward_line": {
+          "mean": 63.21818911666666,
+          "max": 217.8826,
+          "sum": 3034473.0775999995,
+          "nonzero_fraction": 1.0
+        },
+        "05_prefilter_dense": {
+          "mean": 64.83631785833333,
+          "max": 219.0952,
+          "sum": 3112143.2572,
+          "nonzero_fraction": 1.0
+        }
+      },
+      "right-skeleton": {
+        "00_source": {
+          "mean": 34.65728147395833,
+          "max": 142.53859999999997,
+          "sum": 6654198.043,
+          "nonzero_fraction": 0.9999947916666667
+        },
+        "01_fixed_16_box": {
+          "mean": 35.62695707604166,
+          "max": 112.216,
+          "sum": 6840375.758599999,
+          "nonzero_fraction": 1.0
+        },
+        "02_dense_box": {
+          "mean": 34.95226178854166,
+          "max": 126.19879999999999,
+          "sum": 6710834.2634,
+          "nonzero_fraction": 1.0
+        },
+        "03_weighted_dense": {
+          "mean": 34.93586421145834,
+          "max": 127.05839999999999,
+          "sum": 6707685.9286,
+          "nonzero_fraction": 1.0
+        },
+        "04_forward_line": {
+          "mean": 33.64980152395833,
+          "max": 121.7736,
+          "sum": 6460761.8926,
+          "nonzero_fraction": 1.0
+        },
+        "05_prefilter_dense": {
+          "mean": 34.953728749999996,
+          "max": 124.9862,
+          "sum": 6711115.92,
+          "nonzero_fraction": 1.0
+        }
+      },
+      "right-lower-candle": {
+        "00_source": {
+          "mean": 59.24243981490384,
+          "max": 230.729,
+          "sum": 4928970.9925999995,
+          "nonzero_fraction": 1.0
+        },
+        "01_fixed_16_box": {
+          "mean": 63.49449284855769,
+          "max": 175.14620000000002,
+          "sum": 5282741.805,
+          "nonzero_fraction": 1.0
+        },
+        "02_dense_box": {
+          "mean": 61.05276185096153,
+          "max": 223.02539999999996,
+          "sum": 5079589.785999999,
+          "nonzero_fraction": 1.0
+        },
+        "03_weighted_dense": {
+          "mean": 61.024549598557684,
+          "max": 223.6002,
+          "sum": 5077242.5265999995,
+          "nonzero_fraction": 1.0
+        },
+        "04_forward_line": {
+          "mean": 59.38702497596154,
+          "max": 217.15659999999997,
+          "sum": 4941000.478,
+          "nonzero_fraction": 1.0
+        },
+        "05_prefilter_dense": {
+          "mean": 61.05596851923077,
+          "max": 222.0254,
+          "sum": 5079856.5808,
+          "nonzero_fraction": 1.0
+        }
+      }
+    },
+    "visual_observations": {
+      "01_fixed_16_box": "Discrete repeated copies of book spines, skeleton fingers, and candle flames. Matches 01.10 strong exposure (byte-identical full image).",
+      "02_dense_box": "Stepping reduced; path looks more filled. Structured objects still read as stacked transformed copies, not a photographic streak. Confirms 01.9.",
+      "03_weighted_dense": "Envelope change only. Copies remain readable. No material structured-object improvement.",
+      "04_forward_line": "Different texture (more linear/fibrous). Skeleton fingers and candle flames still read as repeated structure. Not a drop-in continuous integral of the 01.8 gather.",
+      "05_prefilter_dense": "Most reduction in readable repeated structure, by softening source high-frequency content before accumulation. Crops look hazier. Skeleton fingers still show residual stepping. Mean crop energy stays with the dense-box family, not darker.",
+      "candidate_domain": "Operators other than 01.8 were evaluated on padded 01.10 artifact crops, not full-resolution Ghost Library permutations."
+    }
+  },
+  "artifacts": [
+    "camotion/tuning/analysis/01.11/01.11-synthetic-00-source.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-response-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-profile-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-response-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-profile-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-response-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-profile-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-response-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-profile-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-response-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-point-profile-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/01.11-synthetic-contact-sheet.png",
+    "camotion/tuning/analysis/01.11/01.11-gl-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-skeleton-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-skeleton-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-skeleton-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-skeleton-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-skeleton-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-skeleton-00-source.png",
+    "camotion/tuning/analysis/01.11/01.11-contact-left-skeleton.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-lower-candle-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-lower-candle-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-lower-candle-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-lower-candle-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-lower-candle-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-left-lower-candle-00-source.png",
+    "camotion/tuning/analysis/01.11/01.11-contact-left-lower-candle.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-mid-left-candle-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-mid-left-candle-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-mid-left-candle-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-mid-left-candle-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-mid-left-candle-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-mid-left-candle-00-source.png",
+    "camotion/tuning/analysis/01.11/01.11-contact-mid-left-candle.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-skeleton-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-skeleton-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-skeleton-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-skeleton-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-skeleton-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-skeleton-00-source.png",
+    "camotion/tuning/analysis/01.11/01.11-contact-right-skeleton.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-lower-candle-01-fixed-16-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-lower-candle-02-dense-box.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-lower-candle-03-weighted-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-lower-candle-04-forward-line.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-lower-candle-05-prefilter-dense.png",
+    "camotion/tuning/analysis/01.11/crops/01.11-crop-right-lower-candle-00-source.png",
+    "camotion/tuning/analysis/01.11/01.11-contact-right-lower-candle.png",
+    "camotion/tuning/analysis/01.11/01.11-point-profiles.json"
+  ],
+  "classification": {
+    "status": "reviewed",
+    "letters": [
+      "A",
+      "E",
+      "F"
+    ],
+    "not_supported": [
+      "C"
+    ],
+    "not_primary": [
+      "B",
+      "D"
+    ],
+    "decision_answers": {
+      "1": "YES. 01.8 fixed-16 produces visibly discrete beads on the synthetic point (in-bounds peak_to_valley 0.94, active_fraction 0.62, zeros between taps) and stepped copies of lines and squares.",
+      "2": "YES for the point path being filled. 01.9 dense sampling converts the isolated beads into a substantially continuous streak (active_fraction 1.0, no zero gaps). Residual peak_count/p2v=0.60 is bilinear/quantization ripple on a filled path, not 16 isolated copies. Structured squares/lines also become filled wedges rather than 16-count combs.",
+      "3": "Dense sampling removes empty gaps between taps. It still averages transformed copies of structured source content, so Ghost Library objects remain readable as copies along the path.",
+      "4": "NO. Triangular weighting changes the brightness envelope (source-end dim, mid-path brighter) but does not materially change structured-object copy appearance on Ghost Library crops.",
+      "5": "YES it differs (source-centric line kernel, edge clamp, fibrous texture) but it does not cleanly outperform dense dest-gather as a photographic streak of the same 01.8 trajectory. Not a replacement reconstruction of the existing integral.",
+      "6": "YES, modestly. Sigma=1 prefilter most reduces recognizable repeated structure by lowering source spatial bandwidth before accumulation. It also softens the crop. Residual copies remain on skeleton fingers. Energy stays comparable to dense box.",
+      "7": "A plus F: sampling density is not the remaining problem; structured-content integration along a long single-frame path is. E is the only in-operator family that visibly reduced copy readability, and it does so by destroying high-frequency structure. Do not densify taps or retune shutter weights next."
+    },
+    "letter_notes": {
+      "A": "Supported. Fixed-16 is discrete; dense point response is a filled streak; Ghost Library structured objects still look duplicated.",
+      "B": "Not primary. Dense point response is rippled but not meaningfully gapped. Sparse-sampling is not the remaining Ghost Library issue.",
+      "C": "Not supported. Temporal weighting did not materially change structured copies.",
+      "D": "Not supported as a better reconstruction of the same integral. Forward splat is a different operator and is contaminated at the synthetic corner by clamp.",
+      "E": "Supported as the only tested family that reduced recognizable copies, via modest source prefiltering, with a softness cost.",
+      "F": "Also supported. No candidate produced a continuous photographic streak of structured Ghost Library content while retaining that structure. The artifact may be inherent to baking large displacement of structured content into one still."
+    },
+    "hypothesis_for_01_12": "UNTESTED. 01.12 should determine whether a useful baked-exposure regime exists where trajectory displacement remains strong enough to provide a meaningful Camotion motion cue while structured-object duplication remains acceptable. Characterize path length / exposure strength against source spatial bandwidth, using the existing 01.8 gather and a very small controlled matrix. Do not treat this as parameter optimization. If no useful regime exists, that would motivate leaving exposure-operator tuning rather than continuing to search for another integration kernel. Do not promote any 01.11 candidate. Do not densify taps. Do not retune shutter weights as the next experiment.",
+    "not_promoted": true,
+    "reviewed_conclusion": [
+      "01.8 fixed-16 exposure contains discrete sampling artifacts.",
+      "01.9 dense <=1 px sampling converts the local point response into a continuous, though rippled, streak.",
+      "Structured Ghost Library features nevertheless continue to read as transformed copies.",
+      "Therefore sparse trajectory sampling is not the dominant remaining cause.",
+      "Triangular temporal weighting did not materially reduce structured copies.",
+      "Forward line-splat is a different operator, not a better reconstruction of the existing destination-gather integral.",
+      "Sigma=1 prefiltering was the only tested family that reduced copy readability, and did so by softening source spatial structure.",
+      "No tested 01.11 operator produced a clearly superior continuous photographic streak while preserving structured content.",
+      "01.8 remains the Camotion baseline.",
+      "No 01.11 candidate is promoted.",
+      "CameraMotionPlan v1 remains frozen."
+    ]
+  },
+  "metric_definitions": {
+    "path_length_pixels": "Euclidean length of the local outgoing smear segment q -> q + v[q]*strength in pixel units. This is a local empirical point response, not a globally shift-invariant PSF.",
+    "peak_count": "Number of 1D local maxima with value >= 10% of the profile max. Counts bilinear/quantization ripple as well as isolated beads; not a quality score.",
+    "peak_to_valley": "(max-min)/max on samples whose luminance is >= 5% of the profile max (the active streak).",
+    "active_fraction": "Fraction of profile samples with luminance >= 5% of the profile max.",
+    "integrated_intensity": "Trapezoidal integral of luminance versus distance along the smear segment.",
+    "source_end_mean": "Mean luminance of the first 10% of profile samples (near the source point).",
+    "far_end_mean": "Mean luminance of the last 10% of profile samples.",
+    "energy": "Whole-image luminance mean/max/sum and fraction of pixels with luma > 0.5. Used to check that candidates are not \u201cbetter\u201d merely by going darker."
+  },
+  "candidate_2_math": {
+    "operation": "Forward line-splat: each source pixel q deposits its intensity uniformly along q -> q + v[q]*strength with bilinear scatter and <=1 px spacing. Per-pixel deposit weights sum to 1, so each source pixel approximately conserves energy.",
+    "difference_from_multisample": "Existing 01.8/01.9 operators are destination-centric inverse gathers: dest[p] averages bilinear samples of the whole image along p - v[p]*strength*t. Forward splat uses v at the source and reconstructs a line kernel rather than averaging transformed copies. With a spatially varying radial field these are not adjoints. Image-edge clamp can pile splat energy; that is visible at the synthetic corner and is not a photographic improvement."
+  },
+  "normalization": {
+    "01_fixed_16_box": "Equal-weight convex combination, N=16. uint8 rounding after average.",
+    "02_dense_box": "Equal-weight convex combination, per-pixel N. uint8 rounding after average.",
+    "03_weighted_dense": "Triangular weights normalized to sum 1 (convex combination) on the 01.9 tap set. uint8 rounding after weighted average.",
+    "04_forward_line": "Source-energy conserving deposits (not a convex combination of destination samples). Whole-image synthetic luma sum 122036 vs source 122145. uint8 clip plus edge clamp can locally concentrate energy.",
+    "05_prefilter_dense": "Gaussian sigma=1 per channel, then 01.9 equal-weight convex combination. Whole-image energy stays comparable to dense box.",
+    "ghost_library_crop_means_are_comparable": true
+  },
+  "checkpoint": {
+    "status": "reviewed",
+    "date": "2026-09-04",
+    "not_promoted": true,
+    "baseline": "01.8-route-preserved",
+    "camera_motion_plan_frozen": true
+  }
+}

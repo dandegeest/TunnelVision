@@ -170,20 +170,41 @@ supported as the origin of first appearance** on this fixture.
 01.9 already found that densifying equal-weight taps did not
 clearly remove the copies.
 
-**UNTESTED 01.11 question:** 01.11 should characterize what spatial
-signal the current Camotion exposure operator actually produces
-before choosing a fix.
+01.11 Exposure Operator Characterization is completed still-only
+diagnostic evidence against the 01.8 baseline. Not a renderer
+promotion. No video test. See
+`camotion/tuning/analysis/01.11-exposure-characterization.json`.
 
-A future still-only diagnostic may compare existing 01.8 / 01.9
-exposure behavior with alternative exposure / operator families,
-using both Ghost Library artifact regions and simple synthetic
-fixtures such as points, lines, and small structured shapes. The
-purpose is to understand the exposure primitive / empirical
-point-spread behavior, not yet to select a new renderer.
+**Observation.** On a 256² synthetic fixture, 01.8 fixed-16 gather
+produces discrete beads / stepped copies. 01.9 dense equal-weight
+gather fills the local point path into a continuous (rippled)
+streak. Ghost Library artifact crops still read as stacked copies
+under dense gather. Triangular temporal weighting does not
+materially change that structured-object appearance. A research-only
+forward line-splat is a different operator, not a better
+reconstruction of the existing dest-gather integral. Modest Gaussian
+prefilter (σ=1) then dense gather most reduces readable copies, by
+softening source structure, with crop energy remaining comparable.
 
-Possible alternatives such as temporal weighting, line/PSF-style
-integration, or prefiltering remain untested candidates, not a
-chosen intervention. Do not begin 01.11 from this file.
+**Interpretation, not proof.** Classifications A, E, and F.
+Sampling density itself is not the remaining problem. Repeated
+appearance of structured content is emerging from integrating
+transformed copies along a long single-frame path. Prefiltering is
+a bandwidth effect, not a chosen intervention. No 01.11 candidate
+is promoted.
+
+**UNTESTED 01.12 question:** 01.12 should determine whether a
+useful baked-exposure regime exists where trajectory displacement
+remains strong enough to provide a meaningful Camotion motion cue
+while structured-object duplication remains acceptable.
+
+Characterize path length / exposure strength against source spatial
+bandwidth, using the existing 01.8 gather and a very small
+controlled matrix. Do not treat this as parameter optimization.
+
+If no useful regime exists, that would motivate leaving
+exposure-operator tuning rather than continuing to search for
+another integration kernel. Do not begin 01.12 from this file.
 
 ## Camotion conditioning overlay / Cinematographer Inspector
 
@@ -237,4 +258,4 @@ explanation/inspection mode.
     hard bookends, short dissolves, or future interpolation /
     Smooth-Cut-like treatment.
 
-Do not begin Camotion 01.11 from this file.
+Do not begin Camotion 01.12 from this file.

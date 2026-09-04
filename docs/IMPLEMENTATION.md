@@ -39,8 +39,11 @@ product ideas from this work live in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). 01.10 Depth-Compositor
 Ablation is completed still-only diagnostic evidence; the
 multi-layer compositor hypothesis was **not supported as the origin
-of first appearance** on this fixture. 01.10 is **not** promoted. Do
-not begin 01.11.
+of first appearance** on this fixture. 01.10 is **not** promoted.
+01.11 Exposure Operator Characterization is completed still-only
+diagnostic evidence; sparse trajectory sampling is **not** the
+dominant remaining cause of structured Ghost Library copies. 01.11
+is **not** promoted. Do not begin 01.12.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
@@ -225,12 +228,19 @@ Intended Camotion / Cinematographer research order:
     preservation, and destination protection. Only change:
     extraction of real 01.8 intermediates. Keep the diagnostic
     code and evidence. Do not start a Seedance/video test for
-    01.10. Do not begin 01.11 from this checkpoint.
-9.  Validate / freeze an updated Camotion baseline **if** justified.
-    Do not assume it will. Do not promote 01.9 or 01.10. **01.8
-    remains the current Camotion baseline.**
-10. Automated Cinematographer + Camotion Benchmark Harness.
-11. Cross-style / cross-model experiments.
+    01.10.
+9.  Diagnostic exposure-operator characterization (01.11) ---
+    **completed still-only; sparse sampling not the dominant
+    remaining cause; no candidate promoted.** Same 01.8 trajectory
+    geometry. Exposure only: no compositor, depth, masks, route, or
+    destination protection. Keep the diagnostic code and evidence.
+    Do not start a Seedance/video test for 01.11. Do not begin 01.12
+    from this checkpoint.
+10. Validate / freeze an updated Camotion baseline **if** justified.
+    Do not assume it will. Do not promote 01.9, 01.10, or 01.11.
+    **01.8 remains the current Camotion baseline.**
+11. Automated Cinematographer + Camotion Benchmark Harness.
+12. Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
@@ -456,8 +466,8 @@ Camotion-conditioned A′ differs.
 
 **01.5 remains the conservative directed-traversal baseline.** **01.8
 Route-Preserved Exposure remains the current Camotion baseline**, not
-a CameraMotionPlan field. 01.9 and 01.10 are still-only evidence
-and are not promoted.
+a CameraMotionPlan field. 01.9, 01.10, and 01.11 are still-only
+evidence and are not promoted.
 
 On this Replicate series, 01.6 did **not** reproduce the severe
 terminal-orientation collapse/retreat previously observed through
@@ -475,9 +485,9 @@ Preserve the distinction among canonical spatial authority, Camotion
 motion conditioning, and generative-video improvisation.
 
 Do not treat this as a Camotion renderer freeze. 01.9 Adaptive
-Exposure Integration and 01.10 Depth-Compositor Ablation are
-recorded below as completed still-only experiments; neither is
-promoted.
+Exposure Integration, 01.10 Depth-Compositor Ablation, and 01.11
+Exposure Operator Characterization are recorded below as completed
+still-only experiments; none is promoted.
 
 ### Prompt-control camera speed and embodiment
 
@@ -603,7 +613,8 @@ Evidence:
 
 The next research question --- where the repeated-object appearance
 first emerges through compositor stages --- is recorded below as
-completed 01.10 evidence. Do not begin 01.11 here.
+completed 01.10 evidence. 01.11 is recorded after that. Do not
+begin 01.12 here.
 
 ### Depth-compositor ablation (01.10; completed still-only diagnostic)
 
@@ -695,18 +706,102 @@ Evidence:
 -   `tuning/analysis/01.10/01.10-contribution-rgb.png`
 -   `tuning/analysis/01.10/01.10-effective-contributions.npz`
 
-The next research question is untested. 01.11 should characterize
-what spatial signal the current Camotion exposure operator actually
-produces **before** choosing a fix. A later still-only diagnostic
-may compare existing 01.8 / 01.9 exposure behavior with alternative
-exposure / operator families on Ghost Library artifact regions and
-on simple synthetic fixtures (points, lines, small structured
-shapes). The purpose is to understand the exposure primitive /
-empirical point-spread behavior, not yet to select a new renderer.
-Temporal weighting, line/PSF-style integration, and prefiltering
-remain untested candidates, not a chosen intervention. Capture the
-question in [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not
-implement 01.11 here.
+The 01.11 exposure-operator characterization that followed this
+diagnostic is recorded below. Do not implement 01.12 here.
+
+### Exposure-operator characterization (01.11; completed still-only diagnostic)
+
+01.11 Exposure Operator Characterization asked what spatial signal
+Camotion's current exposure operator actually produces, and which
+small family of alternative operators appear capable of a more
+continuous photographic streak along the **same 01.8 trajectory**.
+
+**Controlled variable.** Exposure operator only. Same 01.8 outgoing
+gather geometry on Ghost Library (source, radial field, FoE
+`(0.50, 0.56)`, strength `0.08`, bilinear sampling). Synthetic
+fixture: 256², FoE `(0.50, 0.50)`, strength `0.40`, same gather
+implementations. No depth, bands, masks, route preservation,
+destination protection, or compositor. 01.8 and 01.9 gather
+functions were reused, not rewritten. Research-only candidates were
+not added to CameraMotionPlan or default `render()`.
+
+Operators: 01.8 fixed-16 equal-weight box; 01.9 dense equal-weight
+box (`N = max(2, ceil(L)+1)`); triangular weighted dense;
+forward line-splat; Gaussian σ=1 then 01.9 dense.
+
+**Observed.**
+
+-   01.8 fixed-16 exposure contains discrete sampling artifacts.
+-   01.9 dense ≤1 px sampling converts the local point response into
+    a continuous, though rippled, streak.
+-   Structured Ghost Library features nevertheless continue to read
+    as transformed copies.
+-   Therefore sparse trajectory sampling is not the dominant
+    remaining cause.
+-   Triangular temporal weighting did not materially reduce
+    structured copies.
+-   Forward line-splat is a different operator, not a better
+    reconstruction of the existing destination-gather integral.
+-   Sigma=1 prefiltering was the only tested family that reduced
+    copy readability, and did so by softening source spatial
+    structure.
+-   No tested 01.11 operator produced a clearly superior continuous
+    photographic streak while preserving structured content.
+
+In-bounds synthetic point path (45.2 px of the 54.0 px geometric
+segment; the `(32,32)` point at strength 0.40 exits the 256² frame):
+01.8 peak-to-valley 0.94, active fraction 0.62, zeros between taps;
+01.9 peak-to-valley 0.60, active fraction 1.0, no zero gaps.
+Ghost Library 01.8 full strong exposure is byte-identical to the
+01.10 strong-exposure intermediate. Candidate operators were
+evaluated on padded 01.10 artifact crops, not full-resolution
+Ghost Library permutations. Crop mean energy stayed in-family with
+the dense gather; candidates did not look better by going darker.
+
+**Interpretation, not proof.** Classifications A, E, and F.
+Sampling density itself is not the remaining problem. Repeated
+appearance of structured content is emerging from integrating
+transformed copies along a long single-frame path. Prefiltering is
+a bandwidth effect, not a chosen intervention. Do not claim that
+sparse sampling can never matter, that prefiltering is a renderer
+fix, that forward splat reconstructs the 01.8 integral, or that
+Terran's Photoshop renderer has been reproduced.
+
+**Baseline.** 01.8 Route-Preserved Exposure remains the current
+Camotion baseline. 01.11 is preserved as diagnostic evidence and is
+**not** promoted. No 01.11 candidate is promoted. It is not a new
+renderer version. No Seedance/video test is warranted for 01.11
+based on the still result. CameraMotionPlan v1 remains frozen.
+Default `render()` remains the continuous near-weight path.
+`apply_multisample_exposure()` remains the 01.8 gather.
+`apply_adaptive_multisample_exposure()` remains the opt-in 01.9
+path. Do not remove the diagnostic path; negative results are part
+of the Camotion research record.
+
+Evidence:
+
+-   `tuning/01.11-exposure-characterization-config.json`
+-   `tuning/characterize_exposure.py`
+-   `src/camotion/exposure_characterization.py`
+-   `tests/test_exposure_characterization.py`
+-   `tuning/analysis/01.11-exposure-characterization.json`
+-   `tuning/analysis/01.11/01.11-synthetic-contact-sheet.png`
+-   `tuning/analysis/01.11/01.11-gl-01-fixed-16-box.png`
+-   `tuning/analysis/01.11/01.11-contact-left-skeleton.png`
+-   `tuning/analysis/01.11/01.11-point-profiles.json`
+
+The next research question is untested. 01.12 should determine
+whether a useful baked-exposure regime exists where trajectory
+displacement remains strong enough to provide a meaningful Camotion
+motion cue while structured-object duplication remains acceptable.
+Characterize path length / exposure strength against source spatial
+bandwidth, using the existing 01.8 gather and a very small
+controlled matrix. Do not treat this as parameter optimization. If
+no useful regime exists, that would motivate leaving
+exposure-operator tuning rather than continuing to search for
+another integration kernel. Capture the question in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement 01.12
+here.
 
 ### Cinematographer integration
 
@@ -785,11 +880,12 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records 01.10 Depth-Compositor Ablation as a
-completed still-only diagnostic whose multi-layer compositor
-hypothesis was not supported as the origin of first appearance.
-Keep 01.8 as the current Camotion baseline. Do not start 01.11, and
-do not silently replace default `render()`.
+tasks. This checkpoint records 01.11 Exposure Operator
+Characterization as a completed still-only diagnostic. Sparse
+trajectory sampling is not the dominant remaining cause of
+structured Ghost Library copies. Keep 01.8 as the current Camotion
+baseline. Do not start 01.12, and do not silently replace default
+`render()`.
 
 ## Hackathon strategy
 
@@ -839,9 +935,13 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   remaining 01.8 repeated-object / ghost-copy appearance: 01.9
     adaptive sampling did not clearly remove it; 01.10 localized
     first appearance to strong exposure, not compositor / route /
-    destination protection, on Ghost Library stills. 01.11 should
-    characterize the exposure operator's spatial signal before a
-    fix is chosen. Do not begin 01.11 from this checkpoint.
+    destination protection, on Ghost Library stills. 01.11 found
+    discrete 01.8 sampling artifacts and a filled dense point
+    streak, while structured Ghost Library features still read as
+    transformed copies; sparse sampling is not the dominant
+    remaining cause. No 01.11 candidate is promoted. 01.12 should
+    test whether a useful baked-exposure regime exists. Do not
+    begin 01.12 from this checkpoint.
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

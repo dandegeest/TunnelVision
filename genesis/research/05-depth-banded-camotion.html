@@ -484,7 +484,45 @@
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.10 as diagnostic evidence. Do not promote 01.10. Do not call it a new renderer version. Do not run Seedance/video on 01.10 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. A later 01.11 still-only diagnostic should characterize what spatial signal the current Camotion exposure operator actually produces before choosing a fix, including comparison with alternative exposure/operator families on Ghost Library artifact regions and simple synthetic fixtures. Temporal weighting, line/PSF-style integration, and prefiltering remain untested candidates, not a chosen intervention. Do not begin 01.11 from this checkpoint.</p>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.10 as diagnostic evidence. Do not promote 01.10. Do not call it a new renderer version. Do not run Seedance/video on 01.10 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. The later 01.11 still-only exposure-operator characterization is recorded below.</p>
+</div>
+
+</section>
+<section class="ready-code" id="exposure-characterization-01-11">
+<div class="eyebrow">CAMOTION 01.11 · SEPTEMBER 4, 2026</div>
+<h2>Dense sampling fills the local point streak. Structured Ghost Library copies remain. No 01.11 operator is promoted.</h2>
+<p>This entry is a chronological still-only Camotion diagnostic after 01.10. It is <strong>not</strong> a video experiment and <strong>not</strong> a new renderer version. CameraMotionPlan v1 and default <code>render()</code> were not changed. 01.8 Route-Preserved Exposure remains the current Camotion baseline. 01.11 is not promoted.</p>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Exposure only, same 01.8 trajectory</h3><span class="result-pill info">METHOD</span></div>
+<p>Research question: what spatial signal does Camotion’s current exposure operator actually produce, and which small operator families appear capable of a more continuous photographic streak along the same 01.8 trajectory? Control geometry: Ghost Library source, radial field, FoE <code>(0.50, 0.56)</code>, strength <code>0.08</code>, outgoing bilinear gather. Synthetic fixture: 256², FoE <code>(0.50, 0.50)</code>, strength <code>0.40</code>. No depth, compositor, masks, route preservation, or destination protection. 01.8 and 01.9 gather functions were reused. Fixture metadata: <code>tuning/01.11-exposure-characterization-config.json</code>.</p>
+<p>Operators: 01.8 fixed-16 equal-weight box; 01.9 dense equal-weight box (≤1 px); triangular weighted dense; forward line-splat (source-centric, not dest-gather); Gaussian σ=1 then 01.9 dense. Ghost Library 01.8 full strong exposure is byte-identical to the 01.10 strong-exposure intermediate. Other operators were characterized on padded 01.10 artifact crops.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Synthetic point, line, and square responses</h3><span class="result-pill info">LOCAL POINT RESPONSE</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.11/01.11-synthetic-contact-sheet.png · source → 01.8 fixed-16 → 01.9 dense → triangular weighted → forward splat → σ=1 prefilter + dense</div>
+<figure>
+<img alt="01.11 synthetic 256 fixture contact sheet across exposure operators. Diagnostic only. Not promoted." src="../../camotion/tuning/analysis/01.11/01.11-synthetic-contact-sheet.png"/>
+<figcaption>Synthetic primitives. 01.8 is discrete beads/steps. 01.9 fills the local point path into a continuous, rippled streak. Not a Seedance result. Not promoted.</figcaption>
+</figure>
+<p><strong>Observed:</strong> 01.8 fixed-16 contains discrete sampling artifacts. 01.9 dense ≤1 px sampling converts the local point response into a continuous, though rippled, streak (in-bounds active fraction 1.0 versus 0.62 for 01.8; 01.8 still has zeros between taps). The synthetic point at <code>(32,32)</code> with strength 0.40 smears out of frame; far-end forward-splat brightness includes edge clamp. Crop/operator energy stayed comparable; candidates did not look better by going darker.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Ghost Library structured copies persist</h3><span class="result-pill fail">SPARSE SAMPLING NOT THE DOMINANT REMAINING CAUSE</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.11/01.11-contact-left-skeleton.png · source → 01.8 → 01.9 dense → weighted → forward splat → σ=1 prefilter</div>
+<figure>
+<img alt="01.11 Ghost Library left-skeleton crop contact sheet across exposure operators. Diagnostic only. Not promoted." src="../../camotion/tuning/analysis/01.11/01.11-contact-left-skeleton.png"/>
+<figcaption>Left-skeleton crop. Structured features still read as transformed copies under dense gather. Prefilter reduces copy readability by softening source structure. Not promoted.</figcaption>
+</figure>
+<p><strong>Observed:</strong> structured Ghost Library features continue to read as transformed copies. Triangular temporal weighting did not materially reduce those copies. Forward line-splat is a different operator, not a better reconstruction of the existing destination-gather integral. Sigma=1 prefiltering was the only tested family that reduced copy readability, and did so by softening source spatial structure. No tested 01.11 operator produced a clearly superior continuous photographic streak while preserving structured content.</p>
+<p><strong>Interpretation, not proof:</strong> classifications A, E, and F. Sampling density is not the remaining problem. Repeated appearance of structured content is emerging from integrating transformed copies along a long single-frame path. Prefiltering is a bandwidth effect, not a chosen intervention. Do not claim that sparse sampling can never matter, that prefiltering is a renderer fix, or that Terran’s Photoshop renderer has been reproduced.</p>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.11 as diagnostic evidence. Do not promote 01.11. Do not promote any 01.11 candidate. Do not call it a new renderer version. Do not run Seedance/video on 01.11 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. A later 01.12 still-only diagnostic should determine whether a useful baked-exposure regime exists where trajectory displacement remains strong enough to provide a meaningful Camotion motion cue while structured-object duplication remains acceptable. Characterize path length / exposure strength against source spatial bandwidth, using the existing 01.8 gather and a very small controlled matrix. Do not treat this as parameter optimization. If no useful regime exists, that would motivate leaving exposure-operator tuning rather than continuing to search for another integration kernel. Do not begin 01.12 from this checkpoint.</p>
 </div>
 
 </section>

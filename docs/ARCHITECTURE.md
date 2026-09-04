@@ -45,7 +45,11 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     `docs/RESEARCH_BACKLOG.md`. 01.10 Depth-Compositor Ablation is
     completed still-only diagnostic evidence; the multi-layer
     compositor hypothesis was not supported as the origin of first
-    appearance, and 01.10 is not promoted. Camotion itself still knows
+    appearance, and 01.10 is not promoted. 01.11 Exposure Operator
+    Characterization is completed still-only diagnostic evidence;
+    sparse trajectory sampling is not the dominant remaining cause
+    of structured Ghost Library copies, and 01.11 is not promoted.
+    Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
     bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
     official SDK.
@@ -169,7 +173,11 @@ Depth-Compositor Ablation extracted real 01.8 intermediates without
 changing the renderer; first appearance of the repeated-object
 look is in strong exposure, not later compositing / route /
 destination protection, on this fixture. 01.10 is not promoted and
-is not a new renderer version. Do not treat pixel similarity to
+is not a new renderer version. 01.11 Exposure Operator
+Characterization compared 01.8/01.9 gather with research-only
+operator families on a synthetic fixture and Ghost Library artifact
+crops; sparse sampling is not the dominant remaining cause, and no
+01.11 candidate is promoted. Do not treat pixel similarity to
 Terran's reference as architecture or as an optimization objective.
 
 ### Canonical frames vs shooting frames
@@ -351,8 +359,12 @@ starts them.
 -   remaining 01.8 repeated-object / ghost-copy appearance: 01.9
     did not clearly remove it; 01.10 localized first appearance to
     strong exposure on Ghost Library stills, not compositor / route
-    / destination protection. 01.11 should characterize the
-    exposure operator's spatial signal before a fix is chosen
+    / destination protection. 01.11 found discrete 01.8 sampling
+    artifacts and a filled dense point streak, while structured
+    Ghost Library features still read as transformed copies; sparse
+    sampling is not the dominant remaining cause. No 01.11
+    candidate is promoted. 01.12 should test whether a useful
+    baked-exposure regime exists
 -   final Cinematographer module boundaries
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while

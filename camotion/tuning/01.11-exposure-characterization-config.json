@@ -1,0 +1,34 @@
+{
+  "experiment": "01.11-exposure-characterization",
+  "not_a_camera_motion_plan": true,
+  "not_a_new_renderer_version": true,
+  "control": "01.8-route-preserved",
+  "exposure_only": true,
+  "ghost_library": {
+    "image": "01.jpeg",
+    "base_plan": "01.4-plan.json",
+    "vanishing_point": [0.50, 0.56],
+    "forward": 1.0,
+    "strength": 0.08,
+    "samples": 16,
+    "orientation": "outgoing"
+  },
+  "synthetic": {
+    "size": 256,
+    "vanishing_point": [0.50, 0.50],
+    "forward": 1.0,
+    "strength": 0.40,
+    "point_xy": [32, 32],
+    "note": "Synthetic strength is larger than Ghost Library 0.08 so primitives away from the FoE have a useful path length on 256². Same exposure implementation."
+  },
+  "prefilter_sigma": 1.0,
+  "crop_pad_pixels": 128,
+  "crops": {
+    "left-skeleton": {"x": 40, "y": 260, "width": 360, "height": 420},
+    "left-lower-candle": {"x": 40, "y": 680, "width": 280, "height": 260},
+    "mid-left-candle": {"x": 600, "y": 720, "width": 240, "height": 200},
+    "right-skeleton": {"x": 1480, "y": 220, "width": 400, "height": 480},
+    "right-lower-candle": {"x": 1700, "y": 680, "width": 320, "height": 260}
+  },
+  "notes": "Diagnostic-only characterization of Camotion exposure. Does not change CameraMotionPlan, default render(), 01.8 box gather, or 01.9 adaptive gather. Candidates are not promoted. Synthetic point at (32,32) with strength 0.40 smears out of frame; report in-bounds point-response metrics as well as raw profiles."
+}
