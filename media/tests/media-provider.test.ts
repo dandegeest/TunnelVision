@@ -188,6 +188,32 @@ test("successful prediction returns structured GeneratedVideo without secrets", 
   assert.equal(JSON.stringify(result).includes("r8_testtokenvalue"), false);
 });
 
+test("successful prediction copies integer seed from Replicate input into metadata", async () => {
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    seedance: { seed: 70 },
+    client: {
+      async create() {
+        return { id: "pred_seed", status: "starting", model: "bytedance/seedance-2.5" };
+      },
+      async wait() {
+        return {
+          id: "pred_seed",
+          status: "succeeded",
+          model: "bytedance/seedance-2.5",
+          output: "https://replicate.delivery/seed.mp4",
+          input: { seed: 70, prompt: "go" },
+        };
+      },
+    },
+  });
+  const result = await provider.generateVideo({
+    startImage: { kind: "url", url: "https://example.com/a.png" },
+    prompt: "go",
+  });
+  assert.equal(result.metadata.seed, 70);
+});
+
 test("normalized provider errors do not include secret values", async () => {
   const token = "r8_testtokenvalue";
   const provider = new ReplicateMediaProvider({

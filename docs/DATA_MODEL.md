@@ -341,3 +341,4 @@ provider-specific knobs stay behind the adapter.
     story, including optional intermediate canonicals
 -   a possible Screenwriter agent upstream of the Director (not a v1
     type)
+-   endpoint / edit-boundary fidelity scores (not specified)

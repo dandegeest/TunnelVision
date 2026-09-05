@@ -78,8 +78,13 @@ Intended later shootability questions, **not implemented**:
 -   Can I describe a continuous spatial route from this camera
     position into the next world? A destination object is not enough;
     the shot needs traversable depth through the transition.
--   If not, recommend REGEN / REPAIR, or an intermediate canonical
-    (`E → X → A`).
+-   If the pair can plausibly be covered as one continuous spatial
+    move, describe and condition the route and let the video model
+    invent intermediate volume. Do not mechanically insert an
+    intermediate canonical for every transition. If not, recommend
+    REGEN / REPAIR, or an intermediate canonical (`E → X → A`). The
+    Integration Test E→A flat-door shot remains a useful future
+    fixture.
 -   Canonical review before expensive video: PASS / REGEN / REPAIR.
     Guideline: regeneration preserves exploration; editing preserves
     composition. Review + shot planning may later share one reasoning
@@ -87,12 +92,20 @@ Intended later shootability questions, **not implemented**:
 -   Practical shot duration and physical camera pace, including exit
     and entry velocity across shot boundaries. Accidental speed jumps
     should not simply be repaired in post.
+-   Evaluate **spatial continuity** (connected intermediate space vs
+    cut/dissolve/replacement) separately from **temporal continuity**
+    (motion carrying through B vs easing/stopping at B).
 
 ## Camotion Engine
 
 Camotion is **not an agent**. It is deterministic graphics code. The
-Cinematographer role (later) decides what motion should mean; Camotion
-performs the math.
+Cinematographer role decides what motion should mean; Camotion
+performs the math. Current working hypothesis: Camotion shooting
+frames are **machine-facing motion-state conditioning** for the video
+model, not image enhancement. The 01.12 Ghost Library still-image
+structured-copy limit remains. A Wardrobe A→B Seedance 2×2 (seed 70)
+supported retaining Camotion together with Cinematographer locomotion
+language as complementary Phase 1 inputs.
 
 The frozen v1 **plan** contract is `image + CameraMotionPlan JSON` and
 emits one shooting-frame still. See [DATA_MODEL.md](DATA_MODEL.md).

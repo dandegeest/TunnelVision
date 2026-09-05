@@ -95,6 +95,15 @@ pinned to the current directed-traversal baseline.
 npm --prefix media run wardrobe-loop -- --execute
 ```
 
+A later controlled A→B Seedance 2×2 (seed 70, no retries) lives at:
+
+``` bash
+npm --prefix media run wardrobe-ab-2x2 -- --execute
+```
+
+Evidence: `camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/`.
+Dry-run is the default. `--execute` is required for paid calls.
+
 Artifacts live under `camotion/integration/wardrobe-loop-01/`. The
 canonical human-reviewed assembled movie is
 `videos/ThoughTheWardrobe.mov`. Deterministic ordered hard-join concat

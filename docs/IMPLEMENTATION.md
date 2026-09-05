@@ -47,9 +47,8 @@ is **not** promoted. 01.12 Baked-Exposure Operating Window is
 completed still-only diagnostic evidence; no useful pristine-source
 operating window was observed on Ghost Library. Classification
 **C + D**. 01.12 is **not** promoted. This closes the current
-exposure-operator tuning branch. Do not begin the next Camotion
-experiment from this checkpoint. Do not call any next Camotion
-experiment 01.13 from this checkpoint.
+exposure-operator tuning branch. Do not reopen 01.12. Do not call
+any next Camotion experiment 01.13.
 
 **Integration Test 01 — The Wardrobe Loop is completed.** First
 unattended end-to-end TunnelVision movie experiment. Not Camotion
@@ -63,6 +62,28 @@ traversal. Compelling traversals occurred; Camotion stills still show
 baked-exposure artifacts. The movie-level metric is whether the model
 shoots the route. See
 `camotion/integration/wardrobe-loop-01/REPORT.md`.
+
+**Wardrobe A→B Seedance 2×2 is completed** (fixed seed 70; sequential;
+no retries; existing A/B and A′/B′ reused). Independent variables:
+pristine vs Camotion endpoints, and minimal journey vs the
+authoritative Integration Test 01 A→B locomotion prompt. Human
+judgment: 04-conditioned-motion was the clear winner on that seed.
+Camotion and Cinematographer prompting appear complementary. Working
+hypothesis: Camotion is motion-state conditioning, not image
+enhancement. Retain both in the Phase 1 pipeline. Evidence:
+`camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/`.
+Exploratory different-seed web-UI runs are separate:
+`experiments/ab-exploratory-web-ui/`.
+
+The intended **next and last** bounded Camotion experiment for Phase
+1 is scene-aware selection from a small known-safe 01.8 strength
+range. Do not start it from this checkpoint. No new operator, kernel,
+sample-count, or compositor work. If it helps, it can become Phase 1
+behavior; if not, freeze current fixed 01.8 conditioning. Then
+Camotion research is done for Phase 1. After that, traversable
+intermediate space / CM shootability (likely E→A) is the remaining
+major research question before Movie #2 through the actual
+application.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
@@ -275,18 +296,29 @@ Intended Camotion / Cinematographer research order:
     preserved as `videos/ThoughTheWardrobe.mov`. Browser playback
     derivative: `videos/ThoughTheWardrobe.mp4` (H.264 bitstream copy,
     audio omitted). Do not reopen 01.12 brute-force exposure tuning.
-12. Deterministic final-video assembly --- **implementation
+12. Wardrobe A→B Seedance 2×2 --- **completed.** Fixed seed 70.
+    Pristine vs Camotion endpoints × minimal vs authoritative IT01
+    locomotion prompt. 04-conditioned-motion human-judged winner on
+    that seed. Camotion retained for Phase 1 as complementary to CM
+    prompting, not as aesthetically superior stills. See
+    `camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/`.
+13. Deterministic final-video assembly --- **implementation
     follow-up, not done in this checkpoint.** Concatenate ordered
     successful shot videos into a final MP4. Hard butt joins. No
     transitions, optical flow, stabilization, or grading. Plumbing,
-    not an Edit agent. Do not invent creative editing.
-13. Validate / freeze an updated Camotion baseline **if** justified.
-    Do not assume it will. Do not promote 01.9, 01.10, 01.11, or
-    01.12. **01.8 remains the current Camotion baseline.** Do not
-    start Camotion 01.13. Scene-aware Camotion strength selection is
-    unvalidated backlog, not the next numbered Camotion experiment.
-14. Automated Cinematographer + Camotion Benchmark Harness.
-15. Cross-style / cross-model experiments.
+    not an Edit agent. Do not invent creative editing. Prefer native
+    concat then conventional deterministic upscale if required. Do
+    not add AI upscaling to Phase 1.
+14. Scene-aware Camotion strength (intended **next and last** bounded
+    Camotion experiment for Phase 1). **Not started.** Keep 01.8
+    operator. Small constrained strength choice only. No new kernels,
+    sample counts, compositors, or 01.12 reopen. Not Camotion 01.13.
+    If it does not help, freeze current fixed 01.8 conditioning.
+15. Traversable intermediate space / CM shootability, likely using
+    Integration Test E→A. **Not started.** Do not implement E→X→A
+    from this checkpoint.
+16. Movie #2 made through the actual TunnelVision application after
+    Phase 1 research freeze. Not endless Camotion experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
@@ -1008,13 +1040,15 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records Integration Test 01 — The Wardrobe Loop
-as a completed unattended movie experiment, and 01.12 Baked-Exposure
-Operating Window as completed still-only diagnostic. Classification
-C + D. No useful pristine-source window. The current exposure-operator
-tuning branch is closed. Keep 01.8 as the current Camotion
-baseline. Do not start Camotion 01.13, and do not silently
-replace default `render()`.
+tasks. This checkpoint records the Wardrobe A→B Seedance 2×2 (seed
+70) as completed complementary-conditioning evidence, Integration
+Test 01 as a completed unattended movie experiment, and 01.12
+Baked-Exposure Operating Window as completed still-only diagnostic.
+Classification C + D. No useful pristine-source still-image window on
+Ghost Library. Keep 01.8 as the current Camotion baseline. Camotion
+is retained for Phase 1 as motion-state conditioning. Do not start
+Camotion 01.13, do not start scene-aware strength from this
+checkpoint, and do not silently replace default `render()`.
 
 ## Hackathon strategy
 
@@ -1093,14 +1127,17 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     closed. The next untested question is above the baked-exposure
     primitive. Do not begin a Camotion 01.13 experiment from this
     checkpoint. Scene-aware selection of a small known-safe Camotion
-    exposure-strength range is a different unvalidated question; see
+    exposure-strength range is the intended next and last bounded
+    Camotion experiment for Phase 1; do not start it here. See
     [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination
 -   whether shootability requires a traversable intermediate spatial
-    story, including optional intermediate canonicals
+    story, including optional intermediate canonicals when a pair
+    cannot be covered as one continuous spatial move
 -   shot-boundary velocity continuity and variable shot duration
 -   a possible Screenwriter agent upstream of the Director
 -   Cinematographer canonical review (PASS / REGEN / REPAIR) before
     expensive video
+-   endpoint / edit-boundary fidelity instrumentation (not a schema)

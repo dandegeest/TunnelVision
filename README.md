@@ -218,9 +218,11 @@ The Cinematographer can then operate on accepted canonical frame pairs, using th
 **Experimental / research prototype.**
 
 Camotion v1 exists. Integration Test 01 — The Wardrobe Loop completed
-the first unattended end-to-end movie experiment (independent
-canonicals → cinematographer vision plans → Camotion 01.8 → Seedance
-2.5 → assembled loop). Current product direction is a simple
+the first unattended end-to-end movie experiment. A later Wardrobe
+A→B Seedance 2×2 (seed 70) supported retaining Camotion plus
+Cinematographer locomotion prompting as complementary Phase 1 pieces.
+Camotion shooting frames are treated as motion-state conditioning,
+not image enhancement. Current product direction is a simple
 autonomous storyboard, not a large editor; that UI is not built.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.

@@ -1,0 +1,183 @@
+{
+  "experiment": "ab-2x2-seedance",
+  "title": "Wardrobe Loop A→B Seedance 2×2 (pristine/conditioned × minimal/motion)",
+  "source_shot": "A-B",
+  "git_commit": "cd6d861e7127737d0eb13d6ac1b3dbbb96aa3c5d",
+  "model": "bytedance/seedance-2.5",
+  "seed": 70,
+  "shared_settings": {
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4",
+    "seed": 70
+  },
+  "independent_variables": [
+    "endpoints",
+    "prompt"
+  ],
+  "conditions": [
+    {
+      "id": "01-pristine-minimal",
+      "filename": "01-pristine-minimal.mp4",
+      "endpoints": "pristine",
+      "prompt_kind": "minimal",
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+        "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+        "bytes": 4848374
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/B.png",
+        "sha256": "26cfa5ba61c7ff154666f1a2387c7007e32083cb8c8d732dc9538410589e93c9",
+        "bytes": 4621720
+      },
+      "prompt": "A continuous journey from a cozy attic bedroom, through the old wardrobe, and into the snowy winter world beyond.",
+      "seed_submitted": 70,
+      "seed_reported": 70,
+      "settings": {
+        "prompt": "A continuous journey from a cozy attic bedroom, through the old wardrobe, and into the snowy winter world beyond.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/canonical/A.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/canonical/B.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 70
+      },
+      "prediction_id": "g4ygbpr4qsrmy0d0ec891myw64",
+      "output_url": "https://replicate.delivery/xezq/Ae38vT7e3ruXDEs1Zsj6M8h5MOKcALIfG5f72fJqQOeRlioyF/tmplby5qpth.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/01-pristine-minimal.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "started_at": "2026-09-05T19:33:41.880Z",
+      "completed_at": "2026-09-05T19:42:13.973Z",
+      "elapsed_ms": 512093
+    },
+    {
+      "id": "02-pristine-motion",
+      "filename": "02-pristine-motion.mp4",
+      "endpoints": "pristine",
+      "prompt_kind": "motion",
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+        "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+        "bytes": 4848374
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/B.png",
+        "sha256": "26cfa5ba61c7ff154666f1a2387c7007e32083cb8c8d732dc9538410589e93c9",
+        "bytes": 4621720
+      },
+      "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+      "seed_submitted": 70,
+      "seed_reported": 70,
+      "settings": {
+        "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/canonical/A.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/canonical/B.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 70
+      },
+      "prediction_id": "50m7gg6nfdrmt0d0ecbrc8j618",
+      "output_url": "https://replicate.delivery/xezq/zoUTX6mumrr7Jx4tyf64U3rTb1BsK0iTyF73aKw6QxNqIRlLA/tmpjetgi1y5.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/02-pristine-motion.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "started_at": "2026-09-05T19:42:14.729Z",
+      "completed_at": "2026-09-05T19:49:41.366Z",
+      "elapsed_ms": 446637
+    },
+    {
+      "id": "03-conditioned-minimal",
+      "filename": "03-conditioned-minimal.mp4",
+      "endpoints": "conditioned",
+      "prompt_kind": "minimal",
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/start.png",
+        "sha256": "0cdddd5cc8b74c59f18b1171e4776b52c7cb824ce84a0403d68ff16db17dc9ea",
+        "bytes": 4189014
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/end.png",
+        "sha256": "ccdec02a4d03785b8a737cbdab11c4b4f7e5a2bd614d3ea91aa10b02c4974a93",
+        "bytes": 4144658
+      },
+      "prompt": "A continuous journey from a cozy attic bedroom, through the old wardrobe, and into the snowy winter world beyond.",
+      "seed_submitted": 70,
+      "seed_reported": 70,
+      "settings": {
+        "prompt": "A continuous journey from a cozy attic bedroom, through the old wardrobe, and into the snowy winter world beyond.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 70
+      },
+      "prediction_id": "d2151cn9tsrmw0d0ecfadxnew8",
+      "output_url": "https://replicate.delivery/xezq/f4DwtUQj922NJypiA5BMJBf9SVqxF2LJ1lTcEMhZM8PPdiKXA/tmp_3hije2l.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/03-conditioned-minimal.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "started_at": "2026-09-05T19:49:42.183Z",
+      "completed_at": "2026-09-05T20:02:23.789Z",
+      "elapsed_ms": 761606
+    },
+    {
+      "id": "04-conditioned-motion",
+      "filename": "04-conditioned-motion.mp4",
+      "endpoints": "conditioned",
+      "prompt_kind": "motion",
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/start.png",
+        "sha256": "0cdddd5cc8b74c59f18b1171e4776b52c7cb824ce84a0403d68ff16db17dc9ea",
+        "bytes": 4189014
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/end.png",
+        "sha256": "ccdec02a4d03785b8a737cbdab11c4b4f7e5a2bd614d3ea91aa10b02c4974a93",
+        "bytes": 4144658
+      },
+      "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+      "seed_submitted": 70,
+      "seed_reported": 70,
+      "settings": {
+        "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 70
+      },
+      "prediction_id": "8kwb28tayhrmr0d0ecnaca4nzr",
+      "output_url": "https://replicate.delivery/xezq/QE4Oa4xhdOrpHFDicMz0mB6reIvALe9SJ0iF0J7BiL1niiKXA/tmpf9v_2j4l.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/04-conditioned-motion.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "started_at": "2026-09-05T20:02:24.436Z",
+      "completed_at": "2026-09-05T20:08:07.747Z",
+      "elapsed_ms": 343311
+    }
+  ]
+}

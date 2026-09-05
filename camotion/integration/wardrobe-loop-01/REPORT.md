@@ -407,3 +407,18 @@ Do not reopen brute-force strength/sigma/kernel tuning closed by
 exposure-strength range is an unvalidated next research direction,
 not this experiment, and must not be called Camotion 01.13 from this
 checkpoint.
+
+## 20. Follow-on A→B conditioning / prompt 2×2
+
+A later controlled Seedance 2×2 (fixed seed 70) ablated pristine vs
+Camotion endpoints and minimal vs the **authoritative** A→B
+locomotion prompt recorded in this manifest. See
+`experiments/ab-2x2-seedance/REPORT.md`. Exploratory web-UI runs with
+different seeds live in `experiments/ab-exploratory-web-ui/` and are
+not the controlled matrix.
+
+Human judgment on that one seed: Camotion-conditioned endpoints plus
+this shot's Cinematographer locomotion prompt were complementary and
+stronger than either factor alone. That does not reopen 01.12 still-
+image tuning. Working hypothesis: Camotion is motion-state
+conditioning, not image enhancement.

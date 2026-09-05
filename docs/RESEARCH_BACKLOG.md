@@ -243,11 +243,14 @@ provided somewhere for the camera to exist BETWEEN canonicals
 shot (E→A) approached a flat bedroom door, then the world became the
 bedroom.
 
-Unvalidated future Cinematographer shootability question: *Can I
-describe a continuous spatial route from this camera position into
-the next world?* A future CM may decide it cannot cover a move in
-one shot and recommend an intermediate canonical (`E → X → A`). Do
-not implement subdivision or intermediate-canonical insertion yet.
+Unvalidated future Cinematographer shootability question: *Can this
+pair plausibly be covered as one continuous spatial move?* If yes,
+describe and condition the route and let the video model invent
+intermediate volume. If no, recommend an intermediate canonical
+(`E → X → A`). Do not mechanically request X for every transition.
+The failed Integration Test E→A flat-door shot remains a useful
+future fixture. Do not implement subdivision or intermediate-
+canonical insertion yet.
 
 ## Movie-level velocity and variable duration
 
@@ -269,17 +272,24 @@ rather than forcing it. No schema in this checkpoint.
 
 ## Scene-aware Camotion operating range
 
-**UNVALIDATED.** Not Camotion 01.13. Do not implement. Do not reopen
-01.12 brute-force strength/sigma/kernel/compositor search.
+**UNVALIDATED. Intended next and last bounded Camotion experiment for
+Phase 1. Do not implement from this file.** Not Camotion 01.13. Do
+not reopen 01.12 brute-force strength/sigma/kernel/compositor search.
+Keep the 01.8 operator. Vary only a small constrained
+scene-appropriate exposure-strength choice if evidence supports it.
 
 Integration Test 01 used the same pinned Camotion 01.8 parameters on
-every canonical. Actual source images differ in how much baked
-motion cue they may tolerate.
+every canonical. The seed-70 A→B 2×2 supported retaining Camotion as
+motion-state conditioning together with CM locomotion language. It
+did not test whether heterogeneous shots want different strengths.
 
 Research question: can scene-aware selection of a **very small**
 known-safe Camotion exposure-strength range (for example subtle /
 moderate / strong), with all other Camotion variables fixed, improve
 video behavior across heterogeneous shots?
+
+If it helps, it may become Phase 1 behavior. If not, freeze current
+fixed 01.8 conditioning. Then Camotion research is done for Phase 1.
 
 Possible visual cues a later Cinematographer could reason about:
 depth range; foreground density; foreground structures near screen
@@ -363,6 +373,63 @@ Cinematographer spatial reasoning; helping advanced users see how
 TunnelVision intends to move through a scene; a later
 explanation/inspection mode.
 
+## Spatial vs temporal continuity
+
+Forward motion is not the same as continuous velocity through a shot
+boundary. Across many Seedance tests the model appears to use a
+temporal envelope: establish motion, perform the move, ease/resolve
+toward the endpoint. That can make B a stop rather than a sample on
+a continuing trajectory.
+
+Evaluate separately:
+
+-   **Spatial continuity:** does the camera physically traverse
+    connected intermediate space, or reconcile worlds through a
+    cut/dissolve/replacement?
+-   **Temporal continuity:** does camera motion carry through the
+    ending frame, or ease/decelerate/stop at B?
+
+Canonical frames should behave as position samples, not stop points.
+No schema.
+
+## Endpoint / edit-boundary fidelity instrumentation
+
+Unvalidated research instrumentation. Do not invent a score formula
+yet. Because source PNGs are higher resolution than generated video,
+literal pixel equality requires a documented deterministic resize
+first.
+
+Two related questions:
+
+-   **Endpoint fidelity:** last decoded frame of A→B vs supplied B or
+    B′; first decoded frame of B→C vs supplied B or B′.
+-   **Actual edit-boundary continuity:** last decoded frame of A→B vs
+    first decoded frame of B→C. This may matter more for the finished
+    movie than absolute fidelity to B′.
+
+Possible later metrics after normalization: MAE/RMSE, PSNR, SSIM,
+optional LPIPS. Possible future name: Boundary Fidelity Score. Not
+specified.
+
+## Deterministic finishing / upscale
+
+Product finishing hypothesis. Default:
+
+native generated shots → deterministic concat → complete native-
+resolution movie → deterministic upscale if required → final encode.
+
+Prefer Lanczos/bicubic initially, not creative/AI upscaling.
+Independent generative upscaling of adjacent clips could amplify tiny
+shared-boundary differences. Identical native frames through the same
+deterministic scaler remain identical.
+
+"Generative models make filmmaking decisions; deterministic code
+preserves them."
+
+AI/video upscale is an optional later finishing experiment that must
+show benefit without harming temporal/boundary continuity. Do not add
+an AI upscaler to Phase 1.
+
 ## Earlier unvalidated ideas to preserve
 
 -   **Perceptual / motion witnesses:** environmental motion (dust,
@@ -384,4 +451,5 @@ explanation/inspection mode.
     deterministic hard-join concat only, not this finishing layer.
 
 Do not begin the next Camotion experiment from this file. Do not
-start Camotion 01.13.
+start Camotion 01.13. The intended next Camotion experiment is
+scene-aware 01.8 strength selection, after this checkpoint.

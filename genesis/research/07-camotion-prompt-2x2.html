@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Camotion + Prompt 2×2 — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html" class="active">Camotion + Prompt 2×2</a>
+</nav>
+<main>
+<section class="ready-code" id="ab-2x2">
+<div class="eyebrow">WARDROBE A→B · SEPTEMBER 5, 2026</div>
+<h2>Camotion endpoints and Cinematographer locomotion language appear complementary.</h2>
+<p>TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. This chapter records a controlled Seedance 2.5 ablation on the Integration Test 01 A→B pair. It is <strong>not</strong> Camotion 01.13. The 01.8 operator was not changed. No images or Camotion frames were regenerated.</p>
+<p>Notation: <strong>A / B</strong> = pristine canonicals. <strong>A′ / B′</strong> = Camotion-conditioned shooting frames. <strong>A→B</strong> = generated traversal shot.</p>
+
+<div class="finding">
+<strong>Camotion is motion-state conditioning, not image enhancement.</strong>
+<p>01.12 remains true on Ghost Library stills: there was no useful pristine-source operating window where substantial baked travel could be encoded without objectionable structured copies. Today's video evidence is complementary, not contradictory. A′ does not need to be an aesthetically superior still. It may function as machine-facing motion-state conditioning for the video model.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Three kinds of A→B evidence, do not mix them</h3><span class="result-pill info">PROVENANCE</span></div>
+<p><b>Exploratory web UI</b> — three manual Replicate generations, different seeds (50 / 40 / 60), web-UI aspect_ratio 16:9. The third used a shorter manual locomotion prompt that is <em>not</em> the Integration Test 01 prompt. Packaged under <code>experiments/ab-exploratory-web-ui/</code>.</p>
+<p><b>Original Integration Test 01 A→B</b> — conditioned A′/B′, authoritative CM locomotion prompt, seed omitted, previously judged the strongest “killer” traversal of the unattended loop.</p>
+<p><b>Controlled 2×2</b> — the four videos below. Same seed 70, aspect_ratio adaptive, generate_audio false, sequential, no retries. Independent variables: pristine vs conditioned endpoints, and minimal journey vs the authoritative IT01 prompt.</p>
+</article>
+
+<div class="eyebrow">CONTROLLED 2×2 · SEED 70</div>
+<p>Minimal journey prompt, verbatim: <i>A continuous journey from a cozy attic bedroom, through the old wardrobe, and into the snowy winter world beyond.</i> Motion prompt: the exact Integration Test 01 A→B Seedance prompt from <code>generation-manifest.json</code>. <code>COMMON_VIDEO_INTENT</code> was not prepended.</p>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>01 · pristine + minimal</h3><span class="result-pill info">SEED 70</span></div>
+<p class="test-meta">prediction g4ygbpr4qsrmy0d0ec891myw64 · A.png + B.png</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/01-pristine-minimal.mp4"></video>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>02 · pristine + CM locomotion</h3><span class="result-pill info">SEED 70</span></div>
+<p class="test-meta">prediction 50m7gg6nfdrmt0d0ecbrc8j618 · A.png + B.png</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/02-pristine-motion.mp4"></video>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>03 · Camotion + minimal</h3><span class="result-pill info">SEED 70</span></div>
+<p class="test-meta">prediction d2151cn9tsrmw0d0ecfadxnew8 · A′ + B′</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/03-conditioned-minimal.mp4"></video>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>04 · Camotion + CM locomotion</h3><span class="result-pill pass">CLEAR WINNER · ONE SEED</span></div>
+<p class="test-meta">prediction 8kwb28tayhrmr0d0ecnaca4nzr · A′ + B′ · IT01 locomotion prompt</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/04-conditioned-motion.mp4"></video>
+<p>Independent human review: strongest spatial and temporal continuity of the four. Neither pristine+locomotion nor conditioned+minimal matched the combination. The wardrobe/clothes → snowy forest passage was judged even better than the original unseeded Integration Test 01 A→B. Bedroom → wardrobe threshold → hanging clothes passing the camera → dark intermediate volume → snow. No intermediate canonical was supplied.</p>
+</article>
+
+<div class="finding">
+<strong>Retain Camotion + Cinematographer prompt design in Phase 1.</strong>
+<p>This is one controlled seed, not statistical proof, not a claim that Camotion is universally necessary, and not a claim that the current operator is optimal. It is enough evidence to keep both complementary pieces in the working pipeline: the CM prompt supplies semantic/physical locomotion intent; Camotion supplies visual motion-state conditioning; Seedance combines them.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Spatial continuity is not temporal continuity</h3><span class="result-pill info">EASING</span></div>
+<p>Forward motion is not the same as velocity continuing through B. Seedance often appears to ease/resolve toward the endpoint, so B can behave like a stop rather than a sampled position on a continuing trajectory. Canonical frames should be position samples, not stop points. 04 was perceived as better at retaining ongoing motion at B.</p>
+<p>A crude exploratory frame-to-frame visual-change check performed outside the repo suggested increasing final-half-second activity 01≈0.96, 02≈3.47, 03≈4.32, 04≈5.33. Those numbers are <b>not camera velocity</b>. They can include snow, morphing, and exposure change. Informal observation only.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Do not mechanically insert intermediate canonicals</h3><span class="result-pill info">FUTURE CM</span></div>
+<p>04 did not receive an extra canonical X. The video model invented useful intermediate wardrobe volume from conditioned endpoints, geometry, and detailed route language. Future CM reasoning: can this pair be covered as one continuous spatial move? If yes, describe/condition the route. If no — as in the Integration Test E→A flat door — recommend an intermediate canonical. Not implemented here.</p>
+</article>
+
+<div class="eyebrow">EXPLORATORY WEB UI · DIFFERENT SEEDS</div>
+<p>These motivated the 2×2. They are not controlled. Web UI aspect_ratio was 16:9. Run 1 generated audio. Run 3 used a shorter manual locomotion prompt, not the IT01 prompt. Informal Downloads filenames said “nomotion”; the prompt was the minimal journey sentence.</p>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Pristine + minimal · seed 50</h3><span class="result-pill fail">EXPLORATORY</span></div>
+<p class="test-meta">prediction pzvvne7bc1rmt0d0ebdarwwx28 · generate_audio true · originally A-B nomotion.mp4</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-exploratory-web-ui/A-B-nomotion-seed50.mp4"></video>
+<p>Forward motion occurred. Transition felt like a cut/crossfade/dissolve. Easing toward the endpoint.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Camotion + minimal · seed 40</h3><span class="result-pill info">EXPLORATORY</span></div>
+<p class="test-meta">prediction fh8t4h3r7xrmy0d0ebetfpn6am · originally A'-B' nomotion.mp4</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-exploratory-web-ui/Ap-Bp-nomotion-seed40.mp4"></video>
+<p>Forward motion; somewhat less cut-like than pristine/minimal, still a cut/stop rather than fully continuous traversal. Easing remained.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>Pristine + manual locomotion · seed 60</h3><span class="result-pill fail">EXPLORATORY</span></div>
+<p class="test-meta">prediction ey3nfwjrqdrmt0d0ebssagmr2c · originally A-B motion.mp4 · prompt is not IT01</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/ab-exploratory-web-ui/A-B-manual-motion-seed60.mp4"></video>
+<p>Forward motion. World transition still felt like a cut/dissolve. Do not rewrite history: this is not the Integration Test 01 prompt.</p>
+</article>
+
+<div class="finding">
+<strong>After this checkpoint</strong>
+<p>The remaining bounded Camotion question for Phase 1 is whether the Cinematographer can choose a small scene-appropriate 01.8 strength from an already safe range. No new operator, kernels, sample counts, compositors, or 01.12 reopen. If it does not help, freeze fixed 01.8. Then Camotion research is done for Phase 1. The next major research question after that is traversable intermediate space / shootability, likely using E→A. The product goal after freeze is Movie #2 through the actual TunnelVision application. See <a href="../../camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/REPORT.md">the 2×2 report</a>.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Controlled artifacts: camotion/integration/wardrobe-loop-01/experiments/ab-2x2-seedance/. Exploratory copies: experiments/ab-exploratory-web-ui/.</span>
+</footer>
+<nav class="chapter-nav"><a href="06-wardrobe-loop.html" class="prev-link">← The Wardrobe Loop</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

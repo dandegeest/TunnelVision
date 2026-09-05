@@ -62,7 +62,14 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     assembled movie). It is **not** Camotion 01.13. Do not characterize
     it as Camotion solving or failing traversal. 01.8 remains the
     current Camotion baseline; 01.5 / 0.08 remains the conservative
-    directed video baseline where appropriate. The movie-level metric
+    directed video baseline where appropriate. A later controlled
+    Wardrobe A→B Seedance 2×2 (fixed seed 70) found that Camotion
+    endpoints and the authoritative Cinematographer locomotion prompt
+    were complementary: 04-conditioned-motion was the human-judged
+    winner. That is one seed, not cross-seed proof. Working
+    hypothesis: Camotion is motion-state conditioning, not image
+    enhancement. Retain Camotion + CM prompting in the Phase 1
+    pipeline. The movie-level metric
     is increasingly whether the model shoots the route, not whether
     A′ is aesthetically clean as a still. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
@@ -400,8 +407,10 @@ starts them.
     C + D). Exposure-operator tuning is closed. The next untested
     question is above the baked-exposure primitive. Do not reopen
     brute-force strength/sigma/kernel search. Scene-aware selection
-    of a small known-safe Camotion exposure-strength range is
-    unvalidated and is **not** Camotion 01.13
+    of a small known-safe Camotion exposure-strength range is the
+    intended **next and last** bounded Camotion experiment for Phase
+    1. Do not start it from this checkpoint. It is **not** Camotion
+    01.13. Do not reopen 01.12. Keep the 01.8 operator.
 -   final Cinematographer module boundaries
 -   whether Cinematographer shootability should require a traversable
     intermediate spatial route, including optional intermediate

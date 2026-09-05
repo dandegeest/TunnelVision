@@ -96,6 +96,15 @@ Optional depth weighting is a renderer sidecar, not part of
 CameraMotionPlan v1. See [IMPLEMENTATION.md](IMPLEMENTATION.md) and
 [DATA_MODEL.md](DATA_MODEL.md).
 
+Working hypothesis from the Wardrobe Loop A→B Seedance 2×2 (one
+controlled seed): **Camotion is motion-state conditioning, not image
+enhancement.** Shooting frames need not be aesthetically superior
+stills. 01.12's Ghost Library still-image structured-copy limit
+remains real and is not contradicted. Current evidence is enough to
+**retain Camotion plus Cinematographer locomotion prompting** as
+complementary Phase 1 pipeline pieces. It is not proof that Camotion
+is universally necessary or that the current operator is optimal.
+
 There is no separate Edit agent initially. The storyboard keeps
 **canonical / pristine frames** as world-state authority. Video
 currently receives Camotion **shooting frames**, not those canonical
@@ -103,6 +112,11 @@ images. How to derive distinct arrival/departure derivatives
 (`B_in` / `B_out`) is an **open question** --- do not treat it as
 solved. Deterministic concatenation of ordered shot videos is
 plumbing, not an Edit agent.
+
+Default finishing should prefer native generated shots, deterministic
+concat, then conventional deterministic upscale if required. Generative
+or AI upscaling of adjacent clips is not Phase 1. See
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
 
 ## Product principles
 
@@ -116,6 +130,9 @@ plumbing, not an Edit agent.
     spatial reachability must be evaluated explicitly.
 -   **Locomotion outranks destination matching.** Morphing/dissolving to
     the endpoint is failure.
+-   **Canonical frames are position samples, not stop points.** Forward
+    motion is not the same as velocity continuing through a shot
+    boundary.
 -   **Directed A→B preserves authored endpoints.** For a directed
     traversal, A and B are authoritative shot endpoints. The generated
     video's first and last frames should match the supplied start and
@@ -127,7 +144,8 @@ plumbing, not an Edit agent.
     generation may invent future geometry after an authoritative
     starting frame; that mode is not current product behavior.
 -   **Structured intent, deterministic geometry.** AI reasons about
-    filmmaking; code owns pixel math.
+    filmmaking; code owns pixel math. Generative models make
+    filmmaking decisions; deterministic code preserves them.
 -   **Provider independence.** TunnelVision owns its contracts;
     generation providers only render.
 

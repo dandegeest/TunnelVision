@@ -138,10 +138,13 @@ storyboard UI itself is **not** the current milestone.
 
 That slice now has MediaProvider image and video contracts in
 `media/`. Current research also includes Camotion shooting frames, a
-Replicate video runner, and Integration Test 01. A controlled
+Replicate video runner, Integration Test 01, and a completed Wardrobe
+A→B Seedance 2×2 (seed 70). A controlled
 01.3–01.8 series exists. 01.5 remains the conservative
 directed-traversal baseline. 01.8 Route-Preserved Exposure remains
-the current Camotion baseline. 01.9, 01.10, 01.11, and 01.12 are
+the current Camotion baseline and is retained for Phase 1 as
+motion-state conditioning complementary to Cinematographer locomotion
+prompts. 01.9, 01.10, 01.11, and 01.12 are
 still-only evidence and are not promoted. Unvalidated
 cinematographer control ideas (pace, embodiment, Prompt Only vs Auto,
 traversable intermediate volume, scene-aware Camotion strength,

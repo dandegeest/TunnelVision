@@ -7,6 +7,8 @@ export type ReplicatePrediction = {
   readonly output?: unknown;
   readonly metrics?: Readonly<Record<string, unknown>> | null;
   readonly urls?: Readonly<Record<string, string>> | null;
+  readonly input?: Readonly<Record<string, unknown>> | null;
+  readonly logs?: string | null;
 };
 
 export interface ReplicatePredictionClient {

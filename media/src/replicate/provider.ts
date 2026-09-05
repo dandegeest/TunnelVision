@@ -127,6 +127,7 @@ export class ReplicateMediaProvider implements MediaProvider {
       );
     }
 
+    const reportedSeed = reportedSeedFromPrediction(prediction);
     const result = {
       provider: "replicate" as const,
       model: prediction.model ?? model,
@@ -138,6 +139,7 @@ export class ReplicateMediaProvider implements MediaProvider {
         replicate_status: prediction.status,
         ...(prediction.metrics ? { metrics: prediction.metrics } : {}),
         ...(prediction.urls ? { urls: prediction.urls } : {}),
+        ...(reportedSeed !== undefined ? { seed: reportedSeed } : {}),
       },
       startedAt: startedAt.toISOString(),
       completedAt: completedAt.toISOString(),
@@ -210,4 +212,21 @@ function wrapClientError(error: unknown, token?: string): MediaGenerationError {
 
 function secretsToRedact(token: string | undefined): string[] {
   return token ? [token] : [];
+}
+
+function reportedSeedFromPrediction(
+  prediction: ReplicatePrediction,
+): number | undefined {
+  const inputSeed = prediction.input?.seed;
+  if (typeof inputSeed === "number" && Number.isInteger(inputSeed)) {
+    return inputSeed;
+  }
+  const logs = prediction.logs;
+  if (typeof logs === "string") {
+    const match = logs.match(/\bseed(?:\s*(?:is|=|:))?\s*(-?\d+)\b/i);
+    if (match) {
+      return Number(match[1]);
+    }
+  }
+  return undefined;
 }
