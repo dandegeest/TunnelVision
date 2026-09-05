@@ -144,9 +144,9 @@ A→B Seedance 2×2 (seed 70). A controlled
 directed-traversal baseline. 01.8 Route-Preserved Exposure remains
 the current Camotion baseline and is retained for Phase 1 as
 motion-state conditioning complementary to Cinematographer locomotion
-prompts. 01.9, 01.10, 01.11, and 01.12 are
-still-only evidence and are not promoted. Unvalidated
+prompts. Scene-aware bounded strength `{0.02, 0.04, 0.08}` is preferred
+over fixed `0.08`. **Camotion Phase 1 is frozen.** 01.9, 01.10, 01.11,
+and 01.12 are still-only evidence and are not promoted. Unvalidated
 cinematographer control ideas (pace, embodiment, Prompt Only vs Auto,
-traversable intermediate volume, scene-aware Camotion strength,
-velocity continuity) are in
+traversable intermediate volume, velocity continuity) are in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md), not current UI. There is no UI.

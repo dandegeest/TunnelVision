@@ -82,10 +82,11 @@ candidates, learn from selections, and maintain discovery.
 ### Cinematographer
 
 Decides **how to physically get there on camera**: determine route,
-destination, perspective, foreground geometry and motion cues; produce
-structured shot/camera data; invoke Camotion to derive **shooting
-frames** from canonical frames; and prepare video-generation inputs
-from those shooting frames.
+destination, perspective, foreground geometry and motion cues; choose
+Camotion conditioning strength from the bounded Phase 1 vocabulary
+`{0.02, 0.04, 0.08}`; produce structured shot/camera data; invoke
+Camotion to derive **shooting frames** from canonical frames; and
+prepare video-generation inputs from those shooting frames.
 
 Camotion is deterministic graphics, not an agent. **Camotion v1** is a
 radial-exposure experiment that approximates and extends aspects of
@@ -104,6 +105,16 @@ remains real and is not contradicted. Current evidence is enough to
 **retain Camotion plus Cinematographer locomotion prompting** as
 complementary Phase 1 pipeline pieces. It is not proof that Camotion
 is universally necessary or that the current operator is optimal.
+
+A later three-pair Wardrobe experiment preferred **scene-aware
+bounded Camotion strength** over fixed `0.08`. The Cinematographer
+inspects each actual canonical keyframe and chooses strength from
+`{0.02, 0.04, 0.08}` (LIGHT / MEDIUM / STRONG). Strength is per
+canonical, not necessarily one value per shot. Use the minimum
+bounded conditioning needed to establish useful motion state.
+Stronger Camotion does not automatically mean stronger perceived
+camera travel. **Camotion Phase 1 is frozen.** Do not claim `0.02`
+is globally best or that `0.08` is obsolete.
 
 There is no separate Edit agent initially. The storyboard keeps
 **canonical / pristine frames** as world-state authority. Video

@@ -18,6 +18,7 @@
   <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
   <a href="06-wardrobe-loop.html" class="active">The Wardrobe Loop</a>
   <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
 </nav>
 <main>
 <section class="ready-code" id="wardrobe-loop">
@@ -113,7 +114,7 @@ Sorry, your browser cannot play this MP4.
 <article class="motion-test info">
 <div class="motion-head"><h3>Do not abandon Camotion</h3><span class="result-pill info">INTERPRETATION</span></div>
 <p>This run is neither “Camotion solved traversal” nor “Camotion failed.” 01.12 established the practical limit of strong baked-exposure motion encoding on Ghost Library. 01.8 remains the current Camotion baseline. 01.5 / strength 0.08 remains the conservative directed video baseline where appropriate. The complete system can nevertheless produce genuinely compelling traversal shots. Camotion artifacts remain visible in conditioned stills, but they can become less perceptually important during successful moving shots. The movie-level metric is increasingly: does the model shoot the route? — not: is A′ aesthetically clean as a still?</p>
-<p>Do not reopen the 01.12 brute-force strength/sigma/kernel branch. Scene-aware selection from a very small known-safe Camotion exposure-strength range is an unvalidated next research direction. It is not Camotion 01.13.</p>
+<p>Do not reopen the 01.12 brute-force strength/sigma/kernel branch. Scene-aware selection from {.02,.04,.08} is completed Phase 1 evidence; Camotion Phase 1 is frozen. See <a href="08-scene-aware-camotion-strength.html">chapter 08</a>.</p>
 </article>
 
 <div class="finding">

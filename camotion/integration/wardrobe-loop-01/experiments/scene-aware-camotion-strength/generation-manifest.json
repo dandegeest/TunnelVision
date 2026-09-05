@@ -1,0 +1,535 @@
+{
+  "experiment": "scene-aware-camotion-strength",
+  "title": "Wardrobe Loop scene-aware Camotion strength",
+  "git_commit": "bf9967e68af902616e3a1081bb72f097a17dfb32",
+  "model": "bytedance/seedance-2.5",
+  "planning_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/planning.json",
+  "planning_frozen_at": "2026-09-05T21:05:32.111Z",
+  "videos_started_at": "2026-09-05T21:08:28.062Z",
+  "independent_variable": "camotion_endpoint_strength_policy",
+  "excluded_shots": [
+    "C-D",
+    "E-A"
+  ],
+  "shared_settings": {
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4"
+  },
+  "planning": {
+    "experiment": "scene-aware-camotion-strength",
+    "title": "Wardrobe Loop scene-aware Camotion strength (fixed 0.08 vs adaptive {0.02, 0.04, 0.08})",
+    "frozen_before_generation": true,
+    "frozen_at": "2026-09-05T21:05:32.111Z",
+    "git_commit": "bf9967e68af902616e3a1081bb72f097a17dfb32",
+    "selector": {
+      "model": "google/gemini-3.1-pro",
+      "model_version": "hidden",
+      "prediction_id": "70a5rznf01rmt0d0edhtywsr58",
+      "elapsed_ms": 27474,
+      "source": "reasoning"
+    },
+    "reuse": {
+      "B": [
+        "A-B end",
+        "B-C start"
+      ]
+    },
+    "excluded_shots": [
+      "C-D",
+      "E-A"
+    ],
+    "allowed_strengths": [
+      0.02,
+      0.04,
+      0.08
+    ],
+    "canonical_selections": {
+      "A": {
+        "canonical": "A",
+        "strength": 0.02,
+        "label": "LIGHT",
+        "reasoning": "Contains prominent furniture, ceiling planks, and hanging clothes inside the wardrobe, presenting high structured-content duplication risk.",
+        "image": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+          "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+          "bytes": 4848374
+        },
+        "vision_input": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/vision/A.jpg",
+          "sha256": "f9705aa32f1811b65449a5d14a4cacdda571ce2f2e862d85e0ab7152ffe711cf",
+          "bytes": 250816
+        },
+        "plans": [
+          {
+            "path": "camotion/integration/wardrobe-loop-01/plans/A-B.json",
+            "sha256": "5a33c9125928355ff4021e1abd0ac8c309b6983014b729f5bf2ce46e71242665",
+            "bytes": 329
+          }
+        ]
+      },
+      "B": {
+        "canonical": "B",
+        "strength": 0.02,
+        "label": "LIGHT",
+        "reasoning": "Features hanging clothes on the left, dense tree trunks, and intricate roots that are highly susceptible to smearing.",
+        "image": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/B.png",
+          "sha256": "26cfa5ba61c7ff154666f1a2387c7007e32083cb8c8d732dc9538410589e93c9",
+          "bytes": 4621720
+        },
+        "vision_input": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/vision/B.jpg",
+          "sha256": "e2216db34eb8bc87057b55d156d3d29e1122f98dfd8d1aaf0698ba0f83677d37",
+          "bytes": 266455
+        },
+        "plans": [
+          {
+            "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/end-plan.json",
+            "sha256": "946c4fce96c542db553d32c5113e25504a4068d407c339701b4b3d0beadc1e11",
+            "bytes": 324
+          },
+          {
+            "path": "camotion/integration/wardrobe-loop-01/plans/B-C.json",
+            "sha256": "daf7392495b2b08851946aeebbb6a517f5d0b29afdea6e9616dfb6739a0daf35",
+            "bytes": 328
+          }
+        ]
+      },
+      "C": {
+        "canonical": "C",
+        "strength": 0.04,
+        "label": "MEDIUM",
+        "reasoning": "Provides natural parallax through the trees and central archway without extreme structural smear risks, benefiting from a balanced motion cue.",
+        "image": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/C.png",
+          "sha256": "9767bfa9c82f61c3d2e3f1e74b0dd6ecafa27416435003be62046c0dd3f79b08",
+          "bytes": 5834541
+        },
+        "vision_input": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/vision/C.jpg",
+          "sha256": "ab9fdfaab1486e422a07e3073fdf49b7b1ab3609dc346c37c2959b4981db80f6",
+          "bytes": 366157
+        },
+        "plans": [
+          {
+            "path": "camotion/integration/wardrobe-loop-01/shooting/B-C/end-plan.json",
+            "sha256": "6cc98061cf6f5f8f8346d348ca58016253861ebf2a41bd97d65142066746e4d8",
+            "bytes": 323
+          }
+        ]
+      },
+      "D": {
+        "canonical": "D",
+        "strength": 0.02,
+        "label": "LIGHT",
+        "reasoning": "The vast stone staircase introduces dense, repeating horizontal details that are extremely prone to step-duplication and smearing.",
+        "image": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/D.png",
+          "sha256": "cf60b53ea5a1965ff266abad157ccd154cd41f0f0313188b99f770be5333492a",
+          "bytes": 5960610
+        },
+        "vision_input": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/vision/D.jpg",
+          "sha256": "b90db6b8081c5fc829b59bd1db3d6734c9c3aec9fc8e1f153b4a15cffee99fbd",
+          "bytes": 357165
+        },
+        "plans": [
+          {
+            "path": "camotion/integration/wardrobe-loop-01/plans/D-E.json",
+            "sha256": "7a25ce4e8122d2b37f19a6ecbf75c9879fb7309a7fdcfadae39d987bcf780d3a",
+            "bytes": 328
+          }
+        ]
+      },
+      "E": {
+        "canonical": "E",
+        "strength": 0.02,
+        "label": "LIGHT",
+        "reasoning": "Centered on a distinct, illuminated door frame and surrounded by fine roots, both of which pose a high risk of structured-content duplication.",
+        "image": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+          "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+          "bytes": 5802759
+        },
+        "vision_input": {
+          "path": "camotion/integration/wardrobe-loop-01/canonical/vision/E.jpg",
+          "sha256": "7330a01aa4bc5d2259e1090c1659f687680d9aa93051cd979f23233a1be18ffd",
+          "bytes": 332984
+        },
+        "plans": [
+          {
+            "path": "camotion/integration/wardrobe-loop-01/shooting/D-E/end-plan.json",
+            "sha256": "aab5310c5b879b569db7031a463cd3d4897c0d124dc5b212731aa70217772986",
+            "bytes": 325
+          }
+        ]
+      }
+    },
+    "shot_endpoint_strengths": {
+      "A-B": {
+        "shot": "A-B",
+        "start_canonical": "A",
+        "end_canonical": "B",
+        "start_strength": 0.02,
+        "end_strength": 0.02,
+        "start_reused_from_canonical": true,
+        "end_reused_from_canonical": true
+      },
+      "B-C": {
+        "shot": "B-C",
+        "start_canonical": "B",
+        "end_canonical": "C",
+        "start_strength": 0.02,
+        "end_strength": 0.04,
+        "start_reused_from_canonical": true,
+        "end_reused_from_canonical": true
+      },
+      "D-E": {
+        "shot": "D-E",
+        "start_canonical": "D",
+        "end_canonical": "E",
+        "start_strength": 0.02,
+        "end_strength": 0.02,
+        "start_reused_from_canonical": true,
+        "end_reused_from_canonical": true
+      }
+    },
+    "raw_selector_text": "{\n  \"canonicals\": {\n    \"A\": {\n      \"label\": \"LIGHT\",\n      \"strength\": 0.02,\n      \"reasoning\": \"Contains prominent furniture, ceiling planks, and hanging clothes inside the wardrobe, presenting high structured-content duplication risk.\"\n    },\n    \"B\": {\n      \"label\": \"LIGHT\",\n      \"strength\": 0.02,\n      \"reasoning\": \"Features hanging clothes on the left, dense tree trunks, and intricate roots that are highly susceptible to smearing.\"\n    },\n    \"C\": {\n      \"label\": \"MEDIUM\",\n      \"strength\": 0.04,\n      \"reasoning\": \"Provides natural parallax through the trees and central archway without extreme structural smear risks, benefiting from a balanced motion cue.\"\n    },\n    \"D\": {\n      \"label\": \"LIGHT\",\n      \"strength\": 0.02,\n      \"reasoning\": \"The vast stone staircase introduces dense, repeating horizontal details that are extremely prone to step-duplication and smearing.\"\n    },\n    \"E\": {\n      \"label\": \"LIGHT\",\n      \"strength\": 0.02,\n      \"reasoning\": \"Centered on a distinct, illuminated door frame and surrounded by fine roots, both of which pose a high risk of structured-content duplication.\"\n    }\n  }\n}"
+  },
+  "generations": [
+    {
+      "id": "01-A-B-fixed-08",
+      "filename": "01-A-B-fixed-08.mp4",
+      "shot": "A-B",
+      "condition": "fixed",
+      "start_canonical": "A",
+      "end_canonical": "B",
+      "start_strength": 0.08,
+      "end_strength": 0.08,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/start.png",
+        "sha256": "0cdddd5cc8b74c59f18b1171e4776b52c7cb824ce84a0403d68ff16db17dc9ea",
+        "bytes": 4189014
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/end.png",
+        "sha256": "ccdec02a4d03785b8a737cbdab11c4b4f7e5a2bd614d3ea91aa10b02c4974a93",
+        "bytes": 4144658
+      },
+      "start_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/plans/A-B.json",
+        "sha256": "5a33c9125928355ff4021e1abd0ac8c309b6983014b729f5bf2ce46e71242665",
+        "bytes": 329
+      },
+      "end_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/end-plan.json",
+        "sha256": "946c4fce96c542db553d32c5113e25504a4068d407c339701b4b3d0beadc1e11",
+        "bytes": 324
+      },
+      "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+      "seed_submitted": 80,
+      "seed_reported": 80,
+      "settings": {
+        "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 80
+      },
+      "prediction_id": "skcrer6721rmy0d0edkb60ay5c",
+      "output_url": "https://replicate.delivery/xezq/Pzn4Z3hyzObpPRtkPft5DD9RnhxeCw4sMtMUE8QdZe4f7NqcB/tmp9jzabt03.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/01-A-B-fixed-08.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "retry_count": 0,
+      "started_at": "2026-09-05T21:08:28.066Z",
+      "completed_at": "2026-09-05T21:12:31.611Z",
+      "elapsed_ms": 243545
+    },
+    {
+      "id": "02-A-B-adaptive",
+      "filename": "02-A-B-adaptive.mp4",
+      "shot": "A-B",
+      "condition": "adaptive",
+      "start_canonical": "A",
+      "end_canonical": "B",
+      "start_strength": 0.02,
+      "end_strength": 0.02,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/A-B/adaptive/start.png",
+        "sha256": "5d3b1b9d0dd702e45874deee1d6e1ad91e2d6bf0e238e430f9fb55a0578458c3",
+        "bytes": 4251649
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/A-B/adaptive/end.png",
+        "sha256": "f7f9205a578af3181b153b288b83f0b1a5adf7862bae3235d7db96178fe17ece",
+        "bytes": 3923242
+      },
+      "start_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/A-B/adaptive/start-plan.json",
+        "sha256": "554087b24bb3e9b268dc7bc0f696ef6c314db4b373c6e43727c5dfdc3dc002bc",
+        "bytes": 329
+      },
+      "end_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/A-B/adaptive/end-plan.json",
+        "sha256": "91a3df66009f4fc750561ef3d79696c3088276fa11f28f077db98399510a08f7",
+        "bytes": 324
+      },
+      "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+      "seed_submitted": 80,
+      "seed_reported": 80,
+      "settings": {
+        "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/A-B/adaptive/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/A-B/adaptive/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 80
+      },
+      "prediction_id": "h9v7vh433xrmr0d0ednbc3y58g",
+      "output_url": "https://replicate.delivery/xezq/xykYrTbfCMyzSaNW9Guky2YvQxkhFJIXcOaPIkOFPlBpxRlLA/tmphzk6ggnv.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/02-A-B-adaptive.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "retry_count": 0,
+      "started_at": "2026-09-05T21:12:32.827Z",
+      "completed_at": "2026-09-05T21:17:06.916Z",
+      "elapsed_ms": 274089
+    },
+    {
+      "id": "03-B-C-fixed-08",
+      "filename": "03-B-C-fixed-08.mp4",
+      "shot": "B-C",
+      "condition": "fixed",
+      "start_canonical": "B",
+      "end_canonical": "C",
+      "start_strength": 0.08,
+      "end_strength": 0.08,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/B-C/start.png",
+        "sha256": "98ed935216d1b3c189aadcb23df4509ce23790eb0ecf2ff5189f724a02197724",
+        "bytes": 4135665
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/B-C/end.png",
+        "sha256": "83f6bab9237002442bed0701b778c6bf0bb2d72e682acced94adb1d575920eb7",
+        "bytes": 4894119
+      },
+      "start_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/plans/B-C.json",
+        "sha256": "daf7392495b2b08851946aeebbb6a517f5d0b29afdea6e9616dfb6739a0daf35",
+        "bytes": 328
+      },
+      "end_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/B-C/end-plan.json",
+        "sha256": "6cc98061cf6f5f8f8346d348ca58016253861ebf2a41bd97d65142066746e4d8",
+        "bytes": 323
+      },
+      "prompt": "First-person camera moves continuously forward through the strange narrow passage toward the moonlit opening. Hanging fabric, branches, roots and nearby objects pass close beside the camera with strong natural parallax. Continue physically forward and emerge completely into the vast snowy forest, following the visible route ahead. Maintain uninterrupted forward locomotion through one connected three-dimensional world. Do not dissolve or transform the passage into the forest.",
+      "seed_submitted": 81,
+      "seed_reported": 81,
+      "settings": {
+        "prompt": "First-person camera moves continuously forward through the strange narrow passage toward the moonlit opening. Hanging fabric, branches, roots and nearby objects pass close beside the camera with strong natural parallax. Continue physically forward and emerge completely into the vast snowy forest, following the visible route ahead. Maintain uninterrupted forward locomotion through one connected three-dimensional world. Do not dissolve or transform the passage into the forest.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/B-C/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/B-C/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 81
+      },
+      "prediction_id": "gwfxjk5nv5rmt0d0edq8x6kct0",
+      "output_url": "https://replicate.delivery/xezq/CjxQQC2M5h5BBxGOObP2rk7SJxBSLdkO0MNm7owyr8Fv5oyF/tmp7d8tubdx.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/03-B-C-fixed-08.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "retry_count": 0,
+      "started_at": "2026-09-05T21:17:07.630Z",
+      "completed_at": "2026-09-05T21:21:00.807Z",
+      "elapsed_ms": 233177
+    },
+    {
+      "id": "04-B-C-adaptive",
+      "filename": "04-B-C-adaptive.mp4",
+      "shot": "B-C",
+      "condition": "adaptive",
+      "start_canonical": "B",
+      "end_canonical": "C",
+      "start_strength": 0.02,
+      "end_strength": 0.04,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/B-C/adaptive/start.png",
+        "sha256": "a7fc64015d13df6c2221626084312d6a0a1fb97b016fe00676974ca17a8c1fb3",
+        "bytes": 3935839
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/B-C/adaptive/end.png",
+        "sha256": "21d0adcda3041e2f3717e122e0d471d0db7d2be9311fa834f3d518be0d36c8e4",
+        "bytes": 4798070
+      },
+      "start_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/B-C/adaptive/start-plan.json",
+        "sha256": "100f7f6714bf121fb370bd398ba8508c81cf9fb5814da4fa304b249bf12e3ba0",
+        "bytes": 328
+      },
+      "end_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/B-C/adaptive/end-plan.json",
+        "sha256": "a676c1f7a5e7f044a2c8bc3fb9df78a5cf068f4cbce48b49aa7b9282d9ca4c80",
+        "bytes": 323
+      },
+      "prompt": "First-person camera moves continuously forward through the strange narrow passage toward the moonlit opening. Hanging fabric, branches, roots and nearby objects pass close beside the camera with strong natural parallax. Continue physically forward and emerge completely into the vast snowy forest, following the visible route ahead. Maintain uninterrupted forward locomotion through one connected three-dimensional world. Do not dissolve or transform the passage into the forest.",
+      "seed_submitted": 81,
+      "seed_reported": 81,
+      "settings": {
+        "prompt": "First-person camera moves continuously forward through the strange narrow passage toward the moonlit opening. Hanging fabric, branches, roots and nearby objects pass close beside the camera with strong natural parallax. Continue physically forward and emerge completely into the vast snowy forest, following the visible route ahead. Maintain uninterrupted forward locomotion through one connected three-dimensional world. Do not dissolve or transform the passage into the forest.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/B-C/adaptive/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/B-C/adaptive/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 81
+      },
+      "prediction_id": "9rtx0pa8j5rmy0d0eds8k4awyr",
+      "output_url": "https://replicate.delivery/xezq/BP8gfU5F2324EiUk3BQsRN8X317oQXWrhqr6Uldo6OY31RlLA/tmpy3p9_eoq.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/04-B-C-adaptive.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "retry_count": 0,
+      "started_at": "2026-09-05T21:21:01.936Z",
+      "completed_at": "2026-09-05T21:26:07.647Z",
+      "elapsed_ms": 305711
+    },
+    {
+      "id": "05-D-E-fixed-08",
+      "filename": "05-D-E-fixed-08.mp4",
+      "shot": "D-E",
+      "condition": "fixed",
+      "start_canonical": "D",
+      "end_canonical": "E",
+      "start_strength": 0.08,
+      "end_strength": 0.08,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/D-E/start.png",
+        "sha256": "ada75adeb9254ffd426cfb8544f2ec95b375628728fad8e330867d0b94a8d288",
+        "bytes": 4679797
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/D-E/end.png",
+        "sha256": "5608978a2a93622819b1e9e5edb234e7a3f8bfd355f4d94243b5f4ac9d45ee03",
+        "bytes": 4726318
+      },
+      "start_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/plans/D-E.json",
+        "sha256": "7a25ce4e8122d2b37f19a6ecbf75c9879fb7309a7fdcfadae39d987bcf780d3a",
+        "bytes": 328
+      },
+      "end_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/shooting/D-E/end-plan.json",
+        "sha256": "aab5310c5b879b569db7031a463cd3d4897c0d124dc5b212731aa70217772986",
+        "bytes": 325
+      },
+      "prompt": "First-person camera travels physically forward through the ruined courtyard toward the descending stone stairway. Broken columns, walls, vines and stone structures pass beside the camera with natural parallax. Reach the stairs and descend continuously underground, traveling deeper until the path opens into the enormous luminous cavern beyond. Maintain continuous forward locomotion. Do not dissolve or transform the ruins into the cavern.",
+      "seed_submitted": 82,
+      "seed_reported": 82,
+      "settings": {
+        "prompt": "First-person camera travels physically forward through the ruined courtyard toward the descending stone stairway. Broken columns, walls, vines and stone structures pass beside the camera with natural parallax. Reach the stairs and descend continuously underground, traveling deeper until the path opens into the enormous luminous cavern beyond. Maintain continuous forward locomotion. Do not dissolve or transform the ruins into the cavern.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/D-E/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/D-E/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 82
+      },
+      "prediction_id": "mmbkwk7qwsrmt0d0edvb230b60",
+      "output_url": "https://replicate.delivery/xezq/DJQSJn95jw62MFgBZBe2uCYdIBbUsnjsfrk9qRqKQf0LeOqcB/tmpoq2zua5d.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/05-D-E-fixed-08.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "retry_count": 0,
+      "started_at": "2026-09-05T21:26:08.607Z",
+      "completed_at": "2026-09-05T21:29:41.826Z",
+      "elapsed_ms": 213219
+    },
+    {
+      "id": "06-D-E-adaptive",
+      "filename": "06-D-E-adaptive.mp4",
+      "shot": "D-E",
+      "condition": "adaptive",
+      "start_canonical": "D",
+      "end_canonical": "E",
+      "start_strength": 0.02,
+      "end_strength": 0.02,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/D-E/adaptive/start.png",
+        "sha256": "13a767480e2fcaa473d2d792c1c1fb02cbd6cc91230c4e90c92da15073ac0a6c",
+        "bytes": 4565378
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/D-E/adaptive/end.png",
+        "sha256": "726114369a8f1651cdc94fe8502cf506edb444d4fd8d6a589e4c78ed559b21da",
+        "bytes": 4727453
+      },
+      "start_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/D-E/adaptive/start-plan.json",
+        "sha256": "12100226f364f38a1c128bae9130fe2c43ce07452af3e1fe8bdd3663f43b35c4",
+        "bytes": 328
+      },
+      "end_plan": {
+        "path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/D-E/adaptive/end-plan.json",
+        "sha256": "f28dd8f8fae48a991bf40e02e3e12f55ad372dea121af74e747e603b680bba48",
+        "bytes": 325
+      },
+      "prompt": "First-person camera travels physically forward through the ruined courtyard toward the descending stone stairway. Broken columns, walls, vines and stone structures pass beside the camera with natural parallax. Reach the stairs and descend continuously underground, traveling deeper until the path opens into the enormous luminous cavern beyond. Maintain continuous forward locomotion. Do not dissolve or transform the ruins into the cavern.",
+      "seed_submitted": 82,
+      "seed_reported": 82,
+      "settings": {
+        "prompt": "First-person camera travels physically forward through the ruined courtyard toward the descending stone stairway. Broken columns, walls, vines and stone structures pass beside the camera with natural parallax. Reach the stairs and descend continuously underground, traveling deeper until the path opens into the enormous luminous cavern beyond. Maintain continuous forward locomotion. Do not dissolve or transform the ruins into the cavern.",
+        "image": "<local file upload: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/D-E/adaptive/start.png>",
+        "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/shooting/D-E/adaptive/end.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 82
+      },
+      "prediction_id": "g7mfjxhtbnrmw0d0edx8kb2yew",
+      "output_url": "https://replicate.delivery/xezq/jqYQaWVQuOrUCtpa2S5depW7uCY1pYePFZjdwqvdJudjyjKXA/tmpuuqk1jfx.mp4",
+      "output_path": "camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/06-D-E-adaptive.mp4",
+      "status": "succeeded",
+      "error": null,
+      "error_code": null,
+      "retry_count": 0,
+      "started_at": "2026-09-05T21:29:42.715Z",
+      "completed_at": "2026-09-05T21:33:23.789Z",
+      "elapsed_ms": 221074
+    }
+  ]
+}

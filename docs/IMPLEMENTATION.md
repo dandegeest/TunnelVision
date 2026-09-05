@@ -75,15 +75,18 @@ enhancement. Retain both in the Phase 1 pipeline. Evidence:
 Exploratory different-seed web-UI runs are separate:
 `experiments/ab-exploratory-web-ui/`.
 
-The intended **next and last** bounded Camotion experiment for Phase
-1 is scene-aware selection from a small known-safe 01.8 strength
-range. Do not start it from this checkpoint. No new operator, kernel,
-sample-count, or compositor work. If it helps, it can become Phase 1
-behavior; if not, freeze current fixed 01.8 conditioning. Then
-Camotion research is done for Phase 1. After that, traversable
-intermediate space / CM shootability (likely E→A) is the remaining
-major research question before Movie #2 through the actual
-application.
+**Scene-aware Camotion strength is completed.** Three Wardrobe Loop
+pairs (A→B seed 80, B→C seed 81, D→E seed 82). Adaptive
+Cinematographer-selected strengths from `{0.02, 0.04, 0.08}` versus
+fixed `0.08`. Adaptive won 3–0 with an independent second 3–0.
+Bounded per-canonical selection is preferred over fixed `0.08` for
+Phase 1. Evidence:
+`camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/`.
+**Camotion Phase 1 is frozen.** Do not start `.06`, new kernels,
+sample-count sweeps, compositor experiments, or 01.12 reopen. The
+remaining Phase 1 research question is traversable intermediate
+space / CM shootability (likely E→X→A). Do not start it from this
+checkpoint. Movie #2 through the actual application comes after that.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
@@ -309,11 +312,13 @@ Intended Camotion / Cinematographer research order:
     not an Edit agent. Do not invent creative editing. Prefer native
     concat then conventional deterministic upscale if required. Do
     not add AI upscaling to Phase 1.
-14. Scene-aware Camotion strength (intended **next and last** bounded
-    Camotion experiment for Phase 1). **Not started.** Keep 01.8
-    operator. Small constrained strength choice only. No new kernels,
-    sample counts, compositors, or 01.12 reopen. Not Camotion 01.13.
-    If it does not help, freeze current fixed 01.8 conditioning.
+14. Scene-aware Camotion strength --- **completed.** Last bounded
+    Camotion experiment for Phase 1. Not Camotion 01.13. Keep 01.8
+    operator. Adaptive `{0.02, 0.04, 0.08}` vs fixed `0.08` on A→B /
+    B→C / D→E. Human 3–0 adaptive; independent second 3–0 adaptive.
+    Bounded per-canonical strength is Phase 1 behavior. See
+    `camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/`.
+    **Camotion Phase 1 is frozen.**
 15. Traversable intermediate space / CM shootability, likely using
     Integration Test E→A. **Not started.** Do not implement E→X→A
     from this checkpoint.
@@ -1040,15 +1045,17 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records the Wardrobe A→B Seedance 2×2 (seed
-70) as completed complementary-conditioning evidence, Integration
-Test 01 as a completed unattended movie experiment, and 01.12
-Baked-Exposure Operating Window as completed still-only diagnostic.
-Classification C + D. No useful pristine-source still-image window on
-Ghost Library. Keep 01.8 as the current Camotion baseline. Camotion
-is retained for Phase 1 as motion-state conditioning. Do not start
-Camotion 01.13, do not start scene-aware strength from this
-checkpoint, and do not silently replace default `render()`.
+tasks. This checkpoint records scene-aware Camotion strength as
+completed Phase 1 evidence and **freezes Camotion Phase 1**. The
+Wardrobe A→B Seedance 2×2 (seed 70) remains complementary-conditioning
+evidence. Integration Test 01 remains a completed unattended movie
+experiment. 01.12 remains completed still-only diagnostic,
+classification C + D, with no useful pristine-source still-image
+window on Ghost Library. Keep 01.8 as the current Camotion operator.
+Camotion is retained as motion-state conditioning with
+Cinematographer-selected strength from `{0.02, 0.04, 0.08}`. Do not
+start Camotion 01.13, do not start E→X→A from this checkpoint, and
+do not silently replace default `render()`.
 
 ## Hackathon strategy
 
@@ -1124,11 +1131,9 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     operating window (classification C + D). The motion cue becomes
     useful at approximately the same point that structured
     duplication becomes objectionable. Exposure-operator tuning is
-    closed. The next untested question is above the baked-exposure
-    primitive. Do not begin a Camotion 01.13 experiment from this
-    checkpoint. Scene-aware selection of a small known-safe Camotion
-    exposure-strength range is the intended next and last bounded
-    Camotion experiment for Phase 1; do not start it here. See
+    closed. Do not begin a Camotion 01.13 experiment from this
+    checkpoint. Scene-aware bounded strength selection is completed
+    Phase 1 evidence; **Camotion Phase 1 is frozen.** See
     [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while

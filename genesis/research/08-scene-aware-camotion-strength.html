@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Scene-Aware Camotion Strength — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html" class="active">Scene-Aware Strength</a>
+</nav>
+<main>
+<section class="ready-code" id="scene-aware-strength">
+<div class="eyebrow">WARDROBE LOOP · SEPTEMBER 5, 2026</div>
+<h2>Scene-aware bounded Camotion strength is preferred over fixed .08 for Phase 1.</h2>
+<p>TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. This chapter records the final bounded Camotion experiment for Phase 1. It is <strong>not</strong> Camotion 01.13. The 01.8 operator was not changed. 01.12 was not reopened.</p>
+<p>Notation: <strong>A / B</strong> = pristine canonicals. <strong>A′ / B′</strong> = Camotion-conditioned shooting frames. <strong>A→B</strong> = generated traversal shot.</p>
+
+<div class="finding">
+<strong>Use the minimum bounded conditioning needed to establish useful motion state.</strong>
+<p>Stronger Camotion does not automatically mean stronger perceived camera travel. The Cinematographer inspects each actual canonical keyframe and chooses from LIGHT .02 / MEDIUM .04 / STRONG .08. Strength is per canonical, not necessarily one value per shot. Camotion itself remains deterministic: agent reasons, CV observes where useful, Camotion renders, video model films.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Controlled three-pair design</h3><span class="result-pill info">PROTOCOL</span></div>
+<p>Shots: A→B seed 80, B→C seed 81, D→E seed 82. Not C→D. Not E→A. Control = Integration Test 01 01.8 frames at .08/.08. Adaptive = same operator, strength from {.02,.04,.08}. Same Seedance prompt, settings, and seed within each pair. Only intended difference: conditioned endpoint images. Selections frozen in <code>planning.json</code> before any Seedance call. Prompts are the authoritative Integration Test 01 prompts. <code>COMMON_VIDEO_INTENT</code> was not prepended. Seed does not guarantee deterministic reproduction.</p>
+</article>
+
+<div class="eyebrow">FROZEN ADAPTIVE SELECTIONS</div>
+<p>Gemini 3.1 Pro inspected the actual stills plus existing CameraMotionPlans. Canonical B is reused as A→B end and B→C start. Nobody independently selected .08; that was preserved, not forced.</p>
+<p>A LIGHT .02 · B LIGHT .02 · C MEDIUM .04 · D LIGHT .02 · E LIGHT .02</p>
+<p>Therefore A→B adaptive = .02/.02, B→C adaptive = .02/.04, D→E adaptive = .02/.02.</p>
+
+<div class="eyebrow">A→B · SEED 80</div>
+<article class="motion-test info">
+<div class="motion-head"><h3>01 · fixed .08 / .08</h3><span class="result-pill info">CONTROL</span></div>
+<p class="test-meta">prediction skcrer6721rmy0d0edkb60ay5c · retry 0</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/01-A-B-fixed-08.mp4"></video>
+</article>
+<article class="motion-test pass">
+<div class="motion-head"><h3>02 · adaptive .02 / .02</h3><span class="result-pill pass">HUMAN 2× WIN</span></div>
+<p class="test-meta">prediction h9v7vh433xrmr0d0ednbc3y58g · retry 0</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/02-A-B-adaptive.mp4"></video>
+</article>
+
+<div class="eyebrow">B→C · SEED 81</div>
+<article class="motion-test info">
+<div class="motion-head"><h3>03 · fixed .08 / .08</h3><span class="result-pill info">CONTROL</span></div>
+<p class="test-meta">prediction gwfxjk5nv5rmt0d0edq8x6kct0 · retry 0</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/03-B-C-fixed-08.mp4"></video>
+</article>
+<article class="motion-test pass">
+<div class="motion-head"><h3>04 · adaptive .02 / .04</h3><span class="result-pill pass">HUMAN 2× WIN</span></div>
+<p class="test-meta">prediction 9rtx0pa8j5rmy0d0eds8k4awyr · retry 0 · B′ .02, C′ .04</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/04-B-C-adaptive.mp4"></video>
+</article>
+
+<div class="eyebrow">D→E · SEED 82</div>
+<article class="motion-test info">
+<div class="motion-head"><h3>05 · fixed .08 / .08</h3><span class="result-pill info">CONTROL</span></div>
+<p class="test-meta">prediction mmbkwk7qwsrmt0d0edvb230b60 · retry 0</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/05-D-E-fixed-08.mp4"></video>
+</article>
+<article class="motion-test pass">
+<div class="motion-head"><h3>06 · adaptive .02 / .02</h3><span class="result-pill pass">HUMAN 2× WIN</span></div>
+<p class="test-meta">prediction g7mfjxhtbnrmw0d0edx8kb2yew · retry 0</p>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/06-D-E-adaptive.mp4"></video>
+</article>
+
+<div class="finding">
+<strong>Adaptive 3–0, twice.</strong>
+<p>Primary reviewer: adaptive wins A→B, B→C, and D→E. Independent second review: the same 3–0. Shared qualitative reading: adaptive preserved same-or-better perceived traversal, geometry remained strong, conditioned endpoint blur/smear was less noticeable, and stronger .08 conditioning did not show a compensating locomotion advantage in these three pairs. No numerical quality score.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Complementary to 01.12 and the seed-70 2×2</h3><span class="result-pill info">PRIOR RESEARCH</span></div>
+<p>01.12 still stands: on Ghost Library stills, substantial baked exposure creates objectionable structured-content duplication, and there was no useful pristine-source operating window. Camotion remains motion-state conditioning, not image enhancement. The seed-70 A→B 2×2 still stands: conditioned endpoints plus authoritative Cinematographer locomotion prompting won at one controlled seed. This experiment adds that the useful conditioning does not need to be fixed at .08 for every scene.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Limitations</h3><span class="result-pill info">BOUNDED</span></div>
+<p>Three shot pairs. One seed per pair. Wardrobe Loop only. Gemini 3.1 Pro qualitative selector, not trained on empirical strength/video mappings. No adaptive selection used .08, so this does not establish that .08 is unnecessary in general. Not a universal optimal strength. Not cross-seed proof. Not a claim that .02 is globally best.</p>
+</article>
+
+<div class="finding">
+<strong>Camotion Phase 1 is frozen.</strong>
+<p>Frozen: 01.8 Route-Preserved Exposure operator, current geometry, destination protection, depth behavior, sample count, route preservation, bounded strength vocabulary {.02,.04,.08}, and Cinematographer ownership of per-canonical strength. Do not start .06, new kernels, sample-count sweeps, compositor experiments, or Ghost Library retunes unless a concrete later movie failure provides reason. The remaining Phase 1 research question is shootability / traversable intermediate volume (E→X→A). Not started here. See <a href="../../camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/REPORT.md">the experiment report</a>.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Artifacts: camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/</span>
+</footer>
+<nav class="chapter-nav"><a href="07-camotion-prompt-2x2.html" class="prev-link">← Camotion + Prompt 2×2</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

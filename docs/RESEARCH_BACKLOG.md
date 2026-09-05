@@ -222,16 +222,15 @@ search additional strengths, sigma values, shutter weightings,
 integration kernels, or compositors. This closes the current
 exposure-operator tuning branch. No 01.12 condition is promoted.
 
-**UNTESTED next question:** How can Camotion communicate useful
-camera direction/motion to the video model without integrating a
-long trajectory of recognizable scene structure into a single
-shooting frame? This question is **above** the current
-baked-exposure primitive. Do not choose or implement a replacement
-mechanism yet. Do not prematurely promote motion fields, auxiliary
-conditioning, overlays, multiple frames, or another specific
-representation into the architecture. Do not begin that experiment
-from this file. Do **not** call any next Camotion experiment 01.13
-from this checkpoint.
+**UNTESTED later question, not a Phase 1 Camotion task:** How can
+Camotion communicate useful camera direction/motion to the video
+model without integrating a long trajectory of recognizable scene
+structure into a single shooting frame? This question is **above**
+the current baked-exposure primitive. Do not choose or implement a
+replacement mechanism yet. Do not prematurely promote motion fields,
+auxiliary conditioning, overlays, multiple frames, or another
+specific representation into the architecture. Do **not** call any
+next Camotion experiment 01.13. **Camotion Phase 1 is frozen.**
 
 ## Integration Test 01 — traversable intermediate volume
 
@@ -272,33 +271,35 @@ rather than forcing it. No schema in this checkpoint.
 
 ## Scene-aware Camotion operating range
 
-**UNVALIDATED. Intended next and last bounded Camotion experiment for
-Phase 1. Do not implement from this file.** Not Camotion 01.13. Do
-not reopen 01.12 brute-force strength/sigma/kernel/compositor search.
-Keep the 01.8 operator. Vary only a small constrained
-scene-appropriate exposure-strength choice if evidence supports it.
+**Completed.** Last bounded Camotion experiment for Phase 1. Not
+Camotion 01.13. The 01.8 operator was unchanged. 01.12 was not
+reopened.
 
-Integration Test 01 used the same pinned Camotion 01.8 parameters on
-every canonical. The seed-70 A→B 2×2 supported retaining Camotion as
-motion-state conditioning together with CM locomotion language. It
-did not test whether heterogeneous shots want different strengths.
+Evidence:
+`camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/`.
 
-Research question: can scene-aware selection of a **very small**
-known-safe Camotion exposure-strength range (for example subtle /
-moderate / strong), with all other Camotion variables fixed, improve
-video behavior across heterogeneous shots?
+Three already-shootable Wardrobe Loop pairs (A→B seed 80, B→C seed 81,
+D→E seed 82). Control: fixed `.08`. Adaptive: Cinematographer-selected
+per-canonical strength from `{.02, .04, .08}`, frozen before Seedance.
+Human verdict 3–0 adaptive; independent second review 3–0 adaptive.
+Qualitative: same-or-better perceived traversal, strong geometry, less
+noticeable conditioning smear; `.08` did not show a compensating
+locomotion advantage in these three pairs.
 
-If it helps, it may become Phase 1 behavior. If not, freeze current
-fixed 01.8 conditioning. Then Camotion research is done for Phase 1.
+**Phase 1 behavior:** the Cinematographer inspects each actual
+canonical and chooses LIGHT `.02` / MEDIUM `.04` / STRONG `.08`.
+Strength is per canonical, not necessarily one value per shot. Use
+the minimum bounded conditioning needed to establish useful motion
+state. Do not allow arbitrary strength values. Do not claim `.02` is
+globally best or that `.08` is obsolete.
 
-Possible visual cues a later Cinematographer could reason about:
-depth range; foreground density; foreground structures near screen
-edges; central traversal corridor openness; destination size;
-destination depth / surface vs volume; strength of existing
-perspective; occlusion opportunities; semantic content inside
-regions Camotion would smear; peripheral structure available as
-motion cue; existing directional geometry (trees, rails, stairs,
-corridors); fine structured detail likely to create repeated copies.
+**Camotion Phase 1 is frozen.** Do not start `.06`, new kernels,
+sample-count sweeps, compositor experiments, alternate blur operators,
+new exposure weighting, more Ghost Library tuning, or cross-seed
+Camotion sweeps unless a concrete later movie failure provides reason.
+
+The remaining Phase 1 research question is shootability / traversable
+intermediate volume (`E → X → A`). Do not implement it from this file.
 
 ## Screenwriter agent
 
@@ -450,6 +451,7 @@ an AI upscaler to Phase 1.
     Smooth-Cut-like treatment. Immediate assembly follow-up is
     deterministic hard-join concat only, not this finishing layer.
 
-Do not begin the next Camotion experiment from this file. Do not
-start Camotion 01.13. The intended next Camotion experiment is
-scene-aware 01.8 strength selection, after this checkpoint.
+Do not begin a new Camotion experiment from this file. Do not start
+Camotion 01.13. **Camotion Phase 1 is frozen.** The remaining Phase 1
+research question is Cinematographer shootability / traversable
+intermediate volume (`E → X → A`), not started.

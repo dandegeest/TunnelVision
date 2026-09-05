@@ -68,10 +68,33 @@ exposure. That is evidence that vision-on-actual-stills works (D was
 planned upward from the generated stair, not from unused “descend”
 story text). It is **not** a finished Cinematographer package.
 
-**Final Cinematographer module boundaries remain an open question.**
-Do not expand that thin planner into a product package in this
+**Phase 1 Camotion strength is now a Cinematographer decision**, not a
+pinned constant. The CM inspects each **actual** canonical keyframe
+and chooses Camotion conditioning strength from the frozen bounded
+vocabulary:
+
+-   LIGHT = `0.02`
+-   MEDIUM = `0.04`
+-   STRONG = `0.08`
+
+No arbitrary intermediate values. Strength is per canonical / keyframe,
+not necessarily one value per shot (Wardrobe B→C used B′ = `0.02` and
+C′ = `0.04`). Use the minimum bounded conditioning needed to establish
+useful motion state. Stronger Camotion does **not** automatically mean
+stronger perceived camera travel. Qualitative scene evidence includes
+foreground structure/density, perspective depth, natural parallax,
+open traversal corridor, destination/threshold geometry,
+structured-content smear or duplication risk, fine detail, rails /
+trunks / furniture / door frames, and whether the scene already
+provides strong evidence of camera travel.
+
+The current thin Integration Test 01 planner still pins `0.08` in
+code. That pin is historical IT01 behavior, not the frozen Phase 1
+policy. Do not expand that planner into a product package in this
 checkpoint. Do not scaffold a Cinematographer package alongside
 Camotion.
+
+**Final Cinematographer module boundaries remain an open question.**
 
 Intended later shootability questions, **not implemented**:
 
@@ -99,13 +122,17 @@ Intended later shootability questions, **not implemented**:
 ## Camotion Engine
 
 Camotion is **not an agent**. It is deterministic graphics code. The
-Cinematographer role decides what motion should mean; Camotion
-performs the math. Current working hypothesis: Camotion shooting
-frames are **machine-facing motion-state conditioning** for the video
-model, not image enhancement. The 01.12 Ghost Library still-image
+Cinematographer role decides what motion should mean, including
+bounded per-canonical exposure strength; Camotion performs the math.
+Current working hypothesis: Camotion shooting frames are
+**machine-facing motion-state conditioning** for the video model, not
+image enhancement. The 01.12 Ghost Library still-image
 structured-copy limit remains. A Wardrobe A→B Seedance 2×2 (seed 70)
 supported retaining Camotion together with Cinematographer locomotion
-language as complementary Phase 1 inputs.
+language as complementary Phase 1 inputs. A later three-pair
+scene-aware strength experiment preferred bounded per-canonical
+selection from `{0.02, 0.04, 0.08}` over fixed `0.08`. Camotion
+Phase 1 is frozen.
 
 The frozen v1 **plan** contract is `image + CameraMotionPlan JSON` and
 emits one shooting-frame still. See [DATA_MODEL.md](DATA_MODEL.md).

@@ -69,7 +69,13 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     winner. That is one seed, not cross-seed proof. Working
     hypothesis: Camotion is motion-state conditioning, not image
     enhancement. Retain Camotion + CM prompting in the Phase 1
-    pipeline. The movie-level metric
+    pipeline. A later three-pair Wardrobe scene-aware strength
+    experiment preferred Cinematographer-selected bounded strengths
+    `{0.02, 0.04, 0.08}` over fixed `0.08`. **Camotion Phase 1 is
+    frozen:** 01.8 operator, geometry, destination protection, depth
+    behavior, sample count, route preservation, that strength
+    vocabulary, and CM ownership of per-canonical strength. The
+    movie-level metric
     is increasingly whether the model shoots the route, not whether
     A′ is aesthetically clean as a still. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
@@ -77,8 +83,8 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     official SDK.
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
     Director, Screenwriter, a full Cinematographer product package,
-    journey workspace runtime, Runway/Krea adapters, scene-aware
-    Camotion selection, or a last-frame-discovery architecture.
+    journey workspace runtime, Runway/Krea adapters, or a
+    last-frame-discovery architecture.
 
 The current **product direction** is a simple autonomous storyboard
 (story → progressive canonicals → Keep/Redo → SHOOT MOVIE). That UI
@@ -404,13 +410,16 @@ starts them.
     Ghost Library features still read as transformed copies; sparse
     sampling is not the dominant remaining cause. 01.12 found no
     useful pristine baked-exposure operating window (classification
-    C + D). Exposure-operator tuning is closed. The next untested
-    question is above the baked-exposure primitive. Do not reopen
-    brute-force strength/sigma/kernel search. Scene-aware selection
-    of a small known-safe Camotion exposure-strength range is the
-    intended **next and last** bounded Camotion experiment for Phase
-    1. Do not start it from this checkpoint. It is **not** Camotion
-    01.13. Do not reopen 01.12. Keep the 01.8 operator.
+    C + D). Exposure-operator tuning is closed. Do not reopen
+    brute-force strength/sigma/kernel search. Do not reopen 01.12.
+    Keep the 01.8 operator. Scene-aware bounded strength selection
+    from `{0.02, 0.04, 0.08}` is **completed** Phase 1 evidence
+    (Wardrobe A→B / B→C / D→E; adaptive 3–0 over fixed `0.08` on
+    two independent human reviews). It is **not** Camotion 01.13.
+    **Camotion Phase 1 is frozen.** Do not start `.06`, new kernels,
+    sample-count sweeps, compositor experiments, or cross-seed
+    Camotion sweeps unless a concrete later movie failure provides
+    reason.
 -   final Cinematographer module boundaries
 -   whether Cinematographer shootability should require a traversable
     intermediate spatial route, including optional intermediate

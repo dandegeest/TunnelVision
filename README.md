@@ -77,6 +77,7 @@ It considers:
 - foreground occlusion
 - route geometry
 - environment-specific motion cues
+- bounded Camotion conditioning strength (`0.02` / `0.04` / `0.08`)
 - velocity continuity
 - shared canonical anchors
 
@@ -221,9 +222,12 @@ Camotion v1 exists. Integration Test 01 — The Wardrobe Loop completed
 the first unattended end-to-end movie experiment. A later Wardrobe
 A→B Seedance 2×2 (seed 70) supported retaining Camotion plus
 Cinematographer locomotion prompting as complementary Phase 1 pieces.
-Camotion shooting frames are treated as motion-state conditioning,
-not image enhancement. Current product direction is a simple
-autonomous storyboard, not a large editor; that UI is not built.
+A three-pair scene-aware strength experiment preferred bounded
+per-canonical selection from `{0.02, 0.04, 0.08}` over fixed `0.08`.
+**Camotion Phase 1 is frozen.** Camotion shooting frames are treated
+as motion-state conditioning, not image enhancement. Current product
+direction is a simple autonomous storyboard, not a large editor; that
+UI is not built.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
 

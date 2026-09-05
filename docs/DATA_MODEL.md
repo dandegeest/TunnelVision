@@ -185,6 +185,11 @@ time, not camera speed.
     trivial resampling if any.
 -   `1` — accumulate along the full v1 motion vectors.
 
+The JSON field remains `[0, 1]`. **Phase 1 Cinematographer vocabulary**
+is not a schema restriction: LIGHT `0.02`, MEDIUM `0.04`, STRONG
+`0.08`. Product behavior should not use arbitrary intermediate values.
+Strength is chosen per canonical / keyframe.
+
 ### `exposure.samples`
 
 Number of discrete taps along each motion path, including the unmoved
