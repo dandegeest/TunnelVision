@@ -1,0 +1,24 @@
+{
+  "frozen_before_generation": true,
+  "frozen_at": "2026-09-05T22:26:07.317Z",
+  "decision": "NEEDS_INTERMEDIATE",
+  "reasoning": "The door in the start image is closed, providing no traversable volume or threshold depth for the camera to enter. Additionally, pushing through that portal would logically place the camera at the threshold looking into the room, not halfway across the room looking back at the wardrobe as composed in the end image.",
+  "model": "google/gemini-3.1-pro",
+  "prediction_id": "gqanpekw6drmy0d0eeptpzcmew",
+  "source": "reasoning",
+  "image_e": {
+    "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+    "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+    "bytes": 5802759
+  },
+  "image_a": {
+    "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+    "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+    "bytes": 4848374
+  },
+  "plans_used": [
+    "camotion/integration/wardrobe-loop-01/plans/E-A.json",
+    "camotion/integration/wardrobe-loop-01/shooting/E-A/end-plan.json"
+  ],
+  "raw_text": "```json\n{\n  \"decision\": \"NEEDS_INTERMEDIATE\",\n  \"reasoning\": \"The door in the start image is closed, providing no traversable volume or threshold depth for the camera to enter. Additionally, pushing through that portal would logically place the camera at the threshold looking into the room, not halfway across the room looking back at the wardrobe as composed in the end image.\"\n}\n```"
+}

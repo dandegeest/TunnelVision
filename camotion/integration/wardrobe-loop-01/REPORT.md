@@ -341,9 +341,11 @@ especially cavern → flat bedroom door → bedroom.
 
 This suggests future Cinematographer shootability reasoning should
 ask: *Can I describe a continuous spatial route from this camera
-position into the next world?* A future CM may sometimes decide it
-cannot cover a move convincingly in one shot, and may recommend an
-intermediate canonical (`E → X → A`). That is not implemented here.
+position into the next world?* A later Phase 1 experiment did that
+for E→A: see
+`experiments/shootability-intermediate-volume/REPORT.md`.
+That later experiment is not implemented as a production planner
+here.
 
 ## 17. Movie-level velocity and pacing
 

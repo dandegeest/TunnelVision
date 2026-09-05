@@ -224,7 +224,13 @@ A→B Seedance 2×2 (seed 70) supported retaining Camotion plus
 Cinematographer locomotion prompting as complementary Phase 1 pieces.
 A three-pair scene-aware strength experiment preferred bounded
 per-canonical selection from `{0.02, 0.04, 0.08}` over fixed `0.08`.
-**Camotion Phase 1 is frozen.** Camotion shooting frames are treated
+**Camotion Phase 1 is frozen.** A later Wardrobe E→A shootability
+experiment completed Research Phase 1: the Cinematographer
+independently judged direct E→A unshootable as one move, proposed an
+intermediate camera position, inspected the actual generated set, and
+rejected it before video. **TunnelVision Research Phase 1 is
+complete.** Next milestone is product development, then Movie #2
+through the product. Camotion shooting frames are treated
 as motion-state conditioning, not image enhancement. Current product
 direction is a simple autonomous storyboard, not a large editor; that
 UI is not built.

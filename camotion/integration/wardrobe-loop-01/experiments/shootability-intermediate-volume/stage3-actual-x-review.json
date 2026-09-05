@@ -1,0 +1,21 @@
+{
+  "frozen_before_video": true,
+  "frozen_at": "2026-09-05T22:27:41.863Z",
+  "x_image": {
+    "path": "camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/canonical/X.png",
+    "sha256": "56e5038b0bf1b96853e0558dab202fb17599cb07cdcbb4d89535fd93d8829cf7",
+    "bytes": 1898644
+  },
+  "e_to_x": {
+    "decision": "NOT_SHOOTABLE",
+    "reasoning": "Image E features a single door, while X shows double doors with two knobs. This structural mismatch breaks visual continuity for a continuous push-in."
+  },
+  "x_to_a": {
+    "decision": "NOT_SHOOTABLE",
+    "reasoning": "Image X is a POV from inside a dark space looking out into a room. Image A looks from the room back at the dark wardrobe. Linking these requires a cut or a 180-degree turn."
+  },
+  "model": "google/gemini-3.1-pro",
+  "prediction_id": "9qc4wxzranrmt0d0eeq9b3mx4g",
+  "source": "reasoning",
+  "raw_text": "```json\n{\n  \"E-X\": {\n    \"decision\": \"NOT_SHOOTABLE\",\n    \"reasoning\": \"Image E features a single door, while X shows double doors with two knobs. This structural mismatch breaks visual continuity for a continuous push-in.\"\n  },\n  \"X-A\": {\n    \"decision\": \"NOT_SHOOTABLE\",\n    \"reasoning\": \"Image X is a POV from inside a dark space looking out into a room. Image A looks from the room back at the dark wardrobe. Linking these requires a cut or a 180-degree turn.\"\n  }\n}\n```"
+}

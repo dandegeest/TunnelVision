@@ -1,0 +1,20 @@
+{
+  "model": "black-forest-labs/flux-1.1-pro-ultra",
+  "seed": 10106,
+  "prediction_id": "xybr3y5zhsrmw0d0eeqb9011qc",
+  "prompt": "First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.",
+  "settings": {
+    "prompt": "First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.",
+    "aspect_ratio": "16:9",
+    "raw": false,
+    "output_format": "png",
+    "safety_tolerance": 2,
+    "seed": 10106
+  },
+  "output_path": "camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/canonical/X.png",
+  "sha256": "56e5038b0bf1b96853e0558dab202fb17599cb07cdcbb4d89535fd93d8829cf7",
+  "bytes": 1898644,
+  "retry_count": 0,
+  "started_at": "2026-09-05T22:27:06.649Z",
+  "completed_at": "2026-09-05T22:27:15.345Z"
+}

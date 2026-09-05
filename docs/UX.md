@@ -146,7 +146,9 @@ the current Camotion baseline and is retained for Phase 1 as
 motion-state conditioning complementary to Cinematographer locomotion
 prompts. Scene-aware bounded strength `{0.02, 0.04, 0.08}` is preferred
 over fixed `0.08`. **Camotion Phase 1 is frozen.** 01.9, 01.10, 01.11,
-and 01.12 are still-only evidence and are not promoted. Unvalidated
-cinematographer control ideas (pace, embodiment, Prompt Only vs Auto,
-traversable intermediate volume, velocity continuity) are in
-[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md), not current UI. There is no UI.
+and 01.12 are still-only evidence and are not promoted.
+**TunnelVision Research Phase 1 is complete.** Shootability /
+intermediate volume is completed evidence, not current UI.
+Unvalidated cinematographer control ideas (pace, embodiment, Prompt Only vs Auto,
+velocity continuity) remain in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). There is no UI.

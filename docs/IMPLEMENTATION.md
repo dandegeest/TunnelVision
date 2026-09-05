@@ -83,10 +83,20 @@ Bounded per-canonical selection is preferred over fixed `0.08` for
 Phase 1. Evidence:
 `camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/`.
 **Camotion Phase 1 is frozen.** Do not start `.06`, new kernels,
-sample-count sweeps, compositor experiments, or 01.12 reopen. The
-remaining Phase 1 research question is traversable intermediate
-space / CM shootability (likely E→X→A). Do not start it from this
-checkpoint. Movie #2 through the actual application comes after that.
+sample-count sweeps, compositor experiments, or 01.12 reopen.
+
+**Cinematographer shootability / intermediate spatial volume is
+completed.** Not Camotion work. Not a video comparison. Evidence:
+`camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/`.
+The Cinematographer independently judged direct E→A
+NEEDS_INTERMEDIATE, specified one intermediate camera position X,
+inspected the actual generated X, and rejected both legs. Protocol
+stopped before Seedance. Infer nothing new about Camotion from it.
+
+**TunnelVision Research Phase 1 is complete.** No more dedicated
+Phase 1 research experiments. Next milestone is product development,
+then Movie #2 through the product. Do not start that from this
+checkpoint.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
@@ -319,11 +329,18 @@ Intended Camotion / Cinematographer research order:
     Bounded per-canonical strength is Phase 1 behavior. See
     `camotion/integration/wardrobe-loop-01/experiments/scene-aware-camotion-strength/`.
     **Camotion Phase 1 is frozen.**
-15. Traversable intermediate space / CM shootability, likely using
-    Integration Test E→A. **Not started.** Do not implement E→X→A
-    from this checkpoint.
+15. Traversable intermediate space / CM shootability ---
+    **completed.** Not Camotion work. Wardrobe E→A. Independent
+    NEEDS_INTERMEDIATE judgment, one X, actual-X review rejected
+    both E→X and X→A. Protocol stopped before video. Zero Seedance
+    generations. See
+    `camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/`.
+    Do not implement a generalized production planner from this
+    checkpoint.
 16. Movie #2 made through the actual TunnelVision application after
-    Phase 1 research freeze. Not endless Camotion experiments.
+    Phase 1 research freeze. **TunnelVision Research Phase 1 is
+    complete.** Next work is product development, then this movie.
+    Not endless Camotion or shootability experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
@@ -1054,8 +1071,10 @@ classification C + D, with no useful pristine-source still-image
 window on Ghost Library. Keep 01.8 as the current Camotion operator.
 Camotion is retained as motion-state conditioning with
 Cinematographer-selected strength from `{0.02, 0.04, 0.08}`. Do not
-start Camotion 01.13, do not start E→X→A from this checkpoint, and
-do not silently replace default `render()`.
+start Camotion 01.13. Shootability / intermediate volume is completed
+Phase 1 evidence (protocol stop after actual-X review; no videos).
+**TunnelVision Research Phase 1 is complete.** Do not silently replace
+default `render()`.
 
 ## Hackathon strategy
 
@@ -1138,9 +1157,9 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination
--   whether shootability requires a traversable intermediate spatial
-    story, including optional intermediate canonicals when a pair
-    cannot be covered as one continuous spatial move
+-   production implementation of shootability review and optional
+    intermediate canonicals (Wardrobe E→A / X evidence exists; no
+    camera-pose schema; no production planner in this checkpoint)
 -   shot-boundary velocity continuity and variable shot duration
 -   a possible Screenwriter agent upstream of the Director
 -   Cinematographer canonical review (PASS / REGEN / REPAIR) before

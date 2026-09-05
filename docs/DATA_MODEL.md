@@ -319,6 +319,12 @@ Do **not** design these until a later milestone needs them:
 -   per-shot duration or velocity-continuity fields
 -   intermediate-canonical insertion as a typed decision
 
+Phase 1 produced bounded shootability evidence (Wardrobe E→A
+independently judged NEEDS_INTERMEDIATE; actual generated X rejected
+on both legs). That does **not** specify a schema. Do not add
+shootability enums, camera-pose fields, or intermediate-canonical
+types to CameraMotionPlan v1.
+
 `VideoGenerationRequest`, `GeneratedVideo`, `ImageGenerationRequest`,
 `GeneratedImage`, and `MediaInput` now exist as TunnelVision-owned
 provider-boundary types in `media/src/types.ts`.
@@ -342,8 +348,8 @@ provider-specific knobs stay behind the adapter.
     turning toward a user-selected destination (not strafing; not v1)
 -   whether a more photographic depth-dependent renderer should replace
     current radial exposure (open; not a plan-schema question)
--   whether shootability requires a traversable intermediate spatial
-    story, including optional intermediate canonicals
+-   production typing of shootability review / intermediate canonicals
+    (Phase 1 evidence exists; not a v1 type)
 -   a possible Screenwriter agent upstream of the Director (not a v1
     type)
 -   endpoint / edit-boundary fidelity scores (not specified)

@@ -206,12 +206,10 @@ weighting, more Ghost Library tuning, or cross-seed Camotion sweeps.
 Future product evidence can reopen Camotion only if a concrete movie
 failure provides reason.
 
-## Next research question (not started)
+## Later research (completed after this freeze)
 
-Shootability / traversable intermediate volume: can the Cinematographer
-recognize that a direct transition such as E→A lacks enough traversable
-intermediate spatial volume and request an intermediate canonical
-`E → X → A` instead of forcing a one-shot traversal?
+Shootability / traversable intermediate volume was executed as the
+final Phase 1 research experiment, not as Camotion work. See
+`../shootability-intermediate-volume/REPORT.md`.
 
-That is the remaining Phase 1 research question before the actual
-product pipeline. It was not executed in this checkpoint.
+**TunnelVision Research Phase 1 is complete.**

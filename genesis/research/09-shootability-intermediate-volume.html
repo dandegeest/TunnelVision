@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Shootability / Intermediate Volume — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="09-shootability-intermediate-volume.html" class="active">Shootability</a>
+</nav>
+<main>
+<section class="ready-code" id="shootability">
+<div class="eyebrow">WARDROBE E→A · SEPTEMBER 5, 2026</div>
+<h2>The Cinematographer can reject an unshootable route, propose a spatial repair, and then reject the actual generated set.</h2>
+<p>TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. This chapter records the final TunnelVision Research Phase 1 experiment. It is <strong>not</strong> a Camotion tuning experiment. Camotion Phase 1 remains frozen. No Seedance videos were generated. The protocol stop after inspecting actual X is the result, not an experiment failure.</p>
+<p>Notation: <strong>E</strong> = luminous cavern with a closed ordinary bedroom door. <strong>A</strong> = attic bedroom looking at the wardrobe. <strong>X</strong> = one proposed intermediate camera position.</p>
+
+<div class="finding">
+<strong>A destination object is not enough. Semantic compatibility is not enough either.</strong>
+<p>Shootability requires traversable volume, threshold depth, camera position, camera orientation, and a physically plausible route between observations. Ask: is there somewhere physically plausible for the camera to be between these two stills?</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Stage 1 · independent shootability review</h3><span class="result-pill info">NEEDS_INTERMEDIATE</span></div>
+<p>Gemini 3.1 Pro inspected the actual canonical E and A stills. The prompt did <strong>not</strong> tell it to reject E→A. Frozen before any image or video call. Prediction <code>gqanpekw6drmy0d0eeptpzcmew</code>.</p>
+<p>Exact reasoning: the door in the start image is closed, providing no traversable volume or threshold depth for the camera to enter. Additionally, pushing through that portal would logically place the camera at the threshold looking into the room, not halfway across the room looking back at the wardrobe as composed in the end image.</p>
+<p>Two problems: E’s closed door lacks visible traversable volume, and A’s camera facing is incompatible with the implied continuous route. Do not formalize a large camera-pose schema from this one result.</p>
+</article>
+
+<div class="eyebrow">ACTUAL SETS INSPECTED</div>
+<article class="motion-test info">
+<div class="motion-head"><h3>Canonical E</h3><span class="result-pill info">START</span></div>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/E.jpg" alt="Canonical E cavern with closed bedroom door"/>
+</article>
+<article class="motion-test info">
+<div class="motion-head"><h3>Canonical A</h3><span class="result-pill info">END</span></div>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/A.jpg" alt="Canonical A attic bedroom looking at the wardrobe"/>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Proposed X</h3><span class="result-pill info">CAMERA POSITION</span></div>
+<p>Not a 50/50 blend. Requested place: inside the dark wooden wardrobe, looking outward through partially open doors into the attic. Intended route: cavern → glowing door → wardrobe interior → attic. One FLUX 1.1 Pro Ultra generation, seed 10106, prediction <code>xybr3y5zhsrmw0d0eeqb9011qc</code>, no aesthetic retry.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Actual generated X</h3><span class="result-pill info">INSPECTED</span></div>
+<p>The still did not fully realize the requested geometry: near-closed double door, two knobs, narrow starburst crack, hanging coats barely represented.</p>
+<img src="../../camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/canonical/vision/X.jpg" alt="Actual generated intermediate canonical X"/>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Stage 3 · actual-X review</h3><span class="result-pill info">BOTH LEGS REJECTED</span></div>
+<p>E→X = NOT_SHOOTABLE: E is a single door; X is double doors with two knobs.</p>
+<p>X→A = NOT_SHOOTABLE: X looks out from a dark interior; A looks from the room back at the wardrobe. Connecting them requires a cut or about a 180° turn not represented by the route.</p>
+<p>Prediction <code>9qc4wxzranrmt0d0eeq9b3mx4g</code>. X was not regenerated. No Camotion plans. No shooting frames. No videos. The fresh seed-90 direct E→A control was not generated because the protocol stopped first. Historical Integration Test 01 E→A remains historical evidence only. There is no video comparison in this experiment.</p>
+</article>
+
+<div class="finding">
+<strong>Generated media is evidence, not assumed success.</strong>
+<p>The Cinematographer rejected an apparently sensible E→A transition, proposed a spatial repair rather than an aesthetic midpoint, inspected the actual generated repair, and rejected its own strategy when the set did not satisfy the required geometry. A proposed intermediate canonical is not automatically accepted because an agent requested it. One bounded Wardrobe Loop case. Not proof of general autonomous shootability. Infer nothing new about Camotion from this experiment.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Research Phase 1 is complete</h3><span class="result-pill info">STOP LINE</span></div>
+<p>Phase 1 established a sufficiently supported pipeline, not an optimal one. No more dedicated Phase 1 research experiments. Next milestone: product development, then Movie #2 through the product. The product itself becomes the experimental apparatus. See <a href="../../camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/REPORT.md">the experiment report</a>.</p>
+</article>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Artifacts: camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/</span>
+</footer>
+<nav class="chapter-nav"><a href="08-scene-aware-camotion-strength.html" class="prev-link">← Scene-Aware Strength</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

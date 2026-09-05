@@ -242,14 +242,20 @@ provided somewhere for the camera to exist BETWEEN canonicals
 shot (E→A) approached a flat bedroom door, then the world became the
 bedroom.
 
-Unvalidated future Cinematographer shootability question: *Can this
-pair plausibly be covered as one continuous spatial move?* If yes,
-describe and condition the route and let the video model invent
-intermediate volume. If no, recommend an intermediate canonical
-(`E → X → A`). Do not mechanically request X for every transition.
-The failed Integration Test E→A flat-door shot remains a useful
-future fixture. Do not implement subdivision or intermediate-
-canonical insertion yet.
+**Later Phase 1 experiment, completed.** Shootability / intermediate
+spatial volume:
+`camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/`.
+
+The Cinematographer independently judged direct E→A
+NEEDS_INTERMEDIATE (the prompt did not tell it to reject). It
+specified one physical camera position X (wardrobe interior looking
+out), generated exactly one X, inspected the actual still, and
+rejected both E→X and X→A. Protocol stopped before video. That stop
+is the result, not an experiment failure.
+
+Do not mechanically request X for every transition. Do not accept a
+proposed X as canonical without inspecting the actual generated set.
+Do not implement a generalized production planner from this file.
 
 ## Movie-level velocity and variable duration
 
@@ -298,8 +304,10 @@ sample-count sweeps, compositor experiments, alternate blur operators,
 new exposure weighting, more Ghost Library tuning, or cross-seed
 Camotion sweeps unless a concrete later movie failure provides reason.
 
-The remaining Phase 1 research question is shootability / traversable
-intermediate volume (`E → X → A`). Do not implement it from this file.
+Shootability / traversable intermediate volume is a **completed**
+later Phase 1 experiment, not remaining Camotion work. See the
+section above and
+`camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/`.
 
 ## Screenwriter agent
 
@@ -338,6 +346,32 @@ whether the actual final world-state of a generated shot can become
 the starting point for deciding where to go next. Not a replacement
 for pre-planned canonical journeys until validated. Do not
 restructure the application around it.
+
+## FUTURE / TALKING POINT — Runway GWM / world model
+
+Not implemented. Not experimentally validated. Not Phase 1.
+
+TunnelVision's shootability research exposed a fundamental problem:
+two keyframes may not contain enough evidence of the physical space
+between them.
+
+Today, the Cinematographer detects this and can request an
+intermediate canonical X to establish traversable volume.
+
+A world model such as Runway GWM could potentially solve this more
+naturally by exploring or simulating the missing space, allowing
+TunnelVision to discover X through camera movement rather than
+inventing X as an image first.
+
+Conceptual distinction only:
+
+-   current: infer missing space → generate X → inspect X
+-   possible world-model future: explore missing space →
+    observe/discover X
+
+This is a future integration / hackathon discussion point, not part
+of the Phase 1 implementation. Do not claim current GWM API
+capabilities.
 
 ## Camotion conditioning overlay / Cinematographer Inspector
 
@@ -452,6 +486,8 @@ an AI upscaler to Phase 1.
     deterministic hard-join concat only, not this finishing layer.
 
 Do not begin a new Camotion experiment from this file. Do not start
-Camotion 01.13. **Camotion Phase 1 is frozen.** The remaining Phase 1
-research question is Cinematographer shootability / traversable
-intermediate volume (`E → X → A`), not started.
+Camotion 01.13. **Camotion Phase 1 is frozen.** Cinematographer
+shootability / traversable intermediate volume is **completed** Phase 1
+evidence. **TunnelVision Research Phase 1 is complete.** Remaining
+items in this file stay backlog for product development and Movie #2
+evidence, not dedicated Phase 1 experiments.

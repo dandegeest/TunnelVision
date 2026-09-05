@@ -116,6 +116,27 @@ Stronger Camotion does not automatically mean stronger perceived
 camera travel. **Camotion Phase 1 is frozen.** Do not claim `0.02`
 is globally best or that `0.08` is obsolete.
 
+The Cinematographer also inspects **actual generated sets** before
+expensive video. A destination object is not enough; the shot needs
+traversable depth through the transition. Semantic compatibility
+between endpoints is not sufficient: shootability includes traversable
+volume, threshold depth, camera position **and orientation**, and a
+physically plausible route between observations. A proposed
+intermediate canonical is not automatically accepted merely because
+an agent requested it. Generation builds the set; the Cinematographer
+walks onto the actual result; if the geometry is not shootable, reject
+it and return upstream rather than forcing video. This is supported
+Phase 1 product behavior / architecture direction. It is **not**
+implemented as a generalized production planner in this checkpoint.
+
+**TunnelVision Research Phase 1 is complete.** The purpose of Phase 1
+was not to discover an optimal filmmaking pipeline. It was to
+establish a sufficiently supported pipeline capable of moving into
+autonomous product development. The next milestone is **product
+development**, then Movie #2 through the product. The product itself
+becomes the experimental apparatus. Do not begin that work from this
+checkpoint's documentation pass.
+
 There is no separate Edit agent initially. The storyboard keeps
 **canonical / pristine frames** as world-state authority. Video
 currently receives Camotion **shooting frames**, not those canonical
@@ -141,6 +162,13 @@ or AI upscaling of adjacent clips is not Phase 1. See
     spatial reachability must be evaluated explicitly.
 -   **Locomotion outranks destination matching.** Morphing/dissolving to
     the endpoint is failure.
+-   **Shootability is physical, not merely semantic.** Compatible
+    endpoints are not enough. Ask whether there is somewhere
+    physically plausible for the camera to be between observations,
+    including orientation along the route.
+-   **Generated sets are evidence.** Inspect the actual generated
+    still. Do not assume a requested intermediate camera position was
+    realized.
 -   **Canonical frames are position samples, not stop points.** Forward
     motion is not the same as velocity continuing through a shot
     boundary.

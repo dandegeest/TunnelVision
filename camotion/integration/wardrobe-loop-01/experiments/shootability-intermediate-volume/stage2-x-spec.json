@@ -1,0 +1,22 @@
+{
+  "frozen_before_x_generation": true,
+  "frozen_at": "2026-09-05T22:26:28.799Z",
+  "camera_position": "Inside the dark wooden wardrobe, looking outward through the partially open doors into the attic.",
+  "threshold_crossed": "The glowing wooden portal door in the cavern.",
+  "remains_ahead": "Emerging from the wardrobe doors into the attic bedroom.",
+  "geometry_from_e": "Intense warm amber light from the cavern portal spilling from directly behind the camera.",
+  "geometry_from_a": "The interior of the wardrobe doors, hanging dark clothes, and a framed glimpse of the attic room.",
+  "route": "Forward along the stone path, through the glowing cavern door, into the back of the wardrobe, and out into the attic.",
+  "why_ex_shootable": "A continuous push forward into the glowing door; the intense light transitions the environment to the dark, confined interior of the wardrobe.",
+  "why_xa_shootable": "A continuous push forward from inside the dark wardrobe, moving past foreground clothes and through the doors to reveal the wider attic space.",
+  "image_prompt": "First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.",
+  "foreground": [
+    "Dark hanging fabrics/clothes",
+    "Interior wooden panels of the wardrobe",
+    "Edges of the partially open doors"
+  ],
+  "model": "google/gemini-3.1-pro",
+  "prediction_id": "7qxcwv6t1hrmt0d0eepsx5x6qw",
+  "source": "reasoning",
+  "raw_text": "```json\n{\n  \"camera_position\": \"Inside the dark wooden wardrobe, looking outward through the partially open doors into the attic.\",\n  \"threshold_crossed\": \"The glowing wooden portal door in the cavern.\",\n  \"remains_ahead\": \"Emerging from the wardrobe doors into the attic bedroom.\",\n  \"geometry_from_e\": \"Intense warm amber light from the cavern portal spilling from directly behind the camera.\",\n  \"geometry_from_a\": \"The interior of the wardrobe doors, hanging dark clothes, and a framed glimpse of the attic room.\",\n  \"foreground\": [\n    \"Dark hanging fabrics/clothes\",\n    \"Interior wooden panels of the wardrobe\",\n    \"Edges of the partially open doors\"\n  ],\n  \"route\": \"Forward along the stone path, through the glowing cavern door, into the back of the wardrobe, and out into the attic.\",\n  \"why_ex_shootable\": \"A continuous push forward into the glowing door; the intense light transitions the environment to the dark, confined interior of the wardrobe.\",\n  \"why_xa_shootable\": \"A continuous push forward from inside the dark wardrobe, moving past foreground clothes and through the doors to reveal the wider attic space.\",\n  \"image_prompt\": \"First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.\"\n}\n```"
+}

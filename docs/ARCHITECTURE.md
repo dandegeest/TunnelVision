@@ -74,8 +74,17 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     `{0.02, 0.04, 0.08}` over fixed `0.08`. **Camotion Phase 1 is
     frozen:** 01.8 operator, geometry, destination protection, depth
     behavior, sample count, route preservation, that strength
-    vocabulary, and CM ownership of per-canonical strength. The
-    movie-level metric
+    vocabulary, and CM ownership of per-canonical strength. A later
+    Wardrobe E→A shootability experiment is **completed** and is
+    **not** Camotion work: the Cinematographer independently judged
+    direct E→A NEEDS_INTERMEDIATE, specified one intermediate camera
+    position X, inspected the actual generated X, and rejected both
+    E→X and X→A. Protocol stopped before video. Infer nothing new
+    about Camotion from it. **TunnelVision Research Phase 1 is
+    complete.** No more dedicated Phase 1 research experiments. Next
+    milestone is product development, then Movie #2 through the
+    product; do not start that from this checkpoint. The movie-level
+    metric
     is increasingly whether the model shoots the route, not whether
     A′ is aesthetically clean as a still. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
@@ -421,9 +430,10 @@ starts them.
     Camotion sweeps unless a concrete later movie failure provides
     reason.
 -   final Cinematographer module boundaries
--   whether Cinematographer shootability should require a traversable
-    intermediate spatial route, including optional intermediate
-    canonicals
+-   production implementation of shootability review and optional
+    intermediate canonicals (Phase 1 evidence exists on Wardrobe
+    E→A / X; do not formalize a camera-pose schema from that one
+    result; do not expand the thin IT01 planner in this checkpoint)
 -   shot-boundary velocity continuity and variable shot duration
 -   a possible Screenwriter agent upstream of the Director
 -   how the future host process invokes Camotion

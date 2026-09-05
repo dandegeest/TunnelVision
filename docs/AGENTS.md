@@ -95,19 +95,36 @@ checkpoint. Do not scaffold a Cinematographer package alongside
 Camotion.
 
 **Final Cinematographer module boundaries remain an open question.**
+Do not expand the thin Integration Test 01 planner into a product
+package in this checkpoint.
 
-Intended later shootability questions, **not implemented**:
+Phase 1 shootability evidence, **not a generalized production loop**:
 
--   Can I describe a continuous spatial route from this camera
-    position into the next world? A destination object is not enough;
-    the shot needs traversable depth through the transition.
--   If the pair can plausibly be covered as one continuous spatial
-    move, describe and condition the route and let the video model
-    invent intermediate volume. Do not mechanically insert an
-    intermediate canonical for every transition. If not, recommend
-    REGEN / REPAIR, or an intermediate canonical (`E → X → A`). The
-    Integration Test E→A flat-door shot remains a useful future
-    fixture.
+-   A destination object is not enough; the shot needs traversable
+    depth through the transition.
+-   Semantic compatibility is not sufficient. Shootability includes
+    traversable volume, threshold depth, foreground geometry,
+    perspective, occlusion/parallax opportunity, camera position,
+    camera orientation, physical route, and how much hidden geography
+    the video model would need to invent.
+-   Ask: is there somewhere physically plausible for the camera to be
+    between these observations?
+-   If a pair cannot be covered as one continuous spatial move, the
+    Cinematographer may request an intermediate canonical camera
+    position (`E → X → A`). Do not mechanically insert X for every
+    transition.
+-   A proposed X is not automatically canonical. Generate it, inspect
+    the **actual** still, and reject/return upstream if the geometry
+    is not shootable. Do not force video.
+-   Wardrobe E→A evidence:
+    `camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/`.
+    Direct E→A independently judged NEEDS_INTERMEDIATE. Actual X was
+    rejected on both E→X and X→A. Protocol stopped before video.
+    One bounded case; not proof of general autonomous shootability.
+
+Remaining cinematographer questions, still not implemented as product
+behavior:
+
 -   Canonical review before expensive video: PASS / REGEN / REPAIR.
     Guideline: regeneration preserves exploration; editing preserves
     composition. Review + shot planning may later share one reasoning

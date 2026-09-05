@@ -19,6 +19,7 @@
   <a href="research/06-wardrobe-loop.html">The Wardrobe Loop</a>
   <a href="research/07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
   <a href="research/08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="research/09-shootability-intermediate-volume.html">Shootability</a>
 </nav>
 <main>
 <div class="hero">
@@ -35,7 +36,7 @@
 
 <section style="padding:48px 0;border-bottom:1px solid var(--line)">
 <h2>Current research baseline</h2>
-<p>Ghost Library / Seedance 2.5. Conservative directed A→B video baseline: Camotion 01.5, depth-banded outgoing exposure, strength 0.08. Current Camotion operator: 01.8 route-preserved exposure. 01.9–01.12 are completed still-only evidence and are not promoted. 01.12 found no useful pristine baked-exposure operating window (classification C + D) and closes the current exposure-operator tuning branch. Integration Test 01 — The Wardrobe Loop is the first unattended end-to-end movie experiment. A later A→B Seedance 2×2 (seed 70) supported retaining Camotion plus Cinematographer locomotion prompting as complementary Phase 1 pieces: Camotion is motion-state conditioning, not image enhancement. A three-pair scene-aware strength experiment preferred bounded per-canonical selection from {0.02, 0.04, 0.08} over fixed 0.08. <strong>Camotion Phase 1 is frozen.</strong> It is not Camotion 01.13. The remaining Phase 1 research question is shootability / traversable intermediate volume (E→X→A), not started from this page.</p>
+<p>Ghost Library / Seedance 2.5. Conservative directed A→B video baseline: Camotion 01.5, depth-banded outgoing exposure, strength 0.08. Current Camotion operator: 01.8 route-preserved exposure. 01.9–01.12 are completed still-only evidence and are not promoted. 01.12 found no useful pristine baked-exposure operating window (classification C + D) and closes the current exposure-operator tuning branch. Integration Test 01 — The Wardrobe Loop is the first unattended end-to-end movie experiment. A later A→B Seedance 2×2 (seed 70) supported retaining Camotion plus Cinematographer locomotion prompting as complementary Phase 1 pieces: Camotion is motion-state conditioning, not image enhancement. A three-pair scene-aware strength experiment preferred bounded per-canonical selection from {0.02, 0.04, 0.08} over fixed 0.08. <strong>Camotion Phase 1 is frozen.</strong> It is not Camotion 01.13. A later E→A shootability experiment showed the Cinematographer can reject an unshootable direct route, propose a spatial intermediate camera position, inspect the actual generated set, and stop before video if the geometry is not shootable. <strong>TunnelVision Research Phase 1 is complete.</strong> Next milestone is product development, then Movie #2 through the product.</p>
 </section>
 
 <section style="padding:48px 0;border-bottom:1px solid var(--line)">
@@ -60,6 +61,7 @@
 <li>Do not abandon Camotion. Compelling traversal shots occurred with pinned 01.8. The movie-level metric is whether the model shoots the route, not whether A′ is aesthetically clean as a still</li>
 <li>On one controlled Wardrobe A→B Seedance seed (70), Camotion-conditioned endpoints plus the authoritative Cinematographer locomotion prompt were complementary and stronger than either factor alone. Camotion remains motion-state conditioning, not image enhancement. 01.12’s still-image structured-copy limit is not contradicted</li>
 <li>On three already-shootable Wardrobe Loop pairs, scene-aware bounded Camotion strength {.02,.04,.08} was preferred over fixed .08 (human 3–0, independent second 3–0). Strength is a per-canonical Cinematographer choice. Camotion Phase 1 is frozen</li>
+<li>On Wardrobe E→A, the Cinematographer independently judged the direct route NEEDS_INTERMEDIATE, proposed one spatial camera position X, inspected the actual generated X, and rejected both E→X and X→A. Protocol stopped before video. Generated sets are evidence, not assumed success. Research Phase 1 is complete</li>
 </ul>
 </section>
 
@@ -74,6 +76,7 @@
   <a href="research/06-wardrobe-loop.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">06 — The Wardrobe Loop</a>
   <a href="research/07-camotion-prompt-2x2.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">07 — Camotion + Prompt 2×2</a>
   <a href="research/08-scene-aware-camotion-strength.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">08 — Scene-Aware Camotion Strength</a>
+  <a href="research/09-shootability-intermediate-volume.html" style="display:block;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:17px;font-weight:600">09 — Shootability / Intermediate Volume</a>
 </div>
 </section>
 </main>

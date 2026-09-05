@@ -1,0 +1,174 @@
+{
+  "experiment": "shootability-intermediate-volume",
+  "git_commit": "1267aa9c7b02f1971aa39ae55343f8234e5192b1",
+  "stop_reason": "leg_not_shootable",
+  "stage1": {
+    "frozen_before_generation": true,
+    "frozen_at": "2026-09-05T22:26:07.317Z",
+    "decision": "NEEDS_INTERMEDIATE",
+    "reasoning": "The door in the start image is closed, providing no traversable volume or threshold depth for the camera to enter. Additionally, pushing through that portal would logically place the camera at the threshold looking into the room, not halfway across the room looking back at the wardrobe as composed in the end image.",
+    "model": "google/gemini-3.1-pro",
+    "prediction_id": "gqanpekw6drmy0d0eeptpzcmew",
+    "source": "reasoning",
+    "image_e": {
+      "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+      "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+      "bytes": 5802759
+    },
+    "image_a": {
+      "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+      "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+      "bytes": 4848374
+    },
+    "plans_used": [
+      "camotion/integration/wardrobe-loop-01/plans/E-A.json",
+      "camotion/integration/wardrobe-loop-01/shooting/E-A/end-plan.json"
+    ],
+    "raw_text": "```json\n{\n  \"decision\": \"NEEDS_INTERMEDIATE\",\n  \"reasoning\": \"The door in the start image is closed, providing no traversable volume or threshold depth for the camera to enter. Additionally, pushing through that portal would logically place the camera at the threshold looking into the room, not halfway across the room looking back at the wardrobe as composed in the end image.\"\n}\n```"
+  },
+  "stage2": {
+    "frozen_before_x_generation": true,
+    "frozen_at": "2026-09-05T22:26:28.799Z",
+    "camera_position": "Inside the dark wooden wardrobe, looking outward through the partially open doors into the attic.",
+    "threshold_crossed": "The glowing wooden portal door in the cavern.",
+    "remains_ahead": "Emerging from the wardrobe doors into the attic bedroom.",
+    "geometry_from_e": "Intense warm amber light from the cavern portal spilling from directly behind the camera.",
+    "geometry_from_a": "The interior of the wardrobe doors, hanging dark clothes, and a framed glimpse of the attic room.",
+    "route": "Forward along the stone path, through the glowing cavern door, into the back of the wardrobe, and out into the attic.",
+    "why_ex_shootable": "A continuous push forward into the glowing door; the intense light transitions the environment to the dark, confined interior of the wardrobe.",
+    "why_xa_shootable": "A continuous push forward from inside the dark wardrobe, moving past foreground clothes and through the doors to reveal the wider attic space.",
+    "image_prompt": "First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.",
+    "foreground": [
+      "Dark hanging fabrics/clothes",
+      "Interior wooden panels of the wardrobe",
+      "Edges of the partially open doors"
+    ],
+    "model": "google/gemini-3.1-pro",
+    "prediction_id": "7qxcwv6t1hrmt0d0eepsx5x6qw",
+    "source": "reasoning",
+    "raw_text": "```json\n{\n  \"camera_position\": \"Inside the dark wooden wardrobe, looking outward through the partially open doors into the attic.\",\n  \"threshold_crossed\": \"The glowing wooden portal door in the cavern.\",\n  \"remains_ahead\": \"Emerging from the wardrobe doors into the attic bedroom.\",\n  \"geometry_from_e\": \"Intense warm amber light from the cavern portal spilling from directly behind the camera.\",\n  \"geometry_from_a\": \"The interior of the wardrobe doors, hanging dark clothes, and a framed glimpse of the attic room.\",\n  \"foreground\": [\n    \"Dark hanging fabrics/clothes\",\n    \"Interior wooden panels of the wardrobe\",\n    \"Edges of the partially open doors\"\n  ],\n  \"route\": \"Forward along the stone path, through the glowing cavern door, into the back of the wardrobe, and out into the attic.\",\n  \"why_ex_shootable\": \"A continuous push forward into the glowing door; the intense light transitions the environment to the dark, confined interior of the wardrobe.\",\n  \"why_xa_shootable\": \"A continuous push forward from inside the dark wardrobe, moving past foreground clothes and through the doors to reveal the wider attic space.\",\n  \"image_prompt\": \"First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.\"\n}\n```"
+  },
+  "x_generation": {
+    "model": "black-forest-labs/flux-1.1-pro-ultra",
+    "seed": 10106,
+    "prediction_id": "xybr3y5zhsrmw0d0eeqb9011qc",
+    "prompt": "First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.",
+    "settings": {
+      "prompt": "First-person cinematic POV. Inside a dark wooden wardrobe, looking out through slightly parted doors. Framed by dark hanging coats. Through the gap, a dimly lit attic bedroom is visible with blue moonlight and a warm lamp. Intense, magical warm amber light spills from directly behind the camera, casting shadows outward. Cinematic dark-fantasy realism, tactile materials, 16:9.",
+      "aspect_ratio": "16:9",
+      "raw": false,
+      "output_format": "png",
+      "safety_tolerance": 2,
+      "seed": 10106
+    },
+    "output_path": "camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/canonical/X.png",
+    "sha256": "56e5038b0bf1b96853e0558dab202fb17599cb07cdcbb4d89535fd93d8829cf7",
+    "bytes": 1898644,
+    "retry_count": 0,
+    "started_at": "2026-09-05T22:27:06.649Z",
+    "completed_at": "2026-09-05T22:27:15.345Z"
+  },
+  "stage3": {
+    "frozen_before_video": true,
+    "frozen_at": "2026-09-05T22:27:41.863Z",
+    "x_image": {
+      "path": "camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/canonical/X.png",
+      "sha256": "56e5038b0bf1b96853e0558dab202fb17599cb07cdcbb4d89535fd93d8829cf7",
+      "bytes": 1898644
+    },
+    "e_to_x": {
+      "decision": "NOT_SHOOTABLE",
+      "reasoning": "Image E features a single door, while X shows double doors with two knobs. This structural mismatch breaks visual continuity for a continuous push-in."
+    },
+    "x_to_a": {
+      "decision": "NOT_SHOOTABLE",
+      "reasoning": "Image X is a POV from inside a dark space looking out into a room. Image A looks from the room back at the dark wardrobe. Linking these requires a cut or a 180-degree turn."
+    },
+    "model": "google/gemini-3.1-pro",
+    "prediction_id": "9qc4wxzranrmt0d0eeq9b3mx4g",
+    "source": "reasoning",
+    "raw_text": "```json\n{\n  \"E-X\": {\n    \"decision\": \"NOT_SHOOTABLE\",\n    \"reasoning\": \"Image E features a single door, while X shows double doors with two knobs. This structural mismatch breaks visual continuity for a continuous push-in.\"\n  },\n  \"X-A\": {\n    \"decision\": \"NOT_SHOOTABLE\",\n    \"reasoning\": \"Image X is a POV from inside a dark space looking out into a room. Image A looks from the room back at the dark wardrobe. Linking these requires a cut or a 180-degree turn.\"\n  }\n}\n```"
+  },
+  "stage4": null,
+  "generations": [
+    {
+      "id": "01-E-A-direct",
+      "filename": "01-E-A-direct.mp4",
+      "shot": "E-A",
+      "start_strength": 0,
+      "end_strength": 0,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+        "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+        "bytes": 5802759
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+        "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+        "bytes": 4848374
+      },
+      "prompt": "",
+      "seed_submitted": 90,
+      "seed_reported": null,
+      "settings": {},
+      "prediction_id": null,
+      "output_path": null,
+      "status": "not_attempted",
+      "retry_count": 0,
+      "error": null
+    },
+    {
+      "id": "02-E-X",
+      "filename": "02-E-X.mp4",
+      "shot": "E-X",
+      "start_strength": 0,
+      "end_strength": 0,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+        "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+        "bytes": 5802759
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+        "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+        "bytes": 4848374
+      },
+      "prompt": "",
+      "seed_submitted": 90,
+      "seed_reported": null,
+      "settings": {},
+      "prediction_id": null,
+      "output_path": null,
+      "status": "not_attempted",
+      "retry_count": 0,
+      "error": null
+    },
+    {
+      "id": "03-X-A",
+      "filename": "03-X-A.mp4",
+      "shot": "X-A",
+      "start_strength": 0,
+      "end_strength": 0,
+      "start_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+        "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+        "bytes": 5802759
+      },
+      "end_image": {
+        "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+        "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+        "bytes": 4848374
+      },
+      "prompt": "",
+      "seed_submitted": 91,
+      "seed_reported": null,
+      "settings": {},
+      "prediction_id": null,
+      "output_path": null,
+      "status": "not_attempted",
+      "retry_count": 0,
+      "error": null
+    }
+  ],
+  "assembly_path": null
+}
