@@ -9,7 +9,8 @@
     "test": "tsx --test tests/**/*.test.ts",
     "experiment": "tsx experiments/cli.ts",
     "benchmark": "tsx experiments/batch-cli.ts",
-    "config:check": "tsx src/cli/config-check.ts"
+    "config:check": "tsx src/cli/config-check.ts",
+    "wardrobe-loop": "tsx experiments/wardrobe-loop/run.ts"
   },
   "engines": {
     "node": ">=20"

@@ -73,6 +73,34 @@ The official Replicate JS SDK auto-uploads `Blob`, `File`, or `Buffer`.
 Local files are read as bytes. Node `ReadStream`s are not uploaded and
 produce HTTP 422 (`Expected: string, given: object`).
 
+Image generation uses the same provider:
+
+``` text
+application
+    |
+MediaProvider.generateImage
+    |
+ReplicateMediaProvider
+    |
+FLUX 1.1 Pro Ultra adapter
+```
+
+Cinematographer camera-motion planning uses a separate
+`ReasoningProvider` with vision image inputs. The first adapter is
+Gemini 3.1 Pro on Replicate. CameraMotionPlan v1 fields are extracted
+and validated; 01.8 exposure (`0.08` / `16`) and `forward` `1.0` stay
+pinned to the current directed-traversal baseline.
+
+``` bash
+npm --prefix media run wardrobe-loop -- --execute
+```
+
+Artifacts live under `camotion/integration/wardrobe-loop-01/`. The
+canonical human-reviewed assembled movie is
+`videos/ThoughTheWardrobe.mov`. Deterministic ordered hard-join concat
+of successful shot videos is an implementation follow-up, not an Edit
+agent.
+
 Successful 01.5 smoke-test evidence lives at
 `camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`
 (`01.5-result.mp4`, `01.5-run.json`). Run records and videos are named

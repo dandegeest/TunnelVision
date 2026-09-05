@@ -16,6 +16,7 @@
   <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
   <a href="04-camotion-research.html">Camotion Research</a>
   <a href="05-depth-banded-camotion.html" class="active">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
 </nav>
 <main>
 <section class="ready-code" id="terran-action">
@@ -522,7 +523,44 @@
 
 <div class="finding">
 <strong>Checkpoint decision</strong>
-<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.11 as diagnostic evidence. Do not promote 01.11. Do not promote any 01.11 candidate. Do not call it a new renderer version. Do not run Seedance/video on 01.11 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. A later 01.12 still-only diagnostic should determine whether a useful baked-exposure regime exists where trajectory displacement remains strong enough to provide a meaningful Camotion motion cue while structured-object duplication remains acceptable. Characterize path length / exposure strength against source spatial bandwidth, using the existing 01.8 gather and a very small controlled matrix. Do not treat this as parameter optimization. If no useful regime exists, that would motivate leaving exposure-operator tuning rather than continuing to search for another integration kernel. Do not begin 01.12 from this checkpoint.</p>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.11 as diagnostic evidence. Do not promote 01.11. Do not promote any 01.11 candidate. Do not call it a new renderer version. Do not run Seedance/video on 01.11 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. The later 01.12 still-only baked-exposure operating window is recorded below.</p>
+</div>
+
+</section>
+<section class="ready-code" id="operating-window-01-12">
+<div class="eyebrow">CAMOTION 01.12 · SEPTEMBER 4, 2026</div>
+<h2>No useful pristine baked-exposure window. The motion cue and structured copies appear together. Exposure-operator tuning is closed.</h2>
+<p>This entry is a chronological still-only Camotion diagnostic after 01.11. It is <strong>not</strong> a video experiment and <strong>not</strong> a new renderer version. CameraMotionPlan v1 and default <code>render()</code> were not changed. 01.8 Route-Preserved Exposure remains the current Camotion baseline. 01.12 is not promoted. Sigma=1 is a diagnostic control only.</p>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Fixed-16 gather, four strengths, two bandwidths</h3><span class="result-pill info">METHOD</span></div>
+<p>Research question: is there a useful baked-exposure regime where displacement is strong enough to provide a meaningful directional motion cue and structured scene content does not develop objectionable repeated-object appearance? Operator: existing 01.8 <code>apply_multisample_exposure</code>, N=16, outgoing dest-gather. Same Ghost Library source, radial field, FoE <code>(0.50, 0.56)</code>. Strengths 0.02 / 0.04 / 0.06 / 0.08. Bandwidth: pristine vs sigma=1 Gaussian diagnostic control. No compositor, masks, route, or destination protection. Not parameter optimization. Fixture metadata: <code>tuning/01.12-operating-window-config.json</code>.</p>
+<p>Whole-image path length scales linearly: mean 12.6 / 25.2 / 37.8 / 50.4 px. 0.08 pristine is byte-identical to the 01.10 strong-exposure intermediate.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Right-skeleton strength progression</h3><span class="result-pill fail">NO USEFUL PRISTINE WINDOW</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.12/01.12-contact-right-skeleton.png · rows=strength 0.02–0.08 · cols=pristine | sigma=1</div>
+<figure>
+<img alt="01.12 Ghost Library right-skeleton crop matrix across exposure strength and sigma=1 diagnostic control. Diagnostic only. Not promoted." src="../../camotion/tuning/analysis/01.12/01.12-contact-right-skeleton.png"/>
+<figcaption>Right-skeleton crop. 0.02 is a weak cue. 0.04 already shows readable finger copies. 0.06–0.08 are strong cues with objectionable duplication. Sigma=1 softens copies by destroying source detail. Not promoted.</figcaption>
+</figure>
+<p><strong>Observed:</strong> 0.02 preserved structured content reasonably well but produced only a weak directional motion cue, especially near the FoE. 0.04 produced a meaningfully useful peripheral directional cue, but recognizable repeated structure was already clearly present in fingers, flames, and other artifact features. 0.06 and 0.08 produced strong directional cues but objectionable structured-content duplication. Therefore no useful pristine-source operating window was observed: the motion cue becomes useful at approximately the same point that structured duplication becomes objectionable.</p>
+<p><strong>Interpretation, not proof:</strong> classification C + D. Sigma=1 reduced copy readability across strengths by reducing source spatial detail. It did not establish a sharp-detail operating window. Prefiltering remains diagnostic evidence and is not a proposed Camotion pipeline change. The 01.12 stop rule applies: do not search additional strengths, sigma values, shutter weightings, integration kernels, or compositors. This closes the current exposure-operator tuning branch.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Left-skeleton strength progression</h3><span class="result-pill info">SAME BOUNDARY</span></div>
+<div class="test-meta">camotion/tuning/analysis/01.12/01.12-contact-left-skeleton.png · rows=strength 0.02–0.08 · cols=pristine | sigma=1</div>
+<figure>
+<img alt="01.12 Ghost Library left-skeleton crop matrix across exposure strength and sigma=1 diagnostic control. Diagnostic only. Not promoted." src="../../camotion/tuning/analysis/01.12/01.12-contact-left-skeleton.png"/>
+<figcaption>Left-skeleton / bookshelf crop. Same strength boundary: useful cue and objectionable copies meet around 0.04. Not promoted.</figcaption>
+</figure>
+</article>
+
+<div class="finding">
+<strong>Checkpoint decision</strong>
+<p>Keep 01.8 Route-Preserved Exposure as the current Camotion baseline. Keep 01.12 as diagnostic evidence. Do not promote 01.12. Do not promote any 01.12 condition. Do not add sigma=1 to Camotion. Do not call it a new renderer version. Do not run Seedance/video on 01.12 based on this still. CameraMotionPlan v1 stays frozen. Default <code>render()</code> stays the continuous near-weight path. The current exposure-operator tuning branch is closed. The next untested question is above the baked-exposure primitive: how can Camotion communicate useful camera direction/motion to the video model without integrating a long trajectory of recognizable scene structure into a single shooting frame? Do not choose or implement a replacement mechanism yet. Do not prematurely promote motion fields, auxiliary conditioning, overlays, multiple frames, or another specific representation into the architecture. Do not begin that experiment from this checkpoint.</p>
 </div>
 
 </section>
@@ -530,7 +568,7 @@
 <strong>TunnelVision prototype log</strong>
 <span>Images are identified by visible content rather than generator filenames because the generation tool reused filenames during the experiment.</span>
 </footer>
-<nav class="chapter-nav"><a href="04-camotion-research.html" class="prev-link">← Camotion Research</a></nav>
+<nav class="chapter-nav"><a href="04-camotion-research.html" class="prev-link">← Camotion Research</a> <a href="06-wardrobe-loop.html" class="next-link">The Wardrobe Loop →</a></nav>
 </main>
 <script src="../assets/js/research.js"></script>
 </body>

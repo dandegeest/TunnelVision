@@ -1,0 +1,82 @@
+{
+  "shot": "D-E",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "model_version": "hidden",
+  "prediction_id": "jxwj601nw9rmw0d0dtsrmk5je4",
+  "elapsed_ms": 16510,
+  "route": "Forward along the stone path, ascending the grand staircase toward the glowing archway, leading to the subterranean path and wooden door.",
+  "pinned": {
+    "forward": true,
+    "exposure": true
+  },
+  "raw": {
+    "route": "Forward along the stone path, ascending the grand staircase toward the glowing archway, leading to the subterranean path and wooden door.",
+    "start": {
+      "environment": "ruined stone courtyard with an ascending grand staircase",
+      "destination": {
+        "description": "glowing archway at the top of the stairs",
+        "point": [
+          0.51,
+          0.28
+        ],
+        "protect": true,
+        "bbox": [
+          0.44,
+          0.15,
+          0.58,
+          0.42
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.51,
+          0.28
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "stone blocks",
+        "columns"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    },
+    "end": {
+      "environment": "luminous cavern with a stone path over glowing water",
+      "destination": {
+        "description": "glowing wooden door",
+        "point": [
+          0.5,
+          0.52
+        ],
+        "protect": true,
+        "bbox": [
+          0.45,
+          0.33,
+          0.55,
+          0.7
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.5,
+          0.52
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "stone path slabs",
+        "glowing mushrooms",
+        "cave roots"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    }
+  },
+  "text": "{\n  \"route\": \"Forward along the stone path, ascending the grand staircase toward the glowing archway, leading to the subterranean path and wooden door.\",\n  \"start\": {\n    \"environment\": \"ruined stone courtyard with an ascending grand staircase\",\n    \"destination\": {\n      \"description\": \"glowing archway at the top of the stairs\",\n      \"point\": [0.51, 0.28],\n      \"protect\": true,\n      \"bbox\": [0.44, 0.15, 0.58, 0.42]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.51, 0.28],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"stone blocks\",\n      \"columns\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  },\n  \"end\": {\n    \"environment\": \"luminous cavern with a stone path over glowing water\",\n    \"destination\": {\n      \"description\": \"glowing wooden door\",\n      \"point\": [0.50, 0.52],\n      \"protect\": true,\n      \"bbox\": [0.45, 0.33, 0.55, 0.70]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.50, 0.52],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"stone path slabs\",\n      \"glowing mushrooms\",\n      \"cave roots\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  }\n}"
+}

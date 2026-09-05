@@ -10,14 +10,16 @@ current code.
 ## Current implementation --- Camotion first
 
 This repository is in a Camotion-first research stage. Application
-code today is the Python `camotion/` package and a small TypeScript
-`media/` package for video generation. Do **not** create `web/`,
-`server/`, Director, Cinematographer modules, or a journey workspace
-runtime yet.
+code today is the Python `camotion/` package and a TypeScript
+`media/` package for image and video generation, vision reasoning, and
+a thin cinematographer pair planner used by Integration Test 01. Do
+**not** create `web/`, `server/`, Director, Screenwriter, a full
+Cinematographer product package, or a journey workspace runtime yet.
 
 ``` text
 camotion/     Python package, CLI (unchanged renderer)
-media/        MediaProvider + Replicate adapter (video only)
+media/        MediaProvider (image + video) + ReasoningProvider
+              + thin cinematographer planner (Integration Test 01)
 ```
 
 ``` bash
@@ -49,13 +51,33 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     Characterization is completed still-only diagnostic evidence;
     sparse trajectory sampling is not the dominant remaining cause
     of structured Ghost Library copies, and 01.11 is not promoted.
-    Camotion itself still knows
+    01.12 Baked-Exposure Operating Window is completed still-only
+    diagnostic evidence; no useful pristine-source operating window
+    was observed (classification C + D), and 01.12 is not promoted.
+    This closes the current exposure-operator tuning branch.
+    **Integration Test 01 — The Wardrobe Loop** is completed: the
+    first unattended end-to-end movie experiment (independent FLUX
+    canonicals, Gemini 3.1 Pro cinematographer vision plans, Camotion
+    01.8 shooting frames, Seedance 2.5 videos, human-reviewed
+    assembled movie). It is **not** Camotion 01.13. Do not characterize
+    it as Camotion solving or failing traversal. 01.8 remains the
+    current Camotion baseline; 01.5 / 0.08 remains the conservative
+    directed video baseline where appropriate. The movie-level metric
+    is increasingly whether the model shoots the route, not whether
+    A′ is aesthetically clean as a still. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
     bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
     official SDK.
 -   **Does not exist and must not be created yet:** `web/`, `server/`,
-    Director, Cinematographer modules, journey workspace runtime,
-    image generation, Runway/Krea adapters.
+    Director, Screenwriter, a full Cinematographer product package,
+    journey workspace runtime, Runway/Krea adapters, scene-aware
+    Camotion selection, or a last-frame-discovery architecture.
+
+The current **product direction** is a simple autonomous storyboard
+(story → progressive canonicals → Keep/Redo → SHOOT MOVIE). That UI
+is not built. A Runway hackathon “last-frame discovery” idea is a
+research branch, not a replacement for this pipeline, and must not
+restructure current application architecture.
 
 Camotion is a standalone deterministic Python graphics package.
 
@@ -177,8 +199,12 @@ is not a new renderer version. 01.11 Exposure Operator
 Characterization compared 01.8/01.9 gather with research-only
 operator families on a synthetic fixture and Ghost Library artifact
 crops; sparse sampling is not the dominant remaining cause, and no
-01.11 candidate is promoted. Do not treat pixel similarity to
-Terran's reference as architecture or as an optimization objective.
+01.11 candidate is promoted. 01.12 Baked-Exposure Operating Window
+found no useful pristine-source operating window on Ghost Library
+(classification C + D); the current exposure-operator tuning branch
+is closed, and no 01.12 condition is promoted. Do not treat pixel
+similarity to Terran's reference as architecture or as an
+optimization objective.
 
 ### Canonical frames vs shooting frames
 
@@ -246,8 +272,11 @@ How Node (or another host) will invoke Camotion is **not decided**
 (CLI subprocess vs other). Do not invent a service boundary for it
 now.
 
-Director and Cinematographer are **filmmaking roles**, not current
-packages. Cinematographer module boundaries are an open question.
+Director, Cinematographer, and a possible later Screenwriter are
+**filmmaking roles**. A thin cinematographer pair planner exists in
+`media/src/cinematographer/` for Integration Test 01. Final
+Cinematographer module boundaries remain an open question. Do not
+create ScreenwriterAgent.
 
 Agent roles must not hardcode provider or model IDs. A later reasoning
 provider should support configurable model routing by role or profile
@@ -259,19 +288,23 @@ TunnelVision owns normalized request/response types. Director
 implementation must depend on that contract, not on a vendor SDK.
 
 The first implemented slice lives in `media/` and currently exposes
-**video generation only**:
+**video and image generation**:
 
 ``` ts
 interface MediaProvider {
   generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo>;
+  generateImage(request: ImageGenerationRequest): Promise<GeneratedImage>;
 }
 ```
 
 `VideoGenerationRequest` currently carries a start shooting frame, an
-optional end shooting frame, a prompt, and optional duration. Model-
-and provider-specific capabilities stay behind `ReplicateMediaProvider`
-and the Seedance 2.5 adapter. Extra pristine/canonical reference images
-are not part of the current contract.
+optional end shooting frame, a prompt, and optional duration.
+`ImageGenerationRequest` currently carries a prompt and optional seed.
+Model- and provider-specific capabilities stay behind
+`ReplicateMediaProvider` (Seedance 2.5 and FLUX 1.1 Pro Ultra). Extra
+pristine/canonical reference images are not part of the current
+contract. A `ReasoningProvider` with vision inputs also lives in
+`media/` (Gemini 3.1 Pro adapter).
 
 Implement additional adapters (Runway, Krea) only if needed. Do not
 scaffold unused adapters. Do not import Replicate from Camotion.
@@ -299,7 +332,7 @@ moves them.
 DirectorDecision, ShotPlan (illustrative only), PreferenceState.
 
 External API objects are normalized at provider boundaries. The first
-video MediaProvider lives in `media/`.
+image/video MediaProvider lives in `media/`.
 
 ## Later prototype workspace (not created yet)
 
@@ -362,10 +395,19 @@ starts them.
     / destination protection. 01.11 found discrete 01.8 sampling
     artifacts and a filled dense point streak, while structured
     Ghost Library features still read as transformed copies; sparse
-    sampling is not the dominant remaining cause. No 01.11
-    candidate is promoted. 01.12 should test whether a useful
-    baked-exposure regime exists
+    sampling is not the dominant remaining cause. 01.12 found no
+    useful pristine baked-exposure operating window (classification
+    C + D). Exposure-operator tuning is closed. The next untested
+    question is above the baked-exposure primitive. Do not reopen
+    brute-force strength/sigma/kernel search. Scene-aware selection
+    of a small known-safe Camotion exposure-strength range is
+    unvalidated and is **not** Camotion 01.13
 -   final Cinematographer module boundaries
+-   whether Cinematographer shootability should require a traversable
+    intermediate spatial route, including optional intermediate
+    canonicals
+-   shot-boundary velocity continuity and variable shot duration
+-   a possible Screenwriter agent upstream of the Director
 -   how the future host process invokes Camotion
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination

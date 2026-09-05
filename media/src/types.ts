@@ -13,7 +13,25 @@ export type VideoGenerationRequest = {
   readonly durationSeconds?: number;
 };
 
+export type ImageGenerationRequest = {
+  readonly prompt: string;
+  readonly seed?: number;
+};
+
 export type GeneratedVideo = {
+  readonly provider: "replicate";
+  readonly model: string;
+  readonly modelVersion: string | null;
+  readonly predictionId: string;
+  readonly status: "succeeded";
+  readonly outputUrl: string;
+  readonly metadata: Readonly<Record<string, unknown>>;
+  readonly startedAt: string;
+  readonly completedAt: string;
+  readonly elapsedMs: number;
+};
+
+export type GeneratedImage = {
   readonly provider: "replicate";
   readonly model: string;
   readonly modelVersion: string | null;
@@ -28,6 +46,7 @@ export type GeneratedVideo = {
 
 export interface MediaProvider {
   generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo>;
+  generateImage(request: ImageGenerationRequest): Promise<GeneratedImage>;
 }
 
 export type MediaErrorCode =

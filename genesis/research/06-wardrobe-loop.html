@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>The Wardrobe Loop — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html" class="active">The Wardrobe Loop</a>
+</nav>
+<main>
+<section class="ready-code" id="wardrobe-loop">
+<div class="eyebrow">INTEGRATION TEST 01 · SEPTEMBER 4, 2026</div>
+<h2>The Wardrobe Loop is the first unattended end-to-end TunnelVision movie experiment.</h2>
+<p>This is <strong>not</strong> Camotion 01.13. CameraMotionPlan v1, default <code>render()</code>, and the 01.8 exposure operator were not changed. Canonicals A–E were generated independently text-to-image, with no reference-image chaining. F is byte-identical to A. Five shots were generated. Zero video retries. No human intervention between shot generations. No Camotion retuning during the run. All shots used the same pinned Camotion 01.8 settings from the established baseline.</p>
+<p>Notation: <strong>A / B</strong> = pristine canonical frames. <strong>A′ / B′</strong> = Camotion-conditioned shooting frames. <strong>A→B</strong> = generated traversal shot.</p>
+
+<div class="finding">
+<strong>Watch the complete movie</strong>
+<p>The canonical human-reviewed assembled artifact is the original DaVinci Resolve MOV with hard cuts and no editorial transitions. The player below is a browser MP4 remux of that MOV (H.264 bitstream copied; silent source-shot audio omitted). The MOV itself is preserved in the integration artifact folder and was not replaced.</p>
+</div>
+
+<div class="movie-player">
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/videos/ThoughTheWardrobe.mp4">
+Sorry, your browser cannot play this MP4.
+</video>
+</div>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Unattended pipeline</h3><span class="result-pill pass">COMPLETED</span></div>
+<p class="test-meta">story concept → independent FLUX 1.1 Pro Ultra canonicals → Gemini 3.1 Pro cinematographer vision plans → Camotion 01.8 A′/B′ → Seedance 2.5 → concatenated movie</p>
+<p>Fifteen Replicate calls. Zero retries. Loop geography: attic bedroom → wardrobe → winter forest → stone arch / ruins → stair / portal → cavern → bedroom.</p>
+</article>
+
+<div class="eyebrow">CANONICALS A–E</div>
+<p>Display copies are the JPEG vision sidecars used for cinematographer reasoning. Authoritative canonicals remain the 2752×1536 PNGs in the artifact directory. B unexpectedly contains a person despite the prompt constraint. D generated an ascending stair / portal instead of the requested descending underground geography. Those misses were kept as pipeline evidence. The Cinematographer reasoned from the <em>actual</em> generated D and planned travel upward rather than blindly following the story description.</p>
+<div class="canonical-strip">
+<figure>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/A.jpg" alt="Canonical A attic bedroom"/>
+<figcaption>A · bedroom</figcaption>
+</figure>
+<figure>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/B.jpg" alt="Canonical B winter forest"/>
+<figcaption>B · forest</figcaption>
+</figure>
+<figure>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/C.jpg" alt="Canonical C stone arch"/>
+<figcaption>C · arch</figcaption>
+</figure>
+<figure>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/D.jpg" alt="Canonical D stair portal"/>
+<figcaption>D · stair / portal</figcaption>
+</figure>
+<figure>
+<img src="../../camotion/integration/wardrobe-loop-01/canonical/vision/E.jpg" alt="Canonical E cavern door"/>
+<figcaption>E · cavern</figcaption>
+</figure>
+</div>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>A→B · excellent / killer traversal</h3><span class="result-pill pass">HUMAN REVIEW</span></div>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/videos/A-B.mp4"></video>
+<p>The camera does not simply dissolve from bedroom to forest. It approaches the wardrobe, enters a real dark intermediate wardrobe/clothing space, and emerges into winter.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>B→C · good traversal</h3><span class="result-pill pass">HUMAN REVIEW</span></div>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/videos/B-C.mp4"></video>
+<p>Sustained forward movement. Trees pass the camera. Useful parallax. The arch develops ahead.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>C→D · mixed</h3><span class="result-pill info">HUMAN REVIEW</span></div>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/videos/C-D.mp4"></video>
+<p>Real approach through the arch, followed by a late environment rewrite / replacement into ruins.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>D→E · good traversal</h3><span class="result-pill pass">HUMAN REVIEW</span></div>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/videos/D-E.mp4"></video>
+<p>Sustained stair climb for much of the shot. Rails and masonry pass the camera. The portal/cavern transition works surprisingly well.</p>
+</article>
+
+<article class="motion-test fail">
+<div class="motion-head"><h3>E→A · weakest</h3><span class="result-pill fail">HUMAN REVIEW</span></div>
+<video controls playsinline preload="metadata" src="../../camotion/integration/wardrobe-loop-01/videos/E-A.mp4"></video>
+<p>Good approach to the orange bedroom door, but the door behaves as a flat destination surface rather than traversable volume. The world then changes into the bedroom.</p>
+</article>
+
+<div class="finding">
+<strong>A destination object is not enough. The shot needs traversable depth through the transition.</strong>
+<p>The best TunnelVision transitions may need a traversable intermediate spatial story, not merely compatible endpoints. Successful examples provide somewhere for the camera to exist <em>between</em> canonicals: bedroom → wardrobe interior → forest; forest corridor → arch; stairway → portal → cavern. Weak examples contain insufficient intermediate spatial evidence, especially cavern → flat bedroom door → bedroom.</p>
+<p>Future Cinematographer shootability should ask: can I describe a continuous spatial route from this camera position into the next world? A future CM may decide it cannot cover a move convincingly in one shot, and may insert an intermediate canonical (E → X → A). That is not implemented here.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Movie-level velocity is currently accidental</h3><span class="result-pill info">ASSEMBLED MOVIE</span></div>
+<p>The five clips were concatenated directly with no editorial transitions. Perceived camera speed changes abruptly at some shot boundaries, most obviously A→B / B→C. A speed change can be expressive, but today it is accidental. Cinematographer planning should eventually consider exit velocity from one shot and entry velocity into the next. Accidental speed jumps should not simply be repaired in post.</p>
+<p>Shot duration should not necessarily be globally fixed. The ~5-second generative cadence in <em>Digging in the Dirt</em> became perceptible as a repeated rhythm. Future direction: Screenwriter owns narrative pacing; Cinematographer decides practical shot duration and physical camera pace within provider limits. If a move cannot be covered naturally in one supported duration, subdivide rather than forcing it. No schema yet.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Do not abandon Camotion</h3><span class="result-pill info">INTERPRETATION</span></div>
+<p>This run is neither “Camotion solved traversal” nor “Camotion failed.” 01.12 established the practical limit of strong baked-exposure motion encoding on Ghost Library. 01.8 remains the current Camotion baseline. 01.5 / strength 0.08 remains the conservative directed video baseline where appropriate. The complete system can nevertheless produce genuinely compelling traversal shots. Camotion artifacts remain visible in conditioned stills, but they can become less perceptually important during successful moving shots. The movie-level metric is increasingly: does the model shoot the route? — not: is A′ aesthetically clean as a still?</p>
+<p>Do not reopen the 01.12 brute-force strength/sigma/kernel branch. Scene-aware selection from a very small known-safe Camotion exposure-strength range is an unvalidated next research direction. It is not Camotion 01.13.</p>
+</article>
+
+<div class="finding">
+<strong>Current product direction, not built</strong>
+<p>TunnelVision may not need a large interactive editing UI initially. User gives a story. TunnelVision plans the film. Storyboard frames appear as generation completes. Optional cheap canonical Keep / Redo. Then <b>SHOOT MOVIE</b>. The storyboard presents the crew’s decisions, not a pile of generations. A redo of D would invalidate C→D and D→E reasoning. A possible Screenwriter agent upstream of the Director, Cinematographer canonical review (PASS / REGEN / REPAIR), variable duration, and Runway last-frame discovery remain hypotheses. See the Markdown docs and <a href="../../camotion/integration/wardrobe-loop-01/REPORT.md">the Integration Test 01 report</a>.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Integration Test 01 artifacts live under camotion/integration/wardrobe-loop-01/. The original assembled movie is ThoughTheWardrobe.mov. This page plays the browser MP4 derivative.</span>
+</footer>
+<nav class="chapter-nav"><a href="05-depth-banded-camotion.html" class="prev-link">← Depth-Banded Camotion</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

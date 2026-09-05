@@ -10,6 +10,7 @@ import { sha256Bytes, sha256File } from "../src/hash.ts";
 import { resolveMediaInput, toReplicateFileInput } from "../src/media-input.ts";
 import { ReplicateMediaProvider } from "../src/replicate/provider.ts";
 import { toSeedance25Input } from "../src/replicate/seedance-2.5.ts";
+import { toFlux11ProUltraInput } from "../src/replicate/flux-1.1-pro-ultra.ts";
 import type { ReplicatePredictionClient } from "../src/replicate/client.ts";
 
 test("missing REPLICATE_API_TOKEN fails with configuration error", async () => {
@@ -244,4 +245,68 @@ test("Replicate 422 validation errors map to invalid_input", async () => {
       return true;
     },
   );
+});
+
+test("generic image request maps onto FLUX 1.1 Pro Ultra without a reference image", () => {
+  const input = toFlux11ProUltraInput(
+    {
+      prompt: "First-person cinematic POV inside a cozy attic bedroom",
+      seed: 10101,
+    },
+    {
+      aspectRatio: "16:9",
+      raw: false,
+      outputFormat: "png",
+      safetyTolerance: 2,
+    },
+  );
+  assert.deepEqual(input, {
+    prompt: "First-person cinematic POV inside a cozy attic bedroom",
+    aspect_ratio: "16:9",
+    raw: false,
+    output_format: "png",
+    safety_tolerance: 2,
+    seed: 10101,
+  });
+  assert.equal("image_prompt" in input, false);
+  assert.equal("image_prompt_strength" in input, false);
+});
+
+test("successful image prediction returns structured GeneratedImage without secrets", async () => {
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      assert.equal(options.model, "black-forest-labs/flux-1.1-pro-ultra");
+      assert.equal("image_prompt" in options.input, false);
+      return {
+        id: "pred_img",
+        status: "starting",
+        model: "black-forest-labs/flux-1.1-pro-ultra",
+        version: "flux-version",
+      };
+    },
+    async wait() {
+      return {
+        id: "pred_img",
+        status: "succeeded",
+        model: "black-forest-labs/flux-1.1-pro-ultra",
+        version: "flux-version",
+        output: "https://replicate.delivery/example.png",
+      };
+    },
+  };
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    client,
+  });
+  const result = await provider.generateImage({
+    prompt: "attic bedroom",
+    seed: 10101,
+  });
+  assert.equal(result.provider, "replicate");
+  assert.equal(result.predictionId, "pred_img");
+  assert.equal(result.outputUrl, "https://replicate.delivery/example.png");
+  assert.equal(JSON.stringify(result).includes("r8_testtokenvalue"), false);
+  const flux = result.metadata.flux as Record<string, unknown>;
+  assert.equal(flux.seed, 10101);
+  assert.equal(flux.aspect_ratio, "16:9");
 });

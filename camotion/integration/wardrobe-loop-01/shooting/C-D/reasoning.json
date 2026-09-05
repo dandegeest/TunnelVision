@@ -1,0 +1,82 @@
+{
+  "shot": "C-D",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "model_version": "hidden",
+  "prediction_id": "qdf3ge3eg5rmr0d0dtnv5emrgg",
+  "elapsed_ms": 13340,
+  "route": "Advance along the snowy path, bypassing flanking tree trunks, to cross the threshold of the stone archway.",
+  "pinned": {
+    "forward": true,
+    "exposure": true
+  },
+  "raw": {
+    "route": "Advance along the snowy path, bypassing flanking tree trunks, to cross the threshold of the stone archway.",
+    "start": {
+      "environment": "Snow-covered forest path leading to an ancient stone archway framing a distant structure.",
+      "destination": {
+        "description": "The open threshold of the stone archway.",
+        "point": [
+          0.5,
+          0.6
+        ],
+        "protect": true,
+        "bbox": [
+          0.42,
+          0.35,
+          0.57,
+          0.7
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.5,
+          0.58
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "large snowy tree trunk on the left",
+        "large snowy tree trunk on the right",
+        "bare snowy bushes in the foreground"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    },
+    "end": {
+      "environment": "Ruined stone hall with a wide, ascending staircase leading to a luminous archway.",
+      "destination": {
+        "description": "The glowing archway at the top of the grand staircase.",
+        "point": [
+          0.51,
+          0.3
+        ],
+        "protect": true,
+        "bbox": [
+          0.44,
+          0.13,
+          0.58,
+          0.43
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.51,
+          0.28
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "stone rubble in the immediate foreground",
+        "massive stone pillars lining the left and right"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    }
+  },
+  "text": "{\n  \"route\": \"Advance along the snowy path, bypassing flanking tree trunks, to cross the threshold of the stone archway.\",\n  \"start\": {\n    \"environment\": \"Snow-covered forest path leading to an ancient stone archway framing a distant structure.\",\n    \"destination\": {\n      \"description\": \"The open threshold of the stone archway.\",\n      \"point\": [0.50, 0.60],\n      \"protect\": true,\n      \"bbox\": [0.42, 0.35, 0.57, 0.70]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.50, 0.58],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"large snowy tree trunk on the left\",\n      \"large snowy tree trunk on the right\",\n      \"bare snowy bushes in the foreground\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  },\n  \"end\": {\n    \"environment\": \"Ruined stone hall with a wide, ascending staircase leading to a luminous archway.\",\n    \"destination\": {\n      \"description\": \"The glowing archway at the top of the grand staircase.\",\n      \"point\": [0.51, 0.30],\n      \"protect\": true,\n      \"bbox\": [0.44, 0.13, 0.58, 0.43]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.51, 0.28],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"stone rubble in the immediate foreground\",\n      \"massive stone pillars lining the left and right\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  }\n}"
+}

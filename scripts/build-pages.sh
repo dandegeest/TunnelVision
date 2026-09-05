@@ -25,19 +25,20 @@ rm -rf "$OUT/Keyframe Exploration"
 rm -f "$OUT/TunnelVision_Prototype_Exploration_Log.html"
 rm -f "$OUT/TunnelTV.png"
 
-# 2. Scan research HTML for references into camotion/tuning/ and stage
-#    only the files actually used.  Fail if a referenced file is missing.
+# 2. Scan research HTML for references into camotion/tuning/ and
+#    camotion/integration/ and stage only the files actually used.
+#    Fail if a referenced file is missing.
 MISSING=0
 while IFS= read -r rel; do
-    # rel looks like ../../camotion/tuning/foo.png or ../camotion/tuning/foo.png
+    # rel looks like ../../camotion/tuning/foo.png or ../camotion/integration/...
     # Strip only leading ../ segments to get the repo-relative path.
     repo_rel="$(echo "$rel" | sed 's|^\(\.\./\)*||')"
 
-    # Must start with camotion/tuning/ after normalization.
+    # Must start with an allowed Camotion evidence prefix after normalization.
     case "$repo_rel" in
-        camotion/tuning/*) ;;
+        camotion/tuning/*|camotion/integration/*) ;;
         *)
-            echo "ERROR: normalized path does not start with camotion/tuning/: $repo_rel (from $rel)" >&2
+            echo "ERROR: normalized path is not allowed Camotion evidence: $repo_rel (from $rel)" >&2
             MISSING=$((MISSING + 1))
             continue
             ;;
@@ -64,9 +65,9 @@ while IFS= read -r rel; do
     mkdir -p "$(dirname "$dest")"
     cp "$src" "$dest"
 done < <(
-    # Extract href="..." and src="..." values containing camotion/tuning.
+    # Extract href="..." and src="..." values containing camotion evidence.
     # Use grep (not rg) so this runs on GitHub-hosted Ubuntu runners.
-    grep -hEo '(src|href)="[^"]*camotion/tuning[^"]*"' \
+    grep -hEo '(src|href)="[^"]*camotion/(tuning|integration)[^"]*"' \
         "$REPO_ROOT"/genesis/*.html \
         "$REPO_ROOT"/genesis/research/*.html 2>/dev/null \
     | sed -E 's/^(src|href)="//; s/"$//' \
@@ -79,14 +80,16 @@ if [ "$MISSING" -gt 0 ]; then
     exit 1
 fi
 
-# 3. Rewrite ../../camotion/tuning → ../camotion/tuning in research pages.
-#    genesis/research/ was two levels below repo root; now it is one level
-#    below the site root.
+# 3. Rewrite ../../camotion/{tuning,integration} → ../camotion/{tuning,integration}
+#    in research pages. genesis/research/ was two levels below repo root;
+#    now it is one level below the site root.
 for f in "$OUT"/research/*.html; do
     if sed --version >/dev/null 2>&1; then
         sed -i 's|../../camotion/tuning|../camotion/tuning|g' "$f"
+        sed -i 's|../../camotion/integration|../camotion/integration|g' "$f"
     else
         sed -i '' 's|../../camotion/tuning|../camotion/tuning|g' "$f"
+        sed -i '' 's|../../camotion/integration|../camotion/integration|g' "$f"
     fi
 done
 

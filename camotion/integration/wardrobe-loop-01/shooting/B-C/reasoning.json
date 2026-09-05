@@ -1,0 +1,82 @@
+{
+  "shot": "B-C",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "model_version": "hidden",
+  "prediction_id": "ygy27chp5xrmr0d0dthv5s98tc",
+  "elapsed_ms": 15649,
+  "route": "Forward through the dark, root-lined passage into the snowy forest.",
+  "pinned": {
+    "forward": true,
+    "exposure": true
+  },
+  "raw": {
+    "route": "Forward through the dark, root-lined passage into the snowy forest.",
+    "start": {
+      "environment": "Dark passage with hanging clothes opening into a bright snowy forest.",
+      "destination": {
+        "description": "The snowy threshold opening into the forest.",
+        "point": [
+          0.51,
+          0.75
+        ],
+        "protect": true,
+        "bbox": [
+          0.35,
+          0.15,
+          0.65,
+          0.85
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.51,
+          0.45
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "hanging clothes",
+        "gnarled roots",
+        "dark tree trunks"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    },
+    "end": {
+      "environment": "Snowy forest path leading to a large stone archway.",
+      "destination": {
+        "description": "The ground path passing through the stone archway.",
+        "point": [
+          0.5,
+          0.7
+        ],
+        "protect": true,
+        "bbox": [
+          0.4,
+          0.33,
+          0.6,
+          0.75
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.5,
+          0.57
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "snow-covered branches",
+        "foreground tree trunks"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    }
+  },
+  "text": "{\n  \"route\": \"Forward through the dark, root-lined passage into the snowy forest.\",\n  \"start\": {\n    \"environment\": \"Dark passage with hanging clothes opening into a bright snowy forest.\",\n    \"destination\": {\n      \"description\": \"The snowy threshold opening into the forest.\",\n      \"point\": [0.51, 0.75],\n      \"protect\": true,\n      \"bbox\": [0.35, 0.15, 0.65, 0.85]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.51, 0.45],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"hanging clothes\",\n      \"gnarled roots\",\n      \"dark tree trunks\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  },\n  \"end\": {\n    \"environment\": \"Snowy forest path leading to a large stone archway.\",\n    \"destination\": {\n      \"description\": \"The ground path passing through the stone archway.\",\n      \"point\": [0.50, 0.70],\n      \"protect\": true,\n      \"bbox\": [0.40, 0.33, 0.60, 0.75]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.50, 0.57],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"snow-covered branches\",\n      \"foreground tree trunks\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  }\n}"
+}

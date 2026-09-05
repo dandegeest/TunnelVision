@@ -94,6 +94,9 @@ function countingProvider(): MediaProvider & { readonly calls: string[] } {
         elapsedMs: 8000,
       };
     },
+    async generateImage() {
+      throw new Error("generateImage not used");
+    },
   };
   return provider;
 }
@@ -223,6 +226,9 @@ test("failure stops subsequent execution and leaves earlier evidence", async () 
         completedAt: "2026-09-03T18:00:08.000Z",
         elapsedMs: 8000,
       };
+    },
+    async generateImage() {
+      throw new Error("generateImage not used");
     },
   };
   const report = await runBenchmarkBatch({

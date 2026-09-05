@@ -3,7 +3,33 @@
 This is the intended product workspace. It is **not** the current
 implementation. Current code is Camotion v1
 (`image + CameraMotionPlan JSON` → shooting-frame still; optional
-near-weight sidecar). Do not scaffold this UI yet.
+near-weight sidecar), plus the Integration Test 01 pipeline in
+`media/` (image generation, vision reasoning, thin cinematographer
+planning, Seedance). Do not scaffold this UI yet.
+
+## Primary interaction (current product direction)
+
+The first product surface is a **simple autonomous storyboard**, not a
+large interactive editor.
+
+1.  User gives TunnelVision a story / journey concept.
+2.  TunnelVision plans the film.
+3.  Storyboard frames appear progressively as generation completes.
+4.  Optional cheap canonical intervention: Keep, Redo, possibly Redo
+    With Note / Adjust.
+5.  User presses **SHOOT MOVIE**.
+6.  Cinematographer planning, Camotion, video generation,
+    evaluation/retry, and deterministic assembly run unattended.
+
+The storyboard is a readable representation of the autonomous crew's
+decisions. It should reveal filmmaking intent without requiring
+filmmaking vocabulary.
+
+> **TunnelVision presents decisions, not generations.**
+
+A redo of canonical D invalidates and recomputes adjacent shot
+reasoning for C→D and D→E. Do not build this UI in the current
+checkpoint.
 
 ## Primary workspace
 
@@ -13,17 +39,18 @@ frames**:
 `A → B → C → D → E → F`
 
 The storyboard is the path; do not duplicate it with a separate reel.
-Clicking a frame opens a large viewer, with arrows to move through
-canonical frames for spatial-continuity review.
+Later, clicking a frame may open a large viewer for spatial-continuity
+review. Destination pointing (**go there**) remains a later
+collaborative mode, not the opening contract.
 
 ## Opening state
 
-Minimum brief: - starting frame --- upload or generate; - story /
-journey idea --- freeform; - approximate duration.
+Minimum brief: a story / journey idea. Starting-frame upload and
+approximate duration are later collaborative controls.
 
-How duration maps to shot/viewpoint count is an **open question**. Do
-not invent a formula in order to start Camotion or the later Director
-slice.
+How duration maps to shot/viewpoint count, and whether individual
+shots should use different supported durations, are **open
+questions**. Do not invent a formula or schema in this checkpoint.
 
 ## Canonical vs candidates
 
@@ -95,22 +122,28 @@ Human changes are preference signals. PreferenceState schema is an
 
 ## Expensive-generation boundary
 
-Approve still exploration before expensive video rendering. A later
-primary action can be **Shoot Journey**.
+Approve still exploration before expensive video rendering. The
+current primary action name is **SHOOT MOVIE** (formerly described as
+Shoot Journey). Canonical Keep / Redo happens before that action.
+Intended later Cinematographer review of actual canonicals (PASS /
+REGEN / REPAIR) is recorded in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md) and is **not** implemented.
 
 ## First product vertical slice (later)
 
-The first useful *product* need not generate video. It should accept a
-start frame/brief, generate a next viewpoint, show alternatives,
-accept/replace a candidate, append it to the storyboard, allow
-destination redirection, and repeat.
+The first useful *product* is the autonomous storyboard plus SHOOT
+MOVIE, not a manual destination editor. Integration Test 01 already
+exercised the unattended filmmaking path after canonicals exist. The
+storyboard UI itself is **not** the current milestone.
 
-That slice now has a MediaProvider video contract in `media/`. It is
-**not** the current UI milestone. Current research is Camotion shooting
-frames plus a Replicate video runner. A controlled 01.3–01.8 series
-exists. 01.5 remains the conservative directed-traversal baseline.
-01.8 Route-Preserved Exposure remains the current Camotion baseline.
-01.9, 01.10, and 01.11 are still-only evidence and are not promoted. Unvalidated
-cinematographer control ideas (pace, embodiment, Prompt Only vs Auto)
-are in
+That slice now has MediaProvider image and video contracts in
+`media/`. Current research also includes Camotion shooting frames, a
+Replicate video runner, and Integration Test 01. A controlled
+01.3–01.8 series exists. 01.5 remains the conservative
+directed-traversal baseline. 01.8 Route-Preserved Exposure remains
+the current Camotion baseline. 01.9, 01.10, 01.11, and 01.12 are
+still-only evidence and are not promoted. Unvalidated
+cinematographer control ideas (pace, embodiment, Prompt Only vs Auto,
+traversable intermediate volume, scene-aware Camotion strength,
+velocity continuity) are in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md), not current UI. There is no UI.

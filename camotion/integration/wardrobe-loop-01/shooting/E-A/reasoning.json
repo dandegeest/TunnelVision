@@ -1,0 +1,83 @@
+{
+  "shot": "E-A",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "model_version": "hidden",
+  "prediction_id": "rf3rbrxs6srmy0d0dtvsgpnwt0",
+  "elapsed_ms": 14259,
+  "route": "Travel forward along the stone path, passing glowing flora, to enter the ordinary wooden door.",
+  "pinned": {
+    "forward": true,
+    "exposure": true
+  },
+  "raw": {
+    "route": "Travel forward along the stone path, passing glowing flora, to enter the ordinary wooden door.",
+    "start": {
+      "environment": "A subterranean cavern with glowing water, mushrooms, and a stone path leading to a glowing doorway.",
+      "destination": {
+        "description": "The wooden bedroom door standing at the end of the stone path.",
+        "point": [
+          0.5,
+          0.5
+        ],
+        "protect": true,
+        "bbox": [
+          0.45,
+          0.33,
+          0.55,
+          0.69
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.5,
+          0.5
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "stone path edges",
+        "glowing mushrooms",
+        "ferns"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    },
+    "end": {
+      "environment": "A cozy attic bedroom with an angled wooden roof, bed, and an open wooden wardrobe.",
+      "destination": {
+        "description": "The dark opening between the open doors of the wooden wardrobe.",
+        "point": [
+          0.51,
+          0.47
+        ],
+        "protect": true,
+        "bbox": [
+          0.49,
+          0.16,
+          0.54,
+          0.78
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.51,
+          0.47
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "bed linens",
+        "floor rug",
+        "stuffed toys"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    }
+  },
+  "text": "{\n  \"route\": \"Travel forward along the stone path, passing glowing flora, to enter the ordinary wooden door.\",\n  \"start\": {\n    \"environment\": \"A subterranean cavern with glowing water, mushrooms, and a stone path leading to a glowing doorway.\",\n    \"destination\": {\n      \"description\": \"The wooden bedroom door standing at the end of the stone path.\",\n      \"point\": [0.50, 0.50],\n      \"protect\": true,\n      \"bbox\": [0.45, 0.33, 0.55, 0.69]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.50, 0.50],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"stone path edges\",\n      \"glowing mushrooms\",\n      \"ferns\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  },\n  \"end\": {\n    \"environment\": \"A cozy attic bedroom with an angled wooden roof, bed, and an open wooden wardrobe.\",\n    \"destination\": {\n      \"description\": \"The dark opening between the open doors of the wooden wardrobe.\",\n      \"point\": [0.51, 0.47],\n      \"protect\": true,\n      \"bbox\": [0.49, 0.16, 0.54, 0.78]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.51, 0.47],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"bed linens\",\n      \"floor rug\",\n      \"stuffed toys\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  }\n}"
+}

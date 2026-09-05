@@ -43,13 +43,33 @@ of first appearance** on this fixture. 01.10 is **not** promoted.
 01.11 Exposure Operator Characterization is completed still-only
 diagnostic evidence; sparse trajectory sampling is **not** the
 dominant remaining cause of structured Ghost Library copies. 01.11
-is **not** promoted. Do not begin 01.12.
+is **not** promoted. 01.12 Baked-Exposure Operating Window is
+completed still-only diagnostic evidence; no useful pristine-source
+operating window was observed on Ghost Library. Classification
+**C + D**. 01.12 is **not** promoted. This closes the current
+exposure-operator tuning branch. Do not begin the next Camotion
+experiment from this checkpoint. Do not call any next Camotion
+experiment 01.13 from this checkpoint.
+
+**Integration Test 01 — The Wardrobe Loop is completed.** First
+unattended end-to-end TunnelVision movie experiment. Not Camotion
+01.13. Independent FLUX 1.1 Pro Ultra canonicals A–E (F byte-identical
+to A), Gemini 3.1 Pro vision shot plans, pinned Camotion 01.8 shooting
+frames, Seedance 2.5 videos, zero video retries, no Camotion retuning.
+Human-reviewed assembled movie:
+`camotion/integration/wardrobe-loop-01/videos/ThoughTheWardrobe.mov`.
+Do not characterize the test as Camotion solving or failing
+traversal. Compelling traversals occurred; Camotion stills still show
+baked-exposure artifacts. The movie-level metric is whether the model
+shoots the route. See
+`camotion/integration/wardrobe-loop-01/REPORT.md`.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark
-Harness. Do not scaffold Director, Cinematographer, or UI in this
-checkpoint.
+Harness. Do not scaffold Director, Screenwriter, UI, or expand the
+thin Integration Test 01 cinematographer into a product package in
+this checkpoint.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
@@ -58,15 +78,17 @@ remain an open question.
 ## What exists vs what not to scaffold
 
 Planning docs in `docs/` describe current architecture.
-`camotion/` is the Python renderer. `media/` is the video
-MediaProvider package. Credentials are environment variables
-(`REPLICATE_API_TOKEN` today), filled locally from gitignored
+`camotion/` is the Python renderer. `media/` is the MediaProvider
+package (image + video), ReasoningProvider, and a thin cinematographer
+pair planner used by Integration Test 01. Credentials are environment
+variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. See
 `media/README.md`.
 
-Do **not** create `web/`, `server/`, Director modules,
-Cinematographer modules, PreferenceState, journey workspace layout, or
-other application scaffolding in this research stage.
+Do **not** create `web/`, `server/`, Director modules, Screenwriter,
+a full Cinematographer product package, PreferenceState, journey
+workspace layout, or other application scaffolding in this research
+stage.
 
 ## Camotion v1 is an experiment, not Terran's Photoshop Action
 
@@ -234,22 +256,47 @@ Intended Camotion / Cinematographer research order:
     remaining cause; no candidate promoted.** Same 01.8 trajectory
     geometry. Exposure only: no compositor, depth, masks, route, or
     destination protection. Keep the diagnostic code and evidence.
-    Do not start a Seedance/video test for 01.11. Do not begin 01.12
-    from this checkpoint.
-10. Validate / freeze an updated Camotion baseline **if** justified.
-    Do not assume it will. Do not promote 01.9, 01.10, or 01.11.
-    **01.8 remains the current Camotion baseline.**
-11. Automated Cinematographer + Camotion Benchmark Harness.
-12. Cross-style / cross-model experiments.
+    Do not start a Seedance/video test for 01.11.
+10. Diagnostic baked-exposure operating window (01.12) ---
+    **completed still-only; classification C + D; no useful
+    pristine window; exposure-operator tuning branch closed; not
+    promoted.** Existing 01.8 fixed-16 gather only. Strengths
+    0.02 / 0.04 / 0.06 / 0.08 × pristine / sigma=1 diagnostic
+    control. Keep the diagnostic code and evidence. Do not start a
+    Seedance/video test for 01.12. Do not search additional
+    strengths, sigma values, shutter weightings, integration
+    kernels, or compositors. Do not begin the next experiment from
+    this checkpoint.
+11. Integration Test 01 — The Wardrobe Loop --- **completed.** Not
+    Camotion 01.13. Independent text-to-image canonicals, no
+    reference-image chaining, F byte-identical to A, five shots, zero
+    video retries, no human intervention between shot generations, no
+    Camotion retuning, pinned 01.8. Human-reviewed assembled movie
+    preserved as `videos/ThoughTheWardrobe.mov`. Browser playback
+    derivative: `videos/ThoughTheWardrobe.mp4` (H.264 bitstream copy,
+    audio omitted). Do not reopen 01.12 brute-force exposure tuning.
+12. Deterministic final-video assembly --- **implementation
+    follow-up, not done in this checkpoint.** Concatenate ordered
+    successful shot videos into a final MP4. Hard butt joins. No
+    transitions, optical flow, stabilization, or grading. Plumbing,
+    not an Edit agent. Do not invent creative editing.
+13. Validate / freeze an updated Camotion baseline **if** justified.
+    Do not assume it will. Do not promote 01.9, 01.10, 01.11, or
+    01.12. **01.8 remains the current Camotion baseline.** Do not
+    start Camotion 01.13. Scene-aware Camotion strength selection is
+    unvalidated backlog, not the next numbered Camotion experiment.
+14. Automated Cinematographer + Camotion Benchmark Harness.
+15. Cross-style / cross-model experiments.
 
 CameraMotionPlan v1 stays frozen. Default `render()` stays the
 continuous near-weight path. Do not formalize `A_in` / `A_out` or
 `B_in` / `B_out`.
 
 These later product phases remain ordered so that **the MediaProvider
-contract exists before Director code depends on it**. The first
-video-only MediaProvider slice now lives in `media/`. Do not
-implement Director or Cinematographer in this checkpoint.
+contract exists before Director code depends on it**. Image and video
+MediaProvider slices now live in `media/`. Do not implement Director
+or Screenwriter in this checkpoint. Do not expand the thin Integration
+Test 01 cinematographer into a product package.
 
 The current intended video path is shooting-frame start, shooting-frame
 end, and locomotion prompt. Extra pristine/canonical reference images
@@ -466,8 +513,8 @@ Camotion-conditioned A′ differs.
 
 **01.5 remains the conservative directed-traversal baseline.** **01.8
 Route-Preserved Exposure remains the current Camotion baseline**, not
-a CameraMotionPlan field. 01.9, 01.10, and 01.11 are still-only
-evidence and are not promoted.
+a CameraMotionPlan field. 01.9, 01.10, 01.11, and 01.12 are
+still-only evidence and are not promoted.
 
 On this Replicate series, 01.6 did **not** reproduce the severe
 terminal-orientation collapse/retreat previously observed through
@@ -485,9 +532,11 @@ Preserve the distinction among canonical spatial authority, Camotion
 motion conditioning, and generative-video improvisation.
 
 Do not treat this as a Camotion renderer freeze. 01.9 Adaptive
-Exposure Integration, 01.10 Depth-Compositor Ablation, and 01.11
-Exposure Operator Characterization are recorded below as completed
-still-only experiments; none is promoted.
+Exposure Integration, 01.10 Depth-Compositor Ablation, 01.11
+Exposure Operator Characterization, and 01.12 Baked-Exposure
+Operating Window are recorded below as completed still-only
+experiments; none is promoted. 01.12 closes the current
+exposure-operator tuning branch.
 
 ### Prompt-control camera speed and embodiment
 
@@ -613,8 +662,8 @@ Evidence:
 
 The next research question --- where the repeated-object appearance
 first emerges through compositor stages --- is recorded below as
-completed 01.10 evidence. 01.11 is recorded after that. Do not
-begin 01.12 here.
+completed 01.10 evidence. 01.11 and 01.12 are recorded after that.
+Do not begin the next experiment here.
 
 ### Depth-compositor ablation (01.10; completed still-only diagnostic)
 
@@ -707,7 +756,7 @@ Evidence:
 -   `tuning/analysis/01.10/01.10-effective-contributions.npz`
 
 The 01.11 exposure-operator characterization that followed this
-diagnostic is recorded below. Do not implement 01.12 here.
+diagnostic is recorded below. 01.12 follows 01.11.
 
 ### Exposure-operator characterization (01.11; completed still-only diagnostic)
 
@@ -790,18 +839,91 @@ Evidence:
 -   `tuning/analysis/01.11/01.11-contact-left-skeleton.png`
 -   `tuning/analysis/01.11/01.11-point-profiles.json`
 
-The next research question is untested. 01.12 should determine
-whether a useful baked-exposure regime exists where trajectory
-displacement remains strong enough to provide a meaningful Camotion
-motion cue while structured-object duplication remains acceptable.
-Characterize path length / exposure strength against source spatial
-bandwidth, using the existing 01.8 gather and a very small
-controlled matrix. Do not treat this as parameter optimization. If
-no useful regime exists, that would motivate leaving
-exposure-operator tuning rather than continuing to search for
-another integration kernel. Capture the question in
-[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement 01.12
+The 01.12 baked-exposure operating window that followed this
+diagnostic is recorded below. Do not implement the next experiment
 here.
+
+### Baked-exposure operating window (01.12; completed still-only diagnostic)
+
+01.12 Baked-Exposure Operating Window asked whether a useful
+baked-exposure regime exists where displacement is strong enough
+to provide a meaningful directional motion cue **and** structured
+scene content does not develop objectionable repeated-object
+appearance.
+
+**Controlled variables.** Existing 01.8 fixed-16 destination-gather
+only. Same Ghost Library source, radial field, FoE `(0.50, 0.56)`,
+outgoing orientation, N=16, bilinear interpolation. No compositor,
+masks, route, or destination protection in the primary matrix.
+Varied only exposure strength (`0.02`, `0.04`, `0.06`, `0.08`) and
+source spatial bandwidth (pristine vs sigma=1 Gaussian as a
+**diagnostic control only**). Not parameter optimization. Not a
+new operator.
+
+**Observed.**
+
+-   01.12 tested the existing 01.8 fixed-16 destination-gather
+    exposure at strengths 0.02, 0.04, 0.06, and 0.08.
+-   Each strength was tested with the pristine source and with
+    sigma=1 prefiltering as a diagnostic control only.
+-   0.02 preserved structured content reasonably well but produced
+    only a weak directional motion cue, especially near the FoE.
+-   0.04 produced a meaningfully useful peripheral directional cue,
+    but recognizable repeated structure was already clearly present
+    in fingers, flames, and other artifact features.
+-   0.06 and 0.08 produced strong directional cues but objectionable
+    structured-content duplication.
+-   Therefore no useful pristine-source operating window was
+    observed on the Ghost Library fixture: the motion cue becomes
+    useful at approximately the same point that structured
+    duplication becomes objectionable.
+-   Sigma=1 prefiltering reduced copy readability across strengths
+    by reducing source spatial detail. It did not establish a
+    sharp-detail operating window.
+
+Whole-image path length scales linearly with strength (mean 12.6 /
+25.2 / 37.8 / 50.4 px). 0.08 pristine is byte-identical to the
+01.10 strong-exposure intermediate.
+
+**Interpretation, not proof.** Classification **C + D**. Prefiltering
+remains diagnostic evidence and is **not** a proposed Camotion
+pipeline change. The 01.12 stop rule applies: do not search
+additional strengths, sigma values, shutter weightings, integration
+kernels, or compositors. This closes the current exposure-operator
+tuning branch. Do not claim that baked exposure can never matter
+on another fixture, that sigma=1 should be added to Camotion, or
+that a replacement conditioning mechanism has been chosen.
+
+**Baseline.** 01.8 Route-Preserved Exposure remains the current
+Camotion baseline. 01.12 is preserved as diagnostic evidence and is
+**not** promoted. No 01.12 condition is promoted. It is not a new
+renderer version. No Seedance/video test is warranted for 01.12
+based on the still result. CameraMotionPlan v1 remains frozen.
+Default `render()` remains the continuous near-weight path.
+`apply_multisample_exposure()` remains the 01.8 gather.
+
+Evidence:
+
+-   `tuning/01.12-operating-window-config.json`
+-   `tuning/characterize_operating_window.py`
+-   `src/camotion/operating_window.py`
+-   `tests/test_operating_window.py`
+-   `tuning/analysis/01.12-operating-window.json`
+-   `tuning/analysis/01.12/01.12-matrix-thumbs.png`
+-   `tuning/analysis/01.12/01.12-contact-right-skeleton.png`
+-   `tuning/analysis/01.12/01.12-contact-left-skeleton.png`
+-   `tuning/analysis/01.12/01.12-s008-pristine.png`
+
+The next research question is untested and is **above** the current
+baked-exposure primitive: how can Camotion communicate useful
+camera direction/motion to the video model without integrating a
+long trajectory of recognizable scene structure into a single
+shooting frame? Do not choose or implement a replacement mechanism
+yet. Do not prematurely promote motion fields, auxiliary
+conditioning, overlays, multiple frames, or another specific
+representation into the architecture. Capture the question in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement the
+next experiment here.
 
 ### Cinematographer integration
 
@@ -809,14 +931,20 @@ Open question: module boundaries. Intended *role*: for accepted frame
 pairs, analyze route/geometry, emit ShotPlan, derive CameraMotionPlan,
 invoke Camotion, fill a locomotion template, call the video provider,
 and judge directed A→B shots by endpoint fidelity first, then
-traversal. The MediaProvider video request now exists in `media/`.
-Do not scaffold Cinematographer until the role is needed.
+traversal. Integration Test 01 used a thin pair planner in
+`media/src/cinematographer/` against actual stills. The MediaProvider
+image and video requests now exist in `media/`. Do not expand that
+planner into a product package in this checkpoint.
 
-### Shoot Journey
+### SHOOT MOVIE
 
-Later product action: plan/review canonical storyboard, derive shooting
+Current product-direction name for the later action formerly called
+Shoot Journey: plan/review canonical storyboard, derive shooting
 frames, render video from those shooting frames, assemble in canonical
-order, surface failures.
+order, surface failures. Integration Test 01 ran the unattended path
+after canonicals existed. Deterministic concat of ordered successful
+shot videos is the immediate assembly follow-up (hard butts, no
+creative editing). Do not create an Edit agent for this.
 
 ## Experimental artifact --- continuous-locomotion prompt
 
@@ -880,14 +1008,33 @@ cross-module refactors.
 modules, tests, numerical/image-processing debugging.
 
 Avoid asking either tool to "build TunnelVision." Give milestone-sized
-tasks. This checkpoint records 01.11 Exposure Operator
-Characterization as a completed still-only diagnostic. Sparse
-trajectory sampling is not the dominant remaining cause of
-structured Ghost Library copies. Keep 01.8 as the current Camotion
-baseline. Do not start 01.12, and do not silently replace default
-`render()`.
+tasks. This checkpoint records Integration Test 01 — The Wardrobe Loop
+as a completed unattended movie experiment, and 01.12 Baked-Exposure
+Operating Window as completed still-only diagnostic. Classification
+C + D. No useful pristine-source window. The current exposure-operator
+tuning branch is closed. Keep 01.8 as the current Camotion
+baseline. Do not start Camotion 01.13, and do not silently
+replace default `render()`.
 
 ## Hackathon strategy
+
+Product work continues from the current autonomous filmmaking
+pipeline and continues using and improving Camotion: story →
+autonomous canonical planning → shootable traversal → movie.
+
+A separate Runway hackathon exploration is the **last-frame
+discovery** experiment: whether the system can use the actual final
+world-state produced by one generated shot as the starting point for
+deciding where to go next. That is **not** a replacement for current
+TunnelVision before it is validated. Do not restructure the current
+application around it.
+
+Conceptual evolution, not a roadmap:
+
+-   Old TunnelVision: human chooses where to go next
+-   Current TunnelVision: agents pre-plan where to go next
+-   Hackathon question: the film discovers where it actually went,
+    then decides where to go next
 
 Before the event: genesis log, Camotion v1, JSON contracts, then ---
 only as needed --- MediaProvider contract, Replicate, Director
@@ -939,9 +1086,21 @@ Do not resolve these in Camotion v1 or by inventing schemas now:
     discrete 01.8 sampling artifacts and a filled dense point
     streak, while structured Ghost Library features still read as
     transformed copies; sparse sampling is not the dominant
-    remaining cause. No 01.11 candidate is promoted. 01.12 should
-    test whether a useful baked-exposure regime exists. Do not
-    begin 01.12 from this checkpoint.
+    remaining cause. 01.12 found no useful pristine baked-exposure
+    operating window (classification C + D). The motion cue becomes
+    useful at approximately the same point that structured
+    duplication becomes objectionable. Exposure-operator tuning is
+    closed. The next untested question is above the baked-exposure
+    primitive. Do not begin a Camotion 01.13 experiment from this
+    checkpoint. Scene-aware selection of a small known-safe Camotion
+    exposure-strength range is a different unvalidated question; see
+    [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md)
 -   final Cinematographer module boundaries
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination
+-   whether shootability requires a traversable intermediate spatial
+    story, including optional intermediate canonicals
+-   shot-boundary velocity continuity and variable shot duration
+-   a possible Screenwriter agent upstream of the Director
+-   Cinematographer canonical review (PASS / REGEN / REPAIR) before
+    expensive video

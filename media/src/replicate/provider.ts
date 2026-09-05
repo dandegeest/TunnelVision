@@ -4,11 +4,19 @@ import { getOptionalEnv } from "../config/environment.ts";
 import { classifyProviderFailure, MediaGenerationError, redactSecrets, assertNoSecret } from "../errors.ts";
 import { resolveMediaInput } from "../media-input.ts";
 import {
+  GeneratedImage,
   GeneratedVideo,
+  ImageGenerationRequest,
   MediaProvider,
   VideoGenerationRequest,
 } from "../types.ts";
 import { ReplicatePrediction, ReplicatePredictionClient } from "./client.ts";
+import {
+  FLUX_11_PRO_ULTRA_MODEL,
+  Flux11ProUltraSettings,
+  toFlux11ProUltraInput,
+} from "./flux-1.1-pro-ultra.ts";
+import { extractOutputUrl } from "./output.ts";
 import {
   SEEDANCE_25_MODEL,
   Seedance25Settings,
@@ -20,41 +28,73 @@ const MISSING_TOKEN_MESSAGE = "REPLICATE_API_TOKEN is not set";
 export type ReplicateMediaProviderOptions = {
   readonly token?: string;
   readonly model?: string;
+  readonly imageModel?: string;
   readonly seedance?: Seedance25Settings;
+  readonly flux?: Flux11ProUltraSettings;
   readonly client?: ReplicatePredictionClient;
 };
 
 export class ReplicateMediaProvider implements MediaProvider {
   private readonly token: string | undefined;
   private readonly model: string;
+  private readonly imageModel: string;
   private readonly seedance: Seedance25Settings | undefined;
+  private readonly flux: Flux11ProUltraSettings | undefined;
   private readonly client: ReplicatePredictionClient;
 
   constructor(options: ReplicateMediaProviderOptions = {}) {
     this.token = options.token ?? getOptionalEnv("REPLICATE_API_TOKEN");
     this.model = options.model ?? SEEDANCE_25_MODEL;
+    this.imageModel = options.imageModel ?? FLUX_11_PRO_ULTRA_MODEL;
     this.seedance = options.seedance;
+    this.flux = options.flux;
     this.client = options.client ?? createOfficialClient(this.token);
   }
 
   async generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo> {
-    if (!this.token) {
-      throw new MediaGenerationError("configuration", MISSING_TOKEN_MESSAGE);
-    }
-
-    const startedAt = new Date();
+    this.assertConfigured();
     const start = await resolveMediaInput(request.startImage);
     const end = request.endImage
       ? await resolveMediaInput(request.endImage)
       : undefined;
     const input = toSeedance25Input(request, start, end, this.seedance);
+    return this.runFilePrediction(this.model, input as unknown as Record<string, unknown>);
+  }
 
+  async generateImage(request: ImageGenerationRequest): Promise<GeneratedImage> {
+    this.assertConfigured();
+    const input = toFlux11ProUltraInput(request, this.flux);
+    const result = await this.runFilePrediction(
+      this.imageModel,
+      input as unknown as Record<string, unknown>,
+    );
+    const submitted = toFlux11ProUltraInput(request, this.flux);
+    const withFlux = {
+      ...result,
+      metadata: {
+        ...result.metadata,
+        flux: submitted,
+      },
+    };
+    assertNoSecret(withFlux, this.token);
+    return withFlux;
+  }
+
+  private assertConfigured(): void {
+    if (!this.token) {
+      throw new MediaGenerationError("configuration", MISSING_TOKEN_MESSAGE);
+    }
+  }
+
+  private async runFilePrediction(
+    model: string,
+    input: Record<string, unknown>,
+  ): Promise<GeneratedVideo> {
+    this.assertConfigured();
+    const startedAt = new Date();
     let prediction: ReplicatePrediction;
     try {
-      prediction = await this.client.create({
-        model: this.model,
-        input: input as unknown as Record<string, unknown>,
-      });
+      prediction = await this.client.create({ model, input });
       prediction = await this.client.wait(prediction);
     } catch (error) {
       throw wrapClientError(error, this.token);
@@ -89,7 +129,7 @@ export class ReplicateMediaProvider implements MediaProvider {
 
     const result = {
       provider: "replicate" as const,
-      model: prediction.model ?? this.model,
+      model: prediction.model ?? model,
       modelVersion: prediction.version ?? null,
       predictionId: prediction.id,
       status: "succeeded" as const,
@@ -127,34 +167,6 @@ function createOfficialClient(token: string | undefined): ReplicatePredictionCli
       return completed as ReplicatePrediction;
     },
   };
-}
-
-function extractOutputUrl(output: unknown): string | null {
-  if (typeof output === "string" && /^https?:\/\//i.test(output)) {
-    return output;
-  }
-  if (Array.isArray(output) && typeof output[0] === "string") {
-    return output[0];
-  }
-  if (output && typeof output === "object" && "href" in output) {
-    const href = (output as { href?: unknown }).href;
-    if (typeof href === "string") {
-      return href;
-    }
-  }
-  if (output && typeof output === "object" && "url" in output) {
-    const url = (output as { url?: unknown }).url;
-    if (typeof url === "function") {
-      const value = url.call(output);
-      if (typeof value === "string") {
-        return value;
-      }
-    }
-    if (typeof url === "string") {
-      return url;
-    }
-  }
-  return null;
 }
 
 function wrapClientError(error: unknown, token?: string): MediaGenerationError {

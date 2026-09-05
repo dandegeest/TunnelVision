@@ -44,11 +44,31 @@ and Camotion work.
 
 ## User promise
 
-Starting with an image and a story idea, TunnelVision builds a
-physically plausible first-person journey through an imagined world. The
-user can let the system direct autonomously or intervene by choosing an
-alternative frame or pointing at a destination and effectively saying
-**go there**.
+The current product direction is a **simple autonomous storyboard**,
+not a large interactive editor.
+
+1.  The user gives TunnelVision a story / journey concept.
+2.  TunnelVision plans the film.
+3.  Storyboard frames appear progressively as generation completes so
+    the user watches the story emerge.
+4.  The user can optionally intervene at the cheap canonical stage:
+    Keep, Redo, and possibly Redo With Note / Adjust.
+5.  Once satisfied, the user presses **SHOOT MOVIE**.
+6.  TunnelVision performs Cinematographer planning, Camotion
+    conditioning, video generation, evaluation/retry as appropriate,
+    and deterministic final assembly.
+
+The storyboard is initially a readable representation of the
+autonomous crew's decisions rather than a traditional manual editor.
+
+> **TunnelVision presents decisions, not generations.**
+
+The UI should reveal filmmaking intent without requiring the user to
+know filmmaking vocabulary. A redo of canonical D would invalidate
+and recompute adjacent shot reasoning for C→D and D→E. Destination
+pointing (**go there**) remains a later collaborative capability, not
+the initial product surface. Do not build this UI in the current
+checkpoint.
 
 ## Filmmaking roles
 
@@ -81,7 +101,8 @@ There is no separate Edit agent initially. The storyboard keeps
 currently receives Camotion **shooting frames**, not those canonical
 images. How to derive distinct arrival/departure derivatives
 (`B_in` / `B_out`) is an **open question** --- do not treat it as
-solved.
+solved. Deterministic concatenation of ordered shot videos is
+plumbing, not an Edit agent.
 
 ## Product principles
 
@@ -121,10 +142,12 @@ reasoning provider should support configurable model routing by role
 or profile so Director, Cinematographer, and Evaluator may use
 different models.
 
-The MediaProvider contract now exists in `media/` for **video
-generation only**. Director code must depend on that contract, not
-on a raw Replicate client. Do not implement image generation, Runway,
-or Krea adapters in this slice.
+The MediaProvider contract in `media/` now covers **video and image
+generation** (Seedance 2.5 and FLUX 1.1 Pro Ultra adapters). Director
+code must depend on that contract, not on a raw Replicate client. Do
+not implement Runway or Krea adapters in this slice. A thin
+Cinematographer pair planner also exists in `media/` for Integration
+Test 01; it is not a finished product package.
 
 The current intended video path is:
 
@@ -144,16 +167,25 @@ vendor-neutral API.
 
 ## Initial experience
 
-Ask for a starting frame, freeform journey/story idea, and approximate
-duration. A later Director may propose a canonical storyboard. The user
-can accept it, inspect alternatives, replace a selection, point to a
-different destination, and step through frames to audit spatial
-continuity.
+The intended first product surface is the autonomous storyboard above:
+story concept in, progressive canonicals out, optional Keep / Redo,
+then **SHOOT MOVIE**. Approximate duration and destination pointing
+are later collaborative controls, not the opening contract.
 
-How duration maps to shot count is an **open question**. Do not treat
-"Director infers viewpoint count from duration" as a specified
-algorithm. This initial experience is the intended product, not the
-current Camotion research.
+How duration maps to shot count, and whether shot duration should vary
+per move, are **open questions**. Do not treat "Director infers
+viewpoint count from duration" as a specified algorithm. Do not
+formalize a duration schema in this checkpoint.
+
+An **unvalidated** later crew hypothesis places a Screenwriter agent
+upstream of the Director (narrative beats and journey structure,
+without Camotion or provider geometry). Do not create
+`ScreenwriterAgent` or Screenwriter schemas until evidence justifies
+them. See [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
+
+This initial experience is current product direction, not a claim that
+the UI exists. Integration Test 01 exercised the unattended pipeline
+behind SHOOT MOVIE, not the storyboard UI.
 
 ## Success criteria
 

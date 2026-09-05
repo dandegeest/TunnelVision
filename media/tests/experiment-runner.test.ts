@@ -171,6 +171,9 @@ test("research runner calls MediaProvider rather than Replicate directly", async
         elapsedMs: 8000,
       };
     },
+    async generateImage() {
+      throw new Error("generateImage not used");
+    },
   };
 
   const record = await runExperiment({
@@ -215,6 +218,9 @@ test("runner records the provider error Replicate actually reports", async () =>
         providerMessage: "prediction failed",
         predictionId: "pred_fail",
       });
+    },
+    async generateImage() {
+      throw new Error("generateImage not used");
     },
   };
   await assert.rejects(

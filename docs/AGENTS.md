@@ -5,6 +5,29 @@ agent names. Do not hardcode provider or model IDs into a role.
 Routing belongs on a configurable reasoning-provider profile so
 Director, Cinematographer, and Evaluator may use different models.
 
+## Screenwriter --- what is the journey? (unvalidated)
+
+**Do not implement.** Integration Test 01 and movie-level review
+suggest TunnelVision may benefit from a Screenwriter agent upstream
+of the Director. This is an architectural/product hypothesis requiring
+evidence, not a current role.
+
+Potential separation:
+
+-   **Screenwriter:** interpret the user's story concept; create
+    narrative beats and spatial journey structure; determine important
+    transitions / thresholds; describe pacing and dramatic emphasis;
+    think in journey beats rather than camera geometry. Does **not**
+    know about Camotion, vanishing points, or provider parameters.
+-   **Director:** visual interpretation of those beats; world/style
+    continuity; canonical visual intentions; which canonical positions
+    should exist.
+-   **Cinematographer:** sees the **actual** generated frames and asks
+    whether they can be shot.
+
+Do not create `ScreenwriterAgent` or Screenwriter schemas in this
+checkpoint.
+
 ## Director --- where do we go next?
 
 Inputs: current/prior canonical frames, journey brief, remaining
@@ -38,8 +61,32 @@ Video currently receives those shooting frames plus the locomotion
 prompt. Canonical frames stay storyboard/world-state authority; they
 are not currently video inputs.
 
-**Final Cinematographer module boundaries are an open question.** Do
-not scaffold a Cinematographer package alongside Camotion.
+Integration Test 01 used a **thin** pair planner in
+`media/src/cinematographer/`: inspect actual start/end stills, emit
+shot-specific CameraMotionPlan v1 JSON, pin `forward=1.0` and 01.8
+exposure. That is evidence that vision-on-actual-stills works (D was
+planned upward from the generated stair, not from unused “descend”
+story text). It is **not** a finished Cinematographer package.
+
+**Final Cinematographer module boundaries remain an open question.**
+Do not expand that thin planner into a product package in this
+checkpoint. Do not scaffold a Cinematographer package alongside
+Camotion.
+
+Intended later shootability questions, **not implemented**:
+
+-   Can I describe a continuous spatial route from this camera
+    position into the next world? A destination object is not enough;
+    the shot needs traversable depth through the transition.
+-   If not, recommend REGEN / REPAIR, or an intermediate canonical
+    (`E → X → A`).
+-   Canonical review before expensive video: PASS / REGEN / REPAIR.
+    Guideline: regeneration preserves exploration; editing preserves
+    composition. Review + shot planning may later share one reasoning
+    call when PASS.
+-   Practical shot duration and physical camera pace, including exit
+    and entry velocity across shot boundaries. Accidental speed jumps
+    should not simply be repaired in post.
 
 ## Camotion Engine
 
@@ -72,6 +119,11 @@ Do not initially model an Editor. The storyboard handoff is the
 canonical frame. Video currently uses Camotion shooting frames as
 start/end images. Distinct `B_in` / `B_out` derivatives and whether
 they can hand off invisibly remain an **open question**.
+
+Deterministic final-movie assembly (ordered successful shot videos,
+hard butt joins, no transitions, grading, or optical flow) is
+plumbing, not an Edit agent. It is an implementation follow-up, not
+current work in this checkpoint.
 
 ## Stable locomotion principle
 

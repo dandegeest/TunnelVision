@@ -193,18 +193,140 @@ transformed copies along a long single-frame path. Prefiltering is
 a bandwidth effect, not a chosen intervention. No 01.11 candidate
 is promoted.
 
-**UNTESTED 01.12 question:** 01.12 should determine whether a
-useful baked-exposure regime exists where trajectory displacement
-remains strong enough to provide a meaningful Camotion motion cue
-while structured-object duplication remains acceptable.
+01.12 Baked-Exposure Operating Window is completed still-only
+diagnostic evidence against the 01.8 baseline. Not a renderer
+promotion. No video test. See
+`camotion/tuning/analysis/01.12-operating-window.json`.
 
-Characterize path length / exposure strength against source spatial
-bandwidth, using the existing 01.8 gather and a very small
-controlled matrix. Do not treat this as parameter optimization.
+**Observation.** 01.12 tested the existing 01.8 fixed-16
+destination-gather exposure at strengths 0.02, 0.04, 0.06, and
+0.08, each with the pristine source and with sigma=1 prefiltering
+as a diagnostic control only. 0.02 preserved structured content
+reasonably well but produced only a weak directional motion cue,
+especially near the FoE. 0.04 produced a meaningfully useful
+peripheral directional cue, but recognizable repeated structure was
+already clearly present in fingers, flames, and other artifact
+features. 0.06 and 0.08 produced strong directional cues but
+objectionable structured-content duplication. Sigma=1 reduced copy
+readability across strengths by reducing source spatial detail. It
+did not establish a sharp-detail operating window. Path length
+scales linearly (whole-image mean 12.6 / 25.2 / 37.8 / 50.4 px).
 
-If no useful regime exists, that would motivate leaving
-exposure-operator tuning rather than continuing to search for
-another integration kernel. Do not begin 01.12 from this file.
+**Interpretation, not proof.** Classification **C + D**. No useful
+pristine-source operating window was observed on the Ghost Library
+fixture: the motion cue becomes useful at approximately the same
+point that structured duplication becomes objectionable.
+Prefiltering remains diagnostic evidence and is **not** a proposed
+Camotion pipeline change. The 01.12 stop rule applies: do not
+search additional strengths, sigma values, shutter weightings,
+integration kernels, or compositors. This closes the current
+exposure-operator tuning branch. No 01.12 condition is promoted.
+
+**UNTESTED next question:** How can Camotion communicate useful
+camera direction/motion to the video model without integrating a
+long trajectory of recognizable scene structure into a single
+shooting frame? This question is **above** the current
+baked-exposure primitive. Do not choose or implement a replacement
+mechanism yet. Do not prematurely promote motion fields, auxiliary
+conditioning, overlays, multiple frames, or another specific
+representation into the architecture. Do not begin that experiment
+from this file. Do **not** call any next Camotion experiment 01.13
+from this checkpoint.
+
+## Integration Test 01 — traversable intermediate volume
+
+Completed movie evidence, not a schema. Human review of the Wardrobe
+Loop found that a destination object is not enough: the shot needs
+**traversable depth through the transition**. The best transitions
+provided somewhere for the camera to exist BETWEEN canonicals
+(wardrobe interior, forest corridor, stairway/portal). The weakest
+shot (E→A) approached a flat bedroom door, then the world became the
+bedroom.
+
+Unvalidated future Cinematographer shootability question: *Can I
+describe a continuous spatial route from this camera position into
+the next world?* A future CM may decide it cannot cover a move in
+one shot and recommend an intermediate canonical (`E → X → A`). Do
+not implement subdivision or intermediate-canonical insertion yet.
+
+## Movie-level velocity and variable duration
+
+Assembling Integration Test 01 with hard butts made accidental
+perceived camera-speed jumps visible, especially at A→B / B→C.
+Hypothesis: Cinematographer planning should eventually consider exit
+velocity from one shot and entry velocity into the next. Deliberate
+acceleration/deceleration may be narratively useful. Accidental
+speed jumps should not simply be repaired in post.
+
+Related improvement over the original manual TunnelVision / DITD
+workflow: shot duration should not necessarily be globally fixed.
+The ~5-second generative cadence in DITD became a perceptible
+rhythm. Unvalidated split: Screenwriter owns narrative pacing / beat
+importance; Cinematographer decides practical shot duration and
+physical camera pace within provider-supported durations. If a move
+cannot be covered naturally in one supported duration, subdivide
+rather than forcing it. No schema in this checkpoint.
+
+## Scene-aware Camotion operating range
+
+**UNVALIDATED.** Not Camotion 01.13. Do not implement. Do not reopen
+01.12 brute-force strength/sigma/kernel/compositor search.
+
+Integration Test 01 used the same pinned Camotion 01.8 parameters on
+every canonical. Actual source images differ in how much baked
+motion cue they may tolerate.
+
+Research question: can scene-aware selection of a **very small**
+known-safe Camotion exposure-strength range (for example subtle /
+moderate / strong), with all other Camotion variables fixed, improve
+video behavior across heterogeneous shots?
+
+Possible visual cues a later Cinematographer could reason about:
+depth range; foreground density; foreground structures near screen
+edges; central traversal corridor openness; destination size;
+destination depth / surface vs volume; strength of existing
+perspective; occlusion opportunities; semantic content inside
+regions Camotion would smear; peripheral structure available as
+motion cue; existing directional geometry (trees, rails, stairs,
+corridors); fine structured detail likely to create repeated copies.
+
+## Screenwriter agent
+
+Unvalidated crew hypothesis. Do not create `ScreenwriterAgent`.
+
+User → Screenwriter → Director → canonical generation → CM review /
+shootability → Camotion → video model → review → final movie.
+
+Screenwriter interprets story, beats, spatial journey, thresholds,
+and dramatic emphasis without knowing Camotion or provider geometry.
+Director determines visual interpretation and canonical positions.
+Cinematographer asks, from actual frames, whether the move can be
+shot.
+
+## Canonical review before expensive video
+
+Likely owner: Cinematographer, not a new reviewer agent. Possible
+decisions: PASS, REGEN, REPAIR. Guideline: regeneration preserves
+exploration; editing preserves composition. REGEN is preferred
+during discovery if concept/geography is wrong. REPAIR may fit a
+strong composition with a localized violation (for example an
+unwanted person in Wardrobe Loop B). Review + shot planning may later
+share one reasoning call when PASS. Do not implement in this
+checkpoint.
+
+## Simple autonomous storyboard
+
+Current **product direction**, not a backlog experiment to design
+here. See [PRODUCT.md](PRODUCT.md) and [UX.md](UX.md). Do not build
+the UI in this checkpoint.
+
+## Runway last-frame discovery
+
+Hackathon research branch, not current architecture. Investigate
+whether the actual final world-state of a generated shot can become
+the starting point for deciding where to go next. Not a replacement
+for pre-planned canonical journeys until validated. Do not
+restructure the application around it.
 
 ## Camotion conditioning overlay / Cinematographer Inspector
 
@@ -253,9 +375,13 @@ explanation/inspection mode.
     storyboard decisions.
 -   **Draft → Full fixed-seed promotion** as a later experiment.
 -   **Cinematographer screen-time reasoning:** how much of a shot's
-    duration a traversal deserves.
+    duration a traversal deserves. Integration Test 01 added
+    movie-level evidence that duration should not be globally fixed
+    and that exit/entry velocity may need to be planned.
 -   **Export-stage boundary finishing:** `A′ | A→B | B′` with possible
     hard bookends, short dissolves, or future interpolation /
-    Smooth-Cut-like treatment.
+    Smooth-Cut-like treatment. Immediate assembly follow-up is
+    deterministic hard-join concat only, not this finishing layer.
 
-Do not begin Camotion 01.12 from this file.
+Do not begin the next Camotion experiment from this file. Do not
+start Camotion 01.13.

@@ -308,12 +308,15 @@ Do **not** design these until a later milestone needs them:
 
 -   Journey, CanonicalFrame, CandidateFrame, DirectorDecision
 -   PreferenceState
--   ImageGenerationRequest, GeneratedAsset
 -   duration → shot count
 -   automated traversal scores
+-   Screenwriter beats / journey-structure schemas
+-   per-shot duration or velocity-continuity fields
+-   intermediate-canonical insertion as a typed decision
 
-`VideoGenerationRequest`, `GeneratedVideo`, and `MediaInput` now exist
-as TunnelVision-owned provider-boundary types in `media/src/types.ts`.
+`VideoGenerationRequest`, `GeneratedVideo`, `ImageGenerationRequest`,
+`GeneratedImage`, and `MediaInput` now exist as TunnelVision-owned
+provider-boundary types in `media/src/types.ts`.
 They are not Camotion types and must not appear in CameraMotionPlan.
 
 Current video inputs: start shooting frame, optional end shooting
@@ -326,9 +329,15 @@ provider-specific knobs stay behind the adapter.
 -   `B_in` / `B_out` handoff strategy
 -   PreferenceState schema
 -   duration → shot count
+-   whether shot duration and camera velocity should vary across a
+    journey, including exit/entry continuity at shot boundaries
 -   how vanishing point is derived from a destination (human vs model
     vs code)
 -   how a future Cinematographer derives changing camera geometry while
     turning toward a user-selected destination (not strafing; not v1)
 -   whether a more photographic depth-dependent renderer should replace
     current radial exposure (open; not a plan-schema question)
+-   whether shootability requires a traversable intermediate spatial
+    story, including optional intermediate canonicals
+-   a possible Screenwriter agent upstream of the Director (not a v1
+    type)

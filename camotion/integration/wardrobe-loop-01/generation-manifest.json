@@ -1,0 +1,971 @@
+{
+  "experiment": "wardrobe-loop-01",
+  "title": "THE WARDROBE LOOP",
+  "git_commit": "79c9a05e11b6d64abb36afdb92e9ca4ec2a370d1",
+  "f_equals_a": true,
+  "image_provider": "replicate",
+  "image_model": "black-forest-labs/flux-1.1-pro-ultra",
+  "video_provider": "replicate",
+  "video_model": "bytedance/seedance-2.5",
+  "reasoning_provider": "replicate",
+  "reasoning_model": "google/gemini-3.1-pro",
+  "camotion_baseline": "01.8-route-preserved",
+  "seedance_defaults": {
+    "resolution": "720p",
+    "aspectRatio": "adaptive",
+    "generateAudio": false,
+    "watermark": false,
+    "outputFormat": "mp4"
+  },
+  "replicate_calls": {
+    "image": 5,
+    "reasoning": 5,
+    "video": 5
+  },
+  "assembled_movie": {
+    "title": "ThoughTheWardrobe",
+    "kind": "human-reviewed concatenated artifact",
+    "note": "Canonical Integration Test 01 assembled movie. Manual DaVinci Resolve hard cuts. Not pipeline output. Preserve the MOV.",
+    "original": {
+      "path": "camotion/integration/wardrobe-loop-01/videos/ThoughTheWardrobe.mov",
+      "container": "mov",
+      "encoder": "Blackmagic Design DaVinci Resolve",
+      "sha256": "89177b9083d47e934fffe0b4bc7bccb093dfb60c217e523477dbc2289f24c9af",
+      "bytes": 27595118,
+      "duration_seconds": 30.208333,
+      "width": 1284,
+      "height": 716
+    },
+    "browser": {
+      "path": "camotion/integration/wardrobe-loop-01/videos/ThoughTheWardrobe.mp4",
+      "note": "Website playback derivative only. H.264 bitstream copied; PCM audio omitted because source shots were generated silent.",
+      "ffmpeg": "ffmpeg -y -i camotion/integration/wardrobe-loop-01/videos/ThoughTheWardrobe.mov -c:v copy -an -movflags +faststart camotion/integration/wardrobe-loop-01/videos/ThoughTheWardrobe.mp4",
+      "sha256": "9b11ebeadf3e3ef699c2201c16a0d25618655ec02be554a413ce13cae908b991",
+      "bytes": 18894119
+    },
+    "shot_order": ["A-B", "B-C", "C-D", "D-E", "E-A"],
+    "joins": "hard cuts, no transitions, no grading",
+    "concat_follow_up": "Deterministic ordered hard-join MP4 concat is an implementation follow-up. Not an Edit agent."
+  },
+  "canonicals": {
+    "A": {
+      "canonical_id": "A",
+      "skipped": false,
+      "prompt": "First-person cinematic POV inside a cozy child's attic bedroom at night, cinematic dark-fantasy realism with richly detailed storybook production design. The viewer stands several feet from a tall antique carved wooden wardrobe centered ahead. Its double doors stand partly open, revealing mysterious deep darkness between hanging clothes. The opening is clearly large enough for a person to walk through.\n\nWarm amber light from a small bedside lamp mixes with cool blue moonlight from an attic window. Wooden floorboards, an inviting bed, books, toys and believable lived-in childhood details frame the composition without blocking the central route.\n\nStrong natural perspective leads directly toward the wardrobe. Objects near the edges of the room provide strong foreground depth and parallax opportunities.\n\nTactile wood, cloth and plaster, atmospheric cinematic lighting, magical but physically believable, deep perspective, clear walkable route, no people, no visible body parts, no text, 16:9.",
+      "provider": "replicate",
+      "model": "black-forest-labs/flux-1.1-pro-ultra",
+      "model_version": "hidden",
+      "prediction_id": "pryb30n3hnrmw0d0dtfbfrs650",
+      "aspect_ratio": "16:9",
+      "seed": 10101,
+      "parameters": {
+        "prompt": "First-person cinematic POV inside a cozy child's attic bedroom at night, cinematic dark-fantasy realism with richly detailed storybook production design. The viewer stands several feet from a tall antique carved wooden wardrobe centered ahead. Its double doors stand partly open, revealing mysterious deep darkness between hanging clothes. The opening is clearly large enough for a person to walk through.\n\nWarm amber light from a small bedside lamp mixes with cool blue moonlight from an attic window. Wooden floorboards, an inviting bed, books, toys and believable lived-in childhood details frame the composition without blocking the central route.\n\nStrong natural perspective leads directly toward the wardrobe. Objects near the edges of the room provide strong foreground depth and parallax opportunities.\n\nTactile wood, cloth and plaster, atmospheric cinematic lighting, magical but physically believable, deep perspective, clear walkable route, no people, no visible body parts, no text, 16:9.",
+        "aspect_ratio": "16:9",
+        "raw": false,
+        "output_format": "png",
+        "safety_tolerance": 2,
+        "seed": 10101
+      },
+      "output_path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+      "output_url": "https://replicate.delivery/xezq/GV89tocbiJ7CDptLM11BOWIDv20dfjfgWyJvmsQPp9B41PKXA/tmp9vdt1lp2.png",
+      "started_at": "2026-09-04T22:51:25.076Z",
+      "completed_at": "2026-09-04T22:51:36.536Z",
+      "elapsed_ms": 11460,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "image_count": 1,
+          "image_output_count": 1,
+          "predict_time": 10.543268975,
+          "total_time": 10.580841101
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/pryb30n3hnrmw0d0dtfbfrs650/cancel",
+          "get": "https://api.replicate.com/v1/predictions/pryb30n3hnrmw0d0dtfbfrs650",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-e7x5klrkujos4vdbdwz3gdmpk7nolxydfbaukoodga526sraa7eq",
+          "web": "https://replicate.com/p/pryb30n3hnrmw0d0dtfbfrs650"
+        },
+        "flux": {
+          "prompt": "First-person cinematic POV inside a cozy child's attic bedroom at night, cinematic dark-fantasy realism with richly detailed storybook production design. The viewer stands several feet from a tall antique carved wooden wardrobe centered ahead. Its double doors stand partly open, revealing mysterious deep darkness between hanging clothes. The opening is clearly large enough for a person to walk through.\n\nWarm amber light from a small bedside lamp mixes with cool blue moonlight from an attic window. Wooden floorboards, an inviting bed, books, toys and believable lived-in childhood details frame the composition without blocking the central route.\n\nStrong natural perspective leads directly toward the wardrobe. Objects near the edges of the room provide strong foreground depth and parallax opportunities.\n\nTactile wood, cloth and plaster, atmospheric cinematic lighting, magical but physically believable, deep perspective, clear walkable route, no people, no visible body parts, no text, 16:9.",
+          "aspect_ratio": "16:9",
+          "raw": false,
+          "output_format": "png",
+          "safety_tolerance": 2,
+          "seed": 10101
+        }
+      },
+      "bytes": 4848374,
+      "width": 2752,
+      "height": 1536,
+      "format": "PNG",
+      "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820"
+    },
+    "B": {
+      "canonical_id": "B",
+      "skipped": false,
+      "prompt": "First-person cinematic POV deep inside an impossible passage beyond an old wardrobe, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe bedroom is no longer visible.\n\nThe viewer is already far inside a narrow mysterious passage where hanging coats and heavy dark fabrics near the camera gradually give way to frost-covered pine branches and ancient tree trunks. Dark polished wood, cloth, roots and branches create a tactile tunnel-like environment around the viewer.\n\nStraight ahead, a bright moonlit opening leads clearly into a vast snowy forest. The opening is large enough to walk through and is the unmistakable route forward.\n\nStrong close foreground objects on both sides create parallax opportunities. Cool moonlight dominates ahead, with only a faint residual amber warmth deep behind the viewer's implied position.\n\nMagical but physically navigable, strong depth, believable materials, atmospheric mist, no bedroom furniture, no people, no visible body parts, no text, 16:9.",
+      "provider": "replicate",
+      "model": "black-forest-labs/flux-1.1-pro-ultra",
+      "model_version": "hidden",
+      "prediction_id": "gfeaffphmdrmw0d0dtfbsa3bv4",
+      "aspect_ratio": "16:9",
+      "seed": 10102,
+      "parameters": {
+        "prompt": "First-person cinematic POV deep inside an impossible passage beyond an old wardrobe, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe bedroom is no longer visible.\n\nThe viewer is already far inside a narrow mysterious passage where hanging coats and heavy dark fabrics near the camera gradually give way to frost-covered pine branches and ancient tree trunks. Dark polished wood, cloth, roots and branches create a tactile tunnel-like environment around the viewer.\n\nStraight ahead, a bright moonlit opening leads clearly into a vast snowy forest. The opening is large enough to walk through and is the unmistakable route forward.\n\nStrong close foreground objects on both sides create parallax opportunities. Cool moonlight dominates ahead, with only a faint residual amber warmth deep behind the viewer's implied position.\n\nMagical but physically navigable, strong depth, believable materials, atmospheric mist, no bedroom furniture, no people, no visible body parts, no text, 16:9.",
+        "aspect_ratio": "16:9",
+        "raw": false,
+        "output_format": "png",
+        "safety_tolerance": 2,
+        "seed": 10102
+      },
+      "output_path": "camotion/integration/wardrobe-loop-01/canonical/B.png",
+      "output_url": "https://replicate.delivery/xezq/m2t7ZKatOVK2Et2KZQXklsSDOuYVP5Q6FWOI6eZrNxSB7HlLA/tmp9wa0mp6b.png",
+      "started_at": "2026-09-04T22:51:37.074Z",
+      "completed_at": "2026-09-04T22:51:47.041Z",
+      "elapsed_ms": 9967,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "image_count": 1,
+          "image_output_count": 1,
+          "predict_time": 9.466058625,
+          "total_time": 9.475771815
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/gfeaffphmdrmw0d0dtfbsa3bv4/cancel",
+          "get": "https://api.replicate.com/v1/predictions/gfeaffphmdrmw0d0dtfbsa3bv4",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-x3gm7nogkzd7fti4lpdov2qs7x7544tmh7teuagroq64l5rxwndq",
+          "web": "https://replicate.com/p/gfeaffphmdrmw0d0dtfbsa3bv4"
+        },
+        "flux": {
+          "prompt": "First-person cinematic POV deep inside an impossible passage beyond an old wardrobe, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe bedroom is no longer visible.\n\nThe viewer is already far inside a narrow mysterious passage where hanging coats and heavy dark fabrics near the camera gradually give way to frost-covered pine branches and ancient tree trunks. Dark polished wood, cloth, roots and branches create a tactile tunnel-like environment around the viewer.\n\nStraight ahead, a bright moonlit opening leads clearly into a vast snowy forest. The opening is large enough to walk through and is the unmistakable route forward.\n\nStrong close foreground objects on both sides create parallax opportunities. Cool moonlight dominates ahead, with only a faint residual amber warmth deep behind the viewer's implied position.\n\nMagical but physically navigable, strong depth, believable materials, atmospheric mist, no bedroom furniture, no people, no visible body parts, no text, 16:9.",
+          "aspect_ratio": "16:9",
+          "raw": false,
+          "output_format": "png",
+          "safety_tolerance": 2,
+          "seed": 10102
+        }
+      },
+      "bytes": 4621720,
+      "width": 2752,
+      "height": 1536,
+      "format": "PNG",
+      "sha256": "26cfa5ba61c7ff154666f1a2387c7007e32083cb8c8d732dc9538410589e93c9"
+    },
+    "C": {
+      "canonical_id": "C",
+      "skipped": false,
+      "prompt": "First-person cinematic POV deep within a vast moonlit winter forest, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe viewer has already emerged completely into the forest. No wardrobe, bedroom, hanging coats or interior architecture is visible.\n\nAncient snow-covered pine trees tower overhead. Large trunks and snowy branches pass close to both sides of the viewer, creating dramatic foreground depth.\n\nA clearly walkable snow-covered path leads forward through the trees.\n\nCentered ahead stands a large ancient weathered stone archway covered with frost and dormant vines. Through the arch, darker stone architecture and a subtle warmer glow hint at forgotten ruins beyond.\n\nCool blue moonlight, faint mist, tactile snow, bark and stone, strong cinematic depth, physically believable geography, clear route through the arch, no people, no visible body parts, no text, 16:9.",
+      "provider": "replicate",
+      "model": "black-forest-labs/flux-1.1-pro-ultra",
+      "model_version": "hidden",
+      "prediction_id": "6fsag5ztgdrmt0d0dtfa601414",
+      "aspect_ratio": "16:9",
+      "seed": 10103,
+      "parameters": {
+        "prompt": "First-person cinematic POV deep within a vast moonlit winter forest, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe viewer has already emerged completely into the forest. No wardrobe, bedroom, hanging coats or interior architecture is visible.\n\nAncient snow-covered pine trees tower overhead. Large trunks and snowy branches pass close to both sides of the viewer, creating dramatic foreground depth.\n\nA clearly walkable snow-covered path leads forward through the trees.\n\nCentered ahead stands a large ancient weathered stone archway covered with frost and dormant vines. Through the arch, darker stone architecture and a subtle warmer glow hint at forgotten ruins beyond.\n\nCool blue moonlight, faint mist, tactile snow, bark and stone, strong cinematic depth, physically believable geography, clear route through the arch, no people, no visible body parts, no text, 16:9.",
+        "aspect_ratio": "16:9",
+        "raw": false,
+        "output_format": "png",
+        "safety_tolerance": 2,
+        "seed": 10103
+      },
+      "output_path": "camotion/integration/wardrobe-loop-01/canonical/C.png",
+      "output_url": "https://replicate.delivery/xezq/EObv8vl5xdZfXaBLLAuemiWCNTrCfD7loIsBim7FPZacsfocB/tmpriq25_ah.png",
+      "started_at": "2026-09-04T22:51:47.540Z",
+      "completed_at": "2026-09-04T22:51:58.715Z",
+      "elapsed_ms": 11175,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "image_count": 1,
+          "image_output_count": 1,
+          "predict_time": 10.310979808,
+          "total_time": 10.321604863
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/6fsag5ztgdrmt0d0dtfa601414/cancel",
+          "get": "https://api.replicate.com/v1/predictions/6fsag5ztgdrmt0d0dtfa601414",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-b6ft73ycrasytaazc6pcetild6gaeazzr7eqffzrjxnkw4wvr3iq",
+          "web": "https://replicate.com/p/6fsag5ztgdrmt0d0dtfa601414"
+        },
+        "flux": {
+          "prompt": "First-person cinematic POV deep within a vast moonlit winter forest, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe viewer has already emerged completely into the forest. No wardrobe, bedroom, hanging coats or interior architecture is visible.\n\nAncient snow-covered pine trees tower overhead. Large trunks and snowy branches pass close to both sides of the viewer, creating dramatic foreground depth.\n\nA clearly walkable snow-covered path leads forward through the trees.\n\nCentered ahead stands a large ancient weathered stone archway covered with frost and dormant vines. Through the arch, darker stone architecture and a subtle warmer glow hint at forgotten ruins beyond.\n\nCool blue moonlight, faint mist, tactile snow, bark and stone, strong cinematic depth, physically believable geography, clear route through the arch, no people, no visible body parts, no text, 16:9.",
+          "aspect_ratio": "16:9",
+          "raw": false,
+          "output_format": "png",
+          "safety_tolerance": 2,
+          "seed": 10103
+        }
+      },
+      "bytes": 5834541,
+      "width": 2752,
+      "height": 1536,
+      "format": "PNG",
+      "sha256": "9767bfa9c82f61c3d2e3f1e74b0dd6ecafa27416435003be62046c0dd3f79b08"
+    },
+    "D": {
+      "canonical_id": "D",
+      "skipped": false,
+      "prompt": "First-person cinematic POV inside a vast forgotten ancient ruin at night, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe viewer is already deep within an overgrown ruined stone courtyard. The snowy forest and entrance arch are no longer visible.\n\nMassive broken columns, weathered walls, moss, vines and damp stone pass close to both sides of the camera and create strong foreground depth.\n\nA clear stone route leads forward through the ruins.\n\nCentered ahead is a broad ancient stone stairway descending deep underground into darkness. A mysterious blue-green glow rises from somewhere below the stairs, mixed with occasional warm amber remnants from ancient lanterns.\n\nThe stairway is clearly traversable and is the unmistakable destination.\n\nTactile stone and vegetation, subtle mist, dramatic depth, physically coherent architecture, no people, no visible body parts, no text, 16:9.",
+      "provider": "replicate",
+      "model": "black-forest-labs/flux-1.1-pro-ultra",
+      "model_version": "hidden",
+      "prediction_id": "1m9vk098phrmy0d0dtfrbtz2a4",
+      "aspect_ratio": "16:9",
+      "seed": 10104,
+      "parameters": {
+        "prompt": "First-person cinematic POV inside a vast forgotten ancient ruin at night, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe viewer is already deep within an overgrown ruined stone courtyard. The snowy forest and entrance arch are no longer visible.\n\nMassive broken columns, weathered walls, moss, vines and damp stone pass close to both sides of the camera and create strong foreground depth.\n\nA clear stone route leads forward through the ruins.\n\nCentered ahead is a broad ancient stone stairway descending deep underground into darkness. A mysterious blue-green glow rises from somewhere below the stairs, mixed with occasional warm amber remnants from ancient lanterns.\n\nThe stairway is clearly traversable and is the unmistakable destination.\n\nTactile stone and vegetation, subtle mist, dramatic depth, physically coherent architecture, no people, no visible body parts, no text, 16:9.",
+        "aspect_ratio": "16:9",
+        "raw": false,
+        "output_format": "png",
+        "safety_tolerance": 2,
+        "seed": 10104
+      },
+      "output_path": "camotion/integration/wardrobe-loop-01/canonical/D.png",
+      "output_url": "https://replicate.delivery/xezq/WfCfHmzizfZVjpEjLgmeCYNVkeGuJhfezBCwQLr77AHCM7HlLA/tmpmzjci9ch.png",
+      "started_at": "2026-09-04T22:51:59.362Z",
+      "completed_at": "2026-09-04T22:52:08.817Z",
+      "elapsed_ms": 9455,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "image_count": 1,
+          "image_output_count": 1,
+          "predict_time": 8.594650087,
+          "total_time": 8.604275807
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/1m9vk098phrmy0d0dtfrbtz2a4/cancel",
+          "get": "https://api.replicate.com/v1/predictions/1m9vk098phrmy0d0dtfrbtz2a4",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-c56gystmsfub7osponh3p5eupsqf7f2doxbmh2zc3ynolwaqhkqa",
+          "web": "https://replicate.com/p/1m9vk098phrmy0d0dtfrbtz2a4"
+        },
+        "flux": {
+          "prompt": "First-person cinematic POV inside a vast forgotten ancient ruin at night, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe viewer is already deep within an overgrown ruined stone courtyard. The snowy forest and entrance arch are no longer visible.\n\nMassive broken columns, weathered walls, moss, vines and damp stone pass close to both sides of the camera and create strong foreground depth.\n\nA clear stone route leads forward through the ruins.\n\nCentered ahead is a broad ancient stone stairway descending deep underground into darkness. A mysterious blue-green glow rises from somewhere below the stairs, mixed with occasional warm amber remnants from ancient lanterns.\n\nThe stairway is clearly traversable and is the unmistakable destination.\n\nTactile stone and vegetation, subtle mist, dramatic depth, physically coherent architecture, no people, no visible body parts, no text, 16:9.",
+          "aspect_ratio": "16:9",
+          "raw": false,
+          "output_format": "png",
+          "safety_tolerance": 2,
+          "seed": 10104
+        }
+      },
+      "bytes": 5960610,
+      "width": 2752,
+      "height": 1536,
+      "format": "PNG",
+      "sha256": "cf60b53ea5a1965ff266abad157ccd154cd41f0f0313188b99f770be5333492a"
+    },
+    "E": {
+      "canonical_id": "E",
+      "skipped": false,
+      "prompt": "First-person cinematic POV deep inside an enormous magical underground cavern, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe ancient ruins and stairway are no longer visible.\n\nThe cavern is enormous but physically believable: wet dark rock, shallow reflective pools, enormous roots, luminous mushrooms and subtle bioluminescent plants create pools of blue-green light. Mist hangs low across the ground.\n\nLarge rock formations, roots and glowing vegetation pass close on both sides of the viewer, creating dramatic foreground depth and strong parallax opportunities.\n\nA dry walkable path leads directly forward.\n\nCentered ahead on that path stands something impossible: one completely ordinary antique wooden bedroom door standing upright in its own simple frame, freestanding in the cavern.\n\nThe door is closed.\n\nWarm amber bedroom light glows around its edges and beneath it.\n\nThe door is large enough for a person to walk through and is unmistakably the destination.\n\nMagical, mysterious and beautiful but spatially coherent, tactile physical materials, strong depth, no people, no visible body parts, no text, 16:9.",
+      "provider": "replicate",
+      "model": "black-forest-labs/flux-1.1-pro-ultra",
+      "model_version": "hidden",
+      "prediction_id": "7tevecjfq1rmy0d0dtfr00en1c",
+      "aspect_ratio": "16:9",
+      "seed": 10105,
+      "parameters": {
+        "prompt": "First-person cinematic POV deep inside an enormous magical underground cavern, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe ancient ruins and stairway are no longer visible.\n\nThe cavern is enormous but physically believable: wet dark rock, shallow reflective pools, enormous roots, luminous mushrooms and subtle bioluminescent plants create pools of blue-green light. Mist hangs low across the ground.\n\nLarge rock formations, roots and glowing vegetation pass close on both sides of the viewer, creating dramatic foreground depth and strong parallax opportunities.\n\nA dry walkable path leads directly forward.\n\nCentered ahead on that path stands something impossible: one completely ordinary antique wooden bedroom door standing upright in its own simple frame, freestanding in the cavern.\n\nThe door is closed.\n\nWarm amber bedroom light glows around its edges and beneath it.\n\nThe door is large enough for a person to walk through and is unmistakably the destination.\n\nMagical, mysterious and beautiful but spatially coherent, tactile physical materials, strong depth, no people, no visible body parts, no text, 16:9.",
+        "aspect_ratio": "16:9",
+        "raw": false,
+        "output_format": "png",
+        "safety_tolerance": 2,
+        "seed": 10105
+      },
+      "output_path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+      "output_url": "https://replicate.delivery/xezq/oO2DpIRZwIr7FNPSfxGg27sZTv4VzcKt3UfYfPgQIYwCtfocB/tmpq1awnpb8.png",
+      "started_at": "2026-09-04T22:52:09.357Z",
+      "completed_at": "2026-09-04T22:52:18.223Z",
+      "elapsed_ms": 8866,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "image_count": 1,
+          "image_output_count": 1,
+          "predict_time": 8.381832625,
+          "total_time": 8.392417434
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/7tevecjfq1rmy0d0dtfr00en1c/cancel",
+          "get": "https://api.replicate.com/v1/predictions/7tevecjfq1rmy0d0dtfr00en1c",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-6b25mzsxbismv72qt5b4meatoyuc5l6yecztfhb2m2n6mjinkq3q",
+          "web": "https://replicate.com/p/7tevecjfq1rmy0d0dtfr00en1c"
+        },
+        "flux": {
+          "prompt": "First-person cinematic POV deep inside an enormous magical underground cavern, cinematic dark-fantasy realism with richly detailed storybook production design.\n\nThe ancient ruins and stairway are no longer visible.\n\nThe cavern is enormous but physically believable: wet dark rock, shallow reflective pools, enormous roots, luminous mushrooms and subtle bioluminescent plants create pools of blue-green light. Mist hangs low across the ground.\n\nLarge rock formations, roots and glowing vegetation pass close on both sides of the viewer, creating dramatic foreground depth and strong parallax opportunities.\n\nA dry walkable path leads directly forward.\n\nCentered ahead on that path stands something impossible: one completely ordinary antique wooden bedroom door standing upright in its own simple frame, freestanding in the cavern.\n\nThe door is closed.\n\nWarm amber bedroom light glows around its edges and beneath it.\n\nThe door is large enough for a person to walk through and is unmistakably the destination.\n\nMagical, mysterious and beautiful but spatially coherent, tactile physical materials, strong depth, no people, no visible body parts, no text, 16:9.",
+          "aspect_ratio": "16:9",
+          "raw": false,
+          "output_format": "png",
+          "safety_tolerance": 2,
+          "seed": 10105
+        }
+      },
+      "bytes": 5802759,
+      "width": 2752,
+      "height": 1536,
+      "format": "PNG",
+      "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff"
+    },
+    "F": {
+      "canonical_id": "F",
+      "equals": "A",
+      "output_path": "camotion/integration/wardrobe-loop-01/canonical/F.png",
+      "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+      "bytes": 4848374
+    }
+  },
+  "shots": {
+    "A-B": {
+      "shot": "A-B",
+      "start_canonical": "A",
+      "end_canonical": "B",
+      "camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.515,
+            0.48
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.515,
+            0.48
+          ],
+          "protect": true,
+          "bbox": [
+            0.48,
+            0.16,
+            0.55,
+            0.8
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.6
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.6
+          ],
+          "protect": true,
+          "bbox": [
+            0.35,
+            0.15,
+            0.65,
+            0.85
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "cinematographer_reasoning_path": "camotion/integration/wardrobe-loop-01/shooting/A-B/reasoning.json",
+      "camotion": {
+        "baseline": "01.8-route-preserved",
+        "orientation": "outgoing",
+        "adaptive_exposure": false,
+        "start": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/start.png",
+          "sha256": "0cdddd5cc8b74c59f18b1171e4776b52c7cb824ce84a0403d68ff16db17dc9ea",
+          "bytes": 4189014
+        },
+        "end": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/A-B/end.png",
+          "sha256": "ccdec02a4d03785b8a737cbdab11c4b4f7e5a2bd614d3ea91aa10b02c4974a93",
+          "bytes": 4144658
+        },
+        "start_plan": "camotion/integration/wardrobe-loop-01/plans/A-B.json",
+        "end_plan": "camotion/integration/wardrobe-loop-01/shooting/A-B/end-plan.json",
+        "start_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/A.png",
+        "end_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/B.png"
+      },
+      "video": {
+        "skipped": false,
+        "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "8yhmjab25srmy0d0dtgb6th32w",
+        "duration_seconds": 6,
+        "settings": {
+          "prompt": "First-person camera physically walks steadily forward across the bedroom toward the open wardrobe. Pass completely between the wardrobe doors and between the hanging clothes. Continue physically forward through the deep dark passage beyond the wardrobe toward the snowy opening. Nearby furniture, door frames, hanging fabric and passage walls move past the camera with strong natural parallax. The camera never retreats or stops. This is one continuous forward journey through connected three-dimensional space, not a transformation between two images.",
+          "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/start.png>",
+          "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/A-B/end.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/wardrobe-loop-01/videos/A-B.mp4",
+        "output_url": "https://replicate.delivery/xezq/sNAzOLcfJAxkaagKasVlklDgo45aJGfscRBCD2r1yB1V6PKXA/tmp4_9080zg.mp4",
+        "started_at": "2026-09-04T22:53:17.277Z",
+        "completed_at": "2026-09-04T22:56:22.029Z",
+        "elapsed_ms": 184752,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 182.08748605,
+            "resolution_target": "720p",
+            "token_output_count": 130180,
+            "total_time": 182.104433493,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/8yhmjab25srmy0d0dtgb6th32w/cancel",
+            "get": "https://api.replicate.com/v1/predictions/8yhmjab25srmy0d0dtgb6th32w",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-3i3gu4tmkkr7fsqwuwqz3wo7ohb4f2x5etgxu4ml7viqdqajleuq",
+            "web": "https://replicate.com/p/8yhmjab25srmy0d0dtgb6th32w"
+          }
+        },
+        "sha256": "7dad914bfbb759f5e0d3b7eb4a12b07646f12008486afb7c4f5f23f68edbe7a3",
+        "bytes": 6832189
+      },
+      "preview_frames": [
+        "camotion/integration/wardrobe-loop-01/evaluation/A-B/frame-00.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/A-B/frame-01.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/A-B/frame-02.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/A-B/frame-03.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/A-B/frame-04.png"
+      ]
+    },
+    "B-C": {
+      "shot": "B-C",
+      "start_canonical": "B",
+      "end_canonical": "C",
+      "camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.51,
+            0.45
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.51,
+            0.75
+          ],
+          "protect": true,
+          "bbox": [
+            0.35,
+            0.15,
+            0.65,
+            0.85
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.57
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.7
+          ],
+          "protect": true,
+          "bbox": [
+            0.4,
+            0.33,
+            0.6,
+            0.75
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "cinematographer_reasoning_path": "camotion/integration/wardrobe-loop-01/shooting/B-C/reasoning.json",
+      "camotion": {
+        "baseline": "01.8-route-preserved",
+        "orientation": "outgoing",
+        "adaptive_exposure": false,
+        "start": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/B-C/start.png",
+          "sha256": "98ed935216d1b3c189aadcb23df4509ce23790eb0ecf2ff5189f724a02197724",
+          "bytes": 4135665
+        },
+        "end": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/B-C/end.png",
+          "sha256": "83f6bab9237002442bed0701b778c6bf0bb2d72e682acced94adb1d575920eb7",
+          "bytes": 4894119
+        },
+        "start_plan": "camotion/integration/wardrobe-loop-01/plans/B-C.json",
+        "end_plan": "camotion/integration/wardrobe-loop-01/shooting/B-C/end-plan.json",
+        "start_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/B.png",
+        "end_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/C.png"
+      },
+      "video": {
+        "skipped": false,
+        "prompt": "First-person camera moves continuously forward through the strange narrow passage toward the moonlit opening. Hanging fabric, branches, roots and nearby objects pass close beside the camera with strong natural parallax. Continue physically forward and emerge completely into the vast snowy forest, following the visible route ahead. Maintain uninterrupted forward locomotion through one connected three-dimensional world. Do not dissolve or transform the passage into the forest.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "tskqf07rqxrmw0d0dthra7dgm4",
+        "duration_seconds": 6,
+        "settings": {
+          "prompt": "First-person camera moves continuously forward through the strange narrow passage toward the moonlit opening. Hanging fabric, branches, roots and nearby objects pass close beside the camera with strong natural parallax. Continue physically forward and emerge completely into the vast snowy forest, following the visible route ahead. Maintain uninterrupted forward locomotion through one connected three-dimensional world. Do not dissolve or transform the passage into the forest.",
+          "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/B-C/start.png>",
+          "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/B-C/end.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/wardrobe-loop-01/videos/B-C.mp4",
+        "output_url": "https://replicate.delivery/xezq/AdHZXk4VRfWsQ6hSQPf8bXUceZKtdSHJIEAEV0i69FKeKApcB/tmp_lmn5742.mp4",
+        "started_at": "2026-09-04T22:57:11.887Z",
+        "completed_at": "2026-09-04T23:05:20.454Z",
+        "elapsed_ms": 488567,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 485.013280553,
+            "resolution_target": "720p",
+            "token_output_count": 130180,
+            "total_time": 485.029544692,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/tskqf07rqxrmw0d0dthra7dgm4/cancel",
+            "get": "https://api.replicate.com/v1/predictions/tskqf07rqxrmw0d0dthra7dgm4",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-amrssbcjxngcm5af3yqmuzz4oyeircc6m2vhemkfsznoyp4zkcxa",
+            "web": "https://replicate.com/p/tskqf07rqxrmw0d0dthra7dgm4"
+          }
+        },
+        "sha256": "5e02609c44191664f12e5731cf121a8b6c6a7d325d3cda3980aef4fbdb5f6556",
+        "bytes": 10857769
+      },
+      "preview_frames": [
+        "camotion/integration/wardrobe-loop-01/evaluation/B-C/frame-00.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/B-C/frame-01.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/B-C/frame-02.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/B-C/frame-03.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/B-C/frame-04.png"
+      ]
+    },
+    "C-D": {
+      "shot": "C-D",
+      "start_canonical": "C",
+      "end_canonical": "D",
+      "camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.58
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.6
+          ],
+          "protect": true,
+          "bbox": [
+            0.42,
+            0.35,
+            0.57,
+            0.7
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.51,
+            0.28
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.51,
+            0.3
+          ],
+          "protect": true,
+          "bbox": [
+            0.44,
+            0.13,
+            0.58,
+            0.43
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "cinematographer_reasoning_path": "camotion/integration/wardrobe-loop-01/shooting/C-D/reasoning.json",
+      "camotion": {
+        "baseline": "01.8-route-preserved",
+        "orientation": "outgoing",
+        "adaptive_exposure": false,
+        "start": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/C-D/start.png",
+          "sha256": "8d789e3f8fee75cdb950a632ebec0d2704c03123ec28c5183c770e27fe6f1613",
+          "bytes": 4844103
+        },
+        "end": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/C-D/end.png",
+          "sha256": "61a9dd8d44ca781bea0cca65c74b157fcf639509702c2bf79971ed5cc15c01bf",
+          "bytes": 4680053
+        },
+        "start_plan": "camotion/integration/wardrobe-loop-01/plans/C-D.json",
+        "end_plan": "camotion/integration/wardrobe-loop-01/shooting/C-D/end-plan.json",
+        "start_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/C.png",
+        "end_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/D.png"
+      },
+      "video": {
+        "skipped": false,
+        "prompt": "First-person camera walks steadily forward along the snowy forest path toward the ancient stone archway. Nearby trunks and branches pass naturally beside the camera with strong parallax. Reach the arch and pass completely through it, continuing physically forward into the ancient ruined environment beyond. Maintain continuous forward travel through connected three-dimensional space. Do not morph the forest into ruins.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "fs4sprh3xdrmw0d0dtp9n8abkr",
+        "duration_seconds": 6,
+        "settings": {
+          "prompt": "First-person camera walks steadily forward along the snowy forest path toward the ancient stone archway. Nearby trunks and branches pass naturally beside the camera with strong parallax. Reach the arch and pass completely through it, continuing physically forward into the ancient ruined environment beyond. Maintain continuous forward travel through connected three-dimensional space. Do not morph the forest into ruins.",
+          "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/C-D/start.png>",
+          "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/C-D/end.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/wardrobe-loop-01/videos/C-D.mp4",
+        "output_url": "https://replicate.delivery/xezq/DTzEmGS8UUprDNyhzfJOtIKgRbDYOmHRCULt4oXlUHPXFIlLA/tmp8ik77e6n.mp4",
+        "started_at": "2026-09-04T23:06:07.808Z",
+        "completed_at": "2026-09-04T23:13:50.502Z",
+        "elapsed_ms": 462694,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 460.000695089,
+            "resolution_target": "720p",
+            "token_output_count": 130180,
+            "total_time": 460.017000039,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/fs4sprh3xdrmw0d0dtp9n8abkr/cancel",
+            "get": "https://api.replicate.com/v1/predictions/fs4sprh3xdrmw0d0dtp9n8abkr",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-dhzvco56iime77wly34hdqpn4he2ykdb2k3fiwe4jmaj42i27r7a",
+            "web": "https://replicate.com/p/fs4sprh3xdrmw0d0dtp9n8abkr"
+          }
+        },
+        "sha256": "34000ccf772b5aef30c2f060650650c30cf959d2f1db9f7ccf013b65b1cae0bf",
+        "bytes": 8926692
+      },
+      "preview_frames": [
+        "camotion/integration/wardrobe-loop-01/evaluation/C-D/frame-00.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/C-D/frame-01.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/C-D/frame-02.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/C-D/frame-03.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/C-D/frame-04.png"
+      ]
+    },
+    "D-E": {
+      "shot": "D-E",
+      "start_canonical": "D",
+      "end_canonical": "E",
+      "camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.51,
+            0.28
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.51,
+            0.28
+          ],
+          "protect": true,
+          "bbox": [
+            0.44,
+            0.15,
+            0.58,
+            0.42
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.52
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.52
+          ],
+          "protect": true,
+          "bbox": [
+            0.45,
+            0.33,
+            0.55,
+            0.7
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "cinematographer_reasoning_path": "camotion/integration/wardrobe-loop-01/shooting/D-E/reasoning.json",
+      "camotion": {
+        "baseline": "01.8-route-preserved",
+        "orientation": "outgoing",
+        "adaptive_exposure": false,
+        "start": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/D-E/start.png",
+          "sha256": "ada75adeb9254ffd426cfb8544f2ec95b375628728fad8e330867d0b94a8d288",
+          "bytes": 4679797
+        },
+        "end": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/D-E/end.png",
+          "sha256": "5608978a2a93622819b1e9e5edb234e7a3f8bfd355f4d94243b5f4ac9d45ee03",
+          "bytes": 4726318
+        },
+        "start_plan": "camotion/integration/wardrobe-loop-01/plans/D-E.json",
+        "end_plan": "camotion/integration/wardrobe-loop-01/shooting/D-E/end-plan.json",
+        "start_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/D.png",
+        "end_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/E.png"
+      },
+      "video": {
+        "skipped": false,
+        "prompt": "First-person camera travels physically forward through the ruined courtyard toward the descending stone stairway. Broken columns, walls, vines and stone structures pass beside the camera with natural parallax. Reach the stairs and descend continuously underground, traveling deeper until the path opens into the enormous luminous cavern beyond. Maintain continuous forward locomotion. Do not dissolve or transform the ruins into the cavern.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "fpgy4xqys1rmw0d0dtsvjy2yqr",
+        "duration_seconds": 6,
+        "settings": {
+          "prompt": "First-person camera travels physically forward through the ruined courtyard toward the descending stone stairway. Broken columns, walls, vines and stone structures pass beside the camera with natural parallax. Reach the stairs and descend continuously underground, traveling deeper until the path opens into the enormous luminous cavern beyond. Maintain continuous forward locomotion. Do not dissolve or transform the ruins into the cavern.",
+          "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/D-E/start.png>",
+          "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/D-E/end.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/wardrobe-loop-01/videos/D-E.mp4",
+        "output_url": "https://replicate.delivery/xezq/qIlUHlUMWLJmFRZq2hSHgaXBgs2dv7SQ9zQaItGl2leqHIlLA/tmpbgtauf96.mp4",
+        "started_at": "2026-09-04T23:14:42.111Z",
+        "completed_at": "2026-09-04T23:18:46.118Z",
+        "elapsed_ms": 244007,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 240.581975978,
+            "resolution_target": "720p",
+            "token_output_count": 130180,
+            "total_time": 240.598896976,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/fpgy4xqys1rmw0d0dtsvjy2yqr/cancel",
+            "get": "https://api.replicate.com/v1/predictions/fpgy4xqys1rmw0d0dtsvjy2yqr",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-o77qdrwgpa7vofzoiuv3y6frdbpsa27o4hxwuiylxeqhfvd3rq4q",
+            "web": "https://replicate.com/p/fpgy4xqys1rmw0d0dtsvjy2yqr"
+          }
+        },
+        "sha256": "57a69f0f1cd618cc71e7a7114e2f88df1e0cb5822fd0331866658899fb3d1ac1",
+        "bytes": 10374340
+      },
+      "preview_frames": [
+        "camotion/integration/wardrobe-loop-01/evaluation/D-E/frame-00.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/D-E/frame-01.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/D-E/frame-02.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/D-E/frame-03.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/D-E/frame-04.png"
+      ]
+    },
+    "E-A": {
+      "shot": "E-A",
+      "start_canonical": "E",
+      "end_canonical": "A",
+      "camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.5
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.5
+          ],
+          "protect": true,
+          "bbox": [
+            0.45,
+            0.33,
+            0.55,
+            0.69
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.51,
+            0.47
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.51,
+            0.47
+          ],
+          "protect": true,
+          "bbox": [
+            0.49,
+            0.16,
+            0.54,
+            0.78
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "cinematographer_reasoning_path": "camotion/integration/wardrobe-loop-01/shooting/E-A/reasoning.json",
+      "camotion": {
+        "baseline": "01.8-route-preserved",
+        "orientation": "outgoing",
+        "adaptive_exposure": false,
+        "start": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/E-A/start.png",
+          "sha256": "38a0e45fb0ef5a3a65502278394fea5374364015716632c6cc4b2100a9dc8ab9",
+          "bytes": 4731382
+        },
+        "end": {
+          "path": "camotion/integration/wardrobe-loop-01/shooting/E-A/end.png",
+          "sha256": "46ae7e32440ce01312c1550dc389144a3adfebc044ad871e1d6a12a4fbbc2ecb",
+          "bytes": 4183029
+        },
+        "start_plan": "camotion/integration/wardrobe-loop-01/plans/E-A.json",
+        "end_plan": "camotion/integration/wardrobe-loop-01/shooting/E-A/end-plan.json",
+        "start_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/E.png",
+        "end_depth": "camotion/integration/wardrobe-loop-01/canonical/depth/A.png"
+      },
+      "video": {
+        "skipped": false,
+        "prompt": "First-person camera travels steadily forward along the cavern path toward the ordinary wooden bedroom door. Rocks, roots, luminous mushrooms and vegetation pass close beside the camera with strong natural parallax. Reach the door, open/pass through it naturally as part of the continuous forward movement, and emerge directly into the cozy attic bedroom beyond. Continue forward into the room. The camera never retreats or reverses. The cavern and bedroom are physically connected through the doorway. Do not dissolve, morph, crossfade or teleport between environments.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "87hkxhvq99rmt0d0dtw8mxvyc0",
+        "duration_seconds": 6,
+        "settings": {
+          "prompt": "First-person camera travels steadily forward along the cavern path toward the ordinary wooden bedroom door. Rocks, roots, luminous mushrooms and vegetation pass close beside the camera with strong natural parallax. Reach the door, open/pass through it naturally as part of the continuous forward movement, and emerge directly into the cozy attic bedroom beyond. Continue forward into the room. The camera never retreats or reverses. The cavern and bedroom are physically connected through the doorway. Do not dissolve, morph, crossfade or teleport between environments.",
+          "image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/E-A/start.png>",
+          "last_frame_image": "<local file upload: camotion/integration/wardrobe-loop-01/shooting/E-A/end.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/wardrobe-loop-01/videos/E-A.mp4",
+        "output_url": "https://replicate.delivery/xezq/VAaIH7VN3bLqPp7TsCQ9UQWRdKwgcWgHEuhcRXtkHWRBFkyF/tmpw_3o6lgw.mp4",
+        "started_at": "2026-09-04T23:19:35.466Z",
+        "completed_at": "2026-09-04T23:23:50.041Z",
+        "elapsed_ms": 254575,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 251.812776036,
+            "resolution_target": "720p",
+            "token_output_count": 130180,
+            "total_time": 251.82896811,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/87hkxhvq99rmt0d0dtw8mxvyc0/cancel",
+            "get": "https://api.replicate.com/v1/predictions/87hkxhvq99rmt0d0dtw8mxvyc0",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-yvgawjqlcqzmwsgrppdijbjqoovzyjufavowmb7klnlco774azjq",
+            "web": "https://replicate.com/p/87hkxhvq99rmt0d0dtw8mxvyc0"
+          }
+        },
+        "sha256": "09a94bcd0e05abbe4324e8fa2239f5873c807bb60f23f17e37e725763ab29198",
+        "bytes": 7949676
+      },
+      "preview_frames": [
+        "camotion/integration/wardrobe-loop-01/evaluation/E-A/frame-00.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/E-A/frame-01.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/E-A/frame-02.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/E-A/frame-03.png",
+        "camotion/integration/wardrobe-loop-01/evaluation/E-A/frame-04.png"
+      ]
+    }
+  }
+}

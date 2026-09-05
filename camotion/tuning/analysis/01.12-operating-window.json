@@ -1,0 +1,742 @@
+{
+  "experiment": "01.12-operating-window",
+  "not_a_new_renderer_version": true,
+  "operator": "apply_multisample_exposure N=16 outgoing dest-gather",
+  "strengths": [
+    0.02,
+    0.04,
+    0.06,
+    0.08
+  ],
+  "bandwidths": [
+    "pristine",
+    "sigma1"
+  ],
+  "prefilter_sigma": 1.0,
+  "prefilter_is_diagnostic_control": true,
+  "samples": 16,
+  "ghost_library": {
+    "vanishing_point": [
+      0.5,
+      0.56
+    ],
+    "forward": 1.0,
+    "image_shape": [
+      1152,
+      2048,
+      3
+    ],
+    "s008_pristine_matches_01_10_strong_exposure": true
+  },
+  "path_length_pixels": {
+    "0.02": {
+      "mean": 12.596657068480047,
+      "median": 12.571379297432966,
+      "p90": 19.682090779178278,
+      "p95": 20.668563216634098,
+      "max": 24.190988765240665,
+      "min": 0.0133206606442751
+    },
+    "0.04": {
+      "mean": 25.193314136960094,
+      "median": 25.14275859486593,
+      "p90": 39.364181558356556,
+      "p95": 41.337126433268196,
+      "max": 48.38197753048133,
+      "min": 0.0266413212885502
+    },
+    "0.06": {
+      "mean": 37.78997120544014,
+      "median": 37.7141378922989,
+      "p90": 59.04627233753483,
+      "p95": 62.00568964990229,
+      "max": 72.57296629572198,
+      "min": 0.0399619819328253
+    },
+    "0.08": {
+      "mean": 50.38662827392019,
+      "median": 50.28551718973186,
+      "p90": 78.72836311671311,
+      "p95": 82.67425286653639,
+      "max": 96.76395506096266,
+      "min": 0.0532826425771004
+    }
+  },
+  "crop_path_length_pixels": {
+    "0.02": {
+      "left-skeleton": {
+        "mean": 16.634037086683673,
+        "median": 16.643525631301976,
+        "p90": 19.437746655412493,
+        "p95": 19.828813999832136,
+        "max": 21.12021442694179,
+        "min": 12.49000310007968
+      },
+      "left-lower-candle": {
+        "mean": 17.265496940319284,
+        "median": 17.267104720820658,
+        "p90": 19.46248004340269,
+        "p95": 19.74229826134738,
+        "max": 20.532580584037653,
+        "min": 14.107816891354949
+      },
+      "mid-left-candle": {
+        "mean": 7.120657443825903,
+        "median": 7.142397457424177,
+        "p90": 8.854943830294605,
+        "p95": 9.202095708993626,
+        "max": 10.092959201344271,
+        "min": 3.986549565727233
+      },
+      "right-skeleton": {
+        "mean": 13.908934393397864,
+        "median": 13.936465026680665,
+        "p90": 16.97553269385024,
+        "p95": 17.486033439287777,
+        "max": 19.101114560150673,
+        "min": 9.130004240962869
+      },
+      "right-lower-candle": {
+        "mean": 17.110161228463088,
+        "median": 17.110869101601487,
+        "p90": 19.619274192484323,
+        "p95": 19.93377208256577,
+        "max": 20.762612201743785,
+        "min": 13.548553333843435
+      }
+    },
+    "0.04": {
+      "left-skeleton": {
+        "mean": 33.268074173367346,
+        "median": 33.28705126260395,
+        "p90": 38.875493310824986,
+        "p95": 39.65762799966427,
+        "max": 42.24042885388358,
+        "min": 24.98000620015936
+      },
+      "left-lower-candle": {
+        "mean": 34.53099388063857,
+        "median": 34.534209441641316,
+        "p90": 38.92496008680538,
+        "p95": 39.48459652269476,
+        "max": 41.065161168075306,
+        "min": 28.215633782709897
+      },
+      "mid-left-candle": {
+        "mean": 14.241314887651805,
+        "median": 14.284794914848353,
+        "p90": 17.70988766058921,
+        "p95": 18.404191417987253,
+        "max": 20.185918402688543,
+        "min": 7.973099131454466
+      },
+      "right-skeleton": {
+        "mean": 27.817868786795728,
+        "median": 27.87293005336133,
+        "p90": 33.95106538770048,
+        "p95": 34.97206687857555,
+        "max": 38.20222912030135,
+        "min": 18.260008481925738
+      },
+      "right-lower-candle": {
+        "mean": 34.220322456926176,
+        "median": 34.221738203202975,
+        "p90": 39.238548384968645,
+        "p95": 39.86754416513154,
+        "max": 41.52522440348757,
+        "min": 27.09710666768687
+      }
+    },
+    "0.06": {
+      "left-skeleton": {
+        "mean": 49.902111260051015,
+        "median": 49.930576893905915,
+        "p90": 58.31323996623747,
+        "p95": 59.48644199949639,
+        "max": 63.36064328082536,
+        "min": 37.470009300239035
+      },
+      "left-lower-candle": {
+        "mean": 51.79649082095786,
+        "median": 51.80131416246198,
+        "p90": 58.38744013020807,
+        "p95": 59.226894784042145,
+        "max": 61.59774175211295,
+        "min": 42.323450674064844
+      },
+      "mid-left-candle": {
+        "mean": 21.361972331477705,
+        "median": 21.42719237227253,
+        "p90": 26.56483149088382,
+        "p95": 27.606287126980877,
+        "max": 30.27887760403281,
+        "min": 11.9596486971817
+      },
+      "right-skeleton": {
+        "mean": 41.7268031801936,
+        "median": 41.80939508004198,
+        "p90": 50.926598081550715,
+        "p95": 52.45810031786333,
+        "max": 57.303343680452016,
+        "min": 27.39001272288861
+      },
+      "right-lower-candle": {
+        "mean": 51.33048368538927,
+        "median": 51.33260730480446,
+        "p90": 58.857822577452964,
+        "p95": 59.80131624769731,
+        "max": 62.287836605231355,
+        "min": 40.645660001530295
+      }
+    },
+    "0.08": {
+      "left-skeleton": {
+        "mean": 66.53614834673469,
+        "median": 66.5741025252079,
+        "p90": 77.75098662164997,
+        "p95": 79.31525599932854,
+        "max": 84.48085770776716,
+        "min": 49.96001240031872
+      },
+      "left-lower-candle": {
+        "mean": 69.06198776127714,
+        "median": 69.06841888328263,
+        "p90": 77.84992017361076,
+        "p95": 78.96919304538952,
+        "max": 82.13032233615061,
+        "min": 56.431267565419795
+      },
+      "mid-left-candle": {
+        "mean": 28.48262977530361,
+        "median": 28.569589829696707,
+        "p90": 35.41977532117842,
+        "p95": 36.808382835974506,
+        "max": 40.371836805377086,
+        "min": 15.946198262908933
+      },
+      "right-skeleton": {
+        "mean": 55.635737573591456,
+        "median": 55.74586010672266,
+        "p90": 67.90213077540096,
+        "p95": 69.9441337571511,
+        "max": 76.4044582406027,
+        "min": 36.520016963851475
+      },
+      "right-lower-candle": {
+        "mean": 68.44064491385235,
+        "median": 68.44347640640595,
+        "p90": 78.47709676993729,
+        "p95": 79.73508833026308,
+        "max": 83.05044880697514,
+        "min": 54.19421333537374
+      }
+    }
+  },
+  "condition_energy": {
+    "s002-pristine": {
+      "mean": 39.517710556454126,
+      "max": 227.405,
+      "sum": 93233976.445,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 2.187626808017713
+    },
+    "s002-sigma1": {
+      "mean": 39.51743616366916,
+      "max": 225.8746,
+      "sum": 93233329.0712,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.9627173987598572
+    },
+    "s004-pristine": {
+      "mean": 39.89236803097195,
+      "max": 225.7806,
+      "sum": 94117904.326,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.6871176417839577
+    },
+    "s004-sigma1": {
+      "mean": 39.89289958843655,
+      "max": 225.7806,
+      "sum": 94119158.4274,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.5366282437170478
+    },
+    "s006-pristine": {
+      "mean": 40.28950280176798,
+      "max": 225.7806,
+      "sum": 95054862.80219999,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.4332908208465915
+    },
+    "s006-sigma1": {
+      "mean": 40.2894713077969,
+      "max": 225.0654,
+      "sum": 95054788.49859999,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.308323710460912
+    },
+    "s008-pristine": {
+      "mean": 40.67832762137519,
+      "max": 224.9932,
+      "sum": 95972215.64379999,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.2791021337297332
+    },
+    "s008-sigma1": {
+      "mean": 40.678446450551355,
+      "max": 224.9932,
+      "sum": 95972495.99700001,
+      "nonzero_fraction": 1.0,
+      "mean_gradient": 1.1549601981791304
+    }
+  },
+  "crop_energy": {
+    "left-skeleton": {
+      "s002-pristine": {
+        "mean": 28.090174205026457,
+        "max": 123.25139999999999,
+        "sum": 4247234.3398,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.6780953994752057
+      },
+      "s002-sigma1": {
+        "mean": 28.088687107142857,
+        "max": 117.3236,
+        "sum": 4247009.4906,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.5079361217018927
+      },
+      "s004-pristine": {
+        "mean": 28.389684626984128,
+        "max": 102.7528,
+        "sum": 4292520.3156,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.2749158825324796
+      },
+      "s004-sigma1": {
+        "mean": 28.390102160052905,
+        "max": 99.54019999999998,
+        "sum": 4292583.446599999,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.150180597494894
+      },
+      "s006-pristine": {
+        "mean": 28.59026245767195,
+        "max": 92.8252,
+        "sum": 4322847.683599999,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.106586375758544
+      },
+      "s006-sigma1": {
+        "mean": 28.588014345238097,
+        "max": 85.8974,
+        "sum": 4322507.769,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 0.9897527160505645
+      },
+      "s008-pristine": {
+        "mean": 28.6097287989418,
+        "max": 80.5444,
+        "sum": 4325790.9944,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.0234818831613754
+      },
+      "s008-sigma1": {
+        "mean": 28.60920745238095,
+        "max": 74.6166,
+        "sum": 4325712.1668,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 0.8792691275303947
+      }
+    },
+    "left-lower-candle": {
+      "s002-pristine": {
+        "mean": 57.05790331593406,
+        "max": 226.8064,
+        "sum": 4153815.3614,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.7380907019722884
+      },
+      "s002-sigma1": {
+        "mean": 57.05562561538461,
+        "max": 225.8746,
+        "sum": 4153649.5448,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.489826552224994
+      },
+      "s004-pristine": {
+        "mean": 55.68276665384615,
+        "max": 223.57659999999998,
+        "sum": 4053705.4124,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.1033118209353368
+      },
+      "s004-sigma1": {
+        "mean": 55.68219004945055,
+        "max": 222.78919999999997,
+        "sum": 4053663.4356,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.9390315799456848
+      },
+      "s006-pristine": {
+        "mean": 54.27780795604396,
+        "max": 187.28140000000002,
+        "sum": 3951424.4192,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.7529420242567229
+      },
+      "s006-sigma1": {
+        "mean": 54.278801104395605,
+        "max": 186.2814,
+        "sum": 3951496.7204,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.6149473125389913
+      },
+      "s008-pristine": {
+        "mean": 52.91773618956044,
+        "max": 162.84980000000002,
+        "sum": 3852411.1946,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.54535544704483
+      },
+      "s008-sigma1": {
+        "mean": 52.917401348901095,
+        "max": 162.13459999999998,
+        "sum": 3852386.8181999996,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.4057097000650451
+      }
+    },
+    "mid-left-candle": {
+      "s002-pristine": {
+        "mean": 64.62515349583333,
+        "max": 224.3078,
+        "sum": 3102007.3678,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 3.035712179007579
+      },
+      "s002-sigma1": {
+        "mean": 64.62155269166666,
+        "max": 221.0952,
+        "sum": 3101834.5291999998,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.7481760192090343
+      },
+      "s004-pristine": {
+        "mean": 64.42505892916665,
+        "max": 206.7828,
+        "sum": 3092402.8285999997,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.1915802957223387
+      },
+      "s004-sigma1": {
+        "mean": 64.42295272083334,
+        "max": 204.57020000000003,
+        "sum": 3092301.7306,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.0415405424468736
+      },
+      "s006-pristine": {
+        "mean": 64.07168585833332,
+        "max": 189.64639999999997,
+        "sum": 3075440.9211999997,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.8466620052444735
+      },
+      "s006-sigma1": {
+        "mean": 64.07027182916667,
+        "max": 188.7868,
+        "sum": 3075373.0478000003,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.732780497233048
+      },
+      "s008-pristine": {
+        "mean": 63.642101283333325,
+        "max": 185.71459999999996,
+        "sum": 3054820.8615999995,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.6584121572426112
+      },
+      "s008-sigma1": {
+        "mean": 63.63928507916667,
+        "max": 184.71460000000002,
+        "sum": 3054685.6838,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.5587237295868641
+      }
+    },
+    "right-skeleton": {
+      "s002-pristine": {
+        "mean": 34.79624052083333,
+        "max": 127.1306,
+        "sum": 6680878.18,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.310003735121317
+      },
+      "s002-sigma1": {
+        "mean": 34.79732839166666,
+        "max": 124.7736,
+        "sum": 6681087.051199999,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.1116483919498967
+      },
+      "s004-pristine": {
+        "mean": 35.06768261041667,
+        "max": 126.0584,
+        "sum": 6732995.0612,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.7481647188191685
+      },
+      "s004-sigma1": {
+        "mean": 35.070099361458325,
+        "max": 124.1306,
+        "sum": 6733459.077399999,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.605822893160241
+      },
+      "s006-pristine": {
+        "mean": 35.34510338229167,
+        "max": 119.92199999999998,
+        "sum": 6786259.8494,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.4874717892373919
+      },
+      "s006-sigma1": {
+        "mean": 35.345347285416665,
+        "max": 118.8498,
+        "sum": 6786306.6788,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.351707819040591
+      },
+      "s008-pristine": {
+        "mean": 35.62695707604166,
+        "max": 112.216,
+        "sum": 6840375.758599999,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.3629713125715641
+      },
+      "s008-sigma1": {
+        "mean": 35.62805992291666,
+        "max": 110.2882,
+        "sum": 6840587.5052,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.1998799202223078
+      }
+    },
+    "right-lower-candle": {
+      "s002-pristine": {
+        "mean": 60.675705307692304,
+        "max": 223.885,
+        "sum": 5048218.6816,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.6501302722683127
+      },
+      "s002-sigma1": {
+        "mean": 60.677716627403846,
+        "max": 222.88099999999997,
+        "sum": 5048386.0234,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.5103628785294685
+      },
+      "s004-pristine": {
+        "mean": 62.12596918990384,
+        "max": 221.01219999999998,
+        "sum": 5168880.6366,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 2.090141406254653
+      },
+      "s004-sigma1": {
+        "mean": 62.12728009615385,
+        "max": 220.08440000000002,
+        "sum": 5168989.704,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.9812254259668336
+      },
+      "s006-pristine": {
+        "mean": 62.99969047596154,
+        "max": 205.35999999999999,
+        "sum": 5241574.2476,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.839345146060186
+      },
+      "s006-sigma1": {
+        "mean": 62.998510983173084,
+        "max": 204.5004,
+        "sum": 5241476.1138,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.7409482304145492
+      },
+      "s008-pristine": {
+        "mean": 63.49449284855769,
+        "max": 175.14620000000002,
+        "sum": 5282741.805,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.668667752186286
+      },
+      "s008-sigma1": {
+        "mean": 63.492912569711535,
+        "max": 174.1462,
+        "sum": 5282610.3258,
+        "nonzero_fraction": 1.0,
+        "mean_gradient": 1.570355089938273
+      }
+    }
+  },
+  "artifacts": [
+    "camotion/tuning/analysis/01.12/01.12-00-source.png",
+    "camotion/tuning/analysis/01.12/01.12-s002-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s002-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s002-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s002-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s002-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s002-pristine.png",
+    "camotion/tuning/analysis/01.12/01.12-s002-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s002-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s002-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s002-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s002-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s002-sigma1.png",
+    "camotion/tuning/analysis/01.12/01.12-s004-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s004-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s004-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s004-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s004-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s004-pristine.png",
+    "camotion/tuning/analysis/01.12/01.12-s004-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s004-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s004-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s004-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s004-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s004-sigma1.png",
+    "camotion/tuning/analysis/01.12/01.12-s006-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s006-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s006-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s006-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s006-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s006-pristine.png",
+    "camotion/tuning/analysis/01.12/01.12-s006-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s006-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s006-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s006-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s006-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s006-sigma1.png",
+    "camotion/tuning/analysis/01.12/01.12-s008-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s008-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s008-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s008-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s008-pristine.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s008-pristine.png",
+    "camotion/tuning/analysis/01.12/01.12-s008-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-s008-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-s008-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-s008-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-s008-sigma1.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-s008-sigma1.png",
+    "camotion/tuning/analysis/01.12/01.12-matrix-thumbs.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-skeleton-00-source.png",
+    "camotion/tuning/analysis/01.12/01.12-contact-left-skeleton.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-left-lower-candle-00-source.png",
+    "camotion/tuning/analysis/01.12/01.12-contact-left-lower-candle.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-mid-left-candle-00-source.png",
+    "camotion/tuning/analysis/01.12/01.12-contact-mid-left-candle.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-skeleton-00-source.png",
+    "camotion/tuning/analysis/01.12/01.12-contact-right-skeleton.png",
+    "camotion/tuning/analysis/01.12/crops/01.12-crop-right-lower-candle-00-source.png",
+    "camotion/tuning/analysis/01.12/01.12-contact-right-lower-candle.png"
+  ],
+  "visual_judgments": {
+    "status": "completed",
+    "method": "visual inspection of 01.10/01.11 artifact crops; not an objective metric",
+    "copies": {
+      "0.02": "not perceptually apparent to weak/ambiguous faint doubling on high-contrast spines and fingers",
+      "0.04": "clearly present on right-skeleton fingers and candle flames; book-spine stepping readable",
+      "0.06": "clearly present / objectionable discrete copies",
+      "0.08": "clearly present / objectionable; matches 01.10 strong exposure"
+    },
+    "motion_cue": {
+      "0.02": "weak; negligible near FoE (mid-left-candle mean path 7.1 px); short peripheral streaks ~14\u201317 px",
+      "0.04": "moderate on peripheral crops (~28\u201335 px mean); still weak near FoE (~14 px)",
+      "0.06": "strong on peripheral crops (~42\u201352 px mean)",
+      "0.08": "strong (baseline); whole-image mean 50.4 px, max 96.8 px"
+    },
+    "sigma1_effect": "At every strength, sigma=1 reduces copy-edge readability and ~8\u201314% crop mean_gradient by softening source structure. It does not open a sharp-detail window. Diagnostic only.",
+    "decision_table": [
+      {
+        "strength": 0.02,
+        "path_length_mean_px": 12.6,
+        "motion_cue": "weak",
+        "copies_pristine": "not clearly objectionable",
+        "sigma1_effect": "slight extra softness; copies already faint"
+      },
+      {
+        "strength": 0.04,
+        "path_length_mean_px": 25.19,
+        "motion_cue": "moderate (peripheral) / weak (near FoE)",
+        "copies_pristine": "clearly present on skeleton/candles",
+        "sigma1_effect": "softens copy edges; detail cost"
+      },
+      {
+        "strength": 0.06,
+        "path_length_mean_px": 37.79,
+        "motion_cue": "strong",
+        "copies_pristine": "objectionable",
+        "sigma1_effect": "more streak-like by destroying HF structure"
+      },
+      {
+        "strength": 0.08,
+        "path_length_mean_px": 50.39,
+        "motion_cue": "strong",
+        "copies_pristine": "objectionable",
+        "sigma1_effect": "more streak-like by destroying HF structure"
+      }
+    ]
+  },
+  "classification": {
+    "status": "reviewed",
+    "letters": [
+      "C",
+      "D"
+    ],
+    "decision_answers": {
+      "1": "Structured copies first become clearly objectionable at 0.04 on the defining 01.10/01.11 artifact features (right-skeleton fingers, candle flames). They are unmistakable at 0.06\u20130.08. At 0.02 they are not clearly objectionable.",
+      "2": "A meaningfully useful directional cue appears at 0.04 on peripheral crops (mean path ~28\u201335 px). 0.02 is weak, and near the FoE (mid-left candle 7 px) is negligible. 0.06\u20130.08 are strong.",
+      "3": "No. The useful-cue threshold and the objectionable-copy threshold meet or cross at 0.04 on this fixture. No tested pristine strength occupies both.",
+      "4": "Sigma=1 does not materially open a pristine-detail-preserving window. It reduces copy readability at every strength by softness.",
+      "5": "Yes. The sigma=1 improvement is primarily loss of recognizable source detail, matching 01.11."
+    },
+    "letter_notes": {
+      "A": "Not supported. No pristine strength has useful cue without objectionable copies.",
+      "B": "Not primary. 0.04 is the closest candidate but skeleton/candle copies are already readable.",
+      "C": "Supported. Copies remain objectionable at strengths that provide useful cues; 0.02 avoids copies but the cue is weak/negligible.",
+      "D": "Also supported as a diagnostic. A more continuous look appears after sigma=1, by destroying HF structure. This does not justify adding blur to Camotion."
+    },
+    "hypothesis_for_next": "UNTESTED. How can Camotion communicate useful camera direction/motion to the video model without integrating a long trajectory of recognizable scene structure into a single shooting frame? This question is ABOVE the current baked-exposure primitive. Do not choose or implement a replacement mechanism yet. Do not prematurely promote motion fields, auxiliary conditioning, overlays, multiple frames, or another specific representation into the architecture.",
+    "not_promoted": true,
+    "stop_rule": "C+D: do not search another exposure kernel or blur radius.",
+    "reviewed_conclusion": [
+      "01.12 tested the existing 01.8 fixed-16 destination-gather exposure at strengths 0.02, 0.04, 0.06, and 0.08.",
+      "Each strength was tested with the pristine source and with sigma=1 prefiltering as a DIAGNOSTIC CONTROL ONLY.",
+      "0.02 preserved structured content reasonably well but produced only a weak directional motion cue, especially near the FoE.",
+      "0.04 produced a meaningfully useful peripheral directional cue, but recognizable repeated structure was already clearly present in fingers, flames, and other artifact features.",
+      "0.06 and 0.08 produced strong directional cues but objectionable structured-content duplication.",
+      "Therefore no useful pristine-source operating window was observed on the Ghost Library fixture: the motion cue becomes useful at approximately the same point that structured duplication becomes objectionable.",
+      "Sigma=1 prefiltering reduced copy readability across strengths by reducing source spatial detail. It did not establish a sharp-detail operating window.",
+      "Prefiltering remains diagnostic evidence and is NOT a proposed Camotion pipeline change.",
+      "Classification: C + D.",
+      "The 01.12 stop rule applies: do not search additional strengths, sigma values, shutter weightings, integration kernels, or compositors.",
+      "This closes the current exposure-operator tuning branch.",
+      "01.8 remains the current Camotion baseline.",
+      "CameraMotionPlan v1 remains frozen.",
+      "No 01.12 condition is promoted."
+    ]
+  },
+  "mean_gradient_note": "mean_gradient is mean luma gradient magnitude. Supporting high-frequency energy only. Not a ghosting score.",
+  "checkpoint": {
+    "status": "reviewed",
+    "date": "2026-09-04",
+    "not_promoted": true,
+    "baseline": "01.8-route-preserved",
+    "camera_motion_plan_frozen": true,
+    "exposure_operator_tuning_branch_closed": true
+  }
+}

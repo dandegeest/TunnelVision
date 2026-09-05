@@ -1,0 +1,28 @@
+{
+  "experiment": "01.12-operating-window",
+  "not_a_camera_motion_plan": true,
+  "not_a_new_renderer_version": true,
+  "control": "01.8-route-preserved",
+  "exposure_only": true,
+  "operator": "apply_multisample_exposure",
+  "samples": 16,
+  "strengths": [0.02, 0.04, 0.06, 0.08],
+  "bandwidths": ["pristine", "sigma1"],
+  "prefilter_sigma": 1.0,
+  "prefilter_is_diagnostic_control": true,
+  "ghost_library": {
+    "image": "01.jpeg",
+    "base_plan": "01.4-plan.json",
+    "vanishing_point": [0.50, 0.56],
+    "forward": 1.0,
+    "orientation": "outgoing"
+  },
+  "crops": {
+    "left-skeleton": {"x": 40, "y": 260, "width": 360, "height": 420},
+    "left-lower-candle": {"x": 40, "y": 680, "width": 280, "height": 260},
+    "mid-left-candle": {"x": 600, "y": 720, "width": 240, "height": 200},
+    "right-skeleton": {"x": 1480, "y": 220, "width": 400, "height": 480},
+    "right-lower-candle": {"x": 1700, "y": 680, "width": 320, "height": 260}
+  },
+  "notes": "Still-only baked-exposure operating window. Existing 01.8 fixed-16 gather. Sigma=1 is a diagnostic source-bandwidth control, not a pipeline change. Not parameter optimization. Not promoted."
+}

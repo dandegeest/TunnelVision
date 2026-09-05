@@ -1,0 +1,83 @@
+{
+  "shot": "A-B",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "model_version": "hidden",
+  "prediction_id": "njxkdjwzmxrmy0d0dtftnmhxq4",
+  "elapsed_ms": 16557,
+  "route": "Forward across bedroom, through the open wardrobe doors into the dark interior.",
+  "pinned": {
+    "forward": true,
+    "exposure": true
+  },
+  "raw": {
+    "route": "Forward across bedroom, through the open wardrobe doors into the dark interior.",
+    "start": {
+      "environment": "Attic bedroom with an open wardrobe.",
+      "destination": {
+        "description": "Dark gap between wardrobe doors.",
+        "point": [
+          0.515,
+          0.48
+        ],
+        "protect": true,
+        "bbox": [
+          0.48,
+          0.16,
+          0.55,
+          0.8
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.515,
+          0.48
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "bed",
+        "toys",
+        "wardrobe doors"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    },
+    "end": {
+      "environment": "Dark root passage opening to snowy forest.",
+      "destination": {
+        "description": "Snowy forest path.",
+        "point": [
+          0.5,
+          0.6
+        ],
+        "protect": true,
+        "bbox": [
+          0.35,
+          0.15,
+          0.65,
+          0.85
+        ]
+      },
+      "camera": {
+        "vanishing_point": [
+          0.5,
+          0.6
+        ],
+        "forward": 1
+      },
+      "foreground_occluders": [
+        "hanging clothes",
+        "tree roots",
+        "dark branches"
+      ],
+      "exposure": {
+        "strength": 0.08,
+        "samples": 16
+      }
+    }
+  },
+  "text": "{\n  \"route\": \"Forward across bedroom, through the open wardrobe doors into the dark interior.\",\n  \"start\": {\n    \"environment\": \"Attic bedroom with an open wardrobe.\",\n    \"destination\": {\n      \"description\": \"Dark gap between wardrobe doors.\",\n      \"point\": [0.515, 0.480],\n      \"protect\": true,\n      \"bbox\": [0.480, 0.160, 0.550, 0.800]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.515, 0.480],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"bed\",\n      \"toys\",\n      \"wardrobe doors\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  },\n  \"end\": {\n    \"environment\": \"Dark root passage opening to snowy forest.\",\n    \"destination\": {\n      \"description\": \"Snowy forest path.\",\n      \"point\": [0.500, 0.600],\n      \"protect\": true,\n      \"bbox\": [0.350, 0.150, 0.650, 0.850]\n    },\n    \"camera\": {\n      \"vanishing_point\": [0.500, 0.600],\n      \"forward\": 1.0\n    },\n    \"foreground_occluders\": [\n      \"hanging clothes\",\n      \"tree roots\",\n      \"dark branches\"\n    ],\n    \"exposure\": {\n      \"strength\": 0.08,\n      \"samples\": 16\n    }\n  }\n}"
+}

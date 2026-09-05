@@ -80,6 +80,12 @@ It considers:
 - velocity continuity
 - shared canonical anchors
 
+Integration Test 01 assembled those clips into a loop and showed that
+**exit/entry velocity across shot boundaries** can also jump
+accidentally. Through-motion at canonical anchors remains the intended
+constraint; movie-level rhythm is a later Cinematographer concern, not
+a post-process patch. See `docs/RESEARCH_BACKLOG.md`.
+
 Experiments revealed an important distinction:
 
 > **Visual continuity does not guarantee spatial traversability.**
@@ -209,9 +215,13 @@ The Cinematographer can then operate on accepted canonical frame pairs, using th
 
 ## Status
 
-**Experimental / hackathon prototype.**
+**Experimental / research prototype.**
 
-The project is currently moving from manual experimentation into implementation.
+Camotion v1 exists. Integration Test 01 — The Wardrobe Loop completed
+the first unattended end-to-end movie experiment (independent
+canonicals → cinematographer vision plans → Camotion 01.8 → Seedance
+2.5 → assembled loop). Current product direction is a simple
+autonomous storyboard, not a large editor; that UI is not built.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
 
