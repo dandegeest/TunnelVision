@@ -1,0 +1,153 @@
+import { useMemo, useState } from "react";
+import { LOOP_ARRIVAL_COPY } from "../fixtures/wardrobe-loop";
+import { journeyIsBlocked, journeyIsPlayable, showApprovalChrome } from "../project/policy";
+import { useProject } from "../project/ProjectProvider";
+import { destinationById } from "../project/types";
+import { layoutTimeline } from "../timeline/geometry";
+
+export function Inspector() {
+  const { project, selection, approveJourney } = useProject();
+  const layout = useMemo(
+    () => layoutTimeline(project.destinations, project.journeys, 1),
+    [project.destinations, project.journeys],
+  );
+
+  if (selection.kind === "destination") {
+    const destination = destinationById(project.destinations, selection.destinationId);
+    const occurrence = layout.occurrences.find(
+      (item) => item.occurrenceIndex === selection.occurrenceIndex,
+    );
+    const inbound = occurrence?.inboundJourneyId
+      ? project.journeys.find((journey) => journey.id === occurrence.inboundJourneyId)
+      : null;
+    const blockedArrival = Boolean(occurrence?.arrivalBlocked);
+    const showApprovals = showApprovalChrome(project.agency, blockedArrival);
+
+    return (
+      <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
+        <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Destination</p>
+        <h2 className="text-2xl">
+          {destination?.label}
+          {occurrence && occurrence.occurrenceIndex > 0 && occurrence.destinationId === "A"
+            ? " again"
+            : ""}
+        </h2>
+        {destination ? (
+          <img src={destination.image} alt="" className="aspect-video w-full rounded object-cover" />
+        ) : null}
+        <p>Status: {destination?.status.replaceAll("_", " ")}</p>
+        {occurrence?.occurrenceIndex === 0 ? (
+          <p>This is the opening occurrence of destination A — the attic bedroom facing the wardrobe.</p>
+        ) : null}
+        {blockedArrival ? (
+          <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+            {LOOP_ARRIVAL_COPY} The problem is the journey from E into this camera state, not destination{" "}
+            {destination?.label} itself.
+          </p>
+        ) : (
+          <p className="text-[#cfc6b8]">
+            Generated set. Shootability is judged on the journeys that leave or arrive here.
+          </p>
+        )}
+        {showApprovals ? (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+              disabled
+              title="Generation is not connected in this slice."
+            >
+              Redo
+            </button>
+            {inbound?.status === "needs_review" ? (
+              <button
+                type="button"
+                className="rounded bg-[#ece7df] px-3 py-1 text-[#0c0b0a]"
+                onClick={() => inbound && approveJourney(inbound.id)}
+              >
+                Approve arrival
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        <TechnicalSeam />
+      </aside>
+    );
+  }
+
+  const journey = project.journeys.find((item) => item.id === selection.journeyId);
+  if (!journey) {
+    return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
+  }
+
+  const blocked = journeyIsBlocked(journey);
+  const showApprovals = showApprovalChrome(project.agency, blocked);
+  const playable = journeyIsPlayable(journey);
+
+  return (
+    <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
+      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Journey</p>
+      <h2 className="text-2xl">{journey.id}</h2>
+      <p>
+        {journey.startDestinationId} → {journey.endDestinationId ?? "?"}
+      </p>
+      <p>Status: {journey.status.replaceAll("_", " ")}</p>
+      {blocked ? (
+        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+          {journey.shootabilityNote}
+        </p>
+      ) : null}
+      {journey.status === "needs_review" ? (
+        <p className="rounded border border-[#8a7032] bg-[#261e10] px-3 py-2 text-[#f0d9a8]">
+          {journey.shootabilityNote}
+        </p>
+      ) : null}
+      {playable ? <p className="text-[#cfc6b8]">This shot is available in the preview.</p> : null}
+      {showApprovals ? (
+        <div className="flex gap-2">
+          {journey.status === "needs_review" ? (
+            <button
+              type="button"
+              className="rounded bg-[#ece7df] px-3 py-1 text-[#0c0b0a]"
+              onClick={() => approveJourney(journey.id)}
+            >
+              Approve
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+            disabled
+            title="Generation is not connected in this slice."
+          >
+            Redo
+          </button>
+        </div>
+      ) : null}
+      <TechnicalSeam />
+    </aside>
+  );
+}
+
+function TechnicalSeam() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <details
+      className="mt-auto border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]"
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
+      <summary className="cursor-pointer tracking-[0.16em] uppercase">Technical</summary>
+      <div className="mt-2 space-y-1 leading-relaxed">
+        <p>Construction: planned. Discovery is not implemented.</p>
+        <p>Fixture stills: wardrobe-loop-01 canonical/vision JPEGs. Ultra PNGs are not copied into web/.</p>
+        <p>
+          Historical videos/E-A.mp4 is Integration Test 01 research evidence only. It is not product playback
+          for the blocked E-A journey.
+        </p>
+        <p>Camotion plans, hashes, and shooting frames will appear here later.</p>
+      </div>
+    </details>
+  );
+}

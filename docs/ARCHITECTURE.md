@@ -1,25 +1,30 @@
 # TunnelVision Architecture
 
-> **Intended later split:** React owns the storyboard, the LLM owns
-> direction, code owns geometry, and generative APIs only render.
+> **Intended later split:** React owns the Story | Timeline workspace,
+> the LLM owns direction, code owns geometry, and generative APIs
+> only render.
 
-That split is **not implemented**. This repository is in a Camotion-first
-research stage. Do not read the later diagram as a description of
-current code.
+Product development has started. [`web/`](../web/) is a fixture-driven
+React shell. Camotion and `media/` are unchanged research packages.
+Do not read the later diagram as a description of generation wiring —
+that is still later.
 
-## Current implementation --- Camotion first
+## Current implementation --- product shell + Camotion research
 
-This repository is in a Camotion-first research stage. Application
-code today is the Python `camotion/` package and a TypeScript
-`media/` package for image and video generation, vision reasoning, and
-a thin cinematographer pair planner used by Integration Test 01. Do
-**not** create `web/`, `server/`, Director, Screenwriter, a full
+TunnelVision Research Phase 1 is complete. Application code today is
+the Python `camotion/` package, a TypeScript `media/` package for
+image and video generation, vision reasoning, and a thin
+cinematographer pair planner used by Integration Test 01, and a
+Vite/React product shell in `web/` that inspects Wardrobe Loop
+fixtures. Do **not** create `server/`, Director, Screenwriter, a full
 Cinematographer product package, or a journey workspace runtime yet.
+Do **not** call providers from `web/` in this slice.
 
 ``` text
 camotion/     Python package, CLI (unchanged renderer)
 media/        MediaProvider (image + video) + ReasoningProvider
               + thin cinematographer planner (Integration Test 01)
+web/          Vite + React + TypeScript fixture shell (Story | Timeline)
 ```
 
 ``` bash
@@ -81,23 +86,24 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     position X, inspected the actual generated X, and rejected both
     E→X and X→A. Protocol stopped before video. Infer nothing new
     about Camotion from it. **TunnelVision Research Phase 1 is
-    complete.** No more dedicated Phase 1 research experiments. Next
-    milestone is product development, then Movie #2 through the
-    product; do not start that from this checkpoint. The movie-level
-    metric
+    complete.** No more dedicated Phase 1 research experiments. Product
+    development has started with the `web/` fixture shell. Next
+    milestone after the shell is Movie #2 through the product. The
+    movie-level metric
     is increasingly whether the model shoots the route, not whether
     A′ is aesthetically clean as a still. Camotion itself still knows
     nothing about Replicate. Local files are passed to Replicate as
     bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
     official SDK.
--   **Does not exist and must not be created yet:** `web/`, `server/`,
+-   **Does not exist and must not be created yet:** `server/`,
     Director, Screenwriter, a full Cinematographer product package,
     journey workspace runtime, Runway/Krea adapters, or a
     last-frame-discovery architecture.
 
-The current **product direction** is a simple autonomous storyboard
-(story → progressive canonicals → Keep/Redo → SHOOT MOVIE). That UI
-is not built. A Runway hackathon “last-frame discovery” idea is a
+The current **product surface** is Story | Timeline in `web/`: locked
+Destinations and Journey lanes on one time axis, driven by Wardrobe
+Loop fixtures. Generation, Discovery, and Screenwriter are not
+wired. A Runway hackathon “last-frame discovery” idea is a
 research branch, not a replacement for this pipeline, and must not
 restructure current application architecture.
 
@@ -268,7 +274,7 @@ the exploration log; it is not current architecture.
 When the product exists, the intended shape is:
 
 ``` text
-React / TypeScript UI          (later)
+React / TypeScript UI          (started in web/; fixture-only)
         |
 Node / TypeScript API          (later; invocation of Camotion TBD)
         |
