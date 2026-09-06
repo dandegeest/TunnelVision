@@ -1,0 +1,20 @@
+{
+  "model": "black-forest-labs/flux-1.1-pro-ultra",
+  "seed": 10107,
+  "prediction_id": "wjpmcjmg5drmy0d0exat5khac8",
+  "prompt": "First-person cinematic POV. Crossing a stone doorway threshold. In the immediate peripheral foreground, dark cavern walls with glowing blue mushrooms and a stone doorframe. Straight ahead through the open doorway, a cozy attic bedroom with sloped wooden ceilings, a large dark wood wardrobe in the center, a bed on the left, and a warm glowing table lamp on the right. Cool blue-green light behind, warm amber light ahead. Richly detailed storybook production design, dramatic atmospheric lighting, strong depth.",
+  "settings": {
+    "prompt": "First-person cinematic POV. Crossing a stone doorway threshold. In the immediate peripheral foreground, dark cavern walls with glowing blue mushrooms and a stone doorframe. Straight ahead through the open doorway, a cozy attic bedroom with sloped wooden ceilings, a large dark wood wardrobe in the center, a bed on the left, and a warm glowing table lamp on the right. Cool blue-green light behind, warm amber light ahead. Richly detailed storybook production design, dramatic atmospheric lighting, strong depth.",
+    "aspect_ratio": "16:9",
+    "raw": false,
+    "output_format": "png",
+    "safety_tolerance": 2,
+    "seed": 10107
+  },
+  "output_path": "camotion/integration/wardrobe-loop-01/experiments/shootability-generalized-repair/canonical/X.png",
+  "sha256": "210847862d59b88c875a6e4c0f32b12195206dc6c931970fe34ccd21a7002ac0",
+  "bytes": 4138736,
+  "retry_count": 0,
+  "started_at": "2026-09-06T15:28:10.988Z",
+  "completed_at": "2026-09-06T15:28:21.457Z"
+}

@@ -1,0 +1,36 @@
+{
+  "frozen_before_generation": true,
+  "frozen_at": "2026-09-06T15:16:59.733Z",
+  "decision": "NEEDS_INTERMEDIATE",
+  "reasoning": "The cavern door in E is closed, blocking all line of sight to the destination. An intermediate frame is required to open the door and establish physical depth through the portal into the bedroom.",
+  "diagnosis": {
+    "camera_position_e": "On a stone path in a cavern, facing a closed door.",
+    "camera_orientation_e": "Straight ahead at the door.",
+    "camera_position_a": "Inside an attic bedroom, facing a wardrobe.",
+    "camera_orientation_a": "Straight ahead at the wardrobe and sloped ceiling.",
+    "visible_geometry": "Conflicting. E is a cavern; A is a bedroom.",
+    "thresholds": "The closed wooden door in the cavern.",
+    "occlusion": "The closed door in E completely hides the destination space.",
+    "missing_spatial_volume": "The open doorway and the visual bridge between the cavern portal and the bedroom interior.",
+    "spatial_strategy": "Open the cavern door and position the camera inside the threshold, framing the bedroom interior through the cavern architecture.",
+    "physical_route": "Move forward from E, open the door, pause at the threshold (X), and step through into the bedroom (A)."
+  },
+  "model": "google/gemini-3.1-pro",
+  "prediction_id": "hkzx4yf4wxrmr0d0ex58jtcg80",
+  "source": "reasoning",
+  "image_e": {
+    "path": "camotion/integration/wardrobe-loop-01/canonical/E.png",
+    "sha256": "49154292cb2534ab333c2fb1ec6329ca8fa82855b8baca2b7078a4356e9357ff",
+    "bytes": 5802759
+  },
+  "image_a": {
+    "path": "camotion/integration/wardrobe-loop-01/canonical/A.png",
+    "sha256": "d71319696162eab7e9c2dbe3c2f7037fd21bcb2aea877a98d8a223ce1e7b6820",
+    "bytes": 4848374
+  },
+  "plans_used": [
+    "camotion/integration/wardrobe-loop-01/plans/E-A.json",
+    "camotion/integration/wardrobe-loop-01/shooting/E-A/end-plan.json"
+  ],
+  "raw_text": "```json\n{\n  \"decision\": \"NEEDS_INTERMEDIATE\",\n  \"reasoning\": \"The cavern door in E is closed, blocking all line of sight to the destination. An intermediate frame is required to open the door and establish physical depth through the portal into the bedroom.\",\n  \"diagnosis\": {\n    \"camera_position_e\": \"On a stone path in a cavern, facing a closed door.\",\n    \"camera_orientation_e\": \"Straight ahead at the door.\",\n    \"camera_position_a\": \"Inside an attic bedroom, facing a wardrobe.\",\n    \"camera_orientation_a\": \"Straight ahead at the wardrobe and sloped ceiling.\",\n    \"visible_geometry\": \"Conflicting. E is a cavern; A is a bedroom.\",\n    \"thresholds\": \"The closed wooden door in the cavern.\",\n    \"occlusion\": \"The closed door in E completely hides the destination space.\",\n    \"missing_spatial_volume\": \"The open doorway and the visual bridge between the cavern portal and the bedroom interior.\",\n    \"spatial_strategy\": \"Open the cavern door and position the camera inside the threshold, framing the bedroom interior through the cavern architecture.\",\n    \"physical_route\": \"Move forward from E, open the door, pause at the threshold (X), and step through into the bedroom (A).\"\n  },\n  \"x_spec\": {\n    \"camera_position\": \"Inside the stone doorframe of the cavern, crossing the threshold.\",\n    \"threshold_crossed\": \"The now-open cavern door.\",\n    \"remains_ahead\": \"The attic bedroom, specifically the wardrobe, bed, and lamp.\",\n    \"geometry_from_e\": \"Stone doorframe and glowing cavern elements in the peripheral foreground.\",\n    \"geometry_from_a\": \"The wardrobe, sloped ceiling, bed, and lamp.\",\n    \"foreground\": [\n      \"Stone doorframe\",\n      \"Cavern moss/mushrooms\"\n    ],\n    \"route\": \"Pushing straight through the magical doorway into the attic.\",\n    \"why_ex_shootable\": \"Camera moves forward as the door opens, landing at the threshold.\",\n    \"why_xa_shootable\": \"Camera moves forward into the room, clearing the cavern frame to match A.\",\n    \"image_prompt\": \"First-person cinematic POV. Crossing a stone doorway threshold. In the immediate peripheral foreground, dark cavern walls with glowing blue mushrooms and a stone doorframe. Straight ahead through the open doorway, a cozy attic bedroom with sloped wooden ceilings, a large dark wood wardrobe in the center, a bed on the left, and a warm glowing table lamp on the right. Cool blue-green light behind, warm amber light ahead. Richly detailed storybook production design, dramatic atmospheric lighting, strong depth.\"\n  }\n}\n```"
+}

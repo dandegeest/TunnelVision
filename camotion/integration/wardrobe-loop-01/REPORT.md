@@ -344,6 +344,8 @@ ask: *Can I describe a continuous spatial route from this camera
 position into the next world?* A later Phase 1 experiment did that
 for E→A: see
 `experiments/shootability-intermediate-volume/REPORT.md`.
+A later diagnostic follow-on, not Camotion work, is
+`experiments/shootability-generalized-repair/REPORT.md`.
 That later experiment is not implemented as a production planner
 here.
 

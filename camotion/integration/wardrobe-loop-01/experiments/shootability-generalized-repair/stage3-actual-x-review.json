@@ -1,0 +1,21 @@
+{
+  "frozen_before_video": true,
+  "frozen_at": "2026-09-06T15:28:46.949Z",
+  "x_image": {
+    "path": "camotion/integration/wardrobe-loop-01/experiments/shootability-generalized-repair/canonical/X.png",
+    "sha256": "210847862d59b88c875a6e4c0f32b12195206dc6c931970fe34ccd21a7002ac0",
+    "bytes": 4138736
+  },
+  "e_to_x": {
+    "decision": "NOT_SHOOTABLE",
+    "reasoning": "E features a closed wooden door in a freestanding frame. X places the camera inside a cave tunnel looking through a deep stone archway. Traversing this requires teleportation or morphing the structural threshold."
+  },
+  "x_to_a": {
+    "decision": "NOT_SHOOTABLE",
+    "reasoning": "In X, the bed is centered directly in front of a closed wardrobe. In A, the camera faces a different, open wardrobe with the bed shifted entirely to the left wall. This requires a spatial reorganization of the room's layout."
+  },
+  "model": "google/gemini-3.1-pro",
+  "prediction_id": "v7vsz5ecd5rmw0d0exarch2e40",
+  "source": "reasoning",
+  "raw_text": "```json\n{\n  \"E-X\": {\n    \"decision\": \"NOT_SHOOTABLE\",\n    \"reasoning\": \"E features a closed wooden door in a freestanding frame. X places the camera inside a cave tunnel looking through a deep stone archway. Traversing this requires teleportation or morphing the structural threshold.\"\n  },\n  \"X-A\": {\n    \"decision\": \"NOT_SHOOTABLE\",\n    \"reasoning\": \"In X, the bed is centered directly in front of a closed wardrobe. In A, the camera faces a different, open wardrobe with the bed shifted entirely to the left wall. This requires a spatial reorganization of the room's layout.\"\n  }\n}\n```"
+}
