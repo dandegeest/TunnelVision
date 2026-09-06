@@ -61,16 +61,20 @@ disconnected workflows:
     what the generated world actually gave us.
 -   Production evidence can send the filmmaker back to Plan.
 
-**Current implementation:** Product Slice 2 Plan is conversation →
-storyboard. A static user-prompt fixture sits in a subordinate
-Conversation sidebar with a presentational, nonfunctional composer.
-The storyboard is a top-aligned responsive grid of intended beats.
-Frames may be uploaded, later generated, or planned FPO without
-imagery. Provenance is stored as `user` / `generated` / `none`.
-Shoot remains the Slice 1 Destinations / Journey timeline.
-Generation and chat are not wired. Intended E in Plan can differ
-from actual E in Shoot. Visual checkpoint:
+**Current implementation:** Product Slice 3 adds a thin Director that
+turns the filmmaker story plus authoritative starting frame into
+planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
+Replicate). Plan UI is unchanged: Conversation + storyboard grid.
+Send asks the Director to plan; the composer is not a chat. Shoot
+remains the Slice 1 Destinations / Journey timeline. Generation of
+images and video is not wired. Live development currently uses the
+Wardrobe Loop fixture story and server-side Wardrobe `A.jpg`. The
+Director architecture accepts story plus `MediaInput`, but arbitrary
+user story/image input is not implemented yet. Visual checkpoint for
+the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
+First live Director observation:
+[genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 
 ## Plan is a conversational storyboard
 
@@ -377,11 +381,16 @@ actual Destinations, the Cinematographer inspects those sets, and
 the user presses **Shoot This Shot** or **Shoot Movie**. Approximate
 duration and destination pointing are later collaborative controls.
 
-**Current implementation:** Product Slice 2 is the current Plan | Shoot
-shell. Plan is conversation → storyboard. Shoot remains the Slice 1
-Destinations / Journey timeline. Generation is not connected. Visual
+**Current implementation:** Product Slice 3 is the current Plan | Shoot
+shell. Plan is conversation → storyboard; Send asks the Director to
+plan subsequent beats. Shoot remains the Slice 1 Destinations /
+Journey timeline. Generation is not connected. Live development uses
+the Wardrobe Loop fixture story and server-side Wardrobe `A.jpg`;
+arbitrary user story/image input is not implemented yet. Visual
 checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
+Director observation:
+[genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

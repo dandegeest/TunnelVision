@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Product Slice 3 — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="09-shootability-intermediate-volume.html">Shootability</a>
+  <a href="10-product-slice-1.html">Product Slice 1</a>
+  <a href="11-product-slice-2.html">Product Slice 2</a>
+  <a href="12-product-slice-3.html" class="active">Product Slice 3</a>
+</nav>
+<main>
+<section class="ready-code" id="product-slice-3">
+<div class="eyebrow">PRODUCT SLICE 3 · SEPTEMBER 6, 2026</div>
+<h2>Product Slice 3 — Autonomous Director</h2>
+<p>TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. This chapter records the first product Director step: starting image plus filmmaker story become structured planned storyboard beats. Plan UI is unchanged from Product Slice 2. Shoot is unchanged from Product Slice 1. Destination imagery and video are not generated in this slice. Camotion Phase 1 remains frozen.</p>
+
+<div class="finding">
+<strong>Live development harness, not arbitrary user input.</strong>
+<p>Product Slice 3 uses the Wardrobe Loop fixture story and server-side Wardrobe <code>A.jpg</code> as its live development harness. The Director architecture accepts story plus <code>MediaInput</code>, but arbitrary user story/image input is not implemented yet. Refreshing Plan restores the fixture storyboard.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Live Director experiment</h3><span class="result-pill info">TWO INDEPENDENT RUNS</span></div>
+<p>On September 6, 2026, two independent live Director calls were made with the same inputs:</p>
+<p>Wardrobe Loop filmmaker story + authoritative starting frame A → Director → Gemini 3.1 Pro via Replicate → validated <code>DirectorPlan</code>.</p>
+<p>Neither call used a mock or fixture fallback. Starting frame A was not regenerated.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>First live plan</h3><span class="result-pill info">CAPTURED A→G</span></div>
+<p>First captured plan, in travel order:</p>
+<ul>
+<li>A — attic bedroom / approach wardrobe</li>
+<li>B — push through hanging coats; wardrobe opens into winter landscape</li>
+<li>C — emerge into snowy forest; path leads toward ice cavern</li>
+<li>D — traverse ice cavern; stone doorway visible at far end</li>
+<li>E — pass through doorway; ascend floating staircase toward warm doorway</li>
+<li>F — enter observatory; original attic visible through giant lens/window</li>
+<li>G — cross lens/window threshold back into original attic</li>
+</ul>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Second live plan</h3><span class="result-pill info">DIFFERENT GEOGRAPHY</span></div>
+<p>A second independent live run produced different geography:</p>
+<p>wardrobe → snowy path → cave mouth → root cave/tunnel → stone bridge → floating door → bedroom</p>
+</article>
+
+<div class="finding">
+<strong>Initial observation, not a validated general conclusion.</strong>
+<p>Both live samples organized the journey around traversable thresholds and intermediate spatial geography rather than merely producing a sequence of disconnected visual scenes. Examples included hanging coats / wardrobe threshold; a path leading to a cave mouth; a tunnel leading to a doorway; a staircase leading to a doorway; a bridge leading to a floating door; and a destination world becoming visible through a threshold before crossing it.</p>
+<p>This is encouraging evidence that the Director prompt is expressing the existing TunnelVision research principle that visual continuity alone is insufficient and that the camera needs a spatially intelligible route.</p>
+</div>
+
+<div class="finding">
+<strong>Director semantic/spatial planning success ≠ validated physical shootability.</strong>
+<p>Do not claim that these routes are actually shootable yet. The Cinematographer has not inspected generated sets because destination imagery has not been generated. A plausible planned route is not a shootable pair of sets.</p>
+</div>
+
+<div class="finding">
+<strong>This slice does not generate Destinations or video.</strong>
+<p>Planned beats after A may remain FPO. Shoot Destinations and Journeys stay the Product Slice 1 production fixture. Chat, persistence, and uploads are not implemented.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Product Slice 3 autonomous Director. Live harness: Wardrobe Loop story + canonical A.jpg. Not shootability evidence.</span>
+</footer>
+<nav class="chapter-nav"><a href="11-product-slice-2.html" class="prev-link">← Product Slice 2</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

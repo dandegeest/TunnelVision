@@ -14,7 +14,8 @@
     "wardrobe-ab-2x2": "tsx experiments/wardrobe-loop/ab-2x2.ts",
     "wardrobe-scene-aware-strength": "tsx experiments/wardrobe-loop/scene-aware-strength.ts",
     "wardrobe-shootability": "tsx experiments/wardrobe-loop/shootability-intermediate.ts",
-    "wardrobe-shootability-generalized": "tsx experiments/wardrobe-loop/shootability-generalized-repair.ts"
+    "wardrobe-shootability-generalized": "tsx experiments/wardrobe-loop/shootability-generalized-repair.ts",
+    "director:plan": "tsx src/director/cli.ts"
   },
   "engines": {
     "node": ">=20"

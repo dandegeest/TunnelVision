@@ -344,7 +344,7 @@ test("both-legs SHOOTABLE also stops before Camotion and video", async () => {
 test("Camotion implementation is not part of this follow-on", async () => {
   const result = await execFileAsync(
     "git",
-    ["diff", "--stat", "--", "camotion/src", "camotion/tuning", "media/src/cinematographer", "web"],
+    ["diff", "--stat", "--", "camotion/src", "camotion/tuning", "media/src/cinematographer"],
     { cwd: repoRoot },
   );
   assert.equal(result.stdout.trim(), "");

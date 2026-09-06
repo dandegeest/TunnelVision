@@ -8,8 +8,11 @@ import {
 } from "react";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { clampZoom } from "../timeline/geometry";
-import { selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { requestDirectorPlan, type DirectorEvidence } from "./director";
+import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
+
+type DirectorStatus = "idle" | "planning" | "ready" | "error";
 
 type ProjectContextValue = {
   project: Project;
@@ -26,6 +29,10 @@ type ProjectContextValue = {
   setAgency: (agency: Agency) => void;
   approveJourney: (journeyId: string) => void;
   selectedJourney: JourneyShot | null;
+  directorStatus: DirectorStatus;
+  directorError: string | null;
+  directorEvidence: DirectorEvidence | null;
+  planWithDirector: () => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -40,6 +47,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [zoom, setZoomState] = useState(1);
   const [playheadTime, setPlayheadTime] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [directorStatus, setDirectorStatus] = useState<DirectorStatus>("idle");
+  const [directorError, setDirectorError] = useState<string | null>(null);
+  const [directorEvidence, setDirectorEvidence] = useState<DirectorEvidence | null>(null);
 
   const select = useCallback((next: Selection) => {
     setSelection(next);
@@ -71,6 +81,33 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const planWithDirector = useCallback(async () => {
+    const start =
+      project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
+    if (!start) {
+      setDirectorStatus("error");
+      setDirectorError("Project has no starting storyboard frame");
+      return;
+    }
+    setDirectorStatus("planning");
+    setDirectorError(null);
+    try {
+      const result = await requestDirectorPlan({
+        story: project.story,
+        agency: project.agency,
+        startFrameId: start.id,
+        startFrameIntent: start.intent,
+      });
+      setProject((current) => projectWithDirectorPlan(current, result.plan));
+      setDirectorEvidence(result.evidence);
+      setDirectorStatus("ready");
+      setSelection({ kind: "storyboard", frameId: start.id });
+    } catch (error) {
+      setDirectorStatus("error");
+      setDirectorError(error instanceof Error ? error.message : "Director planning failed");
+    }
+  }, [project.agency, project.story, project.storyboard]);
+
   const selectedJourney = useMemo(() => {
     if (selection.kind !== "journey") {
       return null;
@@ -94,6 +131,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setAgency,
       approveJourney,
       selectedJourney,
+      directorStatus,
+      directorError,
+      directorEvidence,
+      planWithDirector,
     }),
     [
       project,
@@ -108,6 +149,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setAgency,
       approveJourney,
       selectedJourney,
+      directorStatus,
+      directorError,
+      directorEvidence,
+      planWithDirector,
     ],
   );
 

@@ -5,6 +5,8 @@ import {
   provenanceIsStoredNotInferred,
   selectionForWorkspaceView,
   nextStoryboardFrame,
+  applyDirectorPlanToStoryboard,
+  projectWithDirectorPlan,
 } from "./storyboard";
 import type { StoryboardFrame } from "./types";
 
@@ -136,5 +138,56 @@ describe("storyboard domain", () => {
     };
     expect(disguised.imageOrigin).toBe("user");
     expect(provenanceIsStoredNotInferred(disguised)).toBe(true);
+  });
+
+  it("preserves the uploaded starting frame and fills later beats from Director output", () => {
+    const start = project.storyboard[0]!;
+    const next = applyDirectorPlanToStoryboard(start, {
+      summary: "Leave through the wardrobe.",
+      beats: [
+        { id: "B", intent: "Pass through the wardrobe.", visualDescription: "Coats and a snowy opening." },
+        { id: "C", intent: "Enter the winter forest.", visualDescription: "Trees beyond the threshold." },
+      ],
+    });
+    expect(next[0]).toEqual(start);
+    expect(next[0]?.imageOrigin).toBe("user");
+    expect(next[0]?.image).toBe(start.image);
+    expect(next.slice(1).map((frame) => frame.intent)).toEqual([
+      "Pass through the wardrobe.",
+      "Enter the winter forest.",
+    ]);
+    expect(next.slice(1).every((frame) => frame.imageOrigin === "none")).toBe(true);
+    expect(next.slice(1).every((frame) => frame.image === undefined)).toBe(true);
+  });
+
+  it("drops a Director beat that repeats the starting frame id", () => {
+    const next = applyDirectorPlanToStoryboard(project.storyboard[0]!, {
+      beats: [
+        { id: "A", intent: "Remain in the attic.", visualDescription: "The supplied bedroom." },
+        { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
+      ],
+    });
+    expect(next.map((frame) => frame.id)).toEqual(["A", "B"]);
+  });
+
+  it("fails instead of replacing the opening if Director returns only the start beat", () => {
+    expect(() =>
+      applyDirectorPlanToStoryboard(project.storyboard[0]!, {
+        beats: [{ id: "A", intent: "The attic.", visualDescription: "Opening still." }],
+      }),
+    ).toThrow(/no subsequent beats/i);
+  });
+
+  it("applies Director beats to Plan without changing Shoot destinations or journeys", () => {
+    const updated = projectWithDirectorPlan(project, {
+      beats: [
+        { id: "B", intent: "Director wardrobe beat.", visualDescription: "Inside the wardrobe." },
+        { id: "C", intent: "Director forest beat.", visualDescription: "Winter trees." },
+      ],
+    });
+    expect(updated.destinations).toEqual(project.destinations);
+    expect(updated.journeys).toEqual(project.journeys);
+    expect(updated.storyboard[0]?.image).toBe(project.storyboard[0]?.image);
+    expect(updated.storyboard.some((frame) => frame.intent === "Director wardrobe beat.")).toBe(true);
   });
 });

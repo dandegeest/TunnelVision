@@ -11,19 +11,25 @@ Generation is not connected from the UI yet.
 **PLAN | SHOOT**. Plan the journey. Shoot the journey. There is
 deliberately no Edit workspace.
 
-**Current implementation:** Product Slice 2 Plan is a dominant
-storyboard grid plus a static Conversation sidebar (user prompt
-fixture and a presentational composer; chat is not wired). Storyboard
-frames may be uploaded or planned FPO. Shoot remains the Slice 1
+**Current implementation:** Product Slice 3 Plan is a dominant
+storyboard grid plus Conversation. Send asks the Director to plan
+from the filmmaker story and starting frame; the text field is not a
+chat. Planned beats may still be FPO. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
-in this checkpoint. Visual checkpoint:
+in this checkpoint. Live development uses the Wardrobe Loop fixture
+story and server-side Wardrobe `A.jpg`. The Director architecture
+accepts story plus `MediaInput`, but arbitrary user story/image input
+is not implemented yet. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
+Slice 3 Director observation:
+[genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 
 ### Plan — conversational storyboard
 
 **Slice 2 implements the storyboard grid visualization, a static
-Conversation prompt fixture, and a presentational composer.** Chat is
-not implemented.
+Conversation prompt fixture, and a presentational composer.** Product
+Slice 3 enables Send to ask the Director to plan subsequent beats.
+Chat is not implemented.
 
 Plan should be a **storyboard workspace driven by conversation**.
 The user develops the movie with TunnelVision. As the conversation

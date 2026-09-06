@@ -1,5 +1,6 @@
 import type { Project, Selection, StoryboardFrame, StoryboardImageOrigin } from "./types";
 import { destinationById, storyboardFrameById } from "./types";
+import type { DirectorPlan } from "./director";
 
 export type WorkspaceView = "plan" | "shoot";
 
@@ -81,4 +82,47 @@ export function selectionForWorkspaceView(
     project.destinations.findIndex((destination) => destination.id === destinationId),
   );
   return { kind: "destination", destinationId, occurrenceIndex };
+}
+
+const STORYBOARD_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/**
+ * Keep the filmmaker-supplied opening frame. Map Director subsequent beats to
+ * planned/FPO storyboard frames. Does not touch Shoot Destinations or Journeys.
+ */
+export function applyDirectorPlanToStoryboard(
+  startFrame: StoryboardFrame,
+  plan: DirectorPlan,
+): StoryboardFrame[] {
+  if (startFrame.imageOrigin !== "user" || !startFrame.image) {
+    throw new Error("Starting frame must remain the filmmaker-supplied opening beat");
+  }
+  const subsequent = plan.beats.filter(
+    (beat) => beat.id.trim().toLowerCase() !== startFrame.id.trim().toLowerCase(),
+  );
+  if (subsequent.length < 1) {
+    throw new Error("Director returned no subsequent beats after the starting frame");
+  }
+  const planned: StoryboardFrame[] = subsequent.map((beat, index) => {
+    const label = STORYBOARD_LABELS[index + 1] ?? `+${index + 1}`;
+    return {
+      id: beat.id,
+      label,
+      intent: beat.intent,
+      imageOrigin: "none",
+    };
+  });
+  return [{ ...startFrame }, ...planned];
+}
+
+export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): Project {
+  const start =
+    project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
+  if (!start) {
+    throw new Error("Project has no starting storyboard frame");
+  }
+  return {
+    ...project,
+    storyboard: applyDirectorPlanToStoryboard(start, plan),
+  };
 }

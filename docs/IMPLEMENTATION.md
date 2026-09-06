@@ -117,10 +117,10 @@ fixture-driven UI to stop being a fixture.
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark
-Harness. Do not scaffold Director, Screenwriter, conversation
-persistence, undo/redo, a revision graph, a user-facing Draft/Final
-toggle, or expand the thin Integration Test 01 cinematographer into
-a product package in this checkpoint.
+Harness. Do not scaffold Screenwriter, conversation persistence,
+undo/redo, a revision graph, a user-facing Draft/Final toggle, or
+expand the thin Integration Test 01 cinematographer into a product
+package in this checkpoint.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
@@ -134,14 +134,20 @@ package (image + video), ReasoningProvider, and a thin cinematographer
 pair planner used by Integration Test 01. Credentials are environment
 variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. See
-`media/README.md`. [`web/`](../web/) exists as the Product Slice 2
-fixture-driven Plan | Shoot shell. Generation is not connected from
-the UI. Visual checkpoint:
+`media/README.md`. [`web/`](../web/) exists as the Product Slice 3
+Plan | Shoot shell. A thin Director in `media/src/director/` plans
+storyboard beats through `ReasoningProvider`. Generation is not
+connected from the UI. Live development uses the Wardrobe Loop fixture
+story and server-side Wardrobe `A.jpg`. The Director architecture
+accepts story plus `MediaInput`, but arbitrary user story/image input
+is not implemented yet. Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
+First live Director observation:
+[`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).
 
-Do **not** create `server/`, Director modules, Screenwriter, a full
-Cinematographer product package, PreferenceState, or other
-application scaffolding in this checkpoint. Do not treat the `web/`
+Do **not** create `server/`, Screenwriter, a full Cinematographer
+product package, PreferenceState, or other application scaffolding
+beyond the thin Director in this checkpoint. Do not treat the `web/`
 fixture as production wiring.
 
 ## Development draft media
@@ -431,9 +437,10 @@ continuous near-weight path. Do not formalize `A_in` / `A_out` or
 
 These later product phases remain ordered so that **the MediaProvider
 contract exists before Director code depends on it**. Image and video
-MediaProvider slices now live in `media/`. Do not implement Director
-or Screenwriter in this checkpoint. Do not expand the thin Integration
-Test 01 cinematographer into a product package.
+MediaProvider slices now live in `media/`. Product Slice 3 adds a thin
+Director storyboard planner on `ReasoningProvider`. Do not create
+Screenwriter. Do not expand the thin Integration Test 01
+cinematographer into a product package.
 
 The current intended video path is shooting-frame start, shooting-frame
 end, and locomotion prompt. Extra pristine/canonical reference images

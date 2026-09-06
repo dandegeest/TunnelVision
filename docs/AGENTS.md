@@ -67,9 +67,12 @@ Useful Phase 1 research principles, **not rigid generation rules**:
 Candidate evaluation can include continuity, perceptible camera
 displacement, novelty, navigability, preference fit and discovery.
 Automated scoring of displacement or traversal is an **open question**.
-PreferenceState schema is an **open question**. The Director is not
-being implemented in the Camotion v1 milestone. Do not implement a
-complete Screenwriter or conversation-persistence system now.
+PreferenceState schema is an **open question**. A thin Director
+storyboard planner now lives in `media/src/director/` (Product Slice 3).
+Live development uses the Wardrobe Loop fixture story and server-side
+Wardrobe `A.jpg`; arbitrary user story/image input is not implemented
+yet. Do not implement a complete Screenwriter or conversation-persistence
+system now.
 
 ## Cinematographer --- how do we physically get there?
 

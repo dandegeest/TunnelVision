@@ -234,10 +234,14 @@ through the product. Camotion shooting frames are treated
 as motion-state conditioning, not image enhancement. Current product
 direction is **Plan | Shoot**: a conversational storyboard in Plan,
 then Shoot confronts that intent with generated Destinations. There
-is no Edit workspace. Product Slice 2 is the current fixture-driven
-shell (conversation → storyboard in Plan; Destinations / Journey in
-Shoot); generation is not connected. Visual checkpoint:
+is no Edit workspace. Product Slice 3 is the current fixture-driven
+shell: Send asks a thin Director to plan storyboard beats from the
+Wardrobe Loop story and server-side `A.jpg`; arbitrary user
+story/image input is not implemented yet. Shoot remains Destinations /
+Journey. Generation is not connected. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
+Director observation:
+[`genesis/research/12-product-slice-3.html`](genesis/research/12-product-slice-3.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.

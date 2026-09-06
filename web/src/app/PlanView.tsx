@@ -1,8 +1,17 @@
 import { useProject } from "../project/ProjectProvider";
 
 export function PlanView() {
-  const { project, selection, select } = useProject();
+  const {
+    project,
+    selection,
+    select,
+    directorStatus,
+    directorError,
+    directorEvidence,
+    planWithDirector,
+  } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
+  const planning = directorStatus === "planning";
 
   return (
     <div className="grid h-full min-h-0 grid-cols-[240px_minmax(0,1fr)] overflow-hidden">
@@ -13,6 +22,33 @@ export function PlanView() {
             <p className="text-[10px] font-medium tracking-[0.16em] text-[#9a8f7e] uppercase">You</p>
             <p className="mt-2 text-[13px] leading-relaxed text-[#cfc6b8]">{project.story}</p>
           </div>
+          {directorError ? (
+            <p className="mt-4 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+              {directorError}
+            </p>
+          ) : null}
+          {directorEvidence ? (
+            <details className="mt-4 border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]">
+              <summary className="cursor-pointer tracking-[0.16em] uppercase">Director</summary>
+              <div className="mt-2 space-y-2 leading-relaxed">
+                {directorEvidence.model ? <p>Model: {directorEvidence.model}</p> : null}
+                {directorEvidence.predictionId ? (
+                  <p>Prediction: {directorEvidence.predictionId}</p>
+                ) : null}
+                <p>Elapsed: {directorEvidence.elapsedMs}ms</p>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-[#cfc6b8]">
+                  {JSON.stringify(
+                    {
+                      request: directorEvidence.request,
+                      rawText: directorEvidence.rawText,
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              </div>
+            </details>
+          ) : null}
         </div>
         <div className="flex-none border-t border-[#2a2620] px-3 py-3">
           <label className="sr-only" htmlFor="plan-composer">
@@ -28,10 +64,13 @@ export function PlanView() {
             />
             <button
               type="button"
-              disabled
-              aria-label="Send"
-              title="Conversation is not connected in this slice."
-              className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#9a8f7e] disabled:cursor-not-allowed"
+              disabled={planning}
+              aria-label="Ask the Director to plan"
+              title="Ask the Director to plan from this story and starting frame."
+              onClick={() => {
+                void planWithDirector();
+              }}
+              className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#ece7df] disabled:cursor-wait disabled:text-[#9a8f7e]"
             >
               <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
                 <path
@@ -45,6 +84,11 @@ export function PlanView() {
               </svg>
             </button>
           </div>
+          {planning ? (
+            <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+              Director planning…
+            </p>
+          ) : null}
         </div>
       </aside>
       <section className="min-h-0 overflow-auto px-6 py-5">

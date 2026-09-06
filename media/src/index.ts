@@ -51,3 +51,13 @@ export {
   BASELINE_FORWARD,
 } from "./cinematographer/plan-shot.ts";
 export type { CameraMotionPlanV1, ShotMotionPlans } from "./cinematographer/plan-shot.ts";
+export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";
+export type {
+  DirectorAgency,
+  DirectorBeat,
+  DirectorPlan,
+  DirectorPlanInput,
+  DirectorPlanResult,
+  DirectorRequestPayload,
+} from "./director/plan-storyboard.ts";
+export { DIRECTOR_SYSTEM_INSTRUCTION, directorUserPrompt } from "./director/prompts.ts";

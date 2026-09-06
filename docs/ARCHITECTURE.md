@@ -13,18 +13,19 @@ that is still later.
 
 TunnelVision Research Phase 1 is complete. Application code today is
 the Python `camotion/` package, a TypeScript `media/` package for
-image and video generation, vision reasoning, and a thin
-cinematographer pair planner used by Integration Test 01, and a
-Vite/React product shell in `web/` that inspects Wardrobe Loop
-fixtures. Do **not** create `server/`, Director, Screenwriter, a full
-Cinematographer product package, or a journey workspace runtime yet.
-Do **not** call providers from `web/` in this slice.
+image and video generation, vision reasoning, a thin cinematographer
+pair planner, and a thin Director storyboard planner, plus a Vite/React
+product shell in `web/`. Do **not** create `server/`, Screenwriter, a
+full Cinematographer product package, or a journey workspace runtime.
+React does not call providers; Plan invokes the Director through Vite
+dev middleware.
 
 ``` text
 camotion/     Python package, CLI (unchanged renderer)
 media/        MediaProvider (image + video) + ReasoningProvider
               + thin cinematographer planner (Integration Test 01)
-web/          Vite + React + TypeScript fixture shell (Plan | Shoot)
+              + thin Director storyboard planner (Product Slice 3)
+web/          Vite + React + TypeScript Plan | Shoot shell
 ```
 
 ``` bash
@@ -96,18 +97,20 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     bytes (`Buffer`); Node ReadStreams are not auto-uploaded by the
     official SDK.
 -   **Does not exist and must not be created yet:** `server/`,
-    Director, Screenwriter, a full Cinematographer product package,
+    Screenwriter, a full Cinematographer product package,
     journey workspace runtime, Runway/Krea adapters, or a
     last-frame-discovery architecture.
 
-The current **product surface** is Plan | Shoot in `web/`: Product
-Slice 1's locked Destinations and Journey lanes on one time axis,
-driven by Wardrobe Loop fixtures. Generation, Discovery, and
-Screenwriter are not wired. Plan currently shows production stills as
-a fixture; intended Plan storyboard images are provisional Director
-intent, not canonicals. A Runway hackathon “last-frame discovery”
-idea is a research branch, not a replacement for this pipeline, and
-must not restructure current application architecture.
+The current **product surface** is Plan | Shoot in `web/`. Product
+Slice 3 Plan is conversation plus a storyboard grid; Send asks the
+Director to plan subsequent beats from the filmmaker story and
+starting frame. Live development uses the Wardrobe Loop fixture story
+and server-side Wardrobe `A.jpg`. The Director architecture accepts
+story plus `MediaInput`, but arbitrary user story/image input is not
+implemented yet. Shoot remains Product Slice 1's locked Destinations
+and Journey lanes. Generation, Discovery, and Screenwriter are not
+wired. First live Director observation:
+[genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 
 Camotion is a standalone deterministic Python graphics package.
 
