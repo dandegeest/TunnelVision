@@ -1,9 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { LOOP_ARRIVAL_COPY } from "../fixtures/wardrobe-loop";
 import { journeyIsPlayable } from "../project/policy";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
+
+function PreviewMonitor({ children }: { children: ReactNode }) {
+  return (
+    <div className="preview-stage">
+      <div className="preview-monitor">{children}</div>
+    </div>
+  );
+}
 
 export function Preview() {
   const {
@@ -43,35 +51,30 @@ export function Preview() {
     }
   }, [playing, playable, selectedJourney?.id]);
 
+  const title = selectedJourney
+    ? `Preview · ${selectedJourney.id}`
+    : `Preview · Destination ${destination?.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`;
+
+  let caption = "Still from the generated set.";
   if (selectedJourney && !playable) {
-    return (
-      <section className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-black p-4">
-        <p className="flex-none text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Preview · {selectedJourney.id}</p>
-        <div className="relative min-h-0 flex-1 overflow-hidden rounded bg-[#161410]">
-          {destination ? (
-            <img src={destination.image} alt="" className="h-full w-full object-cover opacity-40" />
-          ) : null}
-          <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-[#f0c2a8]">
-            {LOOP_ARRIVAL_COPY}
-          </div>
-        </div>
-        <p className="flex-none text-sm text-[#9a8f7e]">This journey is not a finished movie clip.</p>
-      </section>
-    );
+    caption = "This journey is not a finished movie clip.";
+  } else if (playable && selectedJourney) {
+    caption = `${selectedJourney.status === "needs_review" ? "Rendered · needs review" : "Rendered"} · ${playheadTime.toFixed(1)}s`;
+  } else if (occurrence?.arrivalBlocked) {
+    caption = LOOP_ARRIVAL_COPY;
   }
 
-  if (playable && selectedJourney?.videoUrl) {
-    const startStill = destinationById(project.destinations, selectedJourney.startDestinationId);
-    return (
-      <section className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-black p-4">
-        <p className="flex-none text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Preview · {selectedJourney.id}</p>
-        <div className="min-h-0 flex-1 overflow-hidden">
+  return (
+    <section className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-black p-4">
+      <p className="h-5 flex-none truncate text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">{title}</p>
+      <PreviewMonitor>
+        {playable && selectedJourney?.videoUrl ? (
           <video
             ref={videoRef}
             key={selectedJourney.id}
-            className="h-full w-full rounded bg-black object-contain"
+            className="rounded bg-black"
             src={selectedJourney.videoUrl}
-            poster={startStill?.image}
+            poster={destinationById(project.destinations, selectedJourney.startDestinationId)?.image}
             controls
             preload="metadata"
             onPlay={() => setPlaying(true)}
@@ -84,34 +87,28 @@ export function Preview() {
               setPlayheadTime(laid.startTime + event.currentTarget.currentTime);
             }}
           />
-        </div>
-        <p className="flex-none text-sm text-[#9a8f7e]">
-          {selectedJourney.status === "needs_review" ? "Rendered · needs review" : "Rendered"} · {playheadTime.toFixed(1)}s
-        </p>
-      </section>
-    );
-  }
-
-  return (
-    <section className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-black p-4">
-      <p className="flex-none text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">
-        Preview · Destination {destination?.label}
-        {occurrence?.arrivalBlocked ? " · arrival blocked" : ""}
+        ) : (
+          <>
+            {destination ? (
+              <img
+                src={destination.image}
+                alt={selectedJourney ? "" : `Destination ${destination.label}`}
+                className={`rounded ${selectedJourney && !playable ? "opacity-40" : ""}`}
+              />
+            ) : null}
+            {selectedJourney && !playable ? (
+              <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-[#f0c2a8]">
+                {LOOP_ARRIVAL_COPY}
+              </div>
+            ) : null}
+          </>
+        )}
+      </PreviewMonitor>
+      <p
+        className={`h-5 flex-none truncate text-sm ${occurrence?.arrivalBlocked || (selectedJourney && !playable) ? "text-[#f0c2a8]" : "text-[#9a8f7e]"}`}
+      >
+        {caption}
       </p>
-      {destination ? (
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <img
-            src={destination.image}
-            alt={`Destination ${destination.label}`}
-            className="h-full w-full rounded object-cover"
-          />
-        </div>
-      ) : null}
-      {occurrence?.arrivalBlocked ? (
-        <p className="flex-none text-sm text-[#f0c2a8]">{LOOP_ARRIVAL_COPY}</p>
-      ) : (
-        <p className="flex-none text-sm text-[#9a8f7e]">Still from the generated set.</p>
-      )}
     </section>
   );
 }

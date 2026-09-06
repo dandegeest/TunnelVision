@@ -47,6 +47,13 @@ describe("timeline geometry", () => {
     expect(first?.arrivalBlocked).toBe(false);
   });
 
+  it("uses 38 px per second at default zoom without changing six-second durations", () => {
+    const layout = layoutTimeline(destinations, journeys, 1);
+    expect(layout.journeys.every((journey) => journey.endTime - journey.startTime === 6)).toBe(true);
+    expect(layout.journeys[0]?.width).toBe(6 * 38);
+    expect(layout.totalDuration).toBe(30);
+  });
+
   it("keeps destination E ready while marking only the E-A route blocked", () => {
     const layout = layoutTimeline(destinations, journeys, 1);
     const e = layout.occurrences.find((occurrence) => occurrence.destinationId === "E");
