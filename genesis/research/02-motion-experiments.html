@@ -31,25 +31,23 @@
 <div class="method-card">
 <strong>Still-image generation</strong>
 <p><b>Model:</b> Nano Banana Pro</p>
-<p><b>Platform:</b> Runway</p>
 <p><b>Format:</b> 16:9 · 2752 × 1536</p>
 </div>
 <div class="method-card">
 <strong>Video traversal</strong>
 <p><b>Model:</b> Seedance 2.5</p>
-<p><b>Platform:</b> Krea</p>
 <p><b>Baseline:</b> 720p · 6 seconds · first/last frame only · no @ references</p>
 </div>
 </div>
 <article class="motion-test info">
 <div class="motion-head"><h3>Test 00 · A → alternate exterior endpoint</h3><span class="result-pill info">INFORMATIVE ACCIDENT</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · baseline prompt</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · baseline prompt</div>
 <video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-01.mp4"></video>
 <p>The wrong exterior frame was accidentally used as the endpoint. The result nevertheless produced convincing physical traversal from the cave into an exterior environment. Because the endpoint was not canonical B, this clip is excluded from canonical sequence evaluation, but it established that the method could work at all.</p>
 </article>
 <article class="motion-test pass">
 <div class="motion-head"><h3>Test 01 · Canonical A → B</h3><span class="result-pill pass">PASS</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · first frame A · last frame B · no additional references</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · first frame A · last frame B · no additional references</div>
 <div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves forward through the tunnel, passes completely through the opening into daylight, and continues forward across the exterior terrain until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
 <video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-02.mp4"></video>
 <p>Seedance physically approached the cave opening, crossed the threshold, revealed the exterior geography, and arrived convincingly at B. This was the strongest evidence that a video model could infer unseen connective space between two independently generated stills.</p>
@@ -57,19 +55,19 @@
 </article>
 <article class="motion-test fail">
 <div class="motion-head"><h3>Test 02 · B → C baseline</h3><span class="result-pill fail">FAIL</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · baseline approach</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · baseline approach</div>
 <video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-03.mp4"></video>
 <p>The clip remained visually smooth, but the world reorganized around the camera. Roots and earthen banks gradually reconciled into the destination instead of being passed in stable world space. Optical forward motion was present, but the dominant mechanism was a slow morph/dissolve rather than physical traversal.</p>
 </article>
 <article class="motion-test fail">
 <div class="motion-head"><h3>Test 03 · B → C with explicit anti-morph constraints</h3><span class="result-pill fail">FAIL</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · prompt changed, endpoints unchanged</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · prompt changed, endpoints unchanged</div>
 <div class="prompt-box">First-person camera physically walks forward through the existing ravine from the starting viewpoint to the ending viewpoint. Environmental structures remain fixed in world space as the camera passes them: trees, exposed roots, earthen banks, and terrain must not transform, grow, dissolve, or rearrange to become the ending scene. Foreground objects move past the camera and behind it through natural parallax while newly revealed terrain appears ahead. Continuous forward locomotion through one stable physical environment, naturally arriving at the ending viewpoint. No morphing, dissolving, crossfading, or transformation of the environment.</div>
 <p>No embedded clip was retained for this attempt. The observed failure changed from a gradual morph to an abrupt hard cut: stronger language suppressed the dissolve behavior without producing the missing physical route. Prompting harder did not solve the geometry problem.</p>
 </article>
 <article class="motion-test fail">
 <div class="motion-head"><h3>Test 04 · B → X₁ waypoint · 6s</h3><span class="result-pill fail">FAIL</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · intermediate endpoint generated from B + C references</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · intermediate endpoint generated from B + C references</div>
 <div class="waypoint-row">
 <img alt="X1 intermediate traversal waypoint" src="../assets/images/motion-36.jpg"/>
 <div>
@@ -88,21 +86,21 @@
 </article>
 <article class="motion-test fail">
 <div class="motion-head"><h3>Test 06 · F → G threshold replication</h3><span class="result-pill fail">FAIL</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · first frame F · last frame G · no additional references</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · first frame F · last frame G · no additional references</div>
 <div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves forward through the dark root opening, passes completely through the threshold, and continues forward into the newly revealed environment until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
 <video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-06.mp4"></video>
 <p>This test deliberately asked whether the strong A → B result would generalize to another threshold-like transition later in the journey. It did not. The clip remained visually coherent, but the camera made little meaningful forward progress; the root, ledge, and mushroom structures reconciled toward G around the viewpoint instead of being physically traversed.</p>
 <p><b>Interpretation:</b> a narrative threshold is not enough. The endpoint images themselves must contain compatible spatial evidence that allows the video model to infer a route through a stable environment.</p>
 </article><article class="motion-test fail" id="motion-test-07">
 <div class="motion-head"><h3>Test 07 · B → D · skip the weak intermediate frame</h3><span class="result-pill fail">FAIL</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · 720p · 6s · first/last frame only · generalized baseline prompt</div>
+<div class="test-meta">Seedance 2.5 · 720p · 6s · first/last frame only · generalized baseline prompt</div>
 <video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-07.mp4"></video>
 <div class="prompt-box">First-person camera walks steadily forward through the environment, physically traveling from the starting location to the ending location. The camera moves continuously forward along the existing terrain until naturally arriving at the ending viewpoint. Continuous physical camera movement through space at a natural walking pace. Preserve the spatial structure of the environment during the traversal rather than transforming or dissolving one location into another.</div>
 <p><strong>Why we tried it:</strong> The reel suggested B → C barely encoded camera movement. Skipping C created a larger visual jump and tested whether a more clearly different endpoint would encourage actual traversal.</p>
 <p><strong>Result:</strong> It still favored dissolve/reconciliation over locomotion. A larger endpoint difference alone was not enough. One earlier attempt at this same test was invalidated by Seedance-generated audio triggering a copyright check; that run was excluded from the visual traversal evaluation.</p>
 </article><article class="motion-test pass breakthrough" id="motion-test-08">
 <div class="motion-head"><h3>Test 08 · B → D · Terran-derived continuous-motion strategy</h3><span class="result-pill pass">PASS</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · same B/D anchors · 720p · 6s · first/last frame only</div>
+<div class="test-meta">Seedance 2.5 · same B/D anchors · 720p · 6s · first/last frame only</div>
 <video controls="" playsinline="" preload="metadata" src="../assets/videos/motion-test-08.mp4"></video>
 <div class="prompt-box">First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling deeper through the earthen ravine in uninterrupted forward motion, turning corners or passing beneath roots or around earthen banks or through vegetation, dust, fog, mist, or foreground objects if necessary to continue moving forward. The camera never stops advancing through the environment. Nearby roots, trees, rocks, and terrain pass beside the camera and move behind it as new terrain is continuously revealed ahead. Leaves, dust, and loose particles move naturally through the air as the camera passes. No music, no soundtrack, no dialogue.</div>
 <p><strong>Controlled comparison:</strong> The anchors were unchanged from Test 07. Only the prompting philosophy changed.</p>
@@ -118,7 +116,7 @@
 </div>
 <article class="motion-test pass" id="motion-test-09">
 <div class="motion-head"><h3>Test 09 · Terran library anchors + pristine start reference</h3><span class="result-pill pass">PASS</span></div>
-<div class="test-meta">Seedance 2.5 via Krea · motion-conditioned first/last frames · one pristine start-frame @ reference</div>
+<div class="test-meta">Seedance 2.5 · motion-conditioned first/last frames · one pristine start-frame @ reference</div>
 <div class="prompt-box">First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling deeper through the earthen ravine in uninterrupted forward motion, turning corners or passing beneath roots or around earthen banks or through vegetation, dust, fog, mist, or foreground objects if necessary to continue moving forward. The camera never stops advancing through the environment. Nearby roots, trees, rocks, and terrain pass beside the camera and move behind it as new terrain is continuously revealed ahead. Leaves, dust, and loose particles move naturally through the air as the camera passes. Use @img-1 as visual references for the underlying environment, geometry, materials, and fine detail while following the motion established by the first and last frames.</div>
 <video controls playsinline preload="metadata" src="../assets/videos/motion-test-09.mp4"></video>
 <p><strong>Result:</strong> Convincing physical traversal from the old library through the doorway into the courtyard. Shelves, skeletons, and foreground structures pass the camera with strong parallax; the doorway functions as a real threshold; and the exterior is revealed after crossing it rather than dissolving into place.</p>
