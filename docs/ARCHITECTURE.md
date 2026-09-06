@@ -20,7 +20,9 @@ full Cinematographer product package, or a journey workspace runtime.
 React does not call providers; Plan invokes the Director through Vite
 dev middleware. The browser sends a trusted media identity from
 Project state; the plugin resolves that identity through a server-side
-catalog and never treats browser input as a filesystem path.
+catalog or a session/dev-runtime upload registry and never treats
+browser input as a filesystem path. Uploaded starting frames are not
+durable project persistence; they are forgotten on server restart.
 
 ``` text
 camotion/     Python package, CLI (unchanged renderer)
@@ -112,8 +114,11 @@ media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 The Director architecture accepts
-story plus `MediaInput`. The filmmaker edits `Project.story` in Plan.
-Image upload is not implemented yet. Shoot remains Product Slice 1's locked Destinations
+story plus `MediaInput`. The filmmaker edits `Project.story` in Plan
+and can replace authoritative A with an uploaded still. Uploaded A is
+session/dev-runtime trusted media, not durable project persistence.
+Wardrobe may still initialize the development project; after
+replacement, runtime Project A is authoritative. Shoot remains Product Slice 1's locked Destinations
 and Journey lanes. Generation, Discovery, and Screenwriter are not
 wired. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).

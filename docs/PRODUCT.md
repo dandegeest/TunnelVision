@@ -72,8 +72,11 @@ Wardrobe Loop fixture to initialize Project state, including starting
 frame A with a trusted media identity. Plan starts unplanned beyond A;
 the Director's output becomes the planned continuation. The Director runtime resolves
 that identity from Project state; it does not independently substitute
-Wardrobe `A.jpg`. The filmmaker edits `Project.story` in Plan. Image
-upload is not implemented yet. Visual checkpoint for the frozen Plan shell:
+Wardrobe `A.jpg`. The filmmaker edits `Project.story` in Plan and can
+replace authoritative A with an uploaded still. Uploaded A is
+session/dev-runtime trusted media, not durable project persistence.
+Wardrobe may still initialize the development project; after
+replacement, runtime Project A is authoritative. Visual checkpoint for the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -392,7 +395,10 @@ starting frame A with a trusted media identity. Plan starts unplanned
 beyond A; the Director's output becomes the planned continuation. The Director runtime
 resolves that identity from Project state; it does not independently
 substitute Wardrobe `A.jpg`. The filmmaker edits `Project.story` in
-Plan. Image upload is not implemented yet. Visual
+Plan and can replace authoritative A with an uploaded still.
+Uploaded A is session/dev-runtime trusted media, not durable project
+persistence. Wardrobe may still initialize the development project;
+after replacement, runtime Project A is authoritative. Visual
 checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Director observation:

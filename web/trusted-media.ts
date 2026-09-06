@@ -1,11 +1,13 @@
 import { resolve } from "node:path";
 
+import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { isTrustedMediaIdShape, TRUSTED_MEDIA_IDS } from "./src/project/trusted-media-id.ts";
 import type { MediaInput } from "../media/src/types.ts";
 
 /**
- * Server-side catalog only. The browser sends an id from Project state;
- * it never sends these paths. Unknown ids are rejected.
+ * Server-side catalog and optional session/dev-runtime uploads.
+ * The browser sends an id from Project state; it never sends these paths.
+ * Unknown ids are rejected. Runtime uploads are not durable project storage.
  *
  * `DEV_TEST_TRUSTED_MEDIA_ID` is a harness identity only. It is not product
  * starting-frame state.
@@ -30,10 +32,14 @@ export function resolveTrustedMedia(repoRoot: string, id: unknown): MediaInput {
     throw new UntrustedMediaError();
   }
   const relative = TRUSTED_RELATIVE_PATHS[id];
-  if (!relative) {
-    throw new UntrustedMediaError();
+  if (relative) {
+    return { kind: "file", path: resolve(repoRoot, relative) };
   }
-  return { kind: "file", path: resolve(repoRoot, relative) };
+  const runtime = getActiveRuntimeMediaRegistry()?.get(id);
+  if (runtime) {
+    return { kind: "file", path: runtime.filePath };
+  }
+  throw new UntrustedMediaError();
 }
 
 export function directorStartFrameFromRequest(

@@ -21,8 +21,11 @@ to initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
-The filmmaker edits `Project.story` in Plan. Image upload is not
-implemented yet. Slice 2 visual checkpoint:
+The filmmaker edits `Project.story` in Plan and can replace
+authoritative A with an uploaded still. Uploaded A is
+session/dev-runtime trusted media, not durable project persistence.
+Wardrobe may still initialize the development project; after
+replacement, runtime Project A is authoritative. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -145,8 +148,9 @@ it did not replace canonical E. See
 
 ## Opening state
 
-Minimum brief: a story / journey idea. Starting-frame upload and
-approximate duration are later collaborative controls.
+Minimum brief: a story / journey idea. The filmmaker can replace
+starting frame A from Plan. Approximate duration remains a later
+collaborative control.
 
 Slice 1 uses a uniform journey duration of 6 seconds as fixture
 geometry. Variable duration remains later: destination times are

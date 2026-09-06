@@ -74,7 +74,11 @@ state, including starting frame A with a trusted media identity. Plan
 starts unplanned beyond A; the Director's output becomes the planned
 continuation. The Director runtime resolves that identity from Project state; it does
 not independently substitute Wardrobe `A.jpg`. The filmmaker edits
-`Project.story` in Plan. Image upload is not implemented yet. Do not implement a complete
+`Project.story` in Plan and can replace authoritative A with an
+uploaded still. Uploaded A is session/dev-runtime trusted media, not
+durable project persistence. Wardrobe may still initialize the
+development project; after replacement, runtime Project A is
+authoritative. Do not implement a complete
 Screenwriter or conversation-persistence
 system now.
 

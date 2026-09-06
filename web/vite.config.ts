@@ -4,12 +4,13 @@ import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { directorDevPlugin } from "./director-dev-plugin.ts";
+import { runtimeMediaPlugin } from "./runtime-media-plugin.ts";
 
 const webDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(webDir, "..");
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), directorDevPlugin(repoRoot)],
+  plugins: [react(), tailwindcss(), directorDevPlugin(repoRoot), runtimeMediaPlugin()],
   root: webDir,
   server: {
     fs: {
@@ -21,6 +22,11 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "trusted-media.test.ts"],
+    include: [
+      "src/**/*.test.ts",
+      "src/**/*.test.tsx",
+      "trusted-media.test.ts",
+      "runtime-media.test.ts",
+    ],
   },
 });

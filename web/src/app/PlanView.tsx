@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useProject } from "../project/ProjectProvider";
+import { isAuthoritativeStartingFrame, STARTING_FRAME_ACCEPT } from "../project/starting-frame";
 
 const STORY_WIDTH_DEFAULT = 328;
 const STORY_WIDTH_MIN = 260;
@@ -24,11 +25,15 @@ export function PlanView() {
     directorError,
     directorEvidence,
     planWithDirector,
+    startingFrameError,
+    replacingStart,
+    replaceStartingImage,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
   const canPlan = Boolean(project.story.trim()) && !planning;
   const frameRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [storyWidth, setStoryWidth] = useState(STORY_WIDTH_DEFAULT);
 
@@ -76,6 +81,11 @@ export function PlanView() {
           Story
         </p>
         <div className="min-h-0 flex-1 overflow-auto px-4 py-4">
+          {startingFrameError ? (
+            <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+              {startingFrameError}
+            </p>
+          ) : null}
           {directorError ? (
             <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
               {directorError}
@@ -145,6 +155,11 @@ export function PlanView() {
               Director planning…
             </p>
           ) : null}
+          {replacingStart ? (
+            <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+              Uploading…
+            </p>
+          ) : null}
         </div>
       </aside>
       <div
@@ -163,6 +178,22 @@ export function PlanView() {
         onKeyDown={onResizeKeyDown}
       />
       <section className="min-h-0 min-w-0 flex-1 overflow-auto px-6 py-5">
+        <input
+          ref={fileInputRef}
+          id="replace-starting-image"
+          type="file"
+          accept={STARTING_FRAME_ACCEPT}
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (file) {
+              void replaceStartingImage(file);
+            }
+          }}
+        />
         <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Storyboard</p>
         <ol className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7">
           {project.storyboard.map((frame) => {
@@ -196,6 +227,16 @@ export function PlanView() {
                   </span>
                   <span className="mt-1 block text-sm leading-snug text-[#cfc6b8]">{frame.intent}</span>
                 </button>
+                {isAuthoritativeStartingFrame(frame) ? (
+                  <button
+                    type="button"
+                    disabled={replacingStart}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase disabled:cursor-not-allowed"
+                  >
+                    Replace image
+                  </button>
+                ) : null}
               </li>
             );
           })}

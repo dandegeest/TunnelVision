@@ -1,6 +1,12 @@
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  createRuntimeMediaRegistry,
+  setActiveRuntimeMediaRegistry,
+} from "./runtime-media.ts";
 import {
   DEV_TEST_TRUSTED_MEDIA_ID,
   directorStartFrameFromRequest,
@@ -10,6 +16,14 @@ import {
 import { TRUSTED_MEDIA_IDS } from "./src/project/trusted-media-id.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const PNG = Buffer.from(
+  "89504e470d0a1a0a0000000d4948445200000001000000010802000000907753de0000000c4944415408d763f8ffff3f0005fe02fedccc59e70000000049454e44ae426082",
+  "hex",
+);
+
+afterEach(() => {
+  setActiveRuntimeMediaRegistry(undefined);
+});
 
 describe("trusted media resolution", () => {
   it("maps a known identity to the catalog MediaInput", () => {
@@ -42,6 +56,20 @@ describe("trusted media resolution", () => {
     });
     expect(fromOther.image).toEqual(resolveTrustedMedia(repoRoot, DEV_TEST_TRUSTED_MEDIA_ID));
     expect(fromOther.image).not.toEqual(fromA.image);
+  });
+
+  it("resolves a runtime upload through the same Director startFrame path", () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-trusted-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const recorded = registry.register(PNG, "image/png");
+    const start = directorStartFrameFromRequest(repoRoot, {
+      startFrameId: "A",
+      startMediaId: recorded.mediaId,
+    });
+    expect(start.image).toEqual({ kind: "file", path: recorded.filePath });
+    expect(start.image).not.toEqual(
+      resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.wardrobeLoopVisionA),
+    );
   });
 
   it("rejects an unknown identity", () => {

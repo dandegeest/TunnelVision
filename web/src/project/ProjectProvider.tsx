@@ -13,6 +13,7 @@ import {
   requestDirectorPlan,
   type DirectorEvidence,
 } from "./director";
+import { projectWithReplacedStartImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
 
@@ -38,6 +39,9 @@ type ProjectContextValue = {
   directorError: string | null;
   directorEvidence: DirectorEvidence | null;
   planWithDirector: () => Promise<void>;
+  startingFrameError: string | null;
+  replacingStart: boolean;
+  replaceStartingImage: (file: File) => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -55,6 +59,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>("idle");
   const [directorError, setDirectorError] = useState<string | null>(null);
   const [directorEvidence, setDirectorEvidence] = useState<DirectorEvidence | null>(null);
+  const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
+  const [replacingStart, setReplacingStart] = useState(false);
 
   const select = useCallback((next: Selection) => {
     setSelection(next);
@@ -88,6 +94,23 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           : journey,
       ),
     }));
+  }, []);
+
+  const replaceStartingImage = useCallback(async (file: File) => {
+    setStartingFrameError(null);
+    setReplacingStart(true);
+    try {
+      const uploaded = await uploadStartingFrame(file);
+      setProject((current) => projectWithReplacedStartImage(current, uploaded));
+      setDirectorEvidence(null);
+      setDirectorStatus("idle");
+      setDirectorError(null);
+      setSelection({ kind: "storyboard", frameId: "A" });
+    } catch (error) {
+      setStartingFrameError(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setReplacingStart(false);
+    }
   }, []);
 
   const planWithDirector = useCallback(async () => {
@@ -134,6 +157,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       directorError,
       directorEvidence,
       planWithDirector,
+      startingFrameError,
+      replacingStart,
+      replaceStartingImage,
     }),
     [
       project,
@@ -153,6 +179,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       directorError,
       directorEvidence,
       planWithDirector,
+      startingFrameError,
+      replacingStart,
+      replaceStartingImage,
     ],
   );
 
