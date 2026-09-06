@@ -42,33 +42,100 @@ Preserve clear attribution to Terran Boylan for the original concept
 and manual craft, and distinguish that foundation from later agentic
 and Camotion work.
 
+## Primary workspace: Plan | Shoot
+
+**Decided product direction.** TunnelVision's primary filmmaking
+workspace is **PLAN | SHOOT**.
+
+> **Plan the journey. Shoot the journey.**
+
+There is deliberately no Edit workspace. TunnelVision is not trying
+to become an AI nonlinear editor.
+
+Plan and Shoot are two views of the same evolving movie, not
+disconnected workflows:
+
+-   **Plan** expresses filmmaking intent: this is what we intend to
+    make.
+-   **Shoot** confronts that intent with generated reality: this is
+    what the generated world actually gave us.
+-   Production evidence can send the filmmaker back to Plan.
+
+**Current implementation:** Product Slice 1 is a successful
+fixture-driven Plan | Shoot shell. Two locked Shoot lanes remain
+Destinations and Journey on one time grid. Generation is not wired.
+Plan currently shows polished Wardrobe Loop production stills, which
+can make it appear that production already happened. That is a
+fixture limitation, not the intended Plan model.
+
+## Plan is a conversational storyboard
+
+**Decided product direction. Not implemented.**
+
+Plan should be a **storyboard workspace driven by conversation**.
+The user develops the movie with TunnelVision. As the conversation
+develops, TunnelVision materializes a familiar visual storyboard
+rather than exposing agent internals or filmmaking forms.
+
+The conversation is an interaction mechanism, **not** the
+authoritative project data model. The durable result is structured
+Director / movie intent:
+
+conversation → structured Director intent → storyboard visualization
+→ approved / revised movie plan
+
+The storyboard is persistent and revisable. It is not a disposable
+prompt screen. Users should be able to make semantic revisions in
+conversation ("pull farther back", "make the return physically
+traversable"); the system updates the structured plan. Do not design
+the complete conversation / revision architecture yet.
+
+> **Preserve the path to sophistication; don't implement the
+> sophistication early.**
+
+### Storyboard images are provisional
+
+Plan storyboard images are inexpensive visualizations of Director
+intent. They are **not** canonical Destinations, production sets,
+Camotion inputs, final frames, or evidence that the generated world
+has that geometry.
+
+Conceptual pipeline, **not current wiring**:
+
+Plan conversation → Director shot / destination intent → provisional
+storyboard visualization → production canonical generation →
+Cinematographer inspects the actual generated set → physical shooting
+plan → Camotion → Journey generation
+
+### Storyboard visual language
+
+**Product / UX direction, not architecture.** Traditional
+black-and-white film storyboard; the UI owns chrome. See
+[UX.md](UX.md).
+
+> **The model generates the drawing. TunnelVision generates the
+> storyboard.**
+
+`prunaai/p-image` is a current development renderer candidate, not an
+architectural dependency. See [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
 ## User promise
 
-The current product direction is a **simple autonomous storyboard**,
-not a large interactive editor.
-
-1.  The user gives TunnelVision a story / journey concept.
-2.  TunnelVision plans the film.
-3.  Storyboard frames appear progressively as generation completes so
-    the user watches the story emerge.
-4.  The user can optionally intervene at the cheap canonical stage:
-    Keep, Redo, and possibly Redo With Note / Adjust.
-5.  Once satisfied, the user presses **SHOOT MOVIE**.
-6.  TunnelVision performs Cinematographer planning, Camotion
-    conditioning, video generation, evaluation/retry as appropriate,
-    and deterministic final assembly.
-
-The storyboard is initially a readable representation of the
-autonomous crew's decisions rather than a traditional manual editor.
+The user develops a movie conversationally in Plan. A persistent
+storyboard shows intended Destinations, composition, route,
+choreography, pacing, and landmarks. When the plan is ready enough to
+confront reality, Shoot generates actual Destinations, the
+Cinematographer inspects those sets, and Journeys are produced only
+when the route is physically shootable. Optional cheap intervention
+remains (Keep / Redo / Redo With Note). Destination pointing (**go
+there**) is a later collaborative capability.
 
 > **TunnelVision presents decisions, not generations.**
 
-The UI should reveal filmmaking intent without requiring the user to
-know filmmaking vocabulary. A redo of canonical D would invalidate
-and recompute adjacent shot reasoning for C→D and D→E. Destination
-pointing (**go there**) remains a later collaborative capability, not
-the initial product surface. Do not build this UI in the current
-checkpoint.
+The UI should reveal filmmaking intent without requiring filmmaking
+vocabulary. A redo of destination D still invalidates adjacent
+journeys C→D and D→E. Do not implement the full conversational Plan
+in this checkpoint.
 
 ## Filmmaking roles
 
@@ -79,14 +146,33 @@ preserve world rules, propose meaningful next camera positions,
 distinguish camera displacement from scene evolution, evaluate
 candidates, learn from selections, and maintain discovery.
 
+Plan is Director-level. The Director specifies semantic / spatial
+intent ("approach the house and enter through the bedroom window")
+without pretending to know exact screen coordinates or physical
+geometry before the production image exists. Planning independent
+attractive endpoints is insufficient; plan the whole spatial journey
+— camera position, destination, what lies between, thresholds,
+orientation, loop closure, and choreography. Evidence: a destination
+object is not enough; the shot needs traversable depth through the
+transition. A strong transition lets the destination world become
+visible before the current world disappears. Open doors, arches,
+tunnels, windows, cave mouths, gaps, and paths around corners are
+potentially spatial handoff mechanisms, not rigid generation rules.
+
 ### Cinematographer
 
-Decides **how to physically get there on camera**: determine route,
-destination, perspective, foreground geometry and motion cues; choose
+Decides **how to physically get there on camera** after the actual
+canonical exists: inspect that generated set; determine destination
+position, vanishing point / forward geometry, traversal corridor,
+occluders, route feasibility, required reorientation if later
+supported, Camotion strength, and the locomotion prompt. Choose
 Camotion conditioning strength from the bounded Phase 1 vocabulary
 `{0.02, 0.04, 0.08}`; produce structured shot/camera data; invoke
 Camotion to derive **shooting frames** from canonical frames; and
 prepare video-generation inputs from those shooting frames.
+
+Do not generate the final Cinematographer plan from Plan storyboard
+drawings. Storyboard images are not evidence of actual geometry.
 
 Camotion is deterministic graphics, not an agent. **Camotion v1** is a
 radial-exposure experiment that approximates and extends aspects of
@@ -128,31 +214,51 @@ walks onto the actual result; if the geometry is not shootable, reject
 it and return upstream rather than forcing video.
 
 Not every Shoot problem should be solved in Shoot. Some failures
-should return to Plan so the Director can redesign the destination /
-route. A later manual revised-E still
+mean the generated set failed a good Director plan; some mean the
+Director planned an inherently difficult spatial relationship.
+
+> **The Cinematographer should not be forced to save a bad Director
+> decision.**
+
+> **A good Director decision can still produce a bad set.**
+
+When Shoot discovers an unshootable relationship, one valid response
+is return to Plan → revise the storyboard / route / Destination
+intent → generate a new actual Destination → inspect the new set →
+continue only if physically shootable. Returning to Plan does not
+guarantee success. It starts another planning / production /
+inspection loop. That is a major reason Plan must stay persistent
+and revisable after production begins. Do not erase expensive
+generated evidence merely because Plan changes. Exact revision /
+history / undo semantics remain future work.
+
+A later manual revised-E still
 (`camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`)
 showed that upstream replanning can specify a more traversable
 spatial design, and that the generator can still fail the
 world-to-world threshold. One still. Not proof that replanning does
-not work. **Return to Plan** should start another Plan → generate
-actual set → inspect loop, not assume the revised plan automatically
-solves the Shoot failure. Cinematographer should not be forced to
-save a bad Director decision; a good Director decision can still
-produce a bad set. Plan expresses spatial intent. Generation builds
-the set. CM evaluates the actual set. This is supported Phase 1
-product behavior / architecture direction. It is **not** implemented
-as a generalized production planner in this checkpoint.
+not work. This is supported Phase 1 product / architecture
+direction. It is **not** implemented as a generalized production
+planner.
 
 **TunnelVision Research Phase 1 is complete.** The purpose of Phase 1
 was not to discover an optimal filmmaking pipeline. It was to
 establish a sufficiently supported pipeline capable of moving into
 autonomous product development. The next milestone is **product
 development**, then Movie #2 through the product. The product itself
-becomes the experimental apparatus. Do not begin that work from this
-checkpoint's documentation pass.
+becomes the experimental apparatus.
 
-There is no separate Edit agent initially. The storyboard keeps
-**canonical / pristine frames** as world-state authority. Video
+The next product slice should still ask: what is the smallest thing
+we can make real that causes fixture-driven UI to stop being a
+fixture? When real media generation is introduced during product
+development, prefer cheap draft providers through the existing
+MediaProvider abstraction. Do not implement the full conversational
+Plan, revision graph, or production-quality pipeline in the next
+slice.
+
+There is no Edit workspace and no Edit agent. Plan storyboard images
+are provisional Director-intent drawings. **Canonical Destinations**
+are actual generated sets — Shoot's world-state authority. Video
 currently receives Camotion **shooting frames**, not those canonical
 images. How to derive distinct arrival/departure derivatives
 (`B_in` / `B_out`) is an **open question** --- do not treat it as
@@ -183,6 +289,13 @@ or AI upscaling of adjacent clips is not Phase 1. See
 -   **Generated sets are evidence.** Inspect the actual generated
     still. Do not assume a requested intermediate camera position was
     realized.
+-   **Plan intends; Shoot inspects actual sets.** Storyboard drawings
+    are provisional. Canonical Destinations are generated reality.
+-   **Intent first, actual set second, physical shooting solution
+    third.** Do not ask the Cinematographer to author a final
+    CameraMotionPlan from a storyboard.
+-   **No Edit workspace.** Assembly is deterministic concat of
+    successful shots, not an AI NLE.
 -   **Canonical frames are position samples, not stop points.** Forward
     motion is not the same as velocity continuing through a shot
     boundary.
@@ -200,7 +313,8 @@ or AI upscaling of adjacent clips is not Phase 1. See
     filmmaking; code owns pixel math. Generative models make
     filmmaking decisions; deterministic code preserves them.
 -   **Provider independence.** TunnelVision owns its contracts;
-    generation providers only render.
+    generation providers only render. Draft vs production quality is
+    a provider / model **choice**, not a product mode.
 
 ## Provider strategy
 
@@ -220,6 +334,17 @@ not implement Runway or Krea adapters in this slice. A thin
 Cinematographer pair planner also exists in `media/` for Integration
 Test 01; it is not a finished product package.
 
+**Development media (decided strategy, not a user-facing mode):**
+use draft models to develop the filmmaking workflow; use production
+models to evaluate filmmaking quality. Do not create a special
+"Pruna mode." Draft models remain MediaProvider configuration.
+Draft media should exercise real asynchronous generation, latency,
+status, failures, and asset creation. It is **not** valid evidence
+for traversal quality, endpoint fidelity, or Camotion effectiveness.
+A user-facing Draft vs Final toggle remains backlog only. Current
+draft candidates and renderer notes live in
+[IMPLEMENTATION.md](IMPLEMENTATION.md).
+
 The current intended video path is:
 
 ``` text
@@ -238,10 +363,17 @@ vendor-neutral API.
 
 ## Initial experience
 
-The intended first product surface is the autonomous storyboard above:
-story concept in, progressive canonicals out, optional Keep / Redo,
-then **SHOOT MOVIE**. Approximate duration and destination pointing
-are later collaborative controls, not the opening contract.
+**Product direction:** the user develops the movie conversationally
+in Plan. A persistent storyboard visualizes structured Director
+intent. Optional Keep / Redo remains at cheap destination stages.
+When the plan is ready enough to confront reality, Shoot generates
+actual Destinations, the Cinematographer inspects those sets, and
+the user presses **Shoot This Shot** or **Shoot Movie**. Approximate
+duration and destination pointing are later collaborative controls.
+
+**Current implementation:** Product Slice 1 is a fixture-driven Plan
+| Shoot shell. Generation is not connected. Plan currently shows
+polished production stills; that is a known fixture weakness.
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers
@@ -254,9 +386,8 @@ without Camotion or provider geometry). Do not create
 `ScreenwriterAgent` or Screenwriter schemas until evidence justifies
 them. See [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
 
-This initial experience is current product direction, not a claim that
-the UI exists. Integration Test 01 exercised the unattended pipeline
-behind SHOOT MOVIE, not the storyboard UI.
+Integration Test 01 exercised the unattended pipeline behind Shoot
+Movie after canonicals existed, not the conversational Plan UI.
 
 ## Success criteria
 

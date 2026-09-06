@@ -1,6 +1,6 @@
 # TunnelVision Architecture
 
-> **Intended later split:** React owns the Story | Timeline workspace,
+> **Intended later split:** React owns the Plan | Shoot workspace,
 > the LLM owns direction, code owns geometry, and generative APIs
 > only render.
 
@@ -24,7 +24,7 @@ Do **not** call providers from `web/` in this slice.
 camotion/     Python package, CLI (unchanged renderer)
 media/        MediaProvider (image + video) + ReasoningProvider
               + thin cinematographer planner (Integration Test 01)
-web/          Vite + React + TypeScript fixture shell (Story | Timeline)
+web/          Vite + React + TypeScript fixture shell (Plan | Shoot)
 ```
 
 ``` bash
@@ -100,12 +100,14 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     journey workspace runtime, Runway/Krea adapters, or a
     last-frame-discovery architecture.
 
-The current **product surface** is Story | Timeline in `web/`: locked
-Destinations and Journey lanes on one time axis, driven by Wardrobe
-Loop fixtures. Generation, Discovery, and Screenwriter are not
-wired. A Runway hackathon “last-frame discovery” idea is a
-research branch, not a replacement for this pipeline, and must not
-restructure current application architecture.
+The current **product surface** is Plan | Shoot in `web/`: Product
+Slice 1's locked Destinations and Journey lanes on one time axis,
+driven by Wardrobe Loop fixtures. Generation, Discovery, and
+Screenwriter are not wired. Plan currently shows production stills as
+a fixture; intended Plan storyboard images are provisional Director
+intent, not canonicals. A Runway hackathon “last-frame discovery”
+idea is a research branch, not a replacement for this pipeline, and
+must not restructure current application architecture.
 
 Camotion is a standalone deterministic Python graphics package.
 
@@ -234,13 +236,23 @@ is closed, and no 01.12 condition is promoted. Do not treat pixel
 similarity to Terran's reference as architecture or as an
 optimization objective.
 
-### Canonical frames vs shooting frames
+### Provisional storyboard, canonical frames, shooting frames
 
-**Canonical / pristine frames** are storyboard and world-state
-authority. They are **not** currently supplied to the video model.
-TunnelVision currently supplies a canonical frame as Camotion's image
-input. Camotion itself does not know what a canonical frame,
-storyboard, or world-state asset is.
+**Durable product / architecture boundary:**
+
+intent first → actual generated set second → physical shooting
+solution third
+
+**Provisional Plan storyboard images** visualize Director intent.
+They are not canonical Destinations, production sets, Camotion
+inputs, or evidence of actual generated geometry. Do not run final
+Cinematographer planning against them.
+
+**Canonical / pristine frames** are actual generated sets: Shoot
+world-state authority. They are **not** currently supplied to the
+video model. TunnelVision currently supplies a canonical frame as
+Camotion's image input. Camotion itself does not know what a
+canonical frame, storyboard, or world-state asset is.
 
 **Shooting frames** are Camotion-conditioned derivatives. They are
 what video generation currently receives as start and end images.
@@ -334,11 +346,18 @@ pristine/canonical reference images are not part of the current
 contract. A `ReasoningProvider` with vision inputs also lives in
 `media/` (Gemini 3.1 Pro adapter).
 
-Implement additional adapters (Runway, Krea) only if needed. Do not
-scaffold unused adapters. Do not import Replicate from Camotion.
+Draft vs production image/video models are **MediaProvider
+configuration**, not a product mode and not a special architecture
+branch. Do not create a "Pruna mode." See
+[IMPLEMENTATION.md](IMPLEMENTATION.md) and [PRODUCT.md](PRODUCT.md).
+
+Implement additional adapters (Runway, Krea, or other hosts) only if
+needed. Do not scaffold unused adapters. Do not import Replicate from
+Camotion.
 
 Provider-specific types must not leak into CameraMotionPlan, Camotion,
-or later journey/storyboard state.
+or later journey/storyboard state. Conversation transcripts are an
+interaction mechanism, not the durable project data model.
 
 ## Reasoning vs geometry (intended)
 

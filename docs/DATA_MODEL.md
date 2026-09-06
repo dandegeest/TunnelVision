@@ -268,11 +268,13 @@ only reads the numbers. Deriving a changing focus of expansion while
 
 ## Canonical vs shooting frames
 
-A **canonical** frame is pristine authoritative world state on the
-storyboard. A **shooting frame** is a Camotion derivative produced
-from an image plus a `CameraMotionPlan` (and optional near-weight).
-TunnelVision currently supplies a canonical frame as that image.
-Camotion does not know what a canonical frame is.
+A **canonical** frame is a pristine generated set: Shoot world-state
+authority. Plan storyboard drawings are provisional visualizations
+of Director intent; they are **not** canonicals. A **shooting frame**
+is a Camotion derivative produced from an image plus a
+`CameraMotionPlan` (and optional near-weight). TunnelVision currently
+supplies a canonical frame as that image. Camotion does not know what
+a canonical frame is.
 
 Canonical frames remain important. They are **not** currently supplied
 to the video model. Video generation currently receives shooting

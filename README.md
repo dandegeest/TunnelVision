@@ -232,8 +232,10 @@ rejected it before video. **TunnelVision Research Phase 1 is
 complete.** Next milestone is product development, then Movie #2
 through the product. Camotion shooting frames are treated
 as motion-state conditioning, not image enhancement. Current product
-direction is a simple autonomous storyboard, not a large editor; that
-UI is not built.
+direction is **Plan | Shoot**: a conversational storyboard in Plan,
+then Shoot confronts that intent with generated Destinations. There
+is no Edit workspace. Product Slice 1 is a fixture-driven shell;
+generation is not connected. See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
 

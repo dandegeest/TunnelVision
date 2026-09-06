@@ -1,21 +1,88 @@
 # TunnelVision UX Plan
 
 Product development has started. [`web/`](../web/) is a fixture-driven
-Story | Timeline shell using Wardrobe Loop stills and videos. Camotion
+**Plan | Shoot** shell using Wardrobe Loop stills and videos. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
 Generation is not connected from the UI yet.
 
-## Primary interaction (current product direction)
+## Primary interaction
 
-The first product surface is **Story | Timeline**, not a storyboard
-strip and not a large NLE.
+**Decided product direction.** The primary filmmaking workspace is
+**PLAN | SHOOT**. Plan the journey. Shoot the journey. There is
+deliberately no Edit workspace.
 
-1.  User gives TunnelVision a story / journey concept (Story).
-2.  Destinations and journeys appear on a locked timeline.
-3.  Optional cheap destination intervention: Approve, Redo, possibly
+**Current implementation:** Product Slice 1 already uses Plan | Shoot
+navigation. Plan currently displays polished Wardrobe Loop production
+stills. That can make it appear production already happened. That is
+a fixture limitation, not the intended Plan model. Do not redesign
+the Shoot timeline in this checkpoint.
+
+### Plan — conversational storyboard (direction, not implemented)
+
+Plan should be a **storyboard workspace driven by conversation**.
+The user develops the movie with TunnelVision. As the conversation
+develops, TunnelVision materializes a familiar visual storyboard
+rather than exposing agent internals or filmmaking forms.
+
+The storyboard represents **this is what we intend to make**. It
+should communicate story progression, intended Destinations, shot /
+destination composition, spatial relationships, route and
+choreography, pacing, transition intent, and important visual
+landmarks.
+
+The conversation is an interaction mechanism, **not** the
+authoritative project data model. The durable result is structured
+Director intent:
+
+conversation → structured Director intent → storyboard visualization
+→ approved / revised movie plan
+
+The storyboard is persistent and revisable after production begins.
+Users should be able to make semantic revisions in conversation
+("pull farther back", "put the bedroom window in the upper right",
+"approach the house before turning toward the window", "make the
+return to the bedroom physically traversable"). The system updates
+the structured plan / storyboard. Do not design the complete
+conversation / state / revision architecture yet.
+
+Plan storyboard images are **provisional** visualizations of
+Director intent. They are not canonical Destinations, production
+sets, Camotion inputs, final frames, or evidence of actual generated
+geometry. Shoot is where **this is what the generated world actually
+gave us** becomes visible.
+
+### Storyboard visual language
+
+**Product / UX direction, not architecture.** Traditional professional
+film storyboard:
+
+- black-and-white graphite / ink / linework
+- sparse / selective grayscale shading
+- composition and spatial intent over polished illustration
+- edge-to-edge artwork inside product UI
+
+The generated image must **not** include paper, card borders, frames /
+templates, desk or background around a physical sheet, artificial
+tilt, or text labels / arrows baked into the drawing.
+
+TunnelVision's UI owns cards, labels, sequence, status, selection,
+borders, and other storyboard chrome.
+
+> **The model generates the drawing. TunnelVision generates the
+> storyboard.**
+
+Do not over-specify exact styling in architecture. Selective color as
+a destination cue is an **unvalidated** research idea; do not replace
+the black-and-white direction. See
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
+
+### Shoot — production workspace (Slice 1, preserve)
+
+1.  Destinations and journeys appear on a locked timeline.
+2.  Optional cheap destination intervention: Approve, Redo, possibly
     Redo With Note / Adjust (Directed policy).
-4.  User presses **Shoot This Shot** or **Shoot Movie**.
-5.  Cinematographer planning, Camotion, video generation,
+3.  User presses **Shoot This Shot** or **Shoot Movie**.
+4.  Cinematographer planning, Camotion, video generation,
     evaluation/retry, and deterministic assembly run (not wired in
     the current slice).
 
@@ -29,9 +96,10 @@ A redo of destination D invalidates adjacent journeys C→D and D→E.
 Invalidation is displayable; regeneration is not implemented in this
 slice.
 
-## Primary workspace
+## Shoot timeline
 
-Primary nav is **Story | Timeline**.
+Preserve Product Slice 1's two locked lanes. Do not redesign this
+timeline in this checkpoint.
 
 Timeline has two locked lanes on one time axis:
 
@@ -69,7 +137,10 @@ Slice 1 uses a uniform journey duration of 6 seconds as fixture
 geometry. Variable duration remains later: destination times are
 derived from the sum of prior journey durations.
 
-## Canonical vs candidates
+## Canonical vs candidates vs storyboard drawings
+
+Plan storyboard drawings are provisional intent. They must not be
+confused with Shoot Destinations.
 
 Only selected frames permanently occupy the destination lane.
 Candidates are transient editing material. Opening destination C can
@@ -126,7 +197,9 @@ treat that offset as a physically accurate camera turn. Lateral
 translation / strafing and turning / yaw are out of scope for v1 and
 must not be conflated. How a future Cinematographer derives changing
 camera geometry while turning toward a user-selected destination is
-an **open question**.
+an **open question**. Do not add yaw / turn fields now. Movie #2
+should create off-axis route evidence first. See
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
 
 ## Variable autonomy
 
@@ -157,7 +230,10 @@ REGEN / REPAIR) is recorded in
 A-B / B-C / D-E, C-D rendered but needs review, E-A not shootable.
 No providers, no Camotion subprocess, no Discovery. Integration Test
 01 already exercised the unattended filmmaking path after canonicals
-exist.
+exist. Preserve this shell. The newer storyboard direction primarily
+changes what Plan becomes and how real project state eventually feeds
+Shoot. The current fixture can remain temporarily while
+implementation proceeds slice by slice.
 
 That slice now has MediaProvider image and video contracts in
 `media/`. Current research also includes Camotion shooting frames, a

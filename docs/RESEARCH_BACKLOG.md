@@ -346,9 +346,69 @@ checkpoint.
 
 ## Simple autonomous storyboard
 
-Current **product direction**, not a backlog experiment to design
-here. See [PRODUCT.md](PRODUCT.md) and [UX.md](UX.md). Do not build
-the UI in this checkpoint.
+**Moved to product direction.** See [PRODUCT.md](PRODUCT.md) and
+[UX.md](UX.md). Plan is a conversational storyboard workspace.
+Storyboard images are provisional, not canonicals. Do not design the
+complete conversation / revision architecture here.
+
+## Selective-color storyboard destination cue
+
+**Unvalidated.** Manual P-Image tests accidentally colored an
+illuminated window. Hypothesis only: a mostly black-and-white
+storyboard with a restrained color accent on the intended traversal
+destination (window, doorway, cave opening, path) might communicate
+Director intent and perhaps later help guide production canonical
+generation.
+
+Possible future experiment: Director intent → storyboard with
+destination cue → use storyboard + structured intent as reference
+for canonical generation → inspect whether composition / destination
+placement survives.
+
+Do **not** replace the black-and-white storyboard product direction.
+Do not implement this. Do not treat it as a product requirement.
+Do not add storyboard images to the current MediaProvider contract.
+
+## Off-axis route / Movie #2 evidence gap
+
+**Intentional evidence gap. Not a schema change.**
+
+Current canonical fixtures overwhelmingly favor strong near-center
+one-point perspective. The current CameraMotionPlan radial FoE model
+is unusually well suited to those cases.
+
+Movie #2 should deliberately include at least one destination that
+is farther back / wider establishing composition, substantially
+off-axis, and requires approach plus reorientation. Example: approach
+a two-story house → cross the yard → redirect / look toward an
+upper-story bedroom window → approach / pass through the window.
+
+This would test image focal cue vs Director travel destination, and
+may expose the current lack of yaw / lateral / turn / changing-heading
+support.
+
+Do **not** add yaw / turn fields now. Let Movie #2 create evidence
+first.
+
+Potential later evidence statement, only if supported:
+
+> TunnelVision's current shooting model handles straight-ahead
+> traversal but cannot adequately express a route requiring
+> reorientation toward an off-axis destination.
+
+## Draft vs Final (user-facing)
+
+**Unvalidated product idea.** Development currently uses draft vs
+production **models** as MediaProvider configuration. A possible later
+user-facing Draft vs Final feature remains backlog only. Do not build
+a toggle now. See [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
+## Conversation persistence / revision graph
+
+**Unvalidated.** Plan conversation is an interaction mechanism, not
+the project data model. Persistence, undo / redo, and a revision
+graph remain future work. Do not erase expensive generated evidence
+merely because Plan changes. Do not design those semantics here.
 
 ## Runway last-frame discovery
 
@@ -543,8 +603,13 @@ an AI upscaler to Phase 1.
 -   **Pruna Draft Journey / location scouting:** fast exploratory
     generation could let a user discover interesting locations or
     events and promote selected discoveries into canonical
-    storyboard decisions.
+    Destination decisions. Distinct from the current **development**
+    use of fast draft models to iterate filmmaking workflow (see
+    [IMPLEMENTATION.md](IMPLEMENTATION.md)). Location scouting
+    remains unvalidated product behavior.
 -   **Draft → Full fixed-seed promotion** as a later experiment.
+    Related: a user-facing Draft vs Final toggle remains backlog
+    only; do not build it now.
 -   **Cinematographer screen-time reasoning:** how much of a shot's
     duration a traversal deserves. Integration Test 01 added
     movie-level evidence that duration should not be globally fixed

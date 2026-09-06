@@ -31,35 +31,73 @@ checkpoint.
 ## Director --- where do we go next?
 
 Inputs: current/prior canonical frames, journey brief, remaining
-duration, preference state and optional user destination.
+duration, preference state and optional user destination. Plan
+conversation is an interaction mechanism, not the Director's durable
+state. The durable result is structured movie intent.
 
 Responsibilities: understand the world, propose meaningful next camera
 positions, preserve continuity, create discovery, avoid same-composition
 scene evolution, request/evaluate candidates, learn from human choices
 and audit the canonical sequence.
 
+The Director should increasingly plan **routes**, not merely
+attractive Destinations: where the camera is, where it is going, what
+lies between, how thresholds are crossed, whether destination worlds
+become visible before source worlds disappear, camera orientation,
+loop closure, choreography, and intermediate spatial positions when
+genuinely needed.
+
+Plan operates at Director level. The Director may specify semantic
+spatial intent ("Approach the house and enter through the illuminated
+second-story bedroom window") without pretending to know exact screen
+coordinates or physical geometry before the production image exists.
+Do not ask the Director to author a final CameraMotionPlan from a
+storyboard drawing.
+
+Useful Phase 1 research principles, **not rigid generation rules**:
+
+-   A destination object is not enough. The shot needs traversable
+    depth through the transition.
+-   A strong transition lets the destination world become visible
+    before the current world disappears.
+-   Open doors, arches, tunnels, windows, cave mouths, gaps, and
+    paths around corners are potentially spatial handoff mechanisms,
+    not merely visual motifs.
+
 Candidate evaluation can include continuity, perceptible camera
 displacement, novelty, navigability, preference fit and discovery.
 Automated scoring of displacement or traversal is an **open question**.
 PreferenceState schema is an **open question**. The Director is not
-being implemented in the Camotion v1 milestone.
+being implemented in the Camotion v1 milestone. Do not implement a
+complete Screenwriter or conversation-persistence system now.
 
 ## Cinematographer --- how do we physically get there?
 
-Inputs: accepted start/end **canonical** frames, intended
-destination/route, scene analysis and user overrides.
+Inputs: accepted start/end **canonical** frames (actual generated
+sets), intended destination/route, scene analysis and user overrides.
+Provisional Plan storyboard images are **not** CM inputs.
 
-Responsibilities (intended role, not a current module): infer
-perspective/route geometry, identify destination and useful
-focus-of-expansion geometry, identify parallax-producing foreground
-objects and protected regions, produce ShotPlan and CameraMotionPlan
-JSON, request any CV/depth observation **outside** Camotion, invoke
-Camotion to produce shooting frames, fill a stable locomotion template,
-and evaluate actual traversal.
+Responsibilities (intended role, not a current module): after the
+actual canonical exists, infer perspective/route geometry, identify
+destination and useful focus-of-expansion geometry, identify
+parallax-producing foreground objects and protected regions, produce
+ShotPlan and CameraMotionPlan JSON, request any CV/depth observation
+**outside** Camotion, invoke Camotion to produce shooting frames, fill
+a stable locomotion template, and evaluate actual traversal.
+
+Do **not** generate the final Cinematographer plan during Plan /
+Storyboard. Architecture:
+
+intent first → actual generated set second → physical shooting
+solution third
+
+Do not move CM reasoning prematurely into Plan just because
+storyboard images exist.
 
 Video currently receives those shooting frames plus the locomotion
-prompt. Canonical frames stay storyboard/world-state authority; they
-are not currently video inputs.
+prompt. Canonical frames stay Shoot world-state authority; they are
+not currently video inputs. Plan storyboard drawings are not
+canonicals.
 
 Integration Test 01 used a **thin** pair planner in
 `media/src/cinematographer/`: inspect actual start/end stills, emit
@@ -180,16 +218,20 @@ Terran Boylan's depth-aware Photoshop workflow, which used Z / depth,
 two blur operations, and destination protection.
 
 v1 does not implement lateral translation / strafing or turning / yaw.
+Do not add yaw / turn fields now. Let Movie #2 create off-axis route
+evidence first. See [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
 
 Camotion must not call LLMs or generation providers and must have no
 TypeScript or Node dependency.
 
 ## No Edit agent
 
-Do not initially model an Editor. The storyboard handoff is the
-canonical frame. Video currently uses Camotion shooting frames as
-start/end images. Distinct `B_in` / `B_out` derivatives and whether
-they can hand off invisibly remain an **open question**.
+Do not initially model an Editor. There is no Edit workspace.
+Canonical Destinations are Shoot world-state authority. Plan
+storyboard images are provisional intent drawings, not that handoff.
+Video currently uses Camotion shooting frames as start/end images.
+Distinct `B_in` / `B_out` derivatives and whether they can hand off
+invisibly remain an **open question**.
 
 Deterministic final-movie assembly (ordered successful shot videos,
 hard butt joins, no transitions, grading, or optical flow) is

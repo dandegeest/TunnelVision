@@ -103,15 +103,24 @@ Do not replace canonical E.
 
 **TunnelVision Research Phase 1 is complete.** No more dedicated
 Phase 1 research experiments. Next milestone is product development,
-then Movie #2 through the product. Do not start that from this
-checkpoint.
+then Movie #2 through the product.
+
+**Current track (product development):** develop interaction,
+orchestration, and filmmaking workflow. Use draft models to develop
+the workflow; use production models to evaluate filmmaking quality.
+Do not pay production-media cost for every UX iteration. Draft
+models remain MediaProvider / configuration choices, not a product
+mode. See the development-draft section below. The next slice should
+ask what is the smallest thing we can make real that causes
+fixture-driven UI to stop being a fixture.
 
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark
-Harness. Do not scaffold Director, Screenwriter, UI, or expand the
-thin Integration Test 01 cinematographer into a product package in
-this checkpoint.
+Harness. Do not scaffold Director, Screenwriter, conversation
+persistence, undo/redo, a revision graph, a user-facing Draft/Final
+toggle, or expand the thin Integration Test 01 cinematographer into
+a product package in this checkpoint.
 
 Do not bundle Cinematographer into the Camotion experiment. Camotion is
 graphics code with a JSON contract. Cinematographer module boundaries
@@ -125,12 +134,77 @@ package (image + video), ReasoningProvider, and a thin cinematographer
 pair planner used by Integration Test 01. Credentials are environment
 variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. See
-`media/README.md`.
+`media/README.md`. [`web/`](../web/) exists as the Product Slice 1
+fixture-driven Plan | Shoot shell. Generation is not connected from
+the UI.
 
-Do **not** create `web/`, `server/`, Director modules, Screenwriter,
-a full Cinematographer product package, PreferenceState, journey
-workspace layout, or other application scaffolding in this research
-stage.
+Do **not** create `server/`, Director modules, Screenwriter, a full
+Cinematographer product package, PreferenceState, or other
+application scaffolding in this checkpoint. Do not treat the `web/`
+fixture as production wiring.
+
+## Development draft media
+
+**Decided development strategy. Not architecture. Not a user-facing
+product mode.**
+
+> **Use draft models to develop the filmmaking workflow. Use
+> production models to evaluate filmmaking quality.**
+
+Do not create a special "Pruna mode." Use the existing MediaProvider
+abstraction so development models remain provider / model choices.
+The purpose of draft media during product development is to exercise
+real asynchronous generation, latency, status transitions, failures,
+asset creation, and workflow progression — without fixture-only UI
+and without expensive / slow production generations.
+
+Draft media is **not** valid evidence for research conclusions about
+traversal quality, endpoint fidelity, Camotion effectiveness, or
+similar. Those still require controlled production-quality
+experiments.
+
+Conceptual development tier, **not current wiring**:
+
+-   Plan storyboard → fast `prunaai/p-image`
+-   Shoot canonical draft → fast `prunaai/p-image`
+-   Journey draft → fast video candidate such as `prunaai/p-video`
+-   Research / final-quality filmmaking evaluation → production
+    providers such as the current FLUX / Seedance pipeline or future
+    equivalents
+
+A possible later user-facing Draft vs Final feature remains backlog
+only. Do not build a toggle now.
+
+### Storyboard renderer exploration (implementation research)
+
+Manual, lightweight exploration of fast / cheap storyboard
+generation. Not a permanent architecture choice. Do not model-shop
+or optimize this further right now.
+
+**Pruna Z-Image Turbo** (`prunaai/z-image-turbo`): fast and inexpensive
+enough for interactive storyboard exploration, but inconsistent with
+the desired traditional film-storyboard visual language. Observed
+issues included heavy / full rendering rather than sparse linework,
+an architectural-illustration feel, generated physical storyboard
+sheet / border, tilted sheet composition, and occasional unwanted
+color. We stopped tuning it rather than overfitting prompts to one
+renderer.
+
+**Pruna P-Image** (`prunaai/p-image`): currently the more promising
+**development** renderer. Manual test characteristics included 16:9,
+seed `12345`, `prompt_upsampling` false, no LoRA. The result had
+useful linework and edge-to-edge composition, although it still
+introduced yellow illuminated windows despite a requested
+black-and-white treatment and did not perfectly follow the requested
+wide / off-axis composition.
+
+Keep black-and-white traditional storyboard language as **product**
+intent. P-Image is a development implementation candidate, **not** an
+architectural dependency.
+
+Selective color as a destination cue is an **unvalidated** research
+idea. Do not implement it. See
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
 
 ## Camotion v1 is an experiment, not Terran's Photoshop Action
 
@@ -1001,12 +1075,14 @@ planner into a product package in this checkpoint.
 ### SHOOT MOVIE
 
 Current product-direction name for the later action formerly called
-Shoot Journey: plan/review canonical storyboard, derive shooting
-frames, render video from those shooting frames, assemble in canonical
-order, surface failures. Integration Test 01 ran the unattended path
-after canonicals existed. Deterministic concat of ordered successful
-shot videos is the immediate assembly follow-up (hard butts, no
-creative editing). Do not create an Edit agent for this.
+Shoot Journey: confront Plan intent with generated Destinations,
+Cinematographer inspects actual sets, derive shooting frames, render
+video from those shooting frames, assemble in canonical order,
+surface failures. Integration Test 01 ran the unattended path after
+canonicals existed. Deterministic concat of ordered successful shot
+videos is the immediate assembly follow-up (hard butts, no creative
+editing). Do not create an Edit agent for this. Do not generate the
+final Cinematographer plan from Plan storyboard drawings.
 
 ## Experimental artifact --- continuous-locomotion prompt
 
