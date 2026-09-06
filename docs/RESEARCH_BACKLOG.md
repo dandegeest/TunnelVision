@@ -257,6 +257,17 @@ Do not mechanically request X for every transition. Do not accept a
 proposed X as canonical without inspecting the actual generated set.
 Do not implement a generalized production planner from this file.
 
+**Manual follow-on, not a schema.** A later checkpoint revised E
+upstream instead of inserting X:
+`camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`.
+Director-level spatial intent improved the approach, but the
+generated set still failed to show the destination world through the
+threshold. Canonical E was not replaced. Product implication, still
+unbuilt: some Shoot failures should return to Plan, then generate
+and inspect a new actual set. Cinematographer should not be forced
+to save a bad Director decision; a good Director decision can still
+produce a bad set. One still. Not a universal claim.
+
 ## Movie-level velocity and variable duration
 
 Assembling Integration Test 01 with hard butts made accidental

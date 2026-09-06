@@ -125,9 +125,23 @@ physically plausible route between observations. A proposed
 intermediate canonical is not automatically accepted merely because
 an agent requested it. Generation builds the set; the Cinematographer
 walks onto the actual result; if the geometry is not shootable, reject
-it and return upstream rather than forcing video. This is supported
-Phase 1 product behavior / architecture direction. It is **not**
-implemented as a generalized production planner in this checkpoint.
+it and return upstream rather than forcing video.
+
+Not every Shoot problem should be solved in Shoot. Some failures
+should return to Plan so the Director can redesign the destination /
+route. A later manual revised-E still
+(`camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`)
+showed that upstream replanning can specify a more traversable
+spatial design, and that the generator can still fail the
+world-to-world threshold. One still. Not proof that replanning does
+not work. **Return to Plan** should start another Plan → generate
+actual set → inspect loop, not assume the revised plan automatically
+solves the Shoot failure. Cinematographer should not be forced to
+save a bad Director decision; a good Director decision can still
+produce a bad set. Plan expresses spatial intent. Generation builds
+the set. CM evaluates the actual set. This is supported Phase 1
+product behavior / architecture direction. It is **not** implemented
+as a generalized production planner in this checkpoint.
 
 **TunnelVision Research Phase 1 is complete.** The purpose of Phase 1
 was not to discover an optimal filmmaking pipeline. It was to

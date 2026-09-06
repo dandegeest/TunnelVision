@@ -93,6 +93,14 @@ NEEDS_INTERMEDIATE, specified one intermediate camera position X,
 inspected the actual generated X, and rejected both legs. Protocol
 stopped before Seedance. Infer nothing new about Camotion from it.
 
+**Upstream E replanning is a completed manual checkpoint.** Not
+Camotion work. Not a new Wardrobe Loop canonical. Evidence:
+`camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`.
+One revised-E still (FLUX 1.1 Pro Ultra, seed 10105). Human
+inspection only. Approach geometry improved; world handoff failed.
+Do not treat it as proof that Director replanning does not work.
+Do not replace canonical E.
+
 **TunnelVision Research Phase 1 is complete.** No more dedicated
 Phase 1 research experiments. Next milestone is product development,
 then Movie #2 through the product. Do not start that from this

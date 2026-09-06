@@ -121,6 +121,20 @@ Phase 1 shootability evidence, **not a generalized production loop**:
     Direct E→A independently judged NEEDS_INTERMEDIATE. Actual X was
     rejected on both E→X and X→A. Protocol stopped before video.
     One bounded case; not proof of general autonomous shootability.
+-   A later follow-on gave the Cinematographer the generalized
+    traversability principle without a human visual solution:
+    `camotion/integration/wardrobe-loop-01/experiments/shootability-generalized-repair/`.
+    Actual X was again rejected on both legs.
+-   A later **manual** checkpoint revised E upstream instead of
+    inserting X:
+    `camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`.
+    Approach geometry improved; the generated set still failed to
+    expose the destination world through the threshold. Canonical E
+    was not replaced. One still; not evidence that upstream
+    replanning does not work. Return-to-Plan should generate and
+    inspect a new actual set. CM should not be forced to save a bad
+    Director decision; a good Director decision can still produce a
+    bad set.
 
 Remaining cinematographer questions, still not implemented as product
 behavior:

@@ -50,6 +50,16 @@ lives on the route. The UI may highlight the destination occurrence
 that cannot be reached (the loop arrival at A) without marking
 destination E as intrinsically unshootable.
 
+A blocked journey is not automatically a Cinematographer repair.
+Some failures should return to Plan so the Director can revise the
+Destination design, then generate and inspect a new actual set. Plan
+is where spatial filmmaking intent can be revised when production
+evidence shows the planned movie cannot be physically shot as
+intended. One later manual revised-E checkpoint recorded that loop;
+it did not replace canonical E. See
+[PRODUCT.md](PRODUCT.md) and
+`camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`.
+
 ## Opening state
 
 Minimum brief: a story / journey idea. Starting-frame upload and

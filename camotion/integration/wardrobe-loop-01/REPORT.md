@@ -346,7 +346,10 @@ for E→A: see
 `experiments/shootability-intermediate-volume/REPORT.md`.
 A later diagnostic follow-on, not Camotion work, is
 `experiments/shootability-generalized-repair/REPORT.md`.
-That later experiment is not implemented as a production planner
+A later manual checkpoint, not a new movie canonical, tried revising
+E upstream instead of inserting X:
+`experiments/upstream-e-replanning/REPORT.md`.
+Those later experiments are not implemented as a production planner
 here.
 
 ## 17. Movie-level velocity and pacing

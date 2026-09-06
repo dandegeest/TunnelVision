@@ -1,0 +1,30 @@
+{
+  "experiment": "upstream-e-replanning",
+  "parent_experiments": [
+    "shootability-intermediate-volume",
+    "shootability-generalized-repair"
+  ],
+  "stop_reason": "human_inspection_failed_world_handoff",
+  "camotion_run": false,
+  "video_generated": false,
+  "cinematographer_review": false,
+  "regenerations": 0,
+  "canonical_e_replaced": false,
+  "revised_e": {
+    "path": "camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/canonical/revised-E.png",
+    "source_download_filename": "replicate-prediction-zwagbyqpfsrmr0d0exgrhwge3g.png",
+    "sha256": "888681cf4de2c223e91b724b5831d10ec1b8f15e8be552703ff551c6f29f245b",
+    "bytes": 5355630,
+    "width": 2752,
+    "height": 1536,
+    "model": "black-forest-labs/flux-1.1-pro-ultra",
+    "seed": 10105,
+    "prediction_id": "zwagbyqpfsrmr0d0exgrhwge3g",
+    "raw": false
+  },
+  "human_verdict": {
+    "approach_geometry": "improved",
+    "world_handoff": "failed",
+    "observed": "cavern → stone arch → another stone/cavern chamber → closed wardrobe"
+  }
+}
