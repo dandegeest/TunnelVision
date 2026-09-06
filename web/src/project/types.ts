@@ -42,6 +42,8 @@ export type StoryboardFrame = {
   imageOrigin: StoryboardImageOrigin;
   /** Trusted server media identity. Opaque; never a filesystem path. */
   mediaId?: string;
+  /** Director visual description for a planned beat. Absent on the filmmaker starting frame. */
+  visualDescription?: string;
   destinationId?: string;
 };
 

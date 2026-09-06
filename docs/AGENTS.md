@@ -70,8 +70,9 @@ Automated scoring of displacement or traversal is an **open question**.
 PreferenceState schema is an **open question**. A thin Director
 storyboard planner now lives in `media/src/director/` (Product Slice 3).
 Live development uses the Wardrobe Loop fixture to initialize Project
-state, including starting frame A with a trusted media identity. The
-Director runtime resolves that identity from Project state; it does
+state, including starting frame A with a trusted media identity. Plan
+starts unplanned beyond A; the Director's output becomes the planned
+continuation. The Director runtime resolves that identity from Project state; it does
 not independently substitute Wardrobe `A.jpg`. Arbitrary user
 story/image input is not implemented yet. Do not implement a complete
 Screenwriter or conversation-persistence

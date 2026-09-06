@@ -39,21 +39,16 @@ describe("wardrobe loop fixture", () => {
     expect(start?.mediaId).not.toMatch(/[/\\]/);
   });
 
-  it("treats B–E as planned storyboard beats without imagery", () => {
-    const planned = project.storyboard.filter((frame) => frame.id !== "A");
-    expect(planned.map((frame) => frame.id)).toEqual(["B", "C", "D", "E"]);
-    expect(planned.every((frame) => frame.imageOrigin === "none")).toBe(true);
-    expect(planned.every((frame) => frame.image === undefined)).toBe(true);
-    expect(planned.every((frame) => frame.mediaId === undefined)).toBe(true);
+  it("initializes Plan as authoritative A only, without fixture B–E beats", () => {
+    expect(project.storyboard.map((frame) => frame.id)).toEqual(["A"]);
+    expect(project.storyboard.some((frame) => ["B", "C", "D", "E"].includes(frame.id))).toBe(false);
   });
 
-  it("keeps Plan storyboard intent separate from Shoot destination stills", () => {
-    expect(project.storyboard).toHaveLength(5);
+  it("keeps historical Shoot evidence independent of the unplanned Plan", () => {
+    expect(project.storyboard).toHaveLength(1);
     expect(project.destinations).toHaveLength(5);
-    const planE = project.storyboard.find((frame) => frame.id === "E");
     const shootE = project.destinations.find((destination) => destination.id === "E");
-    expect(planE?.intent).toMatch(/stone arch/i);
     expect(shootE?.image).toMatch(/vision\/E\.jpg/i);
-    expect(planE?.image).not.toBe(shootE?.image);
+    expect(project.storyboard.find((frame) => frame.id === "E")).toBeUndefined();
   });
 });

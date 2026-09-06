@@ -69,7 +69,8 @@ Send asks the Director to plan; the composer is not a chat. Shoot
 remains the Slice 1 Destinations / Journey timeline. Generation of
 images and video is not wired. Live development currently uses the
 Wardrobe Loop fixture to initialize Project state, including starting
-frame A with a trusted media identity. The Director runtime resolves
+frame A with a trusted media identity. Plan starts unplanned beyond A;
+the Director's output becomes the planned continuation. The Director runtime resolves
 that identity from Project state; it does not independently substitute
 Wardrobe `A.jpg`. Arbitrary user story/image input is not implemented
 yet. Visual checkpoint for the frozen Plan shell:
@@ -387,7 +388,8 @@ shell. Plan is conversation → storyboard; Send asks the Director to
 plan subsequent beats. Shoot remains the Slice 1 Destinations /
 Journey timeline. Generation is not connected. Live development uses
 the Wardrobe Loop fixture to initialize Project state, including
-starting frame A with a trusted media identity. The Director runtime
+starting frame A with a trusted media identity. Plan starts unplanned
+beyond A; the Director's output becomes the planned continuation. The Director runtime
 resolves that identity from Project state; it does not independently
 substitute Wardrobe `A.jpg`. Arbitrary user story/image input is not
 implemented yet. Visual

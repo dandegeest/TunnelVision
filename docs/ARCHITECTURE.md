@@ -108,7 +108,8 @@ Slice 3 Plan is conversation plus a storyboard grid; Send asks the
 Director to plan subsequent beats from the filmmaker story and
 starting frame. Live development uses the Wardrobe Loop fixture to
 initialize Project state, including starting frame A with a trusted
-media identity. The Director runtime resolves that identity from
+media identity. Plan starts unplanned beyond A; the Director's output
+becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 The Director architecture accepts
 story plus `MediaInput`, but arbitrary user story/image input is not

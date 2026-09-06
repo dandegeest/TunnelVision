@@ -14,11 +14,12 @@ deliberately no Edit workspace.
 **Current implementation:** Product Slice 3 Plan is a dominant
 storyboard grid plus Conversation. Send asks the Director to plan
 from the filmmaker story and starting frame; the text field is not a
-chat. Planned beats may still be FPO. Shoot remains the Slice 1
+chat. Planned beats, when they exist, may still be FPO. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
 in this checkpoint. Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
-media identity. The Director runtime resolves that identity from
+media identity. Plan starts unplanned beyond A; the Director's output
+becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 Arbitrary user story/image input
 is not implemented yet. Slice 2 visual checkpoint:
@@ -242,7 +243,8 @@ REGEN / REPAIR) is recorded in
 
 `web/` is a fixture shell. Plan is conversation → storyboard: a static
 user-prompt fixture and presentational composer beside a dominant
-storyboard grid (uploaded A plus planned FPO B–E). Shoot uses Wardrobe
+storyboard grid (uploaded A; continuation exists only after the
+Director plans). Shoot uses Wardrobe
 Loop vision JPEGs, playable A-B / B-C / D-E, C-D rendered but needs
 review, E-A not shootable. No providers, no Camotion subprocess, no
 Discovery. Integration Test 01 already exercised the unattended

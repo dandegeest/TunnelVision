@@ -129,6 +129,9 @@ export function PlanView() {
             );
           })}
         </ol>
+        {project.storyboard.length === 1 ? (
+          <p className="mt-6 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Not yet planned</p>
+        ) : null}
       </section>
     </div>
   );

@@ -139,7 +139,8 @@ Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. Generation is not
 connected from the UI. Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
-media identity. The Director runtime resolves that identity from
+media identity. Plan starts unplanned beyond A; the Director's output
+becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 The Director architecture
 accepts story plus `MediaInput`, but arbitrary user story/image input

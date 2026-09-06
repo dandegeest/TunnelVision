@@ -110,6 +110,7 @@ export function applyDirectorPlanToStoryboard(
       label,
       intent: beat.intent,
       imageOrigin: "none",
+      ...(beat.visualDescription.trim() ? { visualDescription: beat.visualDescription } : {}),
     };
   });
   return [{ ...startFrame }, ...planned];

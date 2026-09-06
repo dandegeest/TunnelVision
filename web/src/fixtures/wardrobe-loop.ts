@@ -24,10 +24,6 @@ export const WARDROBE_USER_PROMPT =
 
 export const STORYBOARD_INTENTS = {
   A: "Inside the attic bedroom. Approach the open wardrobe.",
-  B: "Inside the wardrobe. Move toward the snowy opening.",
-  C: "Enter the winter forest through the opening.",
-  D: "Follow the ruins deeper toward the cavern.",
-  E: "Approach an open stone arch. The attic bedroom is visible beyond. Continue through to return home.",
 } as const;
 
 export function createWardrobeProject(): Project {
@@ -46,34 +42,6 @@ export function createWardrobeProject(): Project {
         imageOrigin: "user",
         mediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
         destinationId: "A",
-      },
-      {
-        id: "B",
-        label: "B",
-        intent: STORYBOARD_INTENTS.B,
-        imageOrigin: "none",
-        destinationId: "B",
-      },
-      {
-        id: "C",
-        label: "C",
-        intent: STORYBOARD_INTENTS.C,
-        imageOrigin: "none",
-        destinationId: "C",
-      },
-      {
-        id: "D",
-        label: "D",
-        intent: STORYBOARD_INTENTS.D,
-        imageOrigin: "none",
-        destinationId: "D",
-      },
-      {
-        id: "E",
-        label: "E",
-        intent: STORYBOARD_INTENTS.E,
-        imageOrigin: "none",
-        destinationId: "E",
       },
     ],
     destinations: [
