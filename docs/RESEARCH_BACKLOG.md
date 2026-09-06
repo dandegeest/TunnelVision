@@ -347,31 +347,89 @@ the starting point for deciding where to go next. Not a replacement
 for pre-planned canonical journeys until validated. Do not
 restructure the application around it.
 
-## FUTURE / TALKING POINT — Runway GWM / world model
+## 2026-09-03 — Runway GWM Worlds 2
 
+External research development, not a TunnelVision dependency.
 Not implemented. Not experimentally validated. Not Phase 1.
+Do not assume API availability or hackathon access.
+Source: [Introducing GWM Worlds 2](https://runway.com/research/introducing-gwm-worlds-2).
 
-TunnelVision's shootability research exposed a fundamental problem:
-two keyframes may not contain enough evidence of the physical space
-between them.
+Runway published GWM Worlds 2 on September 3, 2026: a research
+preview of persistent, interactive generated worlds with continuous
+camera motion, timestamped actions, and a WorldPrompt split between
+persistent world context and time-varying control. Worth tracking
+against existing TunnelVision hypotheses. Not a new implementation
+requirement.
 
-Today, the Cinematographer detects this and can request an
-intermediate canonical X to establish traversable volume.
+**Shootability.** The completed E→X→A experiment showed that a
+semantically plausible intermediate camera position does not
+guarantee that the generated set physically connects the surrounding
+locations. The current repair loop is approximately: infer missing
+space → generate intermediate X → inspect actual generated X →
+determine whether the resulting geometry is shootable.
 
-A world model such as Runway GWM could potentially solve this more
-naturally by exploring or simulating the missing space, allowing
-TunnelVision to discover X through camera movement rather than
-inventing X as an image first.
+A persistent world model suggests a different future possibility,
+closely related to Discovery: explore missing space through camera
+movement → observe/discover a position X.
+
+**Filmmaking intelligence vs world-model execution.** GWM Worlds 2
+does not replace TunnelVision. A useful hypothesis is that
+TunnelVision remains the filmmaking intelligence / control layer
+above a persistent world model: Plan expresses filmmaking intent;
+the Director determines where the journey should go; the
+Cinematographer determines how the camera should move; a world
+model executes / explores the environment; TunnelVision observes
+and evaluates the resulting world state and traversal; discovered
+observations may become Destinations.
+
+World models may change how TunnelVision traverses space without
+changing the need for filmmaking intelligence that decides where to
+go, how to move, and whether the resulting journey works.
+
+**Destination checkpoints, unvalidated.** Canonical Destinations may
+remain useful even with continuous world generation. A persistent
+world can provide continuous traversal and still drift from
+directorial intent or world consistency. Destinations could
+potentially evolve from independently generated endpoints that
+video must connect toward authoritative observations / checkpoints
+within a continuously traversed world. Do not formalize this as
+architecture.
+
+**Discovery, hypothetical only.**
+
+planned: A → B → C
+
+discovery: A → ? → B\* → ? → C\*
+
+The interesting possibility is that B\* is discovered by traversing
+or exploring a persistent generated world, rather than by generating
+an independent next image or merely extracting the endpoint of a
+conventional video generation.
+
+**WorldPrompt.** Persistent world context plus timestamped actions
+and camera control is conceptually reminiscent of TunnelVision's
+separation of world/story intent, Director route/choreography,
+Cinematographer camera motion, and generated Journey. Interesting
+correspondence, not evidence that TunnelVision should adopt
+Runway's schema.
+
+**Plan / Shoot.** Longer-term hypothesis: a persistent world model
+could make the recently identified Plan/Shoot relationship
+particularly powerful. Plan edits filmmaking intent; Shoot explores
+or realizes that intent in an actual generated world; observed
+production / world evidence flows back into Plan.
+
+**Constraints.** Do not change the current MediaProvider
+architecture. Do not change Phase 1 Camotion conclusions. Do not
+replace the current planned Destination workflow. Do not add GWM
+implementation tasks to the immediate product roadmap. Product
+development continues slice-by-slice with the smallest
+implementation necessary to prove current behavior.
 
 Conceptual distinction only:
 
 -   current: infer missing space → generate X → inspect X
--   possible world-model future: explore missing space →
-    observe/discover X
-
-This is a future integration / hackathon discussion point, not part
-of the Phase 1 implementation. Do not claim current GWM API
-capabilities.
+-   possible future: explore missing space → observe/discover X
 
 ## Camotion conditioning overlay / Cinematographer Inspector
 
