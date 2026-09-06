@@ -11,13 +11,19 @@ Generation is not connected from the UI yet.
 **PLAN | SHOOT**. Plan the journey. Shoot the journey. There is
 deliberately no Edit workspace.
 
-**Current implementation:** Product Slice 1 already uses Plan | Shoot
-navigation. Plan currently displays polished Wardrobe Loop production
-stills. That can make it appear production already happened. That is
-a fixture limitation, not the intended Plan model. Do not redesign
-the Shoot timeline in this checkpoint.
+**Current implementation:** Product Slice 2 Plan is a dominant
+storyboard grid plus a static Conversation sidebar (user prompt
+fixture and a presentational composer; chat is not wired). Storyboard
+frames may be uploaded or planned FPO. Shoot remains the Slice 1
+Destinations / Journey timeline. Do not redesign the Shoot timeline
+in this checkpoint. Visual checkpoint:
+[genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 
-### Plan — conversational storyboard (direction, not implemented)
+### Plan — conversational storyboard
+
+**Slice 2 implements the storyboard grid visualization, a static
+Conversation prompt fixture, and a presentational composer.** Chat is
+not implemented.
 
 Plan should be a **storyboard workspace driven by conversation**.
 The user develops the movie with TunnelVision. As the conversation
@@ -226,14 +232,13 @@ REGEN / REPAIR) is recorded in
 
 ## First product vertical slice (started)
 
-`web/` is a fixture shell: Wardrobe Loop vision JPEGs, playable
-A-B / B-C / D-E, C-D rendered but needs review, E-A not shootable.
-No providers, no Camotion subprocess, no Discovery. Integration Test
-01 already exercised the unattended filmmaking path after canonicals
-exist. Preserve this shell. The newer storyboard direction primarily
-changes what Plan becomes and how real project state eventually feeds
-Shoot. The current fixture can remain temporarily while
-implementation proceeds slice by slice.
+`web/` is a fixture shell. Plan is conversation → storyboard: a static
+user-prompt fixture and presentational composer beside a dominant
+storyboard grid (uploaded A plus planned FPO B–E). Shoot uses Wardrobe
+Loop vision JPEGs, playable A-B / B-C / D-E, C-D rendered but needs
+review, E-A not shootable. No providers, no Camotion subprocess, no
+Discovery. Integration Test 01 already exercised the unattended
+filmmaking path after canonicals exist.
 
 That slice now has MediaProvider image and video contracts in
 `media/`. Current research also includes Camotion shooting frames, a

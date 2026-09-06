@@ -61,16 +61,22 @@ disconnected workflows:
     what the generated world actually gave us.
 -   Production evidence can send the filmmaker back to Plan.
 
-**Current implementation:** Product Slice 1 is a successful
-fixture-driven Plan | Shoot shell. Two locked Shoot lanes remain
-Destinations and Journey on one time grid. Generation is not wired.
-Plan currently shows polished Wardrobe Loop production stills, which
-can make it appear that production already happened. That is a
-fixture limitation, not the intended Plan model.
+**Current implementation:** Product Slice 2 Plan is conversation →
+storyboard. A static user-prompt fixture sits in a subordinate
+Conversation sidebar with a presentational, nonfunctional composer.
+The storyboard is a top-aligned responsive grid of intended beats.
+Frames may be uploaded, later generated, or planned FPO without
+imagery. Provenance is stored as `user` / `generated` / `none`.
+Shoot remains the Slice 1 Destinations / Journey timeline.
+Generation and chat are not wired. Intended E in Plan can differ
+from actual E in Shoot. Visual checkpoint:
+[genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 
 ## Plan is a conversational storyboard
 
-**Decided product direction. Not implemented.**
+**Decided product direction.** Slice 2 implements the persistent
+storyboard visualization and a static Conversation fixture. Chat
+is not implemented yet.
 
 Plan should be a **storyboard workspace driven by conversation**.
 The user develops the movie with TunnelVision. As the conversation
@@ -371,9 +377,11 @@ actual Destinations, the Cinematographer inspects those sets, and
 the user presses **Shoot This Shot** or **Shoot Movie**. Approximate
 duration and destination pointing are later collaborative controls.
 
-**Current implementation:** Product Slice 1 is a fixture-driven Plan
-| Shoot shell. Generation is not connected. Plan currently shows
-polished production stills; that is a known fixture weakness.
+**Current implementation:** Product Slice 2 is the current Plan | Shoot
+shell. Plan is conversation → storyboard. Shoot remains the Slice 1
+Destinations / Journey timeline. Generation is not connected. Visual
+checkpoint:
+[genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

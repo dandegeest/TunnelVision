@@ -8,9 +8,8 @@ import {
 } from "react";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { clampZoom } from "../timeline/geometry";
+import { selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
-
-export type WorkspaceView = "story" | "timeline";
 
 type ProjectContextValue = {
   project: Project;
@@ -33,11 +32,10 @@ const ProjectContext = createContext<ProjectContextValue | null>(null);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [project, setProject] = useState(createWardrobeProject);
-  const [view, setView] = useState<WorkspaceView>("timeline");
+  const [view, setViewState] = useState<WorkspaceView>("plan");
   const [selection, setSelection] = useState<Selection>({
-    kind: "destination",
-    destinationId: "A",
-    occurrenceIndex: 0,
+    kind: "storyboard",
+    frameId: "A",
   });
   const [zoom, setZoomState] = useState(1);
   const [playheadTime, setPlayheadTime] = useState(0);
@@ -47,6 +45,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setSelection(next);
     setPlaying(false);
   }, []);
+
+  const setView = useCallback((next: WorkspaceView) => {
+    setViewState(next);
+    setSelection((current) => selectionForWorkspaceView(next, current, project));
+    setPlaying(false);
+  }, [project]);
 
   const setZoom = useCallback((next: number) => {
     setZoomState(clampZoom(next));
@@ -94,6 +98,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     [
       project,
       view,
+      setView,
       selection,
       select,
       zoom,

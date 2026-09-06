@@ -23,7 +23,9 @@ export function Timeline() {
     const x =
       selection.kind === "destination"
         ? layout.occurrences.find((item) => item.occurrenceIndex === selection.occurrenceIndex)?.xCenter
-        : layout.journeys.find((item) => item.journeyId === selection.journeyId)?.left;
+        : selection.kind === "journey"
+          ? layout.journeys.find((item) => item.journeyId === selection.journeyId)?.left
+          : undefined;
     if (x === undefined) {
       return;
     }

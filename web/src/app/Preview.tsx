@@ -55,7 +55,7 @@ export function Preview() {
     ? `Preview · ${selectedJourney.id}`
     : `Preview · Destination ${destination?.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`;
 
-  let caption = "Still from the generated set.";
+  let caption = "This is what the generated world actually gave us.";
   if (selectedJourney && !playable) {
     caption = "This journey is not a finished movie clip.";
   } else if (playable && selectedJourney) {

@@ -49,6 +49,37 @@ body,
   background: #000;
 }
 
+.storyboard-fpo {
+  position: relative;
+  display: block;
+  height: 100%;
+  width: 100%;
+  background-color: #1a1916;
+  background-image:
+    linear-gradient(to top left, transparent calc(50% - 0.5px), rgba(196, 190, 178, 0.22) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(to top right, transparent calc(50% - 0.5px), rgba(196, 190, 178, 0.22) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(to right, rgba(196, 190, 178, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(196, 190, 178, 0.12) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    calc(100% / 3) calc(100% / 3),
+    calc(100% / 3) calc(100% / 3);
+}
+
+.storyboard-fpo::after {
+  content: "FPO";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: rgba(196, 190, 178, 0.42);
+}
+
 body {
   background: #0c0b0a;
   color: #ece7df;

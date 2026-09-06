@@ -12,6 +12,10 @@ export function Inspector() {
     [project.destinations, project.journeys],
   );
 
+  if (selection.kind === "storyboard") {
+    return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
+  }
+
   if (selection.kind === "destination") {
     const destination = destinationById(project.destinations, selection.destinationId);
     const occurrence = layout.occurrences.find(
@@ -46,7 +50,7 @@ export function Inspector() {
           </p>
         ) : (
           <p className="text-[#cfc6b8]">
-            Generated set. Shootability is judged on the journeys that leave or arrive here.
+            This is what the generated world actually gave us. Shootability is judged on the journeys that leave or arrive here.
           </p>
         )}
         {showApprovals ? (

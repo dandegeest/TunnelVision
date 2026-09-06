@@ -134,9 +134,10 @@ package (image + video), ReasoningProvider, and a thin cinematographer
 pair planner used by Integration Test 01. Credentials are environment
 variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. See
-`media/README.md`. [`web/`](../web/) exists as the Product Slice 1
+`media/README.md`. [`web/`](../web/) exists as the Product Slice 2
 fixture-driven Plan | Shoot shell. Generation is not connected from
-the UI.
+the UI. Visual checkpoint:
+[`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
 
 Do **not** create `server/`, Director modules, Screenwriter, a full
 Cinematographer product package, PreferenceState, or other
