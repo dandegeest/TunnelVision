@@ -14,7 +14,7 @@ export function JourneyLane({
   onSelect: (journeyId: string) => void;
 }) {
   return (
-    <div className="absolute inset-x-0 top-[156px] h-[72px]">
+    <div className="absolute inset-x-0 top-[128px] z-[1] h-[56px]">
       {journeys.map((laid) => {
         const journey = projectJourneys.find((item) => item.id === laid.journeyId);
         if (!journey) {

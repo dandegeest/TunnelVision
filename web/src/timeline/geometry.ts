@@ -4,7 +4,9 @@ export const DEFAULT_DURATION_SECONDS = 6;
 export const BASE_PX_PER_SECOND = 38;
 export const MIN_ZOOM = 0.5;
 export const MAX_ZOOM = 3;
-export const TRACK_PAD_PX = 56;
+export const DESTINATION_THUMB_PX = 132;
+export const VIEWER_GUTTER_PX = 56;
+export const TRACK_PAD_PX = DESTINATION_THUMB_PX / 2 + VIEWER_GUTTER_PX;
 
 export type LaidOutOccurrence = {
   occurrenceIndex: number;
@@ -122,4 +124,23 @@ export function timeToX(
 
 export function clampZoom(zoom: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+}
+
+export function wholeSecondMarkTimes(totalDuration: number): number[] {
+  const times: number[] = [];
+  const last = Math.floor(totalDuration);
+  for (let time = 0; time <= last; time += 1) {
+    times.push(time);
+  }
+  return times;
+}
+
+export function journeyBoundaryTimes(journeys: JourneyShot[]): number[] {
+  const times = [0];
+  let time = 0;
+  for (const journey of journeys) {
+    time += journey.durationSeconds;
+    times.push(time);
+  }
+  return times;
 }

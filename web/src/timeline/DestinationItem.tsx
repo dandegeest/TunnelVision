@@ -1,5 +1,5 @@
 import type { Destination } from "../project/types";
-import type { LaidOutOccurrence } from "./geometry";
+import { DESTINATION_THUMB_PX, type LaidOutOccurrence } from "./geometry";
 
 export function DestinationItem({
   occurrence,
@@ -17,13 +17,13 @@ export function DestinationItem({
     ? "ring-2 ring-[#c45c38]"
     : selected
       ? "ring-2 ring-[#ece7df]"
-      : "ring-1 ring-[#3a342c]";
+      : "ring-1 ring-[#3a342c] group-hover:ring-[#7a7266] group-focus-visible:ring-[#7a7266]";
 
   return (
     <button
       type="button"
-      className="absolute top-3 w-[120px] -translate-x-1/2 text-left"
-      style={{ left: occurrence.xCenter }}
+      className="group absolute top-0 -translate-x-1/2 text-left outline-none"
+      style={{ left: occurrence.xCenter, width: DESTINATION_THUMB_PX }}
       onClick={onSelect}
       aria-label={
         loopReturn
@@ -31,15 +31,19 @@ export function DestinationItem({
           : `Destination ${destination.label}`
       }
     >
+      <span className="mb-1 flex h-5 items-baseline justify-center gap-1 border-b border-[#3a342c]">
+        <span className="truncate text-center text-[11px] tracking-[0.2em] text-[#ece7df]">
+          {destination.label}
+        </span>
+        {loopReturn ? (
+          <span className="shrink-0 text-[10px] tracking-[0.08em] text-[#9a8f7e]">(loop)</span>
+        ) : null}
+      </span>
       <img
         src={destination.image}
         alt=""
         className={`aspect-video w-full rounded object-cover ${ring}`}
       />
-      <span className="mt-1 flex items-center justify-center gap-1 text-xs tracking-[0.16em]">
-        {destination.label}
-        {loopReturn ? <span className="text-[#9a8f7e]">(loop)</span> : null}
-      </span>
     </button>
   );
 }

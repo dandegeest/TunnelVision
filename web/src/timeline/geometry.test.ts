@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Destination, JourneyShot } from "../project/types";
-import { layoutTimeline } from "./geometry";
+import { DESTINATION_THUMB_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, journeyBoundaryTimes, layoutTimeline, wholeSecondMarkTimes } from "./geometry";
 
 const destinations: Destination[] = ["A", "B", "C", "D", "E"].map((id) => ({
   id,
@@ -62,5 +62,23 @@ describe("timeline geometry", () => {
     expect(destinations.find((destination) => destination.id === "E")?.status).toBe("ready");
     expect(e?.arrivalBlocked).toBe(false);
     expect(ea?.status).toBe("not_shootable");
+  });
+
+  it("treats track pad as presentation gutter around destination half-width", () => {
+    expect(TRACK_PAD_PX).toBe(DESTINATION_THUMB_PX / 2 + VIEWER_GUTTER_PX);
+    const layout = layoutTimeline(destinations, journeys, 1);
+    expect(layout.occurrences[0]?.xCenter).toBe(TRACK_PAD_PX);
+    expect(layout.occurrences.at(-1)?.xCenter).toBe(TRACK_PAD_PX + layout.contentWidth);
+  });
+
+  it("derives grid marks from cumulative journey durations, not a hardcoded six seconds", () => {
+    const uneven: JourneyShot[] = [
+      { id: "A-B", startDestinationId: "A", endDestinationId: "B", durationSeconds: 4, status: "rendered" },
+      { id: "B-C", startDestinationId: "B", endDestinationId: "C", durationSeconds: 7, status: "rendered" },
+      { id: "C-D", startDestinationId: "C", endDestinationId: "D", durationSeconds: 5, status: "rendered" },
+    ];
+    expect(journeyBoundaryTimes(uneven)).toEqual([0, 4, 11, 16]);
+    expect(wholeSecondMarkTimes(16)).toEqual(Array.from({ length: 17 }, (_, time) => time));
+    expect(journeyBoundaryTimes(uneven)).not.toEqual([0, 6, 12, 18]);
   });
 });

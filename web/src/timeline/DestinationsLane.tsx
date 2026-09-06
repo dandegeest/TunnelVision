@@ -14,7 +14,7 @@ export function DestinationsLane({
   onSelect: (occurrenceIndex: number, destinationId: string) => void;
 }) {
   return (
-    <div className="absolute inset-x-0 top-7 h-[124px]">
+    <div className="absolute inset-x-0 top-7 z-[1] h-[100px]">
       {occurrences.map((occurrence) => {
         const destination = destinations.find((item) => item.id === occurrence.destinationId);
         if (!destination) {

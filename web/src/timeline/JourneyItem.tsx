@@ -18,12 +18,14 @@ export function JourneyItem({
       : journey.status === "needs_review"
         ? "border-[#8a7032] bg-[#261e10] text-[#f0d9a8]"
         : "border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
-  const ring = selected ? "ring-2 ring-[#ece7df]" : "";
+  const ring = selected
+    ? "ring-2 ring-[#ece7df]"
+    : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";
 
   return (
     <button
       type="button"
-      className={`absolute top-2 box-border h-12 overflow-hidden rounded border px-2 text-left text-xs tracking-[0.12em] ${tone} ${ring}`}
+      className={`absolute top-1 box-border h-12 overflow-hidden rounded border px-2 text-left text-xs tracking-[0.12em] outline-none ${tone} ${ring}`}
       style={{ left: laid.left, width: Math.max(laid.width, 8) }}
       onClick={onSelect}
       aria-label={`Journey ${journey.id}`}

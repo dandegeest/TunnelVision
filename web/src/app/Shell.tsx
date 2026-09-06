@@ -19,14 +19,14 @@ export function Shell() {
             className={`rounded-full px-4 py-1 ${view === "story" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"}`}
             onClick={() => setView("story")}
           >
-            Story
+            Plan
           </button>
           <button
             type="button"
             className={`rounded-full px-4 py-1 ${view === "timeline" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"}`}
             onClick={() => setView("timeline")}
           >
-            Timeline
+            Shoot
           </button>
         </nav>
         <label className="flex items-center gap-2 text-sm text-[#cfc6b8]">
