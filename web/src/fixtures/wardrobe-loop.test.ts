@@ -31,11 +31,20 @@ describe("wardrobe loop fixture", () => {
     expect(journeyIsPlayable(byId["C-D"])).toBe(true);
   });
 
+  it("initializes Plan A with a trusted media identity, not a filesystem path", () => {
+    const start = project.storyboard[0];
+    expect(start?.id).toBe("A");
+    expect(start?.imageOrigin).toBe("user");
+    expect(start?.mediaId).toBe("wardrobe-loop-vision-a");
+    expect(start?.mediaId).not.toMatch(/[/\\]/);
+  });
+
   it("treats B–E as planned storyboard beats without imagery", () => {
     const planned = project.storyboard.filter((frame) => frame.id !== "A");
     expect(planned.map((frame) => frame.id)).toEqual(["B", "C", "D", "E"]);
     expect(planned.every((frame) => frame.imageOrigin === "none")).toBe(true);
     expect(planned.every((frame) => frame.image === undefined)).toBe(true);
+    expect(planned.every((frame) => frame.mediaId === undefined)).toBe(true);
   });
 
   it("keeps Plan storyboard intent separate from Shoot destination stills", () => {

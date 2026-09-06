@@ -18,7 +18,9 @@ pair planner, and a thin Director storyboard planner, plus a Vite/React
 product shell in `web/`. Do **not** create `server/`, Screenwriter, a
 full Cinematographer product package, or a journey workspace runtime.
 React does not call providers; Plan invokes the Director through Vite
-dev middleware.
+dev middleware. The browser sends a trusted media identity from
+Project state; the plugin resolves that identity through a server-side
+catalog and never treats browser input as a filesystem path.
 
 ``` text
 camotion/     Python package, CLI (unchanged renderer)
@@ -104,8 +106,11 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 The current **product surface** is Plan | Shoot in `web/`. Product
 Slice 3 Plan is conversation plus a storyboard grid; Send asks the
 Director to plan subsequent beats from the filmmaker story and
-starting frame. Live development uses the Wardrobe Loop fixture story
-and server-side Wardrobe `A.jpg`. The Director architecture accepts
+starting frame. Live development uses the Wardrobe Loop fixture to
+initialize Project state, including starting frame A with a trusted
+media identity. The Director runtime resolves that identity from
+Project state; it does not independently substitute Wardrobe `A.jpg`.
+The Director architecture accepts
 story plus `MediaInput`, but arbitrary user story/image input is not
 implemented yet. Shoot remains Product Slice 1's locked Destinations
 and Journey lanes. Generation, Discovery, and Screenwriter are not

@@ -9,6 +9,7 @@ import videoCD from "../../../camotion/integration/wardrobe-loop-01/videos/C-D.m
 import videoDE from "../../../camotion/integration/wardrobe-loop-01/videos/D-E.mp4";
 import story from "../../../camotion/integration/wardrobe-loop-01/story.json";
 import type { Project } from "../project/types";
+import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
 import { DEFAULT_DURATION_SECONDS } from "../timeline/geometry";
 
 export const LOOP_ARRIVAL_COPY =
@@ -43,6 +44,7 @@ export function createWardrobeProject(): Project {
         intent: STORYBOARD_INTENTS.A,
         image: visionA,
         imageOrigin: "user",
+        mediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
         destinationId: "A",
       },
       {

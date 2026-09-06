@@ -1,11 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { resolve } from "node:path";
 import type { Plugin } from "vite";
 
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
+import { directorStartFrameFromRequest, UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolveBody, reject) => {
@@ -36,6 +36,9 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 }
 
 function statusForError(error: unknown): number {
+  if (error instanceof UntrustedMediaError) {
+    return 400;
+  }
   if (error instanceof MediaGenerationError && error.code === "invalid_input") {
     return 400;
   }
@@ -46,11 +49,6 @@ function statusForError(error: unknown): number {
 }
 
 export function directorDevPlugin(repoRoot: string): Plugin {
-  const startImagePath = resolve(
-    repoRoot,
-    "camotion/integration/wardrobe-loop-01/canonical/vision/A.jpg",
-  );
-
   return {
     name: "tunnelvision-director-dev",
     configureServer(server) {
@@ -67,16 +65,12 @@ export function directorDevPlugin(repoRoot: string): Plugin {
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
+          const startFrame = directorStartFrameFromRequest(repoRoot, body);
           const result = await plan({
             reasoning: new ReplicateReasoningProvider(),
             story: typeof body.story === "string" ? body.story : "",
             agency: body.agency === "autonomous" ? "autonomous" : "directed",
-            startFrame: {
-              id: typeof body.startFrameId === "string" ? body.startFrameId.trim() || "A" : "A",
-              intent:
-                typeof body.startFrameIntent === "string" ? body.startFrameIntent : undefined,
-              image: { kind: "file", path: startImagePath },
-            },
+            startFrame,
           });
           sendJson(res, 200, {
             plan: result.plan,
@@ -86,6 +80,7 @@ export function directorDevPlugin(repoRoot: string): Plugin {
                 agency: result.request.agency,
                 startFrameId: result.request.startFrameId,
                 startFrameIntent: result.request.startFrameIntent,
+                startMediaId: body.startMediaId,
                 systemInstruction: result.request.systemInstruction,
                 prompt: result.request.prompt,
               },

@@ -1,3 +1,6 @@
+import type { Project } from "./types";
+import { isTrustedMediaIdShape } from "./trusted-media-id";
+
 export type DirectorBeat = {
   id: string;
   intent: string;
@@ -15,6 +18,7 @@ export type DirectorEvidence = {
     agency: "directed" | "autonomous";
     startFrameId: string;
     startFrameIntent?: string;
+    startMediaId: string;
     systemInstruction: string;
     prompt: string;
   };
@@ -30,12 +34,36 @@ export type DirectorPlanResponse = {
   evidence: DirectorEvidence;
 };
 
-export async function requestDirectorPlan(input: {
+export type DirectorPlanRequest = {
   story: string;
   agency: "directed" | "autonomous";
   startFrameId: string;
   startFrameIntent?: string;
-}): Promise<DirectorPlanResponse> {
+  startMediaId: string;
+};
+
+export function authoritativeStartFrame(project: Project) {
+  return project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
+}
+
+export function directorPlanRequestFromProject(project: Project): DirectorPlanRequest {
+  const start = authoritativeStartFrame(project);
+  if (!start) {
+    throw new Error("Project has no starting storyboard frame");
+  }
+  if (!isTrustedMediaIdShape(start.mediaId)) {
+    throw new Error("Starting frame has no trusted media identity");
+  }
+  return {
+    story: project.story,
+    agency: project.agency,
+    startFrameId: start.id,
+    startFrameIntent: start.intent,
+    startMediaId: start.mediaId,
+  };
+}
+
+export async function requestDirectorPlan(input: DirectorPlanRequest): Promise<DirectorPlanResponse> {
   const response = await fetch("/api/director/plan", {
     method: "POST",
     headers: { "content-type": "application/json" },

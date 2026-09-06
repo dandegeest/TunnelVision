@@ -18,5 +18,5 @@
     "noUncheckedSideEffectImports": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "director-dev-plugin.ts"]
+  "include": ["vite.config.ts", "director-dev-plugin.ts", "trusted-media.ts", "src/project/trusted-media-id.ts"]
 }

@@ -40,6 +40,8 @@ export type StoryboardFrame = {
   intent: string;
   image?: string;
   imageOrigin: StoryboardImageOrigin;
+  /** Trusted server media identity. Opaque; never a filesystem path. */
+  mediaId?: string;
   destinationId?: string;
 };
 

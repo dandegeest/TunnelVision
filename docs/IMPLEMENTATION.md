@@ -138,7 +138,10 @@ variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. Generation is not
 connected from the UI. Live development uses the Wardrobe Loop fixture
-story and server-side Wardrobe `A.jpg`. The Director architecture
+to initialize Project state, including starting frame A with a trusted
+media identity. The Director runtime resolves that identity from
+Project state; it does not independently substitute Wardrobe `A.jpg`.
+The Director architecture
 accepts story plus `MediaInput`, but arbitrary user story/image input
 is not implemented yet. Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).

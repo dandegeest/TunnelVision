@@ -8,7 +8,11 @@ import {
 } from "react";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { clampZoom } from "../timeline/geometry";
-import { requestDirectorPlan, type DirectorEvidence } from "./director";
+import {
+  directorPlanRequestFromProject,
+  requestDirectorPlan,
+  type DirectorEvidence,
+} from "./director";
 import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
 
@@ -82,26 +86,15 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const planWithDirector = useCallback(async () => {
-    const start =
-      project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
-    if (!start) {
-      setDirectorStatus("error");
-      setDirectorError("Project has no starting storyboard frame");
-      return;
-    }
-    setDirectorStatus("planning");
-    setDirectorError(null);
     try {
-      const result = await requestDirectorPlan({
-        story: project.story,
-        agency: project.agency,
-        startFrameId: start.id,
-        startFrameIntent: start.intent,
-      });
+      const request = directorPlanRequestFromProject(project);
+      setDirectorStatus("planning");
+      setDirectorError(null);
+      const result = await requestDirectorPlan(request);
       setProject((current) => projectWithDirectorPlan(current, result.plan));
       setDirectorEvidence(result.evidence);
       setDirectorStatus("ready");
-      setSelection({ kind: "storyboard", frameId: start.id });
+      setSelection({ kind: "storyboard", frameId: request.startFrameId });
     } catch (error) {
       setDirectorStatus("error");
       setDirectorError(error instanceof Error ? error.message : "Director planning failed");

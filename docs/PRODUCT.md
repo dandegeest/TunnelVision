@@ -68,10 +68,11 @@ Replicate). Plan UI is unchanged: Conversation + storyboard grid.
 Send asks the Director to plan; the composer is not a chat. Shoot
 remains the Slice 1 Destinations / Journey timeline. Generation of
 images and video is not wired. Live development currently uses the
-Wardrobe Loop fixture story and server-side Wardrobe `A.jpg`. The
-Director architecture accepts story plus `MediaInput`, but arbitrary
-user story/image input is not implemented yet. Visual checkpoint for
-the frozen Plan shell:
+Wardrobe Loop fixture to initialize Project state, including starting
+frame A with a trusted media identity. The Director runtime resolves
+that identity from Project state; it does not independently substitute
+Wardrobe `A.jpg`. Arbitrary user story/image input is not implemented
+yet. Visual checkpoint for the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -385,8 +386,11 @@ duration and destination pointing are later collaborative controls.
 shell. Plan is conversation → storyboard; Send asks the Director to
 plan subsequent beats. Shoot remains the Slice 1 Destinations /
 Journey timeline. Generation is not connected. Live development uses
-the Wardrobe Loop fixture story and server-side Wardrobe `A.jpg`;
-arbitrary user story/image input is not implemented yet. Visual
+the Wardrobe Loop fixture to initialize Project state, including
+starting frame A with a trusted media identity. The Director runtime
+resolves that identity from Project state; it does not independently
+substitute Wardrobe `A.jpg`. Arbitrary user story/image input is not
+implemented yet. Visual
 checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Director observation:

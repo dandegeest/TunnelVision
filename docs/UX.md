@@ -17,8 +17,10 @@ from the filmmaker story and starting frame; the text field is not a
 chat. Planned beats may still be FPO. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
 in this checkpoint. Live development uses the Wardrobe Loop fixture
-story and server-side Wardrobe `A.jpg`. The Director architecture
-accepts story plus `MediaInput`, but arbitrary user story/image input
+to initialize Project state, including starting frame A with a trusted
+media identity. The Director runtime resolves that identity from
+Project state; it does not independently substitute Wardrobe `A.jpg`.
+Arbitrary user story/image input
 is not implemented yet. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:

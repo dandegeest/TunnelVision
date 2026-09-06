@@ -236,7 +236,9 @@ direction is **Plan | Shoot**: a conversational storyboard in Plan,
 then Shoot confronts that intent with generated Destinations. There
 is no Edit workspace. Product Slice 3 is the current fixture-driven
 shell: Send asks a thin Director to plan storyboard beats from the
-Wardrobe Loop story and server-side `A.jpg`; arbitrary user
+current Project starting frame. The Wardrobe Loop fixture initializes
+that Project, including a trusted media identity for A; the runtime
+does not independently substitute server-side `A.jpg`. Arbitrary user
 story/image input is not implemented yet. Shoot remains Destinations /
 Journey. Generation is not connected. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).

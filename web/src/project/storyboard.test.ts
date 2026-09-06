@@ -29,11 +29,13 @@ describe("storyboard domain", () => {
   it("stores image origin explicitly; uploaded A is user, planned B–E have no drawing yet", () => {
     const byId = Object.fromEntries(project.storyboard.map((frame) => [frame.id, frame]));
     expect(byId.A.imageOrigin).toBe("user");
+    expect(byId.A.mediaId).toBe("wardrobe-loop-vision-a");
     expect(byId.B.imageOrigin).toBe("none");
     expect(byId.C.imageOrigin).toBe("none");
     expect(byId.D.imageOrigin).toBe("none");
     expect(byId.E.imageOrigin).toBe("none");
     expect(byId.E.image).toBeUndefined();
+    expect(byId.B.mediaId).toBeUndefined();
     expect(project.storyboard.every(provenanceIsStoredNotInferred)).toBe(true);
   });
 
@@ -152,6 +154,7 @@ describe("storyboard domain", () => {
     expect(next[0]).toEqual(start);
     expect(next[0]?.imageOrigin).toBe("user");
     expect(next[0]?.image).toBe(start.image);
+    expect(next[0]?.mediaId).toBe(start.mediaId);
     expect(next.slice(1).map((frame) => frame.intent)).toEqual([
       "Pass through the wardrobe.",
       "Enter the winter forest.",
@@ -188,6 +191,7 @@ describe("storyboard domain", () => {
     expect(updated.destinations).toEqual(project.destinations);
     expect(updated.journeys).toEqual(project.journeys);
     expect(updated.storyboard[0]?.image).toBe(project.storyboard[0]?.image);
+    expect(updated.storyboard[0]?.mediaId).toBe(project.storyboard[0]?.mediaId);
     expect(updated.storyboard.some((frame) => frame.intent === "Director wardrobe beat.")).toBe(true);
   });
 });
