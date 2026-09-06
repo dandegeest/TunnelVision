@@ -1,8 +1,10 @@
 export type {
   MediaProvider,
+  ImageEditProvider,
   MediaInput,
   VideoGenerationRequest,
   ImageGenerationRequest,
+  ImageEditRequest,
   GeneratedVideo,
   GeneratedImage,
   MediaErrorCode,
@@ -37,6 +39,14 @@ export {
   mergeFlux11ProUltraSettings,
 } from "./replicate/flux-1.1-pro-ultra.ts";
 export type { Flux11ProUltraSettings, Flux11ProUltraInput } from "./replicate/flux-1.1-pro-ultra.ts";
+export {
+  FLUX_KONTEXT_PRO_MODEL,
+  DEFAULT_FLUX_KONTEXT_PRO_SETTINGS,
+  toFluxKontextProInput,
+  describeFluxKontextProInput,
+  mergeFluxKontextProSettings,
+} from "./replicate/flux-kontext-pro.ts";
+export type { FluxKontextProSettings, FluxKontextProInput } from "./replicate/flux-kontext-pro.ts";
 export {
   GEMINI_31_PRO_MODEL,
   DEFAULT_GEMINI_31_PRO_SETTINGS,

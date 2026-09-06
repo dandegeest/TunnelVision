@@ -85,6 +85,20 @@ ReplicateMediaProvider
 FLUX 1.1 Pro Ultra adapter
 ```
 
+Image-conditioned editing is a distinct capability. It is not
+text-to-image and does not use FLUX 1.1 Pro Ultra or Redux
+`image_prompt`:
+
+``` text
+application
+    |
+ImageEditProvider.editImage
+    |
+ReplicateMediaProvider
+    |
+FLUX Kontext Pro adapter
+```
+
 Cinematographer camera-motion planning uses a separate
 `ReasoningProvider` with vision image inputs. The first adapter is
 Gemini 3.1 Pro on Replicate. CameraMotionPlan v1 fields are extracted

@@ -6,11 +6,19 @@ import { resolveMediaInput } from "../media-input.ts";
 import {
   GeneratedImage,
   GeneratedVideo,
+  ImageEditRequest,
+  ImageEditProvider,
   ImageGenerationRequest,
   MediaProvider,
   VideoGenerationRequest,
 } from "../types.ts";
 import { ReplicatePrediction, ReplicatePredictionClient } from "./client.ts";
+import {
+  FLUX_KONTEXT_PRO_MODEL,
+  FluxKontextProSettings,
+  describeFluxKontextProInput,
+  toFluxKontextProInput,
+} from "./flux-kontext-pro.ts";
 import {
   FLUX_11_PRO_ULTRA_MODEL,
   Flux11ProUltraSettings,
@@ -29,25 +37,31 @@ export type ReplicateMediaProviderOptions = {
   readonly token?: string;
   readonly model?: string;
   readonly imageModel?: string;
+  readonly imageEditModel?: string;
   readonly seedance?: Seedance25Settings;
   readonly flux?: Flux11ProUltraSettings;
+  readonly kontext?: FluxKontextProSettings;
   readonly client?: ReplicatePredictionClient;
 };
 
-export class ReplicateMediaProvider implements MediaProvider {
+export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider {
   private readonly token: string | undefined;
   private readonly model: string;
   private readonly imageModel: string;
+  private readonly imageEditModel: string;
   private readonly seedance: Seedance25Settings | undefined;
   private readonly flux: Flux11ProUltraSettings | undefined;
+  private readonly kontext: FluxKontextProSettings | undefined;
   private readonly client: ReplicatePredictionClient;
 
   constructor(options: ReplicateMediaProviderOptions = {}) {
     this.token = options.token ?? getOptionalEnv("REPLICATE_API_TOKEN");
     this.model = options.model ?? SEEDANCE_25_MODEL;
     this.imageModel = options.imageModel ?? FLUX_11_PRO_ULTRA_MODEL;
+    this.imageEditModel = options.imageEditModel ?? FLUX_KONTEXT_PRO_MODEL;
     this.seedance = options.seedance;
     this.flux = options.flux;
+    this.kontext = options.kontext;
     this.client = options.client ?? createOfficialClient(this.token);
   }
 
@@ -78,6 +92,28 @@ export class ReplicateMediaProvider implements MediaProvider {
     };
     assertNoSecret(withFlux, this.token);
     return withFlux;
+  }
+
+  async editImage(request: ImageEditRequest): Promise<GeneratedImage> {
+    this.assertConfigured();
+    if (!request.sourceImage) {
+      throw new MediaGenerationError("invalid_input", "sourceImage is required");
+    }
+    const resolvedSource = await resolveMediaInput(request.sourceImage);
+    const input = toFluxKontextProInput(request, resolvedSource, this.kontext);
+    const result = await this.runFilePrediction(
+      this.imageEditModel,
+      input as unknown as Record<string, unknown>,
+    );
+    const withKontext = {
+      ...result,
+      metadata: {
+        ...result.metadata,
+        kontext: describeFluxKontextProInput(request, resolvedSource, this.kontext),
+      },
+    };
+    assertNoSecret(withKontext, this.token);
+    return withKontext;
   }
 
   private assertConfigured(): void {

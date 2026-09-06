@@ -18,6 +18,16 @@ export type ImageGenerationRequest = {
   readonly seed?: number;
 };
 
+/**
+ * Image-conditioned edit. Distinct from text-to-image `ImageGenerationRequest`.
+ * Provider-specific model names stay behind adapters.
+ */
+export type ImageEditRequest = {
+  readonly sourceImage: MediaInput;
+  readonly prompt: string;
+  readonly seed?: number;
+};
+
 export type GeneratedVideo = {
   readonly provider: "replicate";
   readonly model: string;
@@ -47,6 +57,11 @@ export type GeneratedImage = {
 export interface MediaProvider {
   generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo>;
   generateImage(request: ImageGenerationRequest): Promise<GeneratedImage>;
+}
+
+/** Image-conditioned editing. Not text-to-image. */
+export interface ImageEditProvider {
+  editImage(request: ImageEditRequest): Promise<GeneratedImage>;
 }
 
 export type MediaErrorCode =

@@ -331,22 +331,29 @@ TunnelVision owns normalized request/response types. Director
 implementation must depend on that contract, not on a vendor SDK.
 
 The first implemented slice lives in `media/` and currently exposes
-**video and image generation**:
+**video, text-to-image, and image-conditioned editing**:
 
 ``` ts
 interface MediaProvider {
   generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo>;
   generateImage(request: ImageGenerationRequest): Promise<GeneratedImage>;
 }
+
+interface ImageEditProvider {
+  editImage(request: ImageEditRequest): Promise<GeneratedImage>;
+}
 ```
 
 `VideoGenerationRequest` currently carries a start shooting frame, an
 optional end shooting frame, a prompt, and optional duration.
 `ImageGenerationRequest` currently carries a prompt and optional seed.
-Model- and provider-specific capabilities stay behind
-`ReplicateMediaProvider` (Seedance 2.5 and FLUX 1.1 Pro Ultra). Extra
+`ImageEditRequest` currently carries a source image, a prompt, and
+optional seed. Text-to-image (`generateImage`) and image-conditioned
+editing (`editImage`) are distinct. Model- and provider-specific
+capabilities stay behind `ReplicateMediaProvider` (Seedance 2.5,
+FLUX 1.1 Pro Ultra, and FLUX Kontext Pro). Extra
 pristine/canonical reference images are not part of the current
-contract. A `ReasoningProvider` with vision inputs also lives in
+text-to-image contract. A `ReasoningProvider` with vision inputs also lives in
 `media/` (Gemini 3.1 Pro adapter).
 
 Draft vs production image/video models are **MediaProvider

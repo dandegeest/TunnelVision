@@ -11,6 +11,7 @@ import { resolveMediaInput, toReplicateFileInput } from "../src/media-input.ts";
 import { ReplicateMediaProvider } from "../src/replicate/provider.ts";
 import { toSeedance25Input } from "../src/replicate/seedance-2.5.ts";
 import { toFlux11ProUltraInput } from "../src/replicate/flux-1.1-pro-ultra.ts";
+import { toFluxKontextProInput } from "../src/replicate/flux-kontext-pro.ts";
 import type { ReplicatePredictionClient } from "../src/replicate/client.ts";
 
 test("missing REPLICATE_API_TOKEN fails with configuration error", async () => {
@@ -303,6 +304,7 @@ test("successful image prediction returns structured GeneratedImage without secr
     async create(options) {
       assert.equal(options.model, "black-forest-labs/flux-1.1-pro-ultra");
       assert.equal("image_prompt" in options.input, false);
+      assert.equal("input_image" in options.input, false);
       return {
         id: "pred_img",
         status: "starting",
@@ -335,4 +337,167 @@ test("successful image prediction returns structured GeneratedImage without secr
   const flux = result.metadata.flux as Record<string, unknown>;
   assert.equal(flux.seed, 10101);
   assert.equal(flux.aspect_ratio, "16:9");
+});
+
+test("image edit requires a source image and a prompt", () => {
+  const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
+  const resolved = { kind: "url" as const, url: "https://example.com/a.jpg" };
+  assert.throws(
+    () =>
+      toFluxKontextProInput(
+        { sourceImage: source, prompt: "   " },
+        resolved,
+      ),
+    (error: unknown) => {
+      assert(error instanceof MediaGenerationError);
+      assert.equal(error.code, "invalid_input");
+      assert.match(error.message, /prompt is required/);
+      return true;
+    },
+  );
+  assert.throws(
+    () =>
+      toFluxKontextProInput(
+        { prompt: "move forward", sourceImage: undefined as never },
+        resolved,
+      ),
+    (error: unknown) => {
+      assert(error instanceof MediaGenerationError);
+      assert.equal(error.code, "invalid_input");
+      assert.match(error.message, /sourceImage is required/);
+      return true;
+    },
+  );
+});
+
+test("image-conditioned edit maps onto FLUX Kontext Pro with input_image", () => {
+  const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
+  const input = toFluxKontextProInput(
+    {
+      sourceImage: source,
+      prompt: "Move the camera through the open wardrobe.",
+      seed: 42,
+    },
+    { kind: "url", url: source.url },
+  );
+  assert.deepEqual(input, {
+    prompt: "Move the camera through the open wardrobe.",
+    input_image: "https://example.com/a.jpg",
+    aspect_ratio: "match_input_image",
+    prompt_upsampling: false,
+    output_format: "png",
+    safety_tolerance: 2,
+    seed: 42,
+  });
+  assert.equal("image_prompt" in input, false);
+});
+
+test("successful image edit returns structured GeneratedImage without secrets", async () => {
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      assert.equal(options.model, "black-forest-labs/flux-kontext-pro");
+      assert.equal(options.input.prompt, "Move the camera through the open wardrobe.");
+      assert.equal(options.input.input_image, "https://example.com/a.jpg");
+      assert.equal("image_prompt" in options.input, false);
+      return {
+        id: "pred_edit",
+        status: "starting",
+        model: "black-forest-labs/flux-kontext-pro",
+        version: "kontext-version",
+      };
+    },
+    async wait() {
+      return {
+        id: "pred_edit",
+        status: "succeeded",
+        model: "black-forest-labs/flux-kontext-pro",
+        version: "kontext-version",
+        output: "https://replicate.delivery/edited.png",
+      };
+    },
+  };
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    client,
+  });
+  const result = await provider.editImage({
+    sourceImage: { kind: "url", url: "https://example.com/a.jpg" },
+    prompt: "Move the camera through the open wardrobe.",
+    seed: 42,
+  });
+  assert.equal(result.predictionId, "pred_edit");
+  assert.equal(result.outputUrl, "https://replicate.delivery/edited.png");
+  assert.equal(result.model, "black-forest-labs/flux-kontext-pro");
+  assert.equal(JSON.stringify(result).includes("r8_testtokenvalue"), false);
+  const kontext = result.metadata.kontext as Record<string, unknown>;
+  assert.equal(kontext.prompt, "Move the camera through the open wardrobe.");
+  assert.equal(kontext.input_image, "https://example.com/a.jpg");
+  assert.equal(kontext.seed, 42);
+});
+
+test("image edit local MediaInput is uploaded as file bytes", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "tv-edit-"));
+  const path = join(dir, "A.jpg");
+  const bytes = Buffer.from([255, 216, 255, 224]);
+  await writeFile(path, bytes);
+  let captured: unknown;
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      captured = options.input.input_image;
+      assert.equal(options.model, "black-forest-labs/flux-kontext-pro");
+      return {
+        id: "pred_file",
+        status: "starting",
+        model: "black-forest-labs/flux-kontext-pro",
+      };
+    },
+    async wait() {
+      return {
+        id: "pred_file",
+        status: "succeeded",
+        model: "black-forest-labs/flux-kontext-pro",
+        output: "https://replicate.delivery/file-edit.png",
+      };
+    },
+  };
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    client,
+  });
+  await provider.editImage({
+    sourceImage: { kind: "file", path },
+    prompt: "Move the camera forward.",
+  });
+  assert.ok(Buffer.isBuffer(captured));
+  assert.equal(Buffer.compare(captured as Buffer, bytes), 0);
+});
+
+test("image edit provider errors surface as MediaGenerationError", async () => {
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    client: {
+      async create() {
+        const error = new Error("Input validation failed") as Error & {
+          response: { status: number };
+        };
+        error.response = { status: 422 };
+        throw error;
+      },
+      async wait() {
+        throw new Error("should not wait");
+      },
+    },
+  });
+  await assert.rejects(
+    () =>
+      provider.editImage({
+        sourceImage: { kind: "url", url: "https://example.com/a.jpg" },
+        prompt: "go",
+      }),
+    (error: unknown) => {
+      assert(error instanceof MediaGenerationError);
+      assert.equal(error.code, "invalid_input");
+      return true;
+    },
+  );
 });
