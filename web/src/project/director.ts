@@ -47,6 +47,9 @@ export function authoritativeStartFrame(project: Project) {
 }
 
 export function directorPlanRequestFromProject(project: Project): DirectorPlanRequest {
+  if (!project.story.trim()) {
+    throw new Error("Director requires a filmmaker story");
+  }
   const start = authoritativeStartFrame(project);
   if (!start) {
     throw new Error("Project has no starting storyboard frame");

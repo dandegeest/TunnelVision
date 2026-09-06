@@ -240,8 +240,9 @@ current Project starting frame. The Wardrobe Loop fixture initializes
 that Project, including a trusted media identity for A. Plan starts
 unplanned beyond A; the Director's output becomes the planned
 continuation. The runtime
-does not independently substitute server-side `A.jpg`. Arbitrary user
-story/image input is not implemented yet. Shoot remains Destinations /
+does not independently substitute server-side `A.jpg`. The filmmaker
+edits `Project.story` in Plan. Image upload is not implemented yet.
+Shoot remains Destinations /
 Journey. Generation is not connected. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
 Director observation:

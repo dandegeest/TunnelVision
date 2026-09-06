@@ -143,8 +143,8 @@ media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 The Director architecture
-accepts story plus `MediaInput`, but arbitrary user story/image input
-is not implemented yet. Visual checkpoint for the frozen Plan shell:
+accepts story plus `MediaInput`. The filmmaker edits `Project.story`
+in Plan. Image upload is not implemented yet. Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).

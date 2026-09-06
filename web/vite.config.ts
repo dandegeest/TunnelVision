@@ -21,6 +21,6 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "trusted-media.test.ts"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "trusted-media.test.ts"],
   },
 });

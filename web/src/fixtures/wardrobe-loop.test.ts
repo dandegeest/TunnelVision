@@ -31,6 +31,10 @@ describe("wardrobe loop fixture", () => {
     expect(journeyIsPlayable(byId["C-D"])).toBe(true);
   });
 
+  it("initializes Plan.story from the Wardrobe fixture prompt", () => {
+    expect(project.story).toMatch(/^Make a first-person POV journey/i);
+  });
+
   it("initializes Plan A with a trusted media identity, not a filesystem path", () => {
     const start = project.storyboard[0];
     expect(start?.id).toBe("A");

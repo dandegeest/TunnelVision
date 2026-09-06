@@ -31,6 +31,7 @@ type ProjectContextValue = {
   playing: boolean;
   setPlaying: (playing: boolean) => void;
   setAgency: (agency: Agency) => void;
+  setStory: (story: string) => void;
   approveJourney: (journeyId: string) => void;
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
@@ -72,6 +73,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   const setAgency = useCallback((agency: Agency) => {
     setProject((current) => ({ ...current, agency }));
+  }, []);
+
+  const setStory = useCallback((story: string) => {
+    setProject((current) => ({ ...current, story }));
   }, []);
 
   const approveJourney = useCallback((journeyId: string) => {
@@ -122,6 +127,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       playing,
       setPlaying,
       setAgency,
+      setStory,
       approveJourney,
       selectedJourney,
       directorStatus,
@@ -140,6 +146,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       playheadTime,
       playing,
       setAgency,
+      setStory,
       approveJourney,
       selectedJourney,
       directorStatus,

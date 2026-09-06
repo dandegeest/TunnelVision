@@ -73,8 +73,8 @@ Live development uses the Wardrobe Loop fixture to initialize Project
 state, including starting frame A with a trusted media identity. Plan
 starts unplanned beyond A; the Director's output becomes the planned
 continuation. The Director runtime resolves that identity from Project state; it does
-not independently substitute Wardrobe `A.jpg`. Arbitrary user
-story/image input is not implemented yet. Do not implement a complete
+not independently substitute Wardrobe `A.jpg`. The filmmaker edits
+`Project.story` in Plan. Image upload is not implemented yet. Do not implement a complete
 Screenwriter or conversation-persistence
 system now.
 

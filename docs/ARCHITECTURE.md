@@ -112,8 +112,8 @@ media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 The Director architecture accepts
-story plus `MediaInput`, but arbitrary user story/image input is not
-implemented yet. Shoot remains Product Slice 1's locked Destinations
+story plus `MediaInput`. The filmmaker edits `Project.story` in Plan.
+Image upload is not implemented yet. Shoot remains Product Slice 1's locked Destinations
 and Journey lanes. Generation, Discovery, and Screenwriter are not
 wired. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).

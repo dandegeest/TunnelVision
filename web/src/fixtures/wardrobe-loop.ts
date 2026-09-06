@@ -18,7 +18,7 @@ export const LOOP_ARRIVAL_COPY =
 export const EA_SHOOTABILITY_NOTE =
   "E→A is not shootable as a continuous journey. The closed cavern door has no traversable volume, and arriving through it would not match this wardrobe-facing pose at A. Historical research clip E-A.mp4 is not a product shot.";
 
-/** Fixture filmmaker prompt. Not a synopsis for display as product copy. */
+/** Fixture initialization only. Not runtime Director authority. */
 export const WARDROBE_USER_PROMPT =
   "Make a first-person POV journey through an impossible world at night. Start in a cozy attic bedroom and travel through the wardrobe into another world. Keep the camera continuously moving forward through real spatial thresholds and distinct locations. Eventually find a route that loops back into the original bedroom. The viewer should feel like a child exploring, but never show the child.";
 

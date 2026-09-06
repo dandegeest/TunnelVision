@@ -13,24 +13,24 @@ deliberately no Edit workspace.
 
 **Current implementation:** Product Slice 3 Plan is a dominant
 storyboard grid plus Conversation. Send asks the Director to plan
-from the filmmaker story and starting frame; the text field is not a
-chat. Planned beats, when they exist, may still be FPO. Shoot remains the Slice 1
+from the filmmaker story and starting frame; the composer edits that
+story and is not a chat. Planned beats, when they exist, may still be FPO. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
 in this checkpoint. Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
-Arbitrary user story/image input
-is not implemented yet. Slice 2 visual checkpoint:
+The filmmaker edits `Project.story` in Plan. Image upload is not
+implemented yet. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 
 ### Plan — conversational storyboard
 
-**Slice 2 implements the storyboard grid visualization, a static
-Conversation prompt fixture, and a presentational composer.** Product
+**Slice 2 implements the storyboard grid visualization and a static
+Conversation prompt fixture.** Product
 Slice 3 enables Send to ask the Director to plan subsequent beats.
 Chat is not implemented.
 
@@ -241,10 +241,9 @@ REGEN / REPAIR) is recorded in
 
 ## First product vertical slice (started)
 
-`web/` is a fixture shell. Plan is conversation → storyboard: a static
-user-prompt fixture and presentational composer beside a dominant
-storyboard grid (uploaded A; continuation exists only after the
-Director plans). Shoot uses Wardrobe
+`web/` is a fixture shell. Plan is a storyboard plus an editable
+filmmaker story in the existing composer (uploaded A; continuation
+exists only after the Director plans). Shoot uses Wardrobe
 Loop vision JPEGs, playable A-B / B-C / D-E, C-D rendered but needs
 review, E-A not shootable. No providers, no Camotion subprocess, no
 Discovery. Integration Test 01 already exercised the unattended

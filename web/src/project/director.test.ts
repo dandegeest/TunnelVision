@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
 import {
   authoritativeStartFrame,
   directorPlanRequestFromProject,
   requestDirectorPlan,
 } from "./director";
+import { projectWithDirectorPlan } from "./storyboard";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { Project } from "./types";
 
@@ -131,5 +132,66 @@ describe("Director request from Project state", () => {
       ),
     };
     expect(() => directorPlanRequestFromProject(missing)).toThrow(/trusted media identity/);
+  });
+
+  it("initializes from the Wardrobe story but uses current Project.story at request time", () => {
+    const project = createWardrobeProject();
+    expect(project.story).toBe(WARDROBE_USER_PROMPT);
+    expect(directorPlanRequestFromProject(project).story).toBe(WARDROBE_USER_PROMPT);
+
+    const edited: Project = {
+      ...project,
+      story: "Travel forward through a quiet abandoned greenhouse at night.",
+    };
+    expect(directorPlanRequestFromProject(edited).story).toBe(
+      "Travel forward through a quiet abandoned greenhouse at night.",
+    );
+    expect(directorPlanRequestFromProject(edited).story).not.toBe(WARDROBE_USER_PROMPT);
+  });
+
+  it("refuses an empty or whitespace-only story", () => {
+    const project = createWardrobeProject();
+    expect(() => directorPlanRequestFromProject({ ...project, story: "" })).toThrow(
+      /filmmaker story/i,
+    );
+    expect(() => directorPlanRequestFromProject({ ...project, story: "   \n" })).toThrow(
+      /filmmaker story/i,
+    );
+  });
+
+  it("sends the edited story on re-plan without substituting the Wardrobe prompt", () => {
+    const project = createWardrobeProject();
+    const first = projectWithDirectorPlan(project, {
+      beats: [
+        { id: "B", intent: "Old wardrobe beat.", visualDescription: "Old coats." },
+        { id: "C", intent: "Old forest beat.", visualDescription: "Old trees." },
+      ],
+    });
+    const edited: Project = {
+      ...first,
+      story: "Continue through a flooded courtyard toward a warm-lit workshop.",
+    };
+    const request = directorPlanRequestFromProject(edited);
+    expect(request.story).toBe("Continue through a flooded courtyard toward a warm-lit workshop.");
+    expect(request.story).not.toBe(WARDROBE_USER_PROMPT);
+    expect(request.startMediaId).toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
+
+    const second = projectWithDirectorPlan(edited, {
+      beats: [
+        { id: "B", intent: "New greenhouse beat.", visualDescription: "Broken glass." },
+        { id: "C", intent: "New courtyard beat.", visualDescription: "Flooded stone." },
+        { id: "D", intent: "New workshop beat.", visualDescription: "Warm light." },
+      ],
+    });
+    expect(second.story).toBe(edited.story);
+    expect(second.storyboard[0]).toEqual(project.storyboard[0]);
+    expect(second.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D"]);
+    expect(second.storyboard.slice(1).map((frame) => frame.intent)).toEqual([
+      "New greenhouse beat.",
+      "New courtyard beat.",
+      "New workshop beat.",
+    ]);
+    expect(second.destinations).toEqual(project.destinations);
+    expect(second.journeys).toEqual(project.journeys);
   });
 });

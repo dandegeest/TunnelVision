@@ -64,16 +64,16 @@ disconnected workflows:
 **Current implementation:** Product Slice 3 adds a thin Director that
 turns the filmmaker story plus authoritative starting frame into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
-Replicate). Plan UI is unchanged: Conversation + storyboard grid.
-Send asks the Director to plan; the composer is not a chat. Shoot
+Replicate). The Plan composer edits `Project.story`; it is not a chat.
+Send asks the Director to plan from that story and starting frame. Shoot
 remains the Slice 1 Destinations / Journey timeline. Generation of
 images and video is not wired. Live development currently uses the
 Wardrobe Loop fixture to initialize Project state, including starting
 frame A with a trusted media identity. Plan starts unplanned beyond A;
 the Director's output becomes the planned continuation. The Director runtime resolves
 that identity from Project state; it does not independently substitute
-Wardrobe `A.jpg`. Arbitrary user story/image input is not implemented
-yet. Visual checkpoint for the frozen Plan shell:
+Wardrobe `A.jpg`. The filmmaker edits `Project.story` in Plan. Image
+upload is not implemented yet. Visual checkpoint for the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -391,8 +391,8 @@ the Wardrobe Loop fixture to initialize Project state, including
 starting frame A with a trusted media identity. Plan starts unplanned
 beyond A; the Director's output becomes the planned continuation. The Director runtime
 resolves that identity from Project state; it does not independently
-substitute Wardrobe `A.jpg`. Arbitrary user story/image input is not
-implemented yet. Visual
+substitute Wardrobe `A.jpg`. The filmmaker edits `Project.story` in
+Plan. Image upload is not implemented yet. Visual
 checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Director observation:
