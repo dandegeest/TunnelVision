@@ -230,7 +230,11 @@ independently judged direct E→A unshootable as one move, proposed an
 intermediate camera position, inspected the actual generated set, and
 rejected it before video. **TunnelVision Research Phase 1 is
 complete.** Next milestone is product development, then Movie #2
-through the product. Camotion shooting frames are treated
+through the product. A later forest A→F evidence spike froze actual
+constructed destinations, applied Camotion 01.8, and hard-concatenated
+five Seedance 2.5 legs outside the product UI. Human review of that
+assembled movie was positive. It is not a Render Movie product
+feature. Camotion shooting frames are treated
 as motion-state conditioning, not image enhancement. Current product
 direction is **Plan | Shoot**: a conversational storyboard in Plan,
 then Shoot confronts that intent with generated Destinations. There

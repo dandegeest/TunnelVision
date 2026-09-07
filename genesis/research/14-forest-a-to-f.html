@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Forest A→F Camotion evidence — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="09-shootability-intermediate-volume.html">Shootability</a>
+  <a href="10-product-slice-1.html">Product Slice 1</a>
+  <a href="11-product-slice-2.html">Product Slice 2</a>
+  <a href="12-product-slice-3.html">Product Slice 3</a>
+  <a href="13-destination-construction.html">Destination Construction</a>
+  <a href="14-forest-a-to-f.html" class="active">Forest A→F</a>
+</nav>
+<main>
+<section class="ready-code" id="forest-a-to-f">
+<div class="eyebrow">EVIDENCE SPIKE · SEPTEMBER 7, 2026</div>
+<h2>Forest A→F is a Camotion + Seedance continuity spike on actual constructed destinations, not a product Render Movie feature.</h2>
+<p>TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. Terran's original/manual workflow established spatially contiguous travel, continuous locomotion, threshold/opening traversal, anti-dissolve / anti-morph prompting, motion-conditioned endpoint preparation, and human review of generated clips. This Camotion implementation and the agentic pipeline are not Terran's code.</p>
+<p>This is <strong>not</strong> Camotion retuning, not Director replanning, and not destination regeneration. The exact six forest stills from the live runtime session were frozen. One 01.8 shooting frame per canonical. Shared A′–F′ across adjacent legs. One locomotion prompt. Seedance 2.5. Hard concat only.</p>
+
+<div class="finding">
+<strong>Watch the assembled review movie</strong>
+<p>Five 6s legs hard-joined after a same-size H.264 transcode. No crossfades, titles, grading, or speed ramps. A→B is letterboxed to 1306×706 so mixed Seedance adaptive sizes can play. Human review of this movie was positive.</p>
+</div>
+
+<div class="movie-player">
+<video controls playsinline preload="metadata" src="../../camotion/integration/forest-a-to-f/videos/forest-a-to-f-camotion-evidence.mp4">
+Sorry, your browser cannot play this MP4.
+</video>
+</div>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Frozen inputs A–F</h3><span class="result-pill pass">BYTE-IDENTICAL</span></div>
+<p class="test-meta">runtime folder tunnelvision-runtime-media-Oyoj6c · no regeneration</p>
+<p>A is an uploaded 1000×558 JPEG. B–F are 1392×752 generated PNGs (aspect 1.851, not 16:9). Sequence A → B → C → D → E → F. F is an open debris void around a central light, not a corridor.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Camotion 01.8 shooting frames</h3><span class="result-pill pass">SHARED BOUNDARIES</span></div>
+<p class="test-meta">strength 0.08 · samples 16 · forward 1 · route-preserved · not Cinematographer-authored</p>
+<p>Minimum conservative radial-forward CameraMotionPlan v1 per canonical. The same B′ is A→B end and B→C start, and so on through F′. Current Camotion has no yaw/strafe; F′ is still radial-forward toward the light.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Five Seedance legs, eight API successes</h3><span class="result-pill info">OVERLAPPING EXECUTE</span></div>
+<p class="test-meta">bytedance/seedance-2.5 · 720p adaptive · 6s · no audio · ~$1.39 each</p>
+<p>Local evidence keeps exactly five clips. Replicate Recent predictions showed eight succeeded jobs. Cause: overlapping <code>--execute</code> processes after auto-review retries, not prompt edits or quality reruns of kept files. A→B / B→C prediction ids were lost when the first process died. Kept C→D / D→E / E→F ids: <code>0w3bchvse5rmt0d0fj7aa95gb4</code>, <code>qh6y0dg1fnrmy0d0fj99m8hkfw</code>, <code>3yvf8sk8zdrmt0d0fjav5hrspc</code>.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Concat freeze then technical transcode</h3><span class="result-pill pass">FIXED IN PLACE</span></div>
+<p>Stream-copy of mixed resolutions (A→B 1284×716 vs later 1306×706) froze around 8s. The review movie was replaced in place with filter concat + scale/pad. No extra Seedance calls. No seventh local movie kept.</p>
+</article>
+
+<div class="finding">
+<strong>A→D reads as one deepening walk. E→F is the spatial break.</strong>
+<p>A→B is the strongest locomotion. B→C is the same tunnel, deeper. C→D pulls to the crystal early and does not hold C′ at t=0. D→E shows the next space through an opening before the previous tube is gone. E→F replaces the corridor with a void/warp. Camotion helps corridor stills and hurts F, where radial blur on an open void looks like a stargate cue. F is not spatially earned from A. Full assessment: <a href="../../camotion/integration/forest-a-to-f/REPORT.md">REPORT.md</a>.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Forest A→F Camotion evidence spike. Not a product Render Movie feature. Camotion Phase 1 remains frozen.</span>
+</footer>
+<nav class="chapter-nav"><a href="13-destination-construction.html" class="prev-link">← Destination Construction</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

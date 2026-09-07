@@ -114,6 +114,17 @@ mode. See the development-draft section below. The next slice should
 ask what is the smallest thing we can make real that causes
 fixture-driven UI to stop being a fixture.
 
+**Forest A→F Camotion evidence is completed.** Not a product milestone.
+Not Camotion retuning. Not Director replanning or destination
+regeneration. Exact runtime forest frames A–F were frozen, Camotion
+01.8 shooting frames A′–F′ were shared across adjacent legs, and five
+Seedance 2.5 clips were hard-concatenated. Human review of the
+assembled movie was positive. Replicate billed eight overlapping API
+successes from retried `--execute` processes; local evidence keeps
+five legs plus one review movie. Evidence:
+`camotion/integration/forest-a-to-f/`. Research chapter:
+[`genesis/research/14-forest-a-to-f.html`](../genesis/research/14-forest-a-to-f.html).
+
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark

@@ -1,0 +1,74 @@
+{
+  "experiment": "forest-a-to-f-camotion-evidence",
+  "runtime_folder": "/var/folders/z0/fvyhf0hx2bldk5b2lmvvp__w0000gn/T/tunnelvision-runtime-media-Oyoj6c",
+  "sequence": ["A", "B", "C", "D", "E", "F"],
+  "copy_method": "byte-identical cp -p of the exact runtime files; sha256 verified against the runtime originals",
+  "frames": {
+    "A": {
+      "runtime_id": "upload-c3c416f54669ad3ec633df0b1167eb04",
+      "runtime_filename": "upload-c3c416f54669ad3ec633df0b1167eb04.jpg",
+      "path": "camotion/integration/forest-a-to-f/canonical/A.jpg",
+      "sha256": "5f0922627322ef6ee694a1547b683dc88e093d6a415b02a72e181f94a7478aa6",
+      "bytes": 57983,
+      "format": "JPEG",
+      "width": 1000,
+      "height": 558,
+      "mode": "RGB"
+    },
+    "B": {
+      "runtime_id": "upload-b5f5da9c95edf4b6e215d281cc5b2890",
+      "runtime_filename": "upload-b5f5da9c95edf4b6e215d281cc5b2890.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/B.png",
+      "sha256": "55ce732b510da199c50e4c3255eee7d51891e66fc07aeb754579f61e07e6197a",
+      "bytes": 1297386,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "C": {
+      "runtime_id": "upload-2c04008c601621ebf653d65cf0e45d57",
+      "runtime_filename": "upload-2c04008c601621ebf653d65cf0e45d57.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/C.png",
+      "sha256": "1465a343fcca3f4f31f0de272425d2242d69bfa23bd2a1946de81410fd9f635a",
+      "bytes": 1354351,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "D": {
+      "runtime_id": "upload-8573a87e58ab942c2082a4c6c8ce33fb",
+      "runtime_filename": "upload-8573a87e58ab942c2082a4c6c8ce33fb.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/D.png",
+      "sha256": "7611194648d1db7fbfa240c1f915f94c2b396fd0c484097b1c49ec805a074cb7",
+      "bytes": 1405156,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "E": {
+      "runtime_id": "upload-76ef1e687f1494bb5b317d445d5b1be4",
+      "runtime_filename": "upload-76ef1e687f1494bb5b317d445d5b1be4.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/E.png",
+      "sha256": "c6cf8ab1c707bc6f1cb5d652a15e4aa3d33c8d9521fd4ceed27339e8235b162c",
+      "bytes": 908708,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "F": {
+      "runtime_id": "upload-8952b505ed935abffb0637221e5eee97",
+      "runtime_filename": "upload-8952b505ed935abffb0637221e5eee97.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/F.png",
+      "sha256": "b06cc777589a062b6f2f7fbafe2d644d51d78cd3fd0591de1239217120df70fa",
+      "bytes": 963232,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    }
+  }
+}

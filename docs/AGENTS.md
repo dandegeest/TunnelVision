@@ -253,8 +253,9 @@ invisibly remain an **open question**.
 
 Deterministic final-movie assembly (ordered successful shot videos,
 hard butt joins, no transitions, grading, or optical flow) is
-plumbing, not an Edit agent. It is an implementation follow-up, not
-current work in this checkpoint.
+plumbing, not an Edit agent. A forest A→F evidence spike demonstrated
+that concat as research tooling; it is not a product Render Movie
+feature. See `camotion/integration/forest-a-to-f/`.
 
 ## Stable locomotion principle
 

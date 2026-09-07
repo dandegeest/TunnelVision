@@ -1,0 +1,685 @@
+{
+  "experiment": "forest-a-to-f-camotion-evidence",
+  "git_commit": "563bb985ecd5654795a408903969296409e93f40",
+  "attribution": "TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. This Camotion implementation and agentic pipeline are not Terran's code.",
+  "sequence": "A → B → C → D → E → F",
+  "video_provider": "replicate",
+  "video_model": "bytedance/seedance-2.5",
+  "camotion_baseline": "01.8-route-preserved",
+  "seedance_defaults": {
+    "resolution": "720p",
+    "aspectRatio": "adaptive",
+    "generateAudio": false,
+    "watermark": false,
+    "outputFormat": "mp4"
+  },
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+  "duration_seconds_requested": 6,
+  "replicate_video_calls": 3,
+  "replicate_video_calls_total_including_interrupted_first_execute": 5,
+  "replicate_dashboard_succeeded_count": 8,
+  "extra_replicate_calls": "Replicate Recent predictions showed 8 succeeded bytedance/seedance-2.5 API jobs at 11:09 local, not 5. Three local prediction ids match C-D/D-E/E-F. The other five were overlapping --execute processes from auto-review retries of this same spike, not aesthetic reruns of downloaded clips. Local evidence still contains only the five kept leg files. Approximate extra cost: 3 × $1.39.",
+  "ab_bc_provenance": "A-B.mp4 and B-C.mp4 were written by the first --execute process (mtime 10:41 and 10:45 local) using the same frozen shooting frames, prompt, model, and settings. That process was interrupted before generation-manifest.json was written, so prediction_id/seed/elapsed_ms were not captured. The completed --execute skipped those files (resume, not an aesthetic retry) and generated C-D, D-E, and E-F. Prediction IDs for A-B and B-C are unknown.",
+  "sources": {
+    "A": {
+      "runtime_id": "upload-c3c416f54669ad3ec633df0b1167eb04",
+      "runtime_filename": "upload-c3c416f54669ad3ec633df0b1167eb04.jpg",
+      "path": "camotion/integration/forest-a-to-f/canonical/A.jpg",
+      "sha256": "5f0922627322ef6ee694a1547b683dc88e093d6a415b02a72e181f94a7478aa6",
+      "bytes": 57983,
+      "format": "JPEG",
+      "width": 1000,
+      "height": 558,
+      "mode": "RGB"
+    },
+    "B": {
+      "runtime_id": "upload-b5f5da9c95edf4b6e215d281cc5b2890",
+      "runtime_filename": "upload-b5f5da9c95edf4b6e215d281cc5b2890.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/B.png",
+      "sha256": "55ce732b510da199c50e4c3255eee7d51891e66fc07aeb754579f61e07e6197a",
+      "bytes": 1297386,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "C": {
+      "runtime_id": "upload-2c04008c601621ebf653d65cf0e45d57",
+      "runtime_filename": "upload-2c04008c601621ebf653d65cf0e45d57.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/C.png",
+      "sha256": "1465a343fcca3f4f31f0de272425d2242d69bfa23bd2a1946de81410fd9f635a",
+      "bytes": 1354351,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "D": {
+      "runtime_id": "upload-8573a87e58ab942c2082a4c6c8ce33fb",
+      "runtime_filename": "upload-8573a87e58ab942c2082a4c6c8ce33fb.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/D.png",
+      "sha256": "7611194648d1db7fbfa240c1f915f94c2b396fd0c484097b1c49ec805a074cb7",
+      "bytes": 1405156,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "E": {
+      "runtime_id": "upload-76ef1e687f1494bb5b317d445d5b1be4",
+      "runtime_filename": "upload-76ef1e687f1494bb5b317d445d5b1be4.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/E.png",
+      "sha256": "c6cf8ab1c707bc6f1cb5d652a15e4aa3d33c8d9521fd4ceed27339e8235b162c",
+      "bytes": 908708,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    },
+    "F": {
+      "runtime_id": "upload-8952b505ed935abffb0637221e5eee97",
+      "runtime_filename": "upload-8952b505ed935abffb0637221e5eee97.png",
+      "path": "camotion/integration/forest-a-to-f/canonical/F.png",
+      "sha256": "b06cc777589a062b6f2f7fbafe2d644d51d78cd3fd0591de1239217120df70fa",
+      "bytes": 963232,
+      "format": "PNG",
+      "width": 1392,
+      "height": 752,
+      "mode": "RGB"
+    }
+  },
+  "shooting": {
+    "A": {
+      "canonical_id": "A",
+      "path": "camotion/integration/forest-a-to-f/shooting/A.png",
+      "plan": "camotion/integration/forest-a-to-f/plans/A.json",
+      "depth": "camotion/integration/forest-a-to-f/canonical/depth/A.png",
+      "camotion_baseline": "01.8-route-preserved",
+      "exposure_strength": 0.08,
+      "samples": 16,
+      "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+      "bytes": 459347
+    },
+    "B": {
+      "canonical_id": "B",
+      "path": "camotion/integration/forest-a-to-f/shooting/B.png",
+      "plan": "camotion/integration/forest-a-to-f/plans/B.json",
+      "depth": "camotion/integration/forest-a-to-f/canonical/depth/B.png",
+      "camotion_baseline": "01.8-route-preserved",
+      "exposure_strength": 0.08,
+      "samples": 16,
+      "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+      "bytes": 925217
+    },
+    "C": {
+      "canonical_id": "C",
+      "path": "camotion/integration/forest-a-to-f/shooting/C.png",
+      "plan": "camotion/integration/forest-a-to-f/plans/C.json",
+      "depth": "camotion/integration/forest-a-to-f/canonical/depth/C.png",
+      "camotion_baseline": "01.8-route-preserved",
+      "exposure_strength": 0.08,
+      "samples": 16,
+      "sha256": "a0ed546be775366aae29d8ba98780c250a9035b7ddd6d7c499a7f76e7f9a54a3",
+      "bytes": 1098899
+    },
+    "D": {
+      "canonical_id": "D",
+      "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+      "plan": "camotion/integration/forest-a-to-f/plans/D.json",
+      "depth": "camotion/integration/forest-a-to-f/canonical/depth/D.png",
+      "camotion_baseline": "01.8-route-preserved",
+      "exposure_strength": 0.08,
+      "samples": 16,
+      "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+      "bytes": 1085079
+    },
+    "E": {
+      "canonical_id": "E",
+      "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+      "plan": "camotion/integration/forest-a-to-f/plans/E.json",
+      "depth": "camotion/integration/forest-a-to-f/canonical/depth/E.png",
+      "camotion_baseline": "01.8-route-preserved",
+      "exposure_strength": 0.08,
+      "samples": 16,
+      "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+      "bytes": 671877
+    },
+    "F": {
+      "canonical_id": "F",
+      "path": "camotion/integration/forest-a-to-f/shooting/F.png",
+      "plan": "camotion/integration/forest-a-to-f/plans/F.json",
+      "depth": "camotion/integration/forest-a-to-f/canonical/depth/F.png",
+      "camotion_baseline": "01.8-route-preserved",
+      "exposure_strength": 0.08,
+      "samples": 16,
+      "sha256": "eaac7793e2206c4f67237ee039831d934235eb6f6b24c6d7031eef5fd718aecf",
+      "bytes": 738858
+    }
+  },
+  "shots": {
+    "A-B": {
+      "shot": "A-B",
+      "start_canonical": "A",
+      "end_canonical": "B",
+      "start_shooting": "camotion/integration/forest-a-to-f/shooting/A.png",
+      "end_shooting": "camotion/integration/forest-a-to-f/shooting/B.png",
+      "start_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.48,
+            0.42
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.48,
+            0.42
+          ],
+          "protect": true,
+          "bbox": [
+            0.32,
+            0.18,
+            0.64,
+            0.72
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.54,
+            0.46
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.54,
+            0.46
+          ],
+          "protect": true,
+          "bbox": [
+            0.38,
+            0.22,
+            0.72,
+            0.78
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "shared_boundary_rule": "A' starts this leg and B' ends it; the same shooting file is reused on every adjacent leg that shares that canonical",
+      "video": {
+        "skipped": true,
+        "skip_reason": "file already written by interrupted first execute of this same frozen request; not an aesthetic retry",
+        "output_path": "camotion/integration/forest-a-to-f/videos/A-B.mp4",
+        "width": 1284,
+        "height": 716,
+        "duration_seconds_probed": 6.041667,
+        "sha256": "86b960130af9aaad8c5eff6d33bf024f5c76652b172da9636f3668fddd09ec79",
+        "bytes": 9292963
+      },
+      "preview_frames": [
+        "camotion/integration/forest-a-to-f/evaluation/A-B/frame-00.png",
+        "camotion/integration/forest-a-to-f/evaluation/A-B/frame-01.png",
+        "camotion/integration/forest-a-to-f/evaluation/A-B/frame-02.png",
+        "camotion/integration/forest-a-to-f/evaluation/A-B/frame-03.png",
+        "camotion/integration/forest-a-to-f/evaluation/A-B/frame-04.png"
+      ]
+    },
+    "B-C": {
+      "shot": "B-C",
+      "start_canonical": "B",
+      "end_canonical": "C",
+      "start_shooting": "camotion/integration/forest-a-to-f/shooting/B.png",
+      "end_shooting": "camotion/integration/forest-a-to-f/shooting/C.png",
+      "start_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.54,
+            0.46
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.54,
+            0.46
+          ],
+          "protect": true,
+          "bbox": [
+            0.38,
+            0.22,
+            0.72,
+            0.78
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.48
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.48
+          ],
+          "protect": true,
+          "bbox": [
+            0.32,
+            0.22,
+            0.68,
+            0.78
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "shared_boundary_rule": "B' starts this leg and C' ends it; the same shooting file is reused on every adjacent leg that shares that canonical",
+      "video": {
+        "skipped": true,
+        "skip_reason": "file already written by interrupted first execute of this same frozen request; not an aesthetic retry",
+        "output_path": "camotion/integration/forest-a-to-f/videos/B-C.mp4",
+        "width": 1306,
+        "height": 706,
+        "duration_seconds_probed": 6.041667,
+        "sha256": "e426d2f78acbd7098f9047d93abd67ac95322b973d9f83572fa086b970934e1c",
+        "bytes": 7795012
+      },
+      "preview_frames": [
+        "camotion/integration/forest-a-to-f/evaluation/B-C/frame-00.png",
+        "camotion/integration/forest-a-to-f/evaluation/B-C/frame-01.png",
+        "camotion/integration/forest-a-to-f/evaluation/B-C/frame-02.png",
+        "camotion/integration/forest-a-to-f/evaluation/B-C/frame-03.png",
+        "camotion/integration/forest-a-to-f/evaluation/B-C/frame-04.png"
+      ]
+    },
+    "C-D": {
+      "shot": "C-D",
+      "start_canonical": "C",
+      "end_canonical": "D",
+      "start_shooting": "camotion/integration/forest-a-to-f/shooting/C.png",
+      "end_shooting": "camotion/integration/forest-a-to-f/shooting/D.png",
+      "start_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.48
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.48
+          ],
+          "protect": true,
+          "bbox": [
+            0.32,
+            0.22,
+            0.68,
+            0.78
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.52
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.52
+          ],
+          "protect": true,
+          "bbox": [
+            0.36,
+            0.28,
+            0.64,
+            0.72
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "shared_boundary_rule": "C' starts this leg and D' ends it; the same shooting file is reused on every adjacent leg that shares that canonical",
+      "video": {
+        "skipped": false,
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "0w3bchvse5rmt0d0fj7aa95gb4",
+        "duration_seconds_requested": 6,
+        "duration_seconds_probed": 6.041667,
+        "settings": {
+          "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+          "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/C.png>",
+          "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/forest-a-to-f/videos/C-D.mp4",
+        "output_url": "https://replicate.delivery/xezq/oXsLmQAqAzqcIFzxpmmLWxxfChmf8eGi66RrNI6eLIf31HZ5C/tmprg48gvqi.mp4",
+        "started_at": "2026-09-07T15:48:25.345Z",
+        "completed_at": "2026-09-07T15:52:14.876Z",
+        "elapsed_ms": 229531,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 227.139601192,
+            "resolution_target": "720p",
+            "token_output_count": 130561,
+            "total_time": 227.156365966,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/0w3bchvse5rmt0d0fj7aa95gb4/cancel",
+            "get": "https://api.replicate.com/v1/predictions/0w3bchvse5rmt0d0fj7aa95gb4",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-ej6fcyuq6heqbkjcciufht2fu5xpbwtht6je5jryzj3vpwhkoc3a",
+            "web": "https://replicate.com/p/0w3bchvse5rmt0d0fj7aa95gb4"
+          },
+          "seed": 1891461374
+        },
+        "transport_retry": false,
+        "sha256": "5fbda94c8f647aabae6081d05ba84bec7cf14c8984bb44cdfc9c76887b62b284",
+        "bytes": 8448095
+      },
+      "preview_frames": [
+        "camotion/integration/forest-a-to-f/evaluation/C-D/frame-00.png",
+        "camotion/integration/forest-a-to-f/evaluation/C-D/frame-01.png",
+        "camotion/integration/forest-a-to-f/evaluation/C-D/frame-02.png",
+        "camotion/integration/forest-a-to-f/evaluation/C-D/frame-03.png",
+        "camotion/integration/forest-a-to-f/evaluation/C-D/frame-04.png"
+      ]
+    },
+    "D-E": {
+      "shot": "D-E",
+      "start_canonical": "D",
+      "end_canonical": "E",
+      "start_shooting": "camotion/integration/forest-a-to-f/shooting/D.png",
+      "end_shooting": "camotion/integration/forest-a-to-f/shooting/E.png",
+      "start_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.52
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.52
+          ],
+          "protect": true,
+          "bbox": [
+            0.36,
+            0.28,
+            0.64,
+            0.72
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.5
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.5
+          ],
+          "protect": true,
+          "bbox": [
+            0.42,
+            0.12,
+            0.58,
+            0.88
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "shared_boundary_rule": "D' starts this leg and E' ends it; the same shooting file is reused on every adjacent leg that shares that canonical",
+      "video": {
+        "skipped": false,
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "qh6y0dg1fnrmy0d0fj99m8hkfw",
+        "duration_seconds_requested": 6,
+        "duration_seconds_probed": 6.041667,
+        "settings": {
+          "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+          "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+          "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/forest-a-to-f/videos/D-E.mp4",
+        "output_url": "https://replicate.delivery/xezq/xSwge6hNwxSiRilQZI49hyyiGbghDVguaI30jLWdfHiNCJLXA/tmp_g7d8zhs.mp4",
+        "started_at": "2026-09-07T15:52:16.859Z",
+        "completed_at": "2026-09-07T15:55:58.350Z",
+        "elapsed_ms": 221491,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 219.606662855,
+            "resolution_target": "720p",
+            "token_output_count": 130561,
+            "total_time": 219.62292673,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/qh6y0dg1fnrmy0d0fj99m8hkfw/cancel",
+            "get": "https://api.replicate.com/v1/predictions/qh6y0dg1fnrmy0d0fj99m8hkfw",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-f4fcg5bwajkoeqbb74sd6gv5ffzafyk4zhshwvqhwspx3ib2hssa",
+            "web": "https://replicate.com/p/qh6y0dg1fnrmy0d0fj99m8hkfw"
+          },
+          "seed": 1341017964
+        },
+        "transport_retry": false,
+        "sha256": "d10bc728ddd2e087f1b3b154e43a72dfc5b4fbaa408db0706b4d73482d96871e",
+        "bytes": 6976298
+      },
+      "preview_frames": [
+        "camotion/integration/forest-a-to-f/evaluation/D-E/frame-00.png",
+        "camotion/integration/forest-a-to-f/evaluation/D-E/frame-01.png",
+        "camotion/integration/forest-a-to-f/evaluation/D-E/frame-02.png",
+        "camotion/integration/forest-a-to-f/evaluation/D-E/frame-03.png",
+        "camotion/integration/forest-a-to-f/evaluation/D-E/frame-04.png"
+      ]
+    },
+    "E-F": {
+      "shot": "E-F",
+      "start_canonical": "E",
+      "end_canonical": "F",
+      "start_shooting": "camotion/integration/forest-a-to-f/shooting/E.png",
+      "end_shooting": "camotion/integration/forest-a-to-f/shooting/F.png",
+      "start_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.5
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.5
+          ],
+          "protect": true,
+          "bbox": [
+            0.42,
+            0.12,
+            0.58,
+            0.88
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "end_camera_motion_plan": {
+        "version": 1,
+        "camera": {
+          "vanishing_point": [
+            0.5,
+            0.5
+          ],
+          "forward": 1
+        },
+        "destination": {
+          "point": [
+            0.5,
+            0.5
+          ],
+          "protect": true,
+          "bbox": [
+            0.38,
+            0.32,
+            0.62,
+            0.68
+          ]
+        },
+        "exposure": {
+          "strength": 0.08,
+          "samples": 16
+        }
+      },
+      "shared_boundary_rule": "E' starts this leg and F' ends it; the same shooting file is reused on every adjacent leg that shares that canonical",
+      "video": {
+        "skipped": false,
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "provider": "replicate",
+        "model": "bytedance/seedance-2.5",
+        "model_version": "hidden",
+        "prediction_id": "3yvf8sk8zdrmt0d0fjav5hrspc",
+        "duration_seconds_requested": 6,
+        "duration_seconds_probed": 6.041667,
+        "settings": {
+          "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+          "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+          "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/F.png>",
+          "duration": 6,
+          "resolution": "720p",
+          "aspect_ratio": "adaptive",
+          "generate_audio": false,
+          "watermark": false,
+          "output_format": "mp4"
+        },
+        "output_path": "camotion/integration/forest-a-to-f/videos/E-F.mp4",
+        "output_url": "https://replicate.delivery/xezq/bAeZwm88GV0le0FS8EXefkznp9GnT6vj3wRZRuo5QT7hYkscB/tmp8jivdrr4.mp4",
+        "started_at": "2026-09-07T15:55:59.990Z",
+        "completed_at": "2026-09-07T16:00:09.292Z",
+        "elapsed_ms": 249302,
+        "metadata": {
+          "replicate_status": "succeeded",
+          "metrics": {
+            "model_variant": "non_video_in",
+            "predict_time": 247.406454427,
+            "resolution_target": "720p",
+            "token_output_count": 130561,
+            "total_time": 247.423922147,
+            "video_output_duration_seconds": 6
+          },
+          "urls": {
+            "cancel": "https://api.replicate.com/v1/predictions/3yvf8sk8zdrmt0d0fjav5hrspc/cancel",
+            "get": "https://api.replicate.com/v1/predictions/3yvf8sk8zdrmt0d0fjav5hrspc",
+            "stream": "https://stream.replicate.com/v1/files/jbxs-wq5egqy72xoqbg6fcifpchjlw74577lz62ubolvm3xxvebuhwlza",
+            "web": "https://replicate.com/p/3yvf8sk8zdrmt0d0fjav5hrspc"
+          },
+          "seed": 1903852667
+        },
+        "transport_retry": false,
+        "sha256": "4e681086c3750e2da10f406852d8ec683bc49f3ce5a37d4f4d5b15f797a5412e",
+        "bytes": 6012419
+      },
+      "preview_frames": [
+        "camotion/integration/forest-a-to-f/evaluation/E-F/frame-00.png",
+        "camotion/integration/forest-a-to-f/evaluation/E-F/frame-01.png",
+        "camotion/integration/forest-a-to-f/evaluation/E-F/frame-02.png",
+        "camotion/integration/forest-a-to-f/evaluation/E-F/frame-03.png",
+        "camotion/integration/forest-a-to-f/evaluation/E-F/frame-04.png"
+      ]
+    }
+  },
+  "concat": {
+    "method": "filter concat, scale+pad to majority clip size 1306x706, H.264 yuv420p, no audio; required because stream-copy of mixed resolutions froze later legs around 8s",
+    "transcoded": true,
+    "stream_copy_artifact_deleted": true,
+    "clip_sizes": [
+      { "shot": "A-B", "width": 1284, "height": 716 },
+      { "shot": "B-C", "width": 1306, "height": 706 },
+      { "shot": "C-D", "width": 1306, "height": 706 },
+      { "shot": "D-E", "width": 1306, "height": 706 },
+      { "shot": "E-F", "width": 1306, "height": 706 }
+    ],
+    "target_size": { "width": 1306, "height": 706 },
+    "list_path": "camotion/integration/forest-a-to-f/videos/concat-list.txt",
+    "output_path": "camotion/integration/forest-a-to-f/videos/forest-a-to-f-camotion-evidence.mp4",
+    "duration_seconds_probed": 30.208333,
+    "sha256": "097ecbfbdc987582b834fbc6739ea36daf1897a419a7c86045a022d49ed71129",
+    "bytes": 6796557
+  }
+}

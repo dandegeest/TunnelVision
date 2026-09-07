@@ -1,0 +1,20 @@
+{
+  "method": "Minimum conservative radial-forward CameraMotionPlan v1 authored by inspecting the exact A–F frames. Not Cinematographer output. Not Director output.",
+  "pinned": {
+    "camera.forward": 1,
+    "exposure.strength": 0.08,
+    "exposure.samples": 16,
+    "destination.protect": true,
+    "camotion_baseline": "01.8-route-preserved",
+    "adaptive_exposure": false,
+    "terminal_at_canonical": false
+  },
+  "rationale": {
+    "A": "Night forest path toward the tree-trunk / root gateway in mist. VP on the walkable opening slightly left of center.",
+    "B": "Root-tunnel mouth. VP on the dark opening slightly right of center so the left mushroom alcove can pass as foreground.",
+    "C": "Centered circular root tunnel. VP on the black opening.",
+    "D": "Root tunnel with a large glowing crystal cluster occupying the path. VP behind the crystal; bbox protects the crystal mass.",
+    "E": "Dark reflective corridor toward a tall vertical portal. Narrow tall bbox around the portal.",
+    "F": "Open void / debris field around a central light. Radial-forward toward that light is the only valid current Camotion model. This is not a corridor; yaw/strafe would be a Camotion extension and is out of scope."
+  }
+}

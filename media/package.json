@@ -15,7 +15,8 @@
     "wardrobe-scene-aware-strength": "tsx experiments/wardrobe-loop/scene-aware-strength.ts",
     "wardrobe-shootability": "tsx experiments/wardrobe-loop/shootability-intermediate.ts",
     "wardrobe-shootability-generalized": "tsx experiments/wardrobe-loop/shootability-generalized-repair.ts",
-    "director:plan": "tsx src/director/cli.ts"
+    "director:plan": "tsx src/director/cli.ts",
+    "forest-a-to-f": "tsx experiments/forest-a-to-f/run.ts"
   },
   "engines": {
     "node": ">=20"

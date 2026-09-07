@@ -402,7 +402,9 @@ duration and destination pointing are later collaborative controls.
 shell. Plan is conversation → storyboard; Send asks the Director to
 plan subsequent beats. After planning, Construct builds the next
 planned beat from the preceding actual destination. Later beats and
-video remain unwired until explicitly constructed. Shoot remains the Slice 1 Destinations /
+video remain unwired until explicitly constructed. A forest A→F
+research spike assembled a review movie outside the product UI; do
+not treat that as a Render Movie feature. Shoot remains the Slice 1 Destinations /
 Journey timeline. Live development uses
 the Wardrobe Loop fixture to initialize Project state, including
 starting frame A with a trusted media identity. Plan starts unplanned

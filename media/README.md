@@ -121,8 +121,18 @@ Dry-run is the default. `--execute` is required for paid calls.
 Artifacts live under `camotion/integration/wardrobe-loop-01/`. The
 canonical human-reviewed assembled movie is
 `videos/ThoughTheWardrobe.mov`. Deterministic ordered hard-join concat
-of successful shot videos is an implementation follow-up, not an Edit
-agent.
+of successful shot videos is plumbing, not an Edit agent. A later
+forest A→F evidence spike lives at
+`camotion/integration/forest-a-to-f/`
+(`videos/forest-a-to-f-camotion-evidence.mp4`).
+
+``` bash
+npm --prefix media run forest-a-to-f -- --execute
+```
+
+Dry-run writes Camotion shooting frames. `--execute` is required for
+paid Seedance calls. Do not treat this as a product Render Movie
+feature.
 
 Successful 01.5 smoke-test evidence lives at
 `camotion/tuning/video-runs/replicate-bytedance-seedance-2.5/01.5/`
