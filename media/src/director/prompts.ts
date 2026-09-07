@@ -48,9 +48,7 @@ export function directorUserPrompt(input: {
     input.agency === "autonomous"
       ? "Agency: autonomous. You are deciding the journey."
       : "Agency: directed. You are proposing a plan the filmmaker will supervise. Plan a complete sequence either way.";
-  const openingIntent = input.startFrameIntent?.trim()
-    ? `Opening-beat intent already on the storyboard: ${input.startFrameIntent.trim()}`
-    : "The opening beat is the supplied starting image.";
+  const openingIntent = input.startFrameIntent?.trim();
 
   return [
     agencyLine,
@@ -59,7 +57,9 @@ export function directorUserPrompt(input: {
     input.story.trim(),
     "",
     `Authoritative starting frame id: ${input.startFrameId}. Image 1 is that opening viewpoint. Do not replace it.`,
-    openingIntent,
+    ...(openingIntent
+      ? [`Opening-beat intent already on the storyboard: ${openingIntent}`]
+      : []),
     "",
     "Plan the subsequent spatially traversable beats from this opening. Emit the JSON object specified in the system instruction. Return JSON only.",
   ].join("\n");

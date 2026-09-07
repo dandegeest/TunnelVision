@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useProject } from "../project/ProjectProvider";
+import { canConstructDestinationFrame } from "../project/destination";
 import { isAuthoritativeStartingFrame, STARTING_FRAME_ACCEPT } from "../project/starting-frame";
 
 const STORY_WIDTH_DEFAULT = 328;
@@ -28,6 +29,10 @@ export function PlanView() {
     startingFrameError,
     replacingStart,
     replaceStartingImage,
+    constructingB,
+    constructionError,
+    constructionEvidence,
+    constructDestinationB,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
@@ -90,6 +95,34 @@ export function PlanView() {
             <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
               {directorError}
             </p>
+          ) : null}
+          {constructionError ? (
+            <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+              {constructionError}
+            </p>
+          ) : null}
+          {constructionEvidence ? (
+            <details className="border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]">
+              <summary className="cursor-pointer tracking-[0.16em] uppercase">Construct B</summary>
+              <div className="mt-2 space-y-2 leading-relaxed">
+                {constructionEvidence.model ? <p>Model: {constructionEvidence.model}</p> : null}
+                {constructionEvidence.predictionId ? (
+                  <p>Prediction: {constructionEvidence.predictionId}</p>
+                ) : null}
+                <p>Elapsed: {constructionEvidence.elapsedMs}ms</p>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-[#cfc6b8]">
+                  {JSON.stringify(
+                    {
+                      request: constructionEvidence.request,
+                      outputMediaId: constructionEvidence.outputMediaId,
+                      outputUrl: constructionEvidence.outputUrl,
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              </div>
+            </details>
           ) : null}
           {directorEvidence ? (
             <details className="border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]">
@@ -158,6 +191,11 @@ export function PlanView() {
           {replacingStart ? (
             <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
               Uploading…
+            </p>
+          ) : null}
+          {constructingB ? (
+            <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+              Constructing…
             </p>
           ) : null}
         </div>
@@ -235,6 +273,20 @@ export function PlanView() {
                     className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase disabled:cursor-not-allowed"
                   >
                     Replace image
+                  </button>
+                ) : null}
+                {canConstructDestinationFrame(project, frame) ? (
+                  <button
+                    type="button"
+                    disabled={constructingB || planning}
+                    aria-label="Construct destination B"
+                    title="Construct destination B from the starting frame."
+                    onClick={() => {
+                      void constructDestinationB();
+                    }}
+                    className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase disabled:cursor-not-allowed"
+                  >
+                    Construct
                   </button>
                 ) : null}
               </li>

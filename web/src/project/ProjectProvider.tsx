@@ -15,6 +15,12 @@ import {
 } from "./director";
 import { projectWithReplacedStartImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import {
+  requestConstructDestination,
+  projectWithConstructedDestination,
+  destinationConstructionRequestFromProject,
+  type DestinationConstructionEvidence,
+} from "./destination";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
 
 type DirectorStatus = "idle" | "planning" | "ready" | "error";
@@ -42,12 +48,22 @@ type ProjectContextValue = {
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceStartingImage: (file: File) => Promise<void>;
+  constructingB: boolean;
+  constructionError: string | null;
+  constructionEvidence: DestinationConstructionEvidence | null;
+  constructDestinationB: () => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
 
-export function ProjectProvider({ children }: { children: ReactNode }) {
-  const [project, setProject] = useState(createWardrobeProject);
+export function ProjectProvider({
+  children,
+  initialProject,
+}: {
+  children: ReactNode;
+  initialProject?: Project;
+}) {
+  const [project, setProject] = useState(() => initialProject ?? createWardrobeProject());
   const [view, setViewState] = useState<WorkspaceView>("plan");
   const [selection, setSelection] = useState<Selection>({
     kind: "storyboard",
@@ -61,6 +77,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [directorEvidence, setDirectorEvidence] = useState<DirectorEvidence | null>(null);
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
+  const [constructingB, setConstructingB] = useState(false);
+  const [constructionError, setConstructionError] = useState<string | null>(null);
+  const [constructionEvidence, setConstructionEvidence] =
+    useState<DestinationConstructionEvidence | null>(null);
 
   const select = useCallback((next: Selection) => {
     setSelection(next);
@@ -105,6 +125,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setDirectorEvidence(null);
       setDirectorStatus("idle");
       setDirectorError(null);
+      setConstructionEvidence(null);
+      setConstructionError(null);
       setSelection({ kind: "storyboard", frameId: "A" });
     } catch (error) {
       setStartingFrameError(error instanceof Error ? error.message : "Upload failed.");
@@ -112,6 +134,29 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setReplacingStart(false);
     }
   }, []);
+
+  const constructDestinationB = useCallback(async () => {
+    setConstructionError(null);
+    setConstructingB(true);
+    try {
+      const request = destinationConstructionRequestFromProject(project);
+      const result = await requestConstructDestination(request);
+      setProject((current) =>
+        projectWithConstructedDestination(current, {
+          beatId: request.beatId,
+          mediaId: result.mediaId,
+          imageUrl: result.imageUrl,
+        }),
+      );
+      setConstructionEvidence(result.evidence);
+    } catch (error) {
+      setConstructionError(
+        error instanceof Error ? error.message : "Destination construction failed.",
+      );
+    } finally {
+      setConstructingB(false);
+    }
+  }, [project]);
 
   const planWithDirector = useCallback(async () => {
     try {
@@ -122,6 +167,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setProject((current) => projectWithDirectorPlan(current, result.plan));
       setDirectorEvidence(result.evidence);
       setDirectorStatus("ready");
+      setConstructionEvidence(null);
+      setConstructionError(null);
       setSelection({ kind: "storyboard", frameId: request.startFrameId });
     } catch (error) {
       setDirectorStatus("error");
@@ -160,6 +207,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       startingFrameError,
       replacingStart,
       replaceStartingImage,
+      constructingB,
+      constructionError,
+      constructionEvidence,
+      constructDestinationB,
     }),
     [
       project,
@@ -182,6 +233,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       startingFrameError,
       replacingStart,
       replaceStartingImage,
+      constructingB,
+      constructionError,
+      constructionEvidence,
+      constructDestinationB,
     ],
   );
 

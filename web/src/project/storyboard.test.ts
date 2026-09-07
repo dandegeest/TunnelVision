@@ -57,7 +57,7 @@ describe("storyboard domain", () => {
     const empty = planned.filter((frame) => !frame.image);
     expect(empty.map((frame) => frame.id)).toEqual(["B", "C"]);
     expect(empty.every((frame) => frame.imageOrigin === "none")).toBe(true);
-    expect(empty.every((frame) => frame.intent.length > 0)).toBe(true);
+    expect(empty.every((frame) => (frame.intent?.length ?? 0) > 0)).toBe(true);
   });
 
   it("does not reuse production canonicals as generated storyboard drawings", () => {
@@ -224,7 +224,7 @@ describe("Director owns the planned continuation", () => {
       "New stair beat.",
       "New observatory beat.",
     ]);
-    expect(second.storyboard.some((frame) => frame.intent.startsWith("Old "))).toBe(false);
+    expect(second.storyboard.some((frame) => frame.intent?.startsWith("Old "))).toBe(false);
   });
 
   it("applies Director beats to Plan without changing Shoot destinations or journeys", () => {

@@ -57,12 +57,13 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
   if (!isTrustedMediaIdShape(start.mediaId)) {
     throw new Error("Starting frame has no trusted media identity");
   }
+  const startFrameIntent = start.intent?.trim() || undefined;
   return {
     story: project.story,
     agency: project.agency,
     startFrameId: start.id,
-    startFrameIntent: start.intent,
     startMediaId: start.mediaId,
+    ...(startFrameIntent ? { startFrameIntent } : {}),
   };
 }
 

@@ -71,6 +71,7 @@ export function projectWithReplacedStartImage(
     mediaId: next.mediaId,
     imageOrigin: "user",
   };
+  delete replaced.intent;
   return {
     ...project,
     storyboard: [replaced],

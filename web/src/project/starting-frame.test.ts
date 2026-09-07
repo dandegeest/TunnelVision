@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { createWardrobeProject, STORYBOARD_INTENTS } from "../fixtures/wardrobe-loop";
 import { directorPlanRequestFromProject } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
 import {
@@ -11,6 +11,7 @@ import {
   uploadStartingFrame,
 } from "./starting-frame";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
+import { directorUserPrompt } from "../../../media/src/director/prompts";
 
 const PNG = new Uint8Array([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
@@ -96,6 +97,12 @@ describe("starting-frame upload client", () => {
 });
 
 describe("replacing authoritative A", () => {
+  it("keeps Wardrobe initialization intent until A is replaced", () => {
+    const project = createWardrobeProject();
+    expect(project.storyboard[0]?.intent).toBe(STORYBOARD_INTENTS.A);
+    expect(directorPlanRequestFromProject(project).startFrameIntent).toBe(STORYBOARD_INTENTS.A);
+  });
+
   it("replaces Plan A image, media identity, and uploaded provenance", () => {
     const project = createWardrobeProject();
     const previous = project.storyboard[0]!;
@@ -114,7 +121,7 @@ describe("replacing authoritative A", () => {
     expect(next.storyboard[0]?.mediaId).not.toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
   });
 
-  it("removes planned B...N and preserves the filmmaker story", () => {
+  it("clears stale A intent, keeps story, and invalidates B...N", () => {
     const project = createWardrobeProject();
     const planned = projectWithDirectorPlan(project, {
       beats: [
@@ -129,6 +136,9 @@ describe("replacing authoritative A", () => {
     });
     expect(next.story).toBe("Walk through a greenhouse at night.");
     expect(next.storyboard.map((frame) => frame.id)).toEqual(["A"]);
+    expect(next.storyboard[0]?.mediaId).toBe("upload-dddddddddddddddddddddddddddddddd");
+    expect(next.storyboard[0]?.intent).toBeUndefined();
+    expect(next.storyboard[0]?.intent).not.toBe(STORYBOARD_INTENTS.A);
     expect(next.destinations).toEqual(project.destinations);
     expect(next.journeys).toEqual(project.journeys);
   });
@@ -146,18 +156,29 @@ describe("replacing authoritative A", () => {
     expect(project.storyboard[0]?.mediaId).toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
   });
 
-  it("builds the Director request from the uploaded A mediaId", () => {
+  it("builds the Director request from the uploaded A without Wardrobe start intent", () => {
     const project = createWardrobeProject();
     const replaced = projectWithReplacedStartImage(project, {
       mediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
       imageUrl: "/api/runtime-media/upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     });
-    expect(directorPlanRequestFromProject(replaced)).toEqual({
-      story: project.story,
+    const withStory = {
+      ...replaced,
+      story: "Travel forward through a quiet abandoned greenhouse at night.",
+    };
+    const request = directorPlanRequestFromProject(withStory);
+    expect(request).toEqual({
+      story: "Travel forward through a quiet abandoned greenhouse at night.",
       agency: project.agency,
       startFrameId: "A",
-      startFrameIntent: project.storyboard[0]?.intent,
       startMediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     });
+    expect(request).not.toHaveProperty("startFrameIntent");
+    const prompt = directorUserPrompt(request);
+    expect(prompt).not.toMatch(/Opening-beat intent/);
+    expect(prompt).not.toMatch(/attic bedroom/i);
+    expect(prompt).not.toMatch(/wardrobe/i);
+    expect(prompt).toMatch(/abandoned greenhouse/);
+    expect(prompt).toMatch(/Authoritative starting frame id: A/);
   });
 });

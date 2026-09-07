@@ -1,6 +1,7 @@
 /**
- * Session/dev-runtime uploaded stills. Not durable project persistence.
- * Server-generated opaque ids; original filenames are ignored.
+ * Session/dev-runtime stills: filmmaker uploads and generated destinations.
+ * Not durable project persistence. Server-generated opaque ids; original
+ * filenames are ignored.
  */
 import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";

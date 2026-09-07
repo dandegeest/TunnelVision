@@ -46,6 +46,27 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.deepEqual(request.images, [input.startFrame.image]);
   assert.equal(request.payload.startFrameId, "A");
   assert.equal(request.payload.story, input.story);
+  assert.equal(request.payload.startFrameIntent, input.startFrame.intent);
+  assert.match(request.prompt, /Opening-beat intent already on the storyboard/);
+  assert.match(request.prompt, /attic bedroom/);
+});
+
+test("Director request omits opening-beat intent when the starting frame has none", () => {
+  const request = buildDirectorRequest({
+    story: "Travel forward through a quiet abandoned greenhouse at night.",
+    startFrame: {
+      id: "A",
+      image: { kind: "file", path: "/tmp/start.jpg" },
+    },
+    agency: "directed",
+  });
+  assert.equal("startFrameIntent" in request.payload, false);
+  assert.doesNotMatch(request.prompt, /Opening-beat intent/);
+  assert.doesNotMatch(request.prompt, /The opening beat is the supplied starting image/);
+  assert.doesNotMatch(request.prompt, /attic bedroom/i);
+  assert.doesNotMatch(request.prompt, /wardrobe/i);
+  assert.match(request.prompt, /abandoned greenhouse/);
+  assert.match(request.prompt, /Authoritative starting frame id: A/);
 });
 
 test("Director request rejects an empty story", () => {

@@ -320,6 +320,31 @@ later Phase 1 experiment, not remaining Camotion work. See the
 section above and
 `camotion/integration/wardrobe-loop-01/experiments/shootability-intermediate-volume/`.
 
+## Intermediate derived destinations during image-conditioned construction
+
+**Unvalidated observation from one FLUX Kontext Pro A→B run.**
+Do not implement.
+
+First image-conditioned destination construction strongly preserved
+world/material continuity and produced substantial forward camera
+displacement, but did not fully cross the Director-specified
+threshold. The generated viewpoint behaved more like an intermediate
+threshold position than the requested post-threshold destination.
+
+Hypothesis only: the generated still may represent an intermediate
+spatial position X (A salt-flat / distant fissure → X at or just
+inside the fissure → requested B narrow interior corridor). Large
+Director-planned spatial moves may require intermediate derived
+destinations to preserve both world continuity and meaningful camera
+displacement. Continuity and displacement may be competing objectives
+during image-conditioned destination construction.
+
+These are hypotheses, not established fact. Do not add automatic
+intermediate-frame generation. Do not change the Director. Do not
+change the destination data model. Do not tune the Kontext prompt
+from this one result. See
+[genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+
 ## Screenwriter agent
 
 Unvalidated crew hypothesis. Do not create `ScreenwriterAgent`.

@@ -136,8 +136,10 @@ variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. See
 `media/README.md`. [`web/`](../web/) exists as the Product Slice 3
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
-storyboard beats through `ReasoningProvider`. Generation is not
-connected from the UI. Live development uses the Wardrobe Loop fixture
+storyboard beats through `ReasoningProvider`. After planning,
+Construct on B builds that beat from authoritative A through
+`ImageEditProvider` (FLUX Kontext Pro). C…N and video remain unwired.
+Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
@@ -146,11 +148,14 @@ The Director architecture
 accepts story plus `MediaInput`. The filmmaker edits `Project.story`
 in Plan and can replace authoritative A with an uploaded still.
 Uploaded A is session/dev-runtime trusted media, not durable project
-persistence. Wardrobe may still initialize the development project;
+persistence. Constructed B is registered the same way so it can later
+be resolved as provider input. Wardrobe may still initialize the development project;
 after replacement, runtime Project A is authoritative. Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).
+First Director-derived destination construction:
+[`genesis/research/13-destination-construction.html`](../genesis/research/13-destination-construction.html).
 
 Do **not** create `server/`, Screenwriter, a full Cinematographer
 product package, PreferenceState, or other application scaffolding

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Director-derived destination construction — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="09-shootability-intermediate-volume.html">Shootability</a>
+  <a href="10-product-slice-1.html">Product Slice 1</a>
+  <a href="11-product-slice-2.html">Product Slice 2</a>
+  <a href="12-product-slice-3.html">Product Slice 3</a>
+  <a href="13-destination-construction.html" class="active">Destination Construction</a>
+</nav>
+<main>
+<section class="ready-code" id="destination-construction">
+<div class="eyebrow">PRODUCT · SEPTEMBER 6, 2026</div>
+<h2>Director-derived destination construction</h2>
+<p>TunnelVision is agentic filmmaking research extending filmmaker Terran Boylan's original TunnelVision technique. The camera-derived destination approach was motivated by Terran's technique of using an existing frame plus camera/location movement instructions to derive a subsequent viewpoint. The agentic Director, trusted-media runtime, and FLUX Kontext Pro construction path recorded here are current research, not Terran's implementation.</p>
+<p>This chapter records the first end-to-end product evidence for: filmmaker image and story → visually grounded Director plan → image-conditioned destination construction → an actual generated next set. One destination only. Cinematographer review, Camotion, and video were not run. Camotion Phase 1 remains frozen.</p>
+
+<div class="finding">
+<strong>Director decides where to go. Destination construction creates the next set.</strong>
+<p>The product path is: Project A (trusted runtime media) → Director plans B → a deterministic application-layer prompt from B's spatial intent and visual description → existing <code>ImageEditProvider.editImage</code> → FLUX Kontext Pro → generated still → trusted runtime media identity → the same planned B becomes actual B. The Director is not rerun. A, story, and C…N stay as planned. Constructed B is not a Cinematographer-approved canonical, not a Camotion input, and not evidence that A→B is shootable.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Stale starting-frame intent</h3><span class="result-pill info">CORRECTED</span></div>
+<p>Replacing authoritative A used to keep the previous Wardrobe caption <code>Inside the attic bedroom. Approach the open wardrobe.</code> as <code>startFrameIntent</code>. One live request after upload sent the correct uploaded <code>startMediaId</code> <code>upload-1df9901cf06f4d97cacce49ed270f71b</code> together with that stale Wardrobe intent. Replacing A now deletes that intent. The Director user prompt omits opening-beat intent when none exists. The clean plan below had no Wardrobe start-frame intent.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Fixture-independent Director plan</h3><span class="result-pill info">VISUALLY GROUNDED</span></div>
+<p>Authoritative starting frame: filmmaker-uploaded alien salt-flat with a distant black rock monolith and a bright vertical fissure. The Director request contained the filmmaker story, that uploaded runtime <code>startMediaId</code>, and no stale Wardrobe <code>startFrameIntent</code>.</p>
+<p>Filmmaker story:</p>
+<p><em>Travel forward into this world and discover what lies beyond the apparent path ahead. The journey should remain physically continuous and increasingly strange, passing through several distinct spaces that feel like parts of the same world. Eventually discover something completely unexpected.</em></p>
+<p>Summary: <em>A descent through the glowing monolith fissure into an unexpected subterranean high-tech archive.</em></p>
+<ul>
+<li>B — Move forward through the bright fissure into the narrow canyon interior. <em>A tight, vertical stone corridor illuminated by intense, molten light seeping from the rock walls.</em></li>
+<li>C — Follow a magma vein downward into a dark cave entrance at the canyon's base. <em>A jagged underground tunnel where glowing magma forms stepping stones surrounded by heavy steam.</em></li>
+<li>D — Emerge from the tunnel into a vast, enclosed cavern. <em>A massive cavern overgrown with giant, bioluminescent crystalline trees and glowing metallic ferns.</em></li>
+<li>E — Pass through a perfectly circular, artificial metallic doorway hidden behind the flora. <em>A pristine, brightly lit futuristic server room, completely sterile and contrasting the natural caves.</em></li>
+</ul>
+</article>
+
+<div class="finding">
+<strong>Planning-level visual grounding, not physical shootability.</strong>
+<p>The Director visibly grounded on the uploaded A. The monolith/fissure interpretation came from the image rather than from filmmaker story text. The plan expresses a spatial sequence using traversable transitions and new volumes. That validates planning-level visual grounding and fixture independence. It does not validate physical shootability of B→C→D→E. B→E remain Director plans until actual sets are constructed. Cinematographer inspection of generated sets has not happened for this route.</p>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>First Kontext destination construction</h3><span class="result-pill info">ONE RUN · NO RETRY</span></div>
+<p>Filmmaker-triggered Construct on planned B only. Source was current Project A through trusted-media resolution, not Wardrobe A and not a browser filesystem path. Prompt used both Director B intent and visual description. Model <code>black-forest-labs/flux-kontext-pro</code>. Prediction <code>e49540adwnrmw0d0f7mtnw5qpw</code>. Seed 1821307119. Generated image in approximately 8.0 seconds. Predict time 9.346356298 seconds. Total time 9.356105398 seconds. Generated bytes were copied into session/dev runtime trusted media so B received an opaque <code>mediaId</code>. That identity is not durable project persistence. Temporary signed/delivery URLs are not recorded as project identity.</p>
+<p>Exact submitted prompt:</p>
+<pre>Preserve the same physical world, materials, lighting character, and visual identity of the source image.
+
+Move the camera to a new position according to this spatial intent:
+Move forward through the bright fissure into the narrow canyon interior.
+
+The next viewpoint should look like this:
+A tight, vertical stone corridor illuminated by intense, molten light seeping from the rock walls.
+
+This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera must have changed position. Preserve recognizable environmental continuity where physically appropriate.</pre>
+</article>
+
+<div class="finding">
+<strong>Image-conditioned destination construction strongly preserved world/material continuity and produced substantial forward camera displacement, but did not fully cross the Director-specified threshold. The generated viewpoint behaved more like an intermediate threshold position than the requested post-threshold destination.</strong>
+<p>World continuity: strong. Camera displacement: strong. Approach geometry: strong. Threshold crossing: partial. Destination-description match: partial. New spatial volume: partial.</p>
+<p>The result strongly preserved dark teal/black rock, pale turquoise atmosphere, amber/molten fissure lighting, mineral ground, a glowing ground-crack motif, and overall physical/world identity. The viewpoint also showed substantial camera displacement. It did not fully realize the requested post-threshold destination. The camera appears near or at the mouth/interior threshold of the fissure, with turquoise exterior sky and distant landscape still visible. First run. No retry. No prompt tuning. Constructed B is not shootable evidence. Spatial continuity of the route is not completed.</p>
+</div>
+
+<div class="finding">
+<strong>Observation / hypothesis, not a conclusion.</strong>
+<p>The generated image may represent an intermediate spatial position X: A (salt flat / distant fissure) → X (at or just inside the fissure) → requested B (narrow interior corridor). That suggests a future research question: can large Director-planned spatial moves require intermediate derived destinations to preserve both world continuity and meaningful camera displacement? Continuity and displacement may be competing objectives during image-conditioned destination construction. These are hypotheses from one run, not established fact. Do not implement automatic intermediate-frame generation from this observation. Do not change the Director or the destination data model from this result.</p>
+</div>
+
+<div class="finding">
+<strong>This slice does not shoot.</strong>
+<p>C…N were not constructed. The Cinematographer has not inspected or approved A→B. Camotion has not run. Video has not been generated. Do not call constructed B shootable.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>First Director-derived destination construction. Fixture-independent A + story. One FLUX Kontext Pro B. Not shootability evidence.</span>
+</footer>
+<nav class="chapter-nav"><a href="12-product-slice-3.html" class="prev-link">← Product Slice 3</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

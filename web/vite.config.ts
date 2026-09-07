@@ -4,13 +4,20 @@ import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { directorDevPlugin } from "./director-dev-plugin.ts";
+import { destinationDevPlugin } from "./destination-dev-plugin.ts";
 import { runtimeMediaPlugin } from "./runtime-media-plugin.ts";
 
 const webDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(webDir, "..");
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), directorDevPlugin(repoRoot), runtimeMediaPlugin()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    directorDevPlugin(repoRoot),
+    destinationDevPlugin(repoRoot),
+    runtimeMediaPlugin(),
+  ],
   root: webDir,
   server: {
     fs: {
@@ -27,6 +34,7 @@ export default defineConfig({
       "src/**/*.test.tsx",
       "trusted-media.test.ts",
       "runtime-media.test.ts",
+      "destination-construct.test.ts",
     ],
   },
 });

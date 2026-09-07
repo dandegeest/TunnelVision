@@ -3,7 +3,9 @@
 Product development has started. [`web/`](../web/) is a fixture-driven
 **Plan | Shoot** shell using Wardrobe Loop stills and videos. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
-Generation is not connected from the UI yet.
+After Plan Movie, the filmmaker can construct destination B from
+authoritative A through image-conditioned edit. C…N construction and
+video remain unwired.
 
 ## Primary interaction
 
@@ -14,7 +16,9 @@ deliberately no Edit workspace.
 **Current implementation:** Product Slice 3 Plan is a dominant
 storyboard grid plus Conversation. Send asks the Director to plan
 from the filmmaker story and starting frame; the composer edits that
-story and is not a chat. Planned beats, when they exist, may still be FPO. Shoot remains the Slice 1
+story and is not a chat. Planned beats start as FPO. Construct on B
+builds that beat from A through image-conditioned edit; C…N stay
+planned until later work. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
 in this checkpoint. Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
@@ -24,11 +28,14 @@ Project state; it does not independently substitute Wardrobe `A.jpg`.
 The filmmaker edits `Project.story` in Plan and can replace
 authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
-Wardrobe may still initialize the development project; after
-replacement, runtime Project A is authoritative. Slice 2 visual checkpoint:
+Constructed B is registered the same way so it can later be resolved
+as provider input. Wardrobe may still initialize the development
+project; after replacement, runtime Project A is authoritative. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
+First Director-derived destination construction:
+[genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 
 ### Plan — conversational storyboard
 
@@ -247,10 +254,11 @@ REGEN / REPAIR) is recorded in
 
 `web/` is a fixture shell. Plan is a storyboard plus an editable
 filmmaker story in the existing composer (uploaded A; continuation
-exists only after the Director plans). Shoot uses Wardrobe
+exists only after the Director plans). After planning, Construct on B
+invokes image-conditioned edit from A. Shoot uses Wardrobe
 Loop vision JPEGs, playable A-B / B-C / D-E, C-D rendered but needs
-review, E-A not shootable. No providers, no Camotion subprocess, no
-Discovery. Integration Test 01 already exercised the unattended
+review, E-A not shootable. Video, Camotion, and Discovery remain
+unwired. Integration Test 01 already exercised the unattended
 filmmaking path after canonicals exist.
 
 That slice now has MediaProvider image and video contracts in

@@ -17,7 +17,8 @@ image and video generation, vision reasoning, a thin cinematographer
 pair planner, and a thin Director storyboard planner, plus a Vite/React
 product shell in `web/`. Do **not** create `server/`, Screenwriter, a
 full Cinematographer product package, or a journey workspace runtime.
-React does not call providers; Plan invokes the Director through Vite
+React does not call providers; Plan invokes the Director and
+destination-B construction through Vite
 dev middleware. The browser sends a trusted media identity from
 Project state; the plugin resolves that identity through a server-side
 catalog or a session/dev-runtime upload registry and never treats
@@ -108,7 +109,10 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 The current **product surface** is Plan | Shoot in `web/`. Product
 Slice 3 Plan is conversation plus a storyboard grid; Send asks the
 Director to plan subsequent beats from the filmmaker story and
-starting frame. Live development uses the Wardrobe Loop fixture to
+starting frame. After planning, Construct on B builds that beat from
+A through image-conditioned edit and registers the still as
+session/dev-runtime trusted media. C…N, video, Discovery, and
+Screenwriter remain unwired. Live development uses the Wardrobe Loop fixture to
 initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
@@ -119,9 +123,10 @@ and can replace authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
 Wardrobe may still initialize the development project; after
 replacement, runtime Project A is authoritative. Shoot remains Product Slice 1's locked Destinations
-and Journey lanes. Generation, Discovery, and Screenwriter are not
-wired. First live Director observation:
+and Journey lanes. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
+First Director-derived destination construction:
+[genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 
 Camotion is a standalone deterministic Python graphics package.
 

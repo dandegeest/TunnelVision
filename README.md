@@ -245,11 +245,14 @@ edits `Project.story` in Plan and can replace authoritative A with an
 uploaded still. Uploaded A is session/dev-runtime trusted media, not
 durable project persistence. Wardrobe may still initialize the
 development project; after replacement, runtime Project A is
-authoritative. Shoot remains Destinations /
-Journey. Generation is not connected. Visual checkpoint:
+authoritative. After Plan Movie, Construct on B builds that beat from
+A through image-conditioned edit. C…N and video remain unwired. Shoot
+remains Destinations / Journey. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
 Director observation:
 [`genesis/research/12-product-slice-3.html`](genesis/research/12-product-slice-3.html).
+First Director-derived destination construction:
+[`genesis/research/13-destination-construction.html`](genesis/research/13-destination-construction.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.

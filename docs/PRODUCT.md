@@ -8,8 +8,12 @@ exploring and filming continuous journeys through imagined worlds.
 
 Terran's original manual workflow showed that successive AI-generated
 viewpoints can be selected and carried forward to create the feeling of
-traveling through a coherent imagined environment. This research asks
-what happens when that loop becomes self-directing.
+traveling through a coherent imagined environment. That workflow used
+an existing frame plus camera/location movement instructions to derive
+a subsequent viewpoint. The current image-conditioned destination-
+construction path is agentic research motivated by that technique, not
+Terran's implementation. This research asks what happens when that
+loop becomes self-directing.
 
 > **Preserve the world's rules while changing the viewer's question.**
 
@@ -65,9 +69,11 @@ disconnected workflows:
 turns the filmmaker story plus authoritative starting frame into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
 Replicate). The Plan composer edits `Project.story`; it is not a chat.
-Send asks the Director to plan from that story and starting frame. Shoot
-remains the Slice 1 Destinations / Journey timeline. Generation of
-images and video is not wired. Live development currently uses the
+Send asks the Director to plan from that story and starting frame.
+After planning, Construct on B builds that beat from authoritative A
+through image-conditioned edit (`ImageEditProvider` / FLUX Kontext
+Pro). C…N and video remain unwired. Shoot remains the Slice 1
+Destinations / Journey timeline. Live development currently uses the
 Wardrobe Loop fixture to initialize Project state, including starting
 frame A with a trusted media identity. Plan starts unplanned beyond A;
 the Director's output becomes the planned continuation. The Director runtime resolves
@@ -75,11 +81,14 @@ that identity from Project state; it does not independently substitute
 Wardrobe `A.jpg`. The filmmaker edits `Project.story` in Plan and can
 replace authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
-Wardrobe may still initialize the development project; after
-replacement, runtime Project A is authoritative. Visual checkpoint for the frozen Plan shell:
+Constructed B is registered the same way so it can later be resolved
+as provider input. Wardrobe may still initialize the development
+project; after replacement, runtime Project A is authoritative. Visual checkpoint for the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
+First Director-derived destination construction:
+[genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 
 ## Plan is a conversational storyboard
 
@@ -388,8 +397,10 @@ duration and destination pointing are later collaborative controls.
 
 **Current implementation:** Product Slice 3 is the current Plan | Shoot
 shell. Plan is conversation → storyboard; Send asks the Director to
-plan subsequent beats. Shoot remains the Slice 1 Destinations /
-Journey timeline. Generation is not connected. Live development uses
+plan subsequent beats. After planning, Construct on B builds that
+beat from A through image-conditioned edit. C…N and video remain
+unwired. Shoot remains the Slice 1 Destinations /
+Journey timeline. Live development uses
 the Wardrobe Loop fixture to initialize Project state, including
 starting frame A with a trusted media identity. Plan starts unplanned
 beyond A; the Director's output becomes the planned continuation. The Director runtime
@@ -397,12 +408,15 @@ resolves that identity from Project state; it does not independently
 substitute Wardrobe `A.jpg`. The filmmaker edits `Project.story` in
 Plan and can replace authoritative A with an uploaded still.
 Uploaded A is session/dev-runtime trusted media, not durable project
-persistence. Wardrobe may still initialize the development project;
+persistence. Constructed B is registered the same way so it can later
+be resolved as provider input. Wardrobe may still initialize the development project;
 after replacement, runtime Project A is authoritative. Visual
 checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
+First Director-derived destination construction:
+[genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

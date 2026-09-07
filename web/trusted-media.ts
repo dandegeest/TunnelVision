@@ -52,7 +52,8 @@ export function directorStartFrameFromRequest(
 } {
   const image = resolveTrustedMedia(repoRoot, body.startMediaId);
   const id = typeof body.startFrameId === "string" ? body.startFrameId.trim() : "";
-  const intent = typeof body.startFrameIntent === "string" ? body.startFrameIntent : undefined;
+  const intent =
+    typeof body.startFrameIntent === "string" ? body.startFrameIntent.trim() : "";
   return {
     id: id || "A",
     ...(intent ? { intent } : {}),

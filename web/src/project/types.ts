@@ -37,7 +37,8 @@ export type StoryboardImageOrigin = "user" | "generated" | "none";
 export type StoryboardFrame = {
   id: string;
   label: string;
-  intent: string;
+  /** Director beat intent. Absent on a replaced starting frame until the filmmaker supplies one. */
+  intent?: string;
   image?: string;
   imageOrigin: StoryboardImageOrigin;
   /** Trusted server media identity. Opaque; never a filesystem path. */

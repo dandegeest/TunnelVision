@@ -76,9 +76,14 @@ continuation. The Director runtime resolves that identity from Project state; it
 not independently substitute Wardrobe `A.jpg`. The filmmaker edits
 `Project.story` in Plan and can replace authoritative A with an
 uploaded still. Uploaded A is session/dev-runtime trusted media, not
-durable project persistence. Wardrobe may still initialize the
+durable project persistence. After planning, Construct on B builds
+that beat from A through image-conditioned edit and registers the
+still the same way so it can later be resolved as provider input.
+C…N and video remain unwired. Wardrobe may still initialize the
 development project; after replacement, runtime Project A is
-authoritative. Do not implement a complete
+authoritative. First destination-construction observation:
+[genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+Do not implement a complete
 Screenwriter or conversation-persistence
 system now.
 
