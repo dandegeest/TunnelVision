@@ -1,0 +1,3967 @@
+{
+  "experiment": "forest-a-to-f-boundary-analysis",
+  "note": "Read-only forensic analysis of committed Seedance clips. Sources were not rewritten.",
+  "source_hashes": {
+    "shooting/A.png": {
+      "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+      "bytes": 459347,
+      "size": [
+        1000,
+        558
+      ]
+    },
+    "shooting/B.png": {
+      "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+      "bytes": 925217,
+      "size": [
+        1392,
+        752
+      ]
+    },
+    "shooting/C.png": {
+      "sha256": "a0ed546be775366aae29d8ba98780c250a9035b7ddd6d7c499a7f76e7f9a54a3",
+      "bytes": 1098899,
+      "size": [
+        1392,
+        752
+      ]
+    },
+    "shooting/D.png": {
+      "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+      "bytes": 1085079,
+      "size": [
+        1392,
+        752
+      ]
+    },
+    "shooting/E.png": {
+      "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+      "bytes": 671877,
+      "size": [
+        1392,
+        752
+      ]
+    },
+    "shooting/F.png": {
+      "sha256": "eaac7793e2206c4f67237ee039831d934235eb6f6b24c6d7031eef5fd718aecf",
+      "bytes": 738858,
+      "size": [
+        1392,
+        752
+      ]
+    },
+    "videos/A-B.mp4": {
+      "sha256": "86b960130af9aaad8c5eff6d33bf024f5c76652b172da9636f3668fddd09ec79",
+      "bytes": 9292963
+    },
+    "videos/B-C.mp4": {
+      "sha256": "e426d2f78acbd7098f9047d93abd67ac95322b973d9f83572fa086b970934e1c",
+      "bytes": 7795012
+    },
+    "videos/C-D.mp4": {
+      "sha256": "5fbda94c8f647aabae6081d05ba84bec7cf14c8984bb44cdfc9c76887b62b284",
+      "bytes": 8448095
+    },
+    "videos/D-E.mp4": {
+      "sha256": "d10bc728ddd2e087f1b3b154e43a72dfc5b4fbaa408db0706b4d73482d96871e",
+      "bytes": 6976298
+    },
+    "videos/E-F.mp4": {
+      "sha256": "4e681086c3750e2da10f406852d8ec683bc49f3ce5a37d4f4d5b15f797a5412e",
+      "bytes": 6012419
+    }
+  },
+  "comparison_methods": {
+    "contain": "aspect-preserving LANCZOS scale-to-fit, center pad black",
+    "cover": "aspect-preserving LANCZOS scale-to-fill, center crop",
+    "stretch": "independent-axis LANCZOS resize to exact video WxH",
+    "primary_tables": "contain; cover/stretch reported so a closer accidental crop/stretch is not hidden",
+    "yuv420_roundtrip": "fitted contain RGB \u2192 yuv420p \u2192 RGB with ffmpeg, no H.264; chroma-subsample floor only"
+  },
+  "legs": [
+    {
+      "id": "A-B",
+      "start": "A",
+      "end": "B",
+      "structure": {
+        "path": "camotion/integration/forest-a-to-f/videos/A-B.mp4",
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "width": 1284,
+        "height": 716,
+        "profile": "High",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "nominal_fps": 24.0,
+        "average_fps": 24.0,
+        "time_base": "1/12288",
+        "time_base_seconds": 8.138020833333333e-05,
+        "container_duration_s": 6.041667,
+        "stream_duration_s": 6.041667,
+        "nb_frames_container": "145",
+        "decoded_frame_count": 145,
+        "first_frame_pts_s": 0.0,
+        "last_frame_pts_s": 6.0,
+        "implied_duration_framecount_over_fps_s": 6.041666666666667,
+        "container_minus_implied_s": 3.33333333379926e-07,
+        "last_pts_plus_one_frame_s": 6.041666666666667
+      },
+      "frame0_vs_start": {
+        "video_size": [
+          1284,
+          716
+        ],
+        "shooting_size": [
+          1000,
+          558
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1000,
+                558
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale": 1.2831541218637992,
+              "resized_size": [
+                1283,
+                716
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                1,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 73,
+              "mae": 3.179777101933553,
+              "rmse": 4.015380737984794,
+              "psnr_db": 36.05626898218212,
+              "ssim": 0.9417269040964595
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 75,
+              "mae": 2.1190475672508513,
+              "rmse": 3.217883294346769,
+              "psnr_db": 37.979397826099465,
+              "ssim": 0.9525910220081156
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1000,
+                558
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale": 1.284,
+              "resized_size": [
+                1284,
+                716
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 66,
+              "mae": 3.0895489972560144,
+              "rmse": 3.750887871052112,
+              "psnr_db": 36.64812197755052,
+              "ssim": 0.9470879270174327
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1000,
+                558
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale_x": 1.284,
+              "scale_y": 1.2831541218637992
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 66,
+              "mae": 3.0895489972560144,
+              "rmse": 3.750887871052112,
+              "psnr_db": 36.64812197755052,
+              "ssim": 0.9470879270174327
+            }
+          }
+        }
+      },
+      "final_vs_end": {
+        "video_size": [
+          1284,
+          716
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale": 0.9224137931034483,
+              "resized_size": [
+                1284,
+                694
+              ],
+              "offset": [
+                0,
+                11
+              ],
+              "pad_wh": [
+                0,
+                22
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 140,
+              "mae": 6.245728475956769,
+              "rmse": 11.441340542499624,
+              "psnr_db": 26.96126536411522,
+              "ssim": 0.7866283628984148
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 139,
+              "mae": 5.880344390492931,
+              "rmse": 11.364209707409014,
+              "psnr_db": 27.02001882267306,
+              "ssim": 0.7906207187449148
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale": 0.9521276595744681,
+              "resized_size": [
+                1325,
+                716
+              ],
+              "crop_xy": [
+                20,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 128,
+              "mae": 6.093171507799765,
+              "rmse": 9.632008428159168,
+              "psnr_db": 28.456466530110475,
+              "ssim": 0.8023955200429129
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale_x": 0.9224137931034483,
+              "scale_y": 0.9521276595744681
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 61,
+              "mae": 2.5636881660546362,
+              "rmse": 3.3760595130699573,
+              "psnr_db": 37.56260173367029,
+              "ssim": 0.9457091192461037
+            }
+          }
+        }
+      },
+      "start_window_contain": [
+        {
+          "frame_index": 0,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 73,
+            "mae": 3.179777101933553,
+            "rmse": 4.015380737984794,
+            "psnr_db": 36.05626898218212,
+            "ssim": 0.9417269040964595
+          }
+        },
+        {
+          "frame_index": 1,
+          "vs_prev_mae": 7.336988475840744,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 209,
+            "mae": 7.612201743852138,
+            "rmse": 14.362683004888234,
+            "psnr_db": 24.98609210111359,
+            "ssim": 0.7591942850835163
+          }
+        },
+        {
+          "frame_index": 2,
+          "vs_prev_mae": 7.364085333310128,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 197,
+            "mae": 9.466694730155416,
+            "rmse": 16.777310009226344,
+            "psnr_db": 23.63635701970739,
+            "ssim": 0.7330981411389668
+          }
+        },
+        {
+          "frame_index": 3,
+          "vs_prev_mae": 7.598010465433323,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 209,
+            "mae": 11.17949139096283,
+            "rmse": 19.1188245022335,
+            "psnr_db": 22.501579874864163,
+            "ssim": 0.7198154442870623
+          }
+        },
+        {
+          "frame_index": 4,
+          "vs_prev_mae": 7.906762503118165,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 209,
+            "mae": 12.412878095685619,
+            "rmse": 20.77573385088664,
+            "psnr_db": 21.779676146789086,
+            "ssim": 0.7176625283134711
+          }
+        },
+        {
+          "frame_index": 5,
+          "vs_prev_mae": 8.189659510839613,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 216,
+            "mae": 13.841054055935537,
+            "rmse": 22.67158292264683,
+            "psnr_db": 21.021166738948658,
+            "ssim": 0.7131137619276212
+          }
+        },
+        {
+          "frame_index": 6,
+          "vs_prev_mae": 8.830848953166607,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 221,
+            "mae": 16.000988385921556,
+            "rmse": 25.525533096314057,
+            "psnr_db": 19.99130718831318,
+            "ssim": 0.6885812042768326
+          }
+        },
+        {
+          "frame_index": 7,
+          "vs_prev_mae": 9.132150388392883,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 218,
+            "mae": 17.870225943716388,
+            "rmse": 28.132062164103264,
+            "psnr_db": 19.14677224040854,
+            "ssim": 0.6710672819899376
+          }
+        },
+        {
+          "frame_index": 8,
+          "vs_prev_mae": 9.276363363441758,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 226,
+            "mae": 19.84056385132587,
+            "rmse": 30.708396547182137,
+            "psnr_db": 18.385660805634156,
+            "ssim": 0.6581539446681738
+          }
+        },
+        {
+          "frame_index": 9,
+          "vs_prev_mae": 9.937404279573261,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 223,
+            "mae": 22.156034085173776,
+            "rmse": 33.825358132739545,
+            "psnr_db": 17.54595553920655,
+            "ssim": 0.6348144797262391
+          }
+        }
+      ],
+      "end_window_contain": [
+        {
+          "frame_index": 135,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 222,
+            "mae": 20.871615702790976,
+            "rmse": 34.15196519712306,
+            "psnr_db": 17.462489624193196,
+            "ssim": 0.5812125594086234
+          }
+        },
+        {
+          "frame_index": 136,
+          "vs_prev_mae": 6.9237322119540305,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 223,
+            "mae": 20.045869301008835,
+            "rmse": 33.18932112872743,
+            "psnr_db": 17.710836224299058,
+            "ssim": 0.6057949196224511
+          }
+        },
+        {
+          "frame_index": 137,
+          "vs_prev_mae": 7.423860564344431,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 209,
+            "mae": 19.33118469981494,
+            "rmse": 32.01204050432164,
+            "psnr_db": 18.024536454116824,
+            "ssim": 0.6110739345859573
+          }
+        },
+        {
+          "frame_index": 138,
+          "vs_prev_mae": 8.030807474315019,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 204,
+            "mae": 18.241042888552418,
+            "rmse": 30.641429527899472,
+            "psnr_db": 18.40462315343894,
+            "ssim": 0.6241379180033929
+          }
+        },
+        {
+          "frame_index": 139,
+          "vs_prev_mae": 8.37469362211896,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 203,
+            "mae": 17.186730610812347,
+            "rmse": 28.808986154186368,
+            "psnr_db": 18.940244111512307,
+            "ssim": 0.6356711421462552
+          }
+        },
+        {
+          "frame_index": 140,
+          "vs_prev_mae": 8.257882432111012,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 190,
+            "mae": 16.347138466848826,
+            "rmse": 27.07469557705316,
+            "psnr_db": 19.47953196474431,
+            "ssim": 0.6464390986609186
+          }
+        },
+        {
+          "frame_index": 141,
+          "vs_prev_mae": 9.082504481456343,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 179,
+            "mae": 15.27445185552597,
+            "rmse": 25.339664753224984,
+            "psnr_db": 20.054786312322275,
+            "ssim": 0.6560703738947823
+          }
+        },
+        {
+          "frame_index": 142,
+          "vs_prev_mae": 9.588597231649233,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 161,
+            "mae": 13.736844605138737,
+            "rmse": 22.637294168493803,
+            "psnr_db": 21.03431331906176,
+            "ssim": 0.6656243921920504
+          }
+        },
+        {
+          "frame_index": 143,
+          "vs_prev_mae": 9.949655043886365,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 153,
+            "mae": 11.66630553960215,
+            "rmse": 19.106857347934334,
+            "psnr_db": 22.50701838530474,
+            "ssim": 0.6773767784713846
+          }
+        },
+        {
+          "frame_index": 144,
+          "vs_prev_mae": 11.630960409451378,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 140,
+            "mae": 6.245728475956769,
+            "rmse": 11.441340542499624,
+            "psnr_db": 26.96126536411522,
+            "ssim": 0.7866283628984148
+          }
+        }
+      ],
+      "start_closest_frame": 0,
+      "end_closest_frame": 144,
+      "start_hold_mae_within_15pct_of_best": [
+        0
+      ],
+      "end_hold_mae_within_15pct_of_best": [
+        144
+      ],
+      "opening_near_duplicate_consecutive_mae_lt_2": [],
+      "terminal_near_duplicate_consecutive_mae_lt_2": []
+    },
+    {
+      "id": "B-C",
+      "start": "B",
+      "end": "C",
+      "structure": {
+        "path": "camotion/integration/forest-a-to-f/videos/B-C.mp4",
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "width": 1306,
+        "height": 706,
+        "profile": "High",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "nominal_fps": 24.0,
+        "average_fps": 24.0,
+        "time_base": "1/12288",
+        "time_base_seconds": 8.138020833333333e-05,
+        "container_duration_s": 6.041667,
+        "stream_duration_s": 6.041667,
+        "nb_frames_container": "145",
+        "decoded_frame_count": 145,
+        "first_frame_pts_s": 0.0,
+        "last_frame_pts_s": 6.0,
+        "implied_duration_framecount_over_fps_s": 6.041666666666667,
+        "container_minus_implied_s": 3.33333333379926e-07,
+        "last_pts_plus_one_frame_s": 6.041666666666667
+      },
+      "frame0_vs_start": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 37,
+              "mae": 2.0801422070287927,
+              "rmse": 2.6672026999584917,
+              "psnr_db": 39.60968316643541,
+              "ssim": 0.9648364921306523
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 38,
+              "mae": 1.4654044599849319,
+              "rmse": 2.159498796077076,
+              "psnr_db": 41.44374428340031,
+              "ssim": 0.9683659807423809
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 51,
+              "mae": 2.1824505767670677,
+              "rmse": 2.893608142730403,
+              "psnr_db": 38.90200925112853,
+              "ssim": 0.9601504771753891
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 37,
+              "mae": 2.0801422070287927,
+              "rmse": 2.6672026999584917,
+              "psnr_db": 39.60968316643541,
+              "ssim": 0.9648364921306523
+            }
+          }
+        }
+      },
+      "final_vs_end": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 95,
+              "mae": 3.2053086864287295,
+              "rmse": 5.1033589246006255,
+              "psnr_db": 33.973681332797646,
+              "ssim": 0.9082004852998798
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 95,
+              "mae": 2.7319002005706214,
+              "rmse": 4.933878702639339,
+              "psnr_db": 34.26703424197258,
+              "ssim": 0.9264648061020965
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 104,
+              "mae": 3.5010867254640816,
+              "rmse": 6.0175001862242254,
+              "psnr_db": 32.54248136093459,
+              "ssim": 0.8967425826001253
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 95,
+              "mae": 3.2053086864287295,
+              "rmse": 5.1033589246006255,
+              "psnr_db": 33.973681332797646,
+              "ssim": 0.9082004852998798
+            }
+          }
+        }
+      },
+      "start_window_contain": [
+        {
+          "frame_index": 0,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 37,
+            "mae": 2.0801422070287927,
+            "rmse": 2.6672026999584917,
+            "psnr_db": 39.60968316643541,
+            "ssim": 0.9648364921306523
+          }
+        },
+        {
+          "frame_index": 1,
+          "vs_prev_mae": 8.969385143313277,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 163,
+            "mae": 9.366796958036346,
+            "rmse": 15.697774626010576,
+            "psnr_db": 24.214041816730784,
+            "ssim": 0.7453587015051375
+          }
+        },
+        {
+          "frame_index": 2,
+          "vs_prev_mae": 9.257737225010738,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 172,
+            "mae": 13.663403959642935,
+            "rmse": 22.232835122780426,
+            "psnr_db": 21.190906662688803,
+            "ssim": 0.6821120781573553
+          }
+        },
+        {
+          "frame_index": 3,
+          "vs_prev_mae": 9.095091008738631,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 174,
+            "mae": 16.0498545248414,
+            "rmse": 25.707352620659726,
+            "psnr_db": 19.929656514902398,
+            "ssim": 0.6637181555664005
+          }
+        },
+        {
+          "frame_index": 4,
+          "vs_prev_mae": 8.998773005247807,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 183,
+            "mae": 17.764560530536045,
+            "rmse": 28.228122619365138,
+            "psnr_db": 19.117163702958226,
+            "ssim": 0.6519711348118605
+          }
+        },
+        {
+          "frame_index": 5,
+          "vs_prev_mae": 8.711520302171861,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 202,
+            "mae": 19.110551359527538,
+            "rmse": 30.716393726795122,
+            "psnr_db": 18.383399092745375,
+            "ssim": 0.6465176611893414
+          }
+        },
+        {
+          "frame_index": 6,
+          "vs_prev_mae": 8.689322687328188,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 210,
+            "mae": 20.71795099829797,
+            "rmse": 33.710460834512865,
+            "psnr_db": 17.575509818112515,
+            "ssim": 0.6326271083096314
+          }
+        },
+        {
+          "frame_index": 7,
+          "vs_prev_mae": 8.460346812199669,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 215,
+            "mae": 21.84263846530938,
+            "rmse": 35.91946940279638,
+            "psnr_db": 17.024205354530793,
+            "ssim": 0.6283429771559584
+          }
+        },
+        {
+          "frame_index": 8,
+          "vs_prev_mae": 8.349511660426852,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 216,
+            "mae": 22.764960731829703,
+            "rmse": 37.66620752541503,
+            "psnr_db": 16.611765711489262,
+            "ssim": 0.6226813567074864
+          }
+        },
+        {
+          "frame_index": 9,
+          "vs_prev_mae": 8.361354292746343,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 220,
+            "mae": 23.537549871516223,
+            "rmse": 39.107717153718674,
+            "psnr_db": 16.285554298830505,
+            "ssim": 0.6204285207009425
+          }
+        }
+      ],
+      "end_window_contain": [
+        {
+          "frame_index": 135,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 227,
+            "mae": 16.382162952422682,
+            "rmse": 26.39557023119883,
+            "psnr_db": 19.70018263610661,
+            "ssim": 0.5013889106962862
+          }
+        },
+        {
+          "frame_index": 136,
+          "vs_prev_mae": 7.263361372730205,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 221,
+            "mae": 16.346439112283395,
+            "rmse": 25.971809444849978,
+            "psnr_db": 19.840759452797915,
+            "ssim": 0.49945361521247733
+          }
+        },
+        {
+          "frame_index": 137,
+          "vs_prev_mae": 7.575305808739211,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 223,
+            "mae": 16.085092122216487,
+            "rmse": 25.5098141048987,
+            "psnr_db": 19.996657732062186,
+            "ssim": 0.5027683626029212
+          }
+        },
+        {
+          "frame_index": 138,
+          "vs_prev_mae": 7.818548661151336,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 220,
+            "mae": 15.765576759837288,
+            "rmse": 25.00264792701793,
+            "psnr_db": 20.171083499882027,
+            "ssim": 0.5112166754695132
+          }
+        },
+        {
+          "frame_index": 139,
+          "vs_prev_mae": 7.8986156722731,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 218,
+            "mae": 15.292567752235271,
+            "rmse": 24.4158112581399,
+            "psnr_db": 20.377380427568347,
+            "ssim": 0.5206291479293842
+          }
+        },
+        {
+          "frame_index": 140,
+          "vs_prev_mae": 7.860489901334294,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 214,
+            "mae": 14.70476930040331,
+            "rmse": 23.73633671995389,
+            "psnr_db": 20.62252972495985,
+            "ssim": 0.5323026642945194
+          }
+        },
+        {
+          "frame_index": 141,
+          "vs_prev_mae": 8.51440073923361,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 206,
+            "mae": 14.078360642462261,
+            "rmse": 22.789861926985825,
+            "psnr_db": 20.975969728616835,
+            "ssim": 0.5349887270382426
+          }
+        },
+        {
+          "frame_index": 142,
+          "vs_prev_mae": 8.639186177835429,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 194,
+            "mae": 12.713558545074886,
+            "rmse": 20.836780251257274,
+            "psnr_db": 21.75419137672659,
+            "ssim": 0.5589953830747225
+          }
+        },
+        {
+          "frame_index": 143,
+          "vs_prev_mae": 8.505387714434866,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 188,
+            "mae": 9.928094275422362,
+            "rmse": 16.780560099296284,
+            "psnr_db": 23.63467455752142,
+            "ssim": 0.6254239300784251
+          }
+        },
+        {
+          "frame_index": 144,
+          "vs_prev_mae": 9.296000373087384,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 95,
+            "mae": 3.2053086864287295,
+            "rmse": 5.1033589246006255,
+            "psnr_db": 33.973681332797646,
+            "ssim": 0.9082004852998798
+          }
+        }
+      ],
+      "start_closest_frame": 0,
+      "end_closest_frame": 144,
+      "start_hold_mae_within_15pct_of_best": [
+        0
+      ],
+      "end_hold_mae_within_15pct_of_best": [
+        144
+      ],
+      "opening_near_duplicate_consecutive_mae_lt_2": [],
+      "terminal_near_duplicate_consecutive_mae_lt_2": []
+    },
+    {
+      "id": "C-D",
+      "start": "C",
+      "end": "D",
+      "structure": {
+        "path": "camotion/integration/forest-a-to-f/videos/C-D.mp4",
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "width": 1306,
+        "height": 706,
+        "profile": "High",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "nominal_fps": 24.0,
+        "average_fps": 24.0,
+        "time_base": "1/12288",
+        "time_base_seconds": 8.138020833333333e-05,
+        "container_duration_s": 6.041667,
+        "stream_duration_s": 6.041667,
+        "nb_frames_container": "145",
+        "decoded_frame_count": 145,
+        "first_frame_pts_s": 0.0,
+        "last_frame_pts_s": 6.0,
+        "implied_duration_framecount_over_fps_s": 6.041666666666667,
+        "container_minus_implied_s": 3.33333333379926e-07,
+        "last_pts_plus_one_frame_s": 6.041666666666667
+      },
+      "frame0_vs_start": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 82,
+              "mae": 3.778702422320459,
+              "rmse": 5.016908601093485,
+              "psnr_db": 34.12207982771876,
+              "ssim": 0.8935184274082112
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 79,
+              "mae": 2.793929231975035,
+              "rmse": 4.370422391320183,
+              "psnr_db": 35.320335357350125,
+              "ssim": 0.9212177658660989
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 97,
+              "mae": 4.133742789507857,
+              "rmse": 6.00036798471094,
+              "psnr_db": 32.567245904910116,
+              "ssim": 0.8804736073288849
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 82,
+              "mae": 3.778702422320459,
+              "rmse": 5.016908601093485,
+              "psnr_db": 34.12207982771876,
+              "ssim": 0.8935184274082112
+            }
+          }
+        }
+      },
+      "final_vs_end": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 80,
+              "mae": 2.537419363235275,
+              "rmse": 3.616481087649774,
+              "psnr_db": 36.96507964266714,
+              "ssim": 0.9495927567652034
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 82,
+              "mae": 2.3347298803951255,
+              "rmse": 3.5471552313333006,
+              "psnr_db": 37.13319971724245,
+              "ssim": 0.9486863512265122
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 94,
+              "mae": 2.805998536571963,
+              "rmse": 4.321919182403161,
+              "psnr_db": 35.41727077774626,
+              "ssim": 0.9397157445395689
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 80,
+              "mae": 2.537419363235275,
+              "rmse": 3.616481087649774,
+              "psnr_db": 36.96507964266714,
+              "ssim": 0.9495927567652034
+            }
+          }
+        }
+      },
+      "start_window_contain": [
+        {
+          "frame_index": 0,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 82,
+            "mae": 3.778702422320459,
+            "rmse": 5.016908601093485,
+            "psnr_db": 34.12207982771876,
+            "ssim": 0.8935184274082112
+          }
+        },
+        {
+          "frame_index": 1,
+          "vs_prev_mae": 11.431772367528673,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 183,
+            "mae": 11.83822540551562,
+            "rmse": 19.875138927886184,
+            "psnr_db": 22.164600147237522,
+            "ssim": 0.5835038226848249
+          }
+        },
+        {
+          "frame_index": 2,
+          "vs_prev_mae": 10.478404675450127,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 211,
+            "mae": 14.436044796515537,
+            "rmse": 23.412396799077364,
+            "psnr_db": 20.741886087988142,
+            "ssim": 0.5332395421781521
+          }
+        },
+        {
+          "frame_index": 3,
+          "vs_prev_mae": 10.141619560769138,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 216,
+            "mae": 15.338022231959128,
+            "rmse": 24.88126221811616,
+            "psnr_db": 20.213355444848318,
+            "ssim": 0.5347595721624061
+          }
+        },
+        {
+          "frame_index": 4,
+          "vs_prev_mae": 10.238608543122684,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 199,
+            "mae": 16.274084381376287,
+            "rmse": 26.374394992661312,
+            "psnr_db": 19.707153487578214,
+            "ssim": 0.5364508536716016
+          }
+        },
+        {
+          "frame_index": 5,
+          "vs_prev_mae": 11.033817190073561,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 218,
+            "mae": 17.739371347756485,
+            "rmse": 28.46872604116092,
+            "psnr_db": 19.043442945524426,
+            "ssim": 0.5131127583985418
+          }
+        },
+        {
+          "frame_index": 6,
+          "vs_prev_mae": 11.481090398494924,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 229,
+            "mae": 18.795584626486022,
+            "rmse": 30.071171273226227,
+            "psnr_db": 18.567796724359262,
+            "ssim": 0.5140097222386637
+          }
+        },
+        {
+          "frame_index": 7,
+          "vs_prev_mae": 11.884379424086116,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 219,
+            "mae": 20.065523110449774,
+            "rmse": 31.963634328037653,
+            "psnr_db": 18.03768053696833,
+            "ssim": 0.5086604452529873
+          }
+        },
+        {
+          "frame_index": 8,
+          "vs_prev_mae": 11.971665603801442,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 231,
+            "mae": 21.50996562679404,
+            "rmse": 34.01540744865581,
+            "psnr_db": 17.497290059447028,
+            "ssim": 0.4862962808050983
+          }
+        },
+        {
+          "frame_index": 9,
+          "vs_prev_mae": 12.908147476526585,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 231,
+            "mae": 22.975692923052897,
+            "rmse": 36.05574486259648,
+            "psnr_db": 16.99131417023326,
+            "ssim": 0.4705424952562949
+          }
+        }
+      ],
+      "end_window_contain": [
+        {
+          "frame_index": 135,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 174,
+            "mae": 22.363183939311117,
+            "rmse": 31.657011562477397,
+            "psnr_db": 18.121405311723464,
+            "ssim": 0.5607971689706672
+          }
+        },
+        {
+          "frame_index": 136,
+          "vs_prev_mae": 7.804240109207594,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 179,
+            "mae": 21.62886300896422,
+            "rmse": 30.60311485814152,
+            "psnr_db": 18.41549096345497,
+            "ssim": 0.5642677194989063
+          }
+        },
+        {
+          "frame_index": 137,
+          "vs_prev_mae": 8.455934113924691,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 179,
+            "mae": 21.024369258177916,
+            "rmse": 29.716145728314263,
+            "psnr_db": 18.670954019340613,
+            "ssim": 0.5617291187324854
+          }
+        },
+        {
+          "frame_index": 138,
+          "vs_prev_mae": 8.33475121000337,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 177,
+            "mae": 20.41930322315687,
+            "rmse": 28.813729548651693,
+            "psnr_db": 18.938814099044958,
+            "ssim": 0.5594340887709047
+          }
+        },
+        {
+          "frame_index": 139,
+          "vs_prev_mae": 8.361465640531751,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 181,
+            "mae": 19.569030204171348,
+            "rmse": 27.625013407681504,
+            "psnr_db": 19.30475365915554,
+            "ssim": 0.5611007187079707
+          }
+        },
+        {
+          "frame_index": 140,
+          "vs_prev_mae": 8.056649631901575,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 176,
+            "mae": 18.72586753662547,
+            "rmse": 26.35245235638947,
+            "psnr_db": 19.714382872136948,
+            "ssim": 0.5621408220978551
+          }
+        },
+        {
+          "frame_index": 141,
+          "vs_prev_mae": 8.946016930647682,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 167,
+            "mae": 17.124824844149252,
+            "rmse": 24.121391664516764,
+            "psnr_db": 20.482756399362444,
+            "ssim": 0.5745634201327965
+          }
+        },
+        {
+          "frame_index": 142,
+          "vs_prev_mae": 8.789850215537498,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 162,
+            "mae": 14.27703545920839,
+            "rmse": 20.36574159671915,
+            "psnr_db": 21.952799027089828,
+            "ssim": 0.6162854344695402
+          }
+        },
+        {
+          "frame_index": 143,
+          "vs_prev_mae": 8.408168444616045,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 157,
+            "mae": 9.48216410928279,
+            "rmse": 14.315224137033688,
+            "psnr_db": 25.01484056332226,
+            "ssim": 0.734600874560727
+          }
+        },
+        {
+          "frame_index": 144,
+          "vs_prev_mae": 8.77645124485378,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 80,
+            "mae": 2.537419363235275,
+            "rmse": 3.616481087649774,
+            "psnr_db": 36.96507964266714,
+            "ssim": 0.9495927567652034
+          }
+        }
+      ],
+      "start_closest_frame": 0,
+      "end_closest_frame": 144,
+      "start_hold_mae_within_15pct_of_best": [
+        0
+      ],
+      "end_hold_mae_within_15pct_of_best": [
+        144
+      ],
+      "opening_near_duplicate_consecutive_mae_lt_2": [],
+      "terminal_near_duplicate_consecutive_mae_lt_2": []
+    },
+    {
+      "id": "D-E",
+      "start": "D",
+      "end": "E",
+      "structure": {
+        "path": "camotion/integration/forest-a-to-f/videos/D-E.mp4",
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "width": 1306,
+        "height": 706,
+        "profile": "High",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "nominal_fps": 24.0,
+        "average_fps": 24.0,
+        "time_base": "1/12288",
+        "time_base_seconds": 8.138020833333333e-05,
+        "container_duration_s": 6.041667,
+        "stream_duration_s": 6.041667,
+        "nb_frames_container": "145",
+        "decoded_frame_count": 145,
+        "first_frame_pts_s": 0.0,
+        "last_frame_pts_s": 6.0,
+        "implied_duration_framecount_over_fps_s": 6.041666666666667,
+        "container_minus_implied_s": 3.33333333379926e-07,
+        "last_pts_plus_one_frame_s": 6.041666666666667
+      },
+      "frame0_vs_start": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 53,
+              "mae": 2.4268506508061147,
+              "rmse": 3.250810215552544,
+              "psnr_db": 37.89097129192895,
+              "ssim": 0.961561858934474
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 52,
+              "mae": 1.863155740845983,
+              "rmse": 2.794249644410286,
+              "psnr_db": 39.205499521959965,
+              "ssim": 0.9611327312429309
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 68,
+              "mae": 2.721054998575616,
+              "rmse": 4.00385942985015,
+              "psnr_db": 36.08122717714916,
+              "ssim": 0.950680961104314
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 53,
+              "mae": 2.4268506508061147,
+              "rmse": 3.250810215552544,
+              "psnr_db": 37.89097129192895,
+              "ssim": 0.961561858934474
+            }
+          }
+        }
+      },
+      "final_vs_end": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 51,
+              "mae": 2.091062966449611,
+              "rmse": 2.8416597846022946,
+              "psnr_db": 39.05936198564933,
+              "ssim": 0.9756596718572407
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 49,
+              "mae": 1.5115140117450223,
+              "rmse": 2.3579902550929432,
+              "psnr_db": 40.67996348974966,
+              "ssim": 0.9739555804887535
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 97,
+              "mae": 2.2255331317504594,
+              "rmse": 3.268790665572807,
+              "psnr_db": 37.843061426484894,
+              "ssim": 0.9715971222014926
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 51,
+              "mae": 2.091062966449611,
+              "rmse": 2.8416597846022946,
+              "psnr_db": 39.05936198564933,
+              "ssim": 0.9756596718572407
+            }
+          }
+        }
+      },
+      "start_window_contain": [
+        {
+          "frame_index": 0,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 53,
+            "mae": 2.4268506508061147,
+            "rmse": 3.250810215552544,
+            "psnr_db": 37.89097129192895,
+            "ssim": 0.961561858934474
+          }
+        },
+        {
+          "frame_index": 1,
+          "vs_prev_mae": 11.934384340741577,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 168,
+            "mae": 11.766206164039872,
+            "rmse": 17.466034534253133,
+            "psnr_db": 23.286917318268326,
+            "ssim": 0.6748073637374302
+          }
+        },
+        {
+          "frame_index": 2,
+          "vs_prev_mae": 11.930220005871066,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 165,
+            "mae": 17.090150493039317,
+            "rmse": 24.31465428339401,
+            "psnr_db": 20.4134416295725,
+            "ssim": 0.5968812920630988
+          }
+        },
+        {
+          "frame_index": 3,
+          "vs_prev_mae": 12.066394370718713,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 177,
+            "mae": 20.486601390835066,
+            "rmse": 28.74160952950946,
+            "psnr_db": 18.960581909463897,
+            "ssim": 0.5782814379914581
+          }
+        },
+        {
+          "frame_index": 4,
+          "vs_prev_mae": 11.991019150373015,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 162,
+            "mae": 23.740563275186652,
+            "rmse": 32.327837601866094,
+            "psnr_db": 17.939270493240535,
+            "ssim": 0.5703149789070135
+          }
+        },
+        {
+          "frame_index": 5,
+          "vs_prev_mae": 13.009822465355654,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 160,
+            "mae": 27.57707580470466,
+            "rmse": 36.70062767733577,
+            "psnr_db": 16.837333770791396,
+            "ssim": 0.5568098335785788
+          }
+        },
+        {
+          "frame_index": 6,
+          "vs_prev_mae": 13.163822959913352,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 172,
+            "mae": 31.474903366029093,
+            "rmse": 41.385486198116276,
+            "psnr_db": 15.793842375251945,
+            "ssim": 0.5376565879969112
+          }
+        },
+        {
+          "frame_index": 7,
+          "vs_prev_mae": 13.524433247002648,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 184,
+            "mae": 35.25673364886693,
+            "rmse": 45.98079899547466,
+            "psnr_db": 14.879273336429367,
+            "ssim": 0.5184114747720798
+          }
+        },
+        {
+          "frame_index": 8,
+          "vs_prev_mae": 13.463937778279083,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 183,
+            "mae": 39.05553398493479,
+            "rmse": 50.23621660081382,
+            "psnr_db": 14.110465122782983,
+            "ssim": 0.5022917262958964
+          }
+        },
+        {
+          "frame_index": 9,
+          "vs_prev_mae": 13.968311071006628,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 180,
+            "mae": 42.97759885008105,
+            "rmse": 54.93281691027349,
+            "psnr_db": 13.334166211459433,
+            "ssim": 0.4865587467353154
+          }
+        }
+      ],
+      "end_window_contain": [
+        {
+          "frame_index": 135,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 174,
+            "mae": 16.69190863118866,
+            "rmse": 25.644700583442354,
+            "psnr_db": 19.95085095278473,
+            "ssim": 0.769257205854179
+          }
+        },
+        {
+          "frame_index": 136,
+          "vs_prev_mae": 3.595684261062836,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 174,
+            "mae": 16.136389830042788,
+            "rmse": 24.70230031799223,
+            "psnr_db": 20.276055661790046,
+            "ssim": 0.769822026306984
+          }
+        },
+        {
+          "frame_index": 137,
+          "vs_prev_mae": 3.8628513420300292,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 174,
+            "mae": 15.47079325897615,
+            "rmse": 23.64951922228867,
+            "psnr_db": 20.654357283295013,
+            "ssim": 0.7706114812477042
+          }
+        },
+        {
+          "frame_index": 138,
+          "vs_prev_mae": 3.9569210602044462,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 171,
+            "mae": 14.68755305288152,
+            "rmse": 22.462035307041074,
+            "psnr_db": 21.101821497535273,
+            "ssim": 0.7724777802692024
+          }
+        },
+        {
+          "frame_index": 139,
+          "vs_prev_mae": 4.109714082024274,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 172,
+            "mae": 13.722123286581724,
+            "rmse": 21.106316058457878,
+            "psnr_db": 21.642554863986526,
+            "ssim": 0.778623727777398
+          }
+        },
+        {
+          "frame_index": 140,
+          "vs_prev_mae": 4.175865512120279,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 172,
+            "mae": 12.57178678489777,
+            "rmse": 19.552605841697055,
+            "psnr_db": 22.30671069910177,
+            "ssim": 0.783207395741632
+          }
+        },
+        {
+          "frame_index": 141,
+          "vs_prev_mae": 4.692018171380148,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 180,
+            "mae": 10.92796918992317,
+            "rmse": 17.437909935616208,
+            "psnr_db": 23.300915003427107,
+            "ssim": 0.7950854767359642
+          }
+        },
+        {
+          "frame_index": 142,
+          "vs_prev_mae": 4.855409477865651,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 169,
+            "mae": 9.017493170910175,
+            "rmse": 14.901669673394354,
+            "psnr_db": 24.666104966183617,
+            "ssim": 0.8129902568006182
+          }
+        },
+        {
+          "frame_index": 143,
+          "vs_prev_mae": 5.115498382564962,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 154,
+            "mae": 6.467362445717955,
+            "rmse": 11.095926015675007,
+            "psnr_db": 27.22753256210275,
+            "ssim": 0.8558300417800971
+          }
+        },
+        {
+          "frame_index": 144,
+          "vs_prev_mae": 5.806822799399011,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 51,
+            "mae": 2.091062966449611,
+            "rmse": 2.8416597846022946,
+            "psnr_db": 39.05936198564933,
+            "ssim": 0.9756596718572407
+          }
+        }
+      ],
+      "start_closest_frame": 0,
+      "end_closest_frame": 144,
+      "start_hold_mae_within_15pct_of_best": [
+        0
+      ],
+      "end_hold_mae_within_15pct_of_best": [
+        144
+      ],
+      "opening_near_duplicate_consecutive_mae_lt_2": [],
+      "terminal_near_duplicate_consecutive_mae_lt_2": []
+    },
+    {
+      "id": "E-F",
+      "start": "E",
+      "end": "F",
+      "structure": {
+        "path": "camotion/integration/forest-a-to-f/videos/E-F.mp4",
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "width": 1306,
+        "height": 706,
+        "profile": "High",
+        "r_frame_rate": "24/1",
+        "avg_frame_rate": "24/1",
+        "nominal_fps": 24.0,
+        "average_fps": 24.0,
+        "time_base": "1/12288",
+        "time_base_seconds": 8.138020833333333e-05,
+        "container_duration_s": 6.041667,
+        "stream_duration_s": 6.041667,
+        "nb_frames_container": "145",
+        "decoded_frame_count": 145,
+        "first_frame_pts_s": 0.0,
+        "last_frame_pts_s": 6.0,
+        "implied_duration_framecount_over_fps_s": 6.041666666666667,
+        "container_minus_implied_s": 3.33333333379926e-07,
+        "last_pts_plus_one_frame_s": 6.041666666666667
+      },
+      "frame0_vs_start": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 43,
+              "mae": 2.1279411360655476,
+              "rmse": 2.716075325916499,
+              "psnr_db": 39.451967404195784,
+              "ssim": 0.9795338544271202
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 42,
+              "mae": 1.3578067089209822,
+              "rmse": 2.0680760557035454,
+              "psnr_db": 41.819473481508005,
+              "ssim": 0.9781623037819479
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 63,
+              "mae": 2.2799868985592755,
+              "rmse": 3.1560573263074185,
+              "psnr_db": 38.147905946873976,
+              "ssim": 0.9748786838861806
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 43,
+              "mae": 2.1279411360655476,
+              "rmse": 2.716075325916499,
+              "psnr_db": 39.451967404195784,
+              "ssim": 0.9795338544271202
+            }
+          }
+        }
+      },
+      "final_vs_end": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 66,
+              "mae": 2.2083660507832668,
+              "rmse": 2.9907996396790173,
+              "psnr_db": 38.61505721563152,
+              "ssim": 0.9703085205982368
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 64,
+              "mae": 1.5759934174659846,
+              "rmse": 2.5147250384850492,
+              "psnr_db": 40.12099348920483,
+              "ssim": 0.9675486966103953
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 120,
+              "mae": 2.288074073752724,
+              "rmse": 3.4064400741838803,
+              "psnr_db": 37.48478854328927,
+              "ssim": 0.9640429210091167
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 66,
+              "mae": 2.2083660507832668,
+              "rmse": 2.9907996396790173,
+              "psnr_db": 38.61505721563152,
+              "ssim": 0.9703085205982368
+            }
+          }
+        }
+      },
+      "start_window_contain": [
+        {
+          "frame_index": 0,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 43,
+            "mae": 2.1279411360655476,
+            "rmse": 2.716075325916499,
+            "psnr_db": 39.451967404195784,
+            "ssim": 0.9795338544271202
+          }
+        },
+        {
+          "frame_index": 1,
+          "vs_prev_mae": 6.680225067134038,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 156,
+            "mae": 7.311615092396971,
+            "rmse": 12.163696561041709,
+            "psnr_db": 26.429492057153855,
+            "ssim": 0.8461588553955637
+          }
+        },
+        {
+          "frame_index": 2,
+          "vs_prev_mae": 6.548559564557856,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 158,
+            "mae": 10.640953281650608,
+            "rmse": 16.611398231522944,
+            "psnr_db": 23.72267981133414,
+            "ssim": 0.797557244314986
+          }
+        },
+        {
+          "frame_index": 3,
+          "vs_prev_mae": 6.209979870634118,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 167,
+            "mae": 13.176392606507049,
+            "rmse": 19.79220010803287,
+            "psnr_db": 22.200922144288697,
+            "ssim": 0.780085016366148
+          }
+        },
+        {
+          "frame_index": 4,
+          "vs_prev_mae": 6.863001372325304,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 167,
+            "mae": 15.102729900640178,
+            "rmse": 22.491634707867785,
+            "psnr_db": 21.090383180441123,
+            "ssim": 0.7704187759701732
+          }
+        },
+        {
+          "frame_index": 5,
+          "vs_prev_mae": 6.338223236402917,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 181,
+            "mae": 16.68512075450416,
+            "rmse": 24.605724679841767,
+            "psnr_db": 20.310080403498777,
+            "ssim": 0.7570879276673362
+          }
+        },
+        {
+          "frame_index": 6,
+          "vs_prev_mae": 5.415741178580157,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 182,
+            "mae": 17.93741856789395,
+            "rmse": 26.400481495630316,
+            "psnr_db": 19.69856665538218,
+            "ssim": 0.753556314215084
+          }
+        },
+        {
+          "frame_index": 7,
+          "vs_prev_mae": 4.749568346572151,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 197,
+            "mae": 18.70361677852058,
+            "rmse": 27.62344884824955,
+            "psnr_db": 19.305245603727638,
+            "ssim": 0.752777421684485
+          }
+        },
+        {
+          "frame_index": 8,
+          "vs_prev_mae": 4.1215928662221435,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 203,
+            "mae": 19.326708501620327,
+            "rmse": 28.772406560217792,
+            "psnr_db": 18.951279841770972,
+            "ssim": 0.7528761029921466
+          }
+        },
+        {
+          "frame_index": 9,
+          "vs_prev_mae": 3.635336002788033,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 203,
+            "mae": 19.53077356343281,
+            "rmse": 29.374829338408848,
+            "psnr_db": 18.771296566131838,
+            "ssim": 0.757101938505226
+          }
+        }
+      ],
+      "end_window_contain": [
+        {
+          "frame_index": 135,
+          "vs_prev_mae": null,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 144,
+            "mae": 5.834983305062565,
+            "rmse": 12.389487153446089,
+            "psnr_db": 26.269737014714085,
+            "ssim": 0.8969186793048539
+          }
+        },
+        {
+          "frame_index": 136,
+          "vs_prev_mae": 1.8735823040893558,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 146,
+            "mae": 5.605233418217944,
+            "rmse": 11.815954145762374,
+            "psnr_db": 26.681427669915077,
+            "ssim": 0.9075419004373764
+          }
+        },
+        {
+          "frame_index": 137,
+          "vs_prev_mae": 2.318911987529048,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 181,
+            "mae": 5.595847306034327,
+            "rmse": 11.535367210388667,
+            "psnr_db": 26.890175125412693,
+            "ssim": 0.8890767421101503
+          }
+        },
+        {
+          "frame_index": 138,
+          "vs_prev_mae": 2.6655253518662323,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 167,
+            "mae": 5.281097845781871,
+            "rmse": 10.808342437066525,
+            "psnr_db": 27.455621691929476,
+            "ssim": 0.8998118138256656
+          }
+        },
+        {
+          "frame_index": 139,
+          "vs_prev_mae": 2.4367154138594733,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 133,
+            "mae": 5.156248779874105,
+            "rmse": 10.058325148374012,
+            "psnr_db": 28.08029019582204,
+            "ssim": 0.9035364250933281
+          }
+        },
+        {
+          "frame_index": 140,
+          "vs_prev_mae": 2.385620518070878,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 171,
+            "mae": 4.9551597406898065,
+            "rmse": 9.579149878951695,
+            "psnr_db": 28.504264239764943,
+            "ssim": 0.9035509605366653
+          }
+        },
+        {
+          "frame_index": 141,
+          "vs_prev_mae": 2.6744197985038904,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 186,
+            "mae": 4.477888426626871,
+            "rmse": 8.623110549581927,
+            "psnr_db": 29.41752453153328,
+            "ssim": 0.8992695537007233
+          }
+        },
+        {
+          "frame_index": 142,
+          "vs_prev_mae": 2.5940563419794165,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 151,
+            "mae": 3.603601522427902,
+            "rmse": 6.554006018316156,
+            "psnr_db": 31.80066689179744,
+            "ssim": 0.9323118326299165
+          }
+        },
+        {
+          "frame_index": 143,
+          "vs_prev_mae": 2.1419691494330664,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 175,
+            "mae": 3.1505570281420683,
+            "rmse": 5.830319305940002,
+            "psnr_db": 32.81695680505833,
+            "ssim": 0.9267510192736518
+          }
+        },
+        {
+          "frame_index": 144,
+          "vs_prev_mae": 1.9491509369843838,
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 66,
+            "mae": 2.2083660507832668,
+            "rmse": 2.9907996396790173,
+            "psnr_db": 38.61505721563152,
+            "ssim": 0.9703085205982368
+          }
+        }
+      ],
+      "start_closest_frame": 0,
+      "end_closest_frame": 144,
+      "start_hold_mae_within_15pct_of_best": [
+        0
+      ],
+      "end_hold_mae_within_15pct_of_best": [
+        144
+      ],
+      "opening_near_duplicate_consecutive_mae_lt_2": [],
+      "terminal_near_duplicate_consecutive_mae_lt_2": [
+        {
+          "to": 136,
+          "vs_prev_mae": 1.8735823040893558
+        },
+        {
+          "to": 144,
+          "vs_prev_mae": 1.9491509369843838
+        }
+      ]
+    }
+  ],
+  "seams": [
+    {
+      "canonical": "B",
+      "previous_leg": "A-B",
+      "next_leg": "B-C",
+      "previous_size": [
+        1284,
+        716
+      ],
+      "next_size": [
+        1306,
+        706
+      ],
+      "shooting_size": [
+        1392,
+        752
+      ],
+      "previous_final_vs_shooting": {
+        "video_size": [
+          1284,
+          716
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale": 0.9224137931034483,
+              "resized_size": [
+                1284,
+                694
+              ],
+              "offset": [
+                0,
+                11
+              ],
+              "pad_wh": [
+                0,
+                22
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 140,
+              "mae": 6.245728475956769,
+              "rmse": 11.441340542499624,
+              "psnr_db": 26.96126536411522,
+              "ssim": 0.7866283628984148
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 139,
+              "mae": 5.880344390492931,
+              "rmse": 11.364209707409014,
+              "psnr_db": 27.02001882267306,
+              "ssim": 0.7906207187449148
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale": 0.9521276595744681,
+              "resized_size": [
+                1325,
+                716
+              ],
+              "crop_xy": [
+                20,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 128,
+              "mae": 6.093171507799765,
+              "rmse": 9.632008428159168,
+              "psnr_db": 28.456466530110475,
+              "ssim": 0.8023955200429129
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1284,
+                716
+              ],
+              "scale_x": 0.9224137931034483,
+              "scale_y": 0.9521276595744681
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 61,
+              "mae": 2.5636881660546362,
+              "rmse": 3.3760595130699573,
+              "psnr_db": 37.56260173367029,
+              "ssim": 0.9457091192461037
+            }
+          }
+        }
+      },
+      "next_first_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 37,
+              "mae": 2.0801422070287927,
+              "rmse": 2.6672026999584917,
+              "psnr_db": 39.60968316643541,
+              "ssim": 0.9648364921306523
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 38,
+              "mae": 1.4654044599849319,
+              "rmse": 2.159498796077076,
+              "psnr_db": 41.44374428340031,
+              "ssim": 0.9683659807423809
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 51,
+              "mae": 2.1824505767670677,
+              "rmse": 2.893608142730403,
+              "psnr_db": 38.90200925112853,
+              "ssim": 0.9601504771753891
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 37,
+              "mae": 2.0801422070287927,
+              "rmse": 2.6672026999584917,
+              "psnr_db": 39.60968316643541,
+              "ssim": 0.9648364921306523
+            }
+          }
+        }
+      },
+      "previous_final_vs_next_first_same_shape": null,
+      "previous_final_fitted_to_next_first": {
+        "contain": {
+          "fit": {
+            "method": "contain_lanczos_center_pad_black",
+            "source_size": [
+              1284,
+              716
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 0.9860335195530726,
+            "resized_size": [
+              1266,
+              706
+            ],
+            "offset": [
+              20,
+              0
+            ],
+            "pad_wh": [
+              40,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 125,
+            "mae": 5.956486514626327,
+            "rmse": 9.803182779261789,
+            "psnr_db": 28.303461606955942,
+            "ssim": 0.7856802276219507
+          }
+        },
+        "cover": {
+          "fit": {
+            "method": "cover_lanczos_center_crop",
+            "source_size": [
+              1284,
+              716
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.017133956386293,
+            "resized_size": [
+              1306,
+              728
+            ],
+            "crop_xy": [
+              0,
+              11
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 132,
+            "mae": 5.048601500736775,
+            "rmse": 9.686380771442785,
+            "psnr_db": 28.407572865602,
+            "ssim": 0.8178613911148086
+          }
+        },
+        "stretch": {
+          "fit": {
+            "method": "stretch_lanczos_independent_axes",
+            "source_size": [
+              1284,
+              716
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale_x": 1.017133956386293,
+            "scale_y": 0.9860335195530726
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 52,
+            "mae": 1.8431586908392585,
+            "rmse": 2.731721616552238,
+            "psnr_db": 39.40207482236437,
+            "ssim": 0.9565745797838838
+          }
+        }
+      }
+    },
+    {
+      "canonical": "C",
+      "previous_leg": "B-C",
+      "next_leg": "C-D",
+      "previous_size": [
+        1306,
+        706
+      ],
+      "next_size": [
+        1306,
+        706
+      ],
+      "shooting_size": [
+        1392,
+        752
+      ],
+      "previous_final_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 95,
+              "mae": 3.2053086864287295,
+              "rmse": 5.1033589246006255,
+              "psnr_db": 33.973681332797646,
+              "ssim": 0.9082004852998798
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 95,
+              "mae": 2.7319002005706214,
+              "rmse": 4.933878702639339,
+              "psnr_db": 34.26703424197258,
+              "ssim": 0.9264648061020965
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 104,
+              "mae": 3.5010867254640816,
+              "rmse": 6.0175001862242254,
+              "psnr_db": 32.54248136093459,
+              "ssim": 0.8967425826001253
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 95,
+              "mae": 3.2053086864287295,
+              "rmse": 5.1033589246006255,
+              "psnr_db": 33.973681332797646,
+              "ssim": 0.9082004852998798
+            }
+          }
+        }
+      },
+      "next_first_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 82,
+              "mae": 3.778702422320459,
+              "rmse": 5.016908601093485,
+              "psnr_db": 34.12207982771876,
+              "ssim": 0.8935184274082112
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 79,
+              "mae": 2.793929231975035,
+              "rmse": 4.370422391320183,
+              "psnr_db": 35.320335357350125,
+              "ssim": 0.9212177658660989
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 97,
+              "mae": 4.133742789507857,
+              "rmse": 6.00036798471094,
+              "psnr_db": 32.567245904910116,
+              "ssim": 0.8804736073288849
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 82,
+              "mae": 3.778702422320459,
+              "rmse": 5.016908601093485,
+              "psnr_db": 34.12207982771876,
+              "ssim": 0.8935184274082112
+            }
+          }
+        }
+      },
+      "previous_final_vs_next_first_same_shape": {
+        "exact_equal": false,
+        "max_abs": 63,
+        "mae": 2.5851734639428394,
+        "rmse": 4.059106485971714,
+        "psnr_db": 35.962194715059184,
+        "ssim": 0.9451983077149092
+      },
+      "previous_final_fitted_to_next_first": {
+        "contain": {
+          "fit": {
+            "method": "contain_lanczos_center_pad_black",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.0,
+            "resized_size": [
+              1306,
+              706
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "pad_wh": [
+              0,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 63,
+            "mae": 2.5851734639428394,
+            "rmse": 4.059106485971714,
+            "psnr_db": 35.962194715059184,
+            "ssim": 0.9451983077149092
+          }
+        },
+        "cover": {
+          "fit": {
+            "method": "cover_lanczos_center_crop",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.0,
+            "resized_size": [
+              1306,
+              706
+            ],
+            "crop_xy": [
+              0,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 63,
+            "mae": 2.5851734639428394,
+            "rmse": 4.059106485971714,
+            "psnr_db": 35.962194715059184,
+            "ssim": 0.9451983077149092
+          }
+        },
+        "stretch": {
+          "fit": {
+            "method": "stretch_lanczos_independent_axes",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale_x": 1.0,
+            "scale_y": 1.0
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 63,
+            "mae": 2.5851734639428394,
+            "rmse": 4.059106485971714,
+            "psnr_db": 35.962194715059184,
+            "ssim": 0.9451983077149092
+          }
+        }
+      }
+    },
+    {
+      "canonical": "D",
+      "previous_leg": "C-D",
+      "next_leg": "D-E",
+      "previous_size": [
+        1306,
+        706
+      ],
+      "next_size": [
+        1306,
+        706
+      ],
+      "shooting_size": [
+        1392,
+        752
+      ],
+      "previous_final_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 80,
+              "mae": 2.537419363235275,
+              "rmse": 3.616481087649774,
+              "psnr_db": 36.96507964266714,
+              "ssim": 0.9495927567652034
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 82,
+              "mae": 2.3347298803951255,
+              "rmse": 3.5471552313333006,
+              "psnr_db": 37.13319971724245,
+              "ssim": 0.9486863512265122
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 94,
+              "mae": 2.805998536571963,
+              "rmse": 4.321919182403161,
+              "psnr_db": 35.41727077774626,
+              "ssim": 0.9397157445395689
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 80,
+              "mae": 2.537419363235275,
+              "rmse": 3.616481087649774,
+              "psnr_db": 36.96507964266714,
+              "ssim": 0.9495927567652034
+            }
+          }
+        }
+      },
+      "next_first_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 53,
+              "mae": 2.4268506508061147,
+              "rmse": 3.250810215552544,
+              "psnr_db": 37.89097129192895,
+              "ssim": 0.961561858934474
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 52,
+              "mae": 1.863155740845983,
+              "rmse": 2.794249644410286,
+              "psnr_db": 39.205499521959965,
+              "ssim": 0.9611327312429309
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 68,
+              "mae": 2.721054998575616,
+              "rmse": 4.00385942985015,
+              "psnr_db": 36.08122717714916,
+              "ssim": 0.950680961104314
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 53,
+              "mae": 2.4268506508061147,
+              "rmse": 3.250810215552544,
+              "psnr_db": 37.89097129192895,
+              "ssim": 0.961561858934474
+            }
+          }
+        }
+      },
+      "previous_final_vs_next_first_same_shape": {
+        "exact_equal": false,
+        "max_abs": 65,
+        "mae": 2.0949973753736297,
+        "rmse": 3.0857162039151413,
+        "psnr_db": 38.3436839864581,
+        "ssim": 0.957973874104663
+      },
+      "previous_final_fitted_to_next_first": {
+        "contain": {
+          "fit": {
+            "method": "contain_lanczos_center_pad_black",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.0,
+            "resized_size": [
+              1306,
+              706
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "pad_wh": [
+              0,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 65,
+            "mae": 2.0949973753736297,
+            "rmse": 3.0857162039151413,
+            "psnr_db": 38.3436839864581,
+            "ssim": 0.957973874104663
+          }
+        },
+        "cover": {
+          "fit": {
+            "method": "cover_lanczos_center_crop",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.0,
+            "resized_size": [
+              1306,
+              706
+            ],
+            "crop_xy": [
+              0,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 65,
+            "mae": 2.0949973753736297,
+            "rmse": 3.0857162039151413,
+            "psnr_db": 38.3436839864581,
+            "ssim": 0.957973874104663
+          }
+        },
+        "stretch": {
+          "fit": {
+            "method": "stretch_lanczos_independent_axes",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale_x": 1.0,
+            "scale_y": 1.0
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 65,
+            "mae": 2.0949973753736297,
+            "rmse": 3.0857162039151413,
+            "psnr_db": 38.3436839864581,
+            "ssim": 0.957973874104663
+          }
+        }
+      }
+    },
+    {
+      "canonical": "E",
+      "previous_leg": "D-E",
+      "next_leg": "E-F",
+      "previous_size": [
+        1306,
+        706
+      ],
+      "next_size": [
+        1306,
+        706
+      ],
+      "shooting_size": [
+        1392,
+        752
+      ],
+      "previous_final_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 51,
+              "mae": 2.091062966449611,
+              "rmse": 2.8416597846022946,
+              "psnr_db": 39.05936198564933,
+              "ssim": 0.9756596718572407
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 49,
+              "mae": 1.5115140117450223,
+              "rmse": 2.3579902550929432,
+              "psnr_db": 40.67996348974966,
+              "ssim": 0.9739555804887535
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 97,
+              "mae": 2.2255331317504594,
+              "rmse": 3.268790665572807,
+              "psnr_db": 37.843061426484894,
+              "ssim": 0.9715971222014926
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 51,
+              "mae": 2.091062966449611,
+              "rmse": 2.8416597846022946,
+              "psnr_db": 39.05936198564933,
+              "ssim": 0.9756596718572407
+            }
+          }
+        }
+      },
+      "next_first_vs_shooting": {
+        "video_size": [
+          1306,
+          706
+        ],
+        "shooting_size": [
+          1392,
+          752
+        ],
+        "native_pixel_identity_possible": false,
+        "native_exact_equal": false,
+        "transforms": {
+          "contain": {
+            "fit": {
+              "method": "contain_lanczos_center_pad_black",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9382183908045977,
+              "resized_size": [
+                1306,
+                706
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "pad_wh": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 43,
+              "mae": 2.1279411360655476,
+              "rmse": 2.716075325916499,
+              "psnr_db": 39.451967404195784,
+              "ssim": 0.9795338544271202
+            },
+            "vs_yuv420_roundtrip_of_fitted": {
+              "exact_equal": false,
+              "max_abs": 42,
+              "mae": 1.3578067089209822,
+              "rmse": 2.0680760557035454,
+              "psnr_db": 41.819473481508005,
+              "ssim": 0.9781623037819479
+            }
+          },
+          "cover": {
+            "fit": {
+              "method": "cover_lanczos_center_crop",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale": 0.9388297872340425,
+              "resized_size": [
+                1307,
+                706
+              ],
+              "crop_xy": [
+                0,
+                0
+              ]
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 63,
+              "mae": 2.2799868985592755,
+              "rmse": 3.1560573263074185,
+              "psnr_db": 38.147905946873976,
+              "ssim": 0.9748786838861806
+            }
+          },
+          "stretch": {
+            "fit": {
+              "method": "stretch_lanczos_independent_axes",
+              "source_size": [
+                1392,
+                752
+              ],
+              "target_size": [
+                1306,
+                706
+              ],
+              "scale_x": 0.9382183908045977,
+              "scale_y": 0.9388297872340425
+            },
+            "metrics": {
+              "exact_equal": false,
+              "max_abs": 43,
+              "mae": 2.1279411360655476,
+              "rmse": 2.716075325916499,
+              "psnr_db": 39.451967404195784,
+              "ssim": 0.9795338544271202
+            }
+          }
+        }
+      },
+      "previous_final_vs_next_first_same_shape": {
+        "exact_equal": false,
+        "max_abs": 40,
+        "mae": 1.2207849440441227,
+        "rmse": 1.972617937814665,
+        "psnr_db": 42.22994404825211,
+        "ssim": 0.9768495854806761
+      },
+      "previous_final_fitted_to_next_first": {
+        "contain": {
+          "fit": {
+            "method": "contain_lanczos_center_pad_black",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.0,
+            "resized_size": [
+              1306,
+              706
+            ],
+            "offset": [
+              0,
+              0
+            ],
+            "pad_wh": [
+              0,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 40,
+            "mae": 1.2207849440441227,
+            "rmse": 1.972617937814665,
+            "psnr_db": 42.22994404825211,
+            "ssim": 0.9768495854806761
+          }
+        },
+        "cover": {
+          "fit": {
+            "method": "cover_lanczos_center_crop",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale": 1.0,
+            "resized_size": [
+              1306,
+              706
+            ],
+            "crop_xy": [
+              0,
+              0
+            ]
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 40,
+            "mae": 1.2207849440441227,
+            "rmse": 1.972617937814665,
+            "psnr_db": 42.22994404825211,
+            "ssim": 0.9768495854806761
+          }
+        },
+        "stretch": {
+          "fit": {
+            "method": "stretch_lanczos_independent_axes",
+            "source_size": [
+              1306,
+              706
+            ],
+            "target_size": [
+              1306,
+              706
+            ],
+            "scale_x": 1.0,
+            "scale_y": 1.0
+          },
+          "metrics": {
+            "exact_equal": false,
+            "max_abs": 40,
+            "mae": 1.2207849440441227,
+            "rmse": 1.972617937814665,
+            "psnr_db": 42.22994404825211,
+            "ssim": 0.9768495854806761
+          }
+        }
+      }
+    }
+  ],
+  "yuv420_chroma_floor_fitted_contain_vs_self": {
+    "A-B-end-contain.png": {
+      "mae": 1.3741011706898252,
+      "rmse": 1.6396042269862914,
+      "max_abs": 6
+    },
+    "A-B-start-contain.png": {
+      "mae": 1.4533710993926103,
+      "rmse": 1.6726736108451035,
+      "max_abs": 11
+    },
+    "B-C-end-contain.png": {
+      "mae": 1.433433184821417,
+      "rmse": 1.6602432228212667,
+      "max_abs": 9
+    },
+    "B-C-start-contain.png": {
+      "mae": 1.4161540330312483,
+      "rmse": 1.6636260145049053,
+      "max_abs": 6
+    },
+    "C-D-end-contain.png": {
+      "mae": 1.487645818601443,
+      "rmse": 1.719336011194939,
+      "max_abs": 9
+    },
+    "C-D-start-contain.png": {
+      "mae": 1.433433184821417,
+      "rmse": 1.6602432228212667,
+      "max_abs": 9
+    },
+    "D-E-end-contain.png": {
+      "mae": 1.4855208111903078,
+      "rmse": 1.6996008874503952,
+      "max_abs": 8
+    },
+    "D-E-start-contain.png": {
+      "mae": 1.487645818601443,
+      "rmse": 1.719336011194939,
+      "max_abs": 9
+    },
+    "E-F-end-contain.png": {
+      "mae": 1.5305327919228027,
+      "rmse": 1.7442878996334585,
+      "max_abs": 10
+    },
+    "E-F-start-contain.png": {
+      "mae": 1.4855208111903078,
+      "rmse": 1.6996008874503952,
+      "max_abs": 8
+    }
+  }
+}
