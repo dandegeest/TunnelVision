@@ -73,13 +73,15 @@ Live development uses the Wardrobe Loop fixture to initialize Project
 state, including starting frame A with a trusted media identity. Plan
 starts unplanned beyond A; the Director's output becomes the planned
 continuation. The Director runtime resolves that identity from Project state; it does
-not independently substitute Wardrobe `A.jpg`. The filmmaker edits
-`Project.story` in Plan and can replace authoritative A with an
+not independently substitute Wardrobe `A.jpg`. The filmmaker's Plan composer is a temporary draft; accepted planning
+submissions update `Project.story` and append that exact text to
+conversation history. The filmmaker can replace authoritative A with an
 uploaded still. Uploaded A is session/dev-runtime trusted media, not
-durable project persistence. After planning, Construct on B builds
-that beat from A through image-conditioned edit and registers the
+durable project persistence. After planning, Construct builds the
+next planned beat from the preceding actual destination through
+image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
-C…N and video remain unwired. Wardrobe may still initialize the
+Later beats and video remain unwired until explicitly constructed. Wardrobe may still initialize the
 development project; after replacement, runtime Project A is
 authoritative. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).

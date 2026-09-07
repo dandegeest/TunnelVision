@@ -3,24 +3,26 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { clampZoom } from "../timeline/geometry";
-import {
-  directorPlanRequestFromProject,
-  requestDirectorPlan,
-  type DirectorEvidence,
-} from "./director";
+import { requestDirectorPlan } from "./director";
 import { projectWithReplacedStartImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
   requestConstructDestination,
   projectWithConstructedDestination,
   destinationConstructionRequestFromProject,
-  type DestinationConstructionEvidence,
 } from "./destination";
+import {
+  appendConversationEntry,
+  preparePlanSubmission,
+  resolveConstructionEntry,
+  type ConversationEntry,
+} from "./conversation";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
 
 type DirectorStatus = "idle" | "planning" | "ready" | "error";
@@ -38,20 +40,19 @@ type ProjectContextValue = {
   playing: boolean;
   setPlaying: (playing: boolean) => void;
   setAgency: (agency: Agency) => void;
-  setStory: (story: string) => void;
+  composerDraft: string;
+  setComposerDraft: (draft: string) => void;
+  conversation: ConversationEntry[];
   approveJourney: (journeyId: string) => void;
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
-  directorError: string | null;
-  directorEvidence: DirectorEvidence | null;
+  planStartError: string | null;
   planWithDirector: () => Promise<void>;
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceStartingImage: (file: File) => Promise<void>;
-  constructingB: boolean;
-  constructionError: string | null;
-  constructionEvidence: DestinationConstructionEvidence | null;
-  constructDestinationB: () => Promise<void>;
+  constructingBeatId: string | null;
+  constructDestination: (beatId: string) => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -59,9 +60,13 @@ const ProjectContext = createContext<ProjectContextValue | null>(null);
 export function ProjectProvider({
   children,
   initialProject,
+  initialConversation,
+  initialComposerDraft,
 }: {
   children: ReactNode;
   initialProject?: Project;
+  initialConversation?: ConversationEntry[];
+  initialComposerDraft?: string;
 }) {
   const [project, setProject] = useState(() => initialProject ?? createWardrobeProject());
   const [view, setViewState] = useState<WorkspaceView>("plan");
@@ -73,14 +78,22 @@ export function ProjectProvider({
   const [playheadTime, setPlayheadTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>("idle");
-  const [directorError, setDirectorError] = useState<string | null>(null);
-  const [directorEvidence, setDirectorEvidence] = useState<DirectorEvidence | null>(null);
+  const [planStartError, setPlanStartError] = useState<string | null>(null);
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
-  const [constructingB, setConstructingB] = useState(false);
-  const [constructionError, setConstructionError] = useState<string | null>(null);
-  const [constructionEvidence, setConstructionEvidence] =
-    useState<DestinationConstructionEvidence | null>(null);
+  const [constructingBeatId, setConstructingBeatId] = useState<string | null>(null);
+  const [composerDraft, setComposerDraft] = useState(
+    () => initialComposerDraft ?? (initialProject ?? createWardrobeProject()).story,
+  );
+  const [conversation, setConversation] = useState<ConversationEntry[]>(
+    () => initialConversation ?? [],
+  );
+  const conversationId = useRef(0);
+
+  const nextConversationId = useCallback((prefix: string) => {
+    conversationId.current += 1;
+    return `${prefix}-${conversationId.current}`;
+  }, []);
 
   const select = useCallback((next: Selection) => {
     setSelection(next);
@@ -101,10 +114,6 @@ export function ProjectProvider({
     setProject((current) => ({ ...current, agency }));
   }, []);
 
-  const setStory = useCallback((story: string) => {
-    setProject((current) => ({ ...current, story }));
-  }, []);
-
   const approveJourney = useCallback((journeyId: string) => {
     setProject((current) => ({
       ...current,
@@ -122,11 +131,7 @@ export function ProjectProvider({
     try {
       const uploaded = await uploadStartingFrame(file);
       setProject((current) => projectWithReplacedStartImage(current, uploaded));
-      setDirectorEvidence(null);
       setDirectorStatus("idle");
-      setDirectorError(null);
-      setConstructionEvidence(null);
-      setConstructionError(null);
       setSelection({ kind: "storyboard", frameId: "A" });
     } catch (error) {
       setStartingFrameError(error instanceof Error ? error.message : "Upload failed.");
@@ -135,11 +140,19 @@ export function ProjectProvider({
     }
   }, []);
 
-  const constructDestinationB = useCallback(async () => {
-    setConstructionError(null);
-    setConstructingB(true);
+  const constructDestination = useCallback(async (beatId: string) => {
+    const entryId = nextConversationId("construction");
+    setConstructingBeatId(beatId);
+    setConversation((entries) =>
+      appendConversationEntry(entries, {
+        id: entryId,
+        kind: "construction",
+        beatId,
+        status: "constructing",
+      }),
+    );
     try {
-      const request = destinationConstructionRequestFromProject(project);
+      const request = destinationConstructionRequestFromProject(project, beatId);
       const result = await requestConstructDestination(request);
       setProject((current) =>
         projectWithConstructedDestination(current, {
@@ -148,33 +161,66 @@ export function ProjectProvider({
           imageUrl: result.imageUrl,
         }),
       );
-      setConstructionEvidence(result.evidence);
+      setConversation((entries) =>
+        resolveConstructionEntry(entries, entryId, {
+          status: "constructed",
+          imageUrl: result.imageUrl,
+        }),
+      );
     } catch (error) {
-      setConstructionError(
-        error instanceof Error ? error.message : "Destination construction failed.",
+      setConversation((entries) =>
+        resolveConstructionEntry(entries, entryId, {
+          status: "failed",
+          error: error instanceof Error ? error.message : "Destination construction failed.",
+        }),
       );
     } finally {
-      setConstructingB(false);
+      setConstructingBeatId(null);
     }
-  }, [project]);
+  }, [nextConversationId, project]);
 
   const planWithDirector = useCallback(async () => {
+    const prepared = preparePlanSubmission(composerDraft, project);
+    if (!prepared.ok) {
+      if (prepared.reason === "invalid") {
+        setPlanStartError(prepared.message ?? "Director planning failed");
+      }
+      return;
+    }
+    setPlanStartError(null);
+    setComposerDraft("");
+    setProject((current) => ({ ...current, story: prepared.submitted }));
+    setConversation((entries) =>
+      appendConversationEntry(entries, {
+        id: nextConversationId("filmmaker"),
+        kind: "filmmaker",
+        text: prepared.submitted,
+      }),
+    );
+    setDirectorStatus("planning");
     try {
-      const request = directorPlanRequestFromProject(project);
-      setDirectorStatus("planning");
-      setDirectorError(null);
-      const result = await requestDirectorPlan(request);
+      const result = await requestDirectorPlan(prepared.request);
       setProject((current) => projectWithDirectorPlan(current, result.plan));
-      setDirectorEvidence(result.evidence);
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: nextConversationId("director"),
+          kind: "director",
+          evidence: result.evidence,
+        }),
+      );
       setDirectorStatus("ready");
-      setConstructionEvidence(null);
-      setConstructionError(null);
-      setSelection({ kind: "storyboard", frameId: request.startFrameId });
+      setSelection({ kind: "storyboard", frameId: prepared.request.startFrameId });
     } catch (error) {
       setDirectorStatus("error");
-      setDirectorError(error instanceof Error ? error.message : "Director planning failed");
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: nextConversationId("director"),
+          kind: "director",
+          error: error instanceof Error ? error.message : "Director planning failed",
+        }),
+      );
     }
-  }, [project.agency, project.story, project.storyboard]);
+  }, [composerDraft, nextConversationId, project]);
 
   const selectedJourney = useMemo(() => {
     if (selection.kind !== "journey") {
@@ -197,20 +243,19 @@ export function ProjectProvider({
       playing,
       setPlaying,
       setAgency,
-      setStory,
+      composerDraft,
+      setComposerDraft,
+      conversation,
       approveJourney,
       selectedJourney,
       directorStatus,
-      directorError,
-      directorEvidence,
+      planStartError,
       planWithDirector,
       startingFrameError,
       replacingStart,
       replaceStartingImage,
-      constructingB,
-      constructionError,
-      constructionEvidence,
-      constructDestinationB,
+      constructingBeatId,
+      constructDestination,
     }),
     [
       project,
@@ -223,20 +268,18 @@ export function ProjectProvider({
       playheadTime,
       playing,
       setAgency,
-      setStory,
+      composerDraft,
+      conversation,
       approveJourney,
       selectedJourney,
       directorStatus,
-      directorError,
-      directorEvidence,
+      planStartError,
       planWithDirector,
       startingFrameError,
       replacingStart,
       replaceStartingImage,
-      constructingB,
-      constructionError,
-      constructionEvidence,
-      constructDestinationB,
+      constructingBeatId,
+      constructDestination,
     ],
   );
 

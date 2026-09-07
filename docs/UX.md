@@ -3,9 +3,10 @@
 Product development has started. [`web/`](../web/) is a fixture-driven
 **Plan | Shoot** shell using Wardrobe Loop stills and videos. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
-After Plan Movie, the filmmaker can construct destination B from
-authoritative A through image-conditioned edit. C…N construction and
-video remain unwired.
+After Plan Movie, the filmmaker can construct the next planned
+destination from the immediately preceding actual destination through
+image-conditioned edit. Each construction is explicit. Video remains
+unwired.
 
 ## Primary interaction
 
@@ -15,17 +16,21 @@ deliberately no Edit workspace.
 
 **Current implementation:** Product Slice 3 Plan is a dominant
 storyboard grid plus Conversation. Send asks the Director to plan
-from the filmmaker story and starting frame; the composer edits that
-story and is not a chat. Planned beats start as FPO. Construct on B
-builds that beat from A through image-conditioned edit; C…N stay
-planned until later work. Shoot remains the Slice 1
+from the filmmaker story and starting frame; the composer is a temporary
+draft. Accepted Plan Movie submissions append that exact draft to
+conversation history, update `Project.story`, and clear the composer.
+Planned beats start as FPO and show the Director's current beat
+intent until an actual image exists. Construct builds
+the next planned beat from the preceding actual destination through
+image-conditioned edit; later beats stay planned until the filmmaker
+constructs them. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
 in this checkpoint. Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
-The filmmaker edits `Project.story` in Plan and can replace
+Accepted Plan submissions update `Project.story`. The filmmaker can replace
 authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
@@ -254,8 +259,9 @@ REGEN / REPAIR) is recorded in
 
 `web/` is a fixture shell. Plan is a storyboard plus an editable
 filmmaker story in the existing composer (uploaded A; continuation
-exists only after the Director plans). After planning, Construct on B
-invokes image-conditioned edit from A. Shoot uses Wardrobe
+exists only after the Director plans). After planning, Construct
+builds the next planned beat from the preceding actual destination.
+Shoot uses Wardrobe
 Loop vision JPEGs, playable A-B / B-C / D-E, C-D rendered but needs
 review, E-A not shootable. Video, Camotion, and Discovery remain
 unwired. Integration Test 01 already exercised the unattended

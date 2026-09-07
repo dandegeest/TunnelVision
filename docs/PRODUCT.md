@@ -68,17 +68,20 @@ disconnected workflows:
 **Current implementation:** Product Slice 3 adds a thin Director that
 turns the filmmaker story plus authoritative starting frame into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
-Replicate). The Plan composer edits `Project.story`; it is not a chat.
-Send asks the Director to plan from that story and starting frame.
-After planning, Construct on B builds that beat from authoritative A
-through image-conditioned edit (`ImageEditProvider` / FLUX Kontext
-Pro). C…N and video remain unwired. Shoot remains the Slice 1
+Replicate). The Plan composer is a temporary draft. Accepted Send / Plan Movie
+submissions append the exact draft to conversation history, update
+`Project.story`, and clear the composer. It is not a live display of
+current project story.
+After planning, Construct builds a planned beat from the immediately
+preceding actual destination through image-conditioned edit
+(`ImageEditProvider` / FLUX Kontext Pro). Later planned beats and
+video remain unwired until the filmmaker constructs them. Shoot remains the Slice 1
 Destinations / Journey timeline. Live development currently uses the
 Wardrobe Loop fixture to initialize Project state, including starting
 frame A with a trusted media identity. Plan starts unplanned beyond A;
 the Director's output becomes the planned continuation. The Director runtime resolves
 that identity from Project state; it does not independently substitute
-Wardrobe `A.jpg`. The filmmaker edits `Project.story` in Plan and can
+Wardrobe `A.jpg`. Accepted Plan submissions update `Project.story`. The filmmaker can
 replace authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
@@ -397,15 +400,15 @@ duration and destination pointing are later collaborative controls.
 
 **Current implementation:** Product Slice 3 is the current Plan | Shoot
 shell. Plan is conversation → storyboard; Send asks the Director to
-plan subsequent beats. After planning, Construct on B builds that
-beat from A through image-conditioned edit. C…N and video remain
-unwired. Shoot remains the Slice 1 Destinations /
+plan subsequent beats. After planning, Construct builds the next
+planned beat from the preceding actual destination. Later beats and
+video remain unwired until explicitly constructed. Shoot remains the Slice 1 Destinations /
 Journey timeline. Live development uses
 the Wardrobe Loop fixture to initialize Project state, including
 starting frame A with a trusted media identity. Plan starts unplanned
 beyond A; the Director's output becomes the planned continuation. The Director runtime
 resolves that identity from Project state; it does not independently
-substitute Wardrobe `A.jpg`. The filmmaker edits `Project.story` in
+substitute Wardrobe `A.jpg`. Accepted Plan submissions update `Project.story` in
 Plan and can replace authoritative A with an uploaded still.
 Uploaded A is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later

@@ -46,7 +46,7 @@ function statusForError(error: unknown): number {
     return 500;
   }
   const message = error instanceof Error ? error.message : "";
-  if (/only construct destination B|no trusted media identity|requires intent/i.test(message)) {
+  if (/not ready to construct|no trusted media identity|requires intent/i.test(message)) {
     return 400;
   }
   return 502;

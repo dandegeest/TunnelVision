@@ -240,13 +240,15 @@ current Project starting frame. The Wardrobe Loop fixture initializes
 that Project, including a trusted media identity for A. Plan starts
 unplanned beyond A; the Director's output becomes the planned
 continuation. The runtime
-does not independently substitute server-side `A.jpg`. The filmmaker
-edits `Project.story` in Plan and can replace authoritative A with an
+does not independently substitute server-side `A.jpg`. Accepted Plan
+submissions update `Project.story`. The filmmaker can replace authoritative A with an
 uploaded still. Uploaded A is session/dev-runtime trusted media, not
 durable project persistence. Wardrobe may still initialize the
 development project; after replacement, runtime Project A is
-authoritative. After Plan Movie, Construct on B builds that beat from
-A through image-conditioned edit. C…N and video remain unwired. Shoot
+authoritative. After Plan Movie, Construct builds the next planned
+beat from the preceding actual destination through image-conditioned
+edit. Later beats and video remain unwired until explicitly
+constructed. Shoot
 remains Destinations / Journey. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
 Director observation:

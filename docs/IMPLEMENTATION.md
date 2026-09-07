@@ -137,16 +137,19 @@ variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `media/README.md`. [`web/`](../web/) exists as the Product Slice 3
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. After planning,
-Construct on B builds that beat from authoritative A through
-`ImageEditProvider` (FLUX Kontext Pro). C…N and video remain unwired.
+Construct builds the next planned beat from the immediately preceding
+actual destination through
+`ImageEditProvider` (FLUX Kontext Pro). Later beats and video remain
+unwired until explicitly constructed.
 Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
 becomes the planned continuation. The Director runtime resolves that identity from
 Project state; it does not independently substitute Wardrobe `A.jpg`.
 The Director architecture
-accepts story plus `MediaInput`. The filmmaker edits `Project.story`
-in Plan and can replace authoritative A with an uploaded still.
+accepts story plus `MediaInput`. The Plan composer is a temporary draft;
+accepted planning submissions update `Project.story` and append that
+exact text to conversation history. The filmmaker can replace authoritative A with an uploaded still.
 Uploaded A is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
 be resolved as provider input. Wardrobe may still initialize the development project;

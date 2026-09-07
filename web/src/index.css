@@ -80,6 +80,111 @@ body,
   color: rgba(196, 190, 178, 0.42);
 }
 
+.storyboard-fpo-planned::after,
+.storyboard-fpo-cta::after,
+.storyboard-generating::after {
+  content: none;
+}
+
+.storyboard-fpo-planned {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.storyboard-fpo-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.7rem 0.8rem 0.35rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.storyboard-fpo-label {
+  flex: 0 0 auto;
+  font-size: 0.875rem;
+  letter-spacing: 0.22em;
+}
+
+.storyboard-fpo-intent {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  color: #cfc6b8;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.storyboard-fpo-action {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 0.75rem 0.8rem;
+}
+
+.storyboard-generating::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgba(236, 231, 223, 0.1) 50%,
+    transparent 75%
+  );
+  background-size: 220% 100%;
+  animation: storyboard-shimmer 1.8s ease-in-out infinite;
+}
+
+.storyboard-generating-label {
+  position: relative;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(196, 190, 178, 0.72);
+  animation: storyboard-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes storyboard-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes storyboard-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storyboard-generating::before,
+  .storyboard-generating-label {
+    animation: none;
+  }
+}
+
 body {
   background: #0c0b0a;
   color: #ece7df;

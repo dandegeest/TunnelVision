@@ -157,7 +157,61 @@ describe("destination construction server path", () => {
     ).rejects.toThrow(UntrustedMediaError);
   });
 
-  it("rejects construction of a beat other than B", async () => {
+  it("constructs C from resolved B runtime media, not A", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-c-src-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const sourceA = registry.register(PNG, "image/png");
+    const sourceB = registry.register(PNG, "image/png");
+    let edited: { sourcePath?: string; prompt?: string } = {};
+    const result = await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: sourceB.mediaId,
+        beatId: "C",
+        intent: "Follow a magma vein downward.",
+        visualDescription: "A jagged underground tunnel.",
+      },
+      editImage: async (request) => {
+        edited = {
+          sourcePath: request.sourceImage.kind === "file" ? request.sourceImage.path : undefined,
+          prompt: request.prompt,
+        };
+        return {
+          provider: "replicate",
+          model: "black-forest-labs/flux-kontext-pro",
+          modelVersion: "test",
+          predictionId: "pred-c",
+          status: "succeeded",
+          outputUrl: "https://example.test/c.png",
+          metadata: {},
+          startedAt: "2026-09-07T00:00:00.000Z",
+          completedAt: "2026-09-07T00:00:02.000Z",
+          elapsedMs: 2000,
+        };
+      },
+      fetchOutput: async (url) => {
+        expect(url).toBe("https://example.test/c.png");
+        return { bytes: PNG, contentType: "image/png" };
+      },
+    });
+    expect(edited.sourcePath).toBe(sourceB.filePath);
+    expect(edited.sourcePath).not.toBe(sourceA.filePath);
+    expect(edited.prompt).toBe(
+      destinationConstructionPrompt({
+        intent: "Follow a magma vein downward.",
+        visualDescription: "A jagged underground tunnel.",
+      }),
+    );
+    expect(result.mediaId).not.toBe(sourceA.mediaId);
+    expect(result.mediaId).not.toBe(sourceB.mediaId);
+    expect(registry.get(sourceB.mediaId)?.filePath).toBe(sourceB.filePath);
+    expect(resolveTrustedMedia(repoRoot, result.mediaId)).toEqual({
+      kind: "file",
+      path: registry.get(result.mediaId)?.filePath,
+    });
+  });
+
+  it("rejects a missing beat id", async () => {
     setActiveRuntimeMediaRegistry(
       createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-c-"))),
     );
@@ -166,7 +220,7 @@ describe("destination construction server path", () => {
         repoRoot,
         body: {
           sourceMediaId: "wardrobe-loop-vision-a",
-          beatId: "C",
+          beatId: "",
           intent: "Go forward.",
           visualDescription: "A doorway.",
         },
@@ -174,6 +228,6 @@ describe("destination construction server path", () => {
           throw new Error("editImage should not run");
         },
       }),
-    ).rejects.toThrow(/only construct destination B/i);
+    ).rejects.toThrow(/not ready to construct/i);
   });
 });

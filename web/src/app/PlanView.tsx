@@ -1,7 +1,10 @@
-import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useProject } from "../project/ProjectProvider";
+import type { ConversationEntry } from "../project/conversation";
+import type { DirectorEvidence } from "../project/director";
 import { canConstructDestinationFrame } from "../project/destination";
 import { isAuthoritativeStartingFrame, STARTING_FRAME_ACCEPT } from "../project/starting-frame";
+import type { StoryboardFrame } from "../project/types";
 
 const STORY_WIDTH_DEFAULT = 328;
 const STORY_WIDTH_MIN = 260;
@@ -16,31 +19,181 @@ function clampStoryWidth(width: number, containerWidth: number) {
   return Math.min(max, Math.max(STORY_WIDTH_MIN, width));
 }
 
+export function StoryboardFrameMedia({
+  frame,
+  selected,
+  constructing,
+  canConstruct,
+  constructDisabled,
+  onSelect,
+  onConstruct,
+}: {
+  frame: StoryboardFrame;
+  selected: boolean;
+  constructing: boolean;
+  canConstruct: boolean;
+  constructDisabled: boolean;
+  onSelect?: () => void;
+  onConstruct: () => void;
+}) {
+  const frameBorder = selected
+    ? "border-2 border-[#ece7df]"
+    : "border-2 border-[#3a342c]";
+
+  return (
+    <span className={`block aspect-video w-full overflow-hidden ${frameBorder}`}>
+      {frame.image ? (
+        <img src={frame.image} alt="" className="block h-full w-full object-cover" />
+      ) : (
+        <span
+          className={`storyboard-fpo storyboard-fpo-planned${canConstruct && !constructing ? " storyboard-fpo-cta" : ""}${constructing ? " storyboard-generating" : ""}`}
+          aria-busy={constructing || undefined}
+        >
+          <button
+            type="button"
+            className="storyboard-fpo-copy outline-none"
+            onClick={onSelect}
+            aria-label={`Storyboard ${frame.label}`}
+            aria-pressed={selected}
+          >
+            <span className="storyboard-fpo-label">{frame.label}</span>
+            {frame.intent ? <span className="storyboard-fpo-intent">{frame.intent}</span> : null}
+          </button>
+          {constructing ? (
+            <span
+              className="storyboard-fpo-action"
+              role="status"
+              aria-label={`Generating destination ${frame.id}`}
+            >
+              <span className="storyboard-generating-label">Generating…</span>
+            </span>
+          ) : canConstruct ? (
+            <span className="storyboard-fpo-action">
+              <button
+                type="button"
+                disabled={constructDisabled}
+                aria-label={`Construct destination ${frame.id}`}
+                title="Construct this destination from the previous actual frame."
+                onClick={onConstruct}
+                className="rounded bg-[#ece7df] px-3 py-1.5 text-[11px] tracking-[0.22em] text-[#0c0b0a] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                CONSTRUCT
+              </button>
+            </span>
+          ) : null}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function DirectorEvidenceDetails({ evidence }: { evidence: DirectorEvidence }) {
+  return (
+    <details className="text-xs text-[#9a8f7e]">
+      <summary className="cursor-pointer tracking-[0.16em] uppercase">Director</summary>
+      <div className="mt-2 space-y-2 leading-relaxed">
+        {evidence.model ? <p>Model: {evidence.model}</p> : null}
+        {evidence.predictionId ? <p>Prediction: {evidence.predictionId}</p> : null}
+        <p>Elapsed: {evidence.elapsedMs}ms</p>
+        <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-[#cfc6b8]">
+          {JSON.stringify(
+            {
+              request: evidence.request,
+              rawText: evidence.rawText,
+            },
+            null,
+            2,
+          )}
+        </pre>
+      </div>
+    </details>
+  );
+}
+
+function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
+  if (entry.kind === "filmmaker") {
+    return (
+      <article>
+        <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Filmmaker</p>
+        <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">{entry.text}</p>
+      </article>
+    );
+  }
+  if (entry.kind === "director") {
+    return (
+      <article>
+        {entry.error ? (
+          <>
+            <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Director</p>
+            <p className="mt-2 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+              {entry.error}
+            </p>
+          </>
+        ) : entry.evidence ? (
+          <DirectorEvidenceDetails evidence={entry.evidence} />
+        ) : null}
+      </article>
+    );
+  }
+  return (
+    <article>
+      {entry.status === "constructing" ? (
+        <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+          Constructing {entry.beatId}…
+        </p>
+      ) : null}
+      {entry.status === "constructed" ? (
+        <>
+          <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            Constructed {entry.beatId}
+          </p>
+          {entry.imageUrl ? (
+            <img src={entry.imageUrl} alt="" className="mt-2 aspect-video w-full object-cover" />
+          ) : null}
+        </>
+      ) : null}
+      {entry.status === "failed" ? (
+        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+          {entry.error}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
 export function PlanView() {
   const {
     project,
     selection,
     select,
-    setStory,
+    composerDraft,
+    setComposerDraft,
+    conversation,
     directorStatus,
-    directorError,
-    directorEvidence,
+    planStartError,
     planWithDirector,
     startingFrameError,
     replacingStart,
     replaceStartingImage,
-    constructingB,
-    constructionError,
-    constructionEvidence,
-    constructDestinationB,
+    constructingBeatId,
+    constructDestination,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
-  const canPlan = Boolean(project.story.trim()) && !planning;
+  const canPlan = Boolean(composerDraft.trim()) && !planning;
   const frameRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [storyWidth, setStoryWidth] = useState(STORY_WIDTH_DEFAULT);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (!thread) {
+      return;
+    }
+    thread.scrollTop = thread.scrollHeight;
+  }, [conversation]);
 
   const containerWidth = () => frameRef.current?.getBoundingClientRect().width ?? 1200;
 
@@ -85,67 +238,22 @@ export function PlanView() {
         <p className="flex-none px-4 pt-5 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">
           Story
         </p>
-        <div className="min-h-0 flex-1 overflow-auto px-4 py-4">
+        <div ref={threadRef} className="min-h-0 flex-1 overflow-auto px-4 py-4">
           {startingFrameError ? (
             <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
               {startingFrameError}
             </p>
           ) : null}
-          {directorError ? (
-            <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-              {directorError}
-            </p>
-          ) : null}
-          {constructionError ? (
+          {planStartError ? (
             <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-              {constructionError}
+              {planStartError}
             </p>
           ) : null}
-          {constructionEvidence ? (
-            <details className="border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]">
-              <summary className="cursor-pointer tracking-[0.16em] uppercase">Construct B</summary>
-              <div className="mt-2 space-y-2 leading-relaxed">
-                {constructionEvidence.model ? <p>Model: {constructionEvidence.model}</p> : null}
-                {constructionEvidence.predictionId ? (
-                  <p>Prediction: {constructionEvidence.predictionId}</p>
-                ) : null}
-                <p>Elapsed: {constructionEvidence.elapsedMs}ms</p>
-                <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-[#cfc6b8]">
-                  {JSON.stringify(
-                    {
-                      request: constructionEvidence.request,
-                      outputMediaId: constructionEvidence.outputMediaId,
-                      outputUrl: constructionEvidence.outputUrl,
-                    },
-                    null,
-                    2,
-                  )}
-                </pre>
-              </div>
-            </details>
-          ) : null}
-          {directorEvidence ? (
-            <details className="border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]">
-              <summary className="cursor-pointer tracking-[0.16em] uppercase">Director</summary>
-              <div className="mt-2 space-y-2 leading-relaxed">
-                {directorEvidence.model ? <p>Model: {directorEvidence.model}</p> : null}
-                {directorEvidence.predictionId ? (
-                  <p>Prediction: {directorEvidence.predictionId}</p>
-                ) : null}
-                <p>Elapsed: {directorEvidence.elapsedMs}ms</p>
-                <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-[#cfc6b8]">
-                  {JSON.stringify(
-                    {
-                      request: directorEvidence.request,
-                      rawText: directorEvidence.rawText,
-                    },
-                    null,
-                    2,
-                  )}
-                </pre>
-              </div>
-            </details>
-          ) : null}
+          <div className="flex flex-col gap-4">
+            {conversation.map((entry) => (
+              <ConversationEntryView key={entry.id} entry={entry} />
+            ))}
+          </div>
         </div>
         <div className="flex-none border-t border-[#2a2620] px-4 py-3">
           <label className="sr-only" htmlFor="plan-composer">
@@ -155,11 +263,11 @@ export function PlanView() {
             <textarea
               id="plan-composer"
               rows={7}
-              value={project.story}
+              value={composerDraft}
               placeholder="Describe the movie…"
               aria-label="Movie"
               className="h-[10.5rem] min-h-[8.75rem] max-h-[12.5rem] min-w-0 flex-1 resize-y overflow-auto bg-transparent text-[15px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
-              onChange={(event) => setStory(event.target.value)}
+              onChange={(event) => setComposerDraft(event.target.value)}
             />
             <button
               type="button"
@@ -191,11 +299,6 @@ export function PlanView() {
           {replacingStart ? (
             <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
               Uploading…
-            </p>
-          ) : null}
-          {constructingB ? (
-            <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-              Constructing…
             </p>
           ) : null}
         </div>
@@ -236,35 +339,53 @@ export function PlanView() {
         <ol className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7">
           {project.storyboard.map((frame) => {
             const selectedCard = frame.id === selectedId;
-            const frameBorder = selectedCard
-              ? "border-2 border-[#ece7df]"
-              : "border-2 border-[#3a342c]";
+            const canConstruct = canConstructDestinationFrame(project, frame);
+            const constructing = constructingBeatId === frame.id;
+            const frameMedia = (
+              <StoryboardFrameMedia
+                frame={frame}
+                selected={selectedCard}
+                constructing={constructing}
+                canConstruct={canConstruct}
+                constructDisabled={Boolean(constructingBeatId) || planning}
+                onSelect={() => select({ kind: "storyboard", frameId: frame.id })}
+                onConstruct={() => {
+                  select({ kind: "storyboard", frameId: frame.id });
+                  void constructDestination(frame.id);
+                }}
+              />
+            );
+            const frameCopy = (
+              <>
+                <span className="mt-2 flex items-baseline justify-between gap-2">
+                  <span className="text-sm tracking-[0.22em]">{frame.label}</span>
+                  {frame.imageOrigin === "user" ? (
+                    <span className="text-[10px] font-medium tracking-[0.14em] text-[#d4cdc2] uppercase">
+                      Uploaded
+                    </span>
+                  ) : null}
+                </span>
+                <span className="mt-1 block text-sm leading-snug text-[#cfc6b8]">{frame.intent}</span>
+              </>
+            );
             return (
               <li key={frame.id} className="min-w-0">
-                <button
-                  type="button"
-                  className={`w-full text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
-                  onClick={() => select({ kind: "storyboard", frameId: frame.id })}
-                  aria-label={`Storyboard ${frame.label}`}
-                  aria-pressed={selectedCard}
-                >
-                  <span className={`block aspect-video w-full overflow-hidden ${frameBorder}`}>
-                    {frame.image ? (
-                      <img src={frame.image} alt="" className="block h-full w-full object-cover" />
-                    ) : (
-                      <span className="storyboard-fpo" aria-hidden />
-                    )}
-                  </span>
-                  <span className="mt-2 flex items-baseline justify-between gap-2">
-                    <span className="text-sm tracking-[0.22em]">{frame.label}</span>
-                    {frame.imageOrigin === "user" ? (
-                      <span className="text-[10px] font-medium tracking-[0.14em] text-[#d4cdc2] uppercase">
-                        Uploaded
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="mt-1 block text-sm leading-snug text-[#cfc6b8]">{frame.intent}</span>
-                </button>
+                {frame.image ? (
+                  <button
+                    type="button"
+                    className={`w-full text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
+                    onClick={() => select({ kind: "storyboard", frameId: frame.id })}
+                    aria-label={`Storyboard ${frame.label}`}
+                    aria-pressed={selectedCard}
+                  >
+                    {frameMedia}
+                    {frameCopy}
+                  </button>
+                ) : (
+                  <div className={`w-full text-left ${selectedCard ? "" : "opacity-90"}`}>
+                    {frameMedia}
+                  </div>
+                )}
                 {isAuthoritativeStartingFrame(frame) ? (
                   <button
                     type="button"
@@ -273,20 +394,6 @@ export function PlanView() {
                     className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase disabled:cursor-not-allowed"
                   >
                     Replace image
-                  </button>
-                ) : null}
-                {canConstructDestinationFrame(project, frame) ? (
-                  <button
-                    type="button"
-                    disabled={constructingB || planning}
-                    aria-label="Construct destination B"
-                    title="Construct destination B from the starting frame."
-                    onClick={() => {
-                      void constructDestinationB();
-                    }}
-                    className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase disabled:cursor-not-allowed"
-                  >
-                    Construct
                   </button>
                 ) : null}
               </li>

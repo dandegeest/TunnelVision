@@ -1,14 +1,10 @@
-import { authoritativeStartFrame } from "./director";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
 import type { Project, StoryboardFrame } from "./types";
 
-/** This PR constructs only the first planned beat. */
-export const CONSTRUCTIBLE_BEAT_ID = "B";
-
 export type DestinationConstructionRequest = {
   sourceMediaId: string;
-  beatId: typeof CONSTRUCTIBLE_BEAT_ID;
+  beatId: string;
   intent: string;
   visualDescription: string;
 };
@@ -38,6 +34,18 @@ export type DestinationConstructionResponse = DestinationConstructionResult & {
   evidence: DestinationConstructionEvidence;
 };
 
+function isActualTrustedFrame(frame: StoryboardFrame | undefined): frame is StoryboardFrame & {
+  mediaId: string;
+} {
+  if (!frame) {
+    return false;
+  }
+  return (
+    (frame.imageOrigin === "user" || frame.imageOrigin === "generated") &&
+    isTrustedMediaIdShape(frame.mediaId)
+  );
+}
+
 /**
  * Provider-neutral destination-construction prompt. Spatial intent and the
  * resulting viewpoint are both required. Not a shooting-geometry prompt.
@@ -64,40 +72,43 @@ export function destinationConstructionPrompt(input: {
   ].join("\n");
 }
 
-export function plannedConstructibleBeat(project: Project): StoryboardFrame | undefined {
-  return project.storyboard.find((frame) => frame.id === CONSTRUCTIBLE_BEAT_ID);
+/** Immediately preceding actual destination. Construction of N uses N-1. */
+export function precedingActualFrame(
+  project: Project,
+  frame: StoryboardFrame,
+): (StoryboardFrame & { mediaId: string }) | undefined {
+  const index = project.storyboard.findIndex((item) => item.id === frame.id);
+  if (index <= 0) {
+    return undefined;
+  }
+  const previous = project.storyboard[index - 1];
+  return isActualTrustedFrame(previous) ? previous : undefined;
 }
 
 export function canConstructDestinationFrame(project: Project, frame: StoryboardFrame): boolean {
-  if (frame.id !== CONSTRUCTIBLE_BEAT_ID) {
-    return false;
-  }
   if (frame.imageOrigin !== "none" || frame.image) {
     return false;
   }
   if (!frame.intent?.trim() || !frame.visualDescription?.trim()) {
     return false;
   }
-  const start = authoritativeStartFrame(project);
-  return isTrustedMediaIdShape(start?.mediaId);
+  return Boolean(precedingActualFrame(project, frame));
 }
 
 export function destinationConstructionRequestFromProject(
   project: Project,
+  beatId: string,
 ): DestinationConstructionRequest {
-  const start = authoritativeStartFrame(project);
-  if (!start || !isTrustedMediaIdShape(start.mediaId)) {
-    throw new Error("Starting frame has no trusted media identity");
-  }
-  const beat = plannedConstructibleBeat(project);
+  const beat = project.storyboard.find((frame) => frame.id === beatId);
   const intent = beat?.intent?.trim() ?? "";
   const visualDescription = beat?.visualDescription?.trim() ?? "";
-  if (!beat || !canConstructDestinationFrame(project, beat) || !intent || !visualDescription) {
-    throw new Error("Destination B is not ready to construct");
+  const previous = beat ? precedingActualFrame(project, beat) : undefined;
+  if (!beat || !previous || !canConstructDestinationFrame(project, beat) || !intent || !visualDescription) {
+    throw new Error("Destination is not ready to construct");
   }
   return {
-    sourceMediaId: start.mediaId,
-    beatId: CONSTRUCTIBLE_BEAT_ID,
+    sourceMediaId: previous.mediaId,
+    beatId: beat.id,
     intent,
     visualDescription,
   };
@@ -119,26 +130,27 @@ export function parseDestinationConstructionResult(body: unknown): DestinationCo
 }
 
 /**
- * Apply a constructed still to planned B. Preserves A, C...N, story, and Shoot.
+ * Apply a constructed still to a planned beat. Preserves other beats, story,
+ * and Shoot.
  */
 export function projectWithConstructedDestination(
   project: Project,
   next: DestinationConstructionResult & { beatId: string },
 ): Project {
-  if (next.beatId !== CONSTRUCTIBLE_BEAT_ID) {
-    throw new Error("This slice can only construct destination B");
-  }
   if (!isTrustedMediaIdShape(next.mediaId)) {
     throw new Error("Constructed destination has no trusted media identity");
   }
-  const beat = plannedConstructibleBeat(project);
+  const beat = project.storyboard.find((frame) => frame.id === next.beatId);
   if (!beat || beat.imageOrigin !== "none") {
-    throw new Error("Destination B is not a planned beat");
+    throw new Error("Destination is not a planned beat");
+  }
+  if (!precedingActualFrame(project, beat)) {
+    throw new Error("Destination is not ready to construct");
   }
   return {
     ...project,
     storyboard: project.storyboard.map((frame) =>
-      frame.id === CONSTRUCTIBLE_BEAT_ID
+      frame.id === next.beatId
         ? {
             ...frame,
             image: next.imageUrl,

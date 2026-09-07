@@ -1,5 +1,5 @@
 import type { GeneratedImage, ImageEditRequest } from "../media/src/types.ts";
-import { destinationConstructionPrompt, CONSTRUCTIBLE_BEAT_ID } from "./src/project/destination.ts";
+import { destinationConstructionPrompt } from "./src/project/destination.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
 
@@ -52,8 +52,8 @@ export async function constructDestinationImage(input: {
   };
 }> {
   const beatId = typeof input.body.beatId === "string" ? input.body.beatId.trim() : "";
-  if (beatId !== CONSTRUCTIBLE_BEAT_ID) {
-    throw new Error("This slice can only construct destination B");
+  if (!/^[A-Z]+$/.test(beatId)) {
+    throw new Error("Destination is not ready to construct");
   }
   const sourceMediaId =
     typeof input.body.sourceMediaId === "string" ? input.body.sourceMediaId.trim() : "";
