@@ -47,6 +47,16 @@ become visible before source worlds disappear, camera orientation,
 loop closure, choreography, and intermediate spatial positions when
 genuinely needed.
 
+A semantic/spatial plan is **not** proof that generated sets will be
+physically shootable. Destination construction (Provided / Generated /
+Derived / later Discovered) creates the actual set. Those are
+construction strategies, not four global movie modes, and they are
+orthogonal to Directed vs Autonomous agency. Do not encode all four
+in a product schema yet. Current Plan Construct is sequential Derived
+from the immediately preceding actual destination. Independent
+generation remains a valid strategy; previous-frame conditioning is
+not mandatory.
+
 Plan operates at Director level. The Director may specify semantic
 spatial intent ("Approach the house and enter through the illuminated
 second-story bedroom window") without pretending to know exact screen
@@ -81,10 +91,12 @@ durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
-Later beats and video remain unwired until explicitly constructed. Wardrobe may still initialize the
+Video remains unwired in the product. Wardrobe may still initialize the
 development project; after replacement, runtime Project A is
 authoritative. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+Forest A→F continuity evidence:
+[genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now.
@@ -106,8 +118,22 @@ a stable locomotion template, and evaluate actual traversal.
 Do **not** generate the final Cinematographer plan during Plan /
 Storyboard. Architecture:
 
-intent first → actual generated set second → physical shooting
-solution third
+intent first → destination construction → actual generated set →
+physical shooting solution
+
+The next research question is: **how should the Cinematographer
+reason about actual adjacent sets before attempting to shoot them?**
+Relevant evidence suggests CM may eventually need to inspect route /
+traversable corridor, foreground geometry, destination visibility,
+occlusions, threshold correspondence, vanishing point / forward
+geometry, whether an obstacle must be passed beside rather than flown
+through, whether current Camotion vocabulary is appropriate for that
+set, whether an intermediate destination/set is required, and whether
+the pair is simply not shootable as currently constructed.
+
+Do not introduce a Cinematographer schema, UI, or implementation from
+this question. Agent reasons. CV observes / measures. Camotion
+renders. Video model films.
 
 Do not move CM reasoning prematurely into Plan just because
 storyboard images exist.
@@ -195,6 +221,11 @@ Phase 1 shootability evidence, **not a generalized production loop**:
 Remaining cinematographer questions, still not implemented as product
 behavior:
 
+-   How to reason about **actual adjacent sets** before shooting
+    (next frontier; list above; no schema yet).
+-   Whether / how to apply current Camotion vocabulary to a given
+    actual set, including open-void / non-corridor geometry.
+-   Start-frame authority vs endpoint attraction (forest C→D).
 -   Canonical review before expensive video: PASS / REGEN / REPAIR.
     Guideline: regeneration preserves exploration; editing preserves
     composition. Review + shot planning may later share one reasoning
@@ -205,6 +236,8 @@ behavior:
 -   Evaluate **spatial continuity** (connected intermediate space vs
     cut/dissolve/replacement) separately from **temporal continuity**
     (motion carrying through B vs easing/stopping at B).
+    Visual / world continuity is not spatial traversability, and
+    neither alone proves continuous camera travel.
 
 ## Camotion Engine
 
@@ -220,6 +253,25 @@ language as complementary Phase 1 inputs. A later three-pair
 scene-aware strength experiment preferred bounded per-canonical
 selection from `{0.02, 0.04, 0.08}` over fixed `0.08`. Camotion
 Phase 1 is frozen.
+
+A later forest A→F evidence spike
+(`camotion/integration/forest-a-to-f/`) applied pinned 01.8
+radial-forward Camotion to recursively Derived stills. That is not
+a retune and not a product Render Movie feature. Radial-forward
+Camotion can help forward / corridor-like geometry (A→B locomotion;
+D→E threshold grammar). The same operator is not necessarily
+appropriate for every canonical: E→F open-void geometry plus
+radial-forward conditioning read as warp rather than traversal.
+Stronger apparent motion is not automatically better spatial travel.
+Do **not** conclude that Camotion failed. 01.12 still stands:
+Camotion has reached the useful limit of encoding substantial camera
+travel by smearing the scene itself into A′ under the currently
+tested baked-exposure family. Whether some repeated-object artifacts
+are inherent to baked exposure or partly caused by approximating
+Photoshop Radial Blur / Zoom remains a later operator-equivalence
+question, not a current Camotion task. CM may eventually decide
+whether / how Camotion should be applied to an actual set. Do not
+implement that decision now.
 
 The frozen v1 **plan** contract is `image + CameraMotionPlan JSON` and
 emits one shooting-frame still. See [DATA_MODEL.md](DATA_MODEL.md).

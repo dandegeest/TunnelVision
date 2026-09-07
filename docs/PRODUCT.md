@@ -74,8 +74,9 @@ submissions append the exact draft to conversation history, update
 current project story.
 After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned edit
-(`ImageEditProvider` / FLUX Kontext Pro). Later planned beats and
-video remain unwired until the filmmaker constructs them. Shoot remains the Slice 1
+(`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
+planned until the filmmaker constructs them. Video remains unwired in
+the product. Shoot remains the Slice 1
 Destinations / Journey timeline. Live development currently uses the
 Wardrobe Loop fixture to initialize Project state, including starting
 frame A with a trusted media identity. Plan starts unplanned beyond A;
@@ -92,6 +93,8 @@ First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+Forest A→F Camotion continuity evidence:
+[genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 
 ## Plan is a conversational storyboard
 
@@ -127,12 +130,16 @@ intent. They are **not** canonical Destinations, production sets,
 Camotion inputs, final frames, or evidence that the generated world
 has that geometry.
 
-Conceptual pipeline, **not current wiring**:
+Conceptual pipeline, **not current video wiring**:
 
 Plan conversation → Director shot / destination intent → provisional
-storyboard visualization → production canonical generation →
-Cinematographer inspects the actual generated set → physical shooting
-plan → Camotion → Journey generation
+storyboard visualization → destination construction (Provided /
+Generated / Derived / later Discovered) → actual generated set →
+Cinematographer inspects that set → physical shooting plan →
+Camotion → Journey generation
+
+Do not treat "production canonical generation" as a requirement that
+every destination be independently generated.
 
 ### Storyboard visual language
 
@@ -186,6 +193,52 @@ visible before the current world disappears. Open doors, arches,
 tunnels, windows, cave mouths, gaps, and paths around corners are
 potentially spatial handoff mechanisms, not rigid generation rules.
 
+Recent Director runs show useful spatial verbs and
+threshold-oriented planning. A semantic/spatial plan is **not** proof
+that generated sets will be physically shootable.
+
+### Destination construction
+
+A destination can enter the journey through multiple construction
+strategies:
+
+-   **Provided** — filmmaker-supplied still. Current starting-frame
+    upload is the implemented case; it is session/dev-runtime trusted
+    media, not durable project persistence.
+-   **Generated** — independent image generation from a description.
+    Integration Test 01 Wardrobe Loop canonicals were generated this
+    way.
+-   **Derived** — image-conditioned construction from an actual
+    previous destination. Current Plan Construct is this path
+    (FLUX Kontext Pro). First hop:
+    [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+    Sequential chain frozen as forest A–F canonicals in
+    `camotion/integration/forest-a-to-f/`.
+-   **Discovered** — eventual observation from traversal / exploration.
+    Not implemented.
+
+These are construction strategies, **not** four global movie modes.
+Destination provenance belongs to the frame. Destination construction
+strategy belongs to the segment. Directed vs Autonomous remains an
+orthogonal question of agency. Do **not** encode all four in the
+product schema yet.
+
+Current Construct is sequential Derived: destination N is built from
+the immediately preceding actual destination, not independently from
+A. Previous-frame conditioning is one strategy, not a mandatory rule
+for every destination. Wardrobe Loop remains evidence that independent
+generation can also produce a journey.
+
+Sequential Derived construction has shown that the actual previous
+canonical can successfully condition the next destination, local
+world/material continuity can remain strong, and large visual
+transformation can still accumulate across several destinations.
+Generated reality can diverge from the Director's original open-loop
+plan; later Derived destinations may follow the actual generated world
+more strongly than the original planned description. Staged visual /
+spatial bridge states remain a **research hypothesis**, not a
+guaranteed rule.
+
 ### Cinematographer
 
 Decides **how to physically get there on camera** after the actual
@@ -230,13 +283,22 @@ camera travel. **Camotion Phase 1 is frozen.** Do not claim `0.02`
 is globally best or that `0.08` is obsolete.
 
 The Cinematographer also inspects **actual generated sets** before
-expensive video. A destination object is not enough; the shot needs
-traversable depth through the transition. Semantic compatibility
+expensive video — not merely the Director's intended descriptions.
+A destination object is not enough; the shot needs traversable
+depth through the transition. Semantic compatibility
 between endpoints is not sufficient: shootability includes traversable
 volume, threshold depth, camera position **and orientation**, and a
-physically plausible route between observations. A proposed
-intermediate canonical is not automatically accepted merely because
-an agent requested it. Generation builds the set; the Cinematographer
+physically plausible route between observations. A visually coherent
+pair of destination stills can still be difficult or impossible to
+traverse physically.
+
+The next research question is how the Cinematographer should reason
+about actual adjacent sets before attempting to shoot them. Do not
+implement that solution, schema, or UI yet. See
+[AGENTS.md](AGENTS.md) and [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
+
+A proposed intermediate canonical is not automatically accepted merely
+because an agent requested it. Generation builds the set; the Cinematographer
 walks onto the actual result; if the geometry is not shootable, reject
 it and return upstream rather than forcing video.
 
@@ -305,8 +367,11 @@ or AI upscaling of adjacent clips is not Phase 1. See
     modes use the same Director loop.
 -   **Selection is prompting.** Selected pixels become the next
     reference and propagate preferences.
--   **Visual continuity is not traversability.** Camera displacement and
-    spatial reachability must be evaluated explicitly.
+-   **Visual / world continuity is not spatial traversability**, and
+    neither alone proves **continuous camera travel**. Camera
+    displacement and spatial reachability must be evaluated
+    explicitly. A recursively constructed storyboard can be
+    directionally coherent and still fail as physical traversal.
 -   **Locomotion outranks destination matching.** Morphing/dissolving to
     the endpoint is failure.
 -   **Shootability is physical, not merely semantic.** Compatible
@@ -402,9 +467,13 @@ duration and destination pointing are later collaborative controls.
 shell. Plan is conversation → storyboard; Send asks the Director to
 plan subsequent beats. After planning, Construct builds the next
 planned beat from the preceding actual destination. Later beats and
-video remain unwired until explicitly constructed. A forest A→F
+video remain unwired in the product until later slices. A forest A→F
 research spike assembled a review movie outside the product UI; do
-not treat that as a Render Movie feature. Shoot remains the Slice 1 Destinations /
+not treat that as a Render Movie feature. That spike showed a
+directionally coherent 30-second journey
+(forest → mouth → tube → crystal → portal → void) whose destination /
+world continuity did **not** automatically produce physical traversal
+continuity. See [ARCHITECTURE.md](ARCHITECTURE.md). Shoot remains the Slice 1 Destinations /
 Journey timeline. Live development uses
 the Wardrobe Loop fixture to initialize Project state, including
 starting frame A with a trusted media identity. Plan starts unplanned
@@ -422,6 +491,8 @@ Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+Forest A→F Camotion continuity evidence:
+[genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

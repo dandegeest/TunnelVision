@@ -13,6 +13,72 @@ Authoritative current-code facts live in
 prompt-control evidence is recorded there. This file keeps
 brainstorms from derailing Camotion work.
 
+## Open research questions
+
+Not a roadmap. Not schemas. Not UI. Do not implement from this list.
+
+**Next major question:** How should the Cinematographer reason about
+actual adjacent sets before attempting to shoot them?
+
+Relevant inspection concerns, from evidence, not a CM contract:
+
+-   route / traversable corridor
+-   foreground geometry
+-   destination visibility
+-   occlusions
+-   threshold correspondence
+-   vanishing point / forward geometry
+-   whether an obstacle must be passed beside rather than flown through
+-   whether current Camotion vocabulary is appropriate for that set
+-   whether an intermediate destination/set is required
+-   whether the pair is simply not shootable as currently constructed
+
+Agent reasons. CV observes / measures. Camotion renders. Video model
+films.
+
+Other visible questions:
+
+-   **Open-void / non-corridor motion strategy.** Forest E→F showed
+    radial-forward Camotion on open-void geometry reading as warp
+    rather than traversal. Do not reopen Camotion parameter tuning.
+-   **Start-frame authority / endpoint attraction.** Forest C→D showed
+    weak start authority and early destination pull. One pair; not a
+    universal claim.
+-   **Staged transformation / bridge-state hypothesis.** Large
+    Director-planned spatial moves may need intermediate Derived
+    destinations. Hypothesis only. See the Derived section below.
+-   **Director reconciliation with generated reality.** Later Derived
+    destinations may follow the actual generated world more strongly
+    than the original open-loop plan. When and how should the Director
+    replan against actual sets?
+-   **Generated vs Derived strategy selection.** Sequential Derived is
+    demonstrated; independent Generated remains valid Wardrobe
+    evidence. Previous-frame conditioning is not mandatory. How to
+    choose is unvalidated.
+-   **Terran Photoshop / operator-equivalence comparison.** Whether
+    some repeated-object artifacts are inherent to baked exposure or
+    partly caused by approximating Photoshop Radial Blur / Zoom.
+    Separate from 01.12. Do not reopen now.
+-   **Veo 3.1 Fast controlled provider benchmark.** Unrun.
+-   **User-provided frame workflow.** Session/dev upload of starting
+    frame A exists. Durable persistence, Provided destinations beyond
+    A, and Shoot-side provided frames remain later.
+-   **Eventual Discovery workflow.** See GWM Worlds 2 notes below.
+    Hypothetical only.
+-   **Storyboard visualization A/B spike.** Low priority. Do not
+    promote into the product roadmap.
+
+Resolved enough to stop treating as open:
+
+-   Sequential image-conditioned construction from the actual previous
+    canonical can propagate local world/material continuity (first hop:
+    genesis 13; sequential chain: forest A–F canonicals). That does
+    not make Derived the only strategy, and it is not shootability
+    proof.
+-   Visual / world continuity is not spatial traversability, and
+    neither alone proves continuous camera travel (forest A→F moving
+    film).
+
 ## Conditioning-channel hypothesis
 
 Different cinematographic controls may ultimately require different
@@ -226,11 +292,14 @@ exposure-operator tuning branch. No 01.12 condition is promoted.
 Camotion communicate useful camera direction/motion to the video
 model without integrating a long trajectory of recognizable scene
 structure into a single shooting frame? This question is **above**
-the current baked-exposure primitive. Do not choose or implement a
-replacement mechanism yet. Do not prematurely promote motion fields,
-auxiliary conditioning, overlays, multiple frames, or another
-specific representation into the architecture. Do **not** call any
-next Camotion experiment 01.13. **Camotion Phase 1 is frozen.**
+the current baked-exposure primitive. A related, separate later
+question is whether some repeated-object artifacts are inherent to
+baked exposure or partly caused by approximating Photoshop Radial
+Blur / Zoom. Do not reopen operator-equivalence now. Do not choose
+or implement a replacement mechanism yet. Do not prematurely promote
+motion fields, auxiliary conditioning, overlays, multiple frames, or
+another specific representation into the architecture. Do **not**
+call any next Camotion experiment 01.13. **Camotion Phase 1 is frozen.**
 
 ## Integration Test 01 — traversable intermediate volume
 
@@ -322,28 +391,34 @@ section above and
 
 ## Intermediate derived destinations during image-conditioned construction
 
-**Unvalidated observation from one FLUX Kontext Pro A→B run.**
-Do not implement.
+**Partially observed; bridge-state remains a hypothesis. Do not
+implement automatic intermediate-frame generation.**
 
-First image-conditioned destination construction strongly preserved
-world/material continuity and produced substantial forward camera
-displacement, but did not fully cross the Director-specified
-threshold. The generated viewpoint behaved more like an intermediate
-threshold position than the requested post-threshold destination.
-
-Hypothesis only: the generated still may represent an intermediate
-spatial position X (A salt-flat / distant fissure → X at or just
-inside the fissure → requested B narrow interior corridor). Large
-Director-planned spatial moves may require intermediate derived
-destinations to preserve both world continuity and meaningful camera
-displacement. Continuity and displacement may be competing objectives
-during image-conditioned destination construction.
-
-These are hypotheses, not established fact. Do not add automatic
-intermediate-frame generation. Do not change the Director. Do not
-change the destination data model. Do not tune the Kontext prompt
-from this one result. See
+First image-conditioned destination construction (alien A→B, FLUX
+Kontext Pro) strongly preserved world/material continuity and produced
+substantial forward camera displacement, but did not fully cross the
+Director-specified threshold. The generated viewpoint behaved more
+like an intermediate threshold position than the requested
+post-threshold destination. See
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+
+Sequential Derived construction later produced the forest A–F
+canonicals frozen in `camotion/integration/forest-a-to-f/`. That chain
+showed that the actual previous canonical can condition the next
+destination, local continuity can remain strong, and large visual
+transformation can still accumulate. Generated reality can diverge
+from the Director's original open-loop plan; later Derived
+destinations may follow the actual generated world more strongly than
+the original planned description.
+
+Hypothesis only: large Director-planned spatial moves may require
+staged visual / spatial bridge states (intermediate Derived
+destinations) to preserve both world continuity and meaningful camera
+displacement. Continuity and displacement may be competing objectives
+during image-conditioned destination construction. Do not add
+automatic intermediate-frame generation. Do not change the Director.
+Do not change the destination data model. Do not tune the Kontext
+prompt from these results.
 
 ## Screenwriter agent
 
@@ -647,6 +722,9 @@ an AI upscaler to Phase 1.
 Do not begin a new Camotion experiment from this file. Do not start
 Camotion 01.13. **Camotion Phase 1 is frozen.** Cinematographer
 shootability / traversable intermediate volume is **completed** Phase 1
-evidence. **TunnelVision Research Phase 1 is complete.** Remaining
-items in this file stay backlog for product development and Movie #2
-evidence, not dedicated Phase 1 experiments.
+evidence. **TunnelVision Research Phase 1 is complete.** Forest A→F is
+completed destination-construction and Camotion-continuity evidence,
+not a product milestone and not Camotion retuning. Remaining items in
+this file stay backlog for product development and Movie #2
+evidence, not dedicated Phase 1 experiments. Do not promote this
+file into roadmap commitments.

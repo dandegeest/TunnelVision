@@ -320,6 +320,8 @@ Do **not** design these until a later milestone needs them:
 -   Screenwriter beats / journey-structure schemas
 -   per-shot duration or velocity-continuity fields
 -   intermediate-canonical insertion as a typed decision
+-   destination construction strategy enums (Provided / Generated /
+    Derived / Discovered)
 
 Phase 1 produced bounded shootability evidence (Wardrobe E→A
 independently judged NEEDS_INTERMEDIATE; actual generated X rejected
@@ -352,6 +354,9 @@ provider-specific knobs stay behind the adapter.
     current radial exposure (open; not a plan-schema question)
 -   production typing of shootability review / intermediate canonicals
     (Phase 1 evidence exists; not a v1 type)
+-   destination construction strategy enums (Provided / Generated /
+    Derived / Discovered). Research vocabulary only; do not encode
+    four global movie modes or a premature product schema
 -   a possible Screenwriter agent upstream of the Director (not a v1
     type)
 -   endpoint / edit-boundary fidelity scores (not specified)

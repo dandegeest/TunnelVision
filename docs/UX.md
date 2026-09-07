@@ -23,7 +23,9 @@ Planned beats start as FPO and show the Director's current beat
 intent until an actual image exists. Construct builds
 the next planned beat from the preceding actual destination through
 image-conditioned edit; later beats stay planned until the filmmaker
-constructs them. Shoot remains the Slice 1
+constructs them. Construct is sequential **Derived** construction, not
+a global movie mode and not a requirement that every destination use
+previous-frame conditioning. Video remains unwired. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
 in this checkpoint. Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
@@ -41,6 +43,8 @@ Slice 3 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+Forest A→F Camotion continuity evidence:
+[genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 
 ### Plan — conversational storyboard
 

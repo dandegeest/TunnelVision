@@ -251,14 +251,16 @@ durable project persistence. Wardrobe may still initialize the
 development project; after replacement, runtime Project A is
 authoritative. After Plan Movie, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
-edit. Later beats and video remain unwired until explicitly
-constructed. Shoot
+edit. Later beats stay planned until explicitly constructed. Video
+remains unwired in the product. Shoot
 remains Destinations / Journey. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
 Director observation:
 [`genesis/research/12-product-slice-3.html`](genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [`genesis/research/13-destination-construction.html`](genesis/research/13-destination-construction.html).
+Forest A→F Camotion continuity evidence:
+[`genesis/research/14-forest-a-to-f.html`](genesis/research/14-forest-a-to-f.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.

@@ -112,7 +112,8 @@ Director to plan subsequent beats from the filmmaker story and
 starting frame. After planning, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit and registers the still as
-session/dev-runtime trusted media. Later beats, video, Discovery, and
+session/dev-runtime trusted media. Later beats stay planned until
+explicitly constructed. Video, Discovery, and
 Screenwriter remain unwired. Live development uses the Wardrobe Loop fixture to
 initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
@@ -128,6 +129,48 @@ and Journey lanes. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
+A later forest A→F evidence spike is recorded at
+[genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
+
+Destination construction strategies (Provided / Generated / Derived /
+Discovered) are research vocabulary, **not** a product schema and
+**not** four global movie modes. Frame provenance and segment
+construction strategy are distinct. Directed vs Autonomous is
+orthogonal. Current Plan Construct is sequential Derived from the
+preceding actual destination. Do not encode all four strategies yet.
+
+Forest A→F used recursively Derived stills to produce a
+directionally coherent 30-second journey
+(forest → mouth → tube → crystal → portal → void). Destination /
+world continuity did **not** automatically produce physical
+traversal continuity. Preserve the distinction:
+
+``` text
+visual / world continuity
+    ≠ spatial traversability
+    ≠ continuous camera travel
+```
+
+Those few legs are evidence, not universal rules. A→B showed
+convincing forward locomotion. D→E showed useful threshold grammar:
+the next space became visible through the remaining opening before
+the previous space disappeared (consistent with Terran Boylan's
+spatial-solidity principle; not a claim that this pipeline is
+Terran's). C→D showed early endpoint attraction / weak start
+authority. E→F showed that open-void geometry plus current
+radial-forward Camotion can read as warp rather than traversal.
+
+Radial-forward Camotion can provide useful motion-state conditioning
+for forward / corridor-like geometry. The same operator is not
+necessarily appropriate for every canonical. Open-void / non-corridor
+geometry is now an explicit research case. Stronger apparent motion
+is not automatically better spatial travel. Do **not** conclude that
+Camotion failed. 01.12 still stands: Camotion has reached the useful
+limit of encoding substantial camera travel by smearing the scene
+itself into A′ under the currently tested baked-exposure family.
+The forest spike pinned strength `0.08` by protocol; that is not a
+reopening of scene-aware Phase 1 policy. Cinematographer inspection
+and product video remain unwired.
 
 Camotion is a standalone deterministic Python graphics package.
 
@@ -481,6 +524,15 @@ starts them.
     sample-count sweeps, compositor experiments, or cross-seed
     Camotion sweeps unless a concrete later movie failure provides
     reason.
+-   how the Cinematographer should reason about **actual adjacent
+    sets** before attempting to shoot them (next research frontier;
+    not a CM schema in this checkpoint)
+-   whether / how Camotion should be applied to an actual set,
+    including open-void / non-corridor geometry
+-   start-frame authority vs endpoint attraction in directed video
+-   whether some repeated-object artifacts are inherent to baked
+    exposure or partly caused by approximating Photoshop Radial
+    Blur / Zoom (operator-equivalence; not a current Camotion task)
 -   final Cinematographer module boundaries
 -   production implementation of shootability review and optional
     intermediate canonicals (Phase 1 evidence exists on Wardrobe

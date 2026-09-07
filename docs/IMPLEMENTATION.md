@@ -125,6 +125,25 @@ five legs plus one review movie. Evidence:
 `camotion/integration/forest-a-to-f/`. Research chapter:
 [`genesis/research/14-forest-a-to-f.html`](../genesis/research/14-forest-a-to-f.html).
 
+Durable synthesis, not a dump of that report: the recursively
+constructed storyboard was sufficient for a directionally coherent
+30-second journey (forest → mouth → tube → crystal → portal → void).
+Destination / world continuity did not automatically produce physical
+traversal continuity. Visual / world continuity is not spatial
+traversability, and neither alone proves continuous camera travel.
+A→B showed convincing forward locomotion. D→E showed useful threshold
+grammar (next space visible through the remaining opening before the
+previous space disappeared). C→D showed early endpoint attraction /
+weak start authority. E→F showed that open-void geometry plus current
+radial-forward Camotion can read as warp rather than traversal. Do
+not generalize those few legs. Radial-forward Camotion can help
+corridor-like geometry; the same operator is not necessarily
+appropriate for every canonical. Do not conclude that Camotion
+failed. 01.12 still stands. Whether some repeated-object artifacts
+are inherent to baked exposure or partly caused by approximating
+Photoshop Radial Blur / Zoom remains a later operator-equivalence
+question. Do not reopen Camotion tuning from this spike.
+
 **Later track (not now):** After Camotion renderer research (and any
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark
@@ -150,8 +169,8 @@ Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. After planning,
 Construct builds the next planned beat from the immediately preceding
 actual destination through
-`ImageEditProvider` (FLUX Kontext Pro). Later beats and video remain
-unwired until explicitly constructed.
+`ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
+explicitly constructed. Video remains unwired in the product.
 Live development uses the Wardrobe Loop fixture
 to initialize Project state, including starting frame A with a trusted
 media identity. Plan starts unplanned beyond A; the Director's output
@@ -170,6 +189,8 @@ First live Director observation:
 [`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [`genesis/research/13-destination-construction.html`](../genesis/research/13-destination-construction.html).
+Forest A→F Camotion continuity evidence:
+[`genesis/research/14-forest-a-to-f.html`](../genesis/research/14-forest-a-to-f.html).
 
 Do **not** create `server/`, Screenwriter, a full Cinematographer
 product package, PreferenceState, or other application scaffolding
@@ -1088,7 +1109,11 @@ The next research question is untested and is **above** the current
 baked-exposure primitive: how can Camotion communicate useful
 camera direction/motion to the video model without integrating a
 long trajectory of recognizable scene structure into a single
-shooting frame? Do not choose or implement a replacement mechanism
+shooting frame? A related, separate later question is whether some
+repeated-object artifacts are inherent to baked exposure or partly
+caused by our approximation of Photoshop Radial Blur / Zoom
+(operator-equivalence). Do not reopen that comparison now. Do not
+choose or implement a replacement mechanism
 yet. Do not prematurely promote motion fields, auxiliary
 conditioning, overlays, multiple frames, or another specific
 representation into the architecture. Capture the question in
