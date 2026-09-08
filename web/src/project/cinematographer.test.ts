@@ -1,0 +1,156 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createForestProject } from "../fixtures/forest-a-to-f";
+import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { directorPlanRequestFromProject } from "./director";
+import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
+import type { CinematographerAssessment, Project } from "./types";
+import {
+  canAssessJourney,
+  cinematographerRequestFromProject,
+  cinematographerShootabilityLabel,
+  journeyLegStatusLabel,
+  projectWithCinematographerAssessment,
+  requestCinematographerAssessment,
+} from "./cinematographer";
+
+const shootableAB: CinematographerAssessment = {
+  shootability: "shootable",
+  summary: "Walk through the root gateway into the darker mouth.",
+  route: "Advance along the forest path and pass through the trunk opening.",
+  threshold: "The dark root-mouth opening slightly right of center.",
+  camera: "Aim forward through the gateway.",
+  parallax: "Near trunks the camera can pass beside.",
+  camotionSuitability: "appropriate",
+  concerns: [],
+};
+
+function withFpoB(project: Project): Project {
+  return {
+    ...project,
+    storyboard: project.storyboard.map((frame) =>
+      frame.id === "B"
+        ? { id: "B", label: "B", imageOrigin: "none" as const, intent: frame.intent }
+        : frame,
+    ),
+  };
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("Cinematographer actual-set assessment", () => {
+  it("can analyze a Forest journey with two actual endpoints", () => {
+    const project = createForestProject();
+    const journey = project.journeys.find((item) => item.id === "A-B")!;
+    expect(canAssessJourney(project, journey)).toBe(true);
+    expect(cinematographerRequestFromProject(project, "A-B")).toEqual({
+      journeyId: "A-B",
+      startDestinationId: "A",
+      endDestinationId: "B",
+      startMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+      endMediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
+      startIntent: project.storyboard[0]?.intent,
+      endIntent: project.storyboard[1]?.intent,
+      story: project.story,
+    });
+  });
+
+  it("posts trusted media identities rather than filesystem paths", async () => {
+    const project = createForestProject();
+    const request = cinematographerRequestFromProject(project, "A-B");
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
+      expect(JSON.parse(String(init?.body))).toEqual(request);
+      expect(request.startMediaId).not.toMatch(/[/\\]/);
+      expect(request.endMediaId).not.toMatch(/[/\\]/);
+      return new Response(JSON.stringify({ assessment: shootableAB }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await requestCinematographerAssessment(request);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/cinematographer/assess",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(result.assessment.shootability).toBe("shootable");
+  });
+
+  it("cannot analyze a leg whose end is still FPO", () => {
+    const project = withFpoB(createForestProject());
+    const journey = project.journeys.find((item) => item.id === "A-B")!;
+    expect(canAssessJourney(project, journey)).toBe(false);
+    expect(() => cinematographerRequestFromProject(project, "A-B")).toThrow(
+      /two actual destinations/i,
+    );
+  });
+
+  it("stores the structured assessment on the JourneyShot only", () => {
+    const project = createForestProject();
+    const destinations = project.destinations;
+    const storyboard = project.storyboard;
+    const next = projectWithCinematographerAssessment(project, "A-B", shootableAB);
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(
+      shootableAB,
+    );
+    expect(next.destinations).toEqual(destinations);
+    expect(next.storyboard).toEqual(storyboard);
+    expect(next.journeys.find((journey) => journey.id === "B-C")?.cinematographer).toBeUndefined();
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBe(
+      project.journeys[0]?.videoUrl,
+    );
+    expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+  });
+
+  it("maps shootability to filmmaker-facing Ready / Needs review / Not shootable without replacing operational status", () => {
+    expect(cinematographerShootabilityLabel("shootable")).toBe("Ready");
+    expect(cinematographerShootabilityLabel("needs_review")).toBe("Needs review");
+    expect(cinematographerShootabilityLabel("not_shootable")).toBe("Not shootable");
+    const rendered = createForestProject().journeys[0]!;
+    expect(rendered.status).toBe("rendered");
+    expect(journeyLegStatusLabel({ ...rendered, cinematographer: shootableAB })).toBe("rendered");
+    expect(
+      journeyLegStatusLabel({
+        ...rendered,
+        cinematographer: { ...shootableAB, shootability: "needs_review" },
+      }),
+    ).toBe("rendered");
+    expect(
+      journeyLegStatusLabel({
+        ...rendered,
+        cinematographer: { ...shootableAB, shootability: "not_shootable" },
+      }),
+    ).toBe("rendered");
+  });
+
+  it("does not mutate either canonical destination", () => {
+    const project = createForestProject();
+    const start = { ...project.destinations[0]! };
+    const end = { ...project.destinations[1]! };
+    const next = projectWithCinematographerAssessment(project, "C-D", {
+      ...shootableAB,
+      shootability: "needs_review",
+      summary: "The pair tends to replace C rather than enter D.",
+    });
+    expect(next.destinations[0]).toEqual(start);
+    expect(next.destinations[1]).toEqual(end);
+    expect(next.destinations.find((destination) => destination.id === "C")).toEqual(
+      project.destinations.find((destination) => destination.id === "C"),
+    );
+    expect(next.destinations.find((destination) => destination.id === "D")).toEqual(
+      project.destinations.find((destination) => destination.id === "D"),
+    );
+  });
+
+  it("leaves Director / Plan request construction unchanged", () => {
+    const project = createForestProject();
+    const before = directorPlanRequestFromProject(project);
+    const next = projectWithCinematographerAssessment(project, "A-B", shootableAB);
+    expect(directorPlanRequestFromProject(next)).toEqual(before);
+    expect(directorPlanRequestFromProject(createWardrobeProject()).startMediaId).toBe(
+      TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+    );
+  });
+});

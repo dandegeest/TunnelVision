@@ -19,7 +19,8 @@ product shell in `web/`. Do **not** create `server/`, Screenwriter, a
 full Cinematographer product package, or a journey workspace runtime.
 React does not call providers; Plan invokes the Director and
 destination-B construction through Vite
-dev middleware. The browser sends a trusted media identity from
+dev middleware, and Shoot can invoke Cinematographer assessment the
+same way. The browser sends a trusted media identity from
 Project state; the plugin resolves that identity through a server-side
 catalog or a session/dev-runtime upload registry and never treats
 browser input as a filesystem path. Uploaded starting frames are not
@@ -30,6 +31,7 @@ camotion/     Python package, CLI (unchanged renderer)
 media/        MediaProvider (image + video) + ReasoningProvider
               + thin cinematographer planner (Integration Test 01)
               + thin Director storyboard planner (Product Slice 3)
+              + thin Cinematographer actual-set assessment
 web/          Vite + React + TypeScript Plan | Shoot shell
 ```
 
@@ -113,7 +115,10 @@ Specified stills are preserved. After planning, Construct builds the next planne
 beat from the preceding actual destination through image-conditioned
 edit and registers the still as
 session/dev-runtime trusted media. Later beats stay planned until
-explicitly constructed. Video, Discovery, and
+explicitly constructed. A thin Cinematographer assessment inspects
+two actual canonical stills for one JourneyShot and stores a
+structured shootability result on that leg. CameraMotionPlan,
+Camotion, video, Discovery, and
 Screenwriter remain unwired. Live development initializes Project from
 the Forest A→F fixture, including starting frame A with a trusted
 media identity and the completed A→F storyboard and Journey clips.
@@ -173,8 +178,9 @@ Camotion failed. 01.12 still stands: Camotion has reached the useful
 limit of encoding substantial camera travel by smearing the scene
 itself into A′ under the currently tested baked-exposure family.
 The forest spike pinned strength `0.08` by protocol; that is not a
-reopening of scene-aware Phase 1 policy. Cinematographer inspection
-and product video remain unwired.
+reopening of scene-aware Phase 1 policy. Cinematographer actual-set
+assessment is now a thin product slice; Camotion and video remain
+unwired.
 
 Camotion is a standalone deterministic Python graphics package.
 

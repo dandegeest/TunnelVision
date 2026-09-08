@@ -20,6 +20,21 @@ export type JourneyStatus =
   | "not_shootable"
   | "needs_review";
 
+/** Semantic Cinematographer judgment of one actual adjacent pair. Not CameraMotionPlan. */
+export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
+export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
+
+export type CinematographerAssessment = {
+  shootability: CinematographerShootability;
+  summary: string;
+  route: string;
+  threshold: string;
+  camera: string;
+  parallax: string;
+  camotionSuitability: CinematographerCamotionSuitability;
+  concerns: string[];
+};
+
 export type Destination = {
   id: string;
   label: string;
@@ -88,6 +103,8 @@ export type JourneyShot = {
   status: JourneyStatus;
   videoUrl?: string;
   shootabilityNote?: string;
+  /** Actual-set Cinematographer assessment for this leg. Absent until analyzed. */
+  cinematographer?: CinematographerAssessment;
 };
 
 export type Project = {

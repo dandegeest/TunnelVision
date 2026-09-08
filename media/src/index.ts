@@ -61,6 +61,23 @@ export {
   BASELINE_FORWARD,
 } from "./cinematographer/plan-shot.ts";
 export type { CameraMotionPlanV1, ShotMotionPlans } from "./cinematographer/plan-shot.ts";
+export {
+  assessJourney as assessCinematographerJourney,
+  buildCinematographerAssessmentRequest,
+  parseCinematographerAssessment,
+} from "./cinematographer/assess-journey.ts";
+export type {
+  CinematographerAssessment,
+  CinematographerAssessmentInput,
+  CinematographerAssessmentRequestPayload,
+  CinematographerAssessmentResult,
+  CinematographerCamotionSuitability,
+  CinematographerShootability,
+} from "./cinematographer/assess-journey.ts";
+export {
+  CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
+  cinematographerAssessmentUserPrompt,
+} from "./cinematographer/assessment-prompts.ts";
 export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";
 export type {
   DirectorAgency,

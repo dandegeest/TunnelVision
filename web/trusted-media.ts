@@ -67,6 +67,35 @@ export function directorStartFrameFromRequest(
   };
 }
 
+export function cinematographerPairFromRequest(
+  repoRoot: string,
+  body: Record<string, unknown>,
+): {
+  start: { id: string; intent?: string; image: MediaInput };
+  end: { id: string; intent?: string; image: MediaInput };
+} {
+  const startImage = resolveTrustedMedia(repoRoot, body.startMediaId);
+  const endImage = resolveTrustedMedia(repoRoot, body.endMediaId);
+  const startId =
+    typeof body.startDestinationId === "string" ? body.startDestinationId.trim() : "";
+  const endId = typeof body.endDestinationId === "string" ? body.endDestinationId.trim() : "";
+  const startIntent =
+    typeof body.startIntent === "string" ? body.startIntent.trim() : "";
+  const endIntent = typeof body.endIntent === "string" ? body.endIntent.trim() : "";
+  return {
+    start: {
+      id: startId || "A",
+      ...(startIntent ? { intent: startIntent } : {}),
+      image: startImage,
+    },
+    end: {
+      id: endId || "B",
+      ...(endIntent ? { intent: endIntent } : {}),
+      image: endImage,
+    },
+  };
+}
+
 export function directorAnchorsFromRequest(
   repoRoot: string,
   body: Record<string, unknown>,

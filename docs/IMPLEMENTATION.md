@@ -173,7 +173,10 @@ Construct builds the next planned beat from the immediately preceding
 actual destination through
 `ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
-Live development initializes Project from the Forest A→F fixture,
+A thin Cinematographer assessment inspects two actual canonical stills
+for one JourneyShot through `ReasoningProvider` and stores the
+structured result on that leg. It does not emit CameraMotionPlan or
+run Camotion. Live development initializes Project from the Forest A→F fixture,
 including starting frame A with a trusted media identity and the
 completed A→F storyboard and Journey clips.
 The Director runtime resolves that identity from

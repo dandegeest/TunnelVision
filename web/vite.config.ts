@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { directorDevPlugin } from "./director-dev-plugin.ts";
 import { destinationDevPlugin } from "./destination-dev-plugin.ts";
+import { cinematographerDevPlugin } from "./cinematographer-dev-plugin.ts";
 import { runtimeMediaPlugin } from "./runtime-media-plugin.ts";
 
 const webDir = dirname(fileURLToPath(import.meta.url));
@@ -16,6 +17,7 @@ export default defineConfig({
     tailwindcss(),
     directorDevPlugin(repoRoot),
     destinationDevPlugin(repoRoot),
+    cinematographerDevPlugin(repoRoot),
     runtimeMediaPlugin(),
   ],
   root: webDir,

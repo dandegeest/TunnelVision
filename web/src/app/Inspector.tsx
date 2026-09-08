@@ -7,12 +7,23 @@ import {
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsBlocked, journeyIsPlayable, showApprovalChrome } from "../project/policy";
+import {
+  canAssessJourney,
+  cinematographerShootabilityLabel,
+} from "../project/cinematographer";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById } from "../project/types";
+import { destinationById, type CinematographerAssessment } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
 
 export function Inspector() {
-  const { project, selection, approveJourney } = useProject();
+  const {
+    project,
+    selection,
+    approveJourney,
+    assessJourney,
+    assessingJourneyId,
+    cinematographerError,
+  } = useProject();
   const layout = useMemo(
     () => layoutTimeline(project.destinations, project.journeys, 1),
     [project.destinations, project.journeys],
@@ -103,6 +114,9 @@ export function Inspector() {
   const blocked = journeyIsBlocked(journey);
   const showApprovals = showApprovalChrome(project.agency, blocked);
   const playable = journeyIsPlayable(journey);
+  const assessment = journey.cinematographer;
+  const canAssess = canAssessJourney(project, journey);
+  const assessing = assessingJourneyId === journey.id;
 
   return (
     <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
@@ -112,6 +126,30 @@ export function Inspector() {
         {journey.startDestinationId} → {journey.endDestinationId ?? "?"}
       </p>
       <p>Status: {journey.status.replaceAll("_", " ")}</p>
+      {assessment ? (
+        <CinematographerLegDetail assessment={assessment} />
+      ) : (
+        <p className="text-[#cfc6b8]">
+          Shootability is judged on this journey between actual destinations, not on either still alone.
+        </p>
+      )}
+      {canAssess ? (
+        <button
+          type="button"
+          className="self-start rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+          disabled={assessing}
+          onClick={() => void assessJourney(journey.id)}
+        >
+          {assessing ? "Assessing…" : assessment ? "Reassess shot" : "Assess shot"}
+        </button>
+      ) : (
+        <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
+      )}
+      {cinematographerError ? (
+        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+          {cinematographerError}
+        </p>
+      ) : null}
       {blocked ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
           {journey.shootabilityNote}
@@ -146,6 +184,66 @@ export function Inspector() {
       ) : null}
       <TechnicalSeam />
     </aside>
+  );
+}
+
+function CinematographerLegDetail({
+  assessment,
+}: {
+  assessment: CinematographerAssessment;
+}) {
+  const suitability =
+    assessment.camotionSuitability === "appropriate"
+      ? "Appropriate"
+      : assessment.camotionSuitability === "poor_fit"
+        ? "Poor fit"
+        : "Uncertain";
+  return (
+    <div className="space-y-2 text-[#cfc6b8]">
+      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Cinematographer</p>
+      <p>{cinematographerShootabilityLabel(assessment.shootability)}</p>
+      <p>{assessment.summary}</p>
+      <details className="border-t border-[#2a2620] pt-2 text-xs">
+        <summary className="cursor-pointer tracking-[0.16em] text-[#9a8f7e] uppercase">
+          Shot reasoning
+        </summary>
+        <div className="mt-2 space-y-2 leading-relaxed">
+          <p>
+            <span className="text-[#9a8f7e]">Route. </span>
+            {assessment.route}
+          </p>
+          <p>
+            <span className="text-[#9a8f7e]">Threshold. </span>
+            {assessment.threshold}
+          </p>
+          <p>
+            <span className="text-[#9a8f7e]">Camera. </span>
+            {assessment.camera}
+          </p>
+          <p>
+            <span className="text-[#9a8f7e]">Parallax. </span>
+            {assessment.parallax}
+          </p>
+          <p>
+            <span className="text-[#9a8f7e]">Camotion. </span>
+            {suitability}
+          </p>
+          {assessment.concerns.length > 0 ? (
+            <div>
+              <p className="text-[#9a8f7e]">Concerns</p>
+              {assessment.concerns.map((concern) => (
+                <p key={concern}>{concern}</p>
+              ))}
+            </div>
+          ) : (
+            <p>
+              <span className="text-[#9a8f7e]">Concerns. </span>
+              None noted.
+            </p>
+          )}
+        </div>
+      </details>
+    </div>
   );
 }
 

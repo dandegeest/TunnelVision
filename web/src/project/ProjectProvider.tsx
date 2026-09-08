@@ -10,6 +10,11 @@ import {
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { clampZoom } from "../timeline/geometry";
 import { requestDirectorPlan } from "./director";
+import {
+  cinematographerRequestFromProject,
+  projectWithCinematographerAssessment,
+  requestCinematographerAssessment,
+} from "./cinematographer";
 import { readStoryboardMediaInfo } from "./media-preflight";
 import { projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithAddedDestination, projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
@@ -55,6 +60,9 @@ type ProjectContextValue = {
   directorStatus: DirectorStatus;
   planStartError: string | null;
   planWithDirector: () => Promise<void>;
+  assessingJourneyId: string | null;
+  cinematographerError: string | null;
+  assessJourney: (journeyId: string) => Promise<void>;
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File) => Promise<void>;
@@ -94,6 +102,8 @@ export function ProjectProvider({
   const [playing, setPlaying] = useState(false);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>("idle");
   const [planStartError, setPlanStartError] = useState<string | null>(null);
+  const [assessingJourneyId, setAssessingJourneyId] = useState<string | null>(null);
+  const [cinematographerError, setCinematographerError] = useState<string | null>(null);
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
   const [constructingBeatId, setConstructingBeatId] = useState<string | null>(null);
@@ -265,6 +275,22 @@ export function ProjectProvider({
     }
   }, [composerDraft, nextConversationId, project]);
 
+  const assessJourney = useCallback(async (journeyId: string) => {
+    setCinematographerError(null);
+    setAssessingJourneyId(journeyId);
+    try {
+      const request = cinematographerRequestFromProject(project, journeyId);
+      const result = await requestCinematographerAssessment(request);
+      setProject((current) => projectWithCinematographerAssessment(current, journeyId, result.assessment));
+    } catch (error) {
+      setCinematographerError(
+        error instanceof Error ? error.message : "Cinematographer assessment failed",
+      );
+    } finally {
+      setAssessingJourneyId(null);
+    }
+  }, [project]);
+
   const selectedJourney = useMemo(() => {
     if (selection.kind !== "journey") {
       return null;
@@ -298,6 +324,9 @@ export function ProjectProvider({
       directorStatus,
       planStartError,
       planWithDirector,
+      assessingJourneyId,
+      cinematographerError,
+      assessJourney,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,
@@ -325,6 +354,9 @@ export function ProjectProvider({
       directorStatus,
       planStartError,
       planWithDirector,
+      assessingJourneyId,
+      cinematographerError,
+      assessJourney,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,

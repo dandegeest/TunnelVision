@@ -84,7 +84,10 @@ preceding actual destination through image-conditioned edit
 (`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
 planned until the filmmaker constructs them. Video remains unwired in
 the product. Shoot remains the Slice 1
-Destinations / Journey timeline. Live development currently initializes
+Destinations / Journey timeline. The Cinematographer can assess one
+actual adjacent journey: two trusted canonical stills in, a structured
+shootability result stored on that JourneyShot. It does not generate
+CameraMotionPlan, Camotion, or video. Live development currently initializes
 Project from the Forest A→F fixture
 (`camotion/integration/forest-a-to-f/`), using filmmaker-provided A,
 sequentially Derived B–F stills, and the completed Journey clips.
@@ -286,14 +289,24 @@ guaranteed rule.
 ### Cinematographer
 
 Decides **how to physically get there on camera** after the actual
-canonical exists: inspect that generated set; determine destination
-position, vanishing point / forward geometry, traversal corridor,
-occluders, route feasibility, required reorientation if later
-supported, Camotion strength, and the locomotion prompt. Choose
-Camotion conditioning strength from the bounded Phase 1 vocabulary
-`{0.02, 0.04, 0.08}`; produce structured shot/camera data; invoke
-Camotion to derive **shooting frames** from canonical frames; and
-prepare video-generation inputs from those shooting frames.
+canonical exists. **Cinematographer reasons about actual adjacent
+sets and determines whether/how they can be filmed as a continuous
+traversal.**
+
+Current product slice: CM inspects two actual canonical stills for
+one JourneyShot and returns a structured shootability assessment
+(route, threshold, camera, parallax, Camotion suitability, concerns).
+Shootability is a property of the leg A→B, not of destination A or B.
+It may conclude the pair should not be shot as-is. It does **not**
+yet emit CameraMotionPlan, run Camotion, or generate video.
+
+Preserve:
+
+``` text
+Destination = canonical world state
+JourneyShot = physical traversal between world states
+Boundary = eventual visual seam between generated adjacent shots
+```
 
 Do not generate the final Cinematographer plan from Plan storyboard
 drawings. Storyboard images are not evidence of actual geometry.

@@ -9,6 +9,7 @@ import {
 } from "./runtime-media.ts";
 import {
   DEV_TEST_TRUSTED_MEDIA_ID,
+  cinematographerPairFromRequest,
   directorAnchorsFromRequest,
   directorStartFrameFromRequest,
   resolveTrustedMedia,
@@ -69,6 +70,30 @@ describe("trusted media resolution", () => {
     });
     expect(fromOther.image).toEqual(resolveTrustedMedia(repoRoot, DEV_TEST_TRUSTED_MEDIA_ID));
     expect(fromOther.image).not.toEqual(fromA.image);
+  });
+
+  it("resolves Cinematographer start and end stills from trusted identities", () => {
+    const pair = cinematographerPairFromRequest(repoRoot, {
+      startMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+      endMediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
+      startDestinationId: "A",
+      endDestinationId: "B",
+    });
+    expect(pair.start.image).toEqual(resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.forestAtoFA));
+    expect(pair.end.image).toEqual(resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.forestAtoFB));
+    expect(pair.start.id).toBe("A");
+    expect(pair.end.id).toBe("B");
+  });
+
+  it("rejects a filesystem-looking Cinematographer end identity", () => {
+    expect(() =>
+      cinematographerPairFromRequest(repoRoot, {
+        startMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+        endMediaId: "camotion/integration/forest-a-to-f/canonical/B.png",
+        startDestinationId: "A",
+        endDestinationId: "B",
+      }),
+    ).toThrow(UntrustedMediaError);
   });
 
   it("resolves additional Director destination stills from trusted identities", () => {

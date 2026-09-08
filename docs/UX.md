@@ -31,7 +31,10 @@ persistent storyboard caption text. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Video remains unwired. Shoot remains the Slice 1
-Destinations / Journey timeline. Do not redesign the Shoot timeline
+Destinations / Journey timeline. The Cinematographer can assess an
+actual adjacent journey on that timeline; compact Ready / Needs
+review / Not shootable status lives on the leg, with structured
+reasoning behind a disclosure. Do not redesign the Shoot timeline
 in this checkpoint. Live development initializes Project from the
 Forest A→F fixture, including starting frame A with a trusted media
 identity and the completed A→F storyboard and Journey clips.
@@ -196,9 +199,8 @@ it. Directed vs Autonomous is one project policy flag, not two UIs.
 
 Shootability is **relational**: the Cinematographer judges whether an
 intended journey between actual generated sets is shootable. Evidence
-lives on the route. The UI may highlight the destination occurrence
-that cannot be reached (the loop arrival at A) without marking
-destination E as intrinsically unshootable.
+lives on the JourneyShot. Compact status and a concise summary appear
+on the analyzed leg; destination cards stay world-state.
 
 A blocked journey is not automatically a Cinematographer repair.
 Some failures should return to Plan so the Director can revise the

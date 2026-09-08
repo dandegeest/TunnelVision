@@ -106,16 +106,21 @@ system now.
 ## Cinematographer --- how do we physically get there?
 
 Inputs: accepted start/end **canonical** frames (actual generated
-sets), intended destination/route, scene analysis and user overrides.
-Provisional Plan storyboard images are **not** CM inputs.
+sets), intended destination/route. Provisional Plan storyboard images
+are **not** CM inputs.
 
-Responsibilities (intended role, not a current module): after the
-actual canonical exists, infer perspective/route geometry, identify
-destination and useful focus-of-expansion geometry, identify
-parallax-producing foreground objects and protected regions, produce
-ShotPlan and CameraMotionPlan JSON, request any CV/depth observation
-**outside** Camotion, invoke Camotion to produce shooting frames, fill
-a stable locomotion template, and evaluate actual traversal.
+**Cinematographer reasons about actual adjacent sets and determines
+whether/how they can be filmed as a continuous traversal.** A thin
+assessment now lives in `media/src/cinematographer/assess-journey.ts`
+and is invoked from Shoot for one JourneyShot. The result is stored
+on that journey. Destinations stay canonical world state; the
+JourneyShot is the traversal; boundary continuity remains a later
+seam-level video concept.
+
+Do **not** generate CameraMotionPlan, Camotion shooting frames, or
+video from this assessment. Do not expand the Integration Test 01
+pair planner into a product package. CameraMotionPlan, Camotion
+strength, and automatic repair remain later.
 
 Do **not** generate the final Cinematographer plan during Plan /
 Storyboard. Architecture:
@@ -125,20 +130,13 @@ physical shooting solution
 
 The next research question is: **how should the Cinematographer
 reason about actual adjacent sets before attempting to shoot them?**
-Relevant evidence suggests CM may eventually need to inspect route /
-traversable corridor, foreground geometry, destination visibility,
-occlusions, threshold correspondence, vanishing point / forward
-geometry, whether an obstacle must be passed beside rather than flown
-through, whether current Camotion vocabulary is appropriate for that
-set, whether an intermediate destination/set is required, and whether
-the pair is simply not shootable as currently constructed.
-
-Do not introduce a Cinematographer schema, UI, or implementation from
-this question. Agent reasons. CV observes / measures. Camotion
-renders. Video model films.
+The current assessment answers shootability, route, threshold, camera,
+parallax, and Camotion suitability at a semantic level. It does not
+yet emit CameraMotionPlan or request intermediate destinations.
 
 Do not move CM reasoning prematurely into Plan just because
-storyboard images exist.
+storyboard images exist. Agent reasons. CV observes / measures.
+Camotion renders. Video model films.
 
 Video currently receives those shooting frames plus the locomotion
 prompt. Canonical frames stay Shoot world-state authority; they are
