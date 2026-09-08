@@ -108,8 +108,8 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 
 The current **product surface** is Plan | Shoot in `web/`. Product
 Slice 3 Plan is conversation plus a storyboard grid; Send asks the
-Director to plan subsequent beats from the filmmaker story and
-starting frame. After planning, Construct builds the next planned
+Director to plan unspecified beats around existing destinations.
+Specified stills are preserved. After planning, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit and registers the still as
 session/dev-runtime trusted media. Later beats stay planned until
@@ -120,7 +120,10 @@ media identity and the completed A→F storyboard and Journey clips.
 The Director runtime resolves that identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture accepts
-story plus `MediaInput`. Accepted Plan submissions update `Project.story`.
+story plus `MediaInput` for the opening and any other existing
+destination stills. A project is a partially specified movie: the
+Director resolves what is not specified and preserves destinations
+that already have actual media. Accepted Plan submissions update `Project.story`.
 The filmmaker can replace a destination's canonical still in place.
 Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.

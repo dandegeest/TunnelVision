@@ -1,4 +1,4 @@
-import type { Project } from "./types";
+import type { Project, StoryboardFrame } from "./types";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 
 export type DirectorBeat = {
@@ -12,6 +12,14 @@ export type DirectorPlan = {
   beats: DirectorBeat[];
 };
 
+export type DirectorAnchor = {
+  id: string;
+  label: string;
+  intent?: string;
+  visualDescription?: string;
+  mediaId?: string;
+};
+
 export type DirectorEvidence = {
   request: {
     story: string;
@@ -19,6 +27,7 @@ export type DirectorEvidence = {
     startFrameId: string;
     startFrameIntent?: string;
     startMediaId: string;
+    anchors?: DirectorAnchor[];
     systemInstruction: string;
     prompt: string;
   };
@@ -40,10 +49,27 @@ export type DirectorPlanRequest = {
   startFrameId: string;
   startFrameIntent?: string;
   startMediaId: string;
+  anchors?: DirectorAnchor[];
 };
 
 export function authoritativeStartFrame(project: Project) {
   return project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
+}
+
+function isSpecifiedDirectorAnchor(frame: StoryboardFrame): boolean {
+  return frame.imageOrigin !== "none" && Boolean(frame.image);
+}
+
+function directorAnchorFromFrame(frame: StoryboardFrame): DirectorAnchor {
+  const intent = frame.intent?.trim();
+  const visualDescription = frame.visualDescription?.trim();
+  return {
+    id: frame.id,
+    label: frame.label,
+    ...(intent ? { intent } : {}),
+    ...(visualDescription ? { visualDescription } : {}),
+    ...(isTrustedMediaIdShape(frame.mediaId) ? { mediaId: frame.mediaId } : {}),
+  };
 }
 
 export function directorPlanRequestFromProject(project: Project): DirectorPlanRequest {
@@ -58,12 +84,17 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
     throw new Error("Starting frame has no trusted media identity");
   }
   const startFrameIntent = start.intent?.trim() || undefined;
+  const specified = project.storyboard.filter(isSpecifiedDirectorAnchor);
+  const extra = specified.filter(
+    (frame) => frame.id.trim().toLowerCase() !== start.id.trim().toLowerCase(),
+  );
   return {
     story: project.story,
     agency: project.agency,
     startFrameId: start.id,
     startMediaId: start.mediaId,
     ...(startFrameIntent ? { startFrameIntent } : {}),
+    ...(extra.length > 0 ? { anchors: specified.map(directorAnchorFromFrame) } : {}),
   };
 }
 

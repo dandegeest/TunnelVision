@@ -9,6 +9,7 @@ import {
 } from "./runtime-media.ts";
 import {
   DEV_TEST_TRUSTED_MEDIA_ID,
+  directorAnchorsFromRequest,
   directorStartFrameFromRequest,
   resolveTrustedMedia,
   UntrustedMediaError,
@@ -68,6 +69,46 @@ describe("trusted media resolution", () => {
     });
     expect(fromOther.image).toEqual(resolveTrustedMedia(repoRoot, DEV_TEST_TRUSTED_MEDIA_ID));
     expect(fromOther.image).not.toEqual(fromA.image);
+  });
+
+  it("resolves additional Director destination stills from trusted identities", () => {
+    const anchors = directorAnchorsFromRequest(repoRoot, {
+      anchors: [
+        {
+          id: "A",
+          label: "A",
+          mediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+        },
+        {
+          id: "D",
+          label: "D",
+          intent: "Crystal in the path.",
+          mediaId: TRUSTED_MEDIA_IDS.forestAtoFD,
+        },
+        {
+          id: "F",
+          label: "F",
+          mediaId: TRUSTED_MEDIA_IDS.forestAtoFF,
+        },
+      ],
+    });
+    expect(anchors?.map((anchor) => anchor.id)).toEqual(["A", "D", "F"]);
+    expect(anchors?.[1]?.image).toEqual(resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.forestAtoFD));
+    expect(anchors?.[2]?.image).toEqual(resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.forestAtoFF));
+  });
+
+  it("rejects a filesystem-looking extra destination identity", () => {
+    expect(() =>
+      directorAnchorsFromRequest(repoRoot, {
+        anchors: [
+          {
+            id: "D",
+            label: "D",
+            mediaId: "camotion/integration/forest-a-to-f/canonical/D.png",
+          },
+        ],
+      }),
+    ).toThrow(UntrustedMediaError);
   });
 
   it("resolves a runtime upload through the same Director startFrame path", () => {

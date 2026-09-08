@@ -166,7 +166,9 @@ variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. See
 `media/README.md`. [`web/`](../web/) exists as the Product Slice 3
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
-storyboard beats through `ReasoningProvider`. After planning,
+storyboard beats through `ReasoningProvider`. The project is a
+partially specified movie: existing destination stills are preserved,
+and the Director fills unspecified connective beats. After planning,
 Construct builds the next planned beat from the immediately preceding
 actual destination through
 `ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
@@ -177,7 +179,8 @@ completed A→F storyboard and Journey clips.
 The Director runtime resolves that identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture
-accepts story plus `MediaInput`. The Plan composer is a temporary draft;
+accepts story plus `MediaInput` for the opening and any other existing
+destination stills. The Plan composer is a temporary draft;
 accepted planning submissions update `Project.story` and append that
 exact text to conversation history with a pending Director entry that
 resolves in place. The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.

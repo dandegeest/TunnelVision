@@ -4,7 +4,7 @@ import { mediaPreflightForProject } from "../project/media-preflight";
 import { boundaryContinuitiesForProject } from "../project/boundary-continuity";
 import { journeyIsPlayable } from "../project/policy";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
-import { createForestProject, FOREST_STORYBOARD_INTENTS, FOREST_USER_PROMPT } from "./forest-a-to-f";
+import { createForestProject, createForestPartialAnchorProject, FOREST_STORYBOARD_INTENTS, FOREST_USER_PROMPT } from "./forest-a-to-f";
 
 describe("forest A→F development fixture", () => {
   const project = createForestProject();
@@ -69,5 +69,28 @@ describe("forest A→F development fixture", () => {
     );
     expect(directorPlanRequestFromProject(project).startMediaId).toBe(TRUSTED_MEDIA_IDS.forestAtoFA);
     expect(directorPlanRequestFromProject(project).startMediaId).not.toMatch(/[/\\]/);
+  });
+
+  it("keeps a partial-anchor variant with A, D, and F specified and B, C, E unresolved", () => {
+    const complete = createForestProject();
+    const partial = createForestPartialAnchorProject();
+    expect(partial.storyboard.map((frame) => frame.id)).toEqual(["A", "D", "F"]);
+    expect(partial.storyboard[0]).toEqual(complete.storyboard[0]);
+    expect(partial.storyboard[1]).toEqual(complete.storyboard[3]);
+    expect(partial.storyboard[2]).toEqual(complete.storyboard[5]);
+    expect(partial.story).toBe(FOREST_USER_PROMPT);
+    expect(directorPlanRequestFromProject(partial).anchors?.map((anchor) => anchor.id)).toEqual([
+      "A",
+      "D",
+      "F",
+    ]);
+    expect(createForestProject().storyboard.map((frame) => frame.id)).toEqual([
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+    ]);
   });
 });

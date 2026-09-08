@@ -25,6 +25,13 @@ export type DirectorPlanInput = {
     readonly image: MediaInput;
   };
   readonly agency: DirectorAgency;
+  readonly anchors?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly intent?: string;
+    readonly visualDescription?: string;
+    readonly image?: MediaInput;
+  }[];
 };
 
 export type DirectorRequestPayload = {
@@ -33,6 +40,12 @@ export type DirectorRequestPayload = {
   readonly startFrameId: string;
   readonly startFrameIntent?: string;
   readonly startImage: MediaInput;
+  readonly anchors?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly intent?: string;
+    readonly visualDescription?: string;
+  }[];
   readonly systemInstruction: string;
   readonly prompt: string;
 };
@@ -66,25 +79,57 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
   }
 
   const startFrameIntent = input.startFrame.intent?.trim() || undefined;
+  const extraAnchors = (input.anchors ?? []).filter(
+    (anchor) => anchor.id.trim().toLowerCase() !== startFrameId.toLowerCase(),
+  );
+  const extraImages = extraAnchors.flatMap((anchor) => (anchor.image ? [anchor.image] : []));
+  const promptAnchors =
+    extraAnchors.length > 0
+      ? [
+          {
+            id: startFrameId,
+            label: startFrameId,
+            ...(startFrameIntent ? { intent: startFrameIntent } : {}),
+            hasImage: true,
+          },
+          ...extraAnchors.map((anchor) => ({
+            id: anchor.id,
+            label: anchor.label,
+            ...(anchor.intent?.trim() ? { intent: anchor.intent.trim() } : {}),
+            ...(anchor.visualDescription?.trim()
+              ? { visualDescription: anchor.visualDescription.trim() }
+              : {}),
+            ...(anchor.image ? { hasImage: true as const } : {}),
+          })),
+        ]
+      : undefined;
   const prompt = directorUserPrompt({
     story,
     startFrameId,
     startFrameIntent,
     agency: input.agency,
+    ...(promptAnchors ? { anchors: promptAnchors } : {}),
   });
+  const textualAnchors = promptAnchors?.map(({ id, label, intent, visualDescription }) => ({
+    id,
+    label,
+    ...(intent ? { intent } : {}),
+    ...(visualDescription ? { visualDescription } : {}),
+  }));
   const payload: DirectorRequestPayload = {
     story,
     agency: input.agency,
     startFrameId,
     ...(startFrameIntent ? { startFrameIntent } : {}),
     startImage: input.startFrame.image,
+    ...(textualAnchors ? { anchors: textualAnchors } : {}),
     systemInstruction: DIRECTOR_SYSTEM_INSTRUCTION,
     prompt,
   };
   return {
     systemInstruction: DIRECTOR_SYSTEM_INSTRUCTION,
     prompt,
-    images: [input.startFrame.image],
+    images: [input.startFrame.image, ...extraImages],
     payload,
   };
 }

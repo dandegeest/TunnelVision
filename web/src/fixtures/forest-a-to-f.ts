@@ -205,3 +205,21 @@ export function createForestProject(): Project {
     boundaryAnalysis: [...FOREST_BOUNDARY_ANALYSIS],
   };
 }
+
+/**
+ * Controlled partial-anchor variant for Director planning tests.
+ * Not the live app startup fixture. A, D, and F already exist; B, C, and E do not.
+ */
+export function createForestPartialAnchorProject(): Project {
+  const full = createForestProject();
+  const keep = new Set(["A", "D", "F"]);
+  return {
+    ...full,
+    id: "forest-partial-a-d-f",
+    title: "FOREST A D F",
+    storyboard: full.storyboard.filter((frame) => keep.has(frame.id)),
+    destinations: full.destinations.filter((destination) => keep.has(destination.id)),
+    journeys: [],
+    boundaryAnalysis: undefined,
+  };
+}

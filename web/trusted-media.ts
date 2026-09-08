@@ -66,3 +66,49 @@ export function directorStartFrameFromRequest(
     image,
   };
 }
+
+export function directorAnchorsFromRequest(
+  repoRoot: string,
+  body: Record<string, unknown>,
+): Array<{
+  id: string;
+  label: string;
+  intent?: string;
+  visualDescription?: string;
+  image?: MediaInput;
+}> | undefined {
+  if (!Array.isArray(body.anchors) || body.anchors.length < 1) {
+    return undefined;
+  }
+  return body.anchors.map((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new UntrustedMediaError(`Invalid Director anchors[${index}]`);
+    }
+    const record = item as Record<string, unknown>;
+    const id = typeof record.id === "string" ? record.id.trim() : "";
+    if (!id) {
+      throw new UntrustedMediaError(`Invalid Director anchors[${index}]`);
+    }
+    const label =
+      typeof record.label === "string" && record.label.trim() ? record.label.trim() : id;
+    const intent = typeof record.intent === "string" ? record.intent.trim() : "";
+    const visualDescription =
+      typeof record.visualDescription === "string" ? record.visualDescription.trim() : "";
+    const anchor: {
+      id: string;
+      label: string;
+      intent?: string;
+      visualDescription?: string;
+      image?: MediaInput;
+    } = {
+      id,
+      label,
+      ...(intent ? { intent } : {}),
+      ...(visualDescription ? { visualDescription } : {}),
+    };
+    if (record.mediaId !== undefined && record.mediaId !== null && record.mediaId !== "") {
+      anchor.image = resolveTrustedMedia(repoRoot, record.mediaId);
+    }
+    return anchor;
+  });
+}

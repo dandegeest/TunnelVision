@@ -17,7 +17,8 @@ deliberately no Edit workspace.
 
 **Current implementation:** Product Slice 3 Plan is a dominant
 storyboard grid plus Conversation. Send asks the Director to plan
-from the filmmaker story and starting frame; the composer is a temporary
+unspecified beats around existing destinations; supplied stills remain
+authoritative. The composer is a temporary
 draft. Accepted Plan Movie submissions append that exact draft to
 conversation history together with a pending Director entry, update
 `Project.story`, and clear the composer. The Director entry resolves
@@ -55,7 +56,8 @@ Forest A→F Camotion continuity evidence:
 
 **Slice 2 implements the storyboard grid visualization and a static
 Conversation prompt fixture.** Product
-Slice 3 enables Send to ask the Director to plan subsequent beats.
+Slice 3 enables Send to ask the Director to plan unspecified beats
+around existing destinations.
 Chat is not implemented.
 
 Plan should be a **storyboard workspace driven by conversation**.

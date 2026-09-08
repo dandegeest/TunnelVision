@@ -40,6 +40,8 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.equal(request.systemInstruction, DIRECTOR_SYSTEM_INSTRUCTION);
   assert.match(request.systemInstruction, /traversable/);
   assert.match(request.systemInstruction, /forward locomotion/);
+  assert.match(request.systemInstruction, /partially specified/);
+  assert.match(request.systemInstruction, /supplied destination/);
   assert.doesNotMatch(request.systemInstruction, /vanishing_point/);
   assert.doesNotMatch(request.systemInstruction, /CameraMotionPlan/);
   assert.doesNotMatch(request.prompt, /EXACTLY/);
@@ -176,4 +178,87 @@ test("Director.plan fails visibly when the model returns only the starting frame
     },
   };
   await assert.rejects(() => plan({ reasoning, ...input }), /no subsequent beats/);
+});
+
+test("Director request lists existing destinations and attaches their stills", () => {
+  const crystal = { kind: "file" as const, path: "/tmp/crystal.jpg" };
+  const voidStill = { kind: "file" as const, path: "/tmp/void.jpg" };
+  const request = buildDirectorRequest({
+    ...input,
+    story: "Travel forward through this night forest and keep going.",
+    anchors: [
+      {
+        id: "A",
+        label: "A",
+        intent: "Night forest path.",
+        image: input.startFrame.image,
+      },
+      {
+        id: "D",
+        label: "D",
+        intent: "Crystal occupying the path.",
+        visualDescription: "A glowing crystal cluster.",
+        image: crystal,
+      },
+      {
+        id: "F",
+        label: "F",
+        intent: "Open void around a central light.",
+        image: voidStill,
+      },
+    ],
+  });
+  assert.match(request.prompt, /Existing destinations in travel order/);
+  assert.match(request.prompt, /Image 2 is this destination/);
+  assert.match(request.prompt, /Image 3 is this destination/);
+  assert.match(request.prompt, /Crystal occupying the path/);
+  assert.match(request.prompt, /You own the missing connective journey/);
+  assert.match(request.prompt, /Include each existing non-opening destination/);
+  assert.doesNotMatch(request.prompt, /Plan the subsequent spatially traversable beats from this opening/);
+  assert.deepEqual(request.images, [input.startFrame.image, crystal, voidStill]);
+  assert.deepEqual(
+    request.payload.anchors?.map((anchor) => anchor.id),
+    ["A", "D", "F"],
+  );
+});
+
+test("Director.plan with existing destinations still drops the opening beat", async () => {
+  const reasoning: ReasoningProvider = {
+    async complete(request) {
+      assert.match(request.prompt, /Existing destinations in travel order/);
+      assert.equal(request.images?.length, 3);
+      return {
+        provider: "replicate",
+        model: "mock/director",
+        modelVersion: "test",
+        predictionId: "pred-partial",
+        status: "succeeded",
+        text: validPlanJson([
+          { id: "B", intent: "Approach the mouth.", visualDescription: "Root opening." },
+          { id: "C", intent: "Enter the tunnel.", visualDescription: "Wooden tube." },
+          { id: "D", intent: "Pass the crystal.", visualDescription: "Glowing cluster." },
+          { id: "E", intent: "Continue to the portal.", visualDescription: "Dark hall." },
+          { id: "F", intent: "Reach the void.", visualDescription: "Debris field." },
+        ]),
+        metadata: {},
+        startedAt: "2026-09-06T00:00:00.000Z",
+        completedAt: "2026-09-06T00:00:01.000Z",
+        elapsedMs: 20,
+      };
+    },
+  };
+  const result = await plan({
+    reasoning,
+    ...input,
+    story: "Travel forward through this night forest and keep going.",
+    anchors: [
+      { id: "A", label: "A", image: input.startFrame.image },
+      { id: "D", label: "D", intent: "Crystal occupying the path.", image: { kind: "file", path: "/tmp/d.jpg" } },
+      { id: "F", label: "F", image: { kind: "file", path: "/tmp/f.jpg" } },
+    ],
+  });
+  assert.deepEqual(
+    result.plan.beats.map((beat) => beat.id),
+    ["B", "C", "D", "E", "F"],
+  );
 });

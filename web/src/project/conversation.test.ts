@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { createForestPartialAnchorProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import {
   appendConversationEntry,
@@ -66,6 +67,20 @@ describe("Plan composer submission", () => {
     }
     expect(result.reason).toBe("invalid");
     expect(result.message).toMatch(/trusted media identity/i);
+  });
+
+  it("includes existing destinations when the journey is only partially specified", () => {
+    const result = preparePlanSubmission(
+      "Keep traveling through this night forest.",
+      createForestPartialAnchorProject(),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.request.story).toBe("Keep traveling through this night forest.");
+    expect(result.request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "D", "F"]);
+    expect(result.request.startMediaId).toBe(TRUSTED_MEDIA_IDS.forestAtoFA);
   });
 });
 
@@ -195,6 +210,29 @@ describe("Plan conversation history", () => {
     expect((entries[1] as DirectorConversationEntry).evidence?.predictionId).toBe("pred-1");
     expect(entries[2]).toMatchObject({ kind: "filmmaker", text: "Revised story." });
     expect((entries[3] as DirectorConversationEntry).evidence?.request.story).toBe("Revised story.");
+  });
+
+  it("keeps Director evidence including existing-destination anchors when resolving in place", () => {
+    const anchored = evidence("Keep traveling through this night forest.", "pred-anchors");
+    anchored.request.anchors = [
+      { id: "A", label: "A", mediaId: TRUSTED_MEDIA_IDS.forestAtoFA },
+      { id: "D", label: "D", mediaId: TRUSTED_MEDIA_IDS.forestAtoFD },
+      { id: "F", label: "F", mediaId: TRUSTED_MEDIA_IDS.forestAtoFF },
+    ];
+    let entries: ConversationEntry[] = [
+      { id: "f1", createdAt: AT, kind: "filmmaker", text: "Keep traveling through this night forest." },
+      { id: "d1", createdAt: AT2, kind: "director", status: "planning" },
+    ];
+    entries = resolveDirectorEntry(entries, "d1", {
+      status: "complete",
+      evidence: anchored,
+      summary: "Connect the known forest destinations.",
+    });
+    const director = entries[1] as DirectorConversationEntry;
+    expect(director.status).toBe("complete");
+    expect(director.evidence?.request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "D", "F"]);
+    expect(director.evidence?.predictionId).toBe("pred-anchors");
+    expect(director.createdAt).toBe(AT2);
   });
 
   it("resolves only the matching construction operation", () => {

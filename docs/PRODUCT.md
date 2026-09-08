@@ -66,9 +66,15 @@ disconnected workflows:
 -   Production evidence can send the filmmaker back to Plan.
 
 **Current implementation:** Product Slice 3 adds a thin Director that
-turns the filmmaker story plus authoritative starting frame into
+turns the filmmaker story plus existing destinations into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
-Replicate). The Plan composer is a temporary draft. Accepted Send / Plan Movie
+Replicate). A TunnelVision project is a **partially specified movie**:
+the filmmaker may supply some destinations and leave others
+unresolved. The Director fills unspecified connective beats and treats
+destinations that already have actual media as authoritative
+constraints. It does not replace, restyle, reorder, or rewrite those
+stills. Agency (Directed vs Autonomous) is orthogonal and is not a
+stand-in for Discovery. The Plan composer is a temporary draft. Accepted Send / Plan Movie
 submissions append the exact draft to conversation history with a pending
 Director entry that resolves in place, update
 `Project.story`, and clear the composer. It is not a live display of
@@ -83,8 +89,8 @@ Project from the Forest A→F fixture
 (`camotion/integration/forest-a-to-f/`), using filmmaker-provided A,
 sequentially Derived B–F stills, and the completed Journey clips.
 Wardrobe Loop remains historical research evidence and a test factory;
-it is not the current product-development fixture. Plan can still
-replan from A. The Director runtime resolves
+it is not the current product-development fixture. Plan can replan
+around existing destinations; specified stills survive. The Director runtime resolves
 that identity from Project state; it does not independently substitute
 a catalog still. Accepted Plan submissions update `Project.story`. The filmmaker can
 replace a destination's canonical still in place. Uploaded media is
@@ -503,7 +509,7 @@ duration and destination pointing are later collaborative controls.
 
 **Current implementation:** Product Slice 3 is the current Plan | Shoot
 shell. Plan is conversation → storyboard; Send asks the Director to
-plan subsequent beats. After planning, Construct builds the next
+plan unspecified beats around existing destinations. After planning, Construct builds the next
 planned beat from the preceding actual destination. Later beats and
 video remain unwired in the product until later slices. A forest A→F
 research spike assembled a review movie outside the product UI; do

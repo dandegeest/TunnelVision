@@ -79,7 +79,9 @@ displacement, novelty, navigability, preference fit and discovery.
 Automated scoring of displacement or traversal is an **open question**.
 PreferenceState schema is an **open question**. A thin Director
 storyboard planner now lives in `media/src/director/` (Product Slice 3).
-Live development initializes Project from the Forest A→F fixture,
+The project is a partially specified movie. The Director fills
+unspecified connective beats and preserves existing destinations as
+authoritative constraints. Live development initializes Project from the Forest A→F fixture,
 including starting frame A with a trusted media identity and the
 completed A→F storyboard and Journey clips. The Director runtime resolves that identity from Project state; it does
 not independently substitute a catalog still. The filmmaker's Plan composer is a temporary draft; accepted planning

@@ -117,34 +117,112 @@ export function projectWithAddedDestination(project: Project): Project {
   };
 }
 
+function sameStoryboardId(left: string, right: string): boolean {
+  return left.trim().toLowerCase() === right.trim().toLowerCase();
+}
+
+/** Actual destination still. FPO / unresolved frames are not specified. */
+export function isSpecifiedStoryboardDestination(frame: StoryboardFrame): boolean {
+  return frame.imageOrigin !== "none" && Boolean(frame.image);
+}
+
+function plannedFrameFromBeat(beat: DirectorPlan["beats"][number]): StoryboardFrame {
+  const id = beat.id;
+  const letter = id.trim();
+  const upper = letter.toUpperCase();
+  const label = letter.length === 1 && STORYBOARD_LABELS.includes(upper) ? upper : letter;
+  return {
+    id,
+    label,
+    intent: beat.intent,
+    imageOrigin: "none",
+    ...(beat.visualDescription.trim() ? { visualDescription: beat.visualDescription } : {}),
+  };
+}
+
+function storyboardIdKey(id: string): string {
+  return id.trim().toLowerCase();
+}
+
+function assertDirectorAnchorMarkers(
+  anchors: StoryboardFrame[],
+  subsequent: DirectorPlan["beats"],
+): void {
+  if (anchors.length < 1) {
+    return;
+  }
+  const expectedKeys = anchors.map((frame) => storyboardIdKey(frame.id));
+  const expectedByKey = new Map(expectedKeys.map((key, index) => [key, anchors[index]!.id]));
+  const counts = new Map<string, number>();
+  const markerOrder: string[] = [];
+  for (const beat of subsequent) {
+    const key = storyboardIdKey(beat.id);
+    if (!expectedByKey.has(key)) {
+      continue;
+    }
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    markerOrder.push(key);
+  }
+  for (const key of expectedKeys) {
+    const count = counts.get(key) ?? 0;
+    const id = expectedByKey.get(key) ?? key;
+    if (count < 1) {
+      throw new Error(`Director omitted authoritative destination ${id}`);
+    }
+    if (count > 1) {
+      throw new Error(`Director duplicated authoritative destination ${id}`);
+    }
+  }
+  if (markerOrder.join("\0") !== expectedKeys.join("\0")) {
+    throw new Error("Director reordered authoritative destinations");
+  }
+}
+
 /**
- * Keep the filmmaker-supplied opening frame. Map Director subsequent beats to
- * planned/FPO storyboard frames. Does not touch Shoot Destinations or Journeys.
+ * Keep specified destinations (actual stills) as authoritative constraints.
+ * Additional anchors must appear in beats[] as ordering markers; their stored
+ * frames are preserved. Unresolved beats become planned/FPO frames around them.
+ * Does not touch Shoot Destinations or Journeys.
  */
 export function applyDirectorPlanToStoryboard(
-  startFrame: StoryboardFrame,
+  storyboard: StoryboardFrame[],
   plan: DirectorPlan,
 ): StoryboardFrame[] {
-  if (startFrame.imageOrigin !== "user" || !startFrame.image) {
+  const startFrame =
+    storyboard.find((frame) => frame.imageOrigin === "user") ?? storyboard[0];
+  if (!startFrame || startFrame.imageOrigin !== "user" || !startFrame.image) {
     throw new Error("Starting frame must remain the filmmaker-supplied opening beat");
   }
-  const subsequent = plan.beats.filter(
-    (beat) => beat.id.trim().toLowerCase() !== startFrame.id.trim().toLowerCase(),
-  );
+  const subsequent = plan.beats.filter((beat) => !sameStoryboardId(beat.id, startFrame.id));
   if (subsequent.length < 1) {
     throw new Error("Director returned no subsequent beats after the starting frame");
   }
-  const planned: StoryboardFrame[] = subsequent.map((beat, index) => {
-    const label = STORYBOARD_LABELS[index + 1] ?? `+${index + 1}`;
-    return {
-      id: beat.id,
-      label,
-      intent: beat.intent,
-      imageOrigin: "none",
-      ...(beat.visualDescription.trim() ? { visualDescription: beat.visualDescription } : {}),
-    };
-  });
-  return [{ ...startFrame }, ...planned];
+
+  const anchors = storyboard.filter(
+    (frame) =>
+      isSpecifiedStoryboardDestination(frame) && !sameStoryboardId(frame.id, startFrame.id),
+  );
+  assertDirectorAnchorMarkers(anchors, subsequent);
+
+  const anchorsByKey = new Map(anchors.map((frame) => [storyboardIdKey(frame.id), frame]));
+  const placed = new Set<string>([storyboardIdKey(startFrame.id)]);
+  const next: StoryboardFrame[] = [{ ...startFrame }];
+
+  for (const beat of subsequent) {
+    const beatKey = storyboardIdKey(beat.id);
+    const anchor = anchorsByKey.get(beatKey);
+    if (anchor) {
+      next.push({ ...anchor });
+      placed.add(beatKey);
+      continue;
+    }
+    if (placed.has(beatKey)) {
+      continue;
+    }
+    next.push(plannedFrameFromBeat(beat));
+    placed.add(beatKey);
+  }
+  return next;
 }
 
 export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): Project {
@@ -155,6 +233,6 @@ export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): P
   }
   return {
     ...project,
-    storyboard: applyDirectorPlanToStoryboard(start, plan),
+    storyboard: applyDirectorPlanToStoryboard(project.storyboard, plan),
   };
 }

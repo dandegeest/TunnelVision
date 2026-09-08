@@ -1,4 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  createForestPartialAnchorProject,
+  createForestProject,
+  FOREST_STORYBOARD_INTENTS,
+} from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
 import {
   authoritativeStartFrame,
@@ -8,6 +13,7 @@ import {
 import { projectWithDirectorPlan } from "./storyboard";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { Project } from "./types";
+import { directorUserPrompt } from "../../../media/src/director/prompts";
 
 const payload = {
   story: "Make a first-person POV journey through an impossible world at night.",
@@ -178,6 +184,7 @@ describe("Director request from Project state", () => {
     expect(request.story).toBe("Continue through a flooded courtyard toward a warm-lit workshop.");
     expect(request.story).not.toBe(WARDROBE_USER_PROMPT);
     expect(request.startMediaId).toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
+    expect(request.anchors).toBeUndefined();
 
     const second = projectWithDirectorPlan(edited, {
       summary: "A revised courtyard journey.",
@@ -197,5 +204,56 @@ describe("Director request from Project state", () => {
     ]);
     expect(second.destinations).toEqual(project.destinations);
     expect(second.journeys).toEqual(project.journeys);
+  });
+
+  it("lists existing A, D, and F as authoritative anchors without assuming they are user-provided", () => {
+    const project = createForestPartialAnchorProject();
+    const request = directorPlanRequestFromProject(project);
+    expect(request.startMediaId).toBe(TRUSTED_MEDIA_IDS.forestAtoFA);
+    expect(request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "D", "F"]);
+    expect(request.anchors?.[0]).toMatchObject({
+      id: "A",
+      label: "A",
+      intent: FOREST_STORYBOARD_INTENTS.A,
+      mediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+    });
+    expect(request.anchors?.[1]).toMatchObject({
+      id: "D",
+      label: "D",
+      intent: FOREST_STORYBOARD_INTENTS.D,
+      mediaId: TRUSTED_MEDIA_IDS.forestAtoFD,
+    });
+    expect(request.anchors?.[2]).toMatchObject({
+      id: "F",
+      label: "F",
+      intent: FOREST_STORYBOARD_INTENTS.F,
+      mediaId: TRUSTED_MEDIA_IDS.forestAtoFF,
+    });
+    const prompt = directorUserPrompt(request);
+    expect(prompt).toMatch(/Existing destinations in travel order/);
+    expect(prompt).toMatch(/Image 2 is this destination/);
+    expect(prompt).toMatch(/Image 3 is this destination/);
+    expect(prompt).toMatch(/You own the missing connective journey/);
+    expect(prompt).toMatch(/Intent: Root tunnel with a large glowing crystal/);
+    expect(prompt).not.toMatch(/Plan the subsequent spatially traversable beats from this opening/);
+  });
+
+  it("does not treat a generated-only continuation as anchors on re-plan", () => {
+    const project = createWardrobeProject();
+    expect(directorPlanRequestFromProject(project).anchors).toBeUndefined();
+    const planned = projectWithDirectorPlan(project, {
+      summary: "A planned journey.",
+      beats: [
+        { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
+        { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
+      ],
+    });
+    expect(directorPlanRequestFromProject(planned).anchors).toBeUndefined();
+  });
+
+  it("includes completed Forest destinations as existing anchors", () => {
+    const request = directorPlanRequestFromProject(createForestProject());
+    expect(request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
+    expect(request.anchors?.every((anchor) => Boolean(anchor.mediaId))).toBe(true);
   });
 });
