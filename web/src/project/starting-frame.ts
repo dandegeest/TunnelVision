@@ -51,37 +51,56 @@ export function parseStartingFrameUpload(body: unknown): StartingFrameUpload {
 }
 
 /**
- * Replace Plan A with a trusted uploaded still. Drops B...N. Preserves story
- * and Shoot destinations/journeys. Does not invoke the Director.
+ * Replace a destination's canonical still in place. Keeps identity, order,
+ * and neighboring frames. Does not invent a new destination.
  */
-export function projectWithReplacedStartImage(
+export function projectWithReplacedFrameImage(
   project: Project,
+  frameId: string,
   next: StartingFrameUpload,
 ): Project {
   if (!isTrustedMediaIdShape(next.mediaId)) {
     throw new Error("Starting frame has no trusted media identity");
   }
+  const target = project.storyboard.find((frame) => frame.id === frameId);
+  if (!target?.image) {
+    throw new Error("Destination has no canonical still to replace");
+  }
+  return {
+    ...project,
+    storyboard: project.storyboard.map((frame) => {
+      if (frame.id !== frameId) {
+        return frame;
+      }
+      const replaced: StoryboardFrame = {
+        ...frame,
+        image: next.imageUrl,
+        mediaId: next.mediaId,
+        imageOrigin: "user",
+      };
+      if (next.mediaInfo) {
+        replaced.mediaInfo = next.mediaInfo;
+      } else {
+        delete replaced.mediaInfo;
+      }
+      return replaced;
+    }),
+  };
+}
+
+/**
+ * Replace Plan A's still. Subsequent storyboard frames remain in place.
+ */
+export function projectWithReplacedStartImage(
+  project: Project,
+  next: StartingFrameUpload,
+): Project {
   const start =
     project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
   if (!start) {
     throw new Error("Project has no starting storyboard frame");
   }
-  const replaced: StoryboardFrame = {
-    ...start,
-    image: next.imageUrl,
-    mediaId: next.mediaId,
-    imageOrigin: "user",
-  };
-  delete replaced.intent;
-  if (next.mediaInfo) {
-    replaced.mediaInfo = next.mediaInfo;
-  } else {
-    delete replaced.mediaInfo;
-  }
-  return {
-    ...project,
-    storyboard: [replaced],
-  };
+  return projectWithReplacedFrameImage(project, start.id, next);
 }
 
 export async function uploadStartingFrame(file: File): Promise<StartingFrameUpload> {

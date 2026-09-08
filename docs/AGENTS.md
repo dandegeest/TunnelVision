@@ -84,14 +84,16 @@ including starting frame A with a trusted media identity and the
 completed A→F storyboard and Journey clips. The Director runtime resolves that identity from Project state; it does
 not independently substitute a catalog still. The filmmaker's Plan composer is a temporary draft; accepted planning
 submissions update `Project.story` and append that exact text to
-conversation history. The filmmaker can replace authoritative A with an
-uploaded still. Uploaded A is session/dev-runtime trusted media, not
+conversation history. The filmmaker can replace a destination's
+canonical still in place from the destination menu. Add Destination
+extends the storyboard after the last configured frame; it is not
+itself a destination. Uploaded media is session/dev-runtime trusted media, not
 durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
-Video remains unwired in the product. After replacement, runtime Project A is
-authoritative. First destination-construction observation:
+Video remains unwired in the product. After replacement, that destination
+keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).

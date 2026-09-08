@@ -100,7 +100,6 @@ body,
   flex: 1 1 auto;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.45rem;
   padding: 0.7rem 0.8rem 0.35rem;
   border: 0;
   background: transparent;
@@ -113,15 +112,6 @@ body,
   flex: 0 0 auto;
   font-size: 0.875rem;
   letter-spacing: 0.22em;
-}
-
-.storyboard-fpo-intent {
-  min-height: 0;
-  flex: 1 1 auto;
-  overflow: auto;
-  color: #cfc6b8;
-  font-size: 0.875rem;
-  line-height: 1.35;
 }
 
 .storyboard-fpo-action {

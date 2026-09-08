@@ -179,11 +179,12 @@ Project state; it does not independently substitute a catalog still.
 The Director architecture
 accepts story plus `MediaInput`. The Plan composer is a temporary draft;
 accepted planning submissions update `Project.story` and append that
-exact text to conversation history. The filmmaker can replace authoritative A with an uploaded still.
-Uploaded A is session/dev-runtime trusted media, not durable project
+exact text to conversation history with a pending Director entry that
+resolves in place. The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
+Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
-be resolved as provider input. After replacement, runtime Project A is
-authoritative. Visual checkpoint for the frozen Plan shell:
+be resolved as provider input. After replacement, that destination keeps
+its identity. Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).
@@ -194,7 +195,10 @@ Forest A→F Camotion continuity evidence:
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; Media Info is an
-icon tool, not a global diagnostic banner.
+icon tool, not a global diagnostic banner. Destination actions live in
+the destination menu. Director conversation entries resolve in place
+from planning to complete, with structured evidence and a filmmaker-facing
+summary. Conversation timestamps are stored on the entry.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is
 an explicit heuristic. It is not spatial traversability or

@@ -8,7 +8,7 @@ export type DirectorBeat = {
 };
 
 export type DirectorPlan = {
-  summary?: string;
+  summary: string;
   beats: DirectorBeat[];
 };
 

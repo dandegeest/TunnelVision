@@ -13,7 +13,7 @@ export type DirectorBeat = {
 };
 
 export type DirectorPlan = {
-  readonly summary?: string;
+  readonly summary: string;
   readonly beats: readonly DirectorBeat[];
 };
 
@@ -134,12 +134,9 @@ export function parseDirectorPlan(text: string): DirectorPlan {
     };
   });
 
-  const summary =
-    record.summary === undefined || record.summary === null
-      ? undefined
-      : asNonEmptyString(record.summary, "summary");
+  const summary = asNonEmptyString(record.summary, "summary");
 
-  return summary ? { summary, beats } : { beats };
+  return { summary, beats };
 }
 
 /** Subsequent planned beats only. The opening frame is applied by the product, not replaced here. */
@@ -170,9 +167,7 @@ export async function plan(input: {
   });
   const parsed = parseDirectorPlan(result.text);
   const beats = subsequentDirectorBeats(parsed, input.startFrame.id);
-  const plan: DirectorPlan = parsed.summary
-    ? { summary: parsed.summary, beats }
-    : { beats };
+  const plan: DirectorPlan = { summary: parsed.summary, beats };
   return {
     plan,
     request: request.payload,

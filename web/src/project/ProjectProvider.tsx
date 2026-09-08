@@ -11,8 +11,8 @@ import { createForestProject } from "../fixtures/forest-a-to-f";
 import { clampZoom } from "../timeline/geometry";
 import { requestDirectorPlan } from "./director";
 import { readStoryboardMediaInfo } from "./media-preflight";
-import { projectWithReplacedStartImage, uploadStartingFrame } from "./starting-frame";
-import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
+import { projectWithAddedDestination, projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
   requestConstructDestination,
   projectWithConstructedDestination,
@@ -20,8 +20,10 @@ import {
 } from "./destination";
 import {
   appendConversationEntry,
+  conversationTimestamp,
   preparePlanSubmission,
   resolveConstructionEntry,
+  resolveDirectorEntry,
   type ConversationEntry,
 } from "./conversation";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
@@ -53,7 +55,8 @@ type ProjectContextValue = {
   planWithDirector: () => Promise<void>;
   startingFrameError: string | null;
   replacingStart: boolean;
-  replaceStartingImage: (file: File) => Promise<void>;
+  replaceDestinationImage: (frameId: string, file: File) => Promise<void>;
+  addDestination: () => void;
   constructingBeatId: string | null;
   constructDestination: (beatId: string) => Promise<void>;
 };
@@ -134,22 +137,29 @@ export function ProjectProvider({
     }));
   }, []);
 
-  const replaceStartingImage = useCallback(async (file: File) => {
+  const replaceDestinationImage = useCallback(async (frameId: string, file: File) => {
     setStartingFrameError(null);
     setReplacingStart(true);
     try {
       const uploaded = await uploadStartingFrame(file);
       const mediaInfo = await readStoryboardMediaInfo(file);
       setProject((current) =>
-        projectWithReplacedStartImage(current, mediaInfo ? { ...uploaded, mediaInfo } : uploaded),
+        projectWithReplacedFrameImage(
+          current,
+          frameId,
+          mediaInfo ? { ...uploaded, mediaInfo } : uploaded,
+        ),
       );
-      setDirectorStatus("idle");
-      setSelection({ kind: "storyboard", frameId: "A" });
+      setSelection({ kind: "storyboard", frameId });
     } catch (error) {
       setStartingFrameError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
       setReplacingStart(false);
     }
+  }, []);
+
+  const addDestination = useCallback(() => {
+    setProject((current) => projectWithAddedDestination(current));
   }, []);
 
   const constructDestination = useCallback(async (beatId: string) => {
@@ -158,6 +168,7 @@ export function ProjectProvider({
     setConversation((entries) =>
       appendConversationEntry(entries, {
         id: entryId,
+        createdAt: conversationTimestamp(),
         kind: "construction",
         beatId,
         status: "constructing",
@@ -202,22 +213,38 @@ export function ProjectProvider({
     setPlanStartError(null);
     setComposerDraft("");
     setProject((current) => ({ ...current, story: prepared.submitted }));
+    const filmmakerId = nextConversationId("filmmaker");
+    const directorId = nextConversationId("director");
+    const submittedAt = conversationTimestamp();
     setConversation((entries) =>
-      appendConversationEntry(entries, {
-        id: nextConversationId("filmmaker"),
-        kind: "filmmaker",
-        text: prepared.submitted,
-      }),
+      appendConversationEntry(
+        appendConversationEntry(entries, {
+          id: filmmakerId,
+          createdAt: submittedAt,
+          kind: "filmmaker",
+          text: prepared.submitted,
+        }),
+        {
+          id: directorId,
+          createdAt: conversationTimestamp(),
+          kind: "director",
+          status: "planning",
+        },
+      ),
     );
     setDirectorStatus("planning");
     try {
       const result = await requestDirectorPlan(prepared.request);
+      const summary = result.plan.summary?.trim();
+      if (!summary) {
+        throw new Error("Director returned no filmmaker-facing summary");
+      }
       setProject((current) => projectWithDirectorPlan(current, result.plan));
       setConversation((entries) =>
-        appendConversationEntry(entries, {
-          id: nextConversationId("director"),
-          kind: "director",
+        resolveDirectorEntry(entries, directorId, {
+          status: "complete",
           evidence: result.evidence,
+          summary,
         }),
       );
       setDirectorStatus("ready");
@@ -225,9 +252,8 @@ export function ProjectProvider({
     } catch (error) {
       setDirectorStatus("error");
       setConversation((entries) =>
-        appendConversationEntry(entries, {
-          id: nextConversationId("director"),
-          kind: "director",
+        resolveDirectorEntry(entries, directorId, {
+          status: "failed",
           error: error instanceof Error ? error.message : "Director planning failed",
         }),
       );
@@ -267,7 +293,8 @@ export function ProjectProvider({
       planWithDirector,
       startingFrameError,
       replacingStart,
-      replaceStartingImage,
+      replaceDestinationImage,
+      addDestination,
       constructingBeatId,
       constructDestination,
     }),
@@ -292,7 +319,8 @@ export function ProjectProvider({
       planWithDirector,
       startingFrameError,
       replacingStart,
-      replaceStartingImage,
+      replaceDestinationImage,
+      addDestination,
       constructingBeatId,
       constructDestination,
     ],

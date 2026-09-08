@@ -5,21 +5,25 @@ import {
 } from "./director";
 import type { Project } from "./types";
 
-export type FilmmakerConversationEntry = {
+export type ConversationEntryBase = {
   id: string;
+  createdAt: string;
+};
+
+export type FilmmakerConversationEntry = ConversationEntryBase & {
   kind: "filmmaker";
   text: string;
 };
 
-export type DirectorConversationEntry = {
-  id: string;
+export type DirectorConversationEntry = ConversationEntryBase & {
   kind: "director";
+  status: "planning" | "complete" | "failed";
   evidence?: DirectorEvidence;
+  summary?: string;
   error?: string;
 };
 
-export type ConstructionConversationEntry = {
-  id: string;
+export type ConstructionConversationEntry = ConversationEntryBase & {
   kind: "construction";
   beatId: string;
   status: "constructing" | "constructed" | "failed";
@@ -35,6 +39,23 @@ export type ConversationEntry =
 export type PlanSubmission =
   | { ok: true; submitted: string; request: DirectorPlanRequest }
   | { ok: false; reason: "empty" | "invalid"; message?: string };
+
+export function conversationTimestamp(now = new Date()): string {
+  return now.toISOString();
+}
+
+/** Format a stored entry time. Does not use the current clock. */
+export function formatConversationClock(createdAt: string): string {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  const hours24 = date.getHours();
+  const hour12 = hours24 % 12 || 12;
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const suffix = hours24 < 12 ? "AM" : "PM";
+  return `${hour12}:${minutes} ${suffix}`;
+}
 
 export function preparePlanSubmission(draft: string, project: Project): PlanSubmission {
   if (!draft.trim()) {
@@ -60,6 +81,36 @@ export function appendConversationEntry(
   entry: ConversationEntry,
 ): ConversationEntry[] {
   return [...entries, entry];
+}
+
+export function resolveDirectorEntry(
+  entries: ConversationEntry[],
+  id: string,
+  next:
+    | { status: "complete"; evidence: DirectorEvidence; summary: string }
+    | { status: "failed"; error: string },
+): ConversationEntry[] {
+  return entries.map((entry) => {
+    if (entry.kind !== "director" || entry.id !== id) {
+      return entry;
+    }
+    if (next.status === "complete") {
+      return {
+        ...entry,
+        status: "complete",
+        evidence: next.evidence,
+        summary: next.summary,
+        error: undefined,
+      };
+    }
+    return {
+      ...entry,
+      status: "failed",
+      error: next.error,
+      evidence: undefined,
+      summary: undefined,
+    };
+  });
 }
 
 export function resolveConstructionEntry(

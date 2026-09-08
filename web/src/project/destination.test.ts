@@ -29,6 +29,7 @@ const generatedC = {
 };
 
 const beats = {
+  summary: "A test journey through connected volumes.",
   beats: [
     {
       id: "B",

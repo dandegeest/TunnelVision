@@ -86,6 +86,37 @@ export function selectionForWorkspaceView(
 
 const STORYBOARD_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+export function nextStoryboardSlot(
+  frames: StoryboardFrame[],
+): { id: string; label: string } | undefined {
+  const used = new Set(frames.map((frame) => frame.id.trim().toUpperCase()));
+  for (const letter of STORYBOARD_LABELS) {
+    if (!used.has(letter)) {
+      return { id: letter, label: letter };
+    }
+  }
+  return undefined;
+}
+
+/** Append an empty planned destination after the last configured frame. Not a construction strategy. */
+export function projectWithAddedDestination(project: Project): Project {
+  const next = nextStoryboardSlot(project.storyboard);
+  if (!next) {
+    return project;
+  }
+  return {
+    ...project,
+    storyboard: [
+      ...project.storyboard,
+      {
+        id: next.id,
+        label: next.label,
+        imageOrigin: "none",
+      },
+    ],
+  };
+}
+
 /**
  * Keep the filmmaker-supplied opening frame. Map Director subsequent beats to
  * planned/FPO storyboard frames. Does not touch Shoot Destinations or Journeys.

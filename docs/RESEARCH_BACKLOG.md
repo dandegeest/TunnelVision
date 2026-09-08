@@ -517,6 +517,14 @@ the project data model. Persistence, undo / redo, and a revision
 graph remain future work. Do not erase expensive generated evidence
 merely because Plan changes. Do not design those semantics here.
 
+## Destination-card duration
+
+**Not current Plan HUD.** Approximate duration describes a
+Journey/segment (A → B), not Destination B. It may later sit between
+destination cards and may split Director pacing intent from
+Cinematographer-resolved shooting duration. Do not put `~6s` inside
+destination thumbnails.
+
 ## Runway last-frame discovery
 
 Hackathon research branch, not current architecture. Investigate

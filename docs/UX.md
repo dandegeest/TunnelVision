@@ -19,12 +19,15 @@ deliberately no Edit workspace.
 storyboard grid plus Conversation. Send asks the Director to plan
 from the filmmaker story and starting frame; the composer is a temporary
 draft. Accepted Plan Movie submissions append that exact draft to
-conversation history, update `Project.story`, and clear the composer.
-Planned beats start as FPO and show the Director's current beat
-intent until an actual image exists. Construct builds
-the next planned beat from the preceding actual destination through
-image-conditioned edit; later beats stay planned until the filmmaker
-constructs them. Construct is sequential **Derived** construction, not
+conversation history together with a pending Director entry, update
+`Project.story`, and clear the composer. The Director entry resolves
+in place. Planned beats start as FPO. Generate is centered beneath the
+planned thumbnail and builds the next planned beat from the preceding
+actual destination through image-conditioned edit; later beats stay
+planned until the filmmaker generates them. Director intent stays in
+project state and is available from the destination thumbnail, not as
+persistent storyboard caption text. Construct is sequential **Derived**
+construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Video remains unwired. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
@@ -34,11 +37,12 @@ identity and the completed A→F storyboard and Journey clips.
 The Director runtime resolves that identity from
 Project state; it does not independently substitute a catalog still.
 Accepted Plan submissions update `Project.story`. The filmmaker can replace
-authoritative A with an uploaded still. Uploaded A is
+a destination's canonical still in place from the destination menu.
+Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
-as provider input. After replacement, runtime Project A is
-authoritative. Slice 2 visual checkpoint:
+as provider input. After replacement, that destination's identity stays
+the same. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -120,10 +124,25 @@ convert source media.
 
 Storyboard **Media Info** is an icon tool in the workspace header
 toolbar. Frame labels occupy a
-full-width top strip. Technical facts (provenance icon, friendly
+full-width top strip. Destination-specific actions live in a quiet
+kebab on that strip; the first action is Replace…, which swaps that
+destination's canonical still in place. An Add Destination affordance
+follows the last configured destination; it is not itself a destination
+and does not encode Provided / Generated / Derived / Discovered.
+Approximate duration belongs to a Journey/segment, not the destination
+thumbnail. Technical facts (provenance icon, friendly
 aspect, dimensions, format) appear in a thin bottom strip only when
-Media Info is on. Visual description stays below the thumbnail. Do
-not silently alter filmmaker media.
+Media Info is on. Destination planning details (intent and visual
+description) are available from the destination thumbnail, not as
+persistent caption text. Do not silently alter filmmaker media.
+
+Plan conversation is an interaction mechanism. The storyboard remains
+the authoritative Plan artifact. A Send appends the filmmaker turn and
+a pending Director turn in history; that same Director entry resolves
+in place to structured evidence plus a concise filmmaker-facing
+summary. Timestamps are stored on each conversation entry when it is
+created; the UI formats that stored time. Role labels are FILMMAKER
+and DIRECTOR.
 
 Shoot **boundary continuity** is a seam-level mark at the shared
 destination between adjacent completed Journey clips. The timeline
@@ -189,7 +208,8 @@ it did not replace canonical E. See
 ## Opening state
 
 Minimum brief: a story / journey idea. The filmmaker can replace
-starting frame A from Plan. Approximate duration remains a later
+starting frame A from Plan. Approximate duration is a Journey/segment
+property, not a Destination HUD field, and remains a later
 collaborative control.
 
 Slice 1 uses a uniform journey duration of 6 seconds as fixture

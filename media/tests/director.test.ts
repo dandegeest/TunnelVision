@@ -93,7 +93,17 @@ test("invalid Director output fails instead of inventing beats", () => {
   assert.throws(() => parseDirectorPlan("{}"), /beats\[\]/);
   assert.throws(() => parseDirectorPlan(JSON.stringify({ beats: [] })), /no planned beats/);
   assert.throws(
-    () => parseDirectorPlan(JSON.stringify({ beats: [{ id: "B", intent: "Go." }] })),
+    () => parseDirectorPlan(JSON.stringify({ beats: [{ id: "B", intent: "Go.", visualDescription: "There." }] })),
+    /summary/,
+  );
+  assert.throws(
+    () =>
+      parseDirectorPlan(
+        JSON.stringify({
+          summary: "A journey.",
+          beats: [{ id: "B", intent: "Go." }],
+        }),
+      ),
     /visualDescription/,
   );
 });
@@ -114,8 +124,10 @@ test("starting frame is not treated as a subsequent Director beat", () => {
 
 test("Director.plan uses ReasoningProvider and returns validated beats plus evidence", async () => {
   let captured: ReasoningRequest | undefined;
+  let completeCalls = 0;
   const reasoning: ReasoningProvider = {
     async complete(request) {
+      completeCalls += 1;
       captured = request;
       const result: ReasoningResult = {
         provider: "replicate",
@@ -134,7 +146,9 @@ test("Director.plan uses ReasoningProvider and returns validated beats plus evid
   };
 
   const result = await plan({ reasoning, ...input });
+  assert.equal(completeCalls, 1);
   assert.equal(captured?.prompt, buildDirectorRequest(input).prompt);
+  assert.equal(result.plan.summary, "Leave the attic through the wardrobe and keep moving.");
   assert.equal(result.plan.beats[0]?.id, "B");
   assert.equal(result.rawText, validPlanJson());
   assert.equal(result.model, "mock/director");

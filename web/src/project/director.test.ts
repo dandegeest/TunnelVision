@@ -61,8 +61,10 @@ describe("Director client boundary", () => {
 
     const result = await requestDirectorPlan(payload);
     expect(fetchMock).toHaveBeenCalledWith("/api/director/plan", expect.objectContaining({ method: "POST" }));
+    expect(result.plan.summary).toBe("Leave through the wardrobe.");
     expect(result.plan.beats[0]?.intent).toBe("Enter the wardrobe.");
     expect(result.evidence.predictionId).toBe("pred-test");
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 
   it("fails visibly on invalid Director output instead of inventing beats", async () => {
@@ -162,6 +164,7 @@ describe("Director request from Project state", () => {
   it("sends the edited story on re-plan without substituting the Wardrobe prompt", () => {
     const project = createWardrobeProject();
     const first = projectWithDirectorPlan(project, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Old wardrobe beat.", visualDescription: "Old coats." },
         { id: "C", intent: "Old forest beat.", visualDescription: "Old trees." },
@@ -177,6 +180,7 @@ describe("Director request from Project state", () => {
     expect(request.startMediaId).toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
 
     const second = projectWithDirectorPlan(edited, {
+      summary: "A revised courtyard journey.",
       beats: [
         { id: "B", intent: "New greenhouse beat.", visualDescription: "Broken glass." },
         { id: "C", intent: "New courtyard beat.", visualDescription: "Flooded stone." },

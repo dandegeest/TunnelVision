@@ -3,18 +3,23 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
 import type { ConversationEntry } from "../project/conversation";
+import { formatConversationClock } from "../project/conversation";
+import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, destinationDetailContent, formatDirectorEvidenceJson } from "./PlanView";
 import {
   canConstructDestinationFrame,
   projectWithConstructedDestination,
 } from "../project/destination";
 import type { DirectorEvidence } from "../project/director";
 import { ProjectProvider } from "../project/ProjectProvider";
-import { isAuthoritativeStartingFrame } from "../project/starting-frame";
-import { projectWithDirectorPlan } from "../project/storyboard";
+import { STARTING_FRAME_ACCEPT } from "../project/starting-frame";
+import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan } from "../project/storyboard";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
-import { PlanView, PreflightWarningControl, StoryboardFrameMedia } from "./PlanView";
+
+const AT = "2026-09-07T22:03:00.000Z";
+const AT2 = "2026-09-07T22:04:00.000Z";
 
 const plannedBeats = {
+  summary: "A continuous forward journey through connected interior volumes.",
   beats: [
     {
       id: "B",
@@ -45,7 +50,7 @@ function directorEvidence(story: string, predictionId: string): DirectorEvidence
       systemInstruction: "Director",
       prompt: "Plan forward",
     },
-    rawText: "{}",
+    rawText: '{"beats":[{"id":"B","intent":"Enter the next volume.","visualDescription":"A continuing corridor."}]}',
     model: "google/gemini-3.1-pro",
     modelVersion: null,
     predictionId,
@@ -82,18 +87,9 @@ function renderFrame(
       frame={frame}
       selected
       constructing={false}
-      canConstruct={false}
-      constructDisabled={false}
       onSelect={() => undefined}
-      onConstruct={() => undefined}
       {...options}
     />,
-  );
-}
-
-function fpoIntents(html: string) {
-  return [...html.matchAll(/class="storyboard-fpo-intent">([^<]*)<\/span>/g)].map(
-    (match) => match[1],
   );
 }
 
@@ -101,15 +97,19 @@ describe("Plan composer", () => {
   it("is an editable draft, not a live display of project.story", () => {
     const html = renderPlan();
     expect(html).toContain('id="plan-composer"');
-    expect(html).toContain('rows="7"');
+    expect(html).toContain("text-[13px]");
+    expect(html).toContain("resize-y");
+    expect(html).toContain('rows="5"');
     expect(html).toContain('aria-label="Resize story panel"');
     expect(html).not.toMatch(/id="plan-composer"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
     expect(html).toContain('aria-label="Plan movie"');
-    expect(html).toContain("Replace image");
-    expect(html).toContain('id="replace-starting-image"');
-    expect(html).toContain('accept="image/png,image/jpeg,image/webp"');
-    expect(html).not.toContain("Tell TunnelVision what to change");
+    expect(html).toContain("Add Destination");
+    expect(html).toContain('id="replace-destination-image"');
+    expect(html).toContain(`accept="${STARTING_FRAME_ACCEPT}"`);
+    expect(html).not.toContain("Replace image");
+    expect(html).not.toContain("REPLACE IMAGE");
+    expect(html).not.toContain("You ·");
     expect(html).not.toContain('aria-label="Construct destination B"');
     expect(html).not.toContain("Filmmaker");
   });
@@ -123,12 +123,22 @@ describe("Plan composer", () => {
     const html = renderPlan(project, {
       composerDraft: "",
       conversation: [
-        { id: "f1", kind: "filmmaker", text: submitted },
-        { id: "d1", kind: "director", evidence: directorEvidence(submitted, "pred-1") },
+        { id: "f1", createdAt: AT, kind: "filmmaker", text: submitted },
+        {
+          id: "d1",
+          createdAt: AT2,
+          kind: "director",
+          status: "complete",
+          evidence: directorEvidence(submitted, "pred-1"),
+          summary: "A continuous forward journey.",
+        },
       ],
     });
     expect(html).toContain("Filmmaker");
     expect(html).toContain(submitted);
+    expect(html).toContain("A continuous forward journey.");
+    expect(html).toContain(formatConversationClock(AT));
+    expect(html).not.toContain("Director planning…");
     expect(html).not.toContain("Current project story that must not refill the composer.");
     expect(html).toMatch(/<textarea[^>]*id="plan-composer"[^>]*><\/textarea>/);
     expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(1);
@@ -140,67 +150,83 @@ describe("Plan composer", () => {
     expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
   });
 
-  it("does not offer Replace image on a user-origin frame that is not A", () => {
-    expect(isAuthoritativeStartingFrame({ id: "A" })).toBe(true);
-    expect(isAuthoritativeStartingFrame({ id: "B" })).toBe(false);
+  it("keeps Replace… on destination A and does not show a text control under the thumbnail", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).toContain("destination-menu");
+    expect(html).not.toContain("Replace image");
+    expect(html).not.toContain("REPLACE IMAGE");
+    expect(html).not.toContain("Replace…");
+    expect(html).not.toContain("Generate");
+    expect(html).not.toContain("CONSTRUCT");
+    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
   });
 });
 
 describe("Plan storyboard FPO intent", () => {
-  it("shows the exact Director intent inside planned FPOs, not visualDescription", () => {
+  it("keeps planned FPO visual and stores Director intent for details", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const html = renderPlan(planned);
-    expect(fpoIntents(html)).toEqual([
-      "Move forward into the next space.",
-      "Continue through the corridor.",
-      "Emerge into a larger chamber.",
-    ]);
     expect(html).toContain("storyboard-fpo-label");
+    expect(html).not.toContain("Move forward into the next space.");
     expect(html).not.toContain("A corridor continuing the same world.");
     expect(html).not.toContain("Deeper volume ahead.");
     expect(html).not.toContain("A cavern continuing the same world.");
+    expect(planned.storyboard[1]?.intent).toBe("Move forward into the next space.");
+    expect(planned.storyboard[1]?.visualDescription).toBe("A corridor continuing the same world.");
+    const fpo = renderFrame(planned.storyboard[1]!);
+    expect(fpo).toContain("storyboard-fpo-label");
+    expect(fpo).not.toContain("Move forward into the next space.");
+    expect(fpo).not.toContain("A corridor continuing the same world.");
+    expect(fpo).not.toContain("Generate");
   });
 
-  it("shows intent plus CONSTRUCT on the eligible planned frame only", () => {
+  it("shows Generate centered beneath the eligible planned thumbnail", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const html = renderPlan(planned);
-    expect(html).toContain("storyboard-fpo-cta");
-    expect(html).toContain('aria-label="Construct destination B"');
-    expect(html).toContain("CONSTRUCT");
-    expect(html.match(/aria-label="Construct destination B"/g)?.length).toBe(1);
-    expect(html.match(/storyboard-fpo-cta/g)?.length).toBe(1);
-    expect(html).not.toContain("Construct destination C");
-    expect(html).not.toMatch(/mt-2[^>]*>Construct</);
+    expect(html).not.toContain("CONSTRUCT");
+    expect(html).not.toContain("storyboard-fpo-cta");
+    expect(html).toContain("destination-generate-row");
+    expect(html).toContain("justify-center");
+    expect(html).toContain("destination-generate");
+    expect(html).toContain(">Generate</button>");
+    expect(html).toContain('aria-label="Generate destination B"');
+    expect(html.match(/aria-label="Generate destination B"/g)?.length).toBe(1);
+    expect(html).not.toContain("Generate destination C");
     expect(canConstructDestinationFrame(planned, planned.storyboard[1]!)).toBe(true);
     expect(canConstructDestinationFrame(planned, planned.storyboard[2]!)).toBe(false);
 
-    const b = renderFrame(planned.storyboard[1]!, { canConstruct: true });
-    expect(b).toContain("Move forward into the next space.");
-    expect(b).toContain("CONSTRUCT");
-    expect(b).toContain('aria-label="Construct destination B"');
-    expect(b).not.toContain("A corridor continuing the same world.");
+    const fpoAt = html.indexOf("storyboard-fpo-label");
+    const generateAt = html.indexOf('aria-label="Generate destination B"');
+    expect(fpoAt).toBeGreaterThan(-1);
+    expect(generateAt).toBeGreaterThan(fpoAt);
+    expect(html.indexOf("destination-generate-row")).toBeGreaterThan(
+      html.indexOf("</button>", html.indexOf("storyboard-fpo-copy")),
+    );
+    expect(html).not.toContain("A corridor continuing the same world.");
+
+    const b = renderFrame(planned.storyboard[1]!);
+    expect(b).not.toContain("CONSTRUCT");
+    expect(b).not.toContain("Generate");
+    expect(b).not.toContain("Move forward into the next space.");
 
     const c = renderFrame(planned.storyboard[2]!);
-    expect(c).toContain("Continue through the corridor.");
-    expect(c).not.toContain("CONSTRUCT");
-    expect(c).not.toContain('aria-label="Construct destination C"');
-    expect(c).not.toContain("Deeper volume ahead.");
+    expect(c).not.toContain("Generate");
+    expect(c).not.toContain("Continue through the corridor.");
   });
 
-  it("keeps Director intent visible in the generating FPO", () => {
+  it("keeps the generating FPO visual without a persistent scene caption", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const generating = renderFrame(planned.storyboard[1]!, {
       constructing: true,
-      canConstruct: true,
-      constructDisabled: true,
     });
     expect(generating).toContain("storyboard-generating");
     expect(generating).toContain("Generating…");
     expect(generating).toContain('aria-label="Generating destination B"');
-    expect(generating).toContain("Move forward into the next space.");
-    expect(generating).toContain("storyboard-fpo-intent");
+    expect(generating).toContain("storyboard-fpo-label");
     expect(generating).not.toContain("CONSTRUCT");
-    expect(generating).not.toContain('aria-label="Construct destination B"');
+    expect(generating).not.toContain("Generate");
+    expect(generating).not.toContain("Move forward into the next space.");
     expect(generating).not.toContain("A corridor continuing the same world.");
   });
 
@@ -213,15 +239,16 @@ describe("Plan storyboard FPO intent", () => {
     });
     const afterB = renderPlan(constructedB);
     expect(afterB).toContain("/api/runtime-media/upload-11111111111111111111111111111111");
-    expect(afterB).not.toContain('aria-label="Construct destination B"');
-    expect(afterB).toContain('aria-label="Construct destination C"');
-    expect(afterB).not.toContain("Construct destination D");
-    expect(afterB.match(/storyboard-fpo-cta/g)?.length).toBe(1);
-    expect(fpoIntents(afterB)).toEqual([
-      "Continue through the corridor.",
-      "Emerge into a larger chamber.",
-    ]);
-    expect(afterB).toContain("Move forward into the next space.");
+    expect(afterB).not.toContain('aria-label="Generate destination B"');
+    expect(afterB).toContain('aria-label="Generate destination C"');
+    expect(afterB).not.toContain("Generate destination D");
+    expect(afterB).not.toContain("CONSTRUCT");
+    expect(afterB.match(/destination-generate-row/g)?.length).toBe(1);
+    expect(afterB).not.toContain("Move forward into the next space.");
+    expect(afterB).not.toContain("A corridor continuing the same world.");
+    expect(afterB).not.toContain("REPLACE IMAGE");
+    expect(constructedB.storyboard[1]?.intent).toBe("Move forward into the next space.");
+    expect(constructedB.storyboard[1]?.visualDescription).toBe("A corridor continuing the same world.");
     expect(canConstructDestinationFrame(constructedB, constructedB.storyboard[2]!)).toBe(true);
     expect(canConstructDestinationFrame(constructedB, constructedB.storyboard[3]!)).toBe(false);
 
@@ -230,11 +257,13 @@ describe("Plan storyboard FPO intent", () => {
     expect(actual).not.toContain("storyboard-fpo");
     expect(actual).not.toContain("Move forward into the next space.");
     expect(actual).not.toContain("CONSTRUCT");
+    expect(actual).not.toContain("Generate");
   });
 
-  it("updates FPO intent from the current storyboard after a later Director plan", () => {
+  it("updates stored Director intent after a later Director plan without showing it on the FPO", () => {
     const first = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const replanned = projectWithDirectorPlan(first, {
+      summary: "The journey continues through a fissure in the monolith.",
       beats: [
         {
           id: "B",
@@ -249,15 +278,15 @@ describe("Plan storyboard FPO intent", () => {
       ],
     });
     const html = renderPlan(replanned);
-    expect(fpoIntents(html)).toEqual([
-      "Cross the plain and enter the narrow glowing fissure in the monolith.",
-      "Follow the fissure inward.",
-    ]);
     expect(html).not.toContain("Move forward into the next space.");
     expect(html).not.toContain("Continue through the corridor.");
     expect(html).not.toContain("A replacement visual that must not appear in the FPO.");
-    expect(html).toContain('aria-label="Construct destination B"');
-    expect(html).not.toContain("Construct destination C");
+    expect(replanned.storyboard[1]?.intent).toBe(
+      "Cross the plain and enter the narrow glowing fissure in the monolith.",
+    );
+    expect(replanned.storyboard[1]?.visualDescription).toBe("A replacement visual that must not appear in the FPO.");
+    expect(html).toContain('aria-label="Generate destination B"');
+    expect(html).not.toContain("Generate destination C");
   });
 
   it("keeps conversation construction activity in the Story panel", () => {
@@ -269,7 +298,7 @@ describe("Plan storyboard FPO intent", () => {
 
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const plannedHtml = renderPlan(planned);
-    expect(plannedHtml).toContain("Construct destination B");
+    expect(plannedHtml).toContain("Generate destination B");
     expect(plannedHtml).not.toContain("Constructing B");
   });
 });
@@ -282,10 +311,18 @@ describe("Plan conversation thread", () => {
     const html = renderPlan(createWardrobeProject(), {
       composerDraft: "",
       conversation: [
-        { id: "f1", kind: "filmmaker", text: firstStory },
-        { id: "d1", kind: "director", evidence: directorEvidence(firstStory, "pred-1") },
+        { id: "f1", createdAt: AT, kind: "filmmaker", text: firstStory },
+        {
+          id: "d1",
+          createdAt: AT2,
+          kind: "director",
+          status: "complete",
+          evidence: directorEvidence(firstStory, "pred-1"),
+          summary: "First journey.",
+        },
         {
           id: "b",
+          createdAt: AT2,
           kind: "construction",
           beatId: "B",
           status: "constructed",
@@ -293,12 +330,20 @@ describe("Plan conversation thread", () => {
         },
         {
           id: "c",
+          createdAt: AT2,
           kind: "construction",
           beatId: "C",
           status: "constructing",
         },
-        { id: "f2", kind: "filmmaker", text: secondStory },
-        { id: "d2", kind: "director", evidence: directorEvidence(secondStory, "pred-2") },
+        { id: "f2", createdAt: AT2, kind: "filmmaker", text: secondStory },
+        {
+          id: "d2",
+          createdAt: AT2,
+          kind: "director",
+          status: "complete",
+          evidence: directorEvidence(secondStory, "pred-2"),
+          summary: "Deeper into the fissure.",
+        },
       ],
     });
     const filmmaker = html.indexOf("Filmmaker");
@@ -317,6 +362,14 @@ describe("Plan conversation thread", () => {
     expect(directorTwo).toBeGreaterThan(second);
     expect(html).toContain("/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
     expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(2);
+    expect(html).toContain("First journey.");
+    expect(html).toContain("Deeper into the fissure.");
+    expect(html).toContain(formatConversationClock(AT));
+    expect(html).not.toContain("Director planning…");
+    expect(html).not.toContain("You ·");
+    expect(html).toContain("conversation-filmmaker");
+    expect(html).toContain("conversation-director");
+    expect(html).toContain("border-l");
     expect(html).not.toContain("Constructed C");
   });
 
@@ -326,6 +379,7 @@ describe("Plan conversation thread", () => {
       conversation: [
         {
           id: "b",
+          createdAt: AT,
           kind: "construction",
           beatId: "B",
           status: "constructed",
@@ -333,6 +387,7 @@ describe("Plan conversation thread", () => {
         },
         {
           id: "c",
+          createdAt: AT2,
           kind: "construction",
           beatId: "C",
           status: "failed",
@@ -373,12 +428,12 @@ describe("Plan storyboard chrome", () => {
     expect(html).not.toMatch(/>Storyboard</);
   });
 
-  it("uses a full-width top label strip and description below", () => {
+  it("uses a full-width top label strip without a persistent scene caption", () => {
     const html = renderPlan(createForestProject());
     expect(html).toContain("storyboard-frame-label");
     expect(html).toContain("inset-x-0 top-0");
-    expect(html).toContain("Night forest path toward the tree-trunk / root gateway in mist.");
-    expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
+    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+    expect(html).not.toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
     expect(html).not.toContain("UPLOADED");
     expect(html).not.toContain("Uploaded</span>");
   });
@@ -428,7 +483,7 @@ describe("Plan storyboard chrome", () => {
     expect(html).toContain('aria-label="Derived destination"');
     expect(html).toContain("~16:9 · 1000×558 · JPG");
     expect(html).toContain("~1.85:1 · 1392×752 · PNG");
-    expect(html).toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
   });
 
   it("keeps an aspect warning on A in both Media Info states, not on healthy B–F", () => {
@@ -492,5 +547,221 @@ describe("Plan storyboard chrome", () => {
     const html = renderPlan(project);
     expect(html).not.toContain("storyboard-preflight-warning");
     expect(html).not.toContain("Aspect ratio differs");
+  });
+});
+
+describe("Plan destination affordance and menu", () => {
+  it("renders Add Destination after the final configured destination without making it a destination", () => {
+    const forest = createForestProject();
+    const html = renderPlan(forest);
+    expect(html).toContain("storyboard-add-destination");
+    expect(html).toContain('aria-label="Add Destination"');
+    expect(html.indexOf('aria-label="Storyboard F"')).toBeLessThan(html.indexOf("Add Destination"));
+    expect(forest.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
+    expect(forest.destinations.map((destination) => destination.id)).toEqual([
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+    ]);
+    expect(nextStoryboardSlot(forest.storyboard)?.id).toBe("G");
+    const added = projectWithAddedDestination(forest);
+    expect(added.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F", "G"]);
+    expect(added.storyboard[6]).toMatchObject({ id: "G", label: "G", imageOrigin: "none" });
+    expect(added.storyboard[6]?.image).toBeUndefined();
+    expect(added.destinations).toEqual(forest.destinations);
+    expect(html).not.toContain("storyboard-fpo-label");
+    expect(html).not.toMatch(/>G</);
+  });
+
+  it("keeps the kebab in the label strip with only Replace…", () => {
+    const html = renderToStaticMarkup(
+      <DestinationMenu frameId="A" label="A" initiallyOpen onReplace={() => undefined} />,
+    );
+    expect(html).toContain("destination-menu");
+    expect(html).toContain("absolute top-0 right-0");
+    expect(html).toContain("Replace…");
+    const forest = renderPlan(createForestProject());
+    const storyboardA = forest.indexOf('aria-label="Storyboard A"');
+    const storyboardAEnd = forest.indexOf("</button>", storyboardA);
+    const kebabA = forest.indexOf('aria-label="Destination A actions"');
+    expect(kebabA).toBeGreaterThan(storyboardAEnd);
+    expect(html).not.toContain("Delete");
+    expect(html).not.toContain("Duplicate");
+    expect(html).not.toContain("Rename");
+    expect(html).not.toContain("Regenerate");
+    expect(html).not.toContain("Download");
+    expect(html).not.toContain("Discover");
+  });
+
+  it("truncates the frame label before the kebab", () => {
+    const html = renderFrame(createForestProject().storyboard[0]!, { showMediaInfo: true });
+    expect(html).toContain("storyboard-frame-label");
+    expect(html).toContain("pr-7");
+  });
+});
+
+describe("Plan destination details", () => {
+  it("keeps Director planning data off the persistent storyboard until details open", () => {
+    const forest = createForestProject();
+    const html = renderPlan(forest);
+    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+    expect(destinationDetailContent(forest.storyboard[0]!)).toEqual({
+      label: "A",
+      intent: "Night forest path toward the tree-trunk / root gateway in mist.",
+    });
+    expect(forest.storyboard[0]?.intent).toBe("Night forest path toward the tree-trunk / root gateway in mist.");
+  });
+
+  it("exposes identity, distinct intent, and visual description in destination details", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    expect(destinationDetailContent(planned.storyboard[1]!)).toEqual({
+      label: "B",
+      intent: "Move forward into the next space.",
+      visualDescription: "A corridor continuing the same world.",
+    });
+    const html = renderToStaticMarkup(
+      <DestinationDetailPopover frame={planned.storyboard[1]!} initiallyOpen />,
+    );
+    expect(html).toContain("destination-detail");
+    expect(html).toContain('aria-label="Destination B details"');
+    expect(html).toContain("Move forward into the next space.");
+    expect(html).toContain("A corridor continuing the same world.");
+    expect(html).toContain("destination-detail-visual");
+    const closed = renderPlan(planned);
+    expect(closed).not.toContain("Move forward into the next space.");
+    expect(closed).not.toContain("A corridor continuing the same world.");
+    expect(closed).toContain('aria-label="Generate destination B"');
+    expect(closed).toContain("destination-menu");
+  });
+
+  it("keeps details available after a planned destination becomes actual media", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    const constructedB = projectWithConstructedDestination(planned, {
+      beatId: "B",
+      mediaId: "upload-11111111111111111111111111111111",
+      imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
+    });
+    expect(constructedB.storyboard[1]?.image).toBeDefined();
+    expect(destinationDetailContent(constructedB.storyboard[1]!)).toEqual({
+      label: "B",
+      intent: "Move forward into the next space.",
+      visualDescription: "A corridor continuing the same world.",
+    });
+    const html = renderToStaticMarkup(
+      <DestinationDetailPopover frame={constructedB.storyboard[1]!} initiallyOpen />,
+    );
+    expect(html).toContain("Move forward into the next space.");
+    expect(html).toContain("A corridor continuing the same world.");
+  });
+
+  it("does not treat Add Destination or empty frames as destination details", () => {
+    const added = projectWithAddedDestination(createForestProject());
+    expect(destinationDetailContent(added.storyboard[6]!)).toBeNull();
+    const html = renderPlan(createForestProject());
+    expect(html).toContain("storyboard-add-destination");
+    expect(html).not.toContain("Destination G details");
+  });
+});
+
+describe("Plan Director conversation UI", () => {
+  it("renders Director Planning in history, not under the composer", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        { id: "f1", createdAt: AT, kind: "filmmaker", text: "Travel forward." },
+        { id: "d1", createdAt: AT2, kind: "director", status: "planning" },
+      ],
+    });
+    expect(html).toContain("Planning…");
+    expect(html).toContain("Filmmaker");
+    expect(html).not.toContain("You ·");
+    expect(html).not.toContain("Director planning…");
+    expect(html.indexOf("Travel forward.")).toBeLessThan(html.indexOf("Planning…"));
+    expect(html.indexOf("Planning…")).toBeLessThan(html.indexOf('id="plan-composer"'));
+  });
+
+  it("pretty-prints nested Director JSON in the collapsible evidence card", () => {
+    const evidence = directorEvidence("Travel forward.", "pred-1");
+    const formatted = formatDirectorEvidenceJson(evidence);
+    expect(formatted).toMatch(/\n {2}"request"/);
+    expect(formatted).toMatch(/\n {4}"story"/);
+    expect(formatted).toMatch(/\n {4}"beats"/);
+    expect(formatted).toContain("Enter the next volume.");
+    expect(formatted.startsWith("{")).toBe(true);
+
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        {
+          id: "d1",
+          createdAt: AT2,
+          kind: "director",
+          status: "complete",
+          evidence,
+          summary: "Treating this as a continuous forward journey.",
+        },
+      ],
+    });
+    expect(html).toContain("director-evidence-json");
+    expect(html).toContain("font-mono");
+    expect(html).toContain("whitespace-pre-wrap");
+    expect(html).toContain("<details");
+    expect(html).not.toMatch(/<details[^>]*\sopen(?:[\s>]|$)/);
+    expect(html.indexOf("<details")).toBeLessThan(html.indexOf("Treating this as a continuous forward journey."));
+  });
+
+  it("shows the collapsible evidence card above the filmmaker-facing summary", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        {
+          id: "d1",
+          createdAt: AT2,
+          kind: "director",
+          status: "complete",
+          evidence: directorEvidence("Travel forward.", "pred-1"),
+          summary: "Treating this as a continuous forward journey.",
+        },
+      ],
+    });
+    expect(html).toContain("<summary");
+    expect(html).toContain("Treating this as a continuous forward journey.");
+    expect(html.indexOf("<details")).toBeLessThan(html.indexOf("Treating this as a continuous forward journey."));
+    expect(html).toContain(formatConversationClock(AT2));
+    expect(html).toContain("conversation-director");
+    expect(html).not.toContain("conversation-filmmaker");
+  });
+
+  it("treats filmmaker instruction as marked direction, distinct from Director response", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        { id: "f1", createdAt: AT, kind: "filmmaker", text: "Travel forward through this night forest." },
+        {
+          id: "d1",
+          createdAt: AT2,
+          kind: "director",
+          status: "complete",
+          evidence: directorEvidence("Travel forward through this night forest.", "pred-1"),
+          summary: "A continuous forward journey through connected spaces.",
+        },
+      ],
+    });
+    expect(html).toContain("Filmmaker");
+    expect(html).toContain("Director");
+    expect(html).not.toContain("You ·");
+    expect(html).toContain("conversation-filmmaker");
+    expect(html).toContain("conversation-director");
+    expect(html).toContain("border-l border-[#3a342c]");
+    expect(html).toContain("text-[13px] leading-relaxed text-[#cfc6b8]");
+    expect(html).toContain("text-[15px] leading-relaxed text-[#ece7df]");
+    expect(html.indexOf("conversation-filmmaker")).toBeLessThan(html.indexOf("conversation-director"));
+    expect(html.indexOf("Travel forward through this night forest.")).toBeLessThan(html.indexOf("<details"));
+    expect(html.indexOf("<details")).toBeLessThan(html.indexOf("A continuous forward journey through connected spaces."));
+    expect(html).toContain(formatConversationClock(AT));
+    expect(html).toContain(formatConversationClock(AT2));
   });
 });

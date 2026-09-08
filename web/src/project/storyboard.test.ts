@@ -6,6 +6,8 @@ import {
   selectionForWorkspaceView,
   nextStoryboardFrame,
   applyDirectorPlanToStoryboard,
+  nextStoryboardSlot,
+  projectWithAddedDestination,
   projectWithDirectorPlan,
 } from "./storyboard";
 import type { StoryboardFrame } from "./types";
@@ -49,6 +51,7 @@ describe("storyboard domain", () => {
 
   it("allows a Director-planned storyboard frame with no image", () => {
     const planned = applyDirectorPlanToStoryboard(project.storyboard[0]!, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
         { id: "C", intent: "Enter the winter forest.", visualDescription: "Trees." },
@@ -152,6 +155,7 @@ describe("Director owns the planned continuation", () => {
 
   it("stores Director beats as FPO planned frames with no canonical image", () => {
     const next = applyDirectorPlanToStoryboard(start, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
         { id: "C", intent: "Enter the forest.", visualDescription: "Moonlit trees." },
@@ -167,6 +171,7 @@ describe("Director owns the planned continuation", () => {
 
   it("does not keep fixture E merely because Shoot historically has five destinations", () => {
     const next = applyDirectorPlanToStoryboard(start, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
         { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
@@ -178,6 +183,7 @@ describe("Director owns the planned continuation", () => {
 
   it("drops a Director beat that repeats the starting frame id", () => {
     const next = applyDirectorPlanToStoryboard(start, {
+      summary: "A planned journey.",
       beats: [
         { id: "A", intent: "Remain in the attic.", visualDescription: "The supplied bedroom." },
         { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
@@ -189,6 +195,7 @@ describe("Director owns the planned continuation", () => {
   it("fails instead of replacing the opening if Director returns only the start beat", () => {
     expect(() =>
       applyDirectorPlanToStoryboard(start, {
+        summary: "Opening only.",
         beats: [{ id: "A", intent: "The attic.", visualDescription: "Opening still." }],
       }),
     ).toThrow(/no subsequent beats/i);
@@ -196,6 +203,7 @@ describe("Director owns the planned continuation", () => {
 
   it("replaces a previous planned continuation on re-run without changing A", () => {
     const first = projectWithDirectorPlan(project, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Old wardrobe beat.", visualDescription: "Old coats." },
         { id: "C", intent: "Old forest beat.", visualDescription: "Old trees." },
@@ -204,6 +212,7 @@ describe("Director owns the planned continuation", () => {
       ],
     });
     const second = projectWithDirectorPlan(first, {
+      summary: "A revised journey.",
       beats: [
         { id: "B", intent: "New wardrobe beat.", visualDescription: "New coats." },
         { id: "C", intent: "New forest beat.", visualDescription: "New trees." },
@@ -229,6 +238,7 @@ describe("Director owns the planned continuation", () => {
 
   it("applies Director beats to Plan without changing Shoot destinations or journeys", () => {
     const updated = projectWithDirectorPlan(project, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Director wardrobe beat.", visualDescription: "Inside the wardrobe." },
         { id: "C", intent: "Director forest beat.", visualDescription: "Winter trees." },
@@ -243,6 +253,7 @@ describe("Director owns the planned continuation", () => {
 
   it("derives next-beat sequence from the Director continuation", () => {
     const planned = applyDirectorPlanToStoryboard(start, {
+      summary: "A planned journey.",
       beats: [
         { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
         { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
@@ -250,5 +261,15 @@ describe("Director owns the planned continuation", () => {
     });
     expect(nextStoryboardFrame(planned, "A")?.id).toBe("B");
     expect(nextStoryboardFrame(planned, "C")).toBeUndefined();
+  });
+
+  it("appends the next unused letter as an empty planned destination", () => {
+    const added = projectWithAddedDestination(project);
+    expect(nextStoryboardSlot(project.storyboard)).toEqual({ id: "B", label: "B" });
+    expect(added.storyboard.map((frame) => frame.id)).toEqual(["A", "B"]);
+    expect(added.storyboard[1]).toMatchObject({ id: "B", label: "B", imageOrigin: "none" });
+    expect(added.storyboard[1]?.image).toBeUndefined();
+    expect(added.storyboard[0]).toEqual(project.storyboard[0]);
+    expect(added.destinations).toEqual(project.destinations);
   });
 });

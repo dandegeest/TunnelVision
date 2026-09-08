@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useProject } from "../project/ProjectProvider";
-import type { ConversationEntry } from "../project/conversation";
+import { formatConversationClock, type ConversationEntry } from "../project/conversation";
 import type { DirectorEvidence } from "../project/director";
 import { canConstructDestinationFrame } from "../project/destination";
 import {
@@ -20,7 +20,8 @@ import {
   type DisplayProvenance,
   type FramePreflightWarning,
 } from "../project/media-preflight";
-import { isAuthoritativeStartingFrame, STARTING_FRAME_ACCEPT } from "../project/starting-frame";
+import { STARTING_FRAME_ACCEPT } from "../project/starting-frame";
+import { nextStoryboardSlot } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
 const STORY_WIDTH_DEFAULT = 328;
@@ -148,22 +149,18 @@ export function StoryboardFrameMedia({
   frame,
   selected,
   constructing,
-  canConstruct,
-  constructDisabled,
   showMediaInfo = false,
   hasWarning = false,
   onSelect,
-  onConstruct,
+  detailOpen = false,
 }: {
   frame: StoryboardFrame;
   selected: boolean;
   constructing: boolean;
-  canConstruct: boolean;
-  constructDisabled: boolean;
   showMediaInfo?: boolean;
   hasWarning?: boolean;
   onSelect?: () => void;
-  onConstruct: () => void;
+  detailOpen?: boolean;
 }) {
   const frameBorder = selected
     ? "border-2 border-[#ece7df]"
@@ -176,7 +173,7 @@ export function StoryboardFrameMedia({
       {frame.image ? (
         <>
           <img src={frame.image} alt="" className="block h-full w-full object-cover" />
-          <span className="storyboard-frame-label pointer-events-none absolute inset-x-0 top-0 flex h-6 items-center bg-[#0c0b0a]/72 px-1.5">
+          <span className="storyboard-frame-label pointer-events-none absolute inset-x-0 top-0 flex h-6 items-center bg-[#0c0b0a]/72 px-1.5 pr-7">
             <span className={`min-w-0 truncate text-[11px] text-[#ece7df] ${labelTracking}`} title={frame.label}>
               {frame.label}
             </span>
@@ -194,7 +191,7 @@ export function StoryboardFrameMedia({
         </>
       ) : (
         <span
-          className={`storyboard-fpo storyboard-fpo-planned${canConstruct && !constructing ? " storyboard-fpo-cta" : ""}${constructing ? " storyboard-generating" : ""}`}
+          className={`storyboard-fpo storyboard-fpo-planned${constructing ? " storyboard-generating" : ""}`}
           aria-busy={constructing || undefined}
         >
           <button
@@ -203,11 +200,11 @@ export function StoryboardFrameMedia({
             onClick={onSelect}
             aria-label={`Storyboard ${frame.label}`}
             aria-pressed={selected}
+            aria-expanded={detailOpen || undefined}
           >
             <span className="storyboard-fpo-label max-w-full truncate" title={frame.label}>
               {frame.label}
             </span>
-            {frame.intent ? <span className="storyboard-fpo-intent">{frame.intent}</span> : null}
           </button>
           {constructing ? (
             <span
@@ -217,23 +214,76 @@ export function StoryboardFrameMedia({
             >
               <span className="storyboard-generating-label">Generating…</span>
             </span>
-          ) : canConstruct ? (
-            <span className="storyboard-fpo-action">
-              <button
-                type="button"
-                disabled={constructDisabled}
-                aria-label={`Construct destination ${frame.id}`}
-                title="Construct this destination from the previous actual frame."
-                onClick={onConstruct}
-                className="rounded bg-[#ece7df] px-3 py-1.5 text-[11px] tracking-[0.22em] text-[#0c0b0a] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                CONSTRUCT
-              </button>
-            </span>
           ) : null}
         </span>
       )}
     </span>
+  );
+}
+
+export function DestinationGenerateControl({
+  frameId,
+  constructing,
+  canConstruct,
+  disabled,
+  onGenerate,
+}: {
+  frameId: string;
+  constructing: boolean;
+  canConstruct: boolean;
+  disabled: boolean;
+  onGenerate: () => void;
+}) {
+  if (constructing || !canConstruct) {
+    return null;
+  }
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      aria-label={`Generate destination ${frameId}`}
+      title="Generate this destination from the previous actual frame."
+      onClick={(event) => {
+        event.stopPropagation();
+        onGenerate();
+      }}
+      className="destination-generate inline-flex h-7 items-center rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.16em] text-[#ece7df] uppercase outline-none hover:border-[#7a7266] hover:text-[#ece7df] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      Generate
+    </button>
+  );
+}
+
+function ConversationStamp({
+  role,
+  createdAt,
+}: {
+  role: string;
+  createdAt: string;
+}) {
+  const clock = formatConversationClock(createdAt);
+  return (
+    <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+      {role}
+      {clock ? ` · ${clock}` : ""}
+    </p>
+  );
+}
+
+export function formatDirectorEvidenceJson(evidence: DirectorEvidence): string {
+  let rawText: unknown = evidence.rawText;
+  try {
+    rawText = JSON.parse(evidence.rawText);
+  } catch {
+    rawText = evidence.rawText;
+  }
+  return JSON.stringify(
+    {
+      request: evidence.request,
+      rawText,
+    },
+    null,
+    2,
   );
 }
 
@@ -245,15 +295,8 @@ function DirectorEvidenceDetails({ evidence }: { evidence: DirectorEvidence }) {
         {evidence.model ? <p>Model: {evidence.model}</p> : null}
         {evidence.predictionId ? <p>Prediction: {evidence.predictionId}</p> : null}
         <p>Elapsed: {evidence.elapsedMs}ms</p>
-        <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-[#cfc6b8]">
-          {JSON.stringify(
-            {
-              request: evidence.request,
-              rawText: evidence.rawText,
-            },
-            null,
-            2,
-          )}
+        <pre className="director-evidence-json max-h-64 overflow-x-hidden overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] leading-snug text-[#cfc6b8]">
+          {formatDirectorEvidenceJson(evidence)}
         </pre>
       </div>
     </details>
@@ -263,24 +306,33 @@ function DirectorEvidenceDetails({ evidence }: { evidence: DirectorEvidence }) {
 function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
   if (entry.kind === "filmmaker") {
     return (
-      <article>
-        <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Filmmaker</p>
-        <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">{entry.text}</p>
+      <article className="conversation-filmmaker">
+        <ConversationStamp role="Filmmaker" createdAt={entry.createdAt} />
+        <div className="mt-2 border-l border-[#3a342c] pl-3">
+          <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[#cfc6b8]">{entry.text}</p>
+        </div>
       </article>
     );
   }
   if (entry.kind === "director") {
     return (
-      <article>
-        {entry.error ? (
-          <>
-            <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Director</p>
-            <p className="mt-2 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-              {entry.error}
-            </p>
-          </>
-        ) : entry.evidence ? (
-          <DirectorEvidenceDetails evidence={entry.evidence} />
+      <article className="conversation-director">
+        <ConversationStamp role="Director" createdAt={entry.createdAt} />
+        {entry.status === "planning" ? (
+          <p className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">Planning…</p>
+        ) : null}
+        {entry.status === "failed" ? (
+          <p className="mt-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+            {entry.error}
+          </p>
+        ) : null}
+        {entry.status === "complete" && entry.evidence ? (
+          <div className="mt-3 space-y-4">
+            <DirectorEvidenceDetails evidence={entry.evidence} />
+            {entry.summary ? (
+              <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">{entry.summary}</p>
+            ) : null}
+          </div>
         ) : null}
       </article>
     );
@@ -311,6 +363,197 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
   );
 }
 
+export function destinationDetailContent(frame: StoryboardFrame): {
+  label: string;
+  intent?: string;
+  visualDescription?: string;
+} | null {
+  const intent = frame.intent?.trim() || undefined;
+  const visualDescription = frame.visualDescription?.trim() || undefined;
+  if (!intent && !visualDescription) {
+    return null;
+  }
+  if (visualDescription && intent && intent !== visualDescription) {
+    return { label: frame.label, intent, visualDescription };
+  }
+  if (visualDescription) {
+    return { label: frame.label, visualDescription };
+  }
+  return { label: frame.label, intent };
+}
+
+export function DestinationDetailPopover({
+  frame,
+  initiallyOpen = false,
+  open: openProp,
+  onClose,
+}: {
+  frame: StoryboardFrame;
+  initiallyOpen?: boolean;
+  open?: boolean;
+  onClose?: () => void;
+}) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(initiallyOpen);
+  const open = openProp ?? uncontrolledOpen;
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const content = destinationDetailContent(frame);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const close = () => {
+      if (openProp === undefined) {
+        setUncontrolledOpen(false);
+      }
+      onClose?.();
+    };
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        close();
+      }
+    };
+    const onPointerDown =
+      openProp === undefined
+        ? (event: globalThis.PointerEvent) => {
+            if (!rootRef.current?.contains(event.target as Node)) {
+              close();
+            }
+          }
+        : undefined;
+    window.addEventListener("keydown", onKeyDown);
+    if (onPointerDown) {
+      window.addEventListener("pointerdown", onPointerDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      if (onPointerDown) {
+        window.removeEventListener("pointerdown", onPointerDown);
+      }
+    };
+  }, [open, openProp, onClose]);
+
+  if (!content) {
+    return null;
+  }
+
+  return (
+    <span ref={rootRef} className="destination-detail absolute inset-x-0 top-full z-20 mt-1">
+      {open ? (
+        <span
+          role="dialog"
+          aria-label={`Destination ${content.label} details`}
+          className="block rounded border border-[#3a342c] bg-[#12100d] px-2.5 py-2 text-left shadow-lg"
+        >
+          <span className="block text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">{content.label}</span>
+          {content.intent ? (
+            <span className="mt-2 block text-[12px] leading-snug text-[#cfc6b8]">{content.intent}</span>
+          ) : null}
+          {content.visualDescription ? (
+            <span className="destination-detail-visual mt-2 block text-[12px] leading-snug text-[#ece7df]">
+              {content.visualDescription}
+            </span>
+          ) : null}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+export function DestinationMenu({
+  frameId,
+  label,
+  initiallyOpen = false,
+  onReplace,
+}: {
+  frameId: string;
+  label: string;
+  initiallyOpen?: boolean;
+  onReplace: () => void;
+}) {
+  const [open, setOpen] = useState(initiallyOpen);
+  const rootRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <span ref={rootRef} className="destination-menu absolute top-0 right-0 z-10">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Destination ${label} actions`}
+        title="Destination actions"
+        className="flex h-6 w-7 items-center justify-center text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen((current) => !current);
+        }}
+      >
+        <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+          <circle cx="6" cy="2.4" r="0.85" fill="currentColor" />
+          <circle cx="6" cy="6" r="0.85" fill="currentColor" />
+          <circle cx="6" cy="9.6" r="0.85" fill="currentColor" />
+        </svg>
+      </button>
+      {open ? (
+        <span
+          role="menu"
+          className="absolute top-full right-0 z-20 mt-0.5 min-w-[7.5rem] rounded border border-[#3a342c] bg-[#12100d] py-1 shadow-lg"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916]"
+            onClick={(event) => {
+              event.stopPropagation();
+              setOpen(false);
+              onReplace();
+            }}
+          >
+            Replace…
+          </button>
+        </span>
+      ) : null}
+      <span className="sr-only">{`Destination ${frameId} menu`}</span>
+    </span>
+  );
+}
+
+export function AddDestinationCard({ onAdd }: { onAdd: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label="Add Destination"
+      onClick={onAdd}
+      className="storyboard-add-destination flex aspect-video w-full flex-col items-center justify-center border border-dashed border-[#3a342c] bg-[#12100d]/40 text-[#9a8f7e] outline-none hover:border-[#7a7266] hover:text-[#cfc6b8] focus-visible:border-[#ece7df] focus-visible:text-[#ece7df]"
+    >
+      <span className="text-lg leading-none">+</span>
+      <span className="mt-2 text-[11px] tracking-[0.14em] uppercase">Add Destination</span>
+    </button>
+  );
+}
+
 export function PlanView({
   brand,
   workspaceHeader,
@@ -330,7 +573,8 @@ export function PlanView({
     planWithDirector,
     startingFrameError,
     replacingStart,
-    replaceStartingImage,
+    replaceDestinationImage,
+    addDestination,
     constructingBeatId,
     constructDestination,
     mediaInfoOn,
@@ -342,13 +586,31 @@ export function PlanView({
   const frameRef = useRef<HTMLDivElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replacingFrameId = useRef<string | null>(null);
+  const followThread = useRef(true);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [storyWidth, setStoryWidth] = useState(STORY_WIDTH_DEFAULT);
+  const [detailFrameId, setDetailFrameId] = useState<string | null>(null);
   const hasChrome = Boolean(brand || workspaceHeader);
 
   useEffect(() => {
+    if (!detailFrameId) {
+      return;
+    }
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      const target = event.target as Element | null;
+      if (target?.closest(`[data-destination-card="${detailFrameId}"]`)) {
+        return;
+      }
+      setDetailFrameId(null);
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    return () => window.removeEventListener("pointerdown", onPointerDown);
+  }, [detailFrameId]);
+
+  useEffect(() => {
     const thread = threadRef.current;
-    if (!thread) {
+    if (!thread || !followThread.current) {
       return;
     }
     thread.scrollTop = thread.scrollHeight;
@@ -430,7 +692,15 @@ export function PlanView({
         style={{ gridColumn: 1, gridRow: bodyRow }}
         aria-label="Story"
       >
-        <div ref={threadRef} className="min-h-0 flex-1 overflow-auto px-4 py-4">
+        <div
+          ref={threadRef}
+          className="min-h-0 flex-1 overflow-auto px-4 py-3"
+          onScroll={(event) => {
+            const thread = event.currentTarget;
+            followThread.current =
+              thread.scrollHeight - thread.scrollTop - thread.clientHeight < 48;
+          }}
+        >
           {startingFrameError ? (
             <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
               {startingFrameError}
@@ -441,24 +711,37 @@ export function PlanView({
               {planStartError}
             </p>
           ) : null}
-          <div className="flex flex-col gap-4">
-            {conversation.map((entry) => (
-              <ConversationEntryView key={entry.id} entry={entry} />
-            ))}
+          <div className="flex flex-col">
+            {conversation.map((entry, index) => {
+              const previous = conversation[index - 1];
+              const spacing =
+                index === 0
+                  ? ""
+                  : entry.kind === "director" && previous?.kind === "filmmaker"
+                    ? "mt-3"
+                    : entry.kind === "filmmaker"
+                      ? "mt-8"
+                      : "mt-5";
+              return (
+                <div key={entry.id} className={spacing}>
+                  <ConversationEntryView entry={entry} />
+                </div>
+              );
+            })}
           </div>
         </div>
-        <div className="flex-none border-t border-[#2a2620] px-4 py-3">
+        <div className="flex-none border-t border-[#2a2620] px-3 py-2">
           <label className="sr-only" htmlFor="plan-composer">
             Movie
           </label>
-          <div className="flex items-end gap-2 rounded border border-[#3a342c] bg-[#161410] px-3 py-2">
+          <div className="flex items-end gap-2 rounded border border-[#3a342c] bg-[#161410] px-2.5 py-1.5">
             <textarea
               id="plan-composer"
-              rows={7}
+              rows={5}
               value={composerDraft}
               placeholder="Describe the movie…"
               aria-label="Movie"
-              className="h-[10.5rem] min-h-[8.75rem] max-h-[12.5rem] min-w-0 flex-1 resize-y overflow-auto bg-transparent text-[15px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+              className="h-[8.25rem] min-h-[6.75rem] max-h-[12.5rem] min-w-0 flex-1 resize-y overflow-auto bg-transparent text-[13px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
               onChange={(event) => setComposerDraft(event.target.value)}
             />
             <button
@@ -467,6 +750,7 @@ export function PlanView({
               aria-label="Plan movie"
               title="Plan the movie from this story and starting frame."
               onClick={() => {
+                followThread.current = true;
                 void planWithDirector();
               }}
               className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
@@ -483,11 +767,6 @@ export function PlanView({
               </svg>
             </button>
           </div>
-          {planning ? (
-            <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-              Director planning…
-            </p>
-          ) : null}
           {replacingStart ? (
             <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
               Uploading…
@@ -502,7 +781,7 @@ export function PlanView({
       >
         <input
           ref={fileInputRef}
-          id="replace-starting-image"
+          id="replace-destination-image"
           type="file"
           accept={STARTING_FRAME_ACCEPT}
           className="sr-only"
@@ -510,9 +789,11 @@ export function PlanView({
           aria-hidden
           onChange={(event) => {
             const file = event.target.files?.[0];
+            const frameId = replacingFrameId.current;
             event.target.value = "";
-            if (file) {
-              void replaceStartingImage(file);
+            replacingFrameId.current = null;
+            if (file && frameId) {
+              void replaceDestinationImage(frameId, file);
             }
           }}
         />
@@ -527,56 +808,86 @@ export function PlanView({
                 frame={frame}
                 selected={selectedCard}
                 constructing={constructing}
-                canConstruct={canConstruct}
-                constructDisabled={Boolean(constructingBeatId) || planning}
                 showMediaInfo={mediaInfoOn}
                 hasWarning={warnings.length > 0}
-                onSelect={() => select({ kind: "storyboard", frameId: frame.id })}
-                onConstruct={() => {
+                onSelect={() => {
                   select({ kind: "storyboard", frameId: frame.id });
-                  void constructDestination(frame.id);
+                  if (destinationDetailContent(frame)) {
+                    setDetailFrameId((current) => (current === frame.id ? null : frame.id));
+                  }
                 }}
+                detailOpen={detailFrameId === frame.id}
               />
             );
-            const frameCopy = frame.intent ? (
-              <span className="mt-2 block text-sm leading-snug text-[#cfc6b8]">{frame.intent}</span>
-            ) : null;
+            const generate = (
+              <div className="destination-generate-row mt-2 flex justify-center">
+                <DestinationGenerateControl
+                  frameId={frame.id}
+                  constructing={constructing}
+                  canConstruct={canConstruct}
+                  disabled={Boolean(constructingBeatId) || planning}
+                  onGenerate={() => {
+                    select({ kind: "storyboard", frameId: frame.id });
+                    void constructDestination(frame.id);
+                  }}
+                />
+              </div>
+            );
+            const details = (
+              <DestinationDetailPopover
+                frame={frame}
+                open={detailFrameId === frame.id}
+                onClose={() => setDetailFrameId(null)}
+              />
+            );
             return (
               <li key={frame.id} className="min-w-0">
                 {frame.image ? (
-                  <div>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        className={`block w-full p-0 text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
-                        onClick={() => select({ kind: "storyboard", frameId: frame.id })}
-                        aria-label={`Storyboard ${frame.label}`}
-                        aria-pressed={selectedCard}
-                      >
-                        {frameMedia}
-                      </button>
-                      <PreflightWarningControl warnings={warnings} />
-                    </div>
-                    {frameCopy}
+                  <div className="relative" data-destination-card={frame.id}>
+                    <button
+                      type="button"
+                      className={`block w-full p-0 text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
+                      onClick={() => {
+                        select({ kind: "storyboard", frameId: frame.id });
+                        if (destinationDetailContent(frame)) {
+                          setDetailFrameId((current) => (current === frame.id ? null : frame.id));
+                        }
+                      }}
+                      aria-label={`Storyboard ${frame.label}`}
+                      aria-pressed={selectedCard}
+                      aria-expanded={detailFrameId === frame.id}
+                    >
+                      {frameMedia}
+                    </button>
+                    <PreflightWarningControl warnings={warnings} />
+                    <DestinationMenu
+                      frameId={frame.id}
+                      label={frame.label}
+                      onReplace={() => {
+                        replacingFrameId.current = frame.id;
+                        fileInputRef.current?.click();
+                      }}
+                    />
+                    {details}
                   </div>
                 ) : (
-                  <div className={`w-full text-left ${selectedCard ? "" : "opacity-90"}`}>
+                  <div
+                    className={`relative w-full text-left ${selectedCard ? "" : "opacity-90"}`}
+                    data-destination-card={frame.id}
+                  >
                     {frameMedia}
+                    {canConstruct && !constructing ? generate : null}
+                    {details}
                   </div>
                 )}
-                {isAuthoritativeStartingFrame(frame) ? (
-                  <button
-                    type="button"
-                    disabled={replacingStart}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase disabled:cursor-not-allowed"
-                  >
-                    Replace image
-                  </button>
-                ) : null}
               </li>
             );
           })}
+          {nextStoryboardSlot(project.storyboard) ? (
+            <li className="min-w-0">
+              <AddDestinationCard onAdd={addDestination} />
+            </li>
+          ) : null}
         </ol>
         {project.storyboard.length === 1 ? (
           <p className="mt-6 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Not yet planned</p>

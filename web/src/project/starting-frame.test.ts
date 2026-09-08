@@ -5,6 +5,7 @@ import { directorPlanRequestFromProject } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
 import {
   parseStartingFrameUpload,
+  projectWithReplacedFrameImage,
   projectWithReplacedStartImage,
   runtimeMediaPreviewUrl,
   STARTING_FRAME_MAX_BYTES,
@@ -122,9 +123,10 @@ describe("replacing authoritative A", () => {
     expect(next.storyboard[0]?.mediaId).not.toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
   });
 
-  it("clears stale A intent, keeps story, and invalidates B...N", () => {
+  it("replaces A's media in place without dropping later destinations", () => {
     const project = createWardrobeProject();
     const planned = projectWithDirectorPlan(project, {
+      summary: "Leave through the wardrobe.",
       beats: [
         { id: "B", intent: "Enter the wardrobe.", visualDescription: "Coats." },
         { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
@@ -136,10 +138,10 @@ describe("replacing authoritative A", () => {
       imageUrl: "/api/runtime-media/upload-dddddddddddddddddddddddddddddddd",
     });
     expect(next.story).toBe("Walk through a greenhouse at night.");
-    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A"]);
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
     expect(next.storyboard[0]?.mediaId).toBe("upload-dddddddddddddddddddddddddddddddd");
-    expect(next.storyboard[0]?.intent).toBeUndefined();
-    expect(next.storyboard[0]?.intent).not.toBe(STORYBOARD_INTENTS.A);
+    expect(next.storyboard[0]?.id).toBe("A");
+    expect(next.storyboard[0]?.label).toBe(planned.storyboard[0]?.label);
     expect(next.destinations).toEqual(project.destinations);
     expect(next.journeys).toEqual(project.journeys);
   });
@@ -168,17 +170,15 @@ describe("replacing authoritative A", () => {
       story: "Travel forward through a quiet abandoned greenhouse at night.",
     };
     const request = directorPlanRequestFromProject(withStory);
+    const prompt = directorUserPrompt(request);
     expect(request).toEqual({
       story: "Travel forward through a quiet abandoned greenhouse at night.",
       agency: project.agency,
       startFrameId: "A",
       startMediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      startFrameIntent: STORYBOARD_INTENTS.A,
     });
-    expect(request).not.toHaveProperty("startFrameIntent");
-    const prompt = directorUserPrompt(request);
-    expect(prompt).not.toMatch(/Opening-beat intent/);
-    expect(prompt).not.toMatch(/attic bedroom/i);
-    expect(prompt).not.toMatch(/wardrobe/i);
+    expect(prompt).toMatch(/Opening-beat intent/);
     expect(prompt).toMatch(/abandoned greenhouse/);
     expect(prompt).toMatch(/Authoritative starting frame id: A/);
   });
@@ -191,12 +191,27 @@ describe("replacing authoritative A", () => {
       imageUrl: "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
       mediaInfo: { width: 1280, height: 720, format: "png" },
     });
-    expect(withFacts.storyboard).toHaveLength(1);
+    expect(withFacts.storyboard).toHaveLength(6);
     expect(withFacts.storyboard[0]?.mediaInfo).toEqual({ width: 1280, height: 720, format: "png" });
     const withoutFacts = projectWithReplacedStartImage(forest, {
       mediaId: "upload-ffffffffffffffffffffffffffffffff",
       imageUrl: "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
     });
     expect(withoutFacts.storyboard[0]?.mediaInfo).toBeUndefined();
+  });
+
+  it("replaces destination B in place without changing identity or neighbors", () => {
+    const forest = createForestProject();
+    const next = projectWithReplacedFrameImage(forest, "B", {
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
+    expect(next.storyboard[1]?.id).toBe("B");
+    expect(next.storyboard[1]?.label).toBe(forest.storyboard[1]?.label);
+    expect(next.storyboard[1]?.imageOrigin).toBe("user");
+    expect(next.storyboard[1]?.mediaId).toBe("upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    expect(next.storyboard[0]).toEqual(forest.storyboard[0]);
+    expect(next.storyboard[2]).toEqual(forest.storyboard[2]);
   });
 });

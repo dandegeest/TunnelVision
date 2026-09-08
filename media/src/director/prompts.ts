@@ -20,7 +20,7 @@ Return ONLY one JSON object. No markdown fences. No commentary.
 Use this shape:
 
 {
-  "summary": "<optional one-sentence journey>",
+  "summary": "<concise filmmaker-facing account of the journey you decided to plan>",
   "beats": [
     {
       "id": "B",
@@ -31,6 +31,7 @@ Use this shape:
 }
 
 Rules:
+- summary is required. It is the readable Director response: what you decided about this journey, not a restatement of each beat field.
 - Do not include the opening beat. The starting frame is already authoritative.
 - Return subsequent beats only, in travel order, typically 4 to 8.
 - ids should continue after the opening (B, C, D, …).

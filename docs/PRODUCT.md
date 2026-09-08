@@ -69,7 +69,8 @@ disconnected workflows:
 turns the filmmaker story plus authoritative starting frame into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
 Replicate). The Plan composer is a temporary draft. Accepted Send / Plan Movie
-submissions append the exact draft to conversation history, update
+submissions append the exact draft to conversation history with a pending
+Director entry that resolves in place, update
 `Project.story`, and clear the composer. It is not a live display of
 current project story.
 After planning, Construct builds a planned beat from the immediately
@@ -86,10 +87,10 @@ it is not the current product-development fixture. Plan can still
 replan from A. The Director runtime resolves
 that identity from Project state; it does not independently substitute
 a catalog still. Accepted Plan submissions update `Project.story`. The filmmaker can
-replace authoritative A with an uploaded still. Uploaded A is
+replace a destination's canonical still in place. Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
-as provider input. After replacement, runtime Project A is authoritative. Visual checkpoint for the frozen Plan shell:
+as provider input. After replacement, that destination keeps its identity. Visual checkpoint for the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -167,7 +168,12 @@ architecture.
     metadata-less frames do not invent findings. Preflight does not
     crop, resize, convert, or replace filmmaker-provided media. Aspect
     mismatch is marked on the affected thumbnail. Media Info is an
-    explicit opt-in strip, not a global diagnostic banner.
+    explicit opt-in strip, not a global diagnostic banner. Destination
+    actions live on the destination card (Replace…); Add Destination
+    extends the storyboard without encoding construction strategy.
+    Conversation remains session UI: one Director entry goes from
+    planning to complete/failed, carrying structured evidence and a
+    filmmaker-facing summary. Entry timestamps are stored data.
 -   **Boundary continuity (Shoot)** is the visual match of adjacent
     **completed** Journey clips at their shared destination: previous
     clip final decoded frame ↔ next clip first decoded frame. It
@@ -509,10 +515,10 @@ identity and actual B–F Derived stills plus completed Journey clips.
 The Director runtime
 resolves that identity from Project state; it does not independently
 substitute a catalog still. Accepted Plan submissions update `Project.story` in
-Plan and can replace authoritative A with an uploaded still.
-Uploaded A is session/dev-runtime trusted media, not durable project
+Plan and can replace a destination's canonical still in place.
+Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
-be resolved as provider input. After replacement, runtime Project A is authoritative. Visual
+be resolved as provider input. After replacement, that destination keeps its identity. Visual
 checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Director observation:

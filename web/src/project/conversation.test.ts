@@ -2,13 +2,19 @@ import { describe, expect, it } from "vitest";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import {
   appendConversationEntry,
+  conversationTimestamp,
+  formatConversationClock,
   preparePlanSubmission,
   resolveConstructionEntry,
+  resolveDirectorEntry,
   type ConversationEntry,
   type DirectorConversationEntry,
 } from "./conversation";
 import type { DirectorEvidence } from "./director";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
+
+const AT = "2026-09-07T22:03:00.000Z";
+const AT2 = "2026-09-07T22:04:00.000Z";
 
 const evidence = (story: string, predictionId: string): DirectorEvidence => ({
   request: {
@@ -64,48 +70,125 @@ describe("Plan composer submission", () => {
 });
 
 describe("Plan conversation history", () => {
+  it("stores createdAt on each entry when that entry is created", () => {
+    const createdAt = conversationTimestamp(new Date("2026-09-07T22:03:00.000Z"));
+    expect(createdAt).toBe("2026-09-07T22:03:00.000Z");
+    const entries = appendConversationEntry([], {
+      id: "f1",
+      createdAt,
+      kind: "filmmaker",
+      text: "First story.",
+    });
+    expect(entries[0]?.createdAt).toBe("2026-09-07T22:03:00.000Z");
+    expect(formatConversationClock(entries[0]!.createdAt)).toBe(
+      formatConversationClock("2026-09-07T22:03:00.000Z"),
+    );
+  });
+
+  it("formats stored createdAt and does not invent a render-time clock", () => {
+    const createdAt = "2026-09-07T22:03:00.000Z";
+    expect(formatConversationClock(createdAt)).toMatch(/^\d{1,2}:\d{2} (AM|PM)$/);
+  });
+
   it("appends filmmaker, Director, and construction entries oldest to newest", () => {
     let entries: ConversationEntry[] = [];
     entries = appendConversationEntry(entries, {
       id: "f1",
+      createdAt: AT,
       kind: "filmmaker",
       text: "First story.",
     });
     entries = appendConversationEntry(entries, {
       id: "d1",
+      createdAt: AT2,
       kind: "director",
+      status: "complete",
       evidence: evidence("First story.", "pred-1"),
+      summary: "A continuous forward journey.",
     });
     entries = appendConversationEntry(entries, {
       id: "c1",
+      createdAt: AT2,
       kind: "construction",
       beatId: "B",
       status: "constructing",
     });
     entries = appendConversationEntry(entries, {
       id: "f2",
+      createdAt: AT2,
       kind: "filmmaker",
       text: "Second story.",
     });
     expect(entries.map((entry) => entry.id)).toEqual(["f1", "d1", "c1", "f2"]);
-    expect(entries[0]).toMatchObject({ kind: "filmmaker", text: "First story." });
+    expect(entries[0]).toMatchObject({ kind: "filmmaker", text: "First story.", createdAt: AT });
     expect((entries[1] as DirectorConversationEntry).evidence?.predictionId).toBe("pred-1");
+  });
+
+  it("creates a pending Director entry and resolves it in place", () => {
+    let entries: ConversationEntry[] = [
+      { id: "f1", createdAt: AT, kind: "filmmaker", text: "First story." },
+      { id: "d1", createdAt: AT2, kind: "director", status: "planning" },
+    ];
+    expect((entries[1] as DirectorConversationEntry).status).toBe("planning");
+    entries = resolveDirectorEntry(entries, "d1", {
+      status: "complete",
+      evidence: evidence("First story.", "pred-1"),
+      summary: "A continuous forward journey through connected spaces.",
+    });
+    const director = entries[1] as DirectorConversationEntry;
+    expect(director.id).toBe("d1");
+    expect(director.createdAt).toBe(AT2);
+    expect(director.status).toBe("complete");
+    expect(director.summary).toBe("A continuous forward journey through connected spaces.");
+    expect(director.evidence?.predictionId).toBe("pred-1");
+    expect(entries).toHaveLength(2);
+  });
+
+  it("resolves the same Director entry to failed without changing createdAt", () => {
+    let entries: ConversationEntry[] = [
+      { id: "d1", createdAt: AT2, kind: "director", status: "planning" },
+    ];
+    entries = resolveDirectorEntry(entries, "d1", {
+      status: "failed",
+      error: "Director planning failed",
+    });
+    const director = entries[0] as DirectorConversationEntry;
+    expect(director.id).toBe("d1");
+    expect(director.createdAt).toBe(AT2);
+    expect(director.status).toBe("failed");
+    expect(director.error).toBe("Director planning failed");
   });
 
   it("preserves an earlier filmmaker/Director pair when a later plan is appended", () => {
     let entries: ConversationEntry[] = [
-      { id: "f1", kind: "filmmaker", text: "First story." },
-      { id: "d1", kind: "director", evidence: evidence("First story.", "pred-1") },
+      {
+        id: "f1",
+        createdAt: AT,
+        kind: "filmmaker",
+        text: "First story.",
+      },
+      {
+        id: "d1",
+        createdAt: AT2,
+        kind: "director",
+        status: "complete",
+        evidence: evidence("First story.", "pred-1"),
+        summary: "First journey.",
+      },
     ];
     entries = appendConversationEntry(entries, {
       id: "f2",
+      createdAt: AT2,
       kind: "filmmaker",
       text: "Revised story.",
     });
     entries = appendConversationEntry(entries, {
       id: "d2",
+      createdAt: AT2,
       kind: "director",
+      status: "complete",
       evidence: evidence("Revised story.", "pred-2"),
+      summary: "Revised journey.",
     });
     expect(entries).toHaveLength(4);
     expect(entries[0]).toMatchObject({ kind: "filmmaker", text: "First story." });
@@ -116,7 +199,7 @@ describe("Plan conversation history", () => {
 
   it("resolves only the matching construction operation", () => {
     let entries: ConversationEntry[] = [
-      { id: "b", kind: "construction", beatId: "B", status: "constructing" },
+      { id: "b", createdAt: AT, kind: "construction", beatId: "B", status: "constructing" },
     ];
     entries = resolveConstructionEntry(entries, "b", {
       status: "constructed",
@@ -124,12 +207,14 @@ describe("Plan conversation history", () => {
     });
     entries = appendConversationEntry(entries, {
       id: "c",
+      createdAt: AT2,
       kind: "construction",
       beatId: "C",
       status: "constructing",
     });
     expect(entries[0]).toMatchObject({
       id: "b",
+      createdAt: AT,
       beatId: "B",
       status: "constructed",
       imageUrl: "/api/runtime-media/b",
@@ -142,6 +227,7 @@ describe("Plan conversation history", () => {
     });
     entries = appendConversationEntry(entries, {
       id: "d",
+      createdAt: AT2,
       kind: "construction",
       beatId: "D",
       status: "constructing",

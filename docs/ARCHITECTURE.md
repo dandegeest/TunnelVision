@@ -121,10 +121,11 @@ The Director runtime resolves that identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture accepts
 story plus `MediaInput`. Accepted Plan submissions update `Project.story`.
-The filmmaker can replace authoritative A with an uploaded still. Uploaded A is
+The filmmaker can replace a destination's canonical still in place.
+Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 After
-replacement, runtime Project A is authoritative. Shoot remains Product Slice 1's locked Destinations
+replacement, that destination keeps its identity. Shoot remains Product Slice 1's locked Destinations
 and Journey lanes. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
