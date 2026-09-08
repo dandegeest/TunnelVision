@@ -137,7 +137,10 @@ description) are available from the destination thumbnail, not as
 persistent caption text. Do not silently alter filmmaker media.
 
 Plan conversation is an interaction mechanism. The storyboard remains
-the authoritative Plan artifact. A Send appends the filmmaker turn and
+the authoritative Plan artifact. The filmmaking conversation rail is a
+project-level workspace control: the filmmaker can hide or show it
+without changing Plan / Shoot, agency, or conversation data. A Send
+appends the filmmaker turn and
 a pending Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
 summary. Timestamps are stored on each conversation entry when it is

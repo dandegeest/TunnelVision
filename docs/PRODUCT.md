@@ -173,7 +173,10 @@ architecture.
     extends the storyboard without encoding construction strategy.
     Conversation remains session UI: one Director entry goes from
     planning to complete/failed, carrying structured evidence and a
-    filmmaker-facing summary. Entry timestamps are stored data.
+    filmmaker-facing summary. Entry timestamps are stored data. The
+    filmmaking conversation rail is a project-level workspace the
+    filmmaker can hide or show; its visibility is independent of
+    Plan / Shoot and Directed / Autonomous.
 -   **Boundary continuity (Shoot)** is the visual match of adjacent
     **completed** Journey clips at their shared destination: previous
     clip final decoded frame ↔ next clip first decoded frame. It

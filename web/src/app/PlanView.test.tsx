@@ -4,6 +4,7 @@ import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
 import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
+import { FilmmakingFrame } from "./FilmmakingFrame";
 import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, destinationDetailContent, formatDirectorEvidenceJson } from "./PlanView";
 import {
   canConstructDestinationFrame,
@@ -73,7 +74,9 @@ function renderPlan(
       initialComposerDraft={options?.composerDraft}
       initialMediaInfo={options?.mediaInfo}
     >
-      <PlanView />
+      <FilmmakingFrame>
+        <PlanView />
+      </FilmmakingFrame>
     </ProjectProvider>,
   );
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useProject } from "../project/ProjectProvider";
+import { FilmmakingFrame } from "./FilmmakingFrame";
 import { PlanView } from "./PlanView";
 import { ProductionBar } from "./ProductionBar";
 import { TimelineView } from "./TimelineView";
@@ -127,34 +128,35 @@ function HeaderFrame({ children }: { children: ReactNode }) {
 }
 
 export function Shell() {
-  const { view } = useProject();
+  const { view, conversationRailOpen } = useProject();
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#0c0b0a] text-[#ece7df]">
-      {view === "plan" ? (
-        <PlanView
-          brand={
+      <FilmmakingFrame
+        brand={
+          conversationRailOpen ? (
             <HeaderFrame>
               <Brand />
             </HeaderFrame>
-          }
-          workspaceHeader={
-            <HeaderFrame>
-              <WorkspaceToolbar />
-            </HeaderFrame>
-          }
-        />
-      ) : (
-        <>
-          <header className="flex flex-none items-center border-b border-[#2a2620] px-5 py-3">
-            <WorkspaceToolbar leading={<Brand />} />
-          </header>
-          <main className="min-h-0 flex-1 overflow-hidden">
-            <TimelineView />
-          </main>
-          <ProductionBar />
-        </>
-      )}
+          ) : undefined
+        }
+        workspaceHeader={
+          <HeaderFrame>
+            <WorkspaceToolbar leading={conversationRailOpen ? undefined : <Brand />} />
+          </HeaderFrame>
+        }
+      >
+        {view === "plan" ? (
+          <PlanView />
+        ) : (
+          <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <TimelineView />
+            </div>
+            <ProductionBar />
+          </div>
+        )}
+      </FilmmakingFrame>
     </div>
   );
 }

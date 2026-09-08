@@ -198,7 +198,10 @@ Aspect warnings appear on the affected thumbnail; Media Info is an
 icon tool, not a global diagnostic banner. Destination actions live in
 the destination menu. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
-summary. Conversation timestamps are stored on the entry.
+summary. Conversation timestamps are stored on the entry. The
+filmmaking conversation rail can be hidden or shown as workspace
+layout; that visibility is session UI, not project persistence, and
+is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is
 an explicit heuristic. It is not spatial traversability or

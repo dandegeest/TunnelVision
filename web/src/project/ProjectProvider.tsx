@@ -44,6 +44,8 @@ type ProjectContextValue = {
   setPlaying: (playing: boolean) => void;
   mediaInfoOn: boolean;
   setMediaInfoOn: (on: boolean) => void;
+  conversationRailOpen: boolean;
+  setConversationRailOpen: (open: boolean) => void;
   setAgency: (agency: Agency) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
@@ -71,6 +73,7 @@ export function ProjectProvider({
   initialView = "plan",
   initialSelection,
   initialMediaInfo = false,
+  initialConversationRailOpen = true,
 }: {
   children: ReactNode;
   initialProject?: Project;
@@ -79,6 +82,7 @@ export function ProjectProvider({
   initialView?: WorkspaceView;
   initialSelection?: Selection;
   initialMediaInfo?: boolean;
+  initialConversationRailOpen?: boolean;
 }) {
   const [project, setProject] = useState(() => initialProject ?? createForestProject());
   const [view, setViewState] = useState<WorkspaceView>(initialView);
@@ -94,6 +98,7 @@ export function ProjectProvider({
   const [replacingStart, setReplacingStart] = useState(false);
   const [constructingBeatId, setConstructingBeatId] = useState<string | null>(null);
   const [mediaInfoOn, setMediaInfoOn] = useState(initialMediaInfo);
+  const [conversationRailOpen, setConversationRailOpen] = useState(initialConversationRailOpen);
   const [composerDraft, setComposerDraft] = useState(
     () => initialComposerDraft ?? (initialProject ?? createForestProject()).story,
   );
@@ -282,6 +287,8 @@ export function ProjectProvider({
       setPlaying,
       mediaInfoOn,
       setMediaInfoOn,
+      conversationRailOpen,
+      setConversationRailOpen,
       setAgency,
       composerDraft,
       setComposerDraft,
@@ -309,6 +316,7 @@ export function ProjectProvider({
       playheadTime,
       playing,
       mediaInfoOn,
+      conversationRailOpen,
       setAgency,
       composerDraft,
       conversation,

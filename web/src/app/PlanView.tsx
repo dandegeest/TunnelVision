@@ -1,15 +1,5 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type PointerEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
-import { formatConversationClock, type ConversationEntry } from "../project/conversation";
-import type { DirectorEvidence } from "../project/director";
 import { canConstructDestinationFrame } from "../project/destination";
 import {
   displayProvenanceForFrame,
@@ -24,18 +14,7 @@ import { STARTING_FRAME_ACCEPT } from "../project/starting-frame";
 import { nextStoryboardSlot } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
-const STORY_WIDTH_DEFAULT = 328;
-const STORY_WIDTH_MIN = 260;
-const STORY_WIDTH_MAX = 480;
-const STORYBOARD_MIN = 420;
-
-function clampStoryWidth(width: number, containerWidth: number) {
-  const max = Math.max(
-    STORY_WIDTH_MIN,
-    Math.min(STORY_WIDTH_MAX, containerWidth - STORYBOARD_MIN),
-  );
-  return Math.min(max, Math.max(STORY_WIDTH_MIN, width));
-}
+export { formatDirectorEvidenceJson } from "./ConversationRail";
 
 function ProvenanceIcon({ provenance }: { provenance: DisplayProvenance }) {
   const label = provenanceAccessibleLabel(provenance);
@@ -254,115 +233,6 @@ export function DestinationGenerateControl({
   );
 }
 
-function ConversationStamp({
-  role,
-  createdAt,
-}: {
-  role: string;
-  createdAt: string;
-}) {
-  const clock = formatConversationClock(createdAt);
-  return (
-    <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-      {role}
-      {clock ? ` · ${clock}` : ""}
-    </p>
-  );
-}
-
-export function formatDirectorEvidenceJson(evidence: DirectorEvidence): string {
-  let rawText: unknown = evidence.rawText;
-  try {
-    rawText = JSON.parse(evidence.rawText);
-  } catch {
-    rawText = evidence.rawText;
-  }
-  return JSON.stringify(
-    {
-      request: evidence.request,
-      rawText,
-    },
-    null,
-    2,
-  );
-}
-
-function DirectorEvidenceDetails({ evidence }: { evidence: DirectorEvidence }) {
-  return (
-    <details className="text-xs text-[#9a8f7e]">
-      <summary className="cursor-pointer tracking-[0.16em] uppercase">Director</summary>
-      <div className="mt-2 space-y-2 leading-relaxed">
-        {evidence.model ? <p>Model: {evidence.model}</p> : null}
-        {evidence.predictionId ? <p>Prediction: {evidence.predictionId}</p> : null}
-        <p>Elapsed: {evidence.elapsedMs}ms</p>
-        <pre className="director-evidence-json max-h-64 overflow-x-hidden overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] leading-snug text-[#cfc6b8]">
-          {formatDirectorEvidenceJson(evidence)}
-        </pre>
-      </div>
-    </details>
-  );
-}
-
-function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
-  if (entry.kind === "filmmaker") {
-    return (
-      <article className="conversation-filmmaker">
-        <ConversationStamp role="Filmmaker" createdAt={entry.createdAt} />
-        <div className="mt-2 border-l border-[#3a342c] pl-3">
-          <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[#cfc6b8]">{entry.text}</p>
-        </div>
-      </article>
-    );
-  }
-  if (entry.kind === "director") {
-    return (
-      <article className="conversation-director">
-        <ConversationStamp role="Director" createdAt={entry.createdAt} />
-        {entry.status === "planning" ? (
-          <p className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">Planning…</p>
-        ) : null}
-        {entry.status === "failed" ? (
-          <p className="mt-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-            {entry.error}
-          </p>
-        ) : null}
-        {entry.status === "complete" && entry.evidence ? (
-          <div className="mt-3 space-y-4">
-            <DirectorEvidenceDetails evidence={entry.evidence} />
-            {entry.summary ? (
-              <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">{entry.summary}</p>
-            ) : null}
-          </div>
-        ) : null}
-      </article>
-    );
-  }
-  return (
-    <article>
-      {entry.status === "constructing" ? (
-        <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-          Constructing {entry.beatId}…
-        </p>
-      ) : null}
-      {entry.status === "constructed" ? (
-        <>
-          <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-            Constructed {entry.beatId}
-          </p>
-          {entry.imageUrl ? (
-            <img src={entry.imageUrl} alt="" className="mt-2 aspect-video w-full object-cover" />
-          ) : null}
-        </>
-      ) : null}
-      {entry.status === "failed" ? (
-        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-          {entry.error}
-        </p>
-      ) : null}
-    </article>
-  );
-}
-
 export function destinationDetailContent(frame: StoryboardFrame): {
   label: string;
   intent?: string;
@@ -554,25 +424,12 @@ export function AddDestinationCard({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-export function PlanView({
-  brand,
-  workspaceHeader,
-}: {
-  brand?: ReactNode;
-  workspaceHeader?: ReactNode;
-} = {}) {
+export function PlanView() {
   const {
     project,
     selection,
     select,
-    composerDraft,
-    setComposerDraft,
-    conversation,
     directorStatus,
-    planStartError,
-    planWithDirector,
-    startingFrameError,
-    replacingStart,
     replaceDestinationImage,
     addDestination,
     constructingBeatId,
@@ -581,17 +438,10 @@ export function PlanView({
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
-  const canPlan = Boolean(composerDraft.trim()) && !planning;
   const mediaPreflight = mediaPreflightForProject(project);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const threadRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
-  const followThread = useRef(true);
-  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
-  const [storyWidth, setStoryWidth] = useState(STORY_WIDTH_DEFAULT);
   const [detailFrameId, setDetailFrameId] = useState<string | null>(null);
-  const hasChrome = Boolean(brand || workspaceHeader);
 
   useEffect(() => {
     if (!detailFrameId) {
@@ -608,177 +458,11 @@ export function PlanView({
     return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [detailFrameId]);
 
-  useEffect(() => {
-    const thread = threadRef.current;
-    if (!thread || !followThread.current) {
-      return;
-    }
-    thread.scrollTop = thread.scrollHeight;
-  }, [conversation]);
-
-  const containerWidth = () => frameRef.current?.getBoundingClientRect().width ?? 1200;
-
-  const onResizePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    dragRef.current = { startX: event.clientX, startWidth: storyWidth };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }, [storyWidth]);
-
-  const onResizePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    if (!drag) {
-      return;
-    }
-    setStoryWidth(clampStoryWidth(drag.startWidth + event.clientX - drag.startX, containerWidth()));
-  }, []);
-
-  const onResizePointerUp = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    dragRef.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  }, []);
-
-  const onResizeKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
-    const step = event.shiftKey ? 24 : 12;
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      setStoryWidth((width) => clampStoryWidth(width - step, containerWidth()));
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      setStoryWidth((width) => clampStoryWidth(width + step, containerWidth()));
-    }
-  }, []);
-
-  const bodyRow = hasChrome ? 2 : 1;
-
   return (
-    <div
-      ref={frameRef}
-      className="grid h-full min-h-0 overflow-hidden"
-      style={{
-        gridTemplateColumns: `${storyWidth}px 0.375rem minmax(0, 1fr)`,
-        gridTemplateRows: hasChrome ? "auto minmax(0, 1fr)" : "minmax(0, 1fr)",
-      }}
+    <section
+      className="h-full min-h-0 min-w-0 overflow-auto px-6 py-5"
+      aria-label="Storyboard"
     >
-      {hasChrome ? (
-        <div className="min-w-0" style={{ gridColumn: 1, gridRow: 1 }}>
-          {brand}
-        </div>
-      ) : null}
-      <div
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize story panel"
-        aria-valuemin={STORY_WIDTH_MIN}
-        aria-valuemax={STORY_WIDTH_MAX}
-        aria-valuenow={storyWidth}
-        tabIndex={0}
-        className="h-full cursor-col-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
-        style={{ gridColumn: 2, gridRow: hasChrome ? "1 / span 2" : 1 }}
-        onPointerDown={onResizePointerDown}
-        onPointerMove={onResizePointerMove}
-        onPointerUp={onResizePointerUp}
-        onPointerCancel={onResizePointerUp}
-        onKeyDown={onResizeKeyDown}
-      />
-      {hasChrome ? (
-        <div className="min-w-0" style={{ gridColumn: 3, gridRow: 1 }}>
-          {workspaceHeader}
-        </div>
-      ) : null}
-      <aside
-        className="flex min-h-0 min-w-0 flex-col bg-[#12100d]"
-        style={{ gridColumn: 1, gridRow: bodyRow }}
-        aria-label="Story"
-      >
-        <div
-          ref={threadRef}
-          className="min-h-0 flex-1 overflow-auto px-4 py-3"
-          onScroll={(event) => {
-            const thread = event.currentTarget;
-            followThread.current =
-              thread.scrollHeight - thread.scrollTop - thread.clientHeight < 48;
-          }}
-        >
-          {startingFrameError ? (
-            <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-              {startingFrameError}
-            </p>
-          ) : null}
-          {planStartError ? (
-            <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-              {planStartError}
-            </p>
-          ) : null}
-          <div className="flex flex-col">
-            {conversation.map((entry, index) => {
-              const previous = conversation[index - 1];
-              const spacing =
-                index === 0
-                  ? ""
-                  : entry.kind === "director" && previous?.kind === "filmmaker"
-                    ? "mt-3"
-                    : entry.kind === "filmmaker"
-                      ? "mt-8"
-                      : "mt-5";
-              return (
-                <div key={entry.id} className={spacing}>
-                  <ConversationEntryView entry={entry} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="flex-none border-t border-[#2a2620] px-3 py-2">
-          <label className="sr-only" htmlFor="plan-composer">
-            Movie
-          </label>
-          <div className="flex items-end gap-2 rounded border border-[#3a342c] bg-[#161410] px-2.5 py-1.5">
-            <textarea
-              id="plan-composer"
-              rows={5}
-              value={composerDraft}
-              placeholder="Describe the movie…"
-              aria-label="Movie"
-              className="h-[8.25rem] min-h-[6.75rem] max-h-[12.5rem] min-w-0 flex-1 resize-y overflow-auto bg-transparent text-[13px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
-              onChange={(event) => setComposerDraft(event.target.value)}
-            />
-            <button
-              type="button"
-              disabled={!canPlan}
-              aria-label="Plan movie"
-              title="Plan the movie from this story and starting frame."
-              onClick={() => {
-                followThread.current = true;
-                void planWithDirector();
-              }}
-              className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
-            >
-              <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
-                <path
-                  d="M2 6h8M6.5 2.5 10 6 6.5 9.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-          {replacingStart ? (
-            <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-              Uploading…
-            </p>
-          ) : null}
-        </div>
-      </aside>
-      <section
-        className="min-h-0 min-w-0 overflow-auto px-6 py-5"
-        style={{ gridColumn: 3, gridRow: bodyRow }}
-        aria-label="Storyboard"
-      >
         <input
           ref={fileInputRef}
           id="replace-destination-image"
@@ -892,7 +576,6 @@ export function PlanView({
         {project.storyboard.length === 1 ? (
           <p className="mt-6 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Not yet planned</p>
         ) : null}
-      </section>
-    </div>
+    </section>
   );
 }
