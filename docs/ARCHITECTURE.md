@@ -5,9 +5,10 @@
 > only render.
 
 Product development has started. [`web/`](../web/) is a fixture-driven
-React shell. Camotion and `media/` are unchanged research packages.
-Do not read the later diagram as a description of generation wiring —
-that is still later.
+React shell. Camotion is unchanged. `media/` now includes a thin
+Cinematographer actual-set choreography assessment in addition to
+the existing providers and planners. Do not read the later diagram as
+a description of generation wiring — that is still later.
 
 ## Current implementation --- product shell + Camotion research
 
@@ -31,7 +32,7 @@ camotion/     Python package, CLI (unchanged renderer)
 media/        MediaProvider (image + video) + ReasoningProvider
               + thin cinematographer planner (Integration Test 01)
               + thin Director storyboard planner (Product Slice 3)
-              + thin Cinematographer actual-set assessment
+              + thin Cinematographer actual-set choreography assessment
 web/          Vite + React + TypeScript Plan | Shoot shell
 ```
 
@@ -116,8 +117,11 @@ beat from the preceding actual destination through image-conditioned
 edit and registers the still as
 session/dev-runtime trusted media. Later beats stay planned until
 explicitly constructed. A thin Cinematographer assessment inspects
-two actual canonical stills for one JourneyShot and stores a
-structured shootability result on that leg. CameraMotionPlan,
+two actual canonical stills for one JourneyShot and stores
+segment-specific camera choreography on that leg, including a
+`segmentPromptAddition` that can later append to the frozen
+locomotion baseline. Shootability remains advisory; it does not
+gate JourneyShot status. CameraMotionPlan,
 Camotion, video, Discovery, and
 Screenwriter remain unwired. Live development initializes Project from
 the Forest A→F fixture, including starting frame A with a trusted
@@ -179,7 +183,7 @@ limit of encoding substantial camera travel by smearing the scene
 itself into A′ under the currently tested baked-exposure family.
 The forest spike pinned strength `0.08` by protocol; that is not a
 reopening of scene-aware Phase 1 policy. Cinematographer actual-set
-assessment is now a thin product slice; Camotion and video remain
+choreography is now a thin product slice; Camotion and video remain
 unwired.
 
 Camotion is a standalone deterministic Python graphics package.
@@ -534,9 +538,11 @@ starts them.
     sample-count sweeps, compositor experiments, or cross-seed
     Camotion sweeps unless a concrete later movie failure provides
     reason.
--   how the Cinematographer should reason about **actual adjacent
-    sets** before attempting to shoot them (next research frontier;
-    not a CM schema in this checkpoint)
+-   how to tune Cinematographer segment choreography through the
+    application after the end-to-end pipeline exists (product now
+    stores route / camera path / transition strategy /
+    `segmentPromptAddition`; Experiment 04 is evidence, not proof
+    that adaptive choreography is solved)
 -   whether / how Camotion should be applied to an actual set,
     including open-void / non-corridor geometry
 -   start-frame authority vs endpoint attraction in directed video

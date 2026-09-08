@@ -69,12 +69,6 @@ export function cinematographerShootabilityLabel(
 }
 
 export function journeyLegStatusLabel(journey: JourneyShot): string {
-  if (journey.status === "not_shootable") {
-    return "blocked";
-  }
-  if (journey.status === "needs_review") {
-    return "needs review";
-  }
   return journey.status.replaceAll("_", " ");
 }
 

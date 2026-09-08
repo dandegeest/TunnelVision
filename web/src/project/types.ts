@@ -9,6 +9,7 @@ export type DestinationStatus =
   | "needs_attention"
   | "regenerating";
 
+/** Production/execution state. Not Cinematographer shootability. */
 export type JourneyStatus =
   | "unplanned"
   | "planned"
@@ -16,11 +17,13 @@ export type JourneyStatus =
   | "shooting"
   | "rendered"
   | "failed"
-  | "invalidated"
-  | "not_shootable"
-  | "needs_review";
+  | "invalidated";
 
-/** Semantic Cinematographer judgment of one actual adjacent pair. Not CameraMotionPlan. */
+/**
+ * Advisory Cinematographer set analysis of one actual adjacent pair.
+ * Shootability does not gate JourneyShot.status or video generation.
+ * Not CameraMotionPlan.
+ */
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
 export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
 
@@ -31,6 +34,8 @@ export type CinematographerAssessment = {
   threshold: string;
   camera: string;
   parallax: string;
+  transitionStrategy: string;
+  segmentPromptAddition: string;
   camotionSuitability: CinematographerCamotionSuitability;
   concerns: string[];
 };
@@ -103,7 +108,10 @@ export type JourneyShot = {
   status: JourneyStatus;
   videoUrl?: string;
   shootabilityNote?: string;
-  /** Actual-set Cinematographer assessment for this leg. Absent until analyzed. */
+  /**
+   * Actual-set Cinematographer choreography for this leg. Absent until analyzed.
+   * Shootability on this object is advisory and must not replace `status`.
+   */
   cinematographer?: CinematographerAssessment;
 };
 

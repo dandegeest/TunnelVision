@@ -174,9 +174,13 @@ actual destination through
 `ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
 A thin Cinematographer assessment inspects two actual canonical stills
-for one JourneyShot through `ReasoningProvider` and stores the
-structured result on that leg. It does not emit CameraMotionPlan or
-run Camotion. Live development initializes Project from the Forest A→F fixture,
+for one JourneyShot through `ReasoningProvider` and stores
+segment-specific camera choreography on that leg, including
+`segmentPromptAddition`. Shootability remains advisory and does not
+gate JourneyShot status. The assessment does not emit CameraMotionPlan,
+run Camotion, or generate video. `composeShootingPrompt` concatenates
+the frozen locomotion baseline with the segment addition for a later
+video PR; it is not invoked for generation yet. Live development initializes Project from the Forest A→F fixture,
 including starting frame A with a trusted media identity and the
 completed A→F storyboard and Journey clips.
 The Director runtime resolves that identity from
@@ -1143,14 +1147,16 @@ next experiment here.
 
 ### Cinematographer integration
 
-Open question: module boundaries. Intended *role*: for accepted frame
-pairs, analyze route/geometry, emit ShotPlan, derive CameraMotionPlan,
-invoke Camotion, fill a locomotion template, call the video provider,
-and judge directed A→B shots by endpoint fidelity first, then
-traversal. Integration Test 01 used a thin pair planner in
-`media/src/cinematographer/` against actual stills. The MediaProvider
-image and video requests now exist in `media/`. Do not expand that
-planner into a product package in this checkpoint.
+Open question: module boundaries. Current product CM inspects actual
+adjacent stills and stores semantic choreography plus
+`segmentPromptAddition` on the JourneyShot. It does **not** emit
+ShotPlan, CameraMotionPlan, or video. Integration Test 01 used a
+separate thin pair planner in `media/src/cinematographer/plan-shot.ts`
+against actual stills; do not expand that planner into a product
+package in this checkpoint. The later intended path is: inspect
+actual sets, compose frozen locomotion baseline + segment addition,
+derive shooting frames, call the video provider. That Camotion /
+video wiring is the next slice.
 
 ### SHOOT MOVIE
 
@@ -1173,10 +1179,12 @@ TunnelVision continuous-motion language produced convincing travel on **Seedance
 
 This is an experimental artifact, not a frozen product template and
 **not** claimed to be model-independent. Scene-specific nouns in the
-passing prompt are fill-in, not the locomotion principle. A later
-Cinematographer should fill a stable grammar from structured scene
-data rather than freely rewriting the whole prompt. That templating
-system is not designed yet.
+passing prompt are fill-in, not the locomotion principle. The
+production locomotion baseline now lives in
+`media/src/cinematographer/shooting-prompt.ts`. The later video
+prompt should concatenate that baseline with the CM
+`segmentPromptAddition` without an LLM rewrite. Do not treat this as
+a Camotion input.
 
 Provenance: Terran Boylan's original TunnelVision motion-prompting;
 documented in

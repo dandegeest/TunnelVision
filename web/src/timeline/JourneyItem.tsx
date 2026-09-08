@@ -16,12 +16,7 @@ export function JourneyItem({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const tone =
-    journey.status === "not_shootable"
-      ? "border-[#8a4a32] bg-[#2a1610] text-[#f0c2a8]"
-      : journey.status === "needs_review"
-        ? "border-[#8a7032] bg-[#261e10] text-[#f0d9a8]"
-        : "border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
+  const tone = "border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
   const ring = selected
     ? "ring-2 ring-[#ece7df]"
     : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";

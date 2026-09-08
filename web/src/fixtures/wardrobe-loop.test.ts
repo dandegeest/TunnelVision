@@ -11,21 +11,21 @@ describe("wardrobe loop fixture", () => {
     expect(project.construction).toBe("planned");
   });
 
-  it("marks shootability on the E-A route, not on destination E", () => {
+  it("keeps E-A as a clip-less journey, not as a property of destination E", () => {
     const e = project.destinations.find((destination) => destination.id === "E");
     const ea = project.journeys.find((journey) => journey.id === "E-A");
     expect(e?.status).toBe("ready");
-    expect(ea?.status).toBe("not_shootable");
+    expect(ea?.status).toBe("ready");
     expect(ea?.endDestinationId).toBe("A");
     expect(ea?.videoUrl).toBeUndefined();
     expect(journeyIsPlayable(ea!)).toBe(false);
   });
 
-  it("keeps A-B, B-C, and D-E playable, and C-D rendered with review", () => {
+  it("keeps A-B, B-C, C-D, and D-E playable", () => {
     const byId = Object.fromEntries(project.journeys.map((journey) => [journey.id, journey]));
     expect(byId["A-B"].status).toBe("rendered");
     expect(byId["B-C"].status).toBe("rendered");
-    expect(byId["C-D"].status).toBe("needs_review");
+    expect(byId["C-D"].status).toBe("rendered");
     expect(byId["D-E"].status).toBe("rendered");
     expect(journeyIsPlayable(byId["A-B"])).toBe(true);
     expect(journeyIsPlayable(byId["C-D"])).toBe(true);

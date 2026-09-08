@@ -290,6 +290,11 @@ question**. v1 produces **one** output image per run.
 templating. It is **not** consumed by Camotion. The example below is
 illustrative only and is **not** a frozen contract.
 
+Production Cinematographer output is currently
+`CinematographerAssessment` on `JourneyShot` (application types in
+`web/` / `media/`), including `segmentPromptAddition`. That is **not**
+`ShotPlan` and **not** CameraMotionPlan.
+
 ``` json
 {
   "version": 1,

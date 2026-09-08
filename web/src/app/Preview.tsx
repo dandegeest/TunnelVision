@@ -58,7 +58,7 @@ export function Preview() {
   if (selectedJourney && !playable) {
     caption = "This journey is not a finished movie clip.";
   } else if (playable && selectedJourney) {
-    caption = `${selectedJourney.status === "needs_review" ? "Rendered · needs review" : "Rendered"} · ${playheadTime.toFixed(1)}s`;
+    caption = `Rendered · ${playheadTime.toFixed(1)}s`;
   } else if (occurrence?.arrivalBlocked) {
     caption = ARRIVAL_BLOCKED_COPY;
   }

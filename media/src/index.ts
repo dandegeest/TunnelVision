@@ -78,6 +78,10 @@ export {
   CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
   cinematographerAssessmentUserPrompt,
 } from "./cinematographer/assessment-prompts.ts";
+export {
+  TUNNELVISION_LOCOMOTION_BASELINE,
+  composeShootingPrompt,
+} from "./cinematographer/shooting-prompt.ts";
 export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";
 export type {
   DirectorAgency,

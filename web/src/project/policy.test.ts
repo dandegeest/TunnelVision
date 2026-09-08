@@ -25,30 +25,18 @@ describe("approval policy", () => {
 });
 
 describe("journey playback policy", () => {
-  it("plays rendered and needs-review clips that have a video", () => {
+  it("plays rendered clips that have a video", () => {
     expect(journeyIsPlayable(journey({ status: "rendered", videoUrl: "/a-b.mp4" }))).toBe(true);
-    expect(journeyIsPlayable(journey({ status: "needs_review", videoUrl: "/c-d.mp4" }))).toBe(true);
   });
 
-  it("does not play a blocked journey even if a research clip exists", () => {
+  it("does not play a journey that has no video", () => {
     expect(
       journeyIsPlayable(
         journey({
           id: "E-A",
           startDestinationId: "E",
           endDestinationId: "A",
-          status: "not_shootable",
-          videoUrl: "/E-A.mp4",
-        }),
-      ),
-    ).toBe(false);
-    expect(
-      journeyIsPlayable(
-        journey({
-          id: "E-A",
-          startDestinationId: "E",
-          endDestinationId: "A",
-          status: "not_shootable",
+          status: "ready",
         }),
       ),
     ).toBe(false);
@@ -58,16 +46,8 @@ describe("journey playback policy", () => {
 describe("production bar copy", () => {
   it("explains that generation is not connected", () => {
     expect(productionUnavailableReason(null)).toMatch(/generation is not connected/i);
-  });
-
-  it("calls out a blocked journey before the generic generation note", () => {
-    expect(
-      productionUnavailableReason(
-        journey({
-          id: "E-A",
-          status: "not_shootable",
-        }),
-      ),
-    ).toMatch(/not shootable/i);
+    expect(productionUnavailableReason(journey({ status: "ready" }))).toMatch(
+      /generation is not connected/i,
+    );
   });
 });

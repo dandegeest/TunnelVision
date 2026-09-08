@@ -505,8 +505,18 @@ test("full path freezes plans before three Seedance calls with seeds 90/90/91 an
 });
 
 test("Camotion implementation is not part of this experiment", async () => {
-  const result = await execFileAsync("git", ["diff", "--stat", "--", "camotion/src", "camotion/tuning", "media/src/cinematographer"], {
-    cwd: repoRoot,
-  });
+  const result = await execFileAsync(
+    "git",
+    [
+      "diff",
+      "--stat",
+      "--",
+      "camotion/src",
+      "camotion/tuning",
+      "media/src/cinematographer/plan-shot.ts",
+      "media/src/cinematographer/prompts.ts",
+    ],
+    { cwd: repoRoot },
+  );
   assert.equal(result.stdout.trim(), "");
 });

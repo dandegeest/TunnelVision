@@ -55,7 +55,6 @@ type ProjectContextValue = {
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
   conversation: ConversationEntry[];
-  approveJourney: (journeyId: string) => void;
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
   planStartError: string | null;
@@ -139,17 +138,6 @@ export function ProjectProvider({
 
   const setAgency = useCallback((agency: Agency) => {
     setProject((current) => ({ ...current, agency }));
-  }, []);
-
-  const approveJourney = useCallback((journeyId: string) => {
-    setProject((current) => ({
-      ...current,
-      journeys: current.journeys.map((journey) =>
-        journey.id === journeyId && journey.status === "needs_review"
-          ? { ...journey, status: "rendered" as const }
-          : journey,
-      ),
-    }));
   }, []);
 
   const replaceDestinationImage = useCallback(async (frameId: string, file: File) => {
@@ -319,7 +307,6 @@ export function ProjectProvider({
       composerDraft,
       setComposerDraft,
       conversation,
-      approveJourney,
       selectedJourney,
       directorStatus,
       planStartError,
@@ -349,7 +336,6 @@ export function ProjectProvider({
       setAgency,
       composerDraft,
       conversation,
-      approveJourney,
       selectedJourney,
       directorStatus,
       planStartError,

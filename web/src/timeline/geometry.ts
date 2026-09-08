@@ -97,7 +97,7 @@ export function layoutTimeline(
         xCenter: padPx + scale(time, zoom, pxPerSecond),
         inboundJourneyId: journey.id,
         outboundJourneyId: next?.id ?? null,
-        arrivalBlocked: journey.status === "not_shootable",
+        arrivalBlocked: false,
       });
     }
   }

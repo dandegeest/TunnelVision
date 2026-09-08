@@ -17,6 +17,8 @@ export type CinematographerAssessment = {
   readonly threshold: string;
   readonly camera: string;
   readonly parallax: string;
+  readonly transitionStrategy: string;
+  readonly segmentPromptAddition: string;
   readonly camotionSuitability: CinematographerCamotionSuitability;
   readonly concerns: readonly string[];
 };
@@ -158,6 +160,8 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     threshold: asNonEmptyString(record.threshold, "threshold"),
     camera: asNonEmptyString(record.camera, "camera"),
     parallax: asNonEmptyString(record.parallax, "parallax"),
+    transitionStrategy: asNonEmptyString(record.transitionStrategy, "transitionStrategy"),
+    segmentPromptAddition: asNonEmptyString(record.segmentPromptAddition, "segmentPromptAddition"),
     camotionSuitability: record.camotionSuitability as CinematographerCamotionSuitability,
     concerns,
   };

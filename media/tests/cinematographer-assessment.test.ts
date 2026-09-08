@@ -9,6 +9,7 @@ import {
   type CinematographerAssessmentInput,
 } from "../src/cinematographer/assess-journey.ts";
 import { CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION } from "../src/cinematographer/assessment-prompts.ts";
+import { TUNNELVISION_LOCOMOTION_BASELINE } from "../src/cinematographer/shooting-prompt.ts";
 import type { ReasoningProvider, ReasoningRequest, ReasoningResult } from "../src/reasoning/types.ts";
 
 const input: CinematographerAssessmentInput = {
@@ -29,42 +30,86 @@ const input: CinematographerAssessmentInput = {
 function validAssessmentJson(overrides: Record<string, unknown> = {}) {
   return JSON.stringify({
     shootability: "shootable",
-    summary: "Walk through the root gateway into the darker mouth.",
-    route: "Advance along the forest path and pass through the trunk opening.",
-    threshold: "The dark root-mouth opening slightly right of center.",
-    camera: "Aim forward through the gateway, keeping the opening in the travel axis.",
-    parallax: "Near trunks and roots the camera can pass beside.",
+    summary: "Walk through the visible opening into the darker mouth.",
+    route: "Advance along the path and pass through the opening.",
+    threshold: "The dark opening slightly right of center.",
+    camera: "Track forward along the path, passing between near structures toward the opening.",
+    parallax: "Near structures the camera can pass beside.",
+    transitionStrategy: "Pass through the visible opening so near geometry sweeps past the lens.",
+    segmentPromptAddition:
+      "Track forward along the path, pass between the near structures, and move through the visible opening toward the darker mouth.",
     camotionSuitability: "appropriate",
     concerns: [],
     ...overrides,
   });
 }
 
-test("Cinematographer assessment request sends both actual stills and spatial principles", () => {
+test("Cinematographer assessment request asks how to shoot actual stills, not whether the video model will succeed", () => {
   const request = buildCinematographerAssessmentRequest(input);
   assert.equal(request.systemInstruction, CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION);
-  assert.match(request.systemInstruction, /visual similarity is NOT sufficient/i);
-  assert.match(request.systemInstruction, /not the same as spatial traversability/i);
-  assert.match(request.systemInstruction, /do not invent invisible geometry/i);
+  assert.match(request.systemInstruction, /how the camera should move/i);
+  assert.match(request.systemInstruction, /do not invent invisible/i);
+  assert.match(request.systemInstruction, /mostly straight forward move is valid/i);
+  assert.match(request.systemInstruction, /not automatically a reason to mark the shot not_shootable/i);
+  assert.match(request.systemInstruction, /not predicting whether a stochastic video model will succeed/i);
+  assert.match(request.systemInstruction, /always produce camera choreography/i);
+  assert.doesNotMatch(request.systemInstruction, /will the video model succeed/i);
   assert.doesNotMatch(request.systemInstruction, /vanishing_point/);
   assert.doesNotMatch(request.systemInstruction, /exposure\.strength/);
   assert.match(request.prompt, /Journey A-B/);
   assert.match(request.prompt, /night forest/);
   assert.match(request.prompt, /Image 1 is the START canonical set/);
+  assert.match(request.prompt, /Do not predict whether a video model will succeed/);
+  assert.ok(request.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE));
   assert.deepEqual(request.images, [input.start.image, input.end.image]);
   assert.equal(request.payload.startId, "A");
   assert.equal(request.payload.endId, "B");
 });
 
-test("structured Cinematographer assessment JSON validates", () => {
+test("structured Cinematographer assessment JSON includes segment choreography", () => {
   const assessment = parseCinematographerAssessment(`\`\`\`json\n${validAssessmentJson()}\n\`\`\``);
   assert.equal(assessment.shootability, "shootable");
   assert.equal(assessment.camotionSuitability, "appropriate");
   assert.equal(assessment.concerns.length, 0);
-  assert.match(assessment.summary, /root gateway/);
+  assert.match(assessment.camera, /Track forward/);
+  assert.match(assessment.transitionStrategy, /visible opening/);
+  assert.match(assessment.segmentPromptAddition, /pass between the near structures/);
 });
 
-test("invalid Cinematographer assessment fails instead of inventing shootability", () => {
+test("a straight route is valid choreography and does not require a turn", () => {
+  const assessment = parseCinematographerAssessment(
+    validAssessmentJson({
+      camera: "Push straight forward along the center of the visible corridor.",
+      transitionStrategy: "Keep a centered forward trajectory as nearby walls sweep past.",
+      segmentPromptAddition:
+        "Push straight forward down the center of the corridor toward the destination ahead.",
+    }),
+  );
+  assert.doesNotMatch(assessment.camera, /veer|turn|curve|drift/i);
+  assert.doesNotMatch(assessment.segmentPromptAddition, /veer|turn|curve/i);
+  assert.match(assessment.camera, /straight forward/);
+});
+
+test("visible foreground geometry can be choreographed as a pass rather than making the shot invalid", () => {
+  const assessment = parseCinematographerAssessment(
+    validAssessmentJson({
+      shootability: "shootable",
+      camera:
+        "Approach the large foreground structure, veer slightly to pass close beside it, allow it to sweep the near foreground, then continue forward.",
+      parallax: "A large structure occupies the path; pass beside it rather than stopping.",
+      transitionStrategy:
+        "Use the close pass as temporary cover while travel continues into the space beyond.",
+      segmentPromptAddition:
+        "Approach the foreground structure, veer slightly to pass close beside it, allow it to sweep through the near foreground and behind the camera, then continue toward the visible corridor.",
+      concerns: ["The structure occupies much of the forward view."],
+    }),
+  );
+  assert.equal(assessment.shootability, "shootable");
+  assert.match(assessment.camera, /pass close beside/);
+  assert.match(assessment.parallax, /pass beside it rather than stopping/);
+});
+
+test("invalid Cinematographer assessment fails instead of inventing shootability or choreography", () => {
   assert.throws(() => parseCinematographerAssessment("not json"), MediaGenerationError);
   assert.throws(
     () => parseCinematographerAssessment(JSON.stringify({ summary: "Go." })),
@@ -84,9 +129,23 @@ test("invalid Cinematographer assessment fails instead of inventing shootability
       ),
     /camotionSuitability/,
   );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ segmentPromptAddition: "" }),
+      ),
+    /segmentPromptAddition/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ transitionStrategy: "" }),
+      ),
+    /transitionStrategy/,
+  );
 });
 
-test("Cinematographer.assessJourney uses ReasoningProvider and returns the assessment", async () => {
+test("Cinematographer.assessJourney uses ReasoningProvider only", async () => {
   let captured: ReasoningRequest | undefined;
   const reasoning: ReasoningProvider = {
     async complete(request) {
@@ -99,9 +158,9 @@ test("Cinematographer.assessJourney uses ReasoningProvider and returns the asses
         status: "succeeded",
         text: validAssessmentJson({
           shootability: "not_shootable",
-          summary: "No credible route into the void.",
+          summary: "No credible corridor is visible, but keep traveling toward the distant light.",
           camotionSuitability: "poor_fit",
-          concerns: ["Open debris field with no traversable corridor."],
+          concerns: ["Open field with no traversable corridor."],
         }),
         metadata: {},
         startedAt: "2026-09-08T00:00:00.000Z",
@@ -114,7 +173,6 @@ test("Cinematographer.assessJourney uses ReasoningProvider and returns the asses
   const result = await assessJourney({ reasoning, ...input });
   assert.equal(captured?.images?.length, 2);
   assert.equal(result.assessment.shootability, "not_shootable");
-  assert.equal(result.assessment.camotionSuitability, "poor_fit");
-  assert.equal(result.assessment.concerns[0], "Open debris field with no traversable corridor.");
+  assert.ok(result.assessment.segmentPromptAddition.length > 0);
   assert.equal(result.predictionId, "pred-cm-1");
 });

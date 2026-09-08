@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
-import { directorPlanRequestFromProject } from "./director";
-import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
-import type { CinematographerAssessment, Project } from "./types";
 import {
   canAssessJourney,
   cinematographerRequestFromProject,
@@ -12,14 +9,21 @@ import {
   projectWithCinematographerAssessment,
   requestCinematographerAssessment,
 } from "./cinematographer";
+import { directorPlanRequestFromProject } from "./director";
+import { journeyIsPlayable } from "./policy";
+import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
+import type { CinematographerAssessment, Project } from "./types";
 
 const shootableAB: CinematographerAssessment = {
   shootability: "shootable",
   summary: "Walk through the root gateway into the darker mouth.",
   route: "Advance along the forest path and pass through the trunk opening.",
   threshold: "The dark root-mouth opening slightly right of center.",
-  camera: "Aim forward through the gateway.",
+  camera: "Track forward along the path, passing between near trunks toward the opening.",
   parallax: "Near trunks the camera can pass beside.",
+  transitionStrategy: "Pass through the visible gateway so near trunks sweep past the lens.",
+  segmentPromptAddition:
+    "Track forward along the path, pass between the near trunks, and move through the visible opening toward the darker mouth.",
   camotionSuitability: "appropriate",
   concerns: [],
 };
@@ -104,6 +108,19 @@ describe("Cinematographer actual-set assessment", () => {
     expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
   });
 
+  it("replaces the previous Cinematographer result on reassessment", () => {
+    const first = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
+    const replacement: CinematographerAssessment = {
+      ...shootableAB,
+      summary: "Revised: stay on the center line through the opening.",
+      camera: "Push straight forward through the visible opening.",
+      segmentPromptAddition: "Push straight forward through the visible opening toward the darker mouth.",
+    };
+    const next = projectWithCinematographerAssessment(first, "A-B", replacement);
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(replacement);
+    expect(first.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(shootableAB);
+  });
+
   it("maps shootability to filmmaker-facing Ready / Needs review / Not shootable without replacing operational status", () => {
     expect(cinematographerShootabilityLabel("shootable")).toBe("Ready");
     expect(cinematographerShootabilityLabel("needs_review")).toBe("Needs review");
@@ -123,6 +140,19 @@ describe("Cinematographer actual-set assessment", () => {
         cinematographer: { ...shootableAB, shootability: "not_shootable" },
       }),
     ).toBe("rendered");
+  });
+
+  it("does not gate JourneyShot progression when CM says not_shootable", () => {
+    const project = createForestProject();
+    const next = projectWithCinematographerAssessment(project, "A-B", {
+      ...shootableAB,
+      shootability: "not_shootable",
+      summary: "No clear corridor, but still describe a forward move.",
+    });
+    const journey = next.journeys.find((item) => item.id === "A-B")!;
+    expect(journey.status).toBe("rendered");
+    expect(journey.cinematographer?.shootability).toBe("not_shootable");
+    expect(journeyIsPlayable(journey)).toBe(true);
   });
 
   it("does not mutate either canonical destination", () => {

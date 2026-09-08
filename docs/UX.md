@@ -32,9 +32,12 @@ construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Video remains unwired. Shoot remains the Slice 1
 Destinations / Journey timeline. The Cinematographer can assess an
-actual adjacent journey on that timeline; compact Ready / Needs
-review / Not shootable status lives on the leg, with structured
-reasoning behind a disclosure. Do not redesign the Shoot timeline
+actual adjacent journey on that timeline. Compact Ready / Needs
+review / Not shootable status is advisory and lives on the leg,
+together with camera path and a concise summary. Route, transition
+strategy, prompt addition, and remaining shot notes sit behind a
+disclosure. Shootability does not block the journey. Do not redesign
+the Shoot timeline
 in this checkpoint. Live development initializes Project from the
 Forest A→F fixture, including starting frame A with a trusted media
 identity and the completed A→F storyboard and Journey clips.
@@ -197,10 +200,12 @@ Timeline has two locked lanes on one time axis:
 Preview sits above the timeline. A contextual inspector sits beside
 it. Directed vs Autonomous is one project policy flag, not two UIs.
 
-Shootability is **relational**: the Cinematographer judges whether an
-intended journey between actual generated sets is shootable. Evidence
-lives on the JourneyShot. Compact status and a concise summary appear
-on the analyzed leg; destination cards stay world-state.
+Shootability is **relational and advisory**: the Cinematographer
+inspects an intended journey between actual generated sets and
+describes how to shoot it. Compact status, camera path, and a
+concise summary appear on the analyzed leg; destination cards stay
+world-state. CM `not_shootable` does not change JourneyShot
+operational status.
 
 A blocked journey is not automatically a Cinematographer repair.
 Some failures should return to Plan so the Director can revise the
@@ -320,7 +325,7 @@ a real journey. After a Director replan, Construct still builds the
 next planned beat from the preceding actual destination.
 Shoot uses Forest canonical stills and playable A-B through E-F.
 Wardrobe Loop remains historical research evidence (including E-A as
-a blocked journey in that fixture). Video generation, Camotion, and
+a clip-less loop-closure leg, not a property of destination E). Video generation, Camotion, and
 Discovery remain unwired in the product. Integration Test 01 already
 exercised the unattended filmmaking path after canonicals exist.
 
@@ -336,8 +341,7 @@ prompts. Scene-aware bounded strength `{0.02, 0.04, 0.08}` is preferred
 over fixed `0.08`. **Camotion Phase 1 is frozen.** 01.9, 01.10, 01.11,
 and 01.12 are still-only evidence and are not promoted.
 **TunnelVision Research Phase 1 is complete.** Shootability /
-intermediate volume is completed evidence; the product shell now
-surfaces E→A as a blocked journey, not as an intrinsic property of
-destination E. Unvalidated cinematographer control ideas (pace,
+intermediate volume is completed evidence; the product shell keeps
+E→A as a journey, not as an intrinsic property of destination E. Unvalidated cinematographer control ideas (pace,
 embodiment, Prompt Only vs Auto, velocity continuity) remain in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).

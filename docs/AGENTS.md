@@ -22,8 +22,9 @@ Potential separation:
 -   **Director:** visual interpretation of those beats; world/style
     continuity; canonical visual intentions; which canonical positions
     should exist.
--   **Cinematographer:** sees the **actual** generated frames and asks
-    whether they can be shot.
+-   **Cinematographer:** sees the **actual** generated frames and
+    determines how the camera should move through their visible
+    geography.
 
 Do not create `ScreenwriterAgent` or Screenwriter schemas in this
 checkpoint.
@@ -34,6 +35,11 @@ Inputs: current/prior canonical frames, journey brief, remaining
 duration, preference state and optional user destination. Plan
 conversation is an interaction mechanism, not the Director's durable
 state. The durable result is structured movie intent.
+
+Later, the Director should review generated takes and decide what to
+do with them. That review loop is **not implemented**. The
+experimental Shot Evaluator remains isolated research, not production
+Director review and not a separate top-level filmmaking role.
 
 Responsibilities: understand the world, propose meaningful next camera
 positions, preserve continuity, create discovery, avoid same-composition
@@ -109,18 +115,37 @@ Inputs: accepted start/end **canonical** frames (actual generated
 sets), intended destination/route. Provisional Plan storyboard images
 are **not** CM inputs.
 
-**Cinematographer reasons about actual adjacent sets and determines
-whether/how they can be filmed as a continuous traversal.** A thin
-assessment now lives in `media/src/cinematographer/assess-journey.ts`
-and is invoked from Shoot for one JourneyShot. The result is stored
-on that journey. Destinations stay canonical world state; the
-JourneyShot is the traversal; boundary continuity remains a later
-seam-level video concept.
+**Cinematographer inspects actual adjacent sets and determines how
+the camera should move through their visible geography.** The
+primary question is how to shoot this pair, not whether a stochastic
+video model will succeed. A thin assessment lives in
+`media/src/cinematographer/assess-journey.ts` and is invoked from
+Shoot for one JourneyShot. The result is stored on that journey and
+includes route, camera path, visible geometry, transition strategy,
+and a concise `segmentPromptAddition`, plus advisory shootability /
+Camotion suitability / concerns. Destinations stay canonical world
+state; the JourneyShot is the traversal; boundary continuity remains
+a later seam-level video concept.
+
+Shootability is **advisory set analysis**. It does not gate
+JourneyShot operational status and does not predict generation
+success. Always choreograph, including when shootability is
+`needs_review` or `not_shootable`. A mostly straight move is valid
+when the geography supports it. Apparent foreground obstacles are
+not automatic refusals; CM should say how the camera might negotiate
+visible geometry.
 
 Do **not** generate CameraMotionPlan, Camotion shooting frames, or
 video from this assessment. Do not expand the Integration Test 01
 pair planner into a product package. CameraMotionPlan, Camotion
-strength, and automatic repair remain later.
+strength, and automatic repair remain later. The next video prompt,
+when wired, should be composed deterministically as the frozen
+locomotion baseline plus `segmentPromptAddition`
+(`composeShootingPrompt` in `media/src/cinematographer/shooting-prompt.ts`).
+Do not have an LLM rewrite or merge those two pieces. Terran Boylan's
+original TunnelVision continuous-locomotion prompting is the
+foundation of the baseline. Adaptive per-segment choreography is
+current TunnelVision product work, not Terran's agent design.
 
 Do **not** generate the final Cinematographer plan during Plan /
 Storyboard. Architecture:
@@ -128,11 +153,10 @@ Storyboard. Architecture:
 intent first → destination construction → actual generated set →
 physical shooting solution
 
-The next research question is: **how should the Cinematographer
-reason about actual adjacent sets before attempting to shoot them?**
-The current assessment answers shootability, route, threshold, camera,
-parallax, and Camotion suitability at a semantic level. It does not
-yet emit CameraMotionPlan or request intermediate destinations.
+Adaptive choreography is now a product output so it can be tuned
+through the application. Experiment 04 is evidence, not proof that
+choreography is solved. Do not over-fit the production prompt or
+schema to four Forest fixtures.
 
 Do not move CM reasoning prematurely into Plan just because
 storyboard images exist. Agent reasons. CV observes / measures.
@@ -316,8 +340,11 @@ continuously advances; foreground objects pass beside/behind it; strong
 parallax reveals new space ahead; thresholds, turns, occlusions and
 atmosphere can help preserve continuous locomotion.
 
-The genesis prompt that demonstrated this on Seedance 2.5 / Krea is
-recorded as an experimental artifact in
-[IMPLEMENTATION.md](IMPLEMENTATION.md). Preserve Terran Boylan /
-original TunnelVision provenance. Do not treat that text as model-independent or as
-a Camotion input.
+The frozen locomotion baseline now lives in
+`media/src/cinematographer/shooting-prompt.ts` as
+`TUNNELVISION_LOCOMOTION_BASELINE`. The later video prompt, when
+wired, concatenates that baseline with the CM
+`segmentPromptAddition`. Do not LLM-merge them. Preserve Terran
+Boylan / original TunnelVision provenance for the baseline. Do not
+treat that text as model-independent or as a Camotion input. The
+genesis copy is also recorded in [IMPLEMENTATION.md](IMPLEMENTATION.md).

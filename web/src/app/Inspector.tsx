@@ -6,7 +6,7 @@ import {
   formatRaster,
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
-import { ARRIVAL_BLOCKED_COPY, journeyIsBlocked, journeyIsPlayable, showApprovalChrome } from "../project/policy";
+import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable, showApprovalChrome } from "../project/policy";
 import {
   canAssessJourney,
   cinematographerShootabilityLabel,
@@ -19,7 +19,6 @@ export function Inspector() {
   const {
     project,
     selection,
-    approveJourney,
     assessJourney,
     assessingJourneyId,
     cinematographerError,
@@ -76,7 +75,7 @@ export function Inspector() {
           </p>
         ) : (
           <p className="text-[#cfc6b8]">
-            This is what the generated world actually gave us. Shootability is judged on the journeys that leave or arrive here.
+            This is what the generated world actually gave us. The Cinematographer judges how to shoot the journeys that leave or arrive here.
           </p>
         )}
         {continuity ? <BoundaryContinuityDetail continuity={continuity} /> : null}
@@ -90,15 +89,6 @@ export function Inspector() {
             >
               Redo
             </button>
-            {inbound?.status === "needs_review" ? (
-              <button
-                type="button"
-                className="rounded bg-[#ece7df] px-3 py-1 text-[#0c0b0a]"
-                onClick={() => inbound && approveJourney(inbound.id)}
-              >
-                Approve arrival
-              </button>
-            ) : null}
           </div>
         ) : null}
         <TechnicalSeam />
@@ -111,8 +101,7 @@ export function Inspector() {
     return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
   }
 
-  const blocked = journeyIsBlocked(journey);
-  const showApprovals = showApprovalChrome(project.agency, blocked);
+  const showApprovals = showApprovalChrome(project.agency, false);
   const playable = journeyIsPlayable(journey);
   const assessment = journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
@@ -130,7 +119,7 @@ export function Inspector() {
         <CinematographerLegDetail assessment={assessment} />
       ) : (
         <p className="text-[#cfc6b8]">
-          Shootability is judged on this journey between actual destinations, not on either still alone.
+          The Cinematographer inspects the actual adjacent sets and determines how the camera should move through their geography.
         </p>
       )}
       {canAssess ? (
@@ -150,28 +139,9 @@ export function Inspector() {
           {cinematographerError}
         </p>
       ) : null}
-      {blocked ? (
-        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-          {journey.shootabilityNote}
-        </p>
-      ) : null}
-      {journey.status === "needs_review" ? (
-        <p className="rounded border border-[#8a7032] bg-[#261e10] px-3 py-2 text-[#f0d9a8]">
-          {journey.shootabilityNote}
-        </p>
-      ) : null}
       {playable ? <p className="text-[#cfc6b8]">This shot is available in the preview.</p> : null}
       {showApprovals ? (
         <div className="flex gap-2">
-          {journey.status === "needs_review" ? (
-            <button
-              type="button"
-              className="rounded bg-[#ece7df] px-3 py-1 text-[#0c0b0a]"
-              onClick={() => approveJourney(journey.id)}
-            >
-              Approve
-            </button>
-          ) : null}
           <button
             type="button"
             className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
@@ -203,9 +173,13 @@ function CinematographerLegDetail({
       <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Cinematographer</p>
       <p>{cinematographerShootabilityLabel(assessment.shootability)}</p>
       <p>{assessment.summary}</p>
+      <p>
+        <span className="text-[#9a8f7e]">Camera path. </span>
+        {assessment.camera}
+      </p>
       <details className="border-t border-[#2a2620] pt-2 text-xs">
         <summary className="cursor-pointer tracking-[0.16em] text-[#9a8f7e] uppercase">
-          Shot reasoning
+          Shot
         </summary>
         <div className="mt-2 space-y-2 leading-relaxed">
           <p>
@@ -213,15 +187,19 @@ function CinematographerLegDetail({
             {assessment.route}
           </p>
           <p>
+            <span className="text-[#9a8f7e]">Transition. </span>
+            {assessment.transitionStrategy}
+          </p>
+          <p>
+            <span className="text-[#9a8f7e]">Prompt addition. </span>
+            {assessment.segmentPromptAddition}
+          </p>
+          <p>
             <span className="text-[#9a8f7e]">Threshold. </span>
             {assessment.threshold}
           </p>
           <p>
-            <span className="text-[#9a8f7e]">Camera. </span>
-            {assessment.camera}
-          </p>
-          <p>
-            <span className="text-[#9a8f7e]">Parallax. </span>
+            <span className="text-[#9a8f7e]">Geometry. </span>
             {assessment.parallax}
           </p>
           <p>
@@ -241,6 +219,9 @@ function CinematographerLegDetail({
               None noted.
             </p>
           )}
+          <p className="text-[#9a8f7e]">
+            Advisory set analysis. Does not block this journey.
+          </p>
         </div>
       </details>
     </div>

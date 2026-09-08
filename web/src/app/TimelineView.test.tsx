@@ -37,8 +37,11 @@ const shootableAB: CinematographerAssessment = {
   summary: "Walk through the root gateway into the darker mouth.",
   route: "Advance along the forest path and pass through the trunk opening.",
   threshold: "The dark root-mouth opening slightly right of center.",
-  camera: "Aim forward through the gateway.",
+  camera: "Track forward along the path, passing between near trunks toward the opening.",
   parallax: "Near trunks the camera can pass beside.",
+  transitionStrategy: "Pass through the visible gateway so near trunks sweep past the lens.",
+  segmentPromptAddition:
+    "Track forward along the path, pass between the near trunks, and move through the visible opening toward the darker mouth.",
   camotionSuitability: "appropriate",
   concerns: [],
 };
@@ -88,6 +91,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("rendered · CM Ready");
     expect(html).toContain(">Ready<");
     expect(html).toContain("Walk through the root gateway into the darker mouth.");
+    expect(html).toContain("Camera path.");
+    expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
     expect(html).not.toContain("Journey A-B, Ready");
     expect(html).not.toContain('"shootability"');
   });
@@ -130,16 +135,19 @@ describe("Shoot Cinematographer journey assessment", () => {
       concerns: ["Keep the previous space from disappearing too early."],
     });
     const html = renderShoot(project, { journeyId: "D-E" });
-    expect(html).toContain("Shot reasoning");
+    expect(html).toContain("Shot");
     expect(html).toContain("Route.");
     expect(html).toContain("Move forward as the next space becomes visible through the threshold.");
+    expect(html).toContain("Transition.");
+    expect(html).toContain("Prompt addition.");
     expect(html).toContain("Threshold.");
     expect(html).toContain("The tall vertical portal remaining in the corridor.");
-    expect(html).toContain("Camera.");
-    expect(html).toContain("Parallax.");
+    expect(html).toContain("Camera path.");
+    expect(html).toContain("Geometry.");
     expect(html).toContain("Camotion.");
     expect(html).toContain("Appropriate");
     expect(html).toContain("Keep the previous space from disappearing too early.");
+    expect(html).toContain("Advisory set analysis. Does not block this journey.");
     expect(html).not.toContain('"camotionSuitability"');
     expect(html).not.toContain("vanishing_point");
   });

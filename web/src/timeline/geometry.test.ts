@@ -12,9 +12,9 @@ const destinations: Destination[] = ["A", "B", "C", "D", "E"].map((id) => ({
 const journeys: JourneyShot[] = [
   { id: "A-B", startDestinationId: "A", endDestinationId: "B", durationSeconds: 6, status: "rendered" },
   { id: "B-C", startDestinationId: "B", endDestinationId: "C", durationSeconds: 6, status: "rendered" },
-  { id: "C-D", startDestinationId: "C", endDestinationId: "D", durationSeconds: 6, status: "needs_review" },
+  { id: "C-D", startDestinationId: "C", endDestinationId: "D", durationSeconds: 6, status: "rendered" },
   { id: "D-E", startDestinationId: "D", endDestinationId: "E", durationSeconds: 6, status: "rendered" },
-  { id: "E-A", startDestinationId: "E", endDestinationId: "A", durationSeconds: 6, status: "not_shootable" },
+  { id: "E-A", startDestinationId: "E", endDestinationId: "A", durationSeconds: 6, status: "ready" },
 ];
 
 describe("timeline geometry", () => {
@@ -43,7 +43,7 @@ describe("timeline geometry", () => {
     expect(last?.destinationId).toBe("A");
     expect(last?.occurrenceIndex).not.toBe(first?.occurrenceIndex);
     expect(last?.inboundJourneyId).toBe("E-A");
-    expect(last?.arrivalBlocked).toBe(true);
+    expect(last?.arrivalBlocked).toBe(false);
     expect(first?.arrivalBlocked).toBe(false);
   });
 
@@ -54,14 +54,14 @@ describe("timeline geometry", () => {
     expect(layout.totalDuration).toBe(30);
   });
 
-  it("keeps destination E ready while marking only the E-A route blocked", () => {
+  it("keeps destination E ready; E-A is a clip-less journey, not a blocked destination", () => {
     const layout = layoutTimeline(destinations, journeys, 1);
     const e = layout.occurrences.find((occurrence) => occurrence.destinationId === "E");
     const ea = layout.journeys.find((journey) => journey.journeyId === "E-A");
 
     expect(destinations.find((destination) => destination.id === "E")?.status).toBe("ready");
     expect(e?.arrivalBlocked).toBe(false);
-    expect(ea?.status).toBe("not_shootable");
+    expect(ea?.status).toBe("ready");
   });
 
   it("treats track pad as presentation gutter around destination half-width", () => {

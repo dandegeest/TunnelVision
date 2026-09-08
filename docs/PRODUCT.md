@@ -84,9 +84,12 @@ preceding actual destination through image-conditioned edit
 (`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
 planned until the filmmaker constructs them. Video remains unwired in
 the product. Shoot remains the Slice 1
-Destinations / Journey timeline. The Cinematographer can assess one
-actual adjacent journey: two trusted canonical stills in, a structured
-shootability result stored on that JourneyShot. It does not generate
+Destinations / Journey timeline. The Cinematographer inspects one
+actual adjacent journey — two trusted canonical stills in — and stores
+segment-specific camera choreography on that JourneyShot, including a
+prompt addition that can later append to the stable locomotion
+baseline. Shootability remains advisory set analysis; it does not
+gate JourneyShot progression. CM does not generate
 CameraMotionPlan, Camotion, or video. Live development currently initializes
 Project from the Forest A→F fixture
 (`camotion/integration/forest-a-to-f/`), using filmmaker-provided A,
@@ -206,8 +209,9 @@ The user develops a movie conversationally in Plan. A persistent
 storyboard shows intended Destinations, composition, route,
 choreography, pacing, and landmarks. When the plan is ready enough to
 confront reality, Shoot generates actual Destinations, the
-Cinematographer inspects those sets, and Journeys are produced only
-when the route is physically shootable. Optional cheap intervention
+Cinematographer inspects those sets and determines how to shoot
+between them, and Journeys are produced from that choreography.
+Shootability of the stills is advisory. Optional cheap intervention
 remains (Keep / Redo / Redo With Note). Destination pointing (**go
 there**) is a later collaborative capability.
 
@@ -226,6 +230,11 @@ Decides **where to go next**: understand the current frame and journey,
 preserve world rules, propose meaningful next camera positions,
 distinguish camera displacement from scene evolution, evaluate
 candidates, learn from selections, and maintain discovery.
+
+Later, the Director should review generated takes and decide what to
+do with them. That review loop is **not implemented**. The experimental
+Shot Evaluator remains isolated research, not a separate top-level
+filmmaking role and not production Director review.
 
 Plan is Director-level. The Director specifies semantic / spatial
 intent ("approach the house and enter through the bedroom window")
@@ -289,16 +298,39 @@ guaranteed rule.
 ### Cinematographer
 
 Decides **how to physically get there on camera** after the actual
-canonical exists. **Cinematographer reasons about actual adjacent
-sets and determines whether/how they can be filmed as a continuous
-traversal.**
+canonical exists. **Cinematographer inspects actual adjacent sets and
+determines how the camera should move through their visible
+geography.**
 
 Current product slice: CM inspects two actual canonical stills for
-one JourneyShot and returns a structured shootability assessment
-(route, threshold, camera, parallax, Camotion suitability, concerns).
-Shootability is a property of the leg A→B, not of destination A or B.
-It may conclude the pair should not be shot as-is. It does **not**
-yet emit CameraMotionPlan, run Camotion, or generate video.
+one JourneyShot and returns structured choreography (route, camera
+path, visible geometry, transition strategy, and a concise
+`segmentPromptAddition`) plus advisory shootability / Camotion
+suitability / concerns. Shootability is a property of the leg A→B,
+not of destination A or B. It is **advisory set analysis**, not a
+hard gate and not a prediction of whether the stochastic video model
+will succeed. A JourneyShot may progress even when CM reports
+`not_shootable`. CM does **not** yet emit CameraMotionPlan, run
+Camotion, or generate video.
+
+The immediate product goal is an end-to-end working filmmaking
+pipeline. Individual components will be tuned through the application
+after the pipeline exists.
+
+The later video prompt, when wired, should be composed
+deterministically:
+
+``` text
+stable locomotion baseline
++
+CM segmentPromptAddition
+```
+
+Do not have an LLM rewrite or merge those two pieces. Terran Boylan's
+original TunnelVision continuous-locomotion / environment-negotiation
+prompting is the foundation of the stable baseline. Adaptive
+per-segment choreography is current TunnelVision product work, not
+Terran's agent design.
 
 Preserve:
 
@@ -343,21 +375,20 @@ The Cinematographer also inspects **actual generated sets** before
 expensive video — not merely the Director's intended descriptions.
 A destination object is not enough; the shot needs traversable
 depth through the transition. Semantic compatibility
-between endpoints is not sufficient: shootability includes traversable
+between endpoints is not sufficient: choreography includes traversable
 volume, threshold depth, camera position **and orientation**, and a
 physically plausible route between observations. A visually coherent
-pair of destination stills can still be difficult or impossible to
-traverse physically.
-
-The next research question is how the Cinematographer should reason
-about actual adjacent sets before attempting to shoot them. Do not
-implement that solution, schema, or UI yet. See
-[AGENTS.md](AGENTS.md) and [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
+pair of destination stills can still be difficult to
+traverse physically. Apparent foreground obstacles are not automatic
+refusals; CM should say how the camera might negotiate visible
+geometry while keeping continuous locomotion.
 
 A proposed intermediate canonical is not automatically accepted merely
 because an agent requested it. Generation builds the set; the Cinematographer
-walks onto the actual result; if the geometry is not shootable, reject
-it and return upstream rather than forcing video.
+walks onto the actual result. If the stills show no credible physical
+route, that is advisory set analysis, not an automatic production
+gate. A later return-to-Plan / reject-the-set loop is **not
+implemented**.
 
 Not every Shoot problem should be solved in Shoot. Some failures
 mean the generated set failed a good Director plan; some mean the
@@ -368,15 +399,15 @@ Director planned an inherently difficult spatial relationship.
 
 > **A good Director decision can still produce a bad set.**
 
-When Shoot discovers an unshootable relationship, one valid response
-is return to Plan → revise the storyboard / route / Destination
-intent → generate a new actual Destination → inspect the new set →
-continue only if physically shootable. Returning to Plan does not
-guarantee success. It starts another planning / production /
-inspection loop. That is a major reason Plan must stay persistent
-and revisable after production begins. Do not erase expensive
-generated evidence merely because Plan changes. Exact revision /
-history / undo semantics remain future work.
+When Shoot discovers a difficult spatial relationship, one valid
+later response is return to Plan → revise the storyboard / route /
+Destination intent → generate a new actual Destination → inspect
+the new set. That loop is **not implemented**. Returning to Plan
+does not guarantee success. It would start another planning /
+production / inspection cycle. That is a major reason Plan must stay
+persistent and revisable after production begins. Do not erase
+expensive generated evidence merely because Plan changes. Exact
+revision / history / undo semantics remain future work.
 
 A later manual revised-E still
 (`camotion/integration/wardrobe-loop-01/experiments/upstream-e-replanning/`)
@@ -516,9 +547,11 @@ vendor-neutral API.
 in Plan. A persistent storyboard visualizes structured Director
 intent. Optional Keep / Redo remains at cheap destination stages.
 When the plan is ready enough to confront reality, Shoot generates
-actual Destinations, the Cinematographer inspects those sets, and
-the user presses **Shoot This Shot** or **Shoot Movie**. Approximate
-duration and destination pointing are later collaborative controls.
+actual Destinations, the Cinematographer inspects those sets and
+determines how to shoot between them, and the user later presses
+**Shoot This Shot** or **Shoot Movie**. Video generation is not
+wired in this slice. Approximate duration and destination pointing
+are later collaborative controls.
 
 **Current implementation:** Product Slice 3 is the current Plan | Shoot
 shell. Plan is conversation → storyboard; Send asks the Director to
