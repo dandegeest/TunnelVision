@@ -3,6 +3,7 @@
 !/genesis/assets/**
 !/genesis/research/
 !/genesis/research/**
+.cursor/
 **/.DS_Store
 __pycache__/
 *.py[cod]
