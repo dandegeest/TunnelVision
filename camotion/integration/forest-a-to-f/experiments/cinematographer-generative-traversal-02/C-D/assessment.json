@@ -1,0 +1,14 @@
+{
+  "shootability": "not_shootable",
+  "summary": "High morph risk due to nearly identical framing and camera stations. The visual change reads as a direct object substitution (mushrooms to crystal) rather than forward travel into a new space.",
+  "route": "Forward along the central tunnel path.",
+  "threshold": "The central dark opening in the start frame.",
+  "camera": "Forward push.",
+  "parallax": "Foreground roots and trunks framing the sides.",
+  "camotionSuitability": "appropriate",
+  "concerns": [
+    "Massive morph risk: the model will likely transform the glowing mushrooms directly into the crystal.",
+    "Camera station appears identical relative to the outer tunnel structure.",
+    "Ground plane and wall textures change completely, suggesting a stylistic swap rather than spatial progression."
+  ]
+}

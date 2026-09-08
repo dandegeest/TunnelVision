@@ -1,0 +1,25 @@
+{
+  "pair": "D-E",
+  "journeyId": "D-E",
+  "startDestinationId": "D",
+  "endDestinationId": "E",
+  "startMediaId": "forest-a-to-f-d",
+  "endMediaId": "forest-a-to-f-e",
+  "startIntent": "Root tunnel with a large glowing crystal cluster occupying the path.",
+  "endIntent": "Dark reflective corridor toward a tall vertical portal.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/D.png",
+    "sha256": {
+      "sha256": "7611194648d1db7fbfa240c1f915f94c2b396fd0c484097b1c49ec805a074cb7",
+      "bytes": 1405156
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/E.png",
+    "sha256": {
+      "sha256": "c6cf8ab1c707bc6f1cb5d652a15e4aa3d33c8d9521fd4ceed27339e8235b162c",
+      "bytes": 908708
+    }
+  }
+}

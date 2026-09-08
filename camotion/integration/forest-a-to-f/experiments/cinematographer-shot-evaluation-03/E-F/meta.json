@@ -1,0 +1,66 @@
+{
+  "pair": "E-F",
+  "status": "succeeded",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "modelVersion": "hidden",
+  "predictionId": "46fdbxaht5rmy0d0g7vr170d68",
+  "elapsedMs": 28390,
+  "startedAt": "2026-09-08T17:00:58.336Z",
+  "completedAt": "2026-09-08T17:01:26.726Z",
+  "representation": "sampled_frames",
+  "timestampsSeconds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    5.992
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:52:49.547Z",
+      "completedAt": "2026-09-08T16:52:55.274Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": true
+    },
+    {
+      "attempt": 2,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:52:55.274Z",
+      "completedAt": "2026-09-08T16:53:00.204Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": false
+    },
+    {
+      "attempt": 3,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:54:33.787Z",
+      "completedAt": "2026-09-08T16:54:38.500Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": true,
+      "upload": "File with mime_type"
+    },
+    {
+      "attempt": 4,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:54:38.500Z",
+      "completedAt": "2026-09-08T16:54:42.560Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": false,
+      "upload": "File with mime_type"
+    },
+    {
+      "attempt": 5,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T17:00:58.336Z",
+      "completedAt": "2026-09-08T17:01:26.726Z",
+      "elapsedMs": 28390,
+      "predictionId": "46fdbxaht5rmy0d0g7vr170d68",
+      "representation": "sampled_frames"
+    }
+  ]
+}

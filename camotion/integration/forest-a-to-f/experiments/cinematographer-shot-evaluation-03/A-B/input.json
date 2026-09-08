@@ -1,0 +1,118 @@
+{
+  "pair": "A-B",
+  "journeyId": "A-B",
+  "startDestinationId": "A",
+  "endDestinationId": "B",
+  "startMediaId": "forest-a-to-f-a",
+  "endMediaId": "forest-a-to-f-b",
+  "startIntent": "Night forest path toward the tree-trunk / root gateway in mist.",
+  "endIntent": "Root-tunnel mouth. The dark opening is slightly right of center.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/A.jpg",
+    "sha256": {
+      "sha256": "5f0922627322ef6ee694a1547b683dc88e093d6a415b02a72e181f94a7478aa6",
+      "bytes": 57983
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/B.png",
+    "sha256": {
+      "sha256": "55ce732b510da199c50e4c3255eee7d51891e66fc07aeb754579f61e07e6197a",
+      "bytes": 1297386
+    }
+  },
+  "video": {
+    "path": "camotion/integration/forest-a-to-f/videos/A-B.mp4",
+    "sha256": {
+      "sha256": "86b960130af9aaad8c5eff6d33bf024f5c76652b172da9636f3668fddd09ec79",
+      "bytes": 9292963
+    },
+    "durationSeconds": 6.041667
+  },
+  "representation": {
+    "kind": "sampled_frames",
+    "nativeVideoFailed": "Replicate google/gemini-3.1-pro videos[] rejected Buffer and File uploads (unknown mime type). Production ReasoningProvider is images-only. Did not switch models.",
+    "ffmpeg": "ffmpeg -y -i VIDEO -ss TIMESTAMP -frames:v 1 -q:v 2 SAMPLE.jpg",
+    "seek": "output seek (-ss after -i)",
+    "stepSeconds": 1,
+    "timestampsSeconds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      5.992
+    ],
+    "sampleFiles": [
+      {
+        "timestampSeconds": 0,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-00-t0p00.jpg",
+        "sha256": {
+          "sha256": "8f3efd0a7ccb148d0f9001a2fa1155afd2f2861be0d66704957f3e6cff383337",
+          "bytes": 67008
+        }
+      },
+      {
+        "timestampSeconds": 1,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-01-t1p00.jpg",
+        "sha256": {
+          "sha256": "a5054a08fdc4d66d8b73aa6c1e97121b52e6963dfbf4bb26b31210ec7307ca32",
+          "bytes": 56272
+        }
+      },
+      {
+        "timestampSeconds": 2,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-02-t2p00.jpg",
+        "sha256": {
+          "sha256": "298f7e2d890a63eaa9a54f03b9d472ba2d73c7db2aa2bf2fd08e5455df7fd9fd",
+          "bytes": 44706
+        }
+      },
+      {
+        "timestampSeconds": 3,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-03-t3p00.jpg",
+        "sha256": {
+          "sha256": "63e7c19801bbc72392ba1ea33ce23c2beaa6dcf23cc2cd906e1b3f44984b8ae7",
+          "bytes": 48670
+        }
+      },
+      {
+        "timestampSeconds": 4,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-04-t4p00.jpg",
+        "sha256": {
+          "sha256": "a9d234c577b76562bba318aea685bf7db298f615d7f14381de88f54ca0ee7ff3",
+          "bytes": 23948
+        }
+      },
+      {
+        "timestampSeconds": 5,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-05-t5p00.jpg",
+        "sha256": {
+          "sha256": "ab578773bb88fec2d14b80399afac7eee934a164bab2a8a8447ed6c047dac1e1",
+          "bytes": 32363
+        }
+      },
+      {
+        "timestampSeconds": 5.992,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/A-B/samples/frame-06-t5p99.jpg",
+        "sha256": {
+          "sha256": "1688ac54845cf5fc0ef1e71c792e957110b367d639cfeb7ff503890925bcc57e",
+          "bytes": 62434
+        }
+      }
+    ],
+    "imageOrder": [
+      "canonical start",
+      "canonical end",
+      "shot t=0.00s",
+      "shot t=1.00s",
+      "shot t=2.00s",
+      "shot t=3.00s",
+      "shot t=4.00s",
+      "shot t=5.00s",
+      "shot t=5.99s"
+    ]
+  }
+}

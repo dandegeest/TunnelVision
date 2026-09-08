@@ -1,0 +1,14 @@
+{
+  "shootability": "not_shootable",
+  "summary": "The central crystal cluster completely blocks the forward path, forcing a forward-moving camera to collide with it and triggering a morph rather than physical spatial traversal.",
+  "route": "Forward travel is blocked by the massive crystal cluster; no continuous physical path exists to the subsequent corridor.",
+  "threshold": "None is visible; the immediate forward path is obstructed.",
+  "camera": "Forward push directly into a solid, glowing obstacle.",
+  "parallax": "The central crystal acts as a terminal occluder rather than a passing element.",
+  "camotionSuitability": "poor_fit",
+  "concerns": [
+    "High risk of scene replacement: the model will likely morph the glowing crystal into the glowing portal rather than traveling past it.",
+    "Complete structural discontinuity from organic mossy cave to smooth reflective architectural corridor.",
+    "Blocked forward path prevents continuous locomotion."
+  ]
+}

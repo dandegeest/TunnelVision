@@ -1,0 +1,14 @@
+{
+  "shootability": "not_shootable",
+  "summary": "The central crystal cluster blocks the path, offering no physical route to the reflective corridor.",
+  "route": "None. The massive crystal blocks the tunnel, and the sleek destination space is spatially disconnected.",
+  "threshold": "None visible. The forward path is entirely occluded by solid crystal.",
+  "camera": "Direct forward motion collides with the central crystal.",
+  "parallax": "The crystal cluster offers strong foreground occlusion, but acts as a dead end.",
+  "camotionSuitability": "poor_fit",
+  "concerns": [
+    "Crystal completely blocks the vanishing point and forward travel.",
+    "Abrupt shift from organic dirt floor to polished reflective floor.",
+    "Attempting this move requires morphing through solid geometry."
+  ]
+}

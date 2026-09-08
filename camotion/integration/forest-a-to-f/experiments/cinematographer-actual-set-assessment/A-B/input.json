@@ -1,0 +1,25 @@
+{
+  "pair": "A-B",
+  "journeyId": "A-B",
+  "startDestinationId": "A",
+  "endDestinationId": "B",
+  "startMediaId": "forest-a-to-f-a",
+  "endMediaId": "forest-a-to-f-b",
+  "startIntent": "Night forest path toward the tree-trunk / root gateway in mist.",
+  "endIntent": "Root-tunnel mouth. The dark opening is slightly right of center.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/A.jpg",
+    "sha256": {
+      "sha256": "5f0922627322ef6ee694a1547b683dc88e093d6a415b02a72e181f94a7478aa6",
+      "bytes": 57983
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/B.png",
+    "sha256": {
+      "sha256": "55ce732b510da199c50e4c3255eee7d51891e66fc07aeb754579f61e07e6197a",
+      "bytes": 1297386
+    }
+  }
+}

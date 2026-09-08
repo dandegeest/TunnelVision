@@ -1,0 +1,75 @@
+{
+  "pair": "A-B",
+  "status": "succeeded",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "modelVersion": "hidden",
+  "predictionId": "9gx5qzre0xrmw0d0g7v85n0v1c",
+  "elapsedMs": 18499,
+  "startedAt": "2026-09-08T16:59:35.642Z",
+  "completedAt": "2026-09-08T16:59:54.141Z",
+  "representation": "sampled_frames",
+  "timestampsSeconds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    5.992
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:52:18.167Z",
+      "completedAt": "2026-09-08T16:52:23.869Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": true
+    },
+    {
+      "attempt": 2,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:52:23.869Z",
+      "completedAt": "2026-09-08T16:52:28.990Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": false
+    },
+    {
+      "attempt": 3,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:54:02.917Z",
+      "completedAt": "2026-09-08T16:54:08.249Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": true,
+      "upload": "File with mime_type"
+    },
+    {
+      "attempt": 4,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:54:08.249Z",
+      "completedAt": "2026-09-08T16:54:12.686Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ValueError: Unknown mime type: Could not determine the mimetype for your file\n    please set the `mime_type` argument",
+      "retry": false,
+      "upload": "File with mime_type"
+    },
+    {
+      "attempt": 5,
+      "status": "failed",
+      "startedAt": "2026-09-08T16:57:29.399Z",
+      "completedAt": "2026-09-08T16:59:35.642Z",
+      "error": "Prediction failed: Prediction failed: Async prediction failed: ModelError: Service is temporarily unavailable. Please try again later. (E004) (1cah9wlWR9): Timed out waiting for a response from the Gemini API.",
+      "retry": true,
+      "representation": "sampled_frames"
+    },
+    {
+      "attempt": 6,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T16:59:35.642Z",
+      "completedAt": "2026-09-08T16:59:54.141Z",
+      "elapsedMs": 18499,
+      "predictionId": "9gx5qzre0xrmw0d0g7v85n0v1c",
+      "representation": "sampled_frames"
+    }
+  ]
+}

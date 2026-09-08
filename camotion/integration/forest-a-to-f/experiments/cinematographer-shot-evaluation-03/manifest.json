@@ -1,0 +1,32 @@
+{
+  "experiment": "cinematographer-shot-evaluation-03",
+  "role": "Shot Evaluator",
+  "question": "Given generated Forest footage, can multimodal reasoning distinguish genuine camera travel from transformation, morph, dissolve, discontinuity, threshold traversal, and destination arrival?",
+  "pairs": [
+    "A-B",
+    "C-D",
+    "D-E",
+    "E-F"
+  ],
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "gemini": {
+    "thinkingLevel": "high",
+    "temperature": 1,
+    "topP": 0.95
+  },
+  "representation": {
+    "kind": "sampled_frames",
+    "nativeVideo": "attempted on Replicate Gemini videos[]; unknown mime type on Buffer and File uploads",
+    "productionReasoningProvider": "images-only",
+    "ffmpeg": "ffmpeg -y -i VIDEO -ss TIMESTAMP -frames:v 1 -q:v 2 SAMPLE.jpg",
+    "stepSeconds": 1,
+    "includesFirstAndLast": true
+  },
+  "gitCommit": "9b10bc70e1546a7ac26ac655230e403dd15f46f5",
+  "productionCinematographerUnchanged": true,
+  "experiment01Unchanged": true,
+  "experiment02Unchanged": true,
+  "startedAt": "2026-09-08T16:57:28.711Z",
+  "completedAt": "2026-09-08T17:01:26.728Z"
+}

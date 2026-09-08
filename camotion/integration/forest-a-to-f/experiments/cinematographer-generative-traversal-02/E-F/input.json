@@ -1,0 +1,25 @@
+{
+  "pair": "E-F",
+  "journeyId": "E-F",
+  "startDestinationId": "E",
+  "endDestinationId": "F",
+  "startMediaId": "forest-a-to-f-e",
+  "endMediaId": "forest-a-to-f-f",
+  "startIntent": "Dark reflective corridor toward a tall vertical portal.",
+  "endIntent": "Open void / debris field around a central light.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/E.png",
+    "sha256": {
+      "sha256": "c6cf8ab1c707bc6f1cb5d652a15e4aa3d33c8d9521fd4ceed27339e8235b162c",
+      "bytes": 908708
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/F.png",
+    "sha256": {
+      "sha256": "b06cc777589a062b6f2f7fbafe2d644d51d78cd3fd0591de1239217120df70fa",
+      "bytes": 963232
+    }
+  }
+}

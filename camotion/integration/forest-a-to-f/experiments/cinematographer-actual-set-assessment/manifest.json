@@ -1,0 +1,20 @@
+{
+  "experiment": "cinematographer-actual-set-assessment",
+  "question": "Can the current Cinematographer independently distinguish actual adjacent sets that plausibly support continuous physical camera traversal from pairs that are visually related but spatially difficult or discontinuous?",
+  "pairs": [
+    "A-B",
+    "C-D",
+    "D-E",
+    "E-F"
+  ],
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "gemini": {
+    "thinkingLevel": "high",
+    "temperature": 1,
+    "topP": 0.95
+  },
+  "gitCommit": "9b10bc70e1546a7ac26ac655230e403dd15f46f5",
+  "startedAt": "2026-09-08T16:19:10.800Z",
+  "completedAt": "2026-09-08T16:20:35.760Z"
+}

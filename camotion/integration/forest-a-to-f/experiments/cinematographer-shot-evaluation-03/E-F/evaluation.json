@@ -1,0 +1,18 @@
+{
+  "overallResult": "failed_traversal",
+  "locomotion": "ambiguous",
+  "endpointArrival": "strong",
+  "spatialSolidity": "broken",
+  "transitionMode": "replacement",
+  "summary": "The camera pushes toward the portal, but the transition is achieved via a hard cut that replaces the entire environment rather than continuous travel through the threshold.",
+  "observations": [
+    "Between t=0.00s and t=2.00s, the camera translates forward down the corridor toward the glowing vertical portal.",
+    "At t=3.00s, the corridor walls instantly vanish, and the void environment abruptly replaces the previous space.",
+    "A central light flare is used to visually anchor the cut, but the 3D space itself experiences a total discontinuity."
+  ],
+  "failureModes": [
+    "hard cut",
+    "spatial replacement",
+    "discontinuity"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "experiment": "cinematographer-generative-traversal-02",
+  "hypothesis": "Evaluating generative traversal potential, rather than literal geometric proof of adjacency, better predicts observed video behavior.",
+  "singleVariable": "experiment-only Cinematographer evaluation objective",
+  "pairs": [
+    "A-B",
+    "C-D",
+    "D-E",
+    "E-F"
+  ],
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "gemini": {
+    "thinkingLevel": "high",
+    "temperature": 1,
+    "topP": 0.95
+  },
+  "gitCommit": "9b10bc70e1546a7ac26ac655230e403dd15f46f5",
+  "productionCinematographerUnchanged": true,
+  "experiment01Unchanged": true,
+  "startedAt": "2026-09-08T16:34:57.014Z",
+  "completedAt": "2026-09-08T16:36:13.810Z"
+}

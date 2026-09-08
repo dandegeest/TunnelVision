@@ -1,0 +1,14 @@
+{
+  "shootability": "not_shootable",
+  "summary": "This pair represents an in-place scene replacement rather than continuous camera travel. The destination frame perfectly replicates the foreground framing and depth of the start frame, meaning any attempted forward motion will result in a structural morph rather than physical progression.",
+  "route": "There is no continuous physical route. The destination is the exact same location as the start, with the dark tunnel depth and mushrooms swapped out for a glowing crystal, rather than the crystal being located further down the path.",
+  "threshold": "The tunnel in the start image provides a clear spatial opening, but traveling through it physically conflicts with the destination image's framing.",
+  "camera": "Forward camera travel would push past the foreground roots, but the destination image resets the camera back behind the identical foreground framing.",
+  "parallax": "The dark foreground roots on the edges provide strong parallax layers, but their duplicate presence in the destination frame ruins the illusion of continuous forward travel.",
+  "camotionSuitability": "appropriate",
+  "concerns": [
+    "Identical compositional framing dictates an in-place scene morph rather than forward spatial travel.",
+    "The intensely glowing crystal in the destination should cast visible light into the dark background of the start image if it were actually located further down the tunnel.",
+    "Pushing forward past the start frame's foreground will cause the model to incorrectly warp those elements back into view to satisfy the destination frame."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "shootability": "not_shootable",
+  "summary": "The destination geometry contradicts the open, misty path established ahead of the camera in the starting shot, preventing a continuous forward traversal.",
+  "route": "No continuous physical route exists. Moving forward along the path in the first shot leads toward a misty opening between trees beside a chasm, not into the enclosed, pitch-black root tunnel depicted in the second shot.",
+  "threshold": "None visible that could connect these conflicting spaces.",
+  "camera": "Forward travel is intended, but continuing along the established path would lead into the lit, misty forest, completely bypassing the dark cave environment of the end shot.",
+  "parallax": "Large foreground roots and trunks provide depth, but they cannot mask the fundamental structural change in the background environment.",
+  "camotionSuitability": "poor_fit",
+  "concerns": [
+    "The dark tunnel destination does not exist along the forward vector of the starting shot.",
+    "The deep chasm on the right side of the path in the first image disappears entirely in the second image.",
+    "Attempting to link these visually will result in the environment morphing rather than the camera traveling."
+  ]
+}

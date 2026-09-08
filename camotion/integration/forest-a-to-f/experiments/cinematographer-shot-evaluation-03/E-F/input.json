@@ -1,0 +1,118 @@
+{
+  "pair": "E-F",
+  "journeyId": "E-F",
+  "startDestinationId": "E",
+  "endDestinationId": "F",
+  "startMediaId": "forest-a-to-f-e",
+  "endMediaId": "forest-a-to-f-f",
+  "startIntent": "Dark reflective corridor toward a tall vertical portal.",
+  "endIntent": "Open void / debris field around a central light.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/E.png",
+    "sha256": {
+      "sha256": "c6cf8ab1c707bc6f1cb5d652a15e4aa3d33c8d9521fd4ceed27339e8235b162c",
+      "bytes": 908708
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/F.png",
+    "sha256": {
+      "sha256": "b06cc777589a062b6f2f7fbafe2d644d51d78cd3fd0591de1239217120df70fa",
+      "bytes": 963232
+    }
+  },
+  "video": {
+    "path": "camotion/integration/forest-a-to-f/videos/E-F.mp4",
+    "sha256": {
+      "sha256": "4e681086c3750e2da10f406852d8ec683bc49f3ce5a37d4f4d5b15f797a5412e",
+      "bytes": 6012419
+    },
+    "durationSeconds": 6.041667
+  },
+  "representation": {
+    "kind": "sampled_frames",
+    "nativeVideoFailed": "Replicate google/gemini-3.1-pro videos[] rejected Buffer and File uploads (unknown mime type). Production ReasoningProvider is images-only. Did not switch models.",
+    "ffmpeg": "ffmpeg -y -i VIDEO -ss TIMESTAMP -frames:v 1 -q:v 2 SAMPLE.jpg",
+    "seek": "output seek (-ss after -i)",
+    "stepSeconds": 1,
+    "timestampsSeconds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      5.992
+    ],
+    "sampleFiles": [
+      {
+        "timestampSeconds": 0,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-00-t0p00.jpg",
+        "sha256": {
+          "sha256": "e2d3f9af820382c4881926a1c24c912260ef1ab41334b5a997d832be486ac838",
+          "bytes": 47352
+        }
+      },
+      {
+        "timestampSeconds": 1,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-01-t1p00.jpg",
+        "sha256": {
+          "sha256": "e4984a92cad71e164ee2539894152a2913342b8674d416e9d63bb4e345395313",
+          "bytes": 47347
+        }
+      },
+      {
+        "timestampSeconds": 2,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-02-t2p00.jpg",
+        "sha256": {
+          "sha256": "35839fc6ce89a693810beca59918d6285f1f3f0eb58fee8443c1fd861145dbd4",
+          "bytes": 34604
+        }
+      },
+      {
+        "timestampSeconds": 3,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-03-t3p00.jpg",
+        "sha256": {
+          "sha256": "dd2103c617709cde0c735210eb8e3b0ab124d25b4e78700dff920ddaed6af89b",
+          "bytes": 44027
+        }
+      },
+      {
+        "timestampSeconds": 4,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-04-t4p00.jpg",
+        "sha256": {
+          "sha256": "2afd131964abccb4fe34f464901aa7a5993994c575fd2c8b0e78757c524230b9",
+          "bytes": 42970
+        }
+      },
+      {
+        "timestampSeconds": 5,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-05-t5p00.jpg",
+        "sha256": {
+          "sha256": "70a5bf348efe758b0418554fab55b1ffc8001f805f672cff240f8f4e3f7bb084",
+          "bytes": 42979
+        }
+      },
+      {
+        "timestampSeconds": 5.992,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-shot-evaluation-03/E-F/samples/frame-06-t5p99.jpg",
+        "sha256": {
+          "sha256": "c080be09ad015385f803982dcadb972d2578e84af3d1efce7dadea79d8408b50",
+          "bytes": 47322
+        }
+      }
+    ],
+    "imageOrder": [
+      "canonical start",
+      "canonical end",
+      "shot t=0.00s",
+      "shot t=1.00s",
+      "shot t=2.00s",
+      "shot t=3.00s",
+      "shot t=4.00s",
+      "shot t=5.00s",
+      "shot t=5.99s"
+    ]
+  }
+}

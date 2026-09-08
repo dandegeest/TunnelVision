@@ -1,0 +1,15 @@
+```json
+{
+  "shootability": "shootable",
+  "summary": "The camera pushes down the corridor and through the glowing vertical portal, using the intense light to conceal the transition into the open debris field.",
+  "route": "Straight forward along the reflective floor, passing completely through the bright central opening to emerge in the expansive void.",
+  "threshold": "The tall, glowing vertical opening at the end of the corridor.",
+  "camera": "Directly forward, tracking down the center of the corridor, through the light, and continuing toward the central star.",
+  "parallax": "The dark, heavy flanking rock walls initially, followed by the floating angular debris upon entering the void.",
+  "camotionSuitability": "appropriate",
+  "concerns": [
+    "The model might resort to a pure white-out dissolve instead of rendering a physical passage through the threshold.",
+    "The ground plane shifts from a narrow, bounded floor to a vast, open horizon, risking a sudden pop in spatial structure."
+  ]
+}
+```

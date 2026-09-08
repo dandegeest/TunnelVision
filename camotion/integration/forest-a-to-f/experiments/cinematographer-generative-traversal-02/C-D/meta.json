@@ -1,0 +1,21 @@
+{
+  "pair": "C-D",
+  "status": "succeeded",
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "modelVersion": "hidden",
+  "predictionId": "tyj7q25rp9rmy0d0g7fvqqdx9g",
+  "elapsedMs": 25919,
+  "startedAt": "2026-09-08T16:35:16.006Z",
+  "completedAt": "2026-09-08T16:35:41.925Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T16:35:16.006Z",
+      "completedAt": "2026-09-08T16:35:41.925Z",
+      "elapsedMs": 25919,
+      "predictionId": "tyj7q25rp9rmy0d0g7fvqqdx9g"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "shootability": "shootable",
+  "summary": "The bright vertical portal at the end of the corridor provides a clear, shootable threshold to transition seamlessly into the expansive void space.",
+  "route": "Camera pushes forward along the reflective floor, passes directly through the glowing vertical portal, and emerges into the open debris field.",
+  "threshold": "The glowing vertical rectangular opening at the end of the dark corridor.",
+  "camera": "Continuous forward push along the central axis, aiming through the portal towards the central light source in the void.",
+  "parallax": "The dark rocky walls of the corridor initially, followed immediately by the floating debris chunks in the new space.",
+  "camotionSuitability": "appropriate",
+  "concerns": [
+    "Managing the exposure and glow during the crossing of the threshold to ensure the environment swap feels like continuous travel",
+    "The abrupt change in spatial volume from a bounded tunnel to an open void requires the portal to fully envelop the camera"
+  ]
+}
