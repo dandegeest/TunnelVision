@@ -1,5 +1,6 @@
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
+import { projectWithSyncedProductionLegs } from "./production-legs";
 import type { Project, StoryboardFrame } from "./types";
 
 export type DestinationConstructionRequest = {
@@ -130,8 +131,9 @@ export function parseDestinationConstructionResult(body: unknown): DestinationCo
 }
 
 /**
- * Apply a constructed still to a planned beat. Preserves other beats, story,
- * and Shoot.
+ * Apply a constructed still to a planned beat. Preserves other beats and story.
+ * Actual adjacent canonicals become production Destinations / JourneyShots on
+ * the same Project.
  */
 export function projectWithConstructedDestination(
   project: Project,
@@ -147,7 +149,7 @@ export function projectWithConstructedDestination(
   if (!precedingActualFrame(project, beat)) {
     throw new Error("Destination is not ready to construct");
   }
-  return {
+  return projectWithSyncedProductionLegs({
     ...project,
     storyboard: project.storyboard.map((frame) =>
       frame.id === next.beatId
@@ -156,10 +158,11 @@ export function projectWithConstructedDestination(
             image: next.imageUrl,
             mediaId: next.mediaId,
             imageOrigin: "generated",
+            destinationId: frame.destinationId ?? frame.id,
           }
         : frame,
     ),
-  };
+  });
 }
 
 export async function requestConstructDestination(

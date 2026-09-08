@@ -123,8 +123,15 @@ two actual canonical stills for one JourneyShot and stores
 segment-specific camera choreography on that leg, including a
 `segmentPromptAddition` that can later append to the frozen
 locomotion baseline. Shootability remains advisory; it does not
-gate JourneyShot status. CameraMotionPlan,
-Camotion, video, Discovery, and
+gate JourneyShot status. Shoot is a production view of the current
+Project: consecutive actual adjacent storyboard canonicals become
+Destinations and JourneyShots on that same Project. There is no
+cloned Shoot model. SHOOT on a prepared JourneyShot renders Camotion
+A′/B′ from a deterministic CameraMotionPlan v1 bridge, composes the
+frozen locomotion prompt, and generates a development clip. The current
+cheap generator is `prunaai/p-video` behind MediaProvider and receives
+A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
+is not this path. Discovery, and
 Screenwriter remain unwired. The running application initializes a new
 untitled project: unresolved opening frame A, empty story, no
 destinations or journeys. Forest A→F remains a research and test
@@ -139,8 +146,9 @@ The filmmaker can replace a destination's canonical still in place.
 Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 After
-replacement, that destination keeps its identity. Shoot remains Product Slice 1's locked Destinations
-and Journey lanes. First live Director observation:
+replacement, that destination keeps its identity. Shoot is the current
+Project's Destinations and Journey lanes, not a second synchronized
+copy. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
 First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
@@ -421,13 +429,14 @@ interface ImageEditProvider {
 ```
 
 `VideoGenerationRequest` currently carries a start shooting frame, an
-optional end shooting frame, a prompt, and optional duration.
-`ImageGenerationRequest` currently carries a prompt and optional seed.
+optional end shooting frame, a prompt, optional duration, and optional
+seed. Shoot's current development path sends **only** the start
+shooting frame. `ImageGenerationRequest` currently carries a prompt and optional seed.
 `ImageEditRequest` currently carries a source image, a prompt, and
 optional seed. Text-to-image (`generateImage`) and image-conditioned
 editing (`editImage`) are distinct. Model- and provider-specific
 capabilities stay behind `ReplicateMediaProvider` (Seedance 2.5,
-FLUX 1.1 Pro Ultra, and FLUX Kontext Pro). Extra
+`prunaai/p-video`, FLUX 1.1 Pro Ultra, and FLUX Kontext Pro). Extra
 pristine/canonical reference images are not part of the current
 text-to-image contract. A `ReasoningProvider` with vision inputs also lives in
 `media/` (Gemini 3.1 Pro adapter).

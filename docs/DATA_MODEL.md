@@ -268,9 +268,12 @@ only reads the numbers. Deriving a changing focus of expansion while
 
 ## Canonical vs shooting frames
 
-A **canonical** frame is a pristine generated set: Shoot world-state
-authority. Plan storyboard drawings are provisional visualizations
-of Director intent; they are **not** canonicals. A **shooting frame**
+A **canonical** frame is a pristine generated or uploaded set: Shoot
+world-state authority. Plan FPO drawings are provisional visualizations
+of Director intent; they are **not** canonicals. Once a storyboard beat
+has an actual trusted still, that still is the canonical endpoint Shoot
+uses. Destinations and JourneyShots are the same Project, not a cloned
+Shoot model. A **shooting frame**
 is a Camotion derivative produced from an image plus a
 `CameraMotionPlan` (and optional near-weight). TunnelVision currently
 supplies a canonical frame as that image. Camotion does not know what
@@ -293,7 +296,11 @@ illustrative only and is **not** a frozen contract.
 Production Cinematographer output is currently
 `CinematographerAssessment` on `JourneyShot` (application types in
 `web/` / `media/`), including `segmentPromptAddition`. That is **not**
-`ShotPlan` and **not** CameraMotionPlan.
+`ShotPlan` and **not** CameraMotionPlan. Shoot derives CameraMotionPlan
+v1 for Camotion with a deterministic centered radial-forward bridge
+(`productionCameraMotionPlan`); it does not ask the assessment LLM for
+geometry. JourneyShot `take` stores A′/B′, the composed prompt, and
+provider metadata for the current clip.
 
 ``` json
 {

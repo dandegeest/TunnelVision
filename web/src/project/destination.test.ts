@@ -134,8 +134,16 @@ describe("construct B from current Project state", () => {
     expect(constructed.storyboard[0]).toEqual(a);
     expect(constructed.storyboard[2]).toEqual(c);
     expect(constructed.story).toBe(story);
-    expect(constructed.destinations).toEqual(planned.destinations);
-    expect(constructed.journeys).toEqual(planned.journeys);
+    expect(constructed.destinations.find((destination) => destination.id === "B")?.image).toBe(
+      generatedB.imageUrl,
+    );
+    expect(constructed.destinations.find((destination) => destination.id === "C")?.image).toBe(
+      planned.destinations.find((destination) => destination.id === "C")?.image,
+    );
+    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expect(constructed.journeys.map((journey) => journey.id)).toEqual(
+      planned.journeys.map((journey) => journey.id),
+    );
     expect(canConstructDestinationFrame(constructed, b)).toBe(false);
   });
 
@@ -205,8 +213,16 @@ describe("construct C from actual B", () => {
     expect(constructed.storyboard[3]).toEqual(d);
     expect(constructed.storyboard[4]).toEqual(e);
     expect(constructed.story).toBe(story);
-    expect(constructed.destinations).toEqual(actualB.destinations);
-    expect(constructed.journeys).toEqual(actualB.journeys);
+    expect(constructed.destinations.find((destination) => destination.id === "C")?.image).toBe(
+      generatedC.imageUrl,
+    );
+    expect(constructed.destinations.find((destination) => destination.id === "B")?.image).toBe(
+      generatedB.imageUrl,
+    );
+    expect(constructed.journeys.find((journey) => journey.id === "B-C")?.status).toBe("rendered");
+    expect(constructed.journeys.map((journey) => journey.id)).toEqual(
+      actualB.journeys.map((journey) => journey.id),
+    );
     expect(canConstructDestinationFrame(constructed, constructed.storyboard[3]!)).toBe(true);
     expect(canConstructDestinationFrame(constructed, c)).toBe(false);
   });

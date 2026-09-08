@@ -175,14 +175,20 @@ Construct builds the next planned beat from the immediately preceding
 actual destination through
 `ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
-A thin Cinematographer assessment inspects two actual canonical stills
-for one JourneyShot through `ReasoningProvider` and stores
-segment-specific camera choreography on that leg, including
+Shoot is a production view of the current Project: consecutive actual
+adjacent canonicals become Destinations and JourneyShots on that same
+Project. PREPARE on a selected actual leg runs the existing
+Cinematographer assessment through `ReasoningProvider` and stores
+segment-specific camera choreography on that JourneyShot, including
 `segmentPromptAddition`. Shootability remains advisory and does not
-gate JourneyShot status. The assessment does not emit CameraMotionPlan,
-run Camotion, or generate video. `composeShootingPrompt` concatenates
-the frozen locomotion baseline with the segment addition for a later
-video PR; it is not invoked for generation yet. The running application
+gate JourneyShot status. SHOOT on a prepared leg derives a deterministic
+CameraMotionPlan v1 (centered radial-forward, pinned `forward=1.0` and
+01.8 exposure), renders A′ and B′ through the frozen Camotion CLI,
+composes `TUNNELVISION_LOCOMOTION_BASELINE` + `segmentPromptAddition`
+via `composeShootingPrompt`, and generates video through MediaProvider.
+The current development model is `prunaai/p-video` (A′ as `image`, B′ as
+`last_frame_image`). The assessment does not emit CameraMotionPlan.
+The running application
 initializes a new untitled project: unresolved opening frame A, empty
 story, no destinations or journeys. Forest A→F remains research
 evidence and an explicit test fixture.
@@ -245,7 +251,22 @@ traversal quality, endpoint fidelity, Camotion effectiveness, or
 similar. Those still require controlled production-quality
 experiments.
 
-Conceptual development tier, **not current wiring**:
+During Shoot development, optimize video generation for iteration
+cost and speed rather than final output quality. Do **not** hardcode
+a development model into Shoot. Provider and model selection should
+remain configurable so the same pipeline can use a cheap/fast
+compatible model during development and Seedance 2.5 or another
+quality model during intentional output validation. Automated E2E
+must mock the paid media-provider boundary.
+
+The current Shoot development generator is Replicate `prunaai/p-video`,
+chosen at the MediaProvider boundary (`TUNNELVISION_VIDEO_MODEL`
+overrides). It does not replace Seedance 2.5 as the endpoint-conditioned
+quality-validation model. P-Video receives A′ as `image` and B′ as
+`last_frame_image`. Draft P-Video clips are still not production-quality
+endpoint-fidelity evidence.
+
+Conceptual development tier, **not a user-facing mode**:
 
 -   Plan storyboard → fast `prunaai/p-image`
 -   Shoot canonical draft → fast `prunaai/p-image`

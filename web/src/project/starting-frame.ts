@@ -1,4 +1,5 @@
 import { isTrustedMediaIdShape } from "./trusted-media-id";
+import { projectWithSyncedProductionLegs } from "./production-legs";
 import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 import {
   RUNTIME_MEDIA_URL_PREFIX,
@@ -83,7 +84,7 @@ export function projectWithReplacedFrameImage(
   if (!target.image && !canProvideStartingFrame(target)) {
     throw new Error("Destination has no canonical still to replace");
   }
-  return {
+  return projectWithSyncedProductionLegs({
     ...project,
     storyboard: project.storyboard.map((frame) => {
       if (frame.id !== frameId) {
@@ -103,7 +104,7 @@ export function projectWithReplacedFrameImage(
       }
       return replaced;
     }),
-  };
+  });
 }
 
 /**

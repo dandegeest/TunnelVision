@@ -73,6 +73,15 @@ export function selectionForWorkspaceView(
     return selection;
   }
   const frame = storyboardFrameById(project.storyboard, selection.frameId);
+  const startId = frame?.destinationId ?? frame?.id;
+  const outbound = startId
+    ? project.journeys.find(
+        (journey) => journey.startDestinationId === startId && journey.endDestinationId,
+      )
+    : undefined;
+  if (outbound) {
+    return { kind: "journey", journeyId: outbound.id };
+  }
   const destinationId = frame?.destinationId ?? project.destinations[0]?.id;
   if (!destinationId) {
     return selection;

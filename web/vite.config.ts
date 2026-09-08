@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 import { directorDevPlugin } from "./director-dev-plugin.ts";
 import { destinationDevPlugin } from "./destination-dev-plugin.ts";
 import { cinematographerDevPlugin } from "./cinematographer-dev-plugin.ts";
+import { shootDevPlugin } from "./shoot-dev-plugin.ts";
 import { runtimeMediaPlugin } from "./runtime-media-plugin.ts";
 
 const webDir = dirname(fileURLToPath(import.meta.url));
@@ -18,6 +19,7 @@ export default defineConfig({
     directorDevPlugin(repoRoot),
     destinationDevPlugin(repoRoot),
     cinematographerDevPlugin(repoRoot),
+    shootDevPlugin(repoRoot),
     runtimeMediaPlugin(),
   ],
   root: webDir,
@@ -37,6 +39,8 @@ export default defineConfig({
       "trusted-media.test.ts",
       "runtime-media.test.ts",
       "destination-construct.test.ts",
+      "shoot-journey.test.ts",
+      "camotion-cli.test.ts",
     ],
   },
 });

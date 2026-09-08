@@ -216,6 +216,10 @@ describe("replacing authoritative A", () => {
     expect(next.storyboard[1]?.mediaId).toBe("upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
     expect(next.storyboard[0]).toEqual(forest.storyboard[0]);
     expect(next.storyboard[2]).toEqual(forest.storyboard[2]);
+    expect(next.destinations.find((destination) => destination.id === "B")?.image).toBe(
+      "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    );
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
   });
 });
 

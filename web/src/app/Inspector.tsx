@@ -11,8 +11,9 @@ import {
   canAssessJourney,
   cinematographerShootabilityLabel,
 } from "../project/cinematographer";
+import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById, type CinematographerAssessment } from "../project/types";
+import { destinationById, type CinematographerAssessment, type JourneyShotTake } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
 
 export function Inspector() {
@@ -22,13 +23,16 @@ export function Inspector() {
     assessJourney,
     assessingJourneyId,
     cinematographerError,
+    shootJourney,
+    shootingJourneyId,
+    shootError,
   } = useProject();
   const layout = useMemo(
     () => layoutTimeline(project.destinations, project.journeys, 1),
     [project.destinations, project.journeys],
   );
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
-  const shootEmpty = project.destinations.length === 0 && project.journeys.length === 0;
+  const shootEmpty = project.journeys.length === 0;
 
   if (shootEmpty) {
     return (
@@ -118,6 +122,13 @@ export function Inspector() {
   const assessment = journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
   const assessing = assessingJourneyId === journey.id;
+  const canShoot = canShootJourney(project, journey);
+  const shooting = shootingJourneyId === journey.id || journey.status === "shooting";
+  const take = journey.take;
+  const startDestination = destinationById(project.destinations, journey.startDestinationId);
+  const endDestination = journey.endDestinationId
+    ? destinationById(project.destinations, journey.endDestinationId)
+    : undefined;
 
   return (
     <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
@@ -126,9 +137,40 @@ export function Inspector() {
       <p>
         {journey.startDestinationId} → {journey.endDestinationId ?? "?"}
       </p>
+      {startDestination || endDestination ? (
+        <div className="grid grid-cols-2 gap-2">
+          {startDestination ? (
+            <figure className="min-w-0">
+              <img
+                src={startDestination.image}
+                alt={`${journey.id} start ${startDestination.label}`}
+                className="aspect-video w-full rounded object-cover"
+              />
+              <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+                {startDestination.label}
+              </figcaption>
+            </figure>
+          ) : null}
+          {endDestination ? (
+            <figure className="min-w-0">
+              <img
+                src={endDestination.image}
+                alt={`${journey.id} end ${endDestination.label}`}
+                className="aspect-video w-full rounded object-cover"
+              />
+              <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+                {endDestination.label}
+              </figcaption>
+            </figure>
+          ) : null}
+        </div>
+      ) : null}
       <p>Status: {journey.status.replaceAll("_", " ")}</p>
       {assessment ? (
-        <CinematographerLegDetail assessment={assessment} />
+        <>
+          <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prepared</p>
+          <CinematographerLegDetail assessment={assessment} />
+        </>
       ) : (
         <p className="text-[#cfc6b8]">
           The Cinematographer inspects the actual adjacent sets and determines how the camera should move through their geography.
@@ -138,10 +180,11 @@ export function Inspector() {
         <button
           type="button"
           className="self-start rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-          disabled={assessing}
+          disabled={assessing || shooting}
+          aria-label={`Prepare ${journey.id}`}
           onClick={() => void assessJourney(journey.id)}
         >
-          {assessing ? "Assessing…" : assessment ? "Reassess shot" : "Assess shot"}
+          {assessing ? "Preparing…" : "Prepare"}
         </button>
       ) : (
         <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
@@ -151,6 +194,25 @@ export function Inspector() {
           {cinematographerError}
         </p>
       ) : null}
+      {assessment ? (
+        <button
+          type="button"
+          className="self-start rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+          disabled={!canShoot || shooting}
+          aria-label={`Shoot ${journey.id}`}
+          onClick={() => void shootJourney(journey.id)}
+        >
+          {shooting ? "Shooting…" : "Shoot"}
+        </button>
+      ) : canAssess ? (
+        <p className="text-[#9a8f7e]">Prepare this journey before shooting.</p>
+      ) : null}
+      {shootError || journey.shootError ? (
+        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+          {shootError ?? journey.shootError}
+        </p>
+      ) : null}
+      {take ? <TakeEvidence take={take} journeyId={journey.id} /> : null}
       {playable ? <p className="text-[#cfc6b8]">This shot is available in the preview.</p> : null}
       {showApprovals ? (
         <div className="flex gap-2">
@@ -240,6 +302,61 @@ function CinematographerLegDetail({
   );
 }
 
+function TakeEvidence({ take, journeyId }: { take: JourneyShotTake; journeyId: string }) {
+  return (
+    <details className="border-t border-[#2a2620] pt-2 text-xs text-[#cfc6b8]">
+      <summary className="cursor-pointer tracking-[0.16em] text-[#9a8f7e] uppercase">Take</summary>
+      <div className="mt-2 space-y-2 leading-relaxed">
+        <div className="grid grid-cols-2 gap-2">
+          <figure className="min-w-0">
+            <img
+              src={take.startShootingFrame.imageUrl}
+              alt={`${journeyId} start shooting frame`}
+              className="aspect-video w-full rounded object-cover"
+            />
+            <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+              Start′
+            </figcaption>
+          </figure>
+          <figure className="min-w-0">
+            <img
+              src={take.endShootingFrame.imageUrl}
+              alt={`${journeyId} end shooting frame`}
+              className="aspect-video w-full rounded object-cover"
+            />
+            <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+              End′
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          <span className="text-[#9a8f7e]">Prompt. </span>
+          {take.effectivePrompt}
+        </p>
+        <p>
+          <span className="text-[#9a8f7e]">Prompt addition. </span>
+          {take.segmentPromptAddition || "None"}
+        </p>
+        <p>
+          <span className="text-[#9a8f7e]">Model. </span>
+          {take.provider} · {take.model}
+          {take.modelVersion ? ` · ${take.modelVersion}` : ""}
+        </p>
+        <p>
+          <span className="text-[#9a8f7e]">Duration. </span>
+          {take.durationSeconds}s
+          {take.seed !== undefined ? ` · seed ${take.seed}` : ""}
+        </p>
+        <p className="text-[#9a8f7e]">
+          {take.videoInputs.endShootingFrame
+            ? "Start shooting frame A′ and end shooting frame B′ were sent as the video start and last-frame conditions."
+            : "Start shooting frame A′ was sent to the video model. End shooting frame B′ was not used as last-frame conditioning."}
+        </p>
+      </div>
+    </details>
+  );
+}
+
 function TechnicalSeam() {
   const [open, setOpen] = useState(false);
 
@@ -252,7 +369,10 @@ function TechnicalSeam() {
       <summary className="cursor-pointer tracking-[0.16em] uppercase">Technical</summary>
       <div className="mt-2 space-y-1 leading-relaxed">
         <p>Construction: planned. Discovery is not implemented.</p>
-        <p>Development fixture references committed research media. Camotion plans appear later.</p>
+        <p>
+          Video uses Camotion shooting frames and a configurable provider model. The current
+          development generator receives only the start shooting frame.
+        </p>
       </div>
     </details>
   );

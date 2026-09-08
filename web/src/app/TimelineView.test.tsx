@@ -4,6 +4,7 @@ import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { createNewProject } from "../project/new-project";
 import { projectWithCinematographerAssessment } from "../project/cinematographer";
+import { projectWithSyncedProductionLegs } from "../project/production-legs";
 import type { CinematographerAssessment } from "../project/types";
 import { ProjectProvider } from "../project/ProjectProvider";
 import { TimelineView } from "./TimelineView";
@@ -94,8 +95,16 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Walk through the root gateway into the darker mouth.");
     expect(html).toContain("Camera path.");
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
+    expect(html).toContain('aria-label="Prepare A-B"');
+    expect(html).toContain(">Prepare<");
+    expect(html).toContain(">Prepared<");
+    expect(html).toContain('aria-label="Shoot A-B"');
+    expect(html).toContain(">Shoot<");
+    expect(html).toContain('alt="A-B start A"');
+    expect(html).toContain('alt="A-B end B"');
     expect(html).not.toContain("Journey A-B, Ready");
     expect(html).not.toContain('"shootability"');
+    expect(html).not.toContain(">Assess shot<");
   });
 
   it("shows CM Needs review and Not shootable separately from rendered operational status", () => {
@@ -162,6 +171,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     };
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain("Cinematographer needs two actual destinations.");
+    expect(html).not.toContain('aria-label="Prepare A-B"');
+    expect(html).not.toContain('aria-label="Shoot A-B"');
     expect(html).not.toContain(">Assess shot<");
   });
 });
@@ -177,6 +188,7 @@ describe("empty Shoot", () => {
     expect(html).not.toContain("FOREST A→F");
     expect(html).not.toContain("Destination undefined");
     expect(html).not.toContain(">Assess shot<");
+    expect(html).not.toContain('aria-label="Prepare');
     expect(html).not.toContain('aria-label="Destination A"');
   });
 
@@ -205,5 +217,51 @@ describe("empty Shoot", () => {
     );
     expect(html).toContain("Nothing is ready to shoot until the journey has actual adjacent destinations.");
     expect(html).not.toContain("Cannot read");
+    expect(html).not.toContain('aria-label="Prepare');
+  });
+});
+
+describe("Shoot from a real planned project", () => {
+  it("shows actual adjacent canonicals as selectable production legs", () => {
+    const project = projectWithSyncedProductionLegs({
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user",
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          destinationId: "A",
+        },
+        {
+          id: "B",
+          label: "B",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          destinationId: "B",
+        },
+        {
+          id: "C",
+          label: "C",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-cccccccccccccccccccccccccccccccc",
+          mediaId: "upload-cccccccccccccccccccccccccccccccc",
+          destinationId: "C",
+        },
+      ],
+    });
+    const html = renderShoot(project, { journeyId: "A-B" });
+    expect(html).toContain("Journey A-B, ready");
+    expect(html).toContain("Journey B-C, ready");
+    expect(html).toContain('aria-label="Destination A"');
+    expect(html).toContain('aria-label="Destination B"');
+    expect(html).toContain('aria-label="Destination C"');
+    expect(html).toContain('aria-label="Prepare A-B"');
+    expect(html).toContain('alt="A-B start A"');
+    expect(html).toContain('alt="A-B end B"');
+    expect(html).not.toContain("Nothing is ready to shoot");
+    expect(html).not.toContain(">Assess shot<");
   });
 });

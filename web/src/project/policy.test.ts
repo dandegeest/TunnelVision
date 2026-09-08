@@ -44,10 +44,27 @@ describe("journey playback policy", () => {
 });
 
 describe("production bar copy", () => {
-  it("explains that generation is not connected", () => {
-    expect(productionUnavailableReason(null)).toMatch(/generation is not connected/i);
-    expect(productionUnavailableReason(journey({ status: "ready" }))).toMatch(
-      /generation is not connected/i,
-    );
+  it("asks for a prepared journey before shooting", () => {
+    expect(productionUnavailableReason(null)).toMatch(/prepared journey/i);
+    expect(productionUnavailableReason(journey({ status: "ready" }))).toMatch(/Prepare this journey/i);
+    expect(
+      productionUnavailableReason(
+        journey({
+          status: "ready",
+          cinematographer: {
+            shootability: "shootable",
+            summary: "Go.",
+            route: "Forward.",
+            threshold: "Opening.",
+            camera: "Track.",
+            parallax: "Walls.",
+            transitionStrategy: "Pass through.",
+            segmentPromptAddition: "Track forward.",
+            camotionSuitability: "appropriate",
+            concerns: [],
+          },
+        }),
+      ),
+    ).toMatch(/Shoot Movie is not connected/i);
   });
 });

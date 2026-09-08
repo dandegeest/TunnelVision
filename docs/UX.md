@@ -31,15 +31,20 @@ project state and is available from the destination thumbnail, not as
 persistent storyboard caption text. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
-previous-frame conditioning. Video remains unwired. Shoot remains the Slice 1
-Destinations / Journey timeline. The Cinematographer can assess an
-actual adjacent journey on that timeline. Compact Ready / Needs
+previous-frame conditioning. Video remains unwired. Shoot is a
+production view of the current Project: consecutive actual adjacent
+canonicals appear as Destinations / JourneyShots automatically. Select
+a real leg and PREPARE to run the existing Cinematographer on those
+stills. Compact Ready / Needs
 review / Not shootable status is advisory and lives on the leg,
 together with camera path and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
-disclosure. Shootability does not block the journey. Do not redesign
-the Shoot timeline
-in this checkpoint. The application starts untitled, with unresolved
+disclosure. After PREPARE, SHOOT generates that one leg. The preview
+plays the rendered clip when present. Take evidence (A′, B′, effective
+prompt, model) sits behind disclosure so the clip stays primary.
+Shootability does not block the journey. A-only projects
+remain valid and simply have no directed production leg yet. Do not
+redesign the Shoot timeline around diagnostics. The application starts untitled, with unresolved
 opening frame A and no destinations or journeys. Forest A→F remains
 research evidence and a controlled test fixture.
 The Director runtime resolves starting-frame identity from

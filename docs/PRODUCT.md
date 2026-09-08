@@ -82,15 +82,19 @@ current project story.
 After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned edit
 (`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
-planned until the filmmaker constructs them. Video remains unwired in
-the product. Shoot remains the Slice 1
-Destinations / Journey timeline. The Cinematographer inspects one
-actual adjacent journey — two trusted canonical stills in — and stores
-segment-specific camera choreography on that JourneyShot, including a
-prompt addition that can later append to the stable locomotion
-baseline. Shootability remains advisory set analysis; it does not
+planned until the filmmaker constructs them. Shoot is a production view of
+the current Project: consecutive actual adjacent canonicals appear as
+JourneyShots automatically. There is no separate send-to-Shoot step.
+PREPARE on a selected actual leg runs the existing Cinematographer
+against those stills and stores choreography on that JourneyShot.
+SHOOT on a prepared leg derives a deterministic CameraMotionPlan v1,
+renders A′ and B′ with Camotion, composes the frozen locomotion
+baseline with `segmentPromptAddition`, and generates a development
+clip. The current cheap generator is Replicate `prunaai/p-video` at the
+MediaProvider boundary; it receives A′ as `image` and B′ as
+`last_frame_image`. Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
-CameraMotionPlan, Camotion, or video. The application starts as a
+CameraMotionPlan; a narrow deterministic bridge does. The application starts as a
 genuinely new project: untitled, empty story, unresolved opening
 frame A, and no destinations, journeys, assessments, or media. Forest
 A→F and Wardrobe Loop remain research evidence and explicit test
@@ -525,7 +529,14 @@ models to evaluate filmmaking quality. Do not create a special
 Draft media should exercise real asynchronous generation, latency,
 status, failures, and asset creation. It is **not** valid evidence
 for traversal quality, endpoint fidelity, or Camotion effectiveness.
-A user-facing Draft vs Final toggle remains backlog only. Current
+During Shoot development, optimize video generation for iteration
+cost and speed rather than final output quality; do not hardcode a
+development model into Shoot. Provider/model selection remains
+configurable (cheap/fast during development, Seedance 2.5 or another
+quality model for intentional output validation). The current Shoot
+development generator is Replicate `prunaai/p-video` (A′ as `image`, B′
+as `last_frame_image`). Automated E2E mocks
+the paid media-provider boundary. A user-facing Draft vs Final toggle remains backlog only. Current
 draft candidates and renderer notes live in
 [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
@@ -567,8 +578,8 @@ not treat that as a Render Movie feature. That spike showed a
 directionally coherent 30-second journey
 (forest → mouth → tube → crystal → portal → void) whose destination /
 world continuity did **not** automatically produce physical traversal
-continuity. See [ARCHITECTURE.md](ARCHITECTURE.md). Shoot remains the Slice 1 Destinations /
-Journey timeline. The running application initializes a new untitled
+continuity. See [ARCHITECTURE.md](ARCHITECTURE.md). Shoot is a production
+view of the current Project's Destinations / Journey timeline. The running application initializes a new untitled
 project rather than Forest A→F. Forest remains research evidence and
 a controlled test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does not independently

@@ -26,6 +26,11 @@ import {
 } from "./flux-1.1-pro-ultra.ts";
 import { extractOutputUrl } from "./output.ts";
 import {
+  PVideoSettings,
+  isPVideoModel,
+  toPVideoInput,
+} from "./p-video.ts";
+import {
   SEEDANCE_25_MODEL,
   Seedance25Settings,
   toSeedance25Input,
@@ -39,6 +44,7 @@ export type ReplicateMediaProviderOptions = {
   readonly imageModel?: string;
   readonly imageEditModel?: string;
   readonly seedance?: Seedance25Settings;
+  readonly pVideo?: PVideoSettings;
   readonly flux?: Flux11ProUltraSettings;
   readonly kontext?: FluxKontextProSettings;
   readonly client?: ReplicatePredictionClient;
@@ -50,6 +56,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
   private readonly imageModel: string;
   private readonly imageEditModel: string;
   private readonly seedance: Seedance25Settings | undefined;
+  private readonly pVideo: PVideoSettings | undefined;
   private readonly flux: Flux11ProUltraSettings | undefined;
   private readonly kontext: FluxKontextProSettings | undefined;
   private readonly client: ReplicatePredictionClient;
@@ -60,6 +67,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     this.imageModel = options.imageModel ?? FLUX_11_PRO_ULTRA_MODEL;
     this.imageEditModel = options.imageEditModel ?? FLUX_KONTEXT_PRO_MODEL;
     this.seedance = options.seedance;
+    this.pVideo = options.pVideo;
     this.flux = options.flux;
     this.kontext = options.kontext;
     this.client = options.client ?? createOfficialClient(this.token);
@@ -71,6 +79,10 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     const end = request.endImage
       ? await resolveMediaInput(request.endImage)
       : undefined;
+    if (isPVideoModel(this.model)) {
+      const input = toPVideoInput(request, start, end, this.pVideo);
+      return this.runFilePrediction(this.model, input as unknown as Record<string, unknown>);
+    }
     const input = toSeedance25Input(request, start, end, this.seedance);
     return this.runFilePrediction(this.model, input as unknown as Record<string, unknown>);
   }

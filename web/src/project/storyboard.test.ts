@@ -111,9 +111,8 @@ describe("storyboard domain", () => {
       project,
     );
     expect(shootSelection).toEqual({
-      kind: "destination",
-      destinationId: "A",
-      occurrenceIndex: 0,
+      kind: "journey",
+      journeyId: "A-B",
     });
   });
 

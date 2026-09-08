@@ -22,6 +22,15 @@ export {
   MissingEnvironmentVariableError,
 } from "./config/environment.ts";
 export { ReplicateMediaProvider } from "./replicate/provider.ts";
+export {
+  P_VIDEO_MODEL,
+  DEFAULT_P_VIDEO_SETTINGS,
+  isPVideoModel,
+  toPVideoInput,
+  describePVideoInput,
+  mergePVideoSettings,
+} from "./replicate/p-video.ts";
+export type { PVideoSettings, PVideoInput } from "./replicate/p-video.ts";
 export { ReplicateReasoningProvider } from "./replicate/reasoning.ts";
 export {
   SEEDANCE_25_MODEL,
@@ -61,6 +70,11 @@ export {
   BASELINE_FORWARD,
 } from "./cinematographer/plan-shot.ts";
 export type { CameraMotionPlanV1, ShotMotionPlans } from "./cinematographer/plan-shot.ts";
+export {
+  productionCameraMotionPlan,
+  PRODUCTION_CAMOTION_EXPOSURE,
+  PRODUCTION_CAMOTION_FORWARD,
+} from "./cinematographer/camera-motion-plan.ts";
 export {
   assessJourney as assessCinematographerJourney,
   buildCinematographerAssessmentRequest,

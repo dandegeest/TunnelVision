@@ -101,7 +101,12 @@ durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
-Video remains unwired in the product. After replacement, that destination
+Video remains unwired in the product. Shoot is a production view of
+the current Project: actual adjacent canonicals become JourneyShots
+automatically, and PREPARE runs the existing Cinematographer on the
+selected leg. SHOOT on a prepared leg runs Camotion and a configurable
+video model; the current development generator is `prunaai/p-video` with
+A′ as `image` and B′ as `last_frame_image`. After replacement, that destination
 keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F continuity evidence:
@@ -123,7 +128,7 @@ the camera should move through their visible geography.** The
 primary question is how to shoot this pair, not whether a stochastic
 video model will succeed. A thin assessment lives in
 `media/src/cinematographer/assess-journey.ts` and is invoked from
-Shoot for one JourneyShot. The result is stored on that journey and
+Shoot PREPARE for one JourneyShot. The result is stored on that journey and
 includes route, camera path, visible geometry, transition strategy,
 and a concise `segmentPromptAddition`, plus advisory shootability /
 Camotion suitability / concerns. Destinations stay canonical world
@@ -140,12 +145,11 @@ visible geometry.
 
 Do **not** generate CameraMotionPlan, Camotion shooting frames, or
 video from this assessment. Do not expand the Integration Test 01
-pair planner into a product package. CameraMotionPlan, Camotion
-strength, and automatic repair remain later. The next video prompt,
-when wired, should be composed deterministically as the frozen
-locomotion baseline plus `segmentPromptAddition`
-(`composeShootingPrompt` in `media/src/cinematographer/shooting-prompt.ts`).
-Do not have an LLM rewrite or merge those two pieces. Terran Boylan's
+pair planner into a product package. SHOOT uses a separate
+deterministic CameraMotionPlan v1 bridge, then Camotion, then
+`composeShootingPrompt` (frozen locomotion baseline plus
+`segmentPromptAddition`). Do not have an LLM rewrite or merge those
+two pieces. Terran Boylan's
 original TunnelVision continuous-locomotion prompting is the
 foundation of the baseline. Adaptive per-segment choreography is
 current TunnelVision product work, not Terran's agent design.
@@ -165,10 +169,11 @@ Do not move CM reasoning prematurely into Plan just because
 storyboard images exist. Agent reasons. CV observes / measures.
 Camotion renders. Video model films.
 
-Video currently receives those shooting frames plus the locomotion
-prompt. Canonical frames stay Shoot world-state authority; they are
-not currently video inputs. Plan storyboard drawings are not
-canonicals.
+Video currently receives shooting frames A′ and B′ plus the composed
+locomotion prompt. The current development generator (`prunaai/p-video`)
+maps those to `image` and `last_frame_image`. Canonical frames stay
+Shoot world-state authority; they are not currently video inputs. Plan
+storyboard drawings are not canonicals.
 
 Integration Test 01 used a **thin** pair planner in
 `media/src/cinematographer/`: inspect actual start/end stills, emit
@@ -345,9 +350,9 @@ atmosphere can help preserve continuous locomotion.
 
 The frozen locomotion baseline now lives in
 `media/src/cinematographer/shooting-prompt.ts` as
-`TUNNELVISION_LOCOMOTION_BASELINE`. The later video prompt, when
-wired, concatenates that baseline with the CM
-`segmentPromptAddition`. Do not LLM-merge them. Preserve Terran
+`TUNNELVISION_LOCOMOTION_BASELINE`. SHOOT concatenates that baseline
+with the CM `segmentPromptAddition` via `composeShootingPrompt`.
+Do not LLM-merge them. Preserve Terran
 Boylan / original TunnelVision provenance for the baseline. Do not
 treat that text as model-independent or as a Camotion input. The
 genesis copy is also recorded in [IMPLEMENTATION.md](IMPLEMENTATION.md).

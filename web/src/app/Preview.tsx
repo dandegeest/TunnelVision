@@ -33,11 +33,17 @@ export function Preview() {
     selection.kind === "destination"
       ? layout.occurrences.find((item) => item.occurrenceIndex === selection.occurrenceIndex)
       : null;
-  const destination = destinationById(
+  const startDestination = destinationById(
     project.destinations,
-    selection.kind === "destination" ? selection.destinationId : selectedJourney?.startDestinationId ?? "A",
+    selection.kind === "destination"
+      ? selection.destinationId
+      : selectedJourney?.startDestinationId ?? "A",
   );
-  const shootEmpty = project.destinations.length === 0 && project.journeys.length === 0;
+  const endDestination = selectedJourney?.endDestinationId
+    ? destinationById(project.destinations, selectedJourney.endDestinationId)
+    : undefined;
+  const destination = startDestination;
+  const shootEmpty = project.journeys.length === 0;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -93,22 +99,14 @@ export function Preview() {
               setPlayheadTime(laid.startTime + event.currentTarget.currentTime);
             }}
           />
-        ) : (
-          <>
-            {destination ? (
-              <img
-                src={destination.image}
-                alt={selectedJourney ? "" : `Destination ${destination.label}`}
-                className={`rounded ${selectedJourney && !playable ? "opacity-40" : ""}`}
-              />
-            ) : null}
-            {selectedJourney && !playable ? (
-              <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-[#f0c2a8]">
-                {ARRIVAL_BLOCKED_COPY}
-              </div>
-            ) : null}
-          </>
-        )}
+        ) : selectedJourney && startDestination && endDestination ? (
+          <div className="preview-leg">
+            <img src={startDestination.image} alt={`${selectedJourney.id} start ${startDestination.label}`} />
+            <img src={endDestination.image} alt={`${selectedJourney.id} end ${endDestination.label}`} />
+          </div>
+        ) : destination ? (
+          <img src={destination.image} alt={`Destination ${destination.label}`} />
+        ) : null}
       </PreviewMonitor>
       <p
         className={`h-5 flex-none truncate text-sm ${occurrence?.arrivalBlocked || (selectedJourney && !playable) ? "text-[#f0c2a8]" : "text-[#9a8f7e]"}`}

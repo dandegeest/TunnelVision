@@ -14,6 +14,19 @@ export function journeyIsPlayable(journey: JourneyShot): boolean {
   return journey.status === "rendered";
 }
 
-export function productionUnavailableReason(_journey: JourneyShot | null): string {
-  return "Shoot This Shot and Shoot Movie are labeled for the product, but generation is not connected in this slice.";
+export function shootActionReason(journey: JourneyShot | null): string {
+  if (!journey) {
+    return "Select a prepared journey to shoot.";
+  }
+  if (journey.status === "shooting") {
+    return "Shooting…";
+  }
+  if (!journey.cinematographer) {
+    return "Prepare this journey before shooting.";
+  }
+  return "";
+}
+
+export function productionUnavailableReason(journey: JourneyShot | null): string {
+  return shootActionReason(journey) || "Shoot Movie is not connected in this slice.";
 }

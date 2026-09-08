@@ -40,6 +40,50 @@ export type CinematographerAssessment = {
   concerns: string[];
 };
 
+/** CameraMotionPlan v1 JSON stored as take evidence. Frozen Camotion contract. */
+export type CameraMotionPlanV1 = {
+  version: 1;
+  camera: {
+    vanishing_point: readonly [number, number];
+    forward: number;
+  };
+  destination: {
+    point: readonly [number, number];
+    protect: boolean;
+    bbox: readonly [number, number, number, number];
+  };
+  exposure: {
+    strength: number;
+    samples: number;
+  };
+};
+
+export type ShootingFrameRef = {
+  mediaId: string;
+  imageUrl: string;
+};
+
+/**
+ * One current take for a JourneyShot. Not a parallel clip model.
+ * Session/in-memory; provider URLs are allowed until Node persistence exists.
+ */
+export type JourneyShotTake = {
+  startShootingFrame: ShootingFrameRef;
+  endShootingFrame: ShootingFrameRef;
+  startPlan: CameraMotionPlanV1;
+  endPlan: CameraMotionPlanV1;
+  segmentPromptAddition: string;
+  effectivePrompt: string;
+  provider: string;
+  model: string;
+  modelVersion: string | null;
+  durationSeconds: number;
+  seed?: number;
+  providerOutputUrl?: string;
+  /** Directed Shoot sends A′ as the start image and B′ as the last-frame condition. */
+  videoInputs: { startShootingFrame: true; endShootingFrame: boolean };
+};
+
 export type Destination = {
   id: string;
   label: string;
@@ -113,6 +157,9 @@ export type JourneyShot = {
    * Shootability on this object is advisory and must not replace `status`.
    */
   cinematographer?: CinematographerAssessment;
+  /** Latest successful or inspectable take. Absent until SHOOT completes. */
+  take?: JourneyShotTake;
+  shootError?: string;
 };
 
 export type Project = {

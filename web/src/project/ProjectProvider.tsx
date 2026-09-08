@@ -15,6 +15,14 @@ import {
   projectWithCinematographerAssessment,
   requestCinematographerAssessment,
 } from "./cinematographer";
+import {
+  canShootJourney,
+  projectWithJourneyShotFailed,
+  projectWithJourneyShooting,
+  projectWithJourneyShotTake,
+  requestShootJourney,
+  shootRequestFromProject,
+} from "./shoot";
 import { readStoryboardMediaInfo } from "./media-preflight";
 import { projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithAddedDestination, projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
@@ -62,6 +70,9 @@ type ProjectContextValue = {
   assessingJourneyId: string | null;
   cinematographerError: string | null;
   assessJourney: (journeyId: string) => Promise<void>;
+  shootingJourneyId: string | null;
+  shootError: string | null;
+  shootJourney: (journeyId: string) => Promise<void>;
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File) => Promise<void>;
@@ -103,6 +114,8 @@ export function ProjectProvider({
   const [planStartError, setPlanStartError] = useState<string | null>(null);
   const [assessingJourneyId, setAssessingJourneyId] = useState<string | null>(null);
   const [cinematographerError, setCinematographerError] = useState<string | null>(null);
+  const [shootingJourneyId, setShootingJourneyId] = useState<string | null>(null);
+  const [shootError, setShootError] = useState<string | null>(null);
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
   const [constructingBeatId, setConstructingBeatId] = useState<string | null>(null);
@@ -279,6 +292,28 @@ export function ProjectProvider({
     }
   }, [project]);
 
+  const shootJourney = useCallback(async (journeyId: string) => {
+    setShootError(null);
+    const journey = project.journeys.find((item) => item.id === journeyId);
+    if (!journey || !canShootJourney(project, journey)) {
+      setShootError("Prepare this journey before shooting");
+      return;
+    }
+    setShootingJourneyId(journeyId);
+    setProject((current) => projectWithJourneyShooting(current, journeyId));
+    try {
+      const request = shootRequestFromProject(project, journeyId);
+      const result = await requestShootJourney(request);
+      setProject((current) => projectWithJourneyShotTake(current, journeyId, result));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Shoot failed";
+      setShootError(message);
+      setProject((current) => projectWithJourneyShotFailed(current, journeyId, message));
+    } finally {
+      setShootingJourneyId(null);
+    }
+  }, [project]);
+
   const selectedJourney = useMemo(() => {
     if (selection.kind !== "journey") {
       return null;
@@ -314,6 +349,9 @@ export function ProjectProvider({
       assessingJourneyId,
       cinematographerError,
       assessJourney,
+      shootingJourneyId,
+      shootError,
+      shootJourney,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,
@@ -343,6 +381,9 @@ export function ProjectProvider({
       assessingJourneyId,
       cinematographerError,
       assessJourney,
+      shootingJourneyId,
+      shootError,
+      shootJourney,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,

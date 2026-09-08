@@ -11,6 +11,7 @@ export type VideoGenerationRequest = {
   readonly endImage?: MediaInput;
   readonly prompt: string;
   readonly durationSeconds?: number;
+  readonly seed?: number;
 };
 
 export type ImageGenerationRequest = {
