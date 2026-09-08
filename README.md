@@ -238,18 +238,17 @@ feature. Camotion shooting frames are treated
 as motion-state conditioning, not image enhancement. Current product
 direction is **Plan | Shoot**: a conversational storyboard in Plan,
 then Shoot confronts that intent with generated Destinations. There
-is no Edit workspace. Product Slice 3 is the current fixture-driven
-shell: Send asks a thin Director to plan storyboard beats from the
-current Project starting frame. The Wardrobe Loop fixture initializes
-that Project, including a trusted media identity for A. Plan starts
-unplanned beyond A; the Director's output becomes the planned
-continuation. The runtime
+is no Edit workspace. The product shell starts from a genuinely new
+project, not Forest A→F. Send asks a thin Director to plan storyboard
+beats from the current Project starting frame. Plan starts
+unplanned beyond unresolved opening frame A until the filmmaker
+provides A and the Director plans a continuation. The runtime
 does not independently substitute server-side `A.jpg`. Accepted Plan
 submissions update `Project.story`. The filmmaker can replace authoritative A with an
 uploaded still. Uploaded A is session/dev-runtime trusted media, not
-durable project persistence. Wardrobe may still initialize the
-development project; after replacement, runtime Project A is
-authoritative. After Plan Movie, Construct builds the next planned
+durable project persistence. Forest A→F and Wardrobe remain research
+evidence and explicit test fixtures; they do not initialize the
+running product. After Plan Movie, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit. Later beats stay planned until explicitly constructed. Video
 remains unwired in the product. Shoot

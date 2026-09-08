@@ -42,6 +42,15 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.match(request.systemInstruction, /forward locomotion/);
   assert.match(request.systemInstruction, /partially specified/);
   assert.match(request.systemInstruction, /supplied destination/);
+  assert.match(request.systemInstruction, /fewest destinations necessary/);
+  assert.match(request.systemInstruction, /meaningfully new place, world state, or story moment/);
+  assert.match(request.systemInstruction, /approaching and then crossing the same threshold/);
+  assert.match(request.systemInstruction, /one continuous shot/);
+  assert.match(request.systemInstruction, /Simple journeys may require only 2–4 subsequent destinations/);
+  assert.match(request.systemInstruction, /Use more when the filmmaker's story genuinely requires them/);
+  assert.doesNotMatch(request.systemInstruction, /typically 4 to 8/);
+  assert.doesNotMatch(request.systemInstruction, /must (?:return|use|contain) \d+/i);
+  assert.doesNotMatch(request.systemInstruction, /(?:minimum|maximum) of \d+/i);
   assert.doesNotMatch(request.systemInstruction, /vanishing_point/);
   assert.doesNotMatch(request.systemInstruction, /CameraMotionPlan/);
   assert.doesNotMatch(request.prompt, /EXACTLY/);

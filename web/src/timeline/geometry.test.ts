@@ -81,4 +81,11 @@ describe("timeline geometry", () => {
     expect(wholeSecondMarkTimes(16)).toEqual(Array.from({ length: 17 }, (_, time) => time));
     expect(journeyBoundaryTimes(uneven)).not.toEqual([0, 6, 12, 18]);
   });
+
+  it("lays out an empty journey without inventing destinations", () => {
+    const layout = layoutTimeline([], [], 1);
+    expect(layout.occurrences).toEqual([]);
+    expect(layout.journeys).toEqual([]);
+    expect(layout.totalDuration).toBe(0);
+  });
 });

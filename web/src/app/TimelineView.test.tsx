@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "../project/new-project";
 import { projectWithCinematographerAssessment } from "../project/cinematographer";
 import type { CinematographerAssessment } from "../project/types";
 import { ProjectProvider } from "../project/ProjectProvider";
@@ -162,5 +163,47 @@ describe("Shoot Cinematographer journey assessment", () => {
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain("Cinematographer needs two actual destinations.");
     expect(html).not.toContain(">Assess shot<");
+  });
+});
+
+describe("empty Shoot", () => {
+  it("does not assume Forest journeys or media exist", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider initialProject={createNewProject()} initialView="shoot">
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("Nothing is ready to shoot until the journey has actual adjacent destinations.");
+    expect(html).not.toContain("FOREST A→F");
+    expect(html).not.toContain("Destination undefined");
+    expect(html).not.toContain(">Assess shot<");
+    expect(html).not.toContain('aria-label="Destination A"');
+  });
+
+  it("stays coherent after the opening frame exists but Shoot destinations do not", () => {
+    const withStart = {
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          destinationId: "A",
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={withStart}
+        initialView="shoot"
+        initialSelection={{ kind: "destination", destinationId: "A", occurrenceIndex: 0 }}
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("Nothing is ready to shoot until the journey has actual adjacent destinations.");
+    expect(html).not.toContain("Cannot read");
   });
 });

@@ -4,6 +4,7 @@ import {
   FOREST_STORYBOARD_INTENTS,
 } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, STORYBOARD_INTENTS } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "./new-project";
 import {
   generatedStoryboardReusesProductionCanonical,
   provenanceIsStoredNotInferred,
@@ -11,6 +12,7 @@ import {
   nextStoryboardFrame,
   applyDirectorPlanToStoryboard,
   isSpecifiedStoryboardDestination,
+  canAddStoryboardDestination,
   nextStoryboardSlot,
   projectWithAddedDestination,
   projectWithDirectorPlan,
@@ -113,6 +115,13 @@ describe("storyboard domain", () => {
       destinationId: "A",
       occurrenceIndex: 0,
     });
+  });
+
+  it("keeps Shoot on the storyboard selection when a new project has no destinations", () => {
+    const project = createNewProject();
+    expect(
+      selectionForWorkspaceView("shoot", { kind: "storyboard", frameId: "A" }, project),
+    ).toEqual({ kind: "storyboard", frameId: "A" });
   });
 
   it("has no next beat until the Director plans a continuation", () => {
@@ -277,6 +286,55 @@ describe("Director owns the planned continuation", () => {
     expect(added.storyboard[1]?.image).toBeUndefined();
     expect(added.storyboard[0]).toEqual(project.storyboard[0]);
     expect(added.destinations).toEqual(project.destinations);
+  });
+});
+
+describe("Add Destination requires an actual A→B segment", () => {
+  const constructedB = {
+    beatId: "B",
+    mediaId: "upload-11111111111111111111111111111111",
+    imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
+  };
+
+  it("stays hidden on an empty or A-only project without inventing B or a journey", () => {
+    const empty = createNewProject();
+    expect(canAddStoryboardDestination(empty)).toBe(false);
+    expect(empty.storyboard.map((frame) => frame.id)).toEqual(["A"]);
+    expect(empty.destinations).toEqual([]);
+    expect(empty.journeys).toEqual([]);
+
+    const wardrobe = createWardrobeProject();
+    expect(isSpecifiedStoryboardDestination(wardrobe.storyboard[0]!)).toBe(true);
+    expect(wardrobe.storyboard.find((frame) => frame.id === "B")).toBeUndefined();
+    expect(canAddStoryboardDestination(wardrobe)).toBe(false);
+  });
+
+  it("stays hidden while B is only a planned unresolved slot", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), {
+      summary: "A planned journey.",
+      beats: [
+        { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
+        { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
+      ],
+    });
+    expect(planned.storyboard[1]?.id).toBe("B");
+    expect(isSpecifiedStoryboardDestination(planned.storyboard[1]!)).toBe(false);
+    expect(canAddStoryboardDestination(planned)).toBe(false);
+  });
+
+  it("becomes available once A and B are actual canonical stills", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), {
+      summary: "A planned journey.",
+      beats: [
+        { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
+        { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
+      ],
+    });
+    const actual = projectWithConstructedDestination(planned, constructedB);
+    expect(isSpecifiedStoryboardDestination(actual.storyboard[0]!)).toBe(true);
+    expect(isSpecifiedStoryboardDestination(actual.storyboard[1]!)).toBe(true);
+    expect(canAddStoryboardDestination(actual)).toBe(true);
+    expect(actual.journeys).toEqual(planned.journeys);
   });
 });
 

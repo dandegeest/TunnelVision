@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { formatConversationClock, type ConversationEntry } from "../project/conversation";
 import type { DirectorEvidence } from "../project/director";
 import { useProject } from "../project/ProjectProvider";
+import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 
 export function ConversationRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { conversationRailOpen, setConversationRailOpen } = useProject();
@@ -160,11 +161,13 @@ export function ConversationRail() {
     planWithDirector,
     startingFrameError,
     replacingStart,
+    project,
   } = useProject();
   const threadRef = useRef<HTMLDivElement>(null);
   const followThread = useRef(true);
   const planning = directorStatus === "planning";
-  const canPlan = Boolean(composerDraft.trim()) && !planning;
+  const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
+  const canPlan = Boolean(composerDraft.trim()) && hasOpeningFrame && !planning;
 
   useEffect(() => {
     const thread = threadRef.current;
@@ -239,7 +242,11 @@ export function ConversationRail() {
             type="button"
             disabled={!canPlan}
             aria-label="Plan movie"
-            title="Plan the movie from this story and starting frame."
+            title={
+              hasOpeningFrame
+                ? "Plan the movie from this story and starting frame."
+                : "Provide a starting frame before planning."
+            }
             onClick={() => {
               followThread.current = true;
               void planWithDirector();

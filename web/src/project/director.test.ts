@@ -5,6 +5,7 @@ import {
   FOREST_STORYBOARD_INTENTS,
 } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "./new-project";
 import {
   authoritativeStartFrame,
   directorPlanRequestFromProject,
@@ -255,5 +256,14 @@ describe("Director request from Project state", () => {
     const request = directorPlanRequestFromProject(createForestProject());
     expect(request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
     expect(request.anchors?.every((anchor) => Boolean(anchor.mediaId))).toBe(true);
+  });
+
+  it("refuses to plan a new project before the filmmaker supplies starting frame A", () => {
+    expect(() =>
+      directorPlanRequestFromProject({
+        ...createNewProject(),
+        story: "Travel forward through an imagined interior at night.",
+      }),
+    ).toThrow(/trusted media identity/);
   });
 });

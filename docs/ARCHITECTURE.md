@@ -4,8 +4,10 @@
 > the LLM owns direction, code owns geometry, and generative APIs
 > only render.
 
-Product development has started. [`web/`](../web/) is a fixture-driven
-React shell. Camotion is unchanged. `media/` now includes a thin
+Product development has started. [`web/`](../web/) is a React Plan |
+Shoot shell that starts from a new untitled project. Forest A→F is
+research evidence and an explicit test fixture, not product startup.
+Camotion is unchanged. `media/` now includes a thin
 Cinematographer actual-set choreography assessment in addition to
 the existing providers and planners. Do not read the later diagram as
 a description of generation wiring — that is still later.
@@ -123,10 +125,10 @@ segment-specific camera choreography on that leg, including a
 locomotion baseline. Shootability remains advisory; it does not
 gate JourneyShot status. CameraMotionPlan,
 Camotion, video, Discovery, and
-Screenwriter remain unwired. Live development initializes Project from
-the Forest A→F fixture, including starting frame A with a trusted
-media identity and the completed A→F storyboard and Journey clips.
-The Director runtime resolves that identity from
+Screenwriter remain unwired. The running application initializes a new
+untitled project: unresolved opening frame A, empty story, no
+destinations or journeys. Forest A→F remains a research and test
+fixture. The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture accepts
 story plus `MediaInput` for the opening and any other existing

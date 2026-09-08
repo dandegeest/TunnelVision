@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "../project/new-project";
 import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
 import { FilmmakingFrame } from "./FilmmakingFrame";
@@ -107,7 +108,7 @@ describe("Plan composer", () => {
     expect(html).not.toMatch(/id="plan-composer"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
     expect(html).toContain('aria-label="Plan movie"');
-    expect(html).toContain("Add Destination");
+    expect(html).not.toContain("Add Destination");
     expect(html).toContain('id="replace-destination-image"');
     expect(html).toContain(`accept="${STARTING_FRAME_ACCEPT}"`);
     expect(html).not.toContain("Replace image");
@@ -244,6 +245,7 @@ describe("Plan storyboard FPO intent", () => {
     expect(afterB).toContain("/api/runtime-media/upload-11111111111111111111111111111111");
     expect(afterB).not.toContain('aria-label="Generate destination B"');
     expect(afterB).toContain('aria-label="Generate destination C"');
+    expect(afterB).toContain("Add Destination");
     expect(afterB).not.toContain("Generate destination D");
     expect(afterB).not.toContain("CONSTRUCT");
     expect(afterB.match(/destination-generate-row/g)?.length).toBe(1);
@@ -599,6 +601,25 @@ describe("Plan destination affordance and menu", () => {
     expect(html).not.toContain("Discover");
   });
 
+  it("exposes Upload image on unresolved starting frame A", () => {
+    const html = renderToStaticMarkup(
+      <DestinationMenu
+        frameId="A"
+        label="A"
+        initiallyOpen
+        actionLabel="Upload image"
+        onReplace={() => undefined}
+      />,
+    );
+    expect(html).toContain("destination-menu");
+    expect(html).toContain("Upload image");
+    expect(html).not.toContain("Replace…");
+    expect(html).not.toContain("Generate");
+    expect(html).not.toContain("Derive");
+    expect(html).not.toContain("Discover");
+    expect(html).not.toContain("Provide starting frame");
+  });
+
   it("truncates the frame label before the kebab", () => {
     const html = renderFrame(createForestProject().storyboard[0]!, { showMediaInfo: true });
     expect(html).toContain("storyboard-frame-label");
@@ -766,5 +787,58 @@ describe("Plan Director conversation UI", () => {
     expect(html.indexOf("<details")).toBeLessThan(html.indexOf("A continuous forward journey through connected spaces."));
     expect(html).toContain(formatConversationClock(AT));
     expect(html).toContain(formatConversationClock(AT2));
+  });
+});
+
+describe("new-project Plan", () => {
+  it("shows unresolved A with an upload action and no Forest or status copy", () => {
+    const html = renderPlan(createNewProject(), { composerDraft: "" });
+    expect(html).toContain('data-destination-card="A"');
+    expect(html).toContain("storyboard-fpo");
+    expect(html).toContain('aria-label="Storyboard A"');
+    expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).toContain("destination-menu");
+    expect(html).toContain('placeholder="Describe the movie…"');
+    expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+    expect(html).not.toContain("Not yet planned");
+    expect(html).not.toContain("Provide starting frame");
+    expect(html).not.toContain("FOREST A→F");
+    expect(html).not.toContain("Travel forward through this night forest");
+    expect(html).not.toContain('aria-label="Generate destination B"');
+    expect(html).not.toContain("Add Destination");
+    expect(html).not.toContain('src="/api/runtime-media/');
+  });
+
+  it("hides Add Destination until actual A and actual B exist", () => {
+    const empty = renderPlan(createNewProject(), { composerDraft: "" });
+    expect(empty).not.toContain("Add Destination");
+
+    const withA = {
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    expect(renderPlan(withA)).not.toContain("Add Destination");
+    expect(withA.storyboard.map((frame) => frame.id)).toEqual(["A"]);
+    expect(withA.destinations).toEqual([]);
+    expect(withA.journeys).toEqual([]);
+
+    const planned = projectWithDirectorPlan(withA, plannedBeats);
+    expect(planned.storyboard[1]?.imageOrigin).toBe("none");
+    expect(renderPlan(planned)).not.toContain("Add Destination");
+
+    const actualB = projectWithConstructedDestination(planned, {
+      beatId: "B",
+      mediaId: "upload-11111111111111111111111111111111",
+      imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
+    });
+    expect(renderPlan(actualB)).toContain('aria-label="Add Destination"');
   });
 });

@@ -17,6 +17,20 @@ export function isAuthoritativeStartingFrame(frame: Pick<StoryboardFrame, "id">)
   return frame.id === "A";
 }
 
+/** Unresolved opening slot that can receive the filmmaker starting frame. */
+export function canProvideStartingFrame(frame: Pick<StoryboardFrame, "id" | "image" | "imageOrigin">): boolean {
+  return isAuthoritativeStartingFrame(frame) && frame.imageOrigin === "none" && !frame.image;
+}
+
+export function hasAuthoritativeStartingFrame(project: Project): boolean {
+  const start = project.storyboard.find((frame) => isAuthoritativeStartingFrame(frame));
+  return (
+    start?.imageOrigin === "user" &&
+    Boolean(start.image) &&
+    isTrustedMediaIdShape(start.mediaId)
+  );
+}
+
 const ALLOWED_MIME = new Set<string>([...STARTING_FRAME_MIME_TYPES, "image/jpg"]);
 
 export type StartingFrameUpload = {
@@ -63,7 +77,10 @@ export function projectWithReplacedFrameImage(
     throw new Error("Starting frame has no trusted media identity");
   }
   const target = project.storyboard.find((frame) => frame.id === frameId);
-  if (!target?.image) {
+  if (!target) {
+    throw new Error("Unknown storyboard frame");
+  }
+  if (!target.image && !canProvideStartingFrame(target)) {
     throw new Error("Destination has no canonical still to replace");
   }
   return {
@@ -77,6 +94,7 @@ export function projectWithReplacedFrameImage(
         image: next.imageUrl,
         mediaId: next.mediaId,
         imageOrigin: "user",
+        ...(frame.destinationId ? {} : { destinationId: frame.id }),
       };
       if (next.mediaInfo) {
         replaced.mediaInfo = next.mediaInfo;

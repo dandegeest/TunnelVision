@@ -90,12 +90,14 @@ segment-specific camera choreography on that JourneyShot, including a
 prompt addition that can later append to the stable locomotion
 baseline. Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
-CameraMotionPlan, Camotion, or video. Live development currently initializes
-Project from the Forest A→F fixture
-(`camotion/integration/forest-a-to-f/`), using filmmaker-provided A,
-sequentially Derived B–F stills, and the completed Journey clips.
-Wardrobe Loop remains historical research evidence and a test factory;
-it is not the current product-development fixture. Plan can replan
+CameraMotionPlan, Camotion, or video. The application starts as a
+genuinely new project: untitled, empty story, unresolved opening
+frame A, and no destinations, journeys, assessments, or media. Forest
+A→F and Wardrobe Loop remain research evidence and explicit test
+fixtures; they do not initialize the running product. The filmmaker
+provides starting frame A, describes the movie, asks the Director to
+plan, and constructs unresolved beats through the existing Generate
+flow. Plan can replan
 around existing destinations; specified stills survive. The Director runtime resolves
 that identity from Project state; it does not independently substitute
 a catalog still. Accepted Plan submissions update `Project.story`. The filmmaker can
@@ -425,13 +427,15 @@ autonomous product development. The next milestone is **product
 development**, then Movie #2 through the product. The product itself
 becomes the experimental apparatus.
 
-The next product slice should still ask: what is the smallest thing
-we can make real that causes fixture-driven UI to stop being a
-fixture? When real media generation is introduced during product
-development, prefer cheap draft providers through the existing
-MediaProvider abstraction. Do not implement the full conversational
-Plan, revision graph, or production-quality pipeline in the next
-slice.
+TunnelVision no longer begins from a demonstration journey. A project
+begins partially specified and becomes a movie as filmmaker constraints
+and Director decisions resolve it. Every subsequent MVP milestone
+should advance a real user journey through the application and, where
+practical, extend browser-level E2E coverage. When real media
+generation is introduced during product development, prefer cheap
+draft providers through the existing MediaProvider abstraction. Do
+not implement the full conversational Plan, revision graph, or
+production-quality pipeline in the next slice.
 
 There is no Edit workspace and no Edit agent. Plan storyboard images
 are provisional Director-intent drawings. **Canonical Destinations**
@@ -564,11 +568,10 @@ directionally coherent 30-second journey
 (forest → mouth → tube → crystal → portal → void) whose destination /
 world continuity did **not** automatically produce physical traversal
 continuity. See [ARCHITECTURE.md](ARCHITECTURE.md). Shoot remains the Slice 1 Destinations /
-Journey timeline. Live development initializes Project from the
-Forest A→F fixture, including starting frame A with a trusted media
-identity and actual B–F Derived stills plus completed Journey clips.
-The Director runtime
-resolves that identity from Project state; it does not independently
+Journey timeline. The running application initializes a new untitled
+project rather than Forest A→F. Forest remains research evidence and
+a controlled test fixture. The Director runtime
+resolves starting-frame identity from Project state; it does not independently
 substitute a catalog still. Accepted Plan submissions update `Project.story` in
 Plan and can replace a destination's canonical still in place.
 Uploaded media is session/dev-runtime trusted media, not durable project

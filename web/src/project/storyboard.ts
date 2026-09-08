@@ -126,6 +126,30 @@ export function isSpecifiedStoryboardDestination(frame: StoryboardFrame): boolea
   return frame.imageOrigin !== "none" && Boolean(frame.image);
 }
 
+function storyboardFrameByLetter(frames: StoryboardFrame[], id: string): StoryboardFrame | undefined {
+  const key = id.trim().toLowerCase();
+  return frames.find((frame) => frame.id.trim().toLowerCase() === key);
+}
+
+/**
+ * + ADD DESTINATION extends an existing A→B journey. It is not how B is created.
+ * Requires actual canonical A and B stills, not unresolved placeholders.
+ * Does not require a JourneyShot. A-only projects remain valid.
+ */
+export function canAddStoryboardDestination(project: Project): boolean {
+  if (!nextStoryboardSlot(project.storyboard)) {
+    return false;
+  }
+  const start = storyboardFrameByLetter(project.storyboard, "A");
+  const firstEnd = storyboardFrameByLetter(project.storyboard, "B");
+  return Boolean(
+    start &&
+      firstEnd &&
+      isSpecifiedStoryboardDestination(start) &&
+      isSpecifiedStoryboardDestination(firstEnd),
+  );
+}
+
 function plannedFrameFromBeat(beat: DirectorPlan["beats"][number]): StoryboardFrame {
   const id = beat.id;
   const letter = id.trim();

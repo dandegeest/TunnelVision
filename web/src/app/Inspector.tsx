@@ -28,6 +28,18 @@ export function Inspector() {
     [project.destinations, project.journeys],
   );
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
+  const shootEmpty = project.destinations.length === 0 && project.journeys.length === 0;
+
+  if (shootEmpty) {
+    return (
+      <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
+        <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Journey</p>
+        <p className="text-[#cfc6b8]">
+          Nothing is ready to shoot until the journey has actual adjacent destinations.
+        </p>
+      </aside>
+    );
+  }
 
   if (selection.kind === "storyboard") {
     return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
@@ -64,7 +76,7 @@ export function Inspector() {
         {destination ? (
           <img src={destination.image} alt="" className="aspect-video w-full rounded object-cover" />
         ) : null}
-        <p>Status: {destination?.status.replaceAll("_", " ")}</p>
+        <p>Status: {destination?.status?.replaceAll("_", " ")}</p>
         {occurrence?.occurrenceIndex === 0 ? (
           <p>This is the opening destination.</p>
         ) : null}

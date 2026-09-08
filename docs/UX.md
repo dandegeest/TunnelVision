@@ -1,8 +1,9 @@
 # TunnelVision UX Plan
 
-Product development has started. [`web/`](../web/) is a fixture-driven
-**Plan | Shoot** shell using Forest A→F stills and Journey videos.
-Camotion
+Product development has started. [`web/`](../web/) is a **Plan | Shoot**
+filmmaking shell that starts from a genuinely new project. Forest A→F
+stills and Journey videos remain research evidence and explicit test
+fixtures; they do not initialize the running product. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
 After Plan Movie, the filmmaker can construct the next planned
 destination from the immediately preceding actual destination through
@@ -38,10 +39,10 @@ together with camera path and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
 disclosure. Shootability does not block the journey. Do not redesign
 the Shoot timeline
-in this checkpoint. Live development initializes Project from the
-Forest A→F fixture, including starting frame A with a trusted media
-identity and the completed A→F storyboard and Journey clips.
-The Director runtime resolves that identity from
+in this checkpoint. The application starts untitled, with unresolved
+opening frame A and no destinations or journeys. Forest A→F remains
+research evidence and a controlled test fixture.
+The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 Accepted Plan submissions update `Project.story`. The filmmaker can replace
 a destination's canonical still in place from the destination menu.
@@ -317,15 +318,19 @@ REGEN / REPAIR) is recorded in
 
 ## First product vertical slice (started)
 
-`web/` is a fixture shell. Plan is a storyboard plus an editable
-filmmaker story in the existing composer. The Forest A→F development
-fixture initializes actual A–F stills and completed Journey clips so
-Plan preflight and Shoot boundary continuity can be exercised against
-a real journey. After a Director replan, Construct still builds the
+`web/` is the product filmmaking surface. Plan is a storyboard plus an
+editable filmmaker story in the existing composer. A new project begins
+partially specified: unresolved opening frame A, empty story, no
+fabricated destinations or journeys. The filmmaker provides A, plans
+with the Director, and generates the next unresolved destination.
+Forest A→F remains available so Plan preflight, Shoot boundary
+continuity, and CM tests can be exercised against a controlled
+journey. After a Director replan, Construct still builds the
 next planned beat from the preceding actual destination.
-Shoot uses Forest canonical stills and playable A-B through E-F.
-Wardrobe Loop remains historical research evidence (including E-A as
-a clip-less loop-closure leg, not a property of destination E). Video generation, Camotion, and
+Shoot stays coherent when nothing is ready to shoot; it does not yet
+generate video. Wardrobe Loop remains historical research evidence
+(including E-A as a clip-less loop-closure leg, not a property of
+destination E). Video generation, Camotion, and
 Discovery remain unwired in the product. Integration Test 01 already
 exercised the unattended filmmaking path after canonicals exist.
 

@@ -110,9 +110,11 @@ orchestration, and filmmaking workflow. Use draft models to develop
 the workflow; use production models to evaluate filmmaking quality.
 Do not pay production-media cost for every UX iteration. Draft
 models remain MediaProvider / configuration choices, not a product
-mode. See the development-draft section below. The next slice should
-ask what is the smallest thing we can make real that causes
-fixture-driven UI to stop being a fixture.
+mode. See the development-draft section below. The product now starts
+from a real untitled project rather than a demonstration journey.
+Every subsequent MVP milestone should advance a real user journey
+through the application and, where practical, extend browser-level
+E2E coverage.
 
 **Forest A→F Camotion evidence is completed.** Not a product milestone.
 Not Camotion retuning. Not Director replanning or destination
@@ -180,10 +182,11 @@ segment-specific camera choreography on that leg, including
 gate JourneyShot status. The assessment does not emit CameraMotionPlan,
 run Camotion, or generate video. `composeShootingPrompt` concatenates
 the frozen locomotion baseline with the segment addition for a later
-video PR; it is not invoked for generation yet. Live development initializes Project from the Forest A→F fixture,
-including starting frame A with a trusted media identity and the
-completed A→F storyboard and Journey clips.
-The Director runtime resolves that identity from
+video PR; it is not invoked for generation yet. The running application
+initializes a new untitled project: unresolved opening frame A, empty
+story, no destinations or journeys. Forest A→F remains research
+evidence and an explicit test fixture.
+The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture
 accepts story plus `MediaInput` for the opening and any other existing

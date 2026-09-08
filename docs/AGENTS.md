@@ -87,9 +87,10 @@ PreferenceState schema is an **open question**. A thin Director
 storyboard planner now lives in `media/src/director/` (Product Slice 3).
 The project is a partially specified movie. The Director fills
 unspecified connective beats and preserves existing destinations as
-authoritative constraints. Live development initializes Project from the Forest A→F fixture,
-including starting frame A with a trusted media identity and the
-completed A→F storyboard and Journey clips. The Director runtime resolves that identity from Project state; it does
+authoritative constraints. The application starts as a new untitled
+project rather than a demonstration journey. Forest A→F remains
+research evidence and an explicit test fixture. The Director runtime
+resolves starting-frame identity from Project state; it does
 not independently substitute a catalog still. The filmmaker's Plan composer is a temporary draft; accepted planning
 submissions update `Project.story` and append that exact text to
 conversation history. The filmmaker can replace a destination's
@@ -107,7 +108,9 @@ Forest A→F continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
-system now.
+system now. Every subsequent MVP milestone should advance a real user
+journey through the application and, where practical, extend
+browser-level E2E coverage.
 
 ## Cinematographer --- how do we physically get there?
 

@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, STORYBOARD_INTENTS } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "./new-project";
 import { directorPlanRequestFromProject } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
 import {
+  canProvideStartingFrame,
+  hasAuthoritativeStartingFrame,
   parseStartingFrameUpload,
   projectWithReplacedFrameImage,
   projectWithReplacedStartImage,
@@ -213,5 +216,42 @@ describe("replacing authoritative A", () => {
     expect(next.storyboard[1]?.mediaId).toBe("upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
     expect(next.storyboard[0]).toEqual(forest.storyboard[0]);
     expect(next.storyboard[2]).toEqual(forest.storyboard[2]);
+  });
+});
+
+describe("providing starting frame A on a new project", () => {
+  it("fills the unresolved opening slot without inventing later destinations", () => {
+    const project = createNewProject();
+    expect(canProvideStartingFrame(project.storyboard[0]!)).toBe(true);
+    const next = projectWithReplacedStartImage(project, {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    expect(next.storyboard).toHaveLength(1);
+    expect(next.storyboard[0]?.id).toBe("A");
+    expect(next.storyboard[0]?.imageOrigin).toBe("user");
+    expect(next.storyboard[0]?.mediaId).toBe("upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    expect(next.storyboard[0]?.destinationId).toBe("A");
+    expect(next.destinations).toEqual([]);
+    expect(next.journeys).toEqual([]);
+    expect(hasAuthoritativeStartingFrame(next)).toBe(true);
+    expect(canProvideStartingFrame(next.storyboard[0]!)).toBe(false);
+  });
+
+  it("does not treat a later unresolved beat as a starting-frame upload", () => {
+    const project = {
+      ...createNewProject(),
+      storyboard: [
+        ...createNewProject().storyboard,
+        { id: "B", label: "B", imageOrigin: "none" as const },
+      ],
+    };
+    expect(canProvideStartingFrame(project.storyboard[1]!)).toBe(false);
+    expect(() =>
+      projectWithReplacedFrameImage(project, "B", {
+        mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      }),
+    ).toThrow(/no canonical still/i);
   });
 });

@@ -37,7 +37,7 @@ Rules:
 - Do not include the opening beat. The starting frame is already authoritative.
 - Return beats in travel order after the opening.
 - If other destinations already exist, include each of them in beats[] using its current id, in the given travel order. Do not change what those stills depict. Invent new ids only for unresolved connective destinations.
-- When the opening is the only existing destination, return subsequent beats only, typically 4 to 8, with ids continuing after the opening (B, C, D, …).
+- When the opening is the only existing destination, return subsequent beats only, with ids continuing after the opening (B, C, D, …). Use the fewest destinations necessary to express the filmmaker's requested journey. Add a beat when the camera reaches a meaningfully new place, world state, or story moment. Do not create separate storyboard beats merely for approaching and then crossing the same threshold when that movement can occur within one continuous shot. Simple journeys may require only 2–4 subsequent destinations. Use more when the filmmaker's story genuinely requires them.
 - New ids must not reuse an existing destination id.
 - intent and visualDescription must be non-empty strings. For an existing destination, restating its known intent/look is fine; the product will keep the original still.
 - Do not add provider, model, Camotion, canonical, or image-path fields.

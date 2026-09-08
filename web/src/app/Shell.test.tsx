@@ -31,6 +31,23 @@ function renderShell(options?: {
   );
 }
 
+describe("default product project", () => {
+  it("opens untitled, not Forest A–F", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider>
+        <Shell />
+      </ProjectProvider>,
+    );
+    expect(html).toContain('aria-label="Current project: UNTITLED"');
+    expect(html).not.toContain("FOREST A→F");
+    expect(html).not.toContain("Travel forward through this night forest");
+    expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).not.toContain("Not yet planned");
+    expect(html).not.toContain("Provide starting frame");
+    expect(html).toContain('placeholder="Describe the movie…"');
+  });
+});
+
 describe("Shell header chrome", () => {
   it("does not show a supervising caption beside the agency chooser", () => {
     const html = renderShell();

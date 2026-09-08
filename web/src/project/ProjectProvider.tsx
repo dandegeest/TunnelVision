@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createForestProject } from "../fixtures/forest-a-to-f";
+import { createNewProject } from "./new-project";
 import { clampZoom } from "../timeline/geometry";
 import { requestDirectorPlan } from "./director";
 import {
@@ -91,7 +91,7 @@ export function ProjectProvider({
   initialMediaInfo?: boolean;
   initialConversationRailOpen?: boolean;
 }) {
-  const [project, setProject] = useState(() => initialProject ?? createForestProject());
+  const [project, setProject] = useState(() => initialProject ?? createNewProject());
   const [view, setViewState] = useState<WorkspaceView>(initialView);
   const [selection, setSelection] = useState<Selection>(
     () => initialSelection ?? { kind: "storyboard", frameId: "A" },
@@ -109,7 +109,7 @@ export function ProjectProvider({
   const [mediaInfoOn, setMediaInfoOn] = useState(initialMediaInfo);
   const [conversationRailOpen, setConversationRailOpen] = useState(initialConversationRailOpen);
   const [composerDraft, setComposerDraft] = useState(
-    () => initialComposerDraft ?? (initialProject ?? createForestProject()).story,
+    () => initialComposerDraft ?? initialProject?.story ?? "",
   );
   const [conversation, setConversation] = useState<ConversationEntry[]>(
     () => initialConversation ?? [],

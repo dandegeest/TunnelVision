@@ -37,6 +37,7 @@ export function Preview() {
     project.destinations,
     selection.kind === "destination" ? selection.destinationId : selectedJourney?.startDestinationId ?? "A",
   );
+  const shootEmpty = project.destinations.length === 0 && project.journeys.length === 0;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -50,12 +51,18 @@ export function Preview() {
     }
   }, [playing, playable, selectedJourney?.id]);
 
-  const title = selectedJourney
-    ? `Preview · ${selectedJourney.id}`
-    : `Preview · Destination ${destination?.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`;
+  const title = shootEmpty
+    ? "Preview"
+    : selectedJourney
+      ? `Preview · ${selectedJourney.id}`
+      : destination
+        ? `Preview · Destination ${destination.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`
+        : "Preview";
 
   let caption = "This is what the generated world actually gave us.";
-  if (selectedJourney && !playable) {
+  if (shootEmpty) {
+    caption = "Nothing is ready to shoot until the journey has actual adjacent destinations.";
+  } else if (selectedJourney && !playable) {
     caption = "This journey is not a finished movie clip.";
   } else if (playable && selectedJourney) {
     caption = `Rendered · ${playheadTime.toFixed(1)}s`;

@@ -10,8 +10,8 @@ import {
   type DisplayProvenance,
   type FramePreflightWarning,
 } from "../project/media-preflight";
-import { STARTING_FRAME_ACCEPT } from "../project/starting-frame";
-import { nextStoryboardSlot } from "../project/storyboard";
+import { STARTING_FRAME_ACCEPT, canProvideStartingFrame } from "../project/starting-frame";
+import { canAddStoryboardDestination } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
@@ -334,11 +334,13 @@ export function DestinationMenu({
   frameId,
   label,
   initiallyOpen = false,
+  actionLabel = "Replace…",
   onReplace,
 }: {
   frameId: string;
   label: string;
   initiallyOpen?: boolean;
+  actionLabel?: string;
   onReplace: () => void;
 }) {
   const [open, setOpen] = useState(initiallyOpen);
@@ -401,7 +403,7 @@ export function DestinationMenu({
               onReplace();
             }}
           >
-            Replace…
+            {actionLabel}
           </button>
         </span>
       ) : null}
@@ -560,6 +562,18 @@ export function PlanView() {
                     data-destination-card={frame.id}
                   >
                     {frameMedia}
+                    {canProvideStartingFrame(frame) ? (
+                      <DestinationMenu
+                        frameId={frame.id}
+                        label={frame.label}
+                        actionLabel="Upload image"
+                        onReplace={() => {
+                          select({ kind: "storyboard", frameId: frame.id });
+                          replacingFrameId.current = frame.id;
+                          fileInputRef.current?.click();
+                        }}
+                      />
+                    ) : null}
                     {canConstruct && !constructing ? generate : null}
                     {details}
                   </div>
@@ -567,15 +581,12 @@ export function PlanView() {
               </li>
             );
           })}
-          {nextStoryboardSlot(project.storyboard) ? (
+          {canAddStoryboardDestination(project) ? (
             <li className="min-w-0">
               <AddDestinationCard onAdd={addDestination} />
             </li>
           ) : null}
         </ol>
-        {project.storyboard.length === 1 ? (
-          <p className="mt-6 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Not yet planned</p>
-        ) : null}
     </section>
   );
 }

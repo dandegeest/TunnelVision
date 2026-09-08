@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createForestPartialAnchorProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "./new-project";
 import {
   appendConversationEntry,
   conversationTimestamp,
@@ -61,6 +62,16 @@ describe("Plan composer submission", () => {
     const project = createWardrobeProject();
     delete project.storyboard[0]!.mediaId;
     const result = preparePlanSubmission("A valid story.", project);
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.reason).toBe("invalid");
+    expect(result.message).toMatch(/trusted media identity/i);
+  });
+
+  it("rejects a new project that has no starting frame yet", () => {
+    const result = preparePlanSubmission("Travel forward through an imagined world.", createNewProject());
     expect(result.ok).toBe(false);
     if (result.ok) {
       return;
