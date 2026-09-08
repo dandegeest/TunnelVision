@@ -1,4 +1,8 @@
 import type { Destination, Selection } from "../project/types";
+import {
+  boundaryContinuityAtSeam,
+  type BoundaryContinuity,
+} from "../project/boundary-continuity";
 import type { LaidOutOccurrence } from "./geometry";
 import { DestinationItem } from "./DestinationItem";
 
@@ -6,11 +10,13 @@ export function DestinationsLane({
   occurrences,
   destinations,
   selection,
+  continuities,
   onSelect,
 }: {
   occurrences: LaidOutOccurrence[];
   destinations: Destination[];
   selection: Selection;
+  continuities: readonly BoundaryContinuity[];
   onSelect: (occurrenceIndex: number, destinationId: string) => void;
 }) {
   return (
@@ -22,12 +28,19 @@ export function DestinationsLane({
         }
         const selected =
           selection.kind === "destination" && selection.occurrenceIndex === occurrence.occurrenceIndex;
+        const continuity = boundaryContinuityAtSeam(
+          continuities,
+          occurrence.destinationId,
+          occurrence.inboundJourneyId,
+          occurrence.outboundJourneyId,
+        );
         return (
           <DestinationItem
             key={occurrence.occurrenceIndex}
             occurrence={occurrence}
             destination={destination}
             selected={selected}
+            continuity={continuity}
             onSelect={() => onSelect(occurrence.occurrenceIndex, occurrence.destinationId)}
           />
         );

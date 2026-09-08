@@ -63,6 +63,13 @@ Other visible questions:
 -   **User-provided frame workflow.** Session/dev upload of starting
     frame A exists. Durable persistence, Provided destinations beyond
     A, and Shoot-side provided frames remain later.
+-   **Project Format.** A later product concept for target aspect,
+    still resolution, video raster, and frame rate. Generated/Derived
+    media could request that target upstream. Uploaded authoritative
+    media would be checked against it and conformed only by explicit
+    filmmaker choice (Fit / Crop / Change Project Format) — never by
+    silent modification. Not Project Properties. Not this slice.
+    Detect/report/preserve source until then.
 -   **Eventual Discovery workflow.** See GWM Worlds 2 notes below.
     Hypothetical only.
 -   **Storyboard visualization A/B spike.** Low priority. Do not

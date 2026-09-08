@@ -30,6 +30,36 @@ export type Destination = {
 /** How a Plan storyboard image entered the project. Stored explicitly; never inferred from assets. */
 export type StoryboardImageOrigin = "user" | "generated" | "none";
 
+export type MediaFormat = "jpeg" | "png" | "webp";
+
+/** Raster and container facts for an actual storyboard still. Filmmaker media remains authoritative. */
+export type StoryboardMediaInfo = {
+  width: number;
+  height: number;
+  format: MediaFormat;
+};
+
+export type VideoRaster = {
+  width: number;
+  height: number;
+};
+
+/**
+ * Measured visual match of adjacent completed Journey clips at their shared
+ * destination. Not spatial traversability, shot quality, or shootability.
+ */
+export type BoundaryAnalysisRecord = {
+  sharedDestinationId: string;
+  previousJourneyId: string;
+  nextJourneyId: string;
+  metricVersion: string;
+  mae: number;
+  ssim?: number;
+  comparison: string;
+  previousRaster: VideoRaster;
+  nextRaster: VideoRaster;
+};
+
 /**
  * Director-level beat in Plan. Not a production Destination, Camotion input, or shooting frame.
  * Sequence is the array order on `Project.storyboard`.
@@ -46,6 +76,8 @@ export type StoryboardFrame = {
   /** Director visual description for a planned beat. Absent on the filmmaker starting frame. */
   visualDescription?: string;
   destinationId?: string;
+  /** Present only when dimensions/format are known. Missing facts do not invent preflight warnings. */
+  mediaInfo?: StoryboardMediaInfo;
 };
 
 export type JourneyShot = {
@@ -67,6 +99,8 @@ export type Project = {
   storyboard: StoryboardFrame[];
   destinations: Destination[];
   journeys: JourneyShot[];
+  /** Optional measured seam evidence. Display is derived; the UI does not decode videos. */
+  boundaryAnalysis?: BoundaryAnalysisRecord[];
 };
 
 export type Selection =

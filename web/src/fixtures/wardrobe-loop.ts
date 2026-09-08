@@ -12,8 +12,7 @@ import type { Project } from "../project/types";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
 import { DEFAULT_DURATION_SECONDS } from "../timeline/geometry";
 
-export const LOOP_ARRIVAL_COPY =
-  "The camera can’t reach this view continuously from the previous destination.";
+export { ARRIVAL_BLOCKED_COPY as LOOP_ARRIVAL_COPY } from "../project/policy";
 
 export const EA_SHOOTABILITY_NOTE =
   "E→A is not shootable as a continuous journey. The closed cavern door has no traversable volume, and arriving through it would not match this wardrobe-facing pose at A. Historical research clip E-A.mp4 is not a product shot.";

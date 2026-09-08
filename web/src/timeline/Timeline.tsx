@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
+import { boundaryContinuitiesForProject } from "../project/boundary-continuity";
 import { useProject } from "../project/ProjectProvider";
 import { layoutTimeline, timeToX } from "./geometry";
 import { DestinationsLane } from "./DestinationsLane";
@@ -13,6 +14,7 @@ export function Timeline() {
     () => layoutTimeline(project.destinations, project.journeys, zoom),
     [project.destinations, project.journeys, zoom],
   );
+  const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
   const playheadX = timeToX(playheadTime, zoom);
 
   useEffect(() => {
@@ -53,6 +55,7 @@ export function Timeline() {
             occurrences={layout.occurrences}
             destinations={project.destinations}
             selection={selection}
+            continuities={continuities}
             onSelect={(occurrenceIndex, destinationId) =>
               select({ kind: "destination", destinationId, occurrenceIndex })
             }

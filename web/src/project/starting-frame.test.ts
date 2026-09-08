@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, STORYBOARD_INTENTS } from "../fixtures/wardrobe-loop";
 import { directorPlanRequestFromProject } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
@@ -180,5 +181,22 @@ describe("replacing authoritative A", () => {
     expect(prompt).not.toMatch(/wardrobe/i);
     expect(prompt).toMatch(/abandoned greenhouse/);
     expect(prompt).toMatch(/Authoritative starting frame id: A/);
+  });
+
+  it("attaches uploaded media facts when provided and drops stale ones otherwise", () => {
+    const forest = createForestProject();
+    expect(forest.storyboard[0]?.mediaInfo).toEqual({ width: 1000, height: 558, format: "jpeg" });
+    const withFacts = projectWithReplacedStartImage(forest, {
+      mediaId: "upload-ffffffffffffffffffffffffffffffff",
+      imageUrl: "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
+      mediaInfo: { width: 1280, height: 720, format: "png" },
+    });
+    expect(withFacts.storyboard).toHaveLength(1);
+    expect(withFacts.storyboard[0]?.mediaInfo).toEqual({ width: 1280, height: 720, format: "png" });
+    const withoutFacts = projectWithReplacedStartImage(forest, {
+      mediaId: "upload-ffffffffffffffffffffffffffffffff",
+      imageUrl: "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
+    });
+    expect(withoutFacts.storyboard[0]?.mediaInfo).toBeUndefined();
   });
 });

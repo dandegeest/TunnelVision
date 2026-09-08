@@ -1,8 +1,25 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 import { useProject } from "../project/ProjectProvider";
 import type { ConversationEntry } from "../project/conversation";
 import type { DirectorEvidence } from "../project/director";
 import { canConstructDestinationFrame } from "../project/destination";
+import {
+  displayProvenanceForFrame,
+  formatMediaInfoLine,
+  mediaPreflightForProject,
+  preflightWarningsForFrame,
+  provenanceAccessibleLabel,
+  type DisplayProvenance,
+  type FramePreflightWarning,
+} from "../project/media-preflight";
 import { isAuthoritativeStartingFrame, STARTING_FRAME_ACCEPT } from "../project/starting-frame";
 import type { StoryboardFrame } from "../project/types";
 
@@ -19,12 +36,122 @@ function clampStoryWidth(width: number, containerWidth: number) {
   return Math.min(max, Math.max(STORY_WIDTH_MIN, width));
 }
 
+function ProvenanceIcon({ provenance }: { provenance: DisplayProvenance }) {
+  const label = provenanceAccessibleLabel(provenance);
+  const icon =
+    provenance === "uploaded" ? (
+      <path
+        d="M6 2.5v6.5M3.75 6.25 6 4l2.25 2.25M2.5 9.5h7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ) : provenance === "generated" ? (
+      <path
+        d="M6 1.75 6.7 4.6 9.5 5.25 6.7 5.9 6 8.75 5.3 5.9 2.5 5.25 5.3 4.6Z"
+        fill="currentColor"
+      />
+    ) : provenance === "derived" ? (
+      <path
+        d="M3.25 3.25h2.25v2.25H3.25Zm3.25 3.25h2.25v2.25H6.5M5.5 4.5 7.6 6.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ) : (
+      <>
+        <circle cx="6" cy="6" r="3.4" fill="none" stroke="currentColor" strokeWidth="1.3" />
+        <path d="M6 2.75v6.5M2.75 6h6.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+      </>
+    );
+  return (
+    <span className="inline-flex shrink-0" title={label}>
+      <svg viewBox="0 0 12 12" className="h-3 w-3" aria-label={label} role="img">
+        {icon}
+      </svg>
+    </span>
+  );
+}
+
+function WarningGlyph() {
+  return (
+    <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden>
+      <path
+        d="M6 1.35 10.85 10.4H1.15Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <path d="M6 4.55v2.35" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <circle cx="6" cy="8.55" r="0.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function PreflightWarningControl({
+  warnings,
+  initiallyOpen = false,
+}: {
+  warnings: FramePreflightWarning[];
+  initiallyOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(initiallyOpen);
+  if (warnings.length === 0) {
+    return null;
+  }
+  const title =
+    warnings.length === 1 ? warnings[0]!.title : `${warnings.length} media warnings`;
+  const description = warnings.map((warning) => `${warning.title}. ${warning.detail}`).join(" ");
+  return (
+    <span className="storyboard-preflight-warning absolute right-0.5 bottom-0.5 z-10 flex h-6 items-center">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label={title}
+        title={title}
+        className="flex h-6 w-8 items-center justify-end pr-1.5 text-[#d4b36a] outline-none hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#d4b36a]"
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen(true);
+        }}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+      >
+        <WarningGlyph />
+      </button>
+      <span className="sr-only">{description}</span>
+      {open ? (
+        <span
+          role="tooltip"
+          className="absolute right-1.5 bottom-full z-20 mb-1 w-56 rounded border border-[#3a342c] bg-[#12100d] px-2.5 py-2 text-left text-[11px] leading-snug font-normal tracking-normal text-[#cfc6b8] shadow-lg"
+        >
+          {warnings.map((warning) => (
+            <span key={warning.kind} className="block whitespace-pre-wrap">
+              <span className="block text-[#ece7df]">{warning.title}</span>
+              {warning.detail}
+            </span>
+          ))}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 export function StoryboardFrameMedia({
   frame,
   selected,
   constructing,
   canConstruct,
   constructDisabled,
+  showMediaInfo = false,
+  hasWarning = false,
   onSelect,
   onConstruct,
 }: {
@@ -33,17 +160,38 @@ export function StoryboardFrameMedia({
   constructing: boolean;
   canConstruct: boolean;
   constructDisabled: boolean;
+  showMediaInfo?: boolean;
+  hasWarning?: boolean;
   onSelect?: () => void;
   onConstruct: () => void;
 }) {
   const frameBorder = selected
     ? "border-2 border-[#ece7df]"
     : "border-2 border-[#3a342c]";
+  const provenance = displayProvenanceForFrame(frame);
+  const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
 
   return (
-    <span className={`block aspect-video w-full overflow-hidden ${frameBorder}`}>
+    <span className={`relative block aspect-video w-full overflow-hidden ${frameBorder}`}>
       {frame.image ? (
-        <img src={frame.image} alt="" className="block h-full w-full object-cover" />
+        <>
+          <img src={frame.image} alt="" className="block h-full w-full object-cover" />
+          <span className="storyboard-frame-label pointer-events-none absolute inset-x-0 top-0 flex h-6 items-center bg-[#0c0b0a]/72 px-1.5">
+            <span className={`min-w-0 truncate text-[11px] text-[#ece7df] ${labelTracking}`} title={frame.label}>
+              {frame.label}
+            </span>
+          </span>
+          {showMediaInfo && frame.mediaInfo ? (
+            <span
+              className={`storyboard-media-info pointer-events-none absolute inset-x-0 bottom-0 flex h-6 items-center gap-1.5 bg-[#0c0b0a]/72 px-1.5 text-[9px] leading-none tracking-[0.08em] text-[#d4cdc2] ${
+                hasWarning ? "pr-8" : ""
+              }`}
+            >
+              {provenance ? <ProvenanceIcon provenance={provenance} /> : null}
+              <span className="min-w-0 truncate">{formatMediaInfoLine(frame.mediaInfo)}</span>
+            </span>
+          ) : null}
+        </>
       ) : (
         <span
           className={`storyboard-fpo storyboard-fpo-planned${canConstruct && !constructing ? " storyboard-fpo-cta" : ""}${constructing ? " storyboard-generating" : ""}`}
@@ -56,7 +204,9 @@ export function StoryboardFrameMedia({
             aria-label={`Storyboard ${frame.label}`}
             aria-pressed={selected}
           >
-            <span className="storyboard-fpo-label">{frame.label}</span>
+            <span className="storyboard-fpo-label max-w-full truncate" title={frame.label}>
+              {frame.label}
+            </span>
             {frame.intent ? <span className="storyboard-fpo-intent">{frame.intent}</span> : null}
           </button>
           {constructing ? (
@@ -161,7 +311,13 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
   );
 }
 
-export function PlanView() {
+export function PlanView({
+  brand,
+  workspaceHeader,
+}: {
+  brand?: ReactNode;
+  workspaceHeader?: ReactNode;
+} = {}) {
   const {
     project,
     selection,
@@ -177,15 +333,18 @@ export function PlanView() {
     replaceStartingImage,
     constructingBeatId,
     constructDestination,
+    mediaInfoOn,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
   const canPlan = Boolean(composerDraft.trim()) && !planning;
+  const mediaPreflight = mediaPreflightForProject(project);
   const frameRef = useRef<HTMLDivElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [storyWidth, setStoryWidth] = useState(STORY_WIDTH_DEFAULT);
+  const hasChrome = Boolean(brand || workspaceHeader);
 
   useEffect(() => {
     const thread = threadRef.current;
@@ -229,15 +388,48 @@ export function PlanView() {
     }
   }, []);
 
+  const bodyRow = hasChrome ? 2 : 1;
+
   return (
-    <div ref={frameRef} className="flex h-full min-h-0 overflow-hidden">
+    <div
+      ref={frameRef}
+      className="grid h-full min-h-0 overflow-hidden"
+      style={{
+        gridTemplateColumns: `${storyWidth}px 0.375rem minmax(0, 1fr)`,
+        gridTemplateRows: hasChrome ? "auto minmax(0, 1fr)" : "minmax(0, 1fr)",
+      }}
+    >
+      {hasChrome ? (
+        <div className="min-w-0" style={{ gridColumn: 1, gridRow: 1 }}>
+          {brand}
+        </div>
+      ) : null}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize story panel"
+        aria-valuemin={STORY_WIDTH_MIN}
+        aria-valuemax={STORY_WIDTH_MAX}
+        aria-valuenow={storyWidth}
+        tabIndex={0}
+        className="h-full cursor-col-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
+        style={{ gridColumn: 2, gridRow: hasChrome ? "1 / span 2" : 1 }}
+        onPointerDown={onResizePointerDown}
+        onPointerMove={onResizePointerMove}
+        onPointerUp={onResizePointerUp}
+        onPointerCancel={onResizePointerUp}
+        onKeyDown={onResizeKeyDown}
+      />
+      {hasChrome ? (
+        <div className="min-w-0" style={{ gridColumn: 3, gridRow: 1 }}>
+          {workspaceHeader}
+        </div>
+      ) : null}
       <aside
-        className="flex min-h-0 shrink-0 flex-col bg-[#12100d]"
-        style={{ width: storyWidth }}
+        className="flex min-h-0 min-w-0 flex-col bg-[#12100d]"
+        style={{ gridColumn: 1, gridRow: bodyRow }}
+        aria-label="Story"
       >
-        <p className="flex-none px-4 pt-5 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">
-          Story
-        </p>
         <div ref={threadRef} className="min-h-0 flex-1 overflow-auto px-4 py-4">
           {startingFrameError ? (
             <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
@@ -303,22 +495,11 @@ export function PlanView() {
           ) : null}
         </div>
       </aside>
-      <div
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize story panel"
-        aria-valuemin={STORY_WIDTH_MIN}
-        aria-valuemax={STORY_WIDTH_MAX}
-        aria-valuenow={storyWidth}
-        tabIndex={0}
-        className="w-1.5 shrink-0 cursor-col-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
-        onPointerDown={onResizePointerDown}
-        onPointerMove={onResizePointerMove}
-        onPointerUp={onResizePointerUp}
-        onPointerCancel={onResizePointerUp}
-        onKeyDown={onResizeKeyDown}
-      />
-      <section className="min-h-0 min-w-0 flex-1 overflow-auto px-6 py-5">
+      <section
+        className="min-h-0 min-w-0 overflow-auto px-6 py-5"
+        style={{ gridColumn: 3, gridRow: bodyRow }}
+        aria-label="Storyboard"
+      >
         <input
           ref={fileInputRef}
           id="replace-starting-image"
@@ -335,12 +516,12 @@ export function PlanView() {
             }
           }}
         />
-        <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Storyboard</p>
-        <ol className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7">
+        <ol className="grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7">
           {project.storyboard.map((frame) => {
             const selectedCard = frame.id === selectedId;
             const canConstruct = canConstructDestinationFrame(project, frame);
             const constructing = constructingBeatId === frame.id;
+            const warnings = preflightWarningsForFrame(mediaPreflight, frame.id);
             const frameMedia = (
               <StoryboardFrameMedia
                 frame={frame}
@@ -348,6 +529,8 @@ export function PlanView() {
                 constructing={constructing}
                 canConstruct={canConstruct}
                 constructDisabled={Boolean(constructingBeatId) || planning}
+                showMediaInfo={mediaInfoOn}
+                hasWarning={warnings.length > 0}
                 onSelect={() => select({ kind: "storyboard", frameId: frame.id })}
                 onConstruct={() => {
                   select({ kind: "storyboard", frameId: frame.id });
@@ -355,32 +538,27 @@ export function PlanView() {
                 }}
               />
             );
-            const frameCopy = (
-              <>
-                <span className="mt-2 flex items-baseline justify-between gap-2">
-                  <span className="text-sm tracking-[0.22em]">{frame.label}</span>
-                  {frame.imageOrigin === "user" ? (
-                    <span className="text-[10px] font-medium tracking-[0.14em] text-[#d4cdc2] uppercase">
-                      Uploaded
-                    </span>
-                  ) : null}
-                </span>
-                <span className="mt-1 block text-sm leading-snug text-[#cfc6b8]">{frame.intent}</span>
-              </>
-            );
+            const frameCopy = frame.intent ? (
+              <span className="mt-2 block text-sm leading-snug text-[#cfc6b8]">{frame.intent}</span>
+            ) : null;
             return (
               <li key={frame.id} className="min-w-0">
                 {frame.image ? (
-                  <button
-                    type="button"
-                    className={`w-full text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
-                    onClick={() => select({ kind: "storyboard", frameId: frame.id })}
-                    aria-label={`Storyboard ${frame.label}`}
-                    aria-pressed={selectedCard}
-                  >
-                    {frameMedia}
+                  <div>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        className={`block w-full p-0 text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
+                        onClick={() => select({ kind: "storyboard", frameId: frame.id })}
+                        aria-label={`Storyboard ${frame.label}`}
+                        aria-pressed={selectedCard}
+                      >
+                        {frameMedia}
+                      </button>
+                      <PreflightWarningControl warnings={warnings} />
+                    </div>
                     {frameCopy}
-                  </button>
+                  </div>
                 ) : (
                   <div className={`w-full text-left ${selectedCard ? "" : "opacity-90"}`}>
                     {frameMedia}

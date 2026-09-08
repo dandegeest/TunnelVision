@@ -1,5 +1,8 @@
 import type { Agency, JourneyShot } from "./types";
 
+export const ARRIVAL_BLOCKED_COPY =
+  "The camera can’t reach this view continuously from the previous destination.";
+
 export function showApprovalChrome(agency: Agency, blocked: boolean): boolean {
   return agency === "directed" || blocked;
 }

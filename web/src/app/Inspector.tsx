@@ -1,6 +1,12 @@
 import { useMemo, useState } from "react";
-import { LOOP_ARRIVAL_COPY } from "../fixtures/wardrobe-loop";
-import { journeyIsBlocked, journeyIsPlayable, showApprovalChrome } from "../project/policy";
+import {
+  boundaryContinuitiesForProject,
+  boundaryContinuityAtSeam,
+  boundaryContinuityLabel,
+  formatRaster,
+  type BoundaryContinuity,
+} from "../project/boundary-continuity";
+import { ARRIVAL_BLOCKED_COPY, journeyIsBlocked, journeyIsPlayable, showApprovalChrome } from "../project/policy";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
@@ -11,6 +17,7 @@ export function Inspector() {
     () => layoutTimeline(project.destinations, project.journeys, 1),
     [project.destinations, project.journeys],
   );
+  const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
 
   if (selection.kind === "storyboard") {
     return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
@@ -24,6 +31,14 @@ export function Inspector() {
     const inbound = occurrence?.inboundJourneyId
       ? project.journeys.find((journey) => journey.id === occurrence.inboundJourneyId)
       : null;
+    const continuity = occurrence
+      ? boundaryContinuityAtSeam(
+          continuities,
+          occurrence.destinationId,
+          occurrence.inboundJourneyId,
+          occurrence.outboundJourneyId,
+        )
+      : undefined;
     const blockedArrival = Boolean(occurrence?.arrivalBlocked);
     const showApprovals = showApprovalChrome(project.agency, blockedArrival);
 
@@ -41,18 +56,19 @@ export function Inspector() {
         ) : null}
         <p>Status: {destination?.status.replaceAll("_", " ")}</p>
         {occurrence?.occurrenceIndex === 0 ? (
-          <p>This is the opening occurrence of destination A — the attic bedroom facing the wardrobe.</p>
+          <p>This is the opening destination.</p>
         ) : null}
         {blockedArrival ? (
           <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-            {LOOP_ARRIVAL_COPY} The problem is the journey from E into this camera state, not destination{" "}
-            {destination?.label} itself.
+            {ARRIVAL_BLOCKED_COPY} The problem is the inbound journey
+            {inbound ? ` ${inbound.id}` : ""}, not destination {destination?.label} itself.
           </p>
         ) : (
           <p className="text-[#cfc6b8]">
             This is what the generated world actually gave us. Shootability is judged on the journeys that leave or arrive here.
           </p>
         )}
+        {continuity ? <BoundaryContinuityDetail continuity={continuity} /> : null}
         {showApprovals ? (
           <div className="flex gap-2">
             <button
@@ -145,13 +161,38 @@ function TechnicalSeam() {
       <summary className="cursor-pointer tracking-[0.16em] uppercase">Technical</summary>
       <div className="mt-2 space-y-1 leading-relaxed">
         <p>Construction: planned. Discovery is not implemented.</p>
-        <p>Fixture stills: wardrobe-loop-01 canonical/vision JPEGs. Ultra PNGs are not copied into web/.</p>
-        <p>
-          Historical videos/E-A.mp4 is Integration Test 01 research evidence only. It is not product playback
-          for the blocked E-A journey.
-        </p>
-        <p>Camotion plans, hashes, and shooting frames will appear here later.</p>
+        <p>Development fixture references committed research media. Camotion plans appear later.</p>
       </div>
     </details>
+  );
+}
+
+function BoundaryContinuityDetail({ continuity }: { continuity: BoundaryContinuity }) {
+  const match = boundaryContinuityLabel(continuity.classification);
+  return (
+    <div className="space-y-1 border-t border-[#2a2620] pt-3 text-[#cfc6b8]">
+      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Boundary continuity</p>
+      <p>
+        {match} match at {continuity.sharedDestinationId}
+      </p>
+      <p>
+        {continuity.previousJourneyId} final ↔ {continuity.nextJourneyId} first
+      </p>
+      <p>
+        MAE {continuity.mae.toFixed(2)}
+        {continuity.ssim !== undefined ? ` · SSIM ${continuity.ssim.toFixed(3)}` : ""}
+      </p>
+      {continuity.rasterMismatch ? (
+        <p>
+          Output raster mismatch · {formatRaster(continuity.previousRaster)} →{" "}
+          {formatRaster(continuity.nextRaster)}
+        </p>
+      ) : (
+        <p>Output raster {formatRaster(continuity.previousRaster)}</p>
+      )}
+      <p className="text-[#9a8f7e]">
+        Visual boundary match only. Not a traversal or shootability judgment.
+      </p>
+    </div>
   );
 }

@@ -31,6 +31,18 @@ describe("trusted media resolution", () => {
       kind: "file",
       path: resolve(repoRoot, "camotion/integration/wardrobe-loop-01/canonical/vision/A.jpg"),
     });
+    expect(resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.forestAtoFA)).toEqual({
+      kind: "file",
+      path: resolve(repoRoot, "camotion/integration/forest-a-to-f/canonical/A.jpg"),
+    });
+  });
+
+  it("maps Forest derived stills without treating them as filesystem ids", () => {
+    expect(resolveTrustedMedia(repoRoot, TRUSTED_MEDIA_IDS.forestAtoFF)).toEqual({
+      kind: "file",
+      path: resolve(repoRoot, "camotion/integration/forest-a-to-f/canonical/F.png"),
+    });
+    expect(TRUSTED_MEDIA_IDS.forestAtoFF).not.toMatch(/[/\\]/);
   });
 
   it("maps a second catalog identity without changing resolver logic", () => {

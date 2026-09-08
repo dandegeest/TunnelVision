@@ -79,11 +79,10 @@ displacement, novelty, navigability, preference fit and discovery.
 Automated scoring of displacement or traversal is an **open question**.
 PreferenceState schema is an **open question**. A thin Director
 storyboard planner now lives in `media/src/director/` (Product Slice 3).
-Live development uses the Wardrobe Loop fixture to initialize Project
-state, including starting frame A with a trusted media identity. Plan
-starts unplanned beyond A; the Director's output becomes the planned
-continuation. The Director runtime resolves that identity from Project state; it does
-not independently substitute Wardrobe `A.jpg`. The filmmaker's Plan composer is a temporary draft; accepted planning
+Live development initializes Project from the Forest A→F fixture,
+including starting frame A with a trusted media identity and the
+completed A→F storyboard and Journey clips. The Director runtime resolves that identity from Project state; it does
+not independently substitute a catalog still. The filmmaker's Plan composer is a temporary draft; accepted planning
 submissions update `Project.story` and append that exact text to
 conversation history. The filmmaker can replace authoritative A with an
 uploaded still. Uploaded A is session/dev-runtime trusted media, not
@@ -91,8 +90,7 @@ durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
-Video remains unwired in the product. Wardrobe may still initialize the
-development project; after replacement, runtime Project A is
+Video remains unwired in the product. After replacement, runtime Project A is
 authoritative. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F continuity evidence:

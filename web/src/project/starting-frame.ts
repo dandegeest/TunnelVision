@@ -1,5 +1,5 @@
 import { isTrustedMediaIdShape } from "./trusted-media-id";
-import type { Project, StoryboardFrame } from "./types";
+import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 import {
   RUNTIME_MEDIA_URL_PREFIX,
   STARTING_FRAME_MAX_BYTES,
@@ -22,6 +22,7 @@ const ALLOWED_MIME = new Set<string>([...STARTING_FRAME_MIME_TYPES, "image/jpg"]
 export type StartingFrameUpload = {
   mediaId: string;
   imageUrl: string;
+  mediaInfo?: StoryboardMediaInfo;
 };
 
 export function startingFrameFileError(file: { size: number; type: string }): string | null {
@@ -72,6 +73,11 @@ export function projectWithReplacedStartImage(
     imageOrigin: "user",
   };
   delete replaced.intent;
+  if (next.mediaInfo) {
+    replaced.mediaInfo = next.mediaInfo;
+  } else {
+    delete replaced.mediaInfo;
+  }
   return {
     ...project,
     storyboard: [replaced],

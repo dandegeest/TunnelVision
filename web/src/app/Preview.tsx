@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { LOOP_ARRIVAL_COPY } from "../fixtures/wardrobe-loop";
-import { journeyIsPlayable } from "../project/policy";
+import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
@@ -61,7 +60,7 @@ export function Preview() {
   } else if (playable && selectedJourney) {
     caption = `${selectedJourney.status === "needs_review" ? "Rendered · needs review" : "Rendered"} · ${playheadTime.toFixed(1)}s`;
   } else if (occurrence?.arrivalBlocked) {
-    caption = LOOP_ARRIVAL_COPY;
+    caption = ARRIVAL_BLOCKED_COPY;
   }
 
   return (
@@ -98,7 +97,7 @@ export function Preview() {
             ) : null}
             {selectedJourney && !playable ? (
               <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-[#f0c2a8]">
-                {LOOP_ARRIVAL_COPY}
+                {ARRIVAL_BLOCKED_COPY}
               </div>
             ) : null}
           </>

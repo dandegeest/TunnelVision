@@ -1,7 +1,8 @@
 # TunnelVision UX Plan
 
 Product development has started. [`web/`](../web/) is a fixture-driven
-**Plan | Shoot** shell using Wardrobe Loop stills and videos. Camotion
+**Plan | Shoot** shell using Forest A→F stills and Journey videos.
+Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
 After Plan Movie, the filmmaker can construct the next planned
 destination from the immediately preceding actual destination through
@@ -27,17 +28,17 @@ constructs them. Construct is sequential **Derived** construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Video remains unwired. Shoot remains the Slice 1
 Destinations / Journey timeline. Do not redesign the Shoot timeline
-in this checkpoint. Live development uses the Wardrobe Loop fixture
-to initialize Project state, including starting frame A with a trusted
-media identity. Plan starts unplanned beyond A; the Director's output
-becomes the planned continuation. The Director runtime resolves that identity from
-Project state; it does not independently substitute Wardrobe `A.jpg`.
+in this checkpoint. Live development initializes Project from the
+Forest A→F fixture, including starting frame A with a trusted media
+identity and the completed A→F storyboard and Journey clips.
+The Director runtime resolves that identity from
+Project state; it does not independently substitute a catalog still.
 Accepted Plan submissions update `Project.story`. The filmmaker can replace
 authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
-as provider input. Wardrobe may still initialize the development
-project; after replacement, runtime Project A is authoritative. Slice 2 visual checkpoint:
+as provider input. After replacement, runtime Project A is
+authoritative. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -109,6 +110,29 @@ Do not over-specify exact styling in architecture. Selective color as
 a destination cue is an **unvalidated** research idea; do not replace
 the black-and-white direction. See
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md).
+
+Plan **media preflight** marks aspect-ratio mismatch on the affected
+storyboard thumbnail. Resolution and format differences remain
+informational and do not produce warning icons. There is no global
+preflight banner. Warning visibility is independent of Media Info.
+The icon exposes the underlying finding; it does not crop, resize, or
+convert source media.
+
+Storyboard **Media Info** is an icon tool in the workspace header
+toolbar. Frame labels occupy a
+full-width top strip. Technical facts (provenance icon, friendly
+aspect, dimensions, format) appear in a thin bottom strip only when
+Media Info is on. Visual description stays below the thumbnail. Do
+not silently alter filmmaker media.
+
+Shoot **boundary continuity** is a seam-level mark at the shared
+destination between adjacent completed Journey clips. The timeline
+stays media-dominant. Inspection shows classification, raw MAE/SSIM
+where useful, and output raster mismatch as a separate fact. A strong
+boundary match is not a traversal or shootability claim.
+
+> **TunnelVision should feel like a filmmaking surface, not an AI
+> control panel.**
 
 ### Shoot — production workspace (Slice 1, preserve)
 
@@ -262,14 +286,16 @@ REGEN / REPAIR) is recorded in
 ## First product vertical slice (started)
 
 `web/` is a fixture shell. Plan is a storyboard plus an editable
-filmmaker story in the existing composer (uploaded A; continuation
-exists only after the Director plans). After planning, Construct
-builds the next planned beat from the preceding actual destination.
-Shoot uses Wardrobe
-Loop vision JPEGs, playable A-B / B-C / D-E, C-D rendered but needs
-review, E-A not shootable. Video, Camotion, and Discovery remain
-unwired. Integration Test 01 already exercised the unattended
-filmmaking path after canonicals exist.
+filmmaker story in the existing composer. The Forest A→F development
+fixture initializes actual A–F stills and completed Journey clips so
+Plan preflight and Shoot boundary continuity can be exercised against
+a real journey. After a Director replan, Construct still builds the
+next planned beat from the preceding actual destination.
+Shoot uses Forest canonical stills and playable A-B through E-F.
+Wardrobe Loop remains historical research evidence (including E-A as
+a blocked journey in that fixture). Video generation, Camotion, and
+Discovery remain unwired in the product. Integration Test 01 already
+exercised the unattended filmmaking path after canonicals exist.
 
 That slice now has MediaProvider image and video contracts in
 `media/`. Current research also includes Camotion shooting frames, a

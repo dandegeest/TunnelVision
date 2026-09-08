@@ -114,16 +114,16 @@ beat from the preceding actual destination through image-conditioned
 edit and registers the still as
 session/dev-runtime trusted media. Later beats stay planned until
 explicitly constructed. Video, Discovery, and
-Screenwriter remain unwired. Live development uses the Wardrobe Loop fixture to
-initialize Project state, including starting frame A with a trusted
-media identity. Plan starts unplanned beyond A; the Director's output
-becomes the planned continuation. The Director runtime resolves that identity from
-Project state; it does not independently substitute Wardrobe `A.jpg`.
+Screenwriter remain unwired. Live development initializes Project from
+the Forest A→F fixture, including starting frame A with a trusted
+media identity and the completed A→F storyboard and Journey clips.
+The Director runtime resolves that identity from
+Project state; it does not independently substitute a catalog still.
 The Director architecture accepts
 story plus `MediaInput`. Accepted Plan submissions update `Project.story`.
 The filmmaker can replace authoritative A with an uploaded still. Uploaded A is
 session/dev-runtime trusted media, not durable project persistence.
-Wardrobe may still initialize the development project; after
+After
 replacement, runtime Project A is authoritative. Shoot remains Product Slice 1's locked Destinations
 and Journey lanes. First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).

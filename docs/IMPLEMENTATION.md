@@ -171,19 +171,19 @@ Construct builds the next planned beat from the immediately preceding
 actual destination through
 `ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
-Live development uses the Wardrobe Loop fixture
-to initialize Project state, including starting frame A with a trusted
-media identity. Plan starts unplanned beyond A; the Director's output
-becomes the planned continuation. The Director runtime resolves that identity from
-Project state; it does not independently substitute Wardrobe `A.jpg`.
+Live development initializes Project from the Forest A→F fixture,
+including starting frame A with a trusted media identity and the
+completed A→F storyboard and Journey clips.
+The Director runtime resolves that identity from
+Project state; it does not independently substitute a catalog still.
 The Director architecture
 accepts story plus `MediaInput`. The Plan composer is a temporary draft;
 accepted planning submissions update `Project.story` and append that
 exact text to conversation history. The filmmaker can replace authoritative A with an uploaded still.
 Uploaded A is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
-be resolved as provider input. Wardrobe may still initialize the development project;
-after replacement, runtime Project A is authoritative. Visual checkpoint for the frozen Plan shell:
+be resolved as provider input. After replacement, runtime Project A is
+authoritative. Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).
@@ -191,6 +191,14 @@ First Director-derived destination construction:
 [`genesis/research/13-destination-construction.html`](../genesis/research/13-destination-construction.html).
 Forest A→F Camotion continuity evidence:
 [`genesis/research/14-forest-a-to-f.html`](../genesis/research/14-forest-a-to-f.html).
+Plan media preflight reads storyboard `mediaInfo` (aspect warning;
+resolution/format informational) and does not rewrite source media.
+Aspect warnings appear on the affected thumbnail; Media Info is an
+icon tool, not a global diagnostic banner.
+Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
+shared destinations when both Journey videos exist; classification is
+an explicit heuristic. It is not spatial traversability or
+shootability. The browser does not decode MP4s to show fixture seams.
 
 Do **not** create `server/`, Screenwriter, a full Cinematographer
 product package, PreferenceState, or other application scaffolding

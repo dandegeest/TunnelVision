@@ -17,6 +17,12 @@ export const DEV_TEST_TRUSTED_MEDIA_ID = "dev-test-trusted-media";
 const TRUSTED_RELATIVE_PATHS: Readonly<Record<string, string>> = {
   [TRUSTED_MEDIA_IDS.wardrobeLoopVisionA]:
     "camotion/integration/wardrobe-loop-01/canonical/vision/A.jpg",
+  [TRUSTED_MEDIA_IDS.forestAtoFA]: "camotion/integration/forest-a-to-f/canonical/A.jpg",
+  [TRUSTED_MEDIA_IDS.forestAtoFB]: "camotion/integration/forest-a-to-f/canonical/B.png",
+  [TRUSTED_MEDIA_IDS.forestAtoFC]: "camotion/integration/forest-a-to-f/canonical/C.png",
+  [TRUSTED_MEDIA_IDS.forestAtoFD]: "camotion/integration/forest-a-to-f/canonical/D.png",
+  [TRUSTED_MEDIA_IDS.forestAtoFE]: "camotion/integration/forest-a-to-f/canonical/E.png",
+  [TRUSTED_MEDIA_IDS.forestAtoFF]: "camotion/integration/forest-a-to-f/canonical/F.png",
   [DEV_TEST_TRUSTED_MEDIA_ID]: "web/index.html",
 };
 

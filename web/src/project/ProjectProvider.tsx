@@ -7,9 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { createForestProject } from "../fixtures/forest-a-to-f";
 import { clampZoom } from "../timeline/geometry";
 import { requestDirectorPlan } from "./director";
+import { readStoryboardMediaInfo } from "./media-preflight";
 import { projectWithReplacedStartImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
@@ -39,6 +40,8 @@ type ProjectContextValue = {
   setPlayheadTime: (time: number) => void;
   playing: boolean;
   setPlaying: (playing: boolean) => void;
+  mediaInfoOn: boolean;
+  setMediaInfoOn: (on: boolean) => void;
   setAgency: (agency: Agency) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
@@ -62,18 +65,23 @@ export function ProjectProvider({
   initialProject,
   initialConversation,
   initialComposerDraft,
+  initialView = "plan",
+  initialSelection,
+  initialMediaInfo = false,
 }: {
   children: ReactNode;
   initialProject?: Project;
   initialConversation?: ConversationEntry[];
   initialComposerDraft?: string;
+  initialView?: WorkspaceView;
+  initialSelection?: Selection;
+  initialMediaInfo?: boolean;
 }) {
-  const [project, setProject] = useState(() => initialProject ?? createWardrobeProject());
-  const [view, setViewState] = useState<WorkspaceView>("plan");
-  const [selection, setSelection] = useState<Selection>({
-    kind: "storyboard",
-    frameId: "A",
-  });
+  const [project, setProject] = useState(() => initialProject ?? createForestProject());
+  const [view, setViewState] = useState<WorkspaceView>(initialView);
+  const [selection, setSelection] = useState<Selection>(
+    () => initialSelection ?? { kind: "storyboard", frameId: "A" },
+  );
   const [zoom, setZoomState] = useState(1);
   const [playheadTime, setPlayheadTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -82,8 +90,9 @@ export function ProjectProvider({
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
   const [constructingBeatId, setConstructingBeatId] = useState<string | null>(null);
+  const [mediaInfoOn, setMediaInfoOn] = useState(initialMediaInfo);
   const [composerDraft, setComposerDraft] = useState(
-    () => initialComposerDraft ?? (initialProject ?? createWardrobeProject()).story,
+    () => initialComposerDraft ?? (initialProject ?? createForestProject()).story,
   );
   const [conversation, setConversation] = useState<ConversationEntry[]>(
     () => initialConversation ?? [],
@@ -130,7 +139,10 @@ export function ProjectProvider({
     setReplacingStart(true);
     try {
       const uploaded = await uploadStartingFrame(file);
-      setProject((current) => projectWithReplacedStartImage(current, uploaded));
+      const mediaInfo = await readStoryboardMediaInfo(file);
+      setProject((current) =>
+        projectWithReplacedStartImage(current, mediaInfo ? { ...uploaded, mediaInfo } : uploaded),
+      );
       setDirectorStatus("idle");
       setSelection({ kind: "storyboard", frameId: "A" });
     } catch (error) {
@@ -242,6 +254,8 @@ export function ProjectProvider({
       setPlayheadTime,
       playing,
       setPlaying,
+      mediaInfoOn,
+      setMediaInfoOn,
       setAgency,
       composerDraft,
       setComposerDraft,
@@ -267,6 +281,7 @@ export function ProjectProvider({
       setZoom,
       playheadTime,
       playing,
+      mediaInfoOn,
       setAgency,
       composerDraft,
       conversation,

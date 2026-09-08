@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
 import type { ConversationEntry } from "../project/conversation";
 import {
@@ -11,7 +12,7 @@ import { ProjectProvider } from "../project/ProjectProvider";
 import { isAuthoritativeStartingFrame } from "../project/starting-frame";
 import { projectWithDirectorPlan } from "../project/storyboard";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
-import { PlanView, StoryboardFrameMedia } from "./PlanView";
+import { PlanView, PreflightWarningControl, StoryboardFrameMedia } from "./PlanView";
 
 const plannedBeats = {
   beats: [
@@ -57,6 +58,7 @@ function renderPlan(
   options?: {
     conversation?: ConversationEntry[];
     composerDraft?: string;
+    mediaInfo?: boolean;
   },
 ) {
   return renderToStaticMarkup(
@@ -64,6 +66,7 @@ function renderPlan(
       initialProject={project}
       initialConversation={options?.conversation}
       initialComposerDraft={options?.composerDraft}
+      initialMediaInfo={options?.mediaInfo}
     >
       <PlanView />
     </ProjectProvider>,
@@ -342,5 +345,152 @@ describe("Plan conversation thread", () => {
     expect(html).toContain("Destination construction failed.");
     expect(html).not.toContain("Constructing B");
     expect(html.indexOf("Constructed B")).toBeLessThan(html.indexOf("Destination construction failed."));
+  });
+});
+
+describe("Plan media preflight UI", () => {
+  it("stays quiet when storyboard media agrees or is unconstructed", () => {
+    expect(renderPlan(createWardrobeProject())).not.toContain("storyboard-preflight-warning");
+    expect(renderPlan(createWardrobeProject())).not.toContain("Media preflight");
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    expect(renderPlan(planned)).not.toContain("storyboard-preflight-warning");
+  });
+
+  it("does not show a global preflight banner", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).not.toContain("Media preflight · 1 warning");
+    expect(html).not.toContain("Media preflight");
+    expect(html).not.toContain("Forest warning");
+  });
+});
+
+describe("Plan storyboard chrome", () => {
+  it("removes redundant Story and Storyboard headings", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).toContain('aria-label="Story"');
+    expect(html).toContain('aria-label="Storyboard"');
+    expect(html).not.toMatch(/>Story</);
+    expect(html).not.toMatch(/>Storyboard</);
+  });
+
+  it("uses a full-width top label strip and description below", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).toContain("storyboard-frame-label");
+    expect(html).toContain("inset-x-0 top-0");
+    expect(html).toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+    expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
+    expect(html).not.toContain("UPLOADED");
+    expect(html).not.toContain("Uploaded</span>");
+  });
+
+  it("keeps the label strip visible regardless of Media Info", () => {
+    const off = renderPlan(createForestProject());
+    const on = renderPlan(createForestProject(), { mediaInfo: true });
+    expect(off).toContain("storyboard-frame-label");
+    expect(on).toContain("storyboard-frame-label");
+  });
+
+  it("truncates long labels across the top strip so they cannot collide with media info", () => {
+    const frame = {
+      ...createForestProject().storyboard[0]!,
+      label: "This is the first frame of the video",
+    };
+    const html = renderFrame(frame, { showMediaInfo: true, hasWarning: true });
+    expect(html).toContain("This is the first frame of the video");
+    expect(html).toContain("storyboard-frame-label");
+    expect(html).toContain("min-w-0 truncate");
+    expect(html).toContain("storyboard-media-info");
+    expect(html.indexOf("storyboard-frame-label")).toBeLessThan(html.indexOf("storyboard-media-info"));
+    expect(html).toContain("pr-8");
+    expect(html).not.toContain("tracking-[0.22em]");
+  });
+
+  it("does not keep the Media Info tool in the storyboard canvas", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).not.toContain('aria-label="Media info"');
+    expect(html).not.toContain(">Media Info<");
+    expect(html).not.toContain(">MEDIA INFO<");
+  });
+
+  it("keeps optional technical media info off until the tool is active", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).not.toContain("storyboard-media-info");
+    expect(html).not.toContain("Uploaded frame");
+    expect(html).not.toContain("Derived destination");
+    expect(html).not.toContain("~16:9 · 1000×558 · JPG");
+  });
+
+  it("reveals provenance, friendly aspect, dimensions, and format when Media Info is on", () => {
+    const html = renderPlan(createForestProject(), { mediaInfo: true });
+    expect(html).toContain("storyboard-media-info");
+    expect(html).toContain('aria-label="Uploaded frame"');
+    expect(html).toContain('title="Uploaded frame"');
+    expect(html).toContain('aria-label="Derived destination"');
+    expect(html).toContain("~16:9 · 1000×558 · JPG");
+    expect(html).toContain("~1.85:1 · 1392×752 · PNG");
+    expect(html).toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+  });
+
+  it("keeps an aspect warning on A in both Media Info states, not on healthy B–F", () => {
+    const off = renderPlan(createForestProject());
+    const on = renderPlan(createForestProject(), { mediaInfo: true });
+    for (const html of [off, on]) {
+      expect(html).toContain("storyboard-preflight-warning");
+      expect(html).toContain('aria-label="Aspect ratio differs"');
+      expect(html).toContain("A is ~16:9 (1000×558).");
+      expect(html).toContain("Other storyboard frames are ~1.85:1.");
+      expect(html).toContain("absolute right-0.5 bottom-0.5");
+      expect(html).toContain("pr-1.5");
+      expect((html.match(/storyboard-preflight-warning/g) ?? []).length).toBe(1);
+    }
+    expect(on).toContain("pr-8");
+    expect(off).not.toContain("storyboard-media-info");
+    expect(on).toContain("storyboard-media-info");
+  });
+
+  it("exposes warning detail without hover-only access", () => {
+    const html = renderToStaticMarkup(
+      <PreflightWarningControl
+        initiallyOpen
+        warnings={[
+          {
+            kind: "aspect",
+            title: "Aspect ratio differs",
+            detail: "A is ~16:9 (1000×558).\nOther storyboard frames are ~1.85:1.",
+          },
+        ]}
+      />,
+    );
+    expect(html).toContain('role="tooltip"');
+    expect(html).toContain("Aspect ratio differs");
+    expect(html).toContain("A is ~16:9 (1000×558).");
+    expect(html).toContain("sr-only");
+    expect(html).not.toContain("Crop");
+    expect(html).not.toContain("Normalize");
+  });
+
+  it("does not turn resolution-only differences into thumbnail warnings", () => {
+    const project = {
+      ...createWardrobeProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          image: "a.jpg",
+          imageOrigin: "user" as const,
+          mediaInfo: { width: 1920, height: 1080, format: "jpeg" as const },
+        },
+        {
+          id: "B",
+          label: "B",
+          image: "b.jpg",
+          imageOrigin: "generated" as const,
+          mediaInfo: { width: 1280, height: 720, format: "jpeg" as const },
+        },
+      ],
+    };
+    const html = renderPlan(project);
+    expect(html).not.toContain("storyboard-preflight-warning");
+    expect(html).not.toContain("Aspect ratio differs");
   });
 });
