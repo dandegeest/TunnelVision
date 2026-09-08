@@ -1,0 +1,26 @@
+{
+  "experiment": "cinematographer-adaptive-choreography-04",
+  "phase": 1,
+  "question": "Can the Cinematographer inspect actual canonical start/end sets and devise useful segment-specific camera choreography adapted to geography?",
+  "pairs": [
+    "A-B",
+    "C-D",
+    "D-E",
+    "E-F"
+  ],
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "gemini": {
+    "thinkingLevel": "high",
+    "temperature": 1,
+    "topP": 0.95
+  },
+  "locomotionBaseline": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+  "videoGeneration": false,
+  "camotionUnchanged": true,
+  "gitCommit": "4c19f96379a3ee5566cb811ab0bb6fc969378bd4",
+  "productionCinematographerUnchanged": true,
+  "experiments01to03Unchanged": true,
+  "startedAt": "2026-09-08T17:15:19.377Z",
+  "completedAt": "2026-09-08T17:16:20.959Z"
+}

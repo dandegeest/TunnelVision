@@ -1,0 +1,11 @@
+{
+  "route": "Forward through the root tunnel, passing alongside the central crystal, into a sleek, dark corridor.",
+  "cameraPath": "Advance forward, veering right to skirt the large central crystal spire, allowing its facets to pass in extreme foreground, then recenter to glide straight toward the vertical light portal.",
+  "keyGeometry": [
+    "large glowing crystal cluster",
+    "dark reflective walls",
+    "vertical light portal"
+  ],
+  "transitionStrategy": "Use the intense light and faceted surface of the crystal during a close bypass to obscure the tunnel walls, bridging the organic textures into the sleek, geometric, reflective walls of the destination.",
+  "segmentPromptAddition": "Approach the glowing crystal cluster and veer slightly right to pass closely alongside it. Allow the glowing facets to sweep past the lens in extreme foreground, transitioning the rough dirt environment into a smooth, dark, reflective corridor approaching a tall vertical light."
+}

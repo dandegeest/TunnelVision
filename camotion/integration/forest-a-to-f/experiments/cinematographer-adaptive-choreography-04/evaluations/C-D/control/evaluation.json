@@ -1,0 +1,18 @@
+{
+  "overallResult": "failed_traversal",
+  "locomotion": "ambiguous",
+  "endpointArrival": "strong",
+  "spatialSolidity": "broken",
+  "transitionMode": "dissolve",
+  "summary": "The shot simulates forward movement but achieves the scene change through a crossfade between two distinct environments rather than physical travel.",
+  "observations": [
+    "At t=1.00s, the destination crystal materializes out of empty space in the center of the tunnel.",
+    "Between t=2.00s and t=4.00s, the scene darkens significantly and crossfades to the destination environment.",
+    "During the crossfade, spatial continuity is broken as the camera jumps backward, making the crystal appear further away at t=4.00s than it was at t=2.00s."
+  ],
+  "failureModes": [
+    "dissolve",
+    "spatial discontinuity",
+    "object materialization"
+  ]
+}

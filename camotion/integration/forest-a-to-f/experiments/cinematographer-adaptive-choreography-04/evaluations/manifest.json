@@ -1,0 +1,124 @@
+{
+  "experiment": "cinematographer-adaptive-choreography-04",
+  "phase": 3,
+  "role": "Shot Evaluator",
+  "protocol": "Experiment 03 unchanged; sampled frames; one run per clip",
+  "evaluatorBlindedFrom": [
+    "whether a clip is control or treatment",
+    "frozen CM choreography",
+    "expected camera-path differences",
+    "Experiments 01-03 assessments",
+    "human clip judgments"
+  ],
+  "pairs": [
+    "A-B",
+    "C-D",
+    "D-E",
+    "E-F"
+  ],
+  "evaluationOrder": [
+    "1. A-B control",
+    "2. C-D treatment",
+    "3. D-E control",
+    "4. E-F treatment",
+    "5. A-B treatment",
+    "6. C-D control",
+    "7. D-E treatment",
+    "8. E-F control"
+  ],
+  "provider": "replicate",
+  "model": "google/gemini-3.1-pro",
+  "gemini": {
+    "thinkingLevel": "high",
+    "temperature": 1,
+    "topP": 0.95
+  },
+  "representation": {
+    "kind": "sampled_frames",
+    "nativeVideo": "attempted on Replicate Gemini videos[]; unknown mime type on Buffer and File uploads",
+    "productionReasoningProvider": "images-only",
+    "ffmpeg": "ffmpeg -y -i VIDEO -ss TIMESTAMP -frames:v 1 -q:v 2 SAMPLE.jpg",
+    "stepSeconds": 1,
+    "includesFirstAndLast": true
+  },
+  "gitCommit": "4c19f96379a3ee5566cb811ab0bb6fc969378bd4",
+  "productionCinematographerUnchanged": true,
+  "experiment03Unchanged": true,
+  "startedAt": "2026-09-08T18:07:33.980Z",
+  "results": [
+    {
+      "pair": "A-B",
+      "condition": "control",
+      "overallResult": "partial_traversal",
+      "locomotion": "strong",
+      "endpointArrival": "strong",
+      "spatialSolidity": "compromised",
+      "transitionMode": "traversal_with_transformation"
+    },
+    {
+      "pair": "C-D",
+      "condition": "treatment",
+      "overallResult": "partial_traversal",
+      "locomotion": "ambiguous",
+      "endpointArrival": "strong",
+      "spatialSolidity": "broken",
+      "transitionMode": "discontinuity"
+    },
+    {
+      "pair": "D-E",
+      "condition": "control",
+      "overallResult": "partial_traversal",
+      "locomotion": "strong",
+      "endpointArrival": "strong",
+      "spatialSolidity": "compromised",
+      "transitionMode": "discontinuity"
+    },
+    {
+      "pair": "E-F",
+      "condition": "treatment",
+      "overallResult": "successful_traversal",
+      "locomotion": "strong",
+      "endpointArrival": "strong",
+      "spatialSolidity": "preserved",
+      "transitionMode": "traversal_with_transformation"
+    },
+    {
+      "pair": "A-B",
+      "condition": "treatment",
+      "overallResult": "partial_traversal",
+      "locomotion": "strong",
+      "endpointArrival": "strong",
+      "spatialSolidity": "compromised",
+      "transitionMode": "traversal_with_transformation"
+    },
+    {
+      "pair": "C-D",
+      "condition": "control",
+      "overallResult": "failed_traversal",
+      "locomotion": "ambiguous",
+      "endpointArrival": "strong",
+      "spatialSolidity": "broken",
+      "transitionMode": "dissolve"
+    },
+    {
+      "pair": "D-E",
+      "condition": "treatment",
+      "overallResult": "successful_traversal",
+      "locomotion": "strong",
+      "endpointArrival": "strong",
+      "spatialSolidity": "preserved",
+      "transitionMode": "traversal"
+    },
+    {
+      "pair": "E-F",
+      "condition": "control",
+      "overallResult": "successful_traversal",
+      "locomotion": "strong",
+      "endpointArrival": "strong",
+      "spatialSolidity": "preserved",
+      "transitionMode": "traversal"
+    }
+  ],
+  "completedAt": "2026-09-08T18:11:18.739Z",
+  "status": "succeeded"
+}

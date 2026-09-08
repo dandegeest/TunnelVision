@@ -1,0 +1,11 @@
+{
+  "route": "Straight forward along the central axis of the tunnel.",
+  "cameraPath": "Push directly forward, moving over the floor stones and passing the cluster of glowing white mushrooms on the right, continuing straight until the large crystal cluster comes into full view centered in the path.",
+  "keyGeometry": [
+    "circular root walls",
+    "glowing white mushrooms",
+    "large glowing crystal cluster"
+  ],
+  "transitionStrategy": "Maintain a centered forward trajectory, allowing the foreground roots and mushrooms to sweep past to bridge the distance and reveal the crystal formation ahead.",
+  "segmentPromptAddition": "Push straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead."
+}

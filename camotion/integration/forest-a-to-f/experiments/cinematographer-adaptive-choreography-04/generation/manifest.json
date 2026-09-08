@@ -1,0 +1,676 @@
+{
+  "experiment": "cinematographer-adaptive-choreography-04",
+  "phase": 2,
+  "role": "controlled generation",
+  "question": "Does appending frozen CM segmentPromptAddition to the Forest locomotion baseline change generated camera movement versus baseline alone?",
+  "pairs": [
+    "A-B",
+    "C-D",
+    "D-E",
+    "E-F"
+  ],
+  "generationOrder": [
+    "1. A-B control",
+    "2. A-B treatment",
+    "3. C-D treatment",
+    "4. C-D control",
+    "5. D-E control",
+    "6. D-E treatment",
+    "7. E-F treatment",
+    "8. E-F control"
+  ],
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "durationSeconds": 6,
+  "seedance": {
+    "resolution": "720p",
+    "aspectRatio": "adaptive",
+    "generateAudio": false,
+    "watermark": false,
+    "outputFormat": "mp4"
+  },
+  "seedProtocol": {
+    "schemaExposesSeed": true,
+    "sameSeedWithinPair": true,
+    "differentSeedPerPair": true,
+    "submitted": {
+      "A-B": 40104,
+      "C-D": 40204,
+      "D-E": 40304,
+      "E-F": 40404
+    }
+  },
+  "baselineSource": "camotion/integration/forest-a-to-f/prompt.txt",
+  "baseline": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+  "frozenAdditionsLoadedFrom": [
+    "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/A-B/choreography.json",
+    "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/C-D/choreography.json",
+    "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/D-E/choreography.json",
+    "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/E-F/choreography.json"
+  ],
+  "shootingFrames": {
+    "A": {
+      "path": "camotion/integration/forest-a-to-f/shooting/A.png",
+      "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+      "bytes": 459347
+    },
+    "B": {
+      "path": "camotion/integration/forest-a-to-f/shooting/B.png",
+      "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+      "bytes": 925217
+    },
+    "C": {
+      "path": "camotion/integration/forest-a-to-f/shooting/C.png",
+      "sha256": "a0ed546be775366aae29d8ba98780c250a9035b7ddd6d7c499a7f76e7f9a54a3",
+      "bytes": 1098899
+    },
+    "D": {
+      "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+      "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+      "bytes": 1085079
+    },
+    "E": {
+      "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+      "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+      "bytes": 671877
+    },
+    "F": {
+      "path": "camotion/integration/forest-a-to-f/shooting/F.png",
+      "sha256": "eaac7793e2206c4f67237ee039831d934235eb6f6b24c6d7031eef5fd718aecf",
+      "bytes": 738858
+    }
+  },
+  "historicalForestVideosUntouched": true,
+  "productionCinematographerUnchanged": true,
+  "experiment03Unchanged": true,
+  "gitCommit": "4c19f96379a3ee5566cb811ab0bb6fc969378bd4",
+  "startedAt": "2026-09-08T17:25:25.063Z",
+  "jobs": [
+    {
+      "pair": "A-B",
+      "condition": "control",
+      "generationOrder": 1,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/A.png",
+        "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+        "bytes": 459347
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/B.png",
+        "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+        "bytes": 925217
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+      "segmentPromptAddition": null,
+      "seedSubmitted": 40104,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/A.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/B.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40104
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/A-B/control/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "cvz7m3d3c9rmr0d0g86vaxa3mm",
+      "seedReported": 40104,
+      "outputUrl": "https://replicate.delivery/xezq/3Qh6vsGNWdLwBVFB1MU0AjtR38d6HQ7idQ170dUgAL6v43yF/tmpkn_2abve.mp4",
+      "startedAt": "2026-09-08T17:25:25.076Z",
+      "completedAt": "2026-09-08T17:32:47.977Z",
+      "elapsedMs": 442901,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 440.38351432,
+          "resolution_target": "720p",
+          "token_output_count": 130180,
+          "total_time": 440.401535931,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/cvz7m3d3c9rmr0d0g86vaxa3mm/cancel",
+          "get": "https://api.replicate.com/v1/predictions/cvz7m3d3c9rmr0d0g86vaxa3mm",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-t3t6dmnzgbq7feqlkhexv566zc6vvbkclut5vwjulp3uxdwcygta",
+          "web": "https://replicate.com/p/cvz7m3d3c9rmr0d0g86vaxa3mm"
+        },
+        "seed": 40104
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T17:25:25.076Z",
+          "completedAt": "2026-09-08T17:32:49.068Z",
+          "predictionId": "cvz7m3d3c9rmr0d0g86vaxa3mm",
+          "elapsedMs": 442901
+        }
+      ],
+      "sha256": "ac4926d31669f0b69304321d2f5594346a50037306fd5ef934ca29f17626f199",
+      "bytes": 9397168
+    },
+    {
+      "pair": "A-B",
+      "condition": "treatment",
+      "generationOrder": 2,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/A.png",
+        "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+        "bytes": 459347
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/B.png",
+        "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+        "bytes": 925217
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nTrack forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel.",
+      "segmentPromptAddition": "Track forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel.",
+      "seedSubmitted": 40104,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nTrack forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/A.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/B.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40104
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/A-B/treatment/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "f9wcncv88hrmr0d0g8abmeswfg",
+      "seedReported": 40104,
+      "outputUrl": "https://replicate.delivery/xezq/Ue7YqSUBlWRTfEgylDciKfHsCuKlh7SeumrELhew4xQGI9b5C/tmpaj1eyr_i.mp4",
+      "startedAt": "2026-09-08T17:32:49.128Z",
+      "completedAt": "2026-09-08T17:39:12.404Z",
+      "elapsedMs": 383276,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 381.612108213,
+          "resolution_target": "720p",
+          "token_output_count": 130180,
+          "total_time": 381.627696309,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/f9wcncv88hrmr0d0g8abmeswfg/cancel",
+          "get": "https://api.replicate.com/v1/predictions/f9wcncv88hrmr0d0g8abmeswfg",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-lijeuf2dmisi47p3e4ts5rs2r456ouipfd6mpwplkk7yorf54v2a",
+          "web": "https://replicate.com/p/f9wcncv88hrmr0d0g8abmeswfg"
+        },
+        "seed": 40104
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T17:32:49.128Z",
+          "completedAt": "2026-09-08T17:39:13.545Z",
+          "predictionId": "f9wcncv88hrmr0d0g8abmeswfg",
+          "elapsedMs": 383276
+        }
+      ],
+      "sha256": "b9c902f09e4c2b0757949337d75240f754eb25b7e8294b06e3b77be9bd58736b",
+      "bytes": 9057830
+    },
+    {
+      "pair": "C-D",
+      "condition": "treatment",
+      "generationOrder": 3,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/C.png",
+        "sha256": "a0ed546be775366aae29d8ba98780c250a9035b7ddd6d7c499a7f76e7f9a54a3",
+        "bytes": 1098899
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+        "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+        "bytes": 1085079
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nPush straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead.",
+      "segmentPromptAddition": "Push straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead.",
+      "seedSubmitted": 40204,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nPush straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/C.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40204
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/C-D/treatment/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "t3b8hg271drmt0d0g8dafkhbgg",
+      "seedReported": 40204,
+      "outputUrl": "https://replicate.delivery/xezq/fefejVedYTZFOkATtHTweJ5i3F0Tz3DyV2c8iuAflru8R3vlLA/tmpcpshwe24.mp4",
+      "startedAt": "2026-09-08T17:39:13.663Z",
+      "completedAt": "2026-09-08T17:45:07.876Z",
+      "elapsedMs": 354213,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 352.218586787,
+          "resolution_target": "720p",
+          "token_output_count": 130561,
+          "total_time": 352.236401834,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/t3b8hg271drmt0d0g8dafkhbgg/cancel",
+          "get": "https://api.replicate.com/v1/predictions/t3b8hg271drmt0d0g8dafkhbgg",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-3bvuvecyeuz4pkvpjs5ox7yjpyi4tk3aunuthauxhld3t4c7mymq",
+          "web": "https://replicate.com/p/t3b8hg271drmt0d0g8dafkhbgg"
+        },
+        "seed": 40204
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T17:39:13.661Z",
+          "completedAt": "2026-09-08T17:45:08.746Z",
+          "predictionId": "t3b8hg271drmt0d0g8dafkhbgg",
+          "elapsedMs": 354213
+        }
+      ],
+      "sha256": "8412beaa4f83ae4ebf0f0a32e8706c9b6941e1f99a15b3a138c8ed5ad5ba846d",
+      "bytes": 7463526
+    },
+    {
+      "pair": "C-D",
+      "condition": "control",
+      "generationOrder": 4,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/C.png",
+        "sha256": "a0ed546be775366aae29d8ba98780c250a9035b7ddd6d7c499a7f76e7f9a54a3",
+        "bytes": 1098899
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+        "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+        "bytes": 1085079
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+      "segmentPromptAddition": null,
+      "seedSubmitted": 40204,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/C.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40204
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/C-D/control/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "681tjwnk6hrmy0d0g8ft4bhtbc",
+      "seedReported": 40204,
+      "outputUrl": "https://replicate.delivery/xezq/tfSPeN5fes4yRTTrFZU0Mqfkl4SshlN3Kru1ez6yo777l83yF/tmp59bh8yth.mp4",
+      "startedAt": "2026-09-08T17:45:08.798Z",
+      "completedAt": "2026-09-08T17:49:11.952Z",
+      "elapsedMs": 243154,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 240.876160894,
+          "resolution_target": "720p",
+          "token_output_count": 130561,
+          "total_time": 240.895707631,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/681tjwnk6hrmy0d0g8ft4bhtbc/cancel",
+          "get": "https://api.replicate.com/v1/predictions/681tjwnk6hrmy0d0g8ft4bhtbc",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-exktpkx26drlcrqdorliyn2vf3x5yujs3vucd5bnpvhq73nl5xrq",
+          "web": "https://replicate.com/p/681tjwnk6hrmy0d0g8ft4bhtbc"
+        },
+        "seed": 40204
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T17:45:08.798Z",
+          "completedAt": "2026-09-08T17:49:12.844Z",
+          "predictionId": "681tjwnk6hrmy0d0g8ft4bhtbc",
+          "elapsedMs": 243154
+        }
+      ],
+      "sha256": "bdab844315ae93fecec2d388207dc15d9c2583f3342e9b38b555be7ff8d8b017",
+      "bytes": 7717899
+    },
+    {
+      "pair": "D-E",
+      "condition": "control",
+      "generationOrder": 5,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+        "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+        "bytes": 1085079
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+        "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+        "bytes": 671877
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+      "segmentPromptAddition": null,
+      "seedSubmitted": 40304,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40304
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/D-E/control/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "mwmmmvvbtxrmr0d0g8ht7jsw20",
+      "seedReported": 40304,
+      "outputUrl": "https://replicate.delivery/xezq/Z8DbnvlLm0ofYCRIwbIBB9u8MDXJodWatPdSJ5LNY8c07vlLA/tmpefrlfwrj.mp4",
+      "startedAt": "2026-09-08T17:49:12.897Z",
+      "completedAt": "2026-09-08T17:54:48.694Z",
+      "elapsedMs": 335797,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 333.703871137,
+          "resolution_target": "720p",
+          "token_output_count": 130561,
+          "total_time": 333.722170925,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/mwmmmvvbtxrmr0d0g8ht7jsw20/cancel",
+          "get": "https://api.replicate.com/v1/predictions/mwmmmvvbtxrmr0d0g8ht7jsw20",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-24bn4e6xi24nslou5sp77jfudw2sqpmafjixfyt63nxf6xutwooq",
+          "web": "https://replicate.com/p/mwmmmvvbtxrmr0d0g8ht7jsw20"
+        },
+        "seed": 40304
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T17:49:12.896Z",
+          "completedAt": "2026-09-08T17:54:49.348Z",
+          "predictionId": "mwmmmvvbtxrmr0d0g8ht7jsw20",
+          "elapsedMs": 335797
+        }
+      ],
+      "sha256": "415f1b99442b232a400eaa79fc5cb5479a1c5e2c78ea226621cb11a4e3281804",
+      "bytes": 7855803
+    },
+    {
+      "pair": "D-E",
+      "condition": "treatment",
+      "generationOrder": 6,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+        "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+        "bytes": 1085079
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+        "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+        "bytes": 671877
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nApproach the glowing crystal cluster and veer slightly right to pass closely alongside it. Allow the glowing facets to sweep past the lens in extreme foreground, transitioning the rough dirt environment into a smooth, dark, reflective corridor approaching a tall vertical light.",
+      "segmentPromptAddition": "Approach the glowing crystal cluster and veer slightly right to pass closely alongside it. Allow the glowing facets to sweep past the lens in extreme foreground, transitioning the rough dirt environment into a smooth, dark, reflective corridor approaching a tall vertical light.",
+      "seedSubmitted": 40304,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nApproach the glowing crystal cluster and veer slightly right to pass closely alongside it. Allow the glowing facets to sweep past the lens in extreme foreground, transitioning the rough dirt environment into a smooth, dark, reflective corridor approaching a tall vertical light.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40304
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/D-E/treatment/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "0q6b6kwdwhrmr0d0g8mby02k8r",
+      "seedReported": 40304,
+      "outputUrl": "https://replicate.delivery/xezq/P1UACNGp5NbwKdy8e5leV4fLXrPig3oSeOQeWw47H7ZfeefWuA/tmp1w8qstp8.mp4",
+      "startedAt": "2026-09-08T17:54:49.400Z",
+      "completedAt": "2026-09-08T18:01:32.427Z",
+      "elapsedMs": 403027,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 400.824494615,
+          "resolution_target": "720p",
+          "token_output_count": 130561,
+          "total_time": 400.846609653,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/0q6b6kwdwhrmr0d0g8mby02k8r/cancel",
+          "get": "https://api.replicate.com/v1/predictions/0q6b6kwdwhrmr0d0g8mby02k8r",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-v2b2gsamoc5nyakavu6eqpknbysvyudzpw3sog5bmi5jieakjk4a",
+          "web": "https://replicate.com/p/0q6b6kwdwhrmr0d0g8mby02k8r"
+        },
+        "seed": 40304
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T17:54:49.400Z",
+          "completedAt": "2026-09-08T18:01:33.277Z",
+          "predictionId": "0q6b6kwdwhrmr0d0g8mby02k8r",
+          "elapsedMs": 403027
+        }
+      ],
+      "sha256": "c615097e662ae00e03257f3a834633940290175971d9dc9969f53775db0b358b",
+      "bytes": 6610928
+    },
+    {
+      "pair": "E-F",
+      "condition": "treatment",
+      "generationOrder": 7,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+        "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+        "bytes": 671877
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/F.png",
+        "sha256": "eaac7793e2206c4f67237ee039831d934235eb6f6b24c6d7031eef5fd718aecf",
+        "bytes": 738858
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nMove straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light.",
+      "segmentPromptAddition": "Move straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light.",
+      "seedSubmitted": 40404,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nMove straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/F.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40404
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/E-F/treatment/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "vp8mjzxrb9rmy0d0g8qbbk744m",
+      "seedReported": 40404,
+      "outputUrl": "https://replicate.delivery/xezq/YkxdWlWoGHbeIyy7ZERV0rhteiWmutVZejpdiNSTDzN5BAXuA/tmpybboawcn.mp4",
+      "startedAt": "2026-09-08T18:01:33.332Z",
+      "completedAt": "2026-09-08T18:04:45.189Z",
+      "elapsedMs": 191857,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 189.715669105,
+          "resolution_target": "720p",
+          "token_output_count": 130561,
+          "total_time": 189.751591551,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/vp8mjzxrb9rmy0d0g8qbbk744m/cancel",
+          "get": "https://api.replicate.com/v1/predictions/vp8mjzxrb9rmy0d0g8qbbk744m",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-zziw6kbv46t2almrgmm7hfruqsj6xc3lyxvkf5pngh37o7whroja",
+          "web": "https://replicate.com/p/vp8mjzxrb9rmy0d0g8qbbk744m"
+        },
+        "seed": 40404
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T18:01:33.331Z",
+          "completedAt": "2026-09-08T18:04:45.695Z",
+          "predictionId": "vp8mjzxrb9rmy0d0g8qbbk744m",
+          "elapsedMs": 191857
+        }
+      ],
+      "sha256": "c658f606e409d5a2450548de5380b0fa2b3fd9efa6cf7d070335377027c7c0bb",
+      "bytes": 5807485
+    },
+    {
+      "pair": "E-F",
+      "condition": "control",
+      "generationOrder": 8,
+      "startShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+        "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+        "bytes": 671877
+      },
+      "endShooting": {
+        "path": "camotion/integration/forest-a-to-f/shooting/F.png",
+        "sha256": "eaac7793e2206c4f67237ee039831d934235eb6f6b24c6d7031eef5fd718aecf",
+        "bytes": 738858
+      },
+      "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+      "segmentPromptAddition": null,
+      "seedSubmitted": 40404,
+      "settings": {
+        "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+        "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+        "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/F.png>",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "adaptive",
+        "generate_audio": false,
+        "watermark": false,
+        "output_format": "mp4",
+        "seed": 40404
+      },
+      "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/E-F/control/video.mp4",
+      "skipped": false,
+      "provider": "replicate",
+      "model": "bytedance/seedance-2.5",
+      "modelVersion": "hidden",
+      "predictionId": "vwn44a58rnrmt0d0g8rvstbmd4",
+      "seedReported": 40404,
+      "outputUrl": "https://replicate.delivery/xezq/Mi53Nj48CNZkBBDdPqc1bcP9FcfvOEX2yoY9vlqcr2rqBwlLA/tmpqf3jm3w_.mp4",
+      "startedAt": "2026-09-08T18:04:45.752Z",
+      "completedAt": "2026-09-08T18:07:18.020Z",
+      "elapsedMs": 152268,
+      "durationSecondsRequested": 6,
+      "durationSecondsProbed": 6.041667,
+      "metadata": {
+        "replicate_status": "succeeded",
+        "metrics": {
+          "model_variant": "non_video_in",
+          "predict_time": 150.180301344,
+          "resolution_target": "720p",
+          "token_output_count": 130561,
+          "total_time": 150.196603252,
+          "video_output_duration_seconds": 6
+        },
+        "urls": {
+          "cancel": "https://api.replicate.com/v1/predictions/vwn44a58rnrmt0d0g8rvstbmd4/cancel",
+          "get": "https://api.replicate.com/v1/predictions/vwn44a58rnrmt0d0g8rvstbmd4",
+          "stream": "https://stream.replicate.com/v1/files/jbxs-zs3l6f4ygrzwr7gbxxakhqzuip5jh65vparxcyhiurhglu6eqqpq",
+          "web": "https://replicate.com/p/vwn44a58rnrmt0d0g8rvstbmd4"
+        },
+        "seed": 40404
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "startedAt": "2026-09-08T18:04:45.752Z",
+          "completedAt": "2026-09-08T18:07:18.933Z",
+          "predictionId": "vwn44a58rnrmt0d0g8rvstbmd4",
+          "elapsedMs": 152268
+        }
+      ],
+      "sha256": "c11ae8d59b294499639d9664b0f0f765f940bc1d70f9e72d47a22eb0fb4e0776",
+      "bytes": 6515133
+    }
+  ],
+  "completedAt": "2026-09-08T18:07:18.982Z",
+  "status": "succeeded"
+}

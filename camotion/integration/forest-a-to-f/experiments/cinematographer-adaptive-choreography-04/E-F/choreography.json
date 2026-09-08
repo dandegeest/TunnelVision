@@ -1,0 +1,13 @@
+{
+  "route": "Straight forward down the reflective corridor, through the tall portal, and into the open void.",
+  "cameraPath": "Move continuously forward along the center line. Pass between the dark, faceted walls, cross the threshold of the intensely bright vertical portal, and maintain forward momentum into the expansive space, navigating through the floating debris toward the central light.",
+  "keyGeometry": [
+    "dark faceted corridor walls",
+    "reflective floor",
+    "tall bright vertical portal",
+    "floating rock debris",
+    "central light source"
+  ],
+  "transitionStrategy": "The camera pushes directly through the bright vertical portal. The intense light of the doorway blooms and resolves into the central star of the destination, while the solid corridor walls visually break apart to become the floating debris field.",
+  "segmentPromptAddition": "Move straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light."
+}

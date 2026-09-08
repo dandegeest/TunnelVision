@@ -1,0 +1,20 @@
+```json
+{
+  "overallResult": "partial_traversal",
+  "locomotion": "ambiguous",
+  "endpointArrival": "strong",
+  "spatialSolidity": "broken",
+  "transitionMode": "discontinuity",
+  "summary": "The shot begins with genuine forward travel, but the transition between the two environments is achieved via a 2D iris wipe through a black frame rather than continuous 3D locomotion.",
+  "observations": [
+    "Foreground mushrooms and roots pass the camera realistically in the first two seconds.",
+    "At t=3.00s, spatial geometry is lost entirely as the screen goes black.",
+    "The destination scene appears as a small 2D circle in the darkness and expands outward, mimicking a video editing wipe rather than physical traversal."
+  ],
+  "failureModes": [
+    "spatial_discontinuity",
+    "disguised_wipe",
+    "geometry_loss"
+  ]
+}
+```

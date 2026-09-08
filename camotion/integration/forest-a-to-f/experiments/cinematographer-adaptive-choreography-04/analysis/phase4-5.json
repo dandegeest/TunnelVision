@@ -1,0 +1,46 @@
+{
+  "experiment": "cinematographer-adaptive-choreography-04",
+  "phase": "4-5",
+  "frozenAfter": {
+    "generationCompletedAt": "2026-09-08T18:07:18.982Z",
+    "evaluationCompletedAt": "2026-09-08T18:11:18.739Z"
+  },
+  "seedControllable": true,
+  "technicalRetries": 0,
+  "pairs": {
+    "A-B": {
+      "choreographyAdherenceTreatment": "partial",
+      "controlSpontaneousSameManeuver": true,
+      "cameraPathDifference": "modest; both pass between left root wall and right trunk",
+      "traversalEffect": "unchanged",
+      "controlOverall": "partial_traversal",
+      "treatmentOverall": "partial_traversal"
+    },
+    "C-D": {
+      "choreographyAdherenceTreatment": "partial",
+      "controlSpontaneousSameManeuver": true,
+      "cameraPathDifference": "both axial; control dissolve/materialize; treatment iris/wipe; no extra turn",
+      "traversalEffect": "slightly improved labels, solidity still broken",
+      "controlOverall": "failed_traversal",
+      "treatmentOverall": "partial_traversal"
+    },
+    "D-E": {
+      "choreographyAdherenceTreatment": "partial",
+      "controlSpontaneousSameManeuver": false,
+      "cameraPathDifference": "treatment extreme-foreground crystal occlusion then emerge; control close crystal then jump-cut",
+      "traversalEffect": "improved",
+      "controlOverall": "partial_traversal",
+      "treatmentOverall": "successful_traversal",
+      "notes": "Facet sweep/occlusion present. Distinct veer-slightly-right alongside then recenter not clearly observed. Closer to punch-through than right-side skirt."
+    },
+    "E-F": {
+      "choreographyAdherenceTreatment": "clear",
+      "controlSpontaneousSameManeuver": true,
+      "cameraPathDifference": "small; control portal whiteout earlier (t=3); treatment still in corridor at t=3",
+      "traversalEffect": "unchanged",
+      "controlOverall": "successful_traversal",
+      "treatmentOverall": "successful_traversal"
+    }
+  },
+  "recommendation": "MORE CHOREOGRAPHY EVIDENCE NEEDED"
+}

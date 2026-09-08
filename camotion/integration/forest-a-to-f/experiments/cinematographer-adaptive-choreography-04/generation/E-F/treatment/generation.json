@@ -1,0 +1,73 @@
+{
+  "pair": "E-F",
+  "condition": "treatment",
+  "generationOrder": 7,
+  "startShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/E.png",
+    "sha256": "b21c409ce02f787c53b8d52e52f706d734b27cbaafcdc2256d1d07c08d9c688c",
+    "bytes": 671877
+  },
+  "endShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/F.png",
+    "sha256": "eaac7793e2206c4f67237ee039831d934235eb6f6b24c6d7031eef5fd718aecf",
+    "bytes": 738858
+  },
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nMove straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light.",
+  "segmentPromptAddition": "Move straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light.",
+  "seedSubmitted": 40404,
+  "settings": {
+    "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nMove straight forward down the dark reflective corridor and pass directly through the tall, intensely bright vertical portal. Emerge into an expansive dark void, continuing forward through a field of floating rock debris toward a bright, distant central light.",
+    "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/E.png>",
+    "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/F.png>",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4",
+    "seed": 40404
+  },
+  "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/E-F/treatment/video.mp4",
+  "skipped": false,
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "modelVersion": "hidden",
+  "predictionId": "vp8mjzxrb9rmy0d0g8qbbk744m",
+  "seedReported": 40404,
+  "outputUrl": "https://replicate.delivery/xezq/YkxdWlWoGHbeIyy7ZERV0rhteiWmutVZejpdiNSTDzN5BAXuA/tmpybboawcn.mp4",
+  "startedAt": "2026-09-08T18:01:33.332Z",
+  "completedAt": "2026-09-08T18:04:45.189Z",
+  "elapsedMs": 191857,
+  "durationSecondsRequested": 6,
+  "durationSecondsProbed": 6.041667,
+  "metadata": {
+    "replicate_status": "succeeded",
+    "metrics": {
+      "model_variant": "non_video_in",
+      "predict_time": 189.715669105,
+      "resolution_target": "720p",
+      "token_output_count": 130561,
+      "total_time": 189.751591551,
+      "video_output_duration_seconds": 6
+    },
+    "urls": {
+      "cancel": "https://api.replicate.com/v1/predictions/vp8mjzxrb9rmy0d0g8qbbk744m/cancel",
+      "get": "https://api.replicate.com/v1/predictions/vp8mjzxrb9rmy0d0g8qbbk744m",
+      "stream": "https://stream.replicate.com/v1/files/jbxs-zziw6kbv46t2almrgmm7hfruqsj6xc3lyxvkf5pngh37o7whroja",
+      "web": "https://replicate.com/p/vp8mjzxrb9rmy0d0g8qbbk744m"
+    },
+    "seed": 40404
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T18:01:33.331Z",
+      "completedAt": "2026-09-08T18:04:45.695Z",
+      "predictionId": "vp8mjzxrb9rmy0d0g8qbbk744m",
+      "elapsedMs": 191857
+    }
+  ],
+  "sha256": "c658f606e409d5a2450548de5380b0fa2b3fd9efa6cf7d070335377027c7c0bb",
+  "bytes": 5807485
+}

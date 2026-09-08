@@ -1,0 +1,73 @@
+{
+  "pair": "C-D",
+  "condition": "treatment",
+  "generationOrder": 3,
+  "startShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/C.png",
+    "sha256": "a0ed546be775366aae29d8ba98780c250a9035b7ddd6d7c499a7f76e7f9a54a3",
+    "bytes": 1098899
+  },
+  "endShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/D.png",
+    "sha256": "e63078e78ec3a957c6aefb403ab86be8b8c1d2fe6a2966662ad57c665211c130",
+    "bytes": 1085079
+  },
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nPush straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead.",
+  "segmentPromptAddition": "Push straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead.",
+  "seedSubmitted": 40204,
+  "settings": {
+    "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nPush straight forward down the center of the root tunnel, passing the glowing white mushrooms on the floor to approach the massive glowing crystal cluster directly ahead.",
+    "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/C.png>",
+    "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/D.png>",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4",
+    "seed": 40204
+  },
+  "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/C-D/treatment/video.mp4",
+  "skipped": false,
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "modelVersion": "hidden",
+  "predictionId": "t3b8hg271drmt0d0g8dafkhbgg",
+  "seedReported": 40204,
+  "outputUrl": "https://replicate.delivery/xezq/fefejVedYTZFOkATtHTweJ5i3F0Tz3DyV2c8iuAflru8R3vlLA/tmpcpshwe24.mp4",
+  "startedAt": "2026-09-08T17:39:13.663Z",
+  "completedAt": "2026-09-08T17:45:07.876Z",
+  "elapsedMs": 354213,
+  "durationSecondsRequested": 6,
+  "durationSecondsProbed": 6.041667,
+  "metadata": {
+    "replicate_status": "succeeded",
+    "metrics": {
+      "model_variant": "non_video_in",
+      "predict_time": 352.218586787,
+      "resolution_target": "720p",
+      "token_output_count": 130561,
+      "total_time": 352.236401834,
+      "video_output_duration_seconds": 6
+    },
+    "urls": {
+      "cancel": "https://api.replicate.com/v1/predictions/t3b8hg271drmt0d0g8dafkhbgg/cancel",
+      "get": "https://api.replicate.com/v1/predictions/t3b8hg271drmt0d0g8dafkhbgg",
+      "stream": "https://stream.replicate.com/v1/files/jbxs-3bvuvecyeuz4pkvpjs5ox7yjpyi4tk3aunuthauxhld3t4c7mymq",
+      "web": "https://replicate.com/p/t3b8hg271drmt0d0g8dafkhbgg"
+    },
+    "seed": 40204
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T17:39:13.661Z",
+      "completedAt": "2026-09-08T17:45:08.746Z",
+      "predictionId": "t3b8hg271drmt0d0g8dafkhbgg",
+      "elapsedMs": 354213
+    }
+  ],
+  "sha256": "8412beaa4f83ae4ebf0f0a32e8706c9b6941e1f99a15b3a138c8ed5ad5ba846d",
+  "bytes": 7463526
+}

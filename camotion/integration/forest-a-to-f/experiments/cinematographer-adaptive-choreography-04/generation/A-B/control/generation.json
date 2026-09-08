@@ -1,0 +1,73 @@
+{
+  "pair": "A-B",
+  "condition": "control",
+  "generationOrder": 1,
+  "startShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/A.png",
+    "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+    "bytes": 459347
+  },
+  "endShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/B.png",
+    "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+    "bytes": 925217
+  },
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+  "segmentPromptAddition": null,
+  "seedSubmitted": 40104,
+  "settings": {
+    "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+    "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/A.png>",
+    "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/B.png>",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4",
+    "seed": 40104
+  },
+  "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/A-B/control/video.mp4",
+  "skipped": false,
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "modelVersion": "hidden",
+  "predictionId": "cvz7m3d3c9rmr0d0g86vaxa3mm",
+  "seedReported": 40104,
+  "outputUrl": "https://replicate.delivery/xezq/3Qh6vsGNWdLwBVFB1MU0AjtR38d6HQ7idQ170dUgAL6v43yF/tmpkn_2abve.mp4",
+  "startedAt": "2026-09-08T17:25:25.076Z",
+  "completedAt": "2026-09-08T17:32:47.977Z",
+  "elapsedMs": 442901,
+  "durationSecondsRequested": 6,
+  "durationSecondsProbed": 6.041667,
+  "metadata": {
+    "replicate_status": "succeeded",
+    "metrics": {
+      "model_variant": "non_video_in",
+      "predict_time": 440.38351432,
+      "resolution_target": "720p",
+      "token_output_count": 130180,
+      "total_time": 440.401535931,
+      "video_output_duration_seconds": 6
+    },
+    "urls": {
+      "cancel": "https://api.replicate.com/v1/predictions/cvz7m3d3c9rmr0d0g86vaxa3mm/cancel",
+      "get": "https://api.replicate.com/v1/predictions/cvz7m3d3c9rmr0d0g86vaxa3mm",
+      "stream": "https://stream.replicate.com/v1/files/jbxs-t3t6dmnzgbq7feqlkhexv566zc6vvbkclut5vwjulp3uxdwcygta",
+      "web": "https://replicate.com/p/cvz7m3d3c9rmr0d0g86vaxa3mm"
+    },
+    "seed": 40104
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T17:25:25.076Z",
+      "completedAt": "2026-09-08T17:32:49.068Z",
+      "predictionId": "cvz7m3d3c9rmr0d0g86vaxa3mm",
+      "elapsedMs": 442901
+    }
+  ],
+  "sha256": "ac4926d31669f0b69304321d2f5594346a50037306fd5ef934ca29f17626f199",
+  "bytes": 9397168
+}

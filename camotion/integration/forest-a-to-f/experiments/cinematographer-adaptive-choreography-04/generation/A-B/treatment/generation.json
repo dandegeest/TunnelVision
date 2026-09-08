@@ -1,0 +1,73 @@
+{
+  "pair": "A-B",
+  "condition": "treatment",
+  "generationOrder": 2,
+  "startShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/A.png",
+    "sha256": "4ec3e341764888a215996d6503f263600f9a51f812dc7f0261e1391a8bb6d109",
+    "bytes": 459347
+  },
+  "endShooting": {
+    "path": "camotion/integration/forest-a-to-f/shooting/B.png",
+    "sha256": "ed30dcdf2a52e3b2fa7e4f199b184481d18fda449e957558dfd13130b9a03d8f",
+    "bytes": 925217
+  },
+  "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nTrack forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel.",
+  "segmentPromptAddition": "Track forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel.",
+  "seedSubmitted": 40104,
+  "settings": {
+    "prompt": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.\nTrack forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel.",
+    "image": "<local file upload: camotion/integration/forest-a-to-f/shooting/A.png>",
+    "last_frame_image": "<local file upload: camotion/integration/forest-a-to-f/shooting/B.png>",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "adaptive",
+    "generate_audio": false,
+    "watermark": false,
+    "output_format": "mp4",
+    "seed": 40104
+  },
+  "outputPath": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/A-B/treatment/video.mp4",
+  "skipped": false,
+  "provider": "replicate",
+  "model": "bytedance/seedance-2.5",
+  "modelVersion": "hidden",
+  "predictionId": "f9wcncv88hrmr0d0g8abmeswfg",
+  "seedReported": 40104,
+  "outputUrl": "https://replicate.delivery/xezq/Ue7YqSUBlWRTfEgylDciKfHsCuKlh7SeumrELhew4xQGI9b5C/tmpaj1eyr_i.mp4",
+  "startedAt": "2026-09-08T17:32:49.128Z",
+  "completedAt": "2026-09-08T17:39:12.404Z",
+  "elapsedMs": 383276,
+  "durationSecondsRequested": 6,
+  "durationSecondsProbed": 6.041667,
+  "metadata": {
+    "replicate_status": "succeeded",
+    "metrics": {
+      "model_variant": "non_video_in",
+      "predict_time": 381.612108213,
+      "resolution_target": "720p",
+      "token_output_count": 130180,
+      "total_time": 381.627696309,
+      "video_output_duration_seconds": 6
+    },
+    "urls": {
+      "cancel": "https://api.replicate.com/v1/predictions/f9wcncv88hrmr0d0g8abmeswfg/cancel",
+      "get": "https://api.replicate.com/v1/predictions/f9wcncv88hrmr0d0g8abmeswfg",
+      "stream": "https://stream.replicate.com/v1/files/jbxs-lijeuf2dmisi47p3e4ts5rs2r456ouipfd6mpwplkk7yorf54v2a",
+      "web": "https://replicate.com/p/f9wcncv88hrmr0d0g8abmeswfg"
+    },
+    "seed": 40104
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "succeeded",
+      "startedAt": "2026-09-08T17:32:49.128Z",
+      "completedAt": "2026-09-08T17:39:13.545Z",
+      "predictionId": "f9wcncv88hrmr0d0g8abmeswfg",
+      "elapsedMs": 383276
+    }
+  ],
+  "sha256": "b9c902f09e4c2b0757949337d75240f754eb25b7e8294b06e3b77be9bd58736b",
+  "bytes": 9057830
+}

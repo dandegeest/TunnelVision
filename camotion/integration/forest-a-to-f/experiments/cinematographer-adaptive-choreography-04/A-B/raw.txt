@@ -1,0 +1,12 @@
+{
+  "route": "Forward along the stepping stones, through the midground root archway, toward the dark tunnel mouth.",
+  "cameraPath": "Track forward along the path, passing the large right-side trunk and left-side root wall, steering slightly right to align with the tunnel opening.",
+  "keyGeometry": [
+    "stepping-stone path",
+    "massive right tree trunk",
+    "left root wall",
+    "midground root archway"
+  ],
+  "transitionStrategy": "Pass through the natural root archway, allowing the heavy trunks to sweep past the lens to bridge into the darker, enclosed tunnel space.",
+  "segmentPromptAddition": "Track forward along the glowing stone path, pass between the large left root wall and the right tree trunk, and move through the misty root archway toward the dark tunnel."
+}

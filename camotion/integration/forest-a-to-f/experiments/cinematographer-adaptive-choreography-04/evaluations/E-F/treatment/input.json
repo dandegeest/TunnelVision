@@ -1,0 +1,125 @@
+{
+  "pair": "E-F",
+  "condition": "treatment",
+  "journeyId": "E-F",
+  "startDestinationId": "E",
+  "endDestinationId": "F",
+  "startMediaId": "forest-a-to-f-e",
+  "endMediaId": "forest-a-to-f-f",
+  "startIntent": "Dark reflective corridor toward a tall vertical portal.",
+  "endIntent": "Open void / debris field around a central light.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "blindedFromEvaluator": [
+    "control versus treatment",
+    "CM choreography",
+    "experiment hypotheses",
+    "Experiments 01-03 outcomes"
+  ],
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/E.png",
+    "sha256": {
+      "sha256": "c6cf8ab1c707bc6f1cb5d652a15e4aa3d33c8d9521fd4ceed27339e8235b162c",
+      "bytes": 908708
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/F.png",
+    "sha256": {
+      "sha256": "b06cc777589a062b6f2f7fbafe2d644d51d78cd3fd0591de1239217120df70fa",
+      "bytes": 963232
+    }
+  },
+  "video": {
+    "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/generation/E-F/treatment/video.mp4",
+    "sha256": {
+      "sha256": "c658f606e409d5a2450548de5380b0fa2b3fd9efa6cf7d070335377027c7c0bb",
+      "bytes": 5807485
+    },
+    "durationSeconds": 6.041667
+  },
+  "representation": {
+    "kind": "sampled_frames",
+    "nativeVideoFailed": "Replicate google/gemini-3.1-pro videos[] rejected Buffer and File uploads (unknown mime type). Production ReasoningProvider is images-only. Did not switch models.",
+    "ffmpeg": "ffmpeg -y -i VIDEO -ss TIMESTAMP -frames:v 1 -q:v 2 SAMPLE.jpg",
+    "seek": "output seek (-ss after -i)",
+    "stepSeconds": 1,
+    "timestampsSeconds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      5.992
+    ],
+    "sampleFiles": [
+      {
+        "timestampSeconds": 0,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-00-t0p00.jpg",
+        "sha256": {
+          "sha256": "c3fad2d2de5fc5662b4504d506bf9f7645c829d722d12af4aedad3c7dd83422c",
+          "bytes": 47119
+        }
+      },
+      {
+        "timestampSeconds": 1,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-01-t1p00.jpg",
+        "sha256": {
+          "sha256": "0793e684be44f580895e20f168e4e0c4b3479b84950305f3d61d2a791367b8a3",
+          "bytes": 42268
+        }
+      },
+      {
+        "timestampSeconds": 2,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-02-t2p00.jpg",
+        "sha256": {
+          "sha256": "e3bca0d97b9f896c58f90cd0ca0accb833c65c1bb8bcc9063b73f3e4e28261ff",
+          "bytes": 42602
+        }
+      },
+      {
+        "timestampSeconds": 3,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-03-t3p00.jpg",
+        "sha256": {
+          "sha256": "d8407927f5314222679494b08a610f211a48766fe8246931d4c9072e57e39458",
+          "bytes": 30648
+        }
+      },
+      {
+        "timestampSeconds": 4,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-04-t4p00.jpg",
+        "sha256": {
+          "sha256": "95ce797cb89fae1414d9298b6ae9178ed4a9d01a7e0ff2cdd2a8b7a882f18664",
+          "bytes": 18193
+        }
+      },
+      {
+        "timestampSeconds": 5,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-05-t5p00.jpg",
+        "sha256": {
+          "sha256": "6a76035b7ac276a5c1ab86c8a013323f19bfb872d3e26d385933746861f6fe79",
+          "bytes": 44288
+        }
+      },
+      {
+        "timestampSeconds": 5.992,
+        "path": "camotion/integration/forest-a-to-f/experiments/cinematographer-adaptive-choreography-04/evaluations/E-F/treatment/samples/frame-06-t5p99.jpg",
+        "sha256": {
+          "sha256": "9c45d2dfed22959b62167728b2941af5e0af97bb6ee599a8b305748a7f6d20d5",
+          "bytes": 46999
+        }
+      }
+    ],
+    "imageOrder": [
+      "canonical start",
+      "canonical end",
+      "shot t=0.00s",
+      "shot t=1.00s",
+      "shot t=2.00s",
+      "shot t=3.00s",
+      "shot t=4.00s",
+      "shot t=5.00s",
+      "shot t=5.99s"
+    ]
+  }
+}

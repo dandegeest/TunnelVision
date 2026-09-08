@@ -1,0 +1,26 @@
+{
+  "pair": "C-D",
+  "journeyId": "C-D",
+  "startDestinationId": "C",
+  "endDestinationId": "D",
+  "startMediaId": "forest-a-to-f-c",
+  "endMediaId": "forest-a-to-f-d",
+  "startIntent": "Centered circular root tunnel.",
+  "endIntent": "Root tunnel with a large glowing crystal cluster occupying the path.",
+  "story": "Travel forward through this night forest and keep going. The journey should stay physically continuous, passing through openings and tunnels, and become stranger the deeper it goes.",
+  "locomotionBaseline": "First person POV camera continuously moving forward through a spatially-contiguous environment at a constant, fast speed, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue.",
+  "startImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/C.png",
+    "sha256": {
+      "sha256": "1465a343fcca3f4f31f0de272425d2242d69bfa23bd2a1946de81410fd9f635a",
+      "bytes": 1354351
+    }
+  },
+  "endImage": {
+    "path": "camotion/integration/forest-a-to-f/canonical/D.png",
+    "sha256": {
+      "sha256": "7611194648d1db7fbfa240c1f915f94c2b396fd0c484097b1c49ec805a074cb7",
+      "bytes": 1405156
+    }
+  }
+}
