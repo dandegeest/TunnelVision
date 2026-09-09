@@ -12,6 +12,7 @@ import {
 import {
   DEFAULT_VIDEO_MODEL_ID,
   parseVideoModelId,
+  videoModelDurationSeconds,
   videoModelSlug,
   type VideoModelId,
 } from "../media/src/replicate/video-models.ts";
@@ -21,7 +22,7 @@ import type { CamotionDebug } from "./src/project/types.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
 
-export const JOURNEY_VIDEO_DURATION_SECONDS = 6;
+export const JOURNEY_VIDEO_DURATION_SECONDS = videoModelDurationSeconds(DEFAULT_VIDEO_MODEL_ID);
 
 export type ShootJourneyBody = {
   journeyId?: unknown;
@@ -135,11 +136,13 @@ export async function shootPreparedJourney(input: {
     segmentPromptAddition,
   );
   const seed = optionalSeed();
+  const videoModelId = videoModelIdFromBody(input.body.videoModel);
+  const durationSeconds = videoModelDurationSeconds(videoModelId);
   const generated = await input.generateVideo({
     startImage: { kind: "file", path: startShootingFrame.filePath },
     endImage: { kind: "file", path: endShootingFrame.filePath },
     prompt: effectivePrompt,
-    durationSeconds: JOURNEY_VIDEO_DURATION_SECONDS,
+    durationSeconds,
     ...(seed !== undefined ? { seed } : {}),
   });
   return {
@@ -160,7 +163,7 @@ export async function shootPreparedJourney(input: {
     provider: generated.provider,
     model: generated.model,
     modelVersion: generated.modelVersion,
-    durationSeconds: JOURNEY_VIDEO_DURATION_SECONDS,
+    durationSeconds,
     ...(typeof generated.metadata.seed === "number"
       ? { seed: generated.metadata.seed }
       : seed !== undefined

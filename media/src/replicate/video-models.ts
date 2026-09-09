@@ -22,6 +22,8 @@ export type VideoModelOption = {
   readonly label: string;
   readonly tier: VideoModelTier;
   readonly cost: VideoModelCost;
+  /** Clip length this generator produces for a product SHOOT. */
+  readonly durationSeconds: number;
 };
 
 export const DEFAULT_VIDEO_MODEL_ID: VideoModelId = "pruna-p-video";
@@ -33,6 +35,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     label: "Pruna",
     tier: "dev",
     cost: "$",
+    durationSeconds: 6,
   },
   {
     id: "luma-ray-flash-2-720p",
@@ -40,6 +43,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     label: "Luma Ray Flash 2 720p",
     tier: "mid",
     cost: "$$",
+    durationSeconds: 5,
   },
   {
     id: "wan-2.2-first-last-frame",
@@ -47,6 +51,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     label: "Wan 2.2 First/Last Frame",
     tier: "mid",
     cost: "$$",
+    durationSeconds: 6,
   },
   {
     id: "seedance-2.0-fast",
@@ -54,6 +59,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     label: "Seedance 2.0 Fast",
     tier: "mid",
     cost: "$$",
+    durationSeconds: 6,
   },
   {
     id: "seedance-2.5",
@@ -61,6 +67,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     label: "Seedance 2.5",
     tier: "hq",
     cost: "$$$",
+    durationSeconds: 6,
   },
 ];
 
@@ -78,6 +85,10 @@ export function videoModelOption(id: VideoModelId): VideoModelOption {
 
 export function videoModelSlug(id: VideoModelId): string {
   return videoModelOption(id).slug;
+}
+
+export function videoModelDurationSeconds(id: VideoModelId): number {
+  return videoModelOption(id).durationSeconds;
 }
 
 export function videoModelMenuLabel(option: VideoModelOption): string {

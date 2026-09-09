@@ -5,11 +5,14 @@ import { projectWithSyncedProductionLegs } from "./production-legs";
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
+  projectWithJourneyClipDuration,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
   projectWithJourneyShotTake,
+  projectWithVideoModel,
   shootRequestFromProject,
 } from "./shoot";
+import { layoutTimeline } from "../timeline/geometry";
 import type { CinematographerAssessment, JourneyShotTake, Project } from "./types";
 
 const assessment: CinematographerAssessment = {
@@ -122,5 +125,49 @@ describe("SHOOT gate and JourneyShot take", () => {
       videoUrl: "https://example.test/a-b.mp4",
     });
     expect(journeysReadyToAutoShoot(rendered)).toEqual([]);
+  });
+
+  it("resizes a rendered leg to the take's clip length", () => {
+    const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    expect(prepared.journeys[0]?.durationSeconds).toBe(6);
+    const lumaTake: JourneyShotTake = { ...take, model: "luma/ray-flash-2-720p", durationSeconds: 5 };
+    const rendered = projectWithJourneyShotTake(prepared, "A-B", {
+      take: lumaTake,
+      videoUrl: "https://example.test/luma.mp4",
+    });
+    expect(rendered.journeys[0]?.durationSeconds).toBe(5);
+    expect(rendered.journeys[0]?.take?.durationSeconds).toBe(5);
+    const layout = layoutTimeline(rendered.destinations, rendered.journeys, 1);
+    expect(layout.journeys[0]?.endTime).toBe(5);
+    expect(layout.journeys[0]?.width).toBe(5 * 38);
+    expect(layout.totalDuration).toBe(5);
+  });
+
+  it("previews the new model's duration on unshot legs and keeps rendered takes", () => {
+    const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    const luma = projectWithVideoModel(prepared, "luma-ray-flash-2-720p");
+    expect(luma.videoModel).toBe("luma-ray-flash-2-720p");
+    expect(luma.journeys[0]?.durationSeconds).toBe(5);
+    const rendered = projectWithJourneyShotTake(luma, "A-B", {
+      take: { ...take, model: "luma/ray-flash-2-720p", durationSeconds: 5 },
+      videoUrl: "https://example.test/luma.mp4",
+    });
+    const backToPruna = projectWithVideoModel(rendered, "pruna-p-video");
+    expect(backToPruna.videoModel).toBe("pruna-p-video");
+    expect(backToPruna.journeys[0]?.durationSeconds).toBe(5);
+    expect(backToPruna.journeys[0]?.take?.durationSeconds).toBe(5);
+  });
+
+  it("snaps the timeline to the actual clip duration", () => {
+    const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    const rendered = projectWithJourneyShotTake(prepared, "A-B", {
+      take,
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    expect(rendered.journeys[0]?.durationSeconds).toBe(6);
+    const snapped = projectWithJourneyClipDuration(rendered, "A-B", 5.04);
+    expect(snapped.journeys[0]?.durationSeconds).toBe(5);
+    expect(snapped.journeys[0]?.take?.durationSeconds).toBe(5);
+    expect(projectWithJourneyClipDuration(snapped, "A-B", 5.04)).toBe(snapped);
   });
 });

@@ -9,8 +9,8 @@ export function isLumaRayFlash2720p(model: string): boolean {
 }
 
 /**
- * Ray Flash 2 720p only advertises 5s and 9s. Product shots are 6s;
- * map those to the nearer 5s clip. Do not loop.
+ * Ray Flash 2 720p only advertises 5s and 9s. Product shots for this
+ * model are 5s. A 6s request still maps to 5s. Do not loop.
  */
 export function lumaRayFlash2Duration(seconds?: number): 5 | 9 {
   if (seconds !== undefined && seconds > 6) {

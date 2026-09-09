@@ -119,7 +119,8 @@ storyboard.
 Specified stills are preserved. After planning, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit and registers the still as
-session/dev-runtime trusted media. Later beats stay planned until
+session/dev-runtime trusted media. A following beat's visual description is a
+far-field hint after this destination's image; the last beat has no look-ahead. Later beats stay planned until
 explicitly constructed. A thin Cinematographer assessment inspects
 two actual canonical stills for one JourneyShot and stores
 segment-specific camera choreography on that leg, including a
@@ -143,7 +144,9 @@ The Director architecture accepts
 story plus the complete ordered storyboard and `MediaInput` for actual
 destination stills. A project is a partially specified movie: the
 Director resolves what is not specified and preserves destinations
-that already have actual media. Story edits update `Project.story`
+that already have actual media. Empty intent or visual description on an
+actual still is filled from the attached image; existing plan text is kept.
+Story edits update `Project.story`
 without planning. Destination count (AUTO or a number, typed or stepped) sizes the
 storyboard before PLAN. When auto-generate starting destination is on,
 PLAN generates unresolved A from the story, then the Director plans.
@@ -172,6 +175,8 @@ Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and

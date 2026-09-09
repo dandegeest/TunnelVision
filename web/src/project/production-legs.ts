@@ -1,6 +1,6 @@
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type { Destination, JourneyShot, Project, StoryboardFrame } from "./types";
-import { DEFAULT_DURATION_SECONDS } from "../timeline/geometry";
+import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
 
 export type ProductionEndpoint = StoryboardFrame & { image: string; mediaId: string };
 
@@ -90,6 +90,7 @@ function upsertJourney(
   existing: JourneyShot | undefined,
   pair: ProductionPair,
   stale: boolean,
+  durationSeconds: number,
 ): JourneyShot {
   const startDestinationId = productionDestinationId(pair.start);
   const endDestinationId = productionDestinationId(pair.end);
@@ -104,7 +105,7 @@ function upsertJourney(
   return freshProductionJourney(
     startDestinationId,
     endDestinationId,
-    existing?.durationSeconds ?? DEFAULT_DURATION_SECONDS,
+    existing?.durationSeconds ?? durationSeconds,
   );
 }
 
@@ -145,6 +146,7 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     }
   }
 
+  const defaultDuration = videoModelDurationSeconds(project.videoModel);
   const nextDestinationsById = new Map(destinations.map((destination) => [destination.id, destination]));
   const pairIds: string[] = [];
   const journeys: JourneyShot[] = pairs.map((pair) => {
@@ -155,7 +157,7 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     const stale =
       destinationImageChanged(destinationsById, nextDestinationsById, startDestinationId) ||
       destinationImageChanged(destinationsById, nextDestinationsById, endDestinationId);
-    return upsertJourney(journeysById.get(id), pair, stale);
+    return upsertJourney(journeysById.get(id), pair, stale, defaultDuration);
   });
   for (const journey of project.journeys) {
     if (pairIds.includes(journey.id)) {

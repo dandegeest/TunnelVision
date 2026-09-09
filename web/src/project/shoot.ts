@@ -1,5 +1,6 @@
 import { actualFrameForDestination, canAssessJourney } from "./cinematographer";
-import type { JourneyShot, JourneyShotTake, LocomotionPace, Project, VideoModelId } from "./types";
+import { videoModelDurationSeconds, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import type { JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
 
 export type ShootJourneyRequest = {
   journeyId: string;
@@ -34,6 +35,23 @@ export function journeysReadyToAutoShoot(project: Project): JourneyShot[] {
     }
     return canShootJourney(project, journey);
   });
+}
+
+/** Switch generator. Unshot legs preview that model's clip length; rendered takes keep theirs until Reshoot. */
+export function projectWithVideoModel(project: Project, videoModel: VideoModelId): Project {
+  if (project.videoModel === videoModel) {
+    return project;
+  }
+  const durationSeconds = videoModelDurationSeconds(videoModel);
+  return {
+    ...project,
+    videoModel,
+    journeys: project.journeys.map((journey) =>
+      journey.status === "rendered" && journey.take
+        ? journey
+        : { ...journey, durationSeconds },
+    ),
+  };
 }
 
 export function shootRequestFromProject(project: Project, journeyId: string): ShootJourneyRequest {
@@ -97,6 +115,37 @@ export function projectWithJourneyShotTake(
             shootError: undefined,
           }
         : journey,
+    ),
+  };
+}
+
+/** Timeline follows the actual clip. Ignore empty or non-finite probes. */
+export function projectWithJourneyClipDuration(
+  project: Project,
+  journeyId: string,
+  durationSeconds: number,
+): Project {
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    return project;
+  }
+  const seconds = Math.max(1, Math.round(durationSeconds));
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  if (!journey) {
+    throw new Error("Unknown journey");
+  }
+  if (journey.durationSeconds === seconds && journey.take?.durationSeconds === seconds) {
+    return project;
+  }
+  return {
+    ...project,
+    journeys: project.journeys.map((item) =>
+      item.id === journeyId
+        ? {
+            ...item,
+            durationSeconds: seconds,
+            take: item.take ? { ...item.take, durationSeconds: seconds } : item.take,
+          }
+        : item,
     ),
   };
 }

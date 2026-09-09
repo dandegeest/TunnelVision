@@ -19,9 +19,11 @@ import {
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
+  projectWithJourneyClipDuration,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
   projectWithJourneyShotTake,
+  projectWithVideoModel,
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
@@ -84,6 +86,7 @@ type ProjectContextValue = {
   setProjectRailOpen: (open: boolean) => void;
   setAgency: (agency: Agency) => void;
   setVideoModel: (videoModel: VideoModelId) => void;
+  syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
   setStoryDurationInput: (raw: string) => void;
@@ -105,7 +108,7 @@ type ProjectContextValue = {
   shootJourney: (journeyId: string) => Promise<void>;
   startingFrameError: string | null;
   replacingStart: boolean;
-  replaceDestinationImage: (frameId: string, file: File) => Promise<void>;
+  replaceDestinationImage: (frameId: string, file: File, options?: { clearPlan?: boolean }) => Promise<void>;
   addDestination: () => void;
   removeDestination: (frameId: string) => void;
   constructingBeatId: string | null;
@@ -222,7 +225,11 @@ export function ProjectProvider({
   }, []);
 
   const setVideoModel = useCallback((videoModel: VideoModelId) => {
-    setProject((current) => (current.videoModel === videoModel ? current : { ...current, videoModel }));
+    setProject((current) => projectWithVideoModel(current, videoModel));
+  }, []);
+
+  const syncJourneyClipDuration = useCallback((journeyId: string, durationSeconds: number) => {
+    setProject((current) => projectWithJourneyClipDuration(current, journeyId, durationSeconds));
   }, []);
 
   const setComposerDraft = useCallback((draft: string) => {
@@ -264,7 +271,11 @@ export function ProjectProvider({
     setProject((current) => projectWithAutoShoot(current, enabled));
   }, []);
 
-  const replaceDestinationImage = useCallback(async (frameId: string, file: File) => {
+  const replaceDestinationImage = useCallback(async (
+    frameId: string,
+    file: File,
+    options?: { clearPlan?: boolean },
+  ) => {
     setStartingFrameError(null);
     setReplacingStart(true);
     try {
@@ -275,6 +286,7 @@ export function ProjectProvider({
           current,
           frameId,
           mediaInfo ? { ...uploaded, mediaInfo } : uploaded,
+          options,
         ),
       );
       setSelection({ kind: "storyboard", frameId });
@@ -746,6 +758,7 @@ export function ProjectProvider({
       setProjectRailOpen,
       setAgency,
       setVideoModel,
+      syncJourneyClipDuration,
       composerDraft,
       setComposerDraft,
       setStoryDurationInput,
@@ -796,6 +809,7 @@ export function ProjectProvider({
       projectRailOpen,
       setAgency,
       setVideoModel,
+      syncJourneyClipDuration,
       composerDraft,
       setStoryDurationInput,
       nudgeStoryDuration,

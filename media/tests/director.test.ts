@@ -299,6 +299,8 @@ test("Director request lists a complete partially specified storyboard", () => {
   assert.match(request.prompt, /Fill the unresolved slots \(B, D\)/);
   assert.match(request.prompt, /Do not invent a destination after D/);
   assert.match(request.systemInstruction, /does not overwrite specified filmmaking decisions/);
+  assert.match(request.systemInstruction, /describe it from the attached image/);
+  assert.doesNotMatch(request.prompt, /No intent or visual yet/);
   assert.deepEqual(request.images, [input.startFrame.image, { kind: "file", path: "/tmp/c.jpg" }]);
   assert.deepEqual(
     request.payload.storyboard?.map((slot) => ({ id: slot.id, specified: slot.specified })),
@@ -309,6 +311,27 @@ test("Director request lists a complete partially specified storyboard", () => {
       { id: "D", specified: false },
     ],
   );
+});
+
+test("Director request asks for a description of an actual still with no plan text", () => {
+  const request = buildDirectorRequest({
+    ...input,
+    story: "Continue through the hall toward the window.",
+    storyboard: [
+      { id: "A", label: "A", specified: true, intent: "Inside the attic." },
+      { id: "B", label: "B", specified: false },
+      { id: "C", label: "C", specified: true },
+      { id: "D", label: "D", specified: false },
+    ],
+    anchors: [
+      { id: "A", label: "A", image: input.startFrame.image },
+      { id: "C", label: "C", image: { kind: "file", path: "/tmp/c.jpg" } },
+    ],
+  });
+  assert.match(request.prompt, /C \(actual\)/);
+  assert.match(request.prompt, /Image 2 is this destination/);
+  assert.match(request.prompt, /No intent or visual yet\. Describe this destination from the attached image/);
+  assert.match(request.prompt, /Fill the unresolved slots \(B, D\)/);
 });
 
 test("Director story request looks at the opening still and forbids FPOV and looping language", () => {

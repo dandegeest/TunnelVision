@@ -97,7 +97,11 @@ intent; editing it does not plan. **PLAN** in the Project panel is the
 only UI action that invokes Director planning. The Director treats
 actual filmmaker-specified canonicals as authoritative: it resolves
 unspecified directing decisions and does not overwrite specified
-filmmaking decisions or generate images. Agency (Directed vs Autonomous) is orthogonal and is not a
+filmmaking decisions or generate images. When an uploaded or other actual still
+has no intent or visual description, PLAN describes that still from the attached
+image and adopts the text. Later PLANs leave filled fields alone. Uploading or
+replacing a still asks whether to clear existing plan text so the next PLAN can
+describe the new image. Agency (Directed vs Autonomous) is orthogonal and is not a
 stand-in for Discovery. Conversation is turn history; the Project panel
 holds the journey story, destination count, auto-generate-A,
 auto-generate-all, auto-block, auto-shoot, and PLAN. Opening A can be
@@ -109,7 +113,10 @@ pending **Planning…**, **Blocking…**, **Shooting…**, and construction turn
 Empty Plan FPO thumbnails overlay Director intent as readable text until
 an image exists. After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned edit
-(`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
+(`ImageEditProvider` / FLUX Kontext Pro). If a following beat already
+has a Director plan, that plan's visual description is a far-field hint after this
+destination's image; this viewpoint stays this destination. The last beat has
+no look-ahead. Later planned beats stay
 planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
@@ -123,7 +130,10 @@ clip. The Project panel Video control chooses the generator for every
 SHOOT in the current project. Pruna (`prunaai/p-video`) is the development
 default; mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last Frame, and
 Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in. Each adapter maps
-A′/B′ onto that model's start and last-frame fields. Shootability remains advisory set analysis; it does not
+A′/B′ onto that model's start and last-frame fields. Clip duration
+follows the generator: Pruna, Wan, and Seedance product shots are 6s;
+Luma Ray Flash 2 720p is 5s. The Shoot timeline tiles follow the take.
+Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
 CameraMotionPlan; a narrow deterministic bridge does. Export Movie
 concatenates whatever rendered journey clips currently exist, in
@@ -136,7 +146,9 @@ fixtures; they do not initialize the running product. The filmmaker
 provides starting frame A, may add unresolved destination slots,
 describes the movie, asks the Director to PLAN, and constructs unresolved beats through the existing Generate
 flow. Plan can replan
-around existing destinations; specified stills survive. The Director runtime resolves
+around existing destinations; specified stills survive. PLAN adopts intent and
+visual description onto an actual still only when those fields are empty.
+The Director runtime resolves
 that identity from Project state; it does not independently substitute
 a catalog still. Story edits update `Project.story` without planning. The filmmaker can
 replace a destination's canonical still in place. Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot. Uploaded media is
@@ -154,6 +166,8 @@ Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 
 ## Plan is a conversational storyboard
 
@@ -332,9 +346,12 @@ product schema yet.
 
 Current Construct is sequential Derived: destination N is built from
 the immediately preceding actual destination, not independently from
-A. Previous-frame conditioning is one strategy, not a mandatory rule
-for every destination. Wardrobe Loop remains evidence that independent
-generation can also produce a journey.
+A. The source image is still N−1; when N+1 already has a plan, that
+plan is a prompt-only far-field hint so N can include a visible
+handoff without becoming N+1. Opening A stays story T2I and does not
+look ahead. Previous-frame conditioning is one strategy, not a
+mandatory rule for every destination. Wardrobe Loop remains evidence
+that independent generation can also produce a journey.
 
 Sequential Derived construction has shown that the actual previous
 canonical can successfully condition the next destination, local
@@ -627,8 +644,9 @@ are later collaborative controls.
 shell. Plan is an explicit PLAN action over the current storyboard;
 the conversation rail is history. Journey story and PLAN live in the
 Project panel. After planning, Construct builds the next
-planned beat from the preceding actual destination. Later beats remain
-unresolved until the filmmaker constructs them. Export Movie concatenates
+planned beat from the preceding actual destination, with following-beat
+look-ahead in the Construct prompt when a successor plan exists.
+Later beats remain unresolved until the filmmaker constructs them. Export Movie concatenates
 rendered journey clips that exist; it is a test convenience, not an
 Edit workspace. A forest A→F
 research spike assembled a review movie outside the product UI; do
@@ -659,6 +677,8 @@ Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

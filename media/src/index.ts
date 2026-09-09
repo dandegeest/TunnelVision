@@ -67,6 +67,7 @@ export {
   isVideoModelId,
   parseVideoModelId,
   videoModelSlug,
+  videoModelDurationSeconds,
   videoModelOption,
   videoModelMenuLabel,
 } from "./replicate/video-models.ts";

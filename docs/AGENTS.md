@@ -88,7 +88,9 @@ storyboard planner now lives in `media/src/director/` (Product Slice 3).
 The project is a partially specified movie. The Director fills
 unspecified directing decisions and preserves existing destinations as
 authoritative constraints. It does not overwrite specified filmmaking
-decisions or generate images. The application starts as a new untitled
+decisions or generate images. Empty intent and visual description on an
+actual still are directing gaps: PLAN examines the attached image and
+fills them; later PLANs skip fields that are already set. The application starts as a new untitled
 project rather than a demonstration journey. Forest A→F remains
 research evidence and an explicit test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does
@@ -115,7 +117,9 @@ call the Director. It is disabled while PLAN or sequential destination
 generation is running. Delete removes a later storyboard beat without
 relabeling remaining ids or calling the Director; opening A cannot be
 deleted. The filmmaker can replace a destination's
-canonical still in place from the destination menu. Storyboard and
+canonical still in place from the destination menu. If that slot already has
+intent or a visual description, upload asks whether to clear them so a later
+PLAN can describe the new still. Storyboard and
 other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
 (letterbox or pillarbox) rather than stretching or cropping them.
 Clicking a
@@ -132,6 +136,10 @@ durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
+When a following beat already has a plan, Construct injects that plan's
+visual description as a far-field hint after this destination's image so this still can include a visible
+handoff. This viewpoint stays this destination; the last beat has no
+look-ahead. Opening A is still generated from the journey story only.
 Debug is a session header toggle, not project persistence. Technical
 in the Project panel lists session store paths for canonical stills
 and, after SHOOT, segment A′/B′ and Camotion work dirs. With Debug on,
@@ -153,7 +161,9 @@ SHOOT on a blocked leg runs Camotion and a configurable
 video model chosen in the Project panel. Pruna (`prunaai/p-video`) is the
 development default. Mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last
 Frame, and Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in for the
-same A′/B′ pipeline. After replacement, that destination
+same A′/B′ pipeline. Clip duration follows the generator (Pruna 6s,
+Luma Ray Flash 2 720p 5s); the Shoot timeline follows the take.
+After replacement, that destination
 keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F continuity evidence:
@@ -162,6 +172,8 @@ Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

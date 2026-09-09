@@ -68,6 +68,30 @@ export function parseStartingFrameUpload(body: unknown): StartingFrameUpload {
   return { mediaId, imageUrl };
 }
 
+export const CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT =
+  "This destination already has a plan. Clear the intent and visual description so the next PLAN can describe the new still?";
+
+export function storyboardFrameHasPlanText(
+  frame: Pick<StoryboardFrame, "intent" | "visualDescription">,
+): boolean {
+  return Boolean(frame.intent?.trim() || frame.visualDescription?.trim());
+}
+
+/** Ask whether to null existing plan text so a later PLAN can describe the new still. */
+export function shouldClearStoryboardPlanOnUpload(
+  frame: Pick<StoryboardFrame, "intent" | "visualDescription">,
+  confirm: (message: string) => boolean,
+): boolean {
+  if (!storyboardFrameHasPlanText(frame)) {
+    return false;
+  }
+  return confirm(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT);
+}
+
+export type ReplaceFrameImageOptions = {
+  clearPlan?: boolean;
+};
+
 /**
  * Replace a destination's canonical still in place. Keeps identity, order,
  * and neighboring frames. Does not invent a new destination.
@@ -76,6 +100,7 @@ export function projectWithReplacedFrameImage(
   project: Project,
   frameId: string,
   next: StartingFrameUpload,
+  options?: ReplaceFrameImageOptions,
 ): Project {
   if (!isTrustedMediaIdShape(next.mediaId)) {
     throw new Error("Starting frame has no trusted media identity");
@@ -104,6 +129,10 @@ export function projectWithReplacedFrameImage(
         ...(frame.destinationId ? {} : { destinationId: frame.id }),
       };
       delete replaced.generatedFrom;
+      if (options?.clearPlan) {
+        delete replaced.intent;
+        delete replaced.visualDescription;
+      }
       if (next.mediaInfo) {
         replaced.mediaInfo = next.mediaInfo;
       } else {
@@ -120,13 +149,14 @@ export function projectWithReplacedFrameImage(
 export function projectWithReplacedStartImage(
   project: Project,
   next: StartingFrameUpload,
+  options?: ReplaceFrameImageOptions,
 ): Project {
   const start =
     project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
   if (!start) {
     throw new Error("Project has no starting storyboard frame");
   }
-  return projectWithReplacedFrameImage(project, start.id, next);
+  return projectWithReplacedFrameImage(project, start.id, next, options);
 }
 
 export async function uploadStartingFrame(file: File): Promise<StartingFrameUpload> {

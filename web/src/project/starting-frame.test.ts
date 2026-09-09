@@ -14,6 +14,9 @@ import {
   runtimeMediaPreviewUrl,
   STARTING_FRAME_MAX_BYTES,
   startingFrameFileError,
+  shouldClearStoryboardPlanOnUpload,
+  storyboardFrameHasPlanText,
+  CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT,
   uploadStartingFrame,
 } from "./starting-frame";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
@@ -294,5 +297,78 @@ describe("providing starting frame A on a new project", () => {
     });
     expect(next.destinations.map((destination) => destination.id)).toEqual(["A", "B"]);
     expect(next.journeys.map((journey) => journey.id)).toEqual(["A-B"]);
+  });
+
+  it("keeps existing plan text on replace unless clearPlan is requested", () => {
+    const planned = projectWithDirectorPlan(
+      {
+        ...createNewProject(),
+        story: "Travel forward through connected volumes.",
+        storyboard: [
+          {
+            id: "A",
+            label: "A",
+            imageOrigin: "user",
+            image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          },
+          {
+            id: "B",
+            label: "B",
+            imageOrigin: "none",
+            intent: "Enter the hall.",
+            visualDescription: "A dark hall.",
+          },
+        ],
+      },
+      {
+        summary: "Enter the hall.",
+        beats: [{ id: "B", intent: "Enter the hall.", visualDescription: "A dark hall." }],
+      },
+    );
+    const kept = projectWithReplacedFrameImage(planned, "B", {
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    expect(kept.storyboard[1]?.intent).toBe("Enter the hall.");
+    expect(kept.storyboard[1]?.visualDescription).toBe("A dark hall.");
+    const cleared = projectWithReplacedFrameImage(
+      planned,
+      "B",
+      {
+        mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      },
+      { clearPlan: true },
+    );
+    expect(cleared.storyboard[1]?.intent).toBeUndefined();
+    expect(cleared.storyboard[1]?.visualDescription).toBeUndefined();
+    expect(cleared.storyboard[1]?.imageOrigin).toBe("user");
+  });
+});
+
+describe("clearing plan text on upload", () => {
+  it("does not prompt when the slot has no intent or visual description", () => {
+    const confirm = vi.fn(() => true);
+    expect(
+      shouldClearStoryboardPlanOnUpload({}, confirm),
+    ).toBe(false);
+    expect(confirm).not.toHaveBeenCalled();
+  });
+
+  it("prompts and follows the filmmaker choice when plan text exists", () => {
+    const frame = {
+      id: "C",
+      label: "C",
+      imageOrigin: "none" as const,
+      intent: "Reach the window.",
+      visualDescription: "An empty window onto pines.",
+    };
+    expect(storyboardFrameHasPlanText(frame)).toBe(true);
+    const accepted = vi.fn(() => true);
+    expect(shouldClearStoryboardPlanOnUpload(frame, accepted)).toBe(true);
+    expect(accepted).toHaveBeenCalledWith(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT);
+    const declined = vi.fn(() => false);
+    expect(shouldClearStoryboardPlanOnUpload(frame, declined)).toBe(false);
   });
 });

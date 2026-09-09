@@ -10,7 +10,12 @@ import {
   type DisplayProvenance,
   type FramePreflightWarning,
 } from "../project/media-preflight";
-import { STARTING_FRAME_ACCEPT, canUploadStoryboardFrame, hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import {
+  STARTING_FRAME_ACCEPT,
+  canUploadStoryboardFrame,
+  hasAuthoritativeStartingFrame,
+  shouldClearStoryboardPlanOnUpload,
+} from "../project/starting-frame";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
@@ -625,7 +630,11 @@ export function PlanView() {
             event.target.value = "";
             replacingFrameId.current = null;
             if (file && frameId) {
-              void replaceDestinationImage(frameId, file);
+              const frame = project.storyboard.find((item) => item.id === frameId);
+              const clearPlan = frame
+                ? shouldClearStoryboardPlanOnUpload(frame, (message) => window.confirm(message))
+                : false;
+              void replaceDestinationImage(frameId, file, { clearPlan });
             }
           }}
         />

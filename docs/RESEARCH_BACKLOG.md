@@ -425,7 +425,9 @@ displacement. Continuity and displacement may be competing objectives
 during image-conditioned destination construction. Do not add
 automatic intermediate-frame generation. Do not change the Director.
 Do not change the destination data model. Do not tune the Kontext
-prompt from these results.
+prompt from these results. Following-destination look-ahead is a
+separate Construct algorithm: N stays N, with N+1's plan as far-field
+text only. It does not insert an intermediate destination.
 
 ## Screenwriter agent
 

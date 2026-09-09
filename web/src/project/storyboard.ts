@@ -377,6 +377,25 @@ function plannedFrameFromBeat(beat: DirectorPlan["beats"][number]): StoryboardFr
   };
 }
 
+/** Adopt Director text onto an actual still only where intent or visual is still empty. */
+export function adoptDirectorBeatPlanIfEmpty(
+  frame: StoryboardFrame,
+  beat: DirectorPlan["beats"][number],
+): StoryboardFrame {
+  const intent = frame.intent?.trim() ?? "";
+  const visual = frame.visualDescription?.trim() ?? "";
+  if (intent && visual) {
+    return { ...frame };
+  }
+  return {
+    ...frame,
+    ...(!intent && beat.intent.trim() ? { intent: beat.intent.trim() } : {}),
+    ...(!visual && beat.visualDescription.trim()
+      ? { visualDescription: beat.visualDescription.trim() }
+      : {}),
+  };
+}
+
 function storyboardIdKey(id: string): string {
   return id.trim().toLowerCase();
 }
@@ -418,8 +437,9 @@ function assertDirectorAnchorMarkers(
 /**
  * Keep specified destinations (actual stills) as authoritative constraints.
  * Additional anchors must appear in beats[] as ordering markers; their stored
- * frames are preserved. Unresolved beats become planned/FPO frames around them.
- * Does not touch Shoot Destinations or Journeys.
+ * frames and filled plan text are preserved. Empty intent/visual on an actual
+ * still are adopted from the Director. Unresolved beats become planned/FPO
+ * frames around them. Does not touch Shoot Destinations or Journeys.
  */
 export function applyDirectorPlanToStoryboard(
   storyboard: StoryboardFrame[],
@@ -442,13 +462,16 @@ export function applyDirectorPlanToStoryboard(
 
   const anchorsByKey = new Map(anchors.map((frame) => [storyboardIdKey(frame.id), frame]));
   const placed = new Set<string>([storyboardIdKey(startFrame.id)]);
-  const next: StoryboardFrame[] = [{ ...startFrame }];
+  const openingBeat = plan.beats.find((beat) => sameStoryboardId(beat.id, startFrame.id));
+  const next: StoryboardFrame[] = [
+    openingBeat ? adoptDirectorBeatPlanIfEmpty(startFrame, openingBeat) : { ...startFrame },
+  ];
 
   for (const beat of subsequent) {
     const beatKey = storyboardIdKey(beat.id);
     const anchor = anchorsByKey.get(beatKey);
     if (anchor) {
-      next.push({ ...anchor });
+      next.push(adoptDirectorBeatPlanIfEmpty(anchor, beat));
       placed.add(beatKey);
       continue;
     }

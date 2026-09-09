@@ -1,5 +1,5 @@
 import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
-import { destinationConstructionPrompt, openingFrameGenerationPrompt } from "./src/project/destination.ts";
+import { destinationConstructionPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead } from "./src/project/destination.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
 
@@ -8,6 +8,7 @@ export type ConstructDestinationBody = {
   beatId?: unknown;
   intent?: unknown;
   visualDescription?: unknown;
+  nextDestination?: unknown;
 };
 
 export async function fetchGeneratedOutputBytes(url: string): Promise<{
@@ -41,6 +42,7 @@ export async function constructDestinationImage(input: {
       beatId: string;
       intent: string;
       visualDescription: string;
+      nextDestination?: { intent: string; visualDescription: string };
       prompt: string;
     };
     model: string;
@@ -63,7 +65,8 @@ export async function constructDestinationImage(input: {
   const intent = typeof input.body.intent === "string" ? input.body.intent.trim() : "";
   const visualDescription =
     typeof input.body.visualDescription === "string" ? input.body.visualDescription.trim() : "";
-  const prompt = destinationConstructionPrompt({ intent, visualDescription });
+  const nextDestination = optionalDestinationLookAhead(input.body.nextDestination);
+  const prompt = destinationConstructionPrompt({ intent, visualDescription, nextDestination });
   const sourceImage = resolveTrustedMedia(input.repoRoot, sourceMediaId);
   const generated = await input.editImage({ sourceImage, prompt });
   const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;
@@ -82,6 +85,7 @@ export async function constructDestinationImage(input: {
         beatId,
         intent,
         visualDescription,
+        ...(nextDestination ? { nextDestination } : {}),
         prompt,
       },
       model: generated.model,

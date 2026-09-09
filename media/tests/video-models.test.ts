@@ -10,6 +10,7 @@ import { SEEDANCE_25_MODEL } from "../src/replicate/seedance-2.5.ts";
 import {
   DEFAULT_VIDEO_MODEL_ID,
   parseVideoModelId,
+  videoModelDurationSeconds,
   videoModelMenuLabel,
   videoModelSlug,
   VIDEO_MODELS,
@@ -33,6 +34,8 @@ test("catalog keeps Pruna as the development default and labels cost tiers", () 
   assert.equal(videoModelSlug("wan-2.2-first-last-frame"), WAN_22_I2V_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.0-fast"), SEEDANCE_20_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.5"), SEEDANCE_25_MODEL);
+  assert.equal(videoModelDurationSeconds("pruna-p-video"), 6);
+  assert.equal(videoModelDurationSeconds("luma-ray-flash-2-720p"), 5);
   assert.equal(parseVideoModelId("bytedance/seedance-2.5"), "seedance-2.5");
   assert.equal(videoModelMenuLabel(VIDEO_MODELS[0]!), "Pruna $");
   assert.deepEqual(

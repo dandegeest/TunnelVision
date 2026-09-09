@@ -7,7 +7,12 @@ fixtures; they do not initialize the running product. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
 After Plan Movie, the filmmaker can construct the next planned
 destination from the immediately preceding actual destination through
-image-conditioned edit. Each construction is explicit. Export Movie
+image-conditioned edit. When a following beat already has a plan,
+Construct includes that plan's visual description as a far-field hint after this
+destination's image; this
+viewpoint stays this destination. The last beat has no look-ahead.
+Each construction is explicit. There is no filmmaker look-ahead
+control. Export Movie
 concatenates rendered journey clips that already exist.
 
 ## Primary interaction
@@ -37,12 +42,15 @@ shoots blocked legs regardless of CM warnings. PLAN asks the Director to plan un
 beats around the complete ordered storyboard; supplied stills remain
 authoritative. Planned beats start as FPO. Generate is centered beneath the
 planned thumbnail and builds the next planned beat from the preceding
-actual destination through image-conditioned edit; later beats stay
+actual destination through image-conditioned edit. Following-beat
+look-ahead is part of that Construct algorithm, not a Project-panel
+toggle; later beats stay
 planned until the filmmaker generates them. Empty FPO thumbnails overlay
 Director intent as readable text until an image exists; intent and visual
 description for actual cards stay on-demand from the thumbnail, with an
 editable prompt and Reshoot for generated stills. A generated still whose
-plan later changes shows Plan changed until Reshoot. Construct is sequential **Derived**
+plan later changes, including a following destination used as look-ahead,
+shows Plan changed until Reshoot. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
@@ -95,6 +103,8 @@ Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 
 ### Plan — conversational storyboard
 
@@ -177,7 +187,9 @@ shoot does not pass a depth map. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
 stills expose Replace…, which swaps that
-destination's canonical still in place. Later destinations also expose
+destination's canonical still in place. If the slot already has intent or a
+visual description, that action asks whether to clear them so the next PLAN can
+describe the new still. Later destinations also expose
 Delete; opening A cannot be deleted. Delete is structural: it does not
 invoke the Director or relabel remaining beats. An Add Destination affordance
 follows the last configured destination once A is actual; it appends an
@@ -261,7 +273,10 @@ Timeline has two locked lanes on one time axis:
   **occurrence** of destination A (`A | B | C | D | E | (A)`), not a
   sixth generated world.
 - **Journeys** — shots between those occurrences. Destination frame
-  **centers** sit on journey **boundaries**.
+  **centers** sit on journey **boundaries**. Tile width follows the
+  actual clip duration. Unshot legs preview the current video model's
+  length. After SHOOT, the take and the file win, so a 5s Luma reshoot
+  is shorter than a 6s Pruna take.
 
 Preview sits above the timeline. A contextual inspector sits beside
 it. Directed vs Autonomous is one project policy flag, not two UIs.

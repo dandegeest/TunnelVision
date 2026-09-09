@@ -399,14 +399,28 @@ const ADF_CONNECTIVE_PLAN = {
 };
 
 describe("Director preserves specified destinations", () => {
-  it("keeps A, D, and F unchanged while filling unresolved B, C, and E", () => {
+  it("keeps A, D, and F stills while filling unresolved B, C, and E", () => {
     const project = createForestPartialAnchorProject();
     const [start, crystal, voidFrame] = project.storyboard;
     const next = projectWithDirectorPlan(project, ADF_CONNECTIVE_PLAN);
     expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
     expect(next.storyboard[0]).toEqual(start);
-    expect(next.storyboard.find((frame) => frame.id === "D")).toEqual(crystal);
-    expect(next.storyboard.find((frame) => frame.id === "F")).toEqual(voidFrame);
+    expect(next.storyboard.find((frame) => frame.id === "D")).toMatchObject({
+      id: "D",
+      image: crystal?.image,
+      mediaId: crystal?.mediaId,
+      imageOrigin: crystal?.imageOrigin,
+      intent: FOREST_STORYBOARD_INTENTS.D,
+      visualDescription: "A restyled crystal cluster.",
+    });
+    expect(next.storyboard.find((frame) => frame.id === "F")).toMatchObject({
+      id: "F",
+      image: voidFrame?.image,
+      mediaId: voidFrame?.mediaId,
+      imageOrigin: voidFrame?.imageOrigin,
+      intent: FOREST_STORYBOARD_INTENTS.F,
+      visualDescription: "A restyled debris field.",
+    });
     expect(next.storyboard[1]).toMatchObject({
       id: "B",
       imageOrigin: "none",
@@ -451,6 +465,62 @@ describe("Director preserves specified destinations", () => {
     expect(next.slice(1).every((frame) => frame.imageOrigin === "none")).toBe(true);
   });
 
+  it("adopts Director intent onto an uploaded still that has no plan text", () => {
+    const opening: StoryboardFrame = {
+      id: "A",
+      label: "A",
+      imageOrigin: "user",
+      image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    };
+    const uploadedC: StoryboardFrame = {
+      id: "C",
+      label: "C",
+      imageOrigin: "user",
+      image: "/api/runtime-media/upload-cccccccccccccccccccccccccccccccc",
+      mediaId: "upload-cccccccccccccccccccccccccccccccc",
+    };
+    const storyboard: StoryboardFrame[] = [
+      opening,
+      { id: "B", label: "B", imageOrigin: "none" },
+      uploadedC,
+      { id: "D", label: "D", imageOrigin: "none" },
+      { id: "E", label: "E", imageOrigin: "none" },
+    ];
+    const next = applyDirectorPlanToStoryboard(storyboard, {
+      summary: "Pass the uploaded window and continue outside.",
+      beats: [
+        { id: "B", intent: "Enter the hall.", visualDescription: "A dark hall." },
+        { id: "C", intent: "Reach the broken window.", visualDescription: "An empty window onto pines." },
+        { id: "D", intent: "Step through the window.", visualDescription: "Dense pine branches." },
+        { id: "E", intent: "Arrive at the waterfall.", visualDescription: "A secluded fall." },
+      ],
+    });
+    expect(next.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E"]);
+    expect(next[2]).toMatchObject({
+      id: "C",
+      image: uploadedC.image,
+      mediaId: uploadedC.mediaId,
+      imageOrigin: "user",
+      intent: "Reach the broken window.",
+      visualDescription: "An empty window onto pines.",
+    });
+    expect(next[1]?.intent).toBe("Enter the hall.");
+    const again = applyDirectorPlanToStoryboard(next, {
+      summary: "A rewrite.",
+      beats: [
+        { id: "B", intent: "New hall.", visualDescription: "New hall look." },
+        { id: "C", intent: "Rewrite C.", visualDescription: "Rewrite C look." },
+        { id: "D", intent: "New pines.", visualDescription: "New pine look." },
+        { id: "E", intent: "New fall.", visualDescription: "New fall look." },
+      ],
+    });
+    expect(again[2]?.intent).toBe("Reach the broken window.");
+    expect(again[2]?.visualDescription).toBe("An empty window onto pines.");
+    expect(again[1]?.intent).toBe("New hall.");
+    expect(again[3]?.intent).toBe("New pines.");
+  });
+
   it("does not replace specified anchors when the Director is run again", () => {
     const project = createForestPartialAnchorProject();
     const first = projectWithDirectorPlan(project, ADF_CONNECTIVE_PLAN);
@@ -466,25 +536,31 @@ describe("Director preserves specified destinations", () => {
     });
     expect(second.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
     expect(second.storyboard[0]).toEqual(project.storyboard[0]);
-    expect(second.storyboard[3]).toEqual(project.storyboard[1]);
-    expect(second.storyboard[5]).toEqual(project.storyboard[2]);
+    expect(second.storyboard[3]?.image).toBe(project.storyboard[1]?.image);
+    expect(second.storyboard[3]?.intent).toBe(FOREST_STORYBOARD_INTENTS.D);
+    expect(second.storyboard[3]?.visualDescription).toBe("A restyled crystal cluster.");
+    expect(second.storyboard[5]?.image).toBe(project.storyboard[2]?.image);
+    expect(second.storyboard[5]?.intent).toBe(FOREST_STORYBOARD_INTENTS.F);
+    expect(second.storyboard[5]?.visualDescription).toBe("A restyled debris field.");
     expect(second.storyboard[1]?.intent).toBe("New mouth beat.");
     expect(second.storyboard[2]?.intent).toBe("New tunnel beat.");
     expect(second.storyboard[4]?.intent).toBe("New corridor beat.");
     expect(second.storyboard.some((frame) => frame.intent?.includes("rewrite"))).toBe(false);
+    expect(second.storyboard.some((frame) => frame.visualDescription?.includes("Another"))).toBe(false);
   });
 
-  it("does not apply Director rewrites of D or F to the stored frames", () => {
+  it("does not overwrite filled intent on specified stills", () => {
     const project = createForestPartialAnchorProject();
     const crystal = project.storyboard[1];
     const voidFrame = project.storyboard[2];
     const next = applyDirectorPlanToStoryboard(project.storyboard, ADF_CONNECTIVE_PLAN);
-    expect(next.find((frame) => frame.id === "D")).toEqual(crystal);
-    expect(next.find((frame) => frame.id === "F")).toEqual(voidFrame);
+    expect(next.find((frame) => frame.id === "D")?.image).toBe(crystal?.image);
+    expect(next.find((frame) => frame.id === "F")?.image).toBe(voidFrame?.image);
     expect(next.find((frame) => frame.id === "D")?.intent).not.toBe("Director rewrite of the crystal.");
-    expect(next.find((frame) => frame.id === "F")?.visualDescription).not.toBe(
-      "A restyled debris field.",
-    );
+    expect(next.find((frame) => frame.id === "D")?.intent).toBe(FOREST_STORYBOARD_INTENTS.D);
+    expect(next.find((frame) => frame.id === "F")?.intent).toBe(FOREST_STORYBOARD_INTENTS.F);
+    expect(next.find((frame) => frame.id === "D")?.visualDescription).toBe("A restyled crystal cluster.");
+    expect(next.find((frame) => frame.id === "F")?.visualDescription).toBe("A restyled debris field.");
   });
 
   it("fails when the Director omits authoritative destination D", () => {

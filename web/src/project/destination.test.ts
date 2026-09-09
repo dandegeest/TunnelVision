@@ -37,6 +37,11 @@ const generatedC = {
   imageUrl: "/api/runtime-media/upload-22222222222222222222222222222222",
 };
 
+const generatedD = {
+  mediaId: "upload-33333333333333333333333333333333",
+  imageUrl: "/api/runtime-media/upload-33333333333333333333333333333333",
+};
+
 const beats = {
   summary: "A test journey through connected volumes.",
   beats: [
@@ -87,14 +92,68 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/Move forward into the cleft/);
     expect(prompt).toMatch(/narrow stone corridor with orange light/);
     expect(prompt).toMatch(/spatial continuation/i);
-    expect(prompt).toMatch(/camera must have changed position/i);
+    expect(prompt).toMatch(/camera position must change/i);
     expect(prompt).toMatch(/unembodied first-person POV/);
     expect(prompt).toMatch(/People, animals, vehicles, objects, and other subjects may appear naturally/);
     expect(prompt).not.toMatch(/Do not show a person/);
     expect(prompt).not.toMatch(/vanishing point/i);
     expect(prompt).not.toMatch(/Camotion/i);
     expect(prompt).not.toMatch(/Seedance/i);
-    expect(prompt).not.toMatch(/exposure/i);
+    expect(prompt).not.toMatch(/Look ahead only/);
+    expect(prompt).not.toMatch(/far field/);
+    expect(prompt.indexOf("Create this destination viewpoint:")).toBeLessThan(
+      prompt.indexOf("Move the camera from the source viewpoint:"),
+    );
+    expect(prompt.indexOf("A narrow stone corridor with orange light.")).toBeLessThan(
+      prompt.indexOf("Move forward into the cleft."),
+    );
+  });
+
+  it("injects the following destination as far-field only", () => {
+    const visual = "A dark cobblestone alley with warm lanterns.";
+    const prompt = destinationConstructionPrompt({
+      intent: "Track forward through the lantern alley.",
+      visualDescription: visual,
+      nextDestination: {
+        intent: "Cross the threshold into the desert.",
+        visualDescription: "A bright sunlit desert with iron gates.",
+      },
+    });
+    expect(prompt).toMatch(/Create this destination viewpoint:\nA dark cobblestone alley with warm lanterns/);
+    expect(prompt).toMatch(/This viewpoint is the destination\. Do not advance to the following destination/);
+    expect(prompt).toMatch(/Look ahead only:/);
+    expect(prompt).toMatch(/far field or a visible opening/);
+    expect(prompt).toMatch(/iron gates/);
+    expect(prompt).toMatch(/Do not move the camera there, replace this place with it/);
+    expect(prompt).not.toMatch(/Following destination intent/);
+    expect(prompt).not.toMatch(/The next viewpoint should look like this:/);
+    const visualAt = prompt.indexOf(visual);
+    const intentAt = prompt.indexOf("Track forward through the lantern alley.");
+    const lookAt = prompt.indexOf("Look ahead only:");
+    const povAt = prompt.indexOf("unembodied first-person POV");
+    expect(visualAt).toBeGreaterThan(-1);
+    expect(visualAt).toBeLessThan(intentAt);
+    expect(intentAt).toBeLessThan(lookAt);
+    expect(lookAt).toBeLessThan(povAt);
+  });
+
+  it("includes the following destination's full visual description as far-field only", () => {
+    const visual = "The shadowed threshold of the cabin interior. Rotted floorboards and fallen debris lead toward the main room.";
+    const nextVisual =
+      "A decaying room centered on an imposing, ornately carved stone fireplace draped in dense cobwebs. A weathered oval table and broken wooden chairs rest on the ruined plank floor.";
+    const prompt = destinationConstructionPrompt({
+      intent: "Advance up the wooden steps and pass through the broken front door into the cabin.",
+      visualDescription: visual,
+      nextDestination: {
+        intent: "Move into the center of the main room, stopping before the fireplace.",
+        visualDescription: nextVisual,
+      },
+    });
+    expect(prompt).toContain(nextVisual);
+    expect(prompt).toMatch(/Look ahead only:\nA decaying room centered on an imposing, ornately carved stone fireplace draped in dense cobwebs/);
+    expect(prompt).not.toMatch(/dense Hint at this/);
+    expect(prompt).not.toContain("Move into the center of the main room, stopping before the fireplace.");
+    expect(prompt.indexOf(visual)).toBeLessThan(prompt.indexOf("Look ahead only:"));
   });
 });
 
@@ -113,6 +172,10 @@ describe("construct B from current Project state", () => {
     expect(request.beatId).toBe("B");
     expect(request.intent).toBe(beats.beats[0]?.intent);
     expect(request.visualDescription).toBe(beats.beats[0]?.visualDescription);
+    expect(request.nextDestination).toEqual({
+      intent: beats.beats[1]?.intent,
+      visualDescription: beats.beats[1]?.visualDescription,
+    });
   });
 
   it("exposes construction only for planned B until B is actual", () => {
@@ -204,8 +267,15 @@ describe("construct C from actual B", () => {
     expect(request.beatId).toBe("C");
     expect(request.intent).toBe(beats.beats[1]?.intent);
     expect(request.visualDescription).toBe(beats.beats[1]?.visualDescription);
+    expect(request.nextDestination).toEqual({
+      intent: beats.beats[2]?.intent,
+      visualDescription: beats.beats[2]?.visualDescription,
+    });
     expect(destinationConstructionPrompt(request)).toContain(beats.beats[1]?.intent ?? "");
     expect(destinationConstructionPrompt(request)).toContain(beats.beats[1]?.visualDescription ?? "");
+    expect(destinationConstructionPrompt(request)).toContain(beats.beats[2]?.visualDescription ?? "");
+    expect(destinationConstructionPrompt(request)).toMatch(/Do not advance to the following destination/);
+    expect(destinationConstructionPrompt(request)).toMatch(/Look ahead only:/);
   });
 
   it("gives C actual media without changing A, B, D...N, or story", () => {
@@ -246,6 +316,57 @@ describe("construct C from actual B", () => {
     );
     expect(canConstructDestinationFrame(constructed, constructed.storyboard[3]!)).toBe(true);
     expect(canConstructDestinationFrame(constructed, c)).toBe(false);
+  });
+
+  it("omits look-ahead on the last planned beat", () => {
+    const actualD = projectWithConstructedDestination(
+      projectWithConstructedDestination(withActualB(), { beatId: "C", ...generatedC }),
+      { beatId: "D", ...generatedD },
+    );
+    const request = destinationConstructionRequestFromProject(actualD, "E");
+    expect(request.beatId).toBe("E");
+    expect(request.nextDestination).toBeUndefined();
+    expect(destinationConstructionPrompt(request)).not.toMatch(/Look ahead only/);
+  });
+
+  it("uses an uploaded following still's adopted plan as look-ahead", () => {
+    const planned = projectWithDirectorPlan(
+      {
+        ...createNewProject(),
+        story: "Travel forward through connected volumes.",
+        storyboard: [
+          {
+            id: "A",
+            label: "A",
+            imageOrigin: "user",
+            image: upload.imageUrl,
+            mediaId: upload.mediaId,
+          },
+          { id: "B", label: "B", imageOrigin: "none" },
+          {
+            id: "C",
+            label: "C",
+            imageOrigin: "user",
+            image: "/api/runtime-media/upload-cccccccccccccccccccccccccccccccc",
+            mediaId: "upload-cccccccccccccccccccccccccccccccc",
+          },
+        ],
+      },
+      {
+        summary: "Reach the window.",
+        beats: [
+          { id: "B", intent: "Enter the hall.", visualDescription: "A dark hall." },
+          { id: "C", intent: "Reach the window.", visualDescription: "An empty window onto pines." },
+        ],
+      },
+    );
+    const request = destinationConstructionRequestFromProject(planned, "B");
+    expect(request.nextDestination).toEqual({
+      intent: "Reach the window.",
+      visualDescription: "An empty window onto pines.",
+    });
+    expect(destinationConstructionPrompt(request)).toMatch(/Look ahead only:/);
+    expect(destinationConstructionPrompt(request)).toContain("An empty window onto pines.");
   });
 
   it("cannot construct a destination whose predecessor lacks actual media", () => {
@@ -374,5 +495,9 @@ describe("destination reshoot", () => {
     });
     expect(generatedStillNeedsReshoot(stale, stale.storyboard[1]!)).toBe(true);
     expect(generatedStillNeedsReshoot(reshots, reshots.storyboard[1]!)).toBe(false);
+    const nextStale = projectWithStoryboardBeatPlan(actualB, "C", {
+      visualDescription: "A rewritten following destination after B already exists.",
+    });
+    expect(generatedStillNeedsReshoot(nextStale, nextStale.storyboard[1]!)).toBe(true);
   });
 });

@@ -92,6 +92,42 @@ describe("shootPreparedJourney", () => {
     });
   });
 
+  it("requests and records Luma's 5s clip length", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-shoot-luma-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    let duration: number | undefined;
+    const take = await shootPreparedJourney({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        videoModel: "luma-ray-flash-2-720p",
+      },
+      renderFrame: async () => PNG,
+      generateVideo: async (request) => {
+        duration = request.durationSeconds;
+        return {
+          provider: "replicate",
+          model: "luma/ray-flash-2-720p",
+          modelVersion: "test",
+          predictionId: "pred-luma",
+          status: "succeeded",
+          outputUrl: "https://example.test/luma.mp4",
+          metadata: {},
+          startedAt: "2026-09-09T00:00:00.000Z",
+          completedAt: "2026-09-09T00:00:05.000Z",
+          elapsedMs: 5000,
+        };
+      },
+    });
+    expect(duration).toBe(5);
+    expect(take.durationSeconds).toBe(5);
+    expect(take.model).toBe("luma/ray-flash-2-720p");
+  });
+
   it("accepts a catalog video model id or Replicate slug", () => {
     expect(videoModelIdFromBody(undefined)).toBe("pruna-p-video");
     expect(videoModelIdFromBody("seedance-2.0-fast")).toBe("seedance-2.0-fast");

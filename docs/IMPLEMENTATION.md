@@ -170,10 +170,15 @@ variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. The project is a
 partially specified movie: existing destination stills are preserved,
-and the Director fills unspecified connective beats. After planning,
+and the Director fills unspecified connective beats. Empty intent or
+visual description on an actual still is adopted from that PLAN; filled
+fields are not overwritten. After planning,
 Construct builds the next planned beat from the immediately preceding
 actual destination through
-`ImageEditProvider` (FLUX Kontext Pro). Later beats stay planned until
+`ImageEditProvider` (FLUX Kontext Pro). If a following beat already has
+a Director plan, that plan's visual description is a far-field hint after this
+destination's image; this viewpoint stays this destination. The last beat has
+no look-ahead. Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
@@ -226,6 +231,8 @@ Product Slice 4 UI:
 [`genesis/research/15-product-slice-4.html`](../genesis/research/15-product-slice-4.html).
 Product Slice 5 Project video model:
 [`genesis/research/16-product-slice-5.html`](../genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[`genesis/research/17-product-slice-6.html`](../genesis/research/17-product-slice-6.html).
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; Media Info is an
@@ -289,8 +296,10 @@ video model in the Project panel (`pruna-p-video`,
 `luma-ray-flash-2-720p`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
 Seedance models use `image`/`last_frame_image`; Luma Ray Flash 2 720p
-uses `start_image`/`end_image` and maps 6s product shots to the nearer
-5s clip; Wan 2.2 I2V Fast uses `image`/`last_image`.
+uses `start_image`/`end_image` and a 5s clip; Wan 2.2 I2V Fast uses
+`image`/`last_image`. The Shoot timeline follows that take's duration,
+so a Luma reshoot shortens a 6s tile to 5s. Unshot legs preview the
+current project's model duration.
 `TUNNELVISION_VIDEO_MODEL` remains an env fallback for
 tools that still read a slug. It does not replace Seedance 2.5 as the
 endpoint-conditioned quality-validation model. Draft P-Video clips are still not production-quality

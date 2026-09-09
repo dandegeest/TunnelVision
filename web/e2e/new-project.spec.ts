@@ -98,7 +98,16 @@ async function mockProviderBoundaries(page: Page) {
       beatId: string;
       intent: string;
       visualDescription: string;
+      nextDestination?: { intent: string; visualDescription: string };
     };
+    if (request.beatId === "B") {
+      expect(request.nextDestination).toEqual({
+        intent: DIRECTOR_PLAN.beats[1]?.intent,
+        visualDescription: DIRECTOR_PLAN.beats[1]?.visualDescription,
+      });
+    } else {
+      expect(request.nextDestination).toBeUndefined();
+    }
     const constructed = request.beatId === "C" ? CONSTRUCTED_C : CONSTRUCTED_B;
     await route.fulfill({
       status: 200,

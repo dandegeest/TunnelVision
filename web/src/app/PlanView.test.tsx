@@ -756,6 +756,11 @@ describe("Plan destination details", () => {
     expect(html).toContain("storyboard-plan-changed-flag");
     expect(html).toContain('aria-label="Storyboard B, plan changed"');
     expect(renderPlan(constructedB)).not.toContain("Plan changed");
+    const nextStale = projectWithStoryboardBeatPlan(constructedB, "C", {
+      visualDescription: "A rewritten following destination after B already exists.",
+    });
+    expect(generatedStillNeedsReshoot(nextStale, nextStale.storyboard[1]!)).toBe(true);
+    expect(renderPlan(nextStale)).toContain('aria-label="Storyboard B, plan changed"');
   });
 
   it("does not treat Add Destination or empty frames as destination details", () => {

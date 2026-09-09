@@ -75,6 +75,53 @@ describe("destination construction server path", () => {
     expect(result.evidence.outputMediaId).toBe(result.mediaId);
   });
 
+  it("forwards following-destination look-ahead into the edit prompt", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-next-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const uploaded = registry.register(PNG, "image/png");
+    let prompt = "";
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: uploaded.mediaId,
+        beatId: "C",
+        intent: "Track forward through the lantern alley.",
+        visualDescription: "A dark cobblestone alley with warm lanterns.",
+        nextDestination: {
+          intent: "Cross the threshold into the desert.",
+          visualDescription: "A bright sunlit desert with iron gates.",
+        },
+      },
+      editImage: async (request) => {
+        prompt = request.prompt;
+        return {
+          provider: "replicate",
+          model: "black-forest-labs/flux-kontext-pro",
+          modelVersion: "test",
+          predictionId: "pred-next",
+          status: "succeeded",
+          outputUrl: "https://example.test/c-next.png",
+          metadata: {},
+          startedAt: "2026-09-07T00:00:00.000Z",
+          completedAt: "2026-09-07T00:00:02.000Z",
+          elapsedMs: 2000,
+        };
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(prompt).toBe(
+      destinationConstructionPrompt({
+        intent: "Track forward through the lantern alley.",
+        visualDescription: "A dark cobblestone alley with warm lanterns.",
+        nextDestination: {
+          intent: "Cross the threshold into the desert.",
+          visualDescription: "A bright sunlit desert with iron gates.",
+        },
+      }),
+    );
+    expect(prompt).toMatch(/iron gates/);
+  });
+
   it("resolves catalog A, not a Wardrobe filesystem path sent by the browser", async () => {
     setActiveRuntimeMediaRegistry(
       createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-catalog-"))),
@@ -202,6 +249,7 @@ describe("destination construction server path", () => {
         visualDescription: "A jagged underground tunnel.",
       }),
     );
+    expect(edited.prompt).not.toMatch(/Look ahead only/);
     expect(result.mediaId).not.toBe(sourceA.mediaId);
     expect(result.mediaId).not.toBe(sourceB.mediaId);
     expect(registry.get(sourceB.mediaId)?.filePath).toBe(sourceB.filePath);

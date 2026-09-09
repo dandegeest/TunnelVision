@@ -62,12 +62,14 @@ Rules:
 - Return beats in travel order after the opening.
 - Preserve every existing destination id and order. Actual stills are authoritative; reason from the attached images, not merely stale text.
 - For unresolved slots, supply intent and visualDescription. Do not generate images. PLAN fills semantic gaps, not image gaps.
+- For an existing actual destination with no intent or visualDescription, describe it from the attached image. Include that id in beats[]. The product keeps the still and adopts that text.
+- For an existing actual destination that already has intent and visualDescription, restating its known look is fine; the product keeps the original still and those existing fields.
 - When the opening is the only existing destination, return subsequent beats only, with ids continuing after the opening (B, C, D, …). Use the fewest destinations necessary to express the filmmaker's requested journey. Add a beat when the camera reaches a meaningfully new place, world state, or story moment. Do not create separate storyboard beats merely for approaching and then crossing the same threshold when that movement can occur within one continuous shot. Simple journeys may require only 2–4 subsequent destinations. Use more when the filmmaker's story genuinely requires them.
 - When later destination slots already exist, fill those ids. Do not invent an extra destination after the last existing slot merely because you were asked to plan.
 - When every listed destination is already actual and there are no unused letters between them, analyze the sequence and return those existing subsequent ids. Do not add a new destination.
 - When listed destinations are actual but unused letters remain between them, you may invent connective ids only for those missing positions. Include each existing non-opening destination in beats[] using its current id, in the given travel order.
 - New ids must not reuse an existing destination id.
-- intent and visualDescription must be non-empty strings. For an existing actual destination, restating its known intent/look is fine; the product will keep the original still.
+- intent and visualDescription must be non-empty strings.
 - Do not add provider, model, Camotion, canonical, or image-path fields.
 `;
 
@@ -118,14 +120,16 @@ function slotLine(
   if (imageNumber !== undefined) {
     bits.push(`Image ${imageNumber} is this destination.`);
   }
+  const intent = slot.intent?.trim();
+  const visual = slot.visualDescription?.trim();
   if (!specified) {
     bits.push("Fill this slot semantically. Do not generate an image.");
+  } else if (role !== "opening" && !intent && !visual) {
+    bits.push("No intent or visual yet. Describe this destination from the attached image.");
   }
-  const intent = slot.intent?.trim();
   if (intent) {
     bits.push(`Intent: ${intent}`);
   }
-  const visual = slot.visualDescription?.trim();
   if (visual) {
     bits.push(`Visual: ${visual}`);
   }
@@ -251,10 +255,13 @@ export function directorUserPrompt(input: {
         nextImage += 1;
       }
       const intent = anchor.intent?.trim();
+      const visual = anchor.visualDescription?.trim();
+      if (hasImage && !intent && !visual) {
+        bits.push("No intent or visual yet. Describe this destination from the attached image.");
+      }
       if (intent) {
         bits.push(`Intent: ${intent}`);
       }
-      const visual = anchor.visualDescription?.trim();
       if (visual) {
         bits.push(`Visual: ${visual}`);
       }

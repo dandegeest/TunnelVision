@@ -20,6 +20,7 @@ export function Preview() {
     setPlaying,
     playheadTime,
     setPlayheadTime,
+    syncJourneyClipDuration,
   } = useProject();
   const videoRef = useRef<HTMLVideoElement>(null);
   const layout = layoutTimeline(project.destinations, project.journeys, 1);
@@ -91,6 +92,9 @@ export function Preview() {
             preload="metadata"
             onPlay={() => setPlaying(true)}
             onPause={() => setPlaying(false)}
+            onLoadedMetadata={(event) => {
+              syncJourneyClipDuration(selectedJourney.id, event.currentTarget.duration);
+            }}
             onTimeUpdate={(event) => {
               const laid = layout.journeys.find((item) => item.journeyId === selectedJourney.id);
               if (!laid) {

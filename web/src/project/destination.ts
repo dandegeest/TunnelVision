@@ -4,11 +4,18 @@ import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import type { Project, StoryboardFrame } from "./types";
 
+export type DestinationLookAhead = {
+  intent: string;
+  visualDescription: string;
+};
+
 export type DestinationConstructionRequest = {
   sourceMediaId: string;
   beatId: string;
   intent: string;
   visualDescription: string;
+  /** Following beat's plan. Far-field only; this viewpoint stays this destination. */
+  nextDestination?: DestinationLookAhead;
 };
 
 export type DestinationConstructionResult = {
@@ -22,6 +29,7 @@ export type DestinationConstructionEvidence = {
     beatId: string;
     intent: string;
     visualDescription: string;
+    nextDestination?: DestinationLookAhead;
     prompt: string;
   };
   model: string;
@@ -48,30 +56,64 @@ function isActualTrustedFrame(frame: StoryboardFrame | undefined): frame is Stor
   );
 }
 
+export function optionalDestinationLookAhead(value: unknown): DestinationLookAhead | undefined {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+  const intent = "intent" in value && typeof value.intent === "string" ? value.intent.trim() : "";
+  const visualDescription =
+    "visualDescription" in value && typeof value.visualDescription === "string"
+      ? value.visualDescription.trim()
+      : "";
+  if (!intent && !visualDescription) {
+    return undefined;
+  }
+  return {
+    intent: intent || visualDescription,
+    visualDescription: visualDescription || intent,
+  };
+}
+
+function followingDestinationLookAhead(next: DestinationLookAhead): string {
+  const payload = (next.visualDescription || next.intent).replace(/\s+/g, " ").trim();
+  return [
+    "Look ahead only:",
+    payload,
+    "Hint at this only through the far field or a visible opening if physically appropriate. Do not move the camera there, replace this place with it, or relight this place to match it.",
+  ].join("\n");
+}
+
 /**
  * Provider-neutral destination-construction prompt. Spatial intent and the
  * resulting viewpoint are both required. Not a shooting-geometry prompt.
+ * Order: this destination's image, preserve world, A→B move, subordinate
+ * far-field look-ahead, unembodied POV. A following beat is distant
+ * foreshadowing only; this viewpoint stays this destination.
  */
 export function destinationConstructionPrompt(input: {
   intent: string;
   visualDescription: string;
+  nextDestination?: DestinationLookAhead;
 }): string {
   const intent = input.intent.trim();
   const visualDescription = input.visualDescription.trim();
   if (!intent || !visualDescription) {
     throw new Error("Destination construction requires intent and visual description");
   }
+  const next = optionalDestinationLookAhead(input.nextDestination);
   return [
-    "Preserve the same physical world, materials, lighting character, and visual identity of the source image.",
-    "",
-    "Move the camera to a new position according to this spatial intent:",
-    intent,
-    "",
-    "The next viewpoint should look like this:",
+    "Create this destination viewpoint:",
     visualDescription,
     "",
-    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera must have changed position. Preserve recognizable environmental continuity where physically appropriate.",
+    ...(next
+      ? ["This viewpoint is the destination. Do not advance to the following destination.", ""]
+      : []),
+    "Preserve the same physical world, materials, lighting character, and visual identity of the source image.",
+    "Move the camera from the source viewpoint:",
+    intent,
+    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera position must change.",
     "",
+    ...(next ? [followingDestinationLookAhead(next), ""] : []),
     UNEMBODIED_FIRST_PERSON_POV,
   ].join("\n");
 }
@@ -87,6 +129,19 @@ export function precedingActualFrame(
   }
   const previous = project.storyboard[index - 1];
   return isActualTrustedFrame(previous) ? previous : undefined;
+}
+
+/** Following storyboard beat's plan, if it has spatial intent. Last beat has none. */
+export function followingDestinationPlan(
+  project: Project,
+  frame: StoryboardFrame,
+): DestinationLookAhead | undefined {
+  const index = project.storyboard.findIndex((item) => item.id === frame.id);
+  if (index < 0 || index >= project.storyboard.length - 1) {
+    return undefined;
+  }
+  const next = project.storyboard[index + 1];
+  return next ? destinationConstructionPlan(next) ?? undefined : undefined;
 }
 
 /** Spatial intent plus viewpoint prompt. Either field may stand in for a missing pair on reshoot. */
@@ -111,7 +166,14 @@ export function storyboardGenerationSignature(project: Project, frame: Storyboar
     return story ? `story:${story}` : undefined;
   }
   const plan = destinationConstructionPlan(frame);
-  return plan ? `plan:${plan.intent}\n${plan.visualDescription}` : undefined;
+  if (!plan) {
+    return undefined;
+  }
+  const next = followingDestinationPlan(project, frame);
+  if (!next) {
+    return `plan:${plan.intent}\n${plan.visualDescription}`;
+  }
+  return `plan:${plan.intent}\n${plan.visualDescription}\nnext:${next.intent}\n${next.visualDescription}`;
 }
 
 export function generatedStillNeedsReshoot(project: Project, frame: StoryboardFrame): boolean {
@@ -237,11 +299,13 @@ export function destinationConstructionRequestFromProject(
   if (!beat || !previous || !plan || (!constructable && !reshootable)) {
     throw new Error("Destination is not ready to construct");
   }
+  const nextDestination = followingDestinationPlan(project, beat);
   return {
     sourceMediaId: previous.mediaId,
     beatId: beat.id,
     intent: plan.intent,
     visualDescription: plan.visualDescription,
+    ...(nextDestination ? { nextDestination } : {}),
   };
 }
 

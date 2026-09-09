@@ -168,9 +168,13 @@ describe("partially specified movie interaction model", () => {
     });
     expect(planned.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D"]);
     expect(planned.storyboard[0]).toEqual(project.storyboard[0]);
-    expect(planned.storyboard[1]).toEqual(project.storyboard[1]);
-    expect(planned.storyboard[2]).toEqual(project.storyboard[2]);
-    expect(planned.storyboard[3]).toEqual(project.storyboard[3]);
+    expect(planned.storyboard[1]?.image).toBe(B_MEDIA.imageUrl);
+    expect(planned.storyboard[1]?.intent).toBe("Pass B.");
+    expect(planned.storyboard[1]?.visualDescription).toBe("B still.");
+    expect(planned.storyboard[2]?.image).toBe(C_MEDIA.imageUrl);
+    expect(planned.storyboard[2]?.intent).toBe("Pass C.");
+    expect(planned.storyboard[3]?.image).toBe(D_MEDIA.imageUrl);
+    expect(planned.storyboard[3]?.intent).toBe("Arrive at D.");
     expect(() =>
       projectWithDirectorPlan(project, {
         summary: "Invent an extra beat.",
