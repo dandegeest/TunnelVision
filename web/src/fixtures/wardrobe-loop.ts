@@ -37,6 +37,7 @@ export function createWardrobeProject(): Project {
     autoGenerateAllDestinations: false,
     autoBlockShots: false,
     autoShoot: false,
+    videoModel: "pruna-p-video",
     storyDurationLocked: false,
     storyboard: [
       {

@@ -54,7 +54,7 @@ function ViewSwitch() {
   const { view, setView, project } = useProject();
   const canOpenShoot = hasAuthoritativeStartingFrame(project);
   return (
-    <nav className="flex shrink-0 items-center gap-1 rounded-full border border-[#3a342c] p-1 text-sm">
+    <nav className="relative z-10 flex shrink-0 items-center gap-1 rounded-full border border-[#3a342c] p-1 text-sm">
       <button
         type="button"
         className={`rounded-full px-4 py-1 ${view === "plan" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"}`}
@@ -139,7 +139,7 @@ export function WorkspaceToolbar({ leading }: { leading?: ReactNode } = {}) {
     <div className="workspace-toolbar grid min-w-0 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
       <div className="min-w-0">{leading}</div>
       <ViewSwitch />
-      <div className="flex min-w-0 items-center justify-end gap-2">
+      <div className="flex min-w-0 items-center justify-end gap-2 overflow-hidden">
         <MediaInfoButton />
         <DebugButton />
         <AgencySelect />

@@ -10,6 +10,11 @@ import {
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import type { Project } from "../project/types";
+import {
+  VIDEO_MODELS,
+  isVideoModelId,
+  videoModelMenuLabel,
+} from "../../../media/src/replicate/video-models.ts";
 import { TechnicalPanel } from "./TechnicalPanel";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -228,6 +233,7 @@ export function ProjectRail() {
     setAutoGenerateAllDestinations,
     setAutoBlockShots,
     setAutoShoot,
+    setVideoModel,
     directorStatus,
     planStartError,
     startingFrameError,
@@ -303,6 +309,28 @@ export function ProjectRail() {
           onCommit={setStoryDurationInput}
           onNudge={nudgeStoryDuration}
         />
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Video</span>
+          <select
+            aria-label="Video model"
+            title="Used for every SHOOT in this project. Pruna is the development default."
+            disabled={busy}
+            className="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
+            value={project.videoModel}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (isVideoModelId(next)) {
+                setVideoModel(next);
+              }
+            }}
+          >
+            {VIDEO_MODELS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {videoModelMenuLabel(option)}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
           <input
             type="checkbox"

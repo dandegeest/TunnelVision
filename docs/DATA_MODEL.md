@@ -356,7 +356,9 @@ They are not Camotion types and must not appear in CameraMotionPlan.
 
 Current video inputs: start shooting frame, optional end shooting
 frame, prompt, optional duration. Extra pristine/canonical reference
-images are not part of the current architecture. Model- and
+images are not part of the current architecture. `Project.videoModel`
+chooses which catalog generator films those frames for every SHOOT in
+the current project; Pruna is the development default. Model- and
 provider-specific knobs stay behind the adapter.
 
 ## Open questions

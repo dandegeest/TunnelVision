@@ -170,6 +170,8 @@ A later forest A→F evidence spike is recorded at
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and

@@ -1,6 +1,7 @@
 import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import type { VideoModelId } from "../../../media/src/replicate/video-models.ts";
 
-export type { LocomotionPace };
+export type { LocomotionPace, VideoModelId };
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
 
@@ -209,6 +210,11 @@ export type Project = {
   autoBlockShots: boolean;
   /** When true, PLAN then shoots blocked journeys, including those with CM warnings. */
   autoShoot: boolean;
+  /**
+   * Video generator for every SHOOT in this project.
+   * Pruna is the development default; mid-tier and Seedance 2.5 are opt-in.
+   */
+  videoModel: VideoModelId;
   /** After the first successful Director plan, duration is storyboard-driven and not typed. */
   storyDurationLocked: boolean;
   storyboard: StoryboardFrame[];

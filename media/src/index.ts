@@ -31,6 +31,26 @@ export {
   mergePVideoSettings,
 } from "./replicate/p-video.ts";
 export type { PVideoSettings, PVideoInput } from "./replicate/p-video.ts";
+export {
+  LUMA_RAY_FLASH_2_720P_MODEL,
+  isLumaRayFlash2720p,
+  lumaRayFlash2Duration,
+  toLumaRayFlash2Input,
+} from "./replicate/luma-ray-flash-2-720p.ts";
+export {
+  WAN_22_I2V_FAST_MODEL,
+  isWan22I2vFast,
+  wan22FrameCount,
+  toWan22I2vFastInput,
+} from "./replicate/wan-2.2-i2v-fast.ts";
+export {
+  SEEDANCE_20_FAST_MODEL,
+  DEFAULT_SEEDANCE_20_FAST_SETTINGS,
+  isSeedance20Fast,
+  toSeedance20FastInput,
+  mergeSeedance20FastSettings,
+} from "./replicate/seedance-2.0-fast.ts";
+export type { Seedance20FastSettings, Seedance20FastInput } from "./replicate/seedance-2.0-fast.ts";
 export { ReplicateReasoningProvider } from "./replicate/reasoning.ts";
 export {
   SEEDANCE_25_MODEL,
@@ -40,6 +60,17 @@ export {
   mergeSeedance25Settings,
 } from "./replicate/seedance-2.5.ts";
 export type { Seedance25Settings, Seedance25Input } from "./replicate/seedance-2.5.ts";
+export {
+  VIDEO_MODEL_IDS,
+  VIDEO_MODELS,
+  DEFAULT_VIDEO_MODEL_ID,
+  isVideoModelId,
+  parseVideoModelId,
+  videoModelSlug,
+  videoModelOption,
+  videoModelMenuLabel,
+} from "./replicate/video-models.ts";
+export type { VideoModelId, VideoModelOption, VideoModelCost, VideoModelTier } from "./replicate/video-models.ts";
 export {
   FLUX_11_PRO_ULTRA_MODEL,
   DEFAULT_FLUX_11_PRO_ULTRA_SETTINGS,

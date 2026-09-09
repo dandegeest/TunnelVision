@@ -95,6 +95,7 @@ export function createForestProject(): Project {
     autoGenerateAllDestinations: false,
     autoBlockShots: false,
     autoShoot: false,
+    videoModel: "pruna-p-video",
     storyDurationLocked: true,
     storyboard: [
       {

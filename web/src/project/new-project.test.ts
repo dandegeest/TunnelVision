@@ -19,6 +19,7 @@ describe("new product project", () => {
     expect(project.autoGenerateAllDestinations).toBe(false);
     expect(project.autoBlockShots).toBe(false);
     expect(project.autoShoot).toBe(false);
+    expect(project.videoModel).toBe("pruna-p-video");
     expect(project.storyDurationLocked).toBe(false);
     expect(canProvideStartingFrame(project.storyboard[0]!)).toBe(true);
     expect(hasAuthoritativeStartingFrame(project)).toBe(false);

@@ -9,7 +9,12 @@ import {
   composeShootingPrompt,
   type LocomotionPace,
 } from "../media/src/cinematographer/shooting-prompt.ts";
-import { P_VIDEO_MODEL } from "../media/src/replicate/p-video.ts";
+import {
+  DEFAULT_VIDEO_MODEL_ID,
+  parseVideoModelId,
+  videoModelSlug,
+  type VideoModelId,
+} from "../media/src/replicate/video-models.ts";
 import type { GeneratedVideo, VideoGenerationRequest } from "../media/src/types.ts";
 import type { CamotionRenderResult } from "./camotion-cli.ts";
 import type { CamotionDebug } from "./src/project/types.ts";
@@ -24,6 +29,7 @@ export type ShootJourneyBody = {
   endMediaId?: unknown;
   segmentPromptAddition?: unknown;
   pace?: unknown;
+  videoModel?: unknown;
   debug?: unknown;
 };
 
@@ -177,6 +183,17 @@ export async function shootPreparedJourney(input: {
   };
 }
 
+export function videoModelIdFromBody(value: unknown): VideoModelId {
+  if (value === undefined || value === null || value === "") {
+    return DEFAULT_VIDEO_MODEL_ID;
+  }
+  const parsed = parseVideoModelId(value);
+  if (!parsed) {
+    throw new Error("Unknown video model");
+  }
+  return parsed;
+}
+
 export function configuredVideoModel(): string {
-  return getOptionalEnv("TUNNELVISION_VIDEO_MODEL") ?? P_VIDEO_MODEL;
+  return getOptionalEnv("TUNNELVISION_VIDEO_MODEL") ?? videoModelSlug(DEFAULT_VIDEO_MODEL_ID);
 }

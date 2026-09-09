@@ -92,8 +92,10 @@ export function TechnicalPanel() {
       <div className="mt-2 space-y-1 leading-relaxed">
         <p>Construction: planned. Discovery is not implemented.</p>
         <p>
-          Video uses Camotion shooting frames and a configurable provider model. The current
-          development generator receives A′ and B′ as start and last-frame conditions.
+          Video uses Camotion shooting frames and the Project panel Video
+          model for every SHOOT. Pruna is the development default. Mid-tier
+          and Seedance 2.5 map A′/B′ onto that generator's start and last-frame
+          fields.
         </p>
         {debugOn ? (
           <div className="mt-3 space-y-1 border-t border-[#2a2620] pt-2">

@@ -170,12 +170,14 @@ async function mockProviderBoundaries(page: Page) {
       endMediaId: string;
       segmentPromptAddition: string;
       pace: string;
+      videoModel: string;
     };
     expect(request.journeyId).toBe("A-B");
     expect(request.startMediaId).toMatch(/^upload-/);
     expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
     expect(request.segmentPromptAddition).toBe(CM_ASSESSMENT.segmentPromptAddition);
     expect(request.pace).toBe(CM_ASSESSMENT.pace);
+    expect(request.videoModel).toBe("pruna-p-video");
     expect(request).not.toHaveProperty("endImage");
     const effectivePrompt = composeShootingPrompt(
       locomotionBaseline("fast"),
@@ -248,6 +250,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeDisabled();
   await expect(page.getByLabel("Auto blocking")).not.toBeChecked();
   await expect(page.getByLabel("Auto shoot")).not.toBeChecked();
+  await expect(page.getByLabel("Video model")).toHaveValue("pruna-p-video");
 
   await page.getByLabel("Journey story").fill("Travel forward through an imagined interior at night.");
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
@@ -371,4 +374,23 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   const nextInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "B-C" }) });
   await expect(nextInspector.getByText("Track forward through the connected volumes.")).toHaveCount(0);
   await expect(page.getByLabel("Shoot B-C")).toHaveCount(0);
+});
+
+test("project video model selector defaults to Pruna and lists mid-tier and HQ options", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const select = page.getByLabel("Video model");
+  await expect(select).toHaveValue("pruna-p-video");
+  await expect(select.locator("option")).toHaveText([
+    "Pruna $",
+    "Luma Ray Flash 2 720p $$",
+    "Wan 2.2 First/Last Frame $$",
+    "Seedance 2.0 Fast $$",
+    "Seedance 2.5 $$$",
+  ]);
+  await select.selectOption("luma-ray-flash-2-720p");
+  await expect(select).toHaveValue("luma-ray-flash-2-720p");
+  await select.selectOption("seedance-2.5");
+  await expect(select).toHaveValue("seedance-2.5");
 });

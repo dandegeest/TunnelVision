@@ -90,8 +90,11 @@ describe("SHOOT gate and JourneyShot take", () => {
       journeyId: "A-B",
       segmentPromptAddition: assessment.segmentPromptAddition,
       pace: "fast",
+      videoModel: "pruna-p-video",
     });
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
+    const luma = shootRequestFromProject({ ...prepared, videoModel: "luma-ray-flash-2-720p" }, "A-B");
+    expect(luma.videoModel).toBe("luma-ray-flash-2-720p");
     const shooting = projectWithJourneyShooting(prepared, "A-B");
     expect(shooting.journeys[0]?.status).toBe("shooting");
     expect(shooting.journeys[0]?.cinematographer).toEqual(assessment);

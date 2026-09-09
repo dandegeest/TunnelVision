@@ -119,9 +119,11 @@ against those stills and stores choreography on that JourneyShot.
 SHOOT on a blocked leg derives a deterministic CameraMotionPlan v1,
 renders A′ and B′ with Camotion, composes the frozen locomotion
 baseline with `segmentPromptAddition`, and generates a development
-clip. The current cheap generator is Replicate `prunaai/p-video` at the
-MediaProvider boundary; it receives A′ as `image` and B′ as
-`last_frame_image`. Shootability remains advisory set analysis; it does not
+clip. The Project panel Video control chooses the generator for every
+SHOOT in the current project. Pruna (`prunaai/p-video`) is the development
+default; mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last Frame, and
+Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in. Each adapter maps
+A′/B′ onto that model's start and last-frame fields. Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
 CameraMotionPlan; a narrow deterministic bridge does. Export Movie
 concatenates whatever rendered journey clips currently exist, in
@@ -150,6 +152,8 @@ Forest A→F Camotion continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 
 ## Plan is a conversational storyboard
 
@@ -584,9 +588,9 @@ During Shoot development, optimize video generation for iteration
 cost and speed rather than final output quality; do not hardcode a
 development model into Shoot. Provider/model selection remains
 configurable (cheap/fast during development, Seedance 2.5 or another
-quality model for intentional output validation). The current Shoot
-development generator is Replicate `prunaai/p-video` (A′ as `image`, B′
-as `last_frame_image`). Automated E2E mocks
+quality model for intentional output validation). The Project panel Video
+control is that selection for the current project; Pruna remains the
+default. Automated E2E mocks
 the paid media-provider boundary. A user-facing Draft vs Final toggle remains backlog only. Current
 draft candidates and renderer notes live in
 [IMPLEMENTATION.md](IMPLEMENTATION.md).
@@ -653,6 +657,8 @@ Forest A→F Camotion continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

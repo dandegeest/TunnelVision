@@ -25,16 +25,12 @@ import {
   toFlux11ProUltraInput,
 } from "./flux-1.1-pro-ultra.ts";
 import { extractOutputUrl } from "./output.ts";
-import {
-  PVideoSettings,
-  isPVideoModel,
-  toPVideoInput,
-} from "./p-video.ts";
+import type { PVideoSettings } from "./p-video.ts";
 import {
   SEEDANCE_25_MODEL,
   Seedance25Settings,
-  toSeedance25Input,
 } from "./seedance-2.5.ts";
+import { toReplicateVideoInput } from "./video-input.ts";
 
 const MISSING_TOKEN_MESSAGE = "REPLICATE_API_TOKEN is not set";
 
@@ -79,12 +75,11 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     const end = request.endImage
       ? await resolveMediaInput(request.endImage)
       : undefined;
-    if (isPVideoModel(this.model)) {
-      const input = toPVideoInput(request, start, end, this.pVideo);
-      return this.runFilePrediction(this.model, input as unknown as Record<string, unknown>);
-    }
-    const input = toSeedance25Input(request, start, end, this.seedance);
-    return this.runFilePrediction(this.model, input as unknown as Record<string, unknown>);
+    const input = toReplicateVideoInput(this.model, request, start, end, {
+      pVideo: this.pVideo,
+      seedance: this.seedance,
+    });
+    return this.runFilePrediction(this.model, input);
   }
 
   async generateImage(request: ImageGenerationRequest): Promise<GeneratedImage> {

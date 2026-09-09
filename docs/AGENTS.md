@@ -150,14 +150,18 @@ While BLOCK or SHOOT runs, that segment uses the same generating
 shimmer as Plan FPO thumbs. The app
 can track more than one blocking or shooting operation at a time.
 SHOOT on a blocked leg runs Camotion and a configurable
-video model; the current development generator is `prunaai/p-video` with
-A′ as `image` and B′ as `last_frame_image`. After replacement, that destination
+video model chosen in the Project panel. Pruna (`prunaai/p-video`) is the
+development default. Mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last
+Frame, and Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in for the
+same A′/B′ pipeline. After replacement, that destination
 keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user
@@ -224,8 +228,11 @@ storyboard images exist. Agent reasons. CV observes / measures.
 Camotion renders. Video model films.
 
 Video currently receives shooting frames A′ and B′ plus the composed
-locomotion prompt. The current development generator (`prunaai/p-video`)
-maps those to `image` and `last_frame_image`. Canonical frames stay
+locomotion prompt. The Project panel Video control chooses the generator
+for every SHOOT in the current project. Pruna maps those frames to
+`image` and `last_frame_image`; Luma uses `start_image`/`end_image`;
+Wan 2.2 I2V Fast uses `image`/`last_image`; Seedance 2.0 Fast and 2.5
+use `image`/`last_frame_image`. Canonical frames stay
 Shoot world-state authority; they are not currently video inputs. Plan
 storyboard drawings are not canonicals.
 

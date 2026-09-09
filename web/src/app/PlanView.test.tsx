@@ -986,6 +986,13 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Destination A actions"');
     expect(html).toContain('aria-label="Generate destination A"');
     expect(html).toContain('aria-label="Story destinations"');
+    expect(html).toContain('aria-label="Video model"');
+    expect(html).toContain('value="pruna-p-video"');
+    expect(html).toContain("Pruna $");
+    expect(html).toContain("Luma Ray Flash 2 720p $$");
+    expect(html).toContain("Wan 2.2 First/Last Frame $$");
+    expect(html).toContain("Seedance 2.0 Fast $$");
+    expect(html).toContain("Seedance 2.5 $$$");
     expect(html).toContain('aria-label="Increase destinations"');
     expect(html).toContain('aria-label="Decrease destinations"');
     expect(html).toContain('aria-label="Auto generate starting destination"');

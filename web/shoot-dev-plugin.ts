@@ -4,8 +4,9 @@ import type { Plugin } from "vite";
 import { loadDotEnvLocal, getOptionalEnv } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
+import { videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { renderCamotionShootingFrame } from "./camotion-cli.ts";
-import { configuredVideoModel, shootPreparedJourney } from "./shoot-journey.ts";
+import { shootPreparedJourney, videoModelIdFromBody } from "./shoot-journey.ts";
 import { UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
@@ -47,7 +48,7 @@ function statusForError(error: unknown): number {
     return 500;
   }
   const message = error instanceof Error ? error.message : "";
-  if (/prepare this journey|requires two actual|is required/i.test(message)) {
+  if (/prepare this journey|requires two actual|is required|Unknown video model/i.test(message)) {
     return 400;
   }
   return 502;
@@ -79,13 +80,22 @@ export function shootDevPlugin(repoRoot: string): Plugin {
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
+          const videoModelId = videoModelIdFromBody(body.videoModel);
           const provider = new ReplicateMediaProvider({
-            model: configuredVideoModel(),
+            model: videoModelSlug(videoModelId),
             pVideo: {
               draft: true,
               promptUpsampling: false,
               resolution: "720p",
               saveAudio: false,
+              ...(optionalSeed() !== undefined ? { seed: optionalSeed() } : {}),
+            },
+            seedance: {
+              generateAudio: false,
+              resolution: "720p",
+              aspectRatio: "adaptive",
+              watermark: false,
+              outputFormat: "mp4",
               ...(optionalSeed() !== undefined ? { seed: optionalSeed() } : {}),
             },
           });

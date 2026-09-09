@@ -20,7 +20,7 @@ deliberately no Edit workspace.
 storyboard grid between a conversation history rail and a Project
 panel. The left rail is conversation turn history only. The Project
 panel holds the journey story, destination count (AUTO or a
-number, typed or stepped), auto-generate-A, auto-generate-all, auto-block,
+number, typed or stepped), Video model, auto-generate-A, auto-generate-all, auto-block,
 auto-shoot, and PLAN, and can collapse to the right
 like conversation collapses to the left. Opening A can be uploaded
 before a story exists. AUTO leaves later beats to the Director;
@@ -93,6 +93,8 @@ Forest A→F Camotion continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 
 ### Plan — conversational storyboard
 
@@ -197,7 +199,7 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. Journey story, destination count, auto-generate-A,
-auto-generate-all, auto-block, auto-shoot, and PLAN live in the Project panel,
+auto-generate-all, auto-block, auto-shoot, Video model, and PLAN live in the Project panel,
 which can hide to the right. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO

@@ -50,7 +50,7 @@ import {
   type ConversationEntry,
 } from "./conversation";
 import { requestExportMovie, type MovieExportResult } from "./export-movie";
-import type { Agency, JourneyShot, Project, Selection } from "./types";
+import type { Agency, JourneyShot, Project, Selection, VideoModelId } from "./types";
 
 function withId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids : [...ids, id];
@@ -83,6 +83,7 @@ type ProjectContextValue = {
   projectRailOpen: boolean;
   setProjectRailOpen: (open: boolean) => void;
   setAgency: (agency: Agency) => void;
+  setVideoModel: (videoModel: VideoModelId) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
   setStoryDurationInput: (raw: string) => void;
@@ -218,6 +219,10 @@ export function ProjectProvider({
 
   const setAgency = useCallback((agency: Agency) => {
     setProject((current) => ({ ...current, agency }));
+  }, []);
+
+  const setVideoModel = useCallback((videoModel: VideoModelId) => {
+    setProject((current) => (current.videoModel === videoModel ? current : { ...current, videoModel }));
   }, []);
 
   const setComposerDraft = useCallback((draft: string) => {
@@ -740,6 +745,7 @@ export function ProjectProvider({
       projectRailOpen,
       setProjectRailOpen,
       setAgency,
+      setVideoModel,
       composerDraft,
       setComposerDraft,
       setStoryDurationInput,
@@ -789,6 +795,7 @@ export function ProjectProvider({
       conversationRailOpen,
       projectRailOpen,
       setAgency,
+      setVideoModel,
       composerDraft,
       setStoryDurationInput,
       nudgeStoryDuration,

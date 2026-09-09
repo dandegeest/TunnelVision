@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { locomotionBaseline, composeShootingPrompt } from "../media/src/cinematographer/shooting-prompt.ts";
 import { productionCameraMotionPlan } from "../media/src/cinematographer/camera-motion-plan.ts";
-import { shootPreparedJourney } from "./shoot-journey.ts";
+import { shootPreparedJourney, videoModelIdFromBody } from "./shoot-journey.ts";
 import {
   createRuntimeMediaRegistry,
   setActiveRuntimeMediaRegistry,
@@ -90,5 +90,12 @@ describe("shootPreparedJourney", () => {
       depthPath: null,
       workDirRetained: false,
     });
+  });
+
+  it("accepts a catalog video model id or Replicate slug", () => {
+    expect(videoModelIdFromBody(undefined)).toBe("pruna-p-video");
+    expect(videoModelIdFromBody("seedance-2.0-fast")).toBe("seedance-2.0-fast");
+    expect(videoModelIdFromBody("luma/ray-flash-2-720p")).toBe("luma-ray-flash-2-720p");
+    expect(() => videoModelIdFromBody("someone/unknown")).toThrow(/Unknown video model/);
   });
 });

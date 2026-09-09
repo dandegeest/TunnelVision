@@ -190,7 +190,8 @@ fills `{pace}` in `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`, concatenates
 `segmentPromptAddition`
 via `composeShootingPrompt`, and generates video through MediaProvider.
 The current development model is `prunaai/p-video` (A′ as `image`, B′ as
-`last_frame_image`). The assessment does not emit CameraMotionPlan.
+`last_frame_image`) unless the Project panel Video control selects another
+catalog generator. The assessment does not emit CameraMotionPlan.
 The running application
 initializes a new untitled project: unresolved opening frame A, empty
 story, no destinations or journeys. Forest A→F remains research
@@ -223,6 +224,8 @@ Forest A→F Camotion continuity evidence:
 [`genesis/research/14-forest-a-to-f.html`](../genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [`genesis/research/15-product-slice-4.html`](../genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[`genesis/research/16-product-slice-5.html`](../genesis/research/16-product-slice-5.html).
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; Media Info is an
@@ -281,10 +284,16 @@ quality model during intentional output validation. Automated E2E
 must mock the paid media-provider boundary.
 
 The current Shoot development generator is Replicate `prunaai/p-video`,
-chosen at the MediaProvider boundary (`TUNNELVISION_VIDEO_MODEL`
-overrides). It does not replace Seedance 2.5 as the endpoint-conditioned
-quality-validation model. P-Video receives A′ as `image` and B′ as
-`last_frame_image`. Draft P-Video clips are still not production-quality
+the Project default. The filmmaker can switch the current project's
+video model in the Project panel (`pruna-p-video`,
+`luma-ray-flash-2-720p`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
+`seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
+Seedance models use `image`/`last_frame_image`; Luma Ray Flash 2 720p
+uses `start_image`/`end_image` and maps 6s product shots to the nearer
+5s clip; Wan 2.2 I2V Fast uses `image`/`last_image`.
+`TUNNELVISION_VIDEO_MODEL` remains an env fallback for
+tools that still read a slug. It does not replace Seedance 2.5 as the
+endpoint-conditioned quality-validation model. Draft P-Video clips are still not production-quality
 endpoint-fidelity evidence.
 
 Conceptual development tier, **not a user-facing mode**:
