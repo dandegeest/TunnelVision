@@ -6,11 +6,13 @@ export function JourneyLane({
   journeys,
   projectJourneys,
   selection,
+  preparingJourneyId,
   onSelect,
 }: {
   journeys: LaidOutJourney[];
   projectJourneys: JourneyShot[];
   selection: Selection;
+  preparingJourneyId?: string | null;
   onSelect: (journeyId: string) => void;
 }) {
   return (
@@ -27,6 +29,7 @@ export function JourneyLane({
             laid={laid}
             journey={journey}
             selected={selected}
+            preparing={preparingJourneyId === laid.journeyId}
             onSelect={() => onSelect(laid.journeyId)}
           />
         );

@@ -66,7 +66,7 @@ function ViewSwitch() {
         type="button"
         className={`rounded-full px-4 py-1 ${view === "shoot" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"} disabled:cursor-not-allowed disabled:opacity-50`}
         disabled={!canOpenShoot}
-        title={canOpenShoot ? "Shoot the current production legs." : "Upload starting frame A before shooting."}
+        title={canOpenShoot ? "Shoot the current production legs." : "Add starting frame A before shooting."}
         onClick={() => setView("shoot")}
       >
         Shoot
@@ -132,7 +132,7 @@ function HeaderFrame({ children }: { children: ReactNode }) {
 }
 
 export function Shell() {
-  const { view, conversationRailOpen } = useProject();
+  const { view, conversationRailOpen, projectRailOpen } = useProject();
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#0c0b0a] text-[#ece7df]">
@@ -148,6 +148,13 @@ export function Shell() {
           <HeaderFrame>
             <WorkspaceToolbar leading={conversationRailOpen ? undefined : <Brand />} />
           </HeaderFrame>
+        }
+        projectHeader={
+          projectRailOpen ? (
+            <HeaderFrame>
+              <p className="text-[11px] tracking-[0.28em] text-[#9a8f7e] uppercase">Project</p>
+            </HeaderFrame>
+          ) : undefined
         }
       >
         {view === "plan" ? (

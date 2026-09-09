@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { formatConversationClock, type ConversationEntry } from "../project/conversation";
 import type { DirectorEvidence } from "../project/director";
 import { useProject } from "../project/ProjectProvider";
-import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import { ProgressSpinner } from "../ui/ProgressSpinner";
 
 export function ConversationRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { conversationRailOpen, setConversationRailOpen } = useProject();
@@ -39,6 +39,21 @@ export function ConversationRailToggle({ compact = false }: { compact?: boolean 
         <path d="M4.7 2.1v7.8" fill="none" stroke="currentColor" strokeWidth="1.3" />
       </svg>
     </button>
+  );
+}
+
+function ConversationBusyStatus({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  return (
+    <p className={`flex items-center gap-2 ${className}`} aria-busy="true">
+      <ProgressSpinner className="h-3 w-3" />
+      <span>{children}</span>
+    </p>
   );
 }
 
@@ -107,7 +122,9 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
       <article className="conversation-director">
         <ConversationStamp role="Director" createdAt={entry.createdAt} />
         {entry.status === "planning" ? (
-          <p className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">Planning…</p>
+          <ConversationBusyStatus className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            Planning…
+          </ConversationBusyStatus>
         ) : null}
         {entry.status === "failed" ? (
           <p className="mt-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
@@ -128,9 +145,9 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
   return (
     <article>
       {entry.status === "constructing" ? (
-        <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+        <ConversationBusyStatus className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
           Constructing {entry.beatId}…
-        </p>
+        </ConversationBusyStatus>
       ) : null}
       {entry.status === "constructed" ? (
         <>
@@ -152,20 +169,9 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
 }
 
 export function ConversationRail() {
-  const {
-    composerDraft,
-    setComposerDraft,
-    conversation,
-    directorStatus,
-    planStartError,
-    startingFrameError,
-    replacingStart,
-    project,
-  } = useProject();
+  const { conversation } = useProject();
   const threadRef = useRef<HTMLDivElement>(null);
   const followThread = useRef(true);
-  const planning = directorStatus === "planning";
-  const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
 
   useEffect(() => {
     const thread = threadRef.current;
@@ -193,16 +199,6 @@ export function ConversationRail() {
             thread.scrollHeight - thread.scrollTop - thread.clientHeight < 48;
         }}
       >
-        {startingFrameError ? (
-          <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-            {startingFrameError}
-          </p>
-        ) : null}
-        {planStartError ? (
-          <p className="mb-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-            {planStartError}
-          </p>
-        ) : null}
         <div className="flex flex-col">
           {conversation.map((entry, index) => {
             const previous = conversation[index - 1];
@@ -221,52 +217,6 @@ export function ConversationRail() {
             );
           })}
         </div>
-      </div>
-      <div className="flex-none border-t border-[#2a2620] px-3 py-2">
-        <label className="sr-only" htmlFor="plan-composer">
-          Movie
-        </label>
-        <div className="flex items-end gap-2 rounded border border-[#3a342c] bg-[#161410] px-2.5 py-1.5">
-          <textarea
-            id="plan-composer"
-            rows={5}
-            value={composerDraft}
-            placeholder="Describe the movie…"
-            aria-label="Movie"
-            className="h-[8.25rem] min-h-[6.75rem] max-h-[12.5rem] min-w-0 flex-1 resize-y overflow-auto bg-transparent text-[13px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
-            onChange={(event) => setComposerDraft(event.target.value)}
-          />
-          <button
-            type="button"
-            disabled
-            aria-label="Send"
-            title="Send is not a filmmaking command yet. Use PLAN in the Plan workspace."
-            className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#9a8f7e] disabled:cursor-not-allowed"
-          >
-            <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
-              <path
-                d="M2 6h8M6.5 2.5 10 6 6.5 9.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-        <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-          {hasOpeningFrame
-            ? planning
-              ? "Director is planning…"
-              : "Send is inactive. Use PLAN to ask the Director."
-            : "Upload starting frame A before planning."}
-        </p>
-        {replacingStart ? (
-          <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-            Uploading…
-          </p>
-        ) : null}
       </div>
     </aside>
   );

@@ -181,6 +181,7 @@ describe("replacing authoritative A", () => {
       startFrameId: "A",
       startMediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
       startFrameIntent: STORYBOARD_INTENTS.A,
+      storyDuration: "auto",
       storyboard: [
         {
           id: "A",

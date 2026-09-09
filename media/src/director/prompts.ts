@@ -115,6 +115,7 @@ export function directorUserPrompt(input: {
   readonly agency: "directed" | "autonomous";
   readonly anchors?: readonly DirectorPromptAnchor[];
   readonly storyboard?: readonly DirectorPromptAnchor[];
+  readonly storyDuration?: "auto" | number;
 }): string {
   const agencyLine =
     input.agency === "autonomous"
@@ -157,10 +158,17 @@ export function directorUserPrompt(input: {
     const unresolved = storyboard.filter((slot) => !isPromptSlotSpecified(slot));
     const allActual = unresolved.length === 0;
     const lastId = storyboard[storyboard.length - 1]!.id;
-    if (storyboard.length === 1) {
+    const durationAuto = input.storyDuration === "auto" || input.storyDuration === undefined;
+    if (storyboard.length === 1 && durationAuto) {
       lines.push(
         "",
         "The opening is the only destination. You may add subsequent destination ids needed for this story.",
+        "Emit the JSON object specified in the system instruction. Return JSON only.",
+      );
+    } else if (storyboard.length === 1) {
+      lines.push(
+        "",
+        `The filmmaker specified exactly ${input.storyDuration} destination. Do not add a destination after ${lastId}.`,
         "Emit the JSON object specified in the system instruction. Return JSON only.",
       );
     } else if (!allActual) {

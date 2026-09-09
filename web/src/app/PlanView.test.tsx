@@ -6,7 +6,7 @@ import { createNewProject } from "../project/new-project";
 import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
 import { FilmmakingFrame } from "./FilmmakingFrame";
-import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, destinationDetailContent, formatDirectorEvidenceJson } from "./PlanView";
+import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField } from "./PlanView";
 import {
   canConstructDestinationFrame,
   projectWithConstructedDestination,
@@ -66,6 +66,7 @@ function renderPlan(
     conversation?: ConversationEntry[];
     composerDraft?: string;
     mediaInfo?: boolean;
+    constructingBeatId?: string | null;
   },
 ) {
   return renderToStaticMarkup(
@@ -74,6 +75,7 @@ function renderPlan(
       initialConversation={options?.conversation}
       initialComposerDraft={options?.composerDraft}
       initialMediaInfo={options?.mediaInfo}
+      initialConstructingBeatId={options?.constructingBeatId}
     >
       <FilmmakingFrame>
         <PlanView />
@@ -97,21 +99,21 @@ function renderFrame(
   );
 }
 
-describe("Plan composer", () => {
-  it("edits project story without treating Send as PLAN", () => {
+describe("Plan project story", () => {
+  it("edits project story from the Project panel without a Send control", () => {
     const html = renderPlan();
-    expect(html).toContain('id="plan-composer"');
+    expect(html).toContain('id="project-story"');
+    expect(html).toContain('aria-label="Journey story"');
     expect(html).toContain("text-[13px]");
     expect(html).toContain("resize-y");
-    expect(html).toContain('rows="5"');
     expect(html).toContain('aria-label="Resize story panel"');
-    expect(html).not.toMatch(/id="plan-composer"[^>]*\sdisabled(?:[\s>]|$)/);
+    expect(html).toContain('aria-label="Resize project panel"');
+    expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
     expect(html).toContain('aria-label="Plan movie"');
     expect(html).toContain(">PLAN<");
-    expect(html).toContain('aria-label="Send"');
-    expect(html).toMatch(/disabled[^>]*aria-label="Send"|aria-label="Send"[^>]*disabled/);
-    expect(html).toContain("Send is not a filmmaking command yet");
+    expect(html).not.toContain('aria-label="Send"');
+    expect(html).not.toContain("Send is not a filmmaking command yet");
     expect(html).toContain("Add Destination");
     expect(html).toContain('id="replace-destination-image"');
     expect(html).toContain(`accept="${STARTING_FRAME_ACCEPT}"`);
@@ -122,7 +124,7 @@ describe("Plan composer", () => {
     expect(html).not.toContain("Filmmaker");
   });
 
-  it("keeps the current story in the composer after a Director plan", () => {
+  it("keeps the current story in the Project panel after a Director plan", () => {
     const submitted = "Travel forward through this world...";
     const project = {
       ...createWardrobeProject(),
@@ -148,10 +150,13 @@ describe("Plan composer", () => {
     expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(1);
   });
 
-  it("keeps Send disabled even when the story draft has content", () => {
-    const html = renderPlan(createWardrobeProject(), { composerDraft: "  \n " });
+  it("does not enable the storyboard while the journey story is empty", () => {
+    const html = renderPlan(createNewProject(), { composerDraft: "" });
     expect(html).not.toContain("Filmmaker");
-    expect(html).toMatch(/disabled[^>]*aria-label="Send"|aria-label="Send"[^>]*disabled/);
+    expect(html).toContain("Enter a journey story in Project to begin.");
+    expect(html).not.toContain('aria-label="Destination A actions"');
+    expect(html).not.toContain('aria-label="Generate destination A"');
+    expect(html).not.toContain("Add Destination");
   });
 
   it("keeps Replace… on destination A and does not show a text control under the thumbnail", () => {
@@ -168,11 +173,16 @@ describe("Plan composer", () => {
 });
 
 describe("Plan storyboard FPO intent", () => {
-  it("keeps planned FPO visual and stores Director intent for details", () => {
+  it("overlays Director intent on empty FPO thumbnails in field form", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const html = renderPlan(planned);
     expect(html).toContain("storyboard-fpo-label");
-    expect(html).not.toContain("Move forward into the next space.");
+    expect(html).toContain("storyboard-fpo-intent");
+    expect(formatFpoIntentField("Move forward into the next space.")).toBe(
+      `"intent": "Move forward into the next space."`,
+    );
+    expect(html).toContain("Move forward into the next space.");
+    expect(html).toContain("&quot;intent&quot;");
     expect(html).not.toContain("A corridor continuing the same world.");
     expect(html).not.toContain("Deeper volume ahead.");
     expect(html).not.toContain("A cavern continuing the same world.");
@@ -180,7 +190,8 @@ describe("Plan storyboard FPO intent", () => {
     expect(planned.storyboard[1]?.visualDescription).toBe("A corridor continuing the same world.");
     const fpo = renderFrame(planned.storyboard[1]!);
     expect(fpo).toContain("storyboard-fpo-label");
-    expect(fpo).not.toContain("Move forward into the next space.");
+    expect(fpo).toContain("storyboard-fpo-intent");
+    expect(fpo).toContain("Move forward into the next space.");
     expect(fpo).not.toContain("A corridor continuing the same world.");
     expect(fpo).not.toContain("Generate");
   });
@@ -212,14 +223,15 @@ describe("Plan storyboard FPO intent", () => {
     const b = renderFrame(planned.storyboard[1]!);
     expect(b).not.toContain("CONSTRUCT");
     expect(b).not.toContain("Generate");
-    expect(b).not.toContain("Move forward into the next space.");
+    expect(b).toContain("Move forward into the next space.");
 
     const c = renderFrame(planned.storyboard[2]!);
     expect(c).not.toContain("Generate");
-    expect(c).not.toContain("Continue through the corridor.");
+    expect(c).toContain("Continue through the corridor.");
+    expect(c).not.toContain("Deeper volume ahead.");
   });
 
-  it("keeps the generating FPO visual without a persistent scene caption", () => {
+  it("keeps the generating FPO overlay without a persistent scene caption", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const generating = renderFrame(planned.storyboard[1]!, {
       constructing: true,
@@ -228,9 +240,10 @@ describe("Plan storyboard FPO intent", () => {
     expect(generating).toContain("Generating…");
     expect(generating).toContain('aria-label="Generating destination B"');
     expect(generating).toContain("storyboard-fpo-label");
+    expect(generating).toContain("storyboard-fpo-intent");
+    expect(generating).toContain("Move forward into the next space.");
     expect(generating).not.toContain("CONSTRUCT");
     expect(generating).not.toContain("Generate");
-    expect(generating).not.toContain("Move forward into the next space.");
     expect(generating).not.toContain("A corridor continuing the same world.");
   });
 
@@ -265,7 +278,7 @@ describe("Plan storyboard FPO intent", () => {
     expect(actual).not.toContain("Generate");
   });
 
-  it("updates stored Director intent after a later Director plan without showing it on the FPO", () => {
+  it("updates the FPO overlay when a later Director plan changes stored intent", () => {
     const first = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const replanned = projectWithDirectorPlan(first, {
       summary: "The journey continues through a fissure in the monolith.",
@@ -285,6 +298,8 @@ describe("Plan storyboard FPO intent", () => {
     const html = renderPlan(replanned);
     expect(html).not.toContain("Move forward into the next space.");
     expect(html).not.toContain("Continue through the corridor.");
+    expect(html).toContain("Cross the plain and enter the narrow glowing fissure in the monolith.");
+    expect(html).toContain("Follow the fissure inward.");
     expect(html).not.toContain("A replacement visual that must not appear in the FPO.");
     expect(replanned.storyboard[1]?.intent).toBe(
       "Cross the plain and enter the narrow glowing fissure in the monolith.",
@@ -297,7 +312,7 @@ describe("Plan storyboard FPO intent", () => {
   it("keeps conversation construction activity in the Story panel", () => {
     const html = renderPlan();
     expect(html).toContain("Story");
-    expect(html).toContain('id="plan-composer"');
+    expect(html).toContain('id="project-story"');
     expect(html).not.toContain("Constructing");
     expect(html).not.toContain("Constructed B");
 
@@ -376,6 +391,8 @@ describe("Plan conversation thread", () => {
     expect(html).toContain("conversation-director");
     expect(html).toContain("border-l");
     expect(html).not.toContain("Constructed C");
+    expect(html).toContain("animate-spin");
+    expect(html).toContain('aria-busy="true"');
   });
 
   it("keeps earlier construction history when a later destination starts", () => {
@@ -655,8 +672,9 @@ describe("Plan destination details", () => {
     expect(html).toContain("A corridor continuing the same world.");
     expect(html).toContain("destination-detail-visual");
     const closed = renderPlan(planned);
-    expect(closed).not.toContain("Move forward into the next space.");
+    expect(closed).toContain("Move forward into the next space.");
     expect(closed).not.toContain("A corridor continuing the same world.");
+    expect(closed).toContain("storyboard-fpo-intent");
     expect(closed).toContain('aria-label="Generate destination B"');
     expect(closed).toContain("destination-menu");
   });
@@ -700,11 +718,13 @@ describe("Plan Director conversation UI", () => {
       ],
     });
     expect(html).toContain("Planning…");
+    expect(html).toContain("animate-spin");
+    expect(html).toContain('aria-busy="true"');
     expect(html).toContain("Filmmaker");
     expect(html).not.toContain("You ·");
     expect(html).not.toContain("Director planning…");
     expect(html.indexOf("Travel forward.")).toBeLessThan(html.indexOf("Planning…"));
-    expect(html.indexOf("Planning…")).toBeLessThan(html.indexOf('id="plan-composer"'));
+    expect(html.indexOf("Planning…")).toBeLessThan(html.indexOf('id="project-story"'));
   });
 
   it("pretty-prints nested Director JSON in the collapsible evidence card", () => {
@@ -791,14 +811,14 @@ describe("Plan Director conversation UI", () => {
 });
 
 describe("new-project Plan", () => {
-  it("shows unresolved A with an upload action and no Forest or status copy", () => {
+  it("keeps unresolved A disabled until a journey story exists", () => {
     const html = renderPlan(createNewProject(), { composerDraft: "" });
     expect(html).toContain('data-destination-card="A"');
     expect(html).toContain("storyboard-fpo");
     expect(html).toContain('aria-label="Storyboard A"');
-    expect(html).toContain('aria-label="Destination A actions"');
-    expect(html).toContain("destination-menu");
-    expect(html).toContain('placeholder="Describe the movie…"');
+    expect(html).not.toContain('aria-label="Destination A actions"');
+    expect(html).not.toContain('aria-label="Generate destination A"');
+    expect(html).toContain('placeholder="Describe the journey…"');
     expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
@@ -809,12 +829,41 @@ describe("new-project Plan", () => {
     expect(html).not.toContain('src="/api/runtime-media/');
   });
 
+  it("unlocks upload and generate A after a journey story is entered", () => {
+    const html = renderPlan({
+      ...createNewProject(),
+      story: "Travel forward through an imagined interior at night.",
+    });
+    expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).toContain('aria-label="Generate destination A"');
+    expect(html).toContain('aria-label="Story destinations"');
+    expect(html).toContain('aria-label="Increase destinations"');
+    expect(html).toContain('aria-label="Decrease destinations"');
+    expect(html).toContain('aria-label="Auto generate starting destination"');
+    expect(html).toContain('aria-label="Auto generate all destinations"');
+    expect(html).not.toMatch(
+      /checked[^>]*aria-label="Auto generate all destinations"|aria-label="Auto generate all destinations"[^>]*checked/,
+    );
+    expect(html).not.toMatch(/<button type="button" aria-label="Plan movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).not.toContain("Add Destination");
+  });
+
+  it("keeps PLAN disabled until A exists when auto generate opening is off", () => {
+    const html = renderPlan({
+      ...createNewProject(),
+      story: "Travel forward through an imagined interior at night.",
+      autoGenerateOpening: false,
+    });
+    expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+  });
+
   it("shows Add Destination as soon as actual A exists", () => {
     const empty = renderPlan(createNewProject(), { composerDraft: "" });
     expect(empty).not.toContain("Add Destination");
 
     const withA = {
       ...createNewProject(),
+      story: "Travel forward through an imagined interior at night.",
       storyboard: [
         {
           id: "A",
@@ -833,11 +882,35 @@ describe("new-project Plan", () => {
     const planned = projectWithDirectorPlan(withA, plannedBeats);
     expect(planned.storyboard[1]?.imageOrigin).toBe("none");
     expect(renderPlan(planned)).toContain('aria-label="Add Destination"');
+    expect(renderPlan(planned)).not.toMatch(
+      /<button[^>]*aria-label="Add Destination"[^>]*\sdisabled(?:="[^"]*")?[\s>]/,
+    );
+  });
+
+  it("disables Add Destination while planning auto-generation is running", () => {
+    const withA = {
+      ...createNewProject(),
+      story: "Travel forward through an imagined interior at night.",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    const html = renderPlan(withA, { constructingBeatId: "B" });
+    expect(html).toMatch(
+      /<button[^>]*aria-label="Add Destination"[^>]*\sdisabled(?:="[^"]*")?[\s>]|<button[^>]*\sdisabled(?:="[^"]*")?[^>]*aria-label="Add Destination"/,
+    );
   });
 
   it("exposes Upload image on unresolved destinations added after A", () => {
     const withA = {
       ...createNewProject(),
+      story: "Travel forward through an imagined interior at night.",
       storyboard: [
         {
           id: "A",
@@ -866,5 +939,24 @@ describe("new-project Plan", () => {
     );
     expect(openB).toContain("Upload image");
     expect(openB).not.toContain("Replace…");
+  });
+
+  it("exposes Delete on later destinations and not on opening A", () => {
+    const html = renderToStaticMarkup(
+      <DestinationMenu
+        frameId="B"
+        label="B"
+        initiallyOpen
+        onReplace={() => undefined}
+        onDelete={() => undefined}
+      />,
+    );
+    expect(html).toContain("Delete");
+    expect(html).toContain('aria-label="Delete destination B"');
+    const opening = renderToStaticMarkup(
+      <DestinationMenu frameId="A" label="A" initiallyOpen onReplace={() => undefined} />,
+    );
+    expect(opening).toContain("Replace…");
+    expect(opening).not.toContain("Delete");
   });
 });

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
-import { canConstructDestinationFrame } from "../project/destination";
+import { canConstructDestinationFrame, canGenerateOpeningFrame } from "../project/destination";
 import {
   displayProvenanceForFrame,
   formatMediaInfoLine,
@@ -11,7 +11,7 @@ import {
   type FramePreflightWarning,
 } from "../project/media-preflight";
 import { STARTING_FRAME_ACCEPT, canUploadStoryboardFrame } from "../project/starting-frame";
-import { canAddStoryboardDestination, canPlanMovie } from "../project/storyboard";
+import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
@@ -146,6 +146,7 @@ export function StoryboardFrameMedia({
     : "border-2 border-[#3a342c]";
   const provenance = displayProvenanceForFrame(frame);
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
+  const fpoIntent = frame.intent?.trim() || undefined;
 
   return (
     <span className={`relative block aspect-video w-full overflow-hidden ${frameBorder}`}>
@@ -184,6 +185,9 @@ export function StoryboardFrameMedia({
             <span className="storyboard-fpo-label max-w-full truncate" title={frame.label}>
               {frame.label}
             </span>
+            {fpoIntent ? (
+              <span className="storyboard-fpo-intent">{formatFpoIntentField(fpoIntent)}</span>
+            ) : null}
           </button>
           {constructing ? (
             <span
@@ -206,12 +210,14 @@ export function DestinationGenerateControl({
   canConstruct,
   disabled,
   onGenerate,
+  title = "Generate this destination from the previous actual frame.",
 }: {
   frameId: string;
   constructing: boolean;
   canConstruct: boolean;
   disabled: boolean;
   onGenerate: () => void;
+  title?: string;
 }) {
   if (constructing || !canConstruct) {
     return null;
@@ -221,7 +227,7 @@ export function DestinationGenerateControl({
       type="button"
       disabled={disabled}
       aria-label={`Generate destination ${frameId}`}
-      title="Generate this destination from the previous actual frame."
+      title={title}
       onClick={(event) => {
         event.stopPropagation();
         onGenerate();
@@ -231,6 +237,10 @@ export function DestinationGenerateControl({
       Generate
     </button>
   );
+}
+
+export function formatFpoIntentField(intent: string): string {
+  return `"intent": ${JSON.stringify(intent)}`;
 }
 
 export function destinationDetailContent(frame: StoryboardFrame): {
@@ -336,12 +346,14 @@ export function DestinationMenu({
   initiallyOpen = false,
   actionLabel = "Replace…",
   onReplace,
+  onDelete,
 }: {
   frameId: string;
   label: string;
   initiallyOpen?: boolean;
   actionLabel?: string;
-  onReplace: () => void;
+  onReplace?: () => void;
+  onDelete?: () => void;
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -393,18 +405,35 @@ export function DestinationMenu({
           role="menu"
           className="absolute top-full right-0 z-20 mt-0.5 min-w-[7.5rem] rounded border border-[#3a342c] bg-[#12100d] py-1 shadow-lg"
         >
-          <button
-            type="button"
-            role="menuitem"
-            className="block w-full px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916]"
-            onClick={(event) => {
-              event.stopPropagation();
-              setOpen(false);
-              onReplace();
-            }}
-          >
-            {actionLabel}
-          </button>
+          {onReplace ? (
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916]"
+              onClick={(event) => {
+                event.stopPropagation();
+                setOpen(false);
+                onReplace();
+              }}
+            >
+              {actionLabel}
+            </button>
+          ) : null}
+          {onDelete ? (
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916]"
+              aria-label={`Delete destination ${label}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                setOpen(false);
+                onDelete();
+              }}
+            >
+              Delete
+            </button>
+          ) : null}
         </span>
       ) : null}
       <span className="sr-only">{`Destination ${frameId} menu`}</span>
@@ -412,13 +441,21 @@ export function DestinationMenu({
   );
 }
 
-export function AddDestinationCard({ onAdd }: { onAdd: () => void }) {
+export function AddDestinationCard({
+  onAdd,
+  disabled = false,
+}: {
+  onAdd: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"
       aria-label="Add Destination"
+      disabled={disabled}
+      title={disabled ? "Wait until planning and destination generation finish." : undefined}
       onClick={onAdd}
-      className="storyboard-add-destination flex aspect-video w-full flex-col items-center justify-center border border-dashed border-[#3a342c] bg-[#12100d]/40 text-[#9a8f7e] outline-none hover:border-[#7a7266] hover:text-[#cfc6b8] focus-visible:border-[#ece7df] focus-visible:text-[#ece7df]"
+      className="storyboard-add-destination flex aspect-video w-full flex-col items-center justify-center border border-dashed border-[#3a342c] bg-[#12100d]/40 text-[#9a8f7e] outline-none hover:border-[#7a7266] hover:text-[#cfc6b8] focus-visible:border-[#ece7df] focus-visible:text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#3a342c] disabled:hover:text-[#9a8f7e]"
     >
       <span className="text-lg leading-none">+</span>
       <span className="mt-2 text-[11px] tracking-[0.14em] uppercase">Add Destination</span>
@@ -432,16 +469,17 @@ export function PlanView() {
     selection,
     select,
     directorStatus,
-    planWithDirector,
     replaceDestinationImage,
     addDestination,
+    removeDestination,
     constructingBeatId,
     constructDestination,
+    generateOpeningFrame,
     mediaInfoOn,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
-  const canPlan = canPlanMovie(project) && !planning;
+  const storyboardLive = Boolean(project.story.trim());
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
@@ -485,28 +523,19 @@ export function PlanView() {
             }
           }}
         />
-        <div className="mb-4 flex items-center justify-end">
-          <button
-            type="button"
-            aria-label="Plan movie"
-            disabled={!canPlan}
-            title={
-              canPlanMovie(project)
-                ? "Ask the Director to plan unresolved directing decisions."
-                : "Upload starting frame A before planning."
-            }
-            onClick={() => {
-              void planWithDirector();
-            }}
-            className="rounded border border-[#3a342c] px-3 py-1 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
-          >
-            {planning ? "Planning…" : "PLAN"}
-          </button>
-        </div>
-        <ol className="grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7">
+        {!storyboardLive ? (
+          <p className="mb-4 text-sm text-[#9a8f7e]">Enter a journey story in Project to begin.</p>
+        ) : null}
+        <ol
+          className={`grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7 ${
+            storyboardLive ? "" : "pointer-events-none opacity-40"
+          }`}
+          aria-disabled={!storyboardLive || undefined}
+        >
           {project.storyboard.map((frame) => {
             const selectedCard = frame.id === selectedId;
             const canConstruct = canConstructDestinationFrame(project, frame);
+            const canGenerateOpening = frame.id === "A" && canGenerateOpeningFrame(project);
             const constructing = constructingBeatId === frame.id;
             const warnings = preflightWarningsForFrame(mediaPreflight, frame.id);
             const frameMedia = (
@@ -517,6 +546,9 @@ export function PlanView() {
                 showMediaInfo={mediaInfoOn}
                 hasWarning={warnings.length > 0}
                 onSelect={() => {
+                  if (!storyboardLive) {
+                    return;
+                  }
                   select({ kind: "storyboard", frameId: frame.id });
                   if (destinationDetailContent(frame)) {
                     setDetailFrameId((current) => (current === frame.id ? null : frame.id));
@@ -530,10 +562,19 @@ export function PlanView() {
                 <DestinationGenerateControl
                   frameId={frame.id}
                   constructing={constructing}
-                  canConstruct={canConstruct}
+                  canConstruct={canGenerateOpening || canConstruct}
                   disabled={Boolean(constructingBeatId) || planning}
+                  title={
+                    canGenerateOpening
+                      ? "Generate this opening frame from the journey story."
+                      : "Generate this destination from the previous actual frame."
+                  }
                   onGenerate={() => {
                     select({ kind: "storyboard", frameId: frame.id });
+                    if (canGenerateOpening) {
+                      void generateOpeningFrame();
+                      return;
+                    }
                     void constructDestination(frame.id);
                   }}
                 />
@@ -566,6 +607,7 @@ export function PlanView() {
                       {frameMedia}
                     </button>
                     <PreflightWarningControl warnings={warnings} />
+                    {storyboardLive ? (
                     <DestinationMenu
                       frameId={frame.id}
                       label={frame.label}
@@ -573,7 +615,16 @@ export function PlanView() {
                         replacingFrameId.current = frame.id;
                         fileInputRef.current?.click();
                       }}
+                      onDelete={
+                        canRemoveStoryboardDestination(project, frame.id)
+                          ? () => {
+                              setDetailFrameId((current) => (current === frame.id ? null : current));
+                              removeDestination(frame.id);
+                            }
+                          : undefined
+                      }
                     />
+                    ) : null}
                     {details}
                   </div>
                 ) : (
@@ -582,19 +633,32 @@ export function PlanView() {
                     data-destination-card={frame.id}
                   >
                     {frameMedia}
-                    {canUploadStoryboardFrame(frame) ? (
+                    {storyboardLive &&
+                    (canUploadStoryboardFrame(frame) || canRemoveStoryboardDestination(project, frame.id)) ? (
                       <DestinationMenu
                         frameId={frame.id}
                         label={frame.label}
                         actionLabel="Upload image"
-                        onReplace={() => {
-                          select({ kind: "storyboard", frameId: frame.id });
-                          replacingFrameId.current = frame.id;
-                          fileInputRef.current?.click();
-                        }}
+                        onReplace={
+                          canUploadStoryboardFrame(frame)
+                            ? () => {
+                                select({ kind: "storyboard", frameId: frame.id });
+                                replacingFrameId.current = frame.id;
+                                fileInputRef.current?.click();
+                              }
+                            : undefined
+                        }
+                        onDelete={
+                          canRemoveStoryboardDestination(project, frame.id)
+                            ? () => {
+                                setDetailFrameId((current) => (current === frame.id ? null : current));
+                                removeDestination(frame.id);
+                              }
+                            : undefined
+                        }
                       />
                     ) : null}
-                    {canConstruct && !constructing ? generate : null}
+                    {storyboardLive && (canConstruct || canGenerateOpening) && !constructing ? generate : null}
                     {details}
                   </div>
                 )}
@@ -603,7 +667,10 @@ export function PlanView() {
           })}
           {canAddStoryboardDestination(project) ? (
             <li className="min-w-0">
-              <AddDestinationCard onAdd={addDestination} />
+              <AddDestinationCard
+                onAdd={addDestination}
+                disabled={planning || Boolean(constructingBeatId)}
+              />
             </li>
           ) : null}
         </ol>

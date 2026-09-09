@@ -9,6 +9,7 @@ function renderShell(options?: {
   mediaInfo?: boolean;
   view?: "plan" | "shoot";
   conversationRailOpen?: boolean;
+  projectRailOpen?: boolean;
   agency?: "directed" | "autonomous";
   conversation?: ConversationEntry[];
   composerDraft?: string;
@@ -23,6 +24,7 @@ function renderShell(options?: {
       initialMediaInfo={options?.mediaInfo}
       initialView={options?.view}
       initialConversationRailOpen={options?.conversationRailOpen}
+      initialProjectRailOpen={options?.projectRailOpen}
       initialConversation={options?.conversation}
       initialComposerDraft={options?.composerDraft}
     >
@@ -41,10 +43,10 @@ describe("default product project", () => {
     expect(html).toContain('aria-label="Current project: UNTITLED"');
     expect(html).not.toContain("FOREST A→F");
     expect(html).not.toContain("Travel forward through this night forest");
-    expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).not.toContain('aria-label="Destination A actions"');
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
-    expect(html).toContain('placeholder="Describe the movie…"');
+    expect(html).toContain('placeholder="Describe the journey…"');
     expect(html).toMatch(/disabled[^>]*>Shoot<|>Shoot<[^>]*disabled/);
   });
 });
@@ -111,7 +113,7 @@ describe("Filmmaking conversation rail", () => {
     );
     const openHeader = open.slice(
       open.indexOf("conversation-rail-header"),
-      open.indexOf('id="plan-composer"'),
+      open.indexOf('id="project-story"'),
     );
     expect(open).toContain("conversation-rail-header");
     expect(openHeader).toContain("justify-end");
@@ -171,12 +173,12 @@ describe("Filmmaking conversation rail", () => {
     expect(planClosed).not.toContain('aria-label="Resize story panel"');
     expect(shootClosed).not.toContain('aria-label="Resize story panel"');
     expect(planClosed).toContain('aria-label="Storyboard"');
-    expect(shootClosed).toContain("Shoot This Shot");
+    expect(shootClosed).not.toContain("Shoot This Shot");
     expect(planOpen).toContain('title="Hide filmmaking conversation"');
     expect(shootOpen).toContain('title="Hide filmmaking conversation"');
     expect(planOpen).toContain('aria-label="Resize story panel"');
     expect(shootOpen).toContain('aria-label="Resize story panel"');
-    expect(shootOpen).toContain("Shoot This Shot");
+    expect(shootOpen).not.toContain("Shoot This Shot");
     expect(shootOpen).toContain('aria-label="Story"');
   });
 
@@ -193,5 +195,21 @@ describe("Filmmaking conversation rail", () => {
     expect(autonomousClosed).toContain('title="Show filmmaking conversation"');
     expect(directedClosed).not.toContain('aria-label="Resize story panel"');
     expect(autonomousClosed).not.toContain('aria-label="Resize story panel"');
+  });
+});
+
+describe("Project rail", () => {
+  it("hides the Project panel when collapsed and keeps a control on the right", () => {
+    const open = renderShell();
+    const closed = renderShell({ projectRailOpen: false });
+    expect(open).toContain("project-rail-header");
+    expect(open).toContain('aria-label="Project"');
+    expect(open).toContain('title="Hide project"');
+    expect(open).toContain('aria-label="Resize project panel"');
+    expect(open).toContain('id="project-story"');
+    expect(closed).toContain("project-rail-reopen");
+    expect(closed).toContain('title="Show project"');
+    expect(closed).not.toContain('aria-label="Resize project panel"');
+    expect(closed).toContain("border-l border-[#2a2620]");
   });
 });

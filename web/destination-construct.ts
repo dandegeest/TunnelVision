@@ -1,5 +1,5 @@
-import type { GeneratedImage, ImageEditRequest } from "../media/src/types.ts";
-import { destinationConstructionPrompt } from "./src/project/destination.ts";
+import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
+import { destinationConstructionPrompt, openingFrameGenerationPrompt } from "./src/project/destination.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
 
@@ -82,6 +82,60 @@ export async function constructDestinationImage(input: {
         beatId,
         intent,
         visualDescription,
+        prompt,
+      },
+      model: generated.model,
+      modelVersion: generated.modelVersion,
+      predictionId: generated.predictionId,
+      elapsedMs: generated.elapsedMs,
+      outputMediaId: recorded.mediaId,
+      outputUrl: generated.outputUrl,
+    },
+  };
+}
+
+export async function generateOpeningFrameImage(input: {
+  body: { story?: unknown };
+  generateImage: (request: ImageGenerationRequest) => Promise<GeneratedImage>;
+  fetchOutput?: (url: string) => Promise<{ bytes: Buffer; contentType?: string }>;
+}): Promise<{
+  mediaId: string;
+  imageUrl: string;
+  evidence: {
+    request: {
+      sourceMediaId: string;
+      beatId: string;
+      intent: string;
+      visualDescription: string;
+      prompt: string;
+    };
+    model: string;
+    modelVersion: string | null;
+    predictionId: string;
+    elapsedMs: number;
+    outputMediaId: string;
+    outputUrl: string;
+  };
+}> {
+  const story = typeof input.body.story === "string" ? input.body.story.trim() : "";
+  const prompt = openingFrameGenerationPrompt(story);
+  const generated = await input.generateImage({ prompt });
+  const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;
+  const output = await fetchOutput(generated.outputUrl);
+  const registry = getActiveRuntimeMediaRegistry();
+  if (!registry) {
+    throw new Error("Opening frame generation failed.");
+  }
+  const recorded = registry.register(output.bytes, output.contentType);
+  return {
+    mediaId: recorded.mediaId,
+    imageUrl: recorded.imageUrl,
+    evidence: {
+      request: {
+        sourceMediaId: "",
+        beatId: "A",
+        intent: story,
+        visualDescription: "",
         prompt,
       },
       model: generated.model,

@@ -10,6 +10,7 @@ import {
   canPlanMovie,
   projectWithAddedDestination,
   projectWithDirectorPlan,
+  projectWithRemovedDestination,
 } from "./storyboard";
 import { movieExportPlan, canExportMovie, describeMovieExport } from "./export-movie";
 import { consecutiveProductionPairs } from "./production-legs";
@@ -61,10 +62,41 @@ describe("partially specified movie interaction model", () => {
     expect(consecutiveProductionPairs(empty)).toEqual([]);
   });
 
-  it("makes Add Destination and PLAN available after A is uploaded", () => {
+  it("makes Add Destination and PLAN available after a story and actual A", () => {
     const withA = projectWithA();
-    expect(canPlanMovie(withA)).toBe(true);
-    expect(canAddStoryboardDestination(withA)).toBe(true);
+    expect(canPlanMovie(withA)).toBe(false);
+    expect(canAddStoryboardDestination(withA)).toBe(false);
+    const ready = projectWithA("Travel forward through connected volumes.");
+    expect(canPlanMovie(ready)).toBe(true);
+    expect(canAddStoryboardDestination(ready)).toBe(true);
+  });
+
+  it("lets PLAN run without A when auto generate opening is enabled", () => {
+    const untitled = {
+      ...createNewProject(),
+      story: "Travel forward through connected volumes.",
+    };
+    expect(canPlanMovie(untitled)).toBe(true);
+    expect(canAddStoryboardDestination(untitled)).toBe(false);
+    expect(canPlanMovie({ ...untitled, autoGenerateOpening: false })).toBe(false);
+  });
+
+  it("plans from a generated opening frame A without requiring an upload", () => {
+    const generated = {
+      ...createNewProject(),
+      story: "Travel forward through connected volumes.",
+      storyboard: [actualFrame("A", A_MEDIA, "generated")],
+    };
+    expect(canPlanMovie(generated)).toBe(true);
+    const next = projectWithDirectorPlan(generated, {
+      summary: "Continue the interior.",
+      beats: [
+        { id: "B", intent: "Move forward.", visualDescription: "A deeper volume." },
+        { id: "C", intent: "Reach the far room.", visualDescription: "The destination chamber." },
+      ],
+    });
+    expect(next.storyboard[0]).toEqual(generated.storyboard[0]);
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
   });
 
   it("appends unresolved destinations without invoking the Director", () => {
@@ -156,9 +188,10 @@ describe("partially specified movie interaction model", () => {
     const project = { ...projectWithA(), story: "" };
     const edited = { ...project, story: "A greenhouse at night." };
     expect(prepareDirectorPlan(project).ok).toBe(false);
-    expect(prepareDirectorPlan(edited).ok).toBe(true);
-    if (prepareDirectorPlan(edited).ok) {
-      expect(prepareDirectorPlan(edited).request.story).toBe("A greenhouse at night.");
+    const prepared = prepareDirectorPlan(edited);
+    expect(prepared.ok).toBe(true);
+    if (prepared.ok) {
+      expect(prepared.request.story).toBe("A greenhouse at night.");
     }
     expect(edited.storyboard).toEqual(project.storyboard);
   });
@@ -172,6 +205,21 @@ describe("partially specified movie interaction model", () => {
     expect(added.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
     expect(added.storyboard[2]?.imageOrigin).toBe("none");
     expect(added.storyboard[1]?.intent).toBe("Enter the hall.");
+  });
+
+  it("removes a later destination without invoking the Director", () => {
+    const director = vi.fn();
+    const planned = projectWithDirectorPlan(projectWithA("Travel forward."), {
+      summary: "Enter the next rooms.",
+      beats: [
+        { id: "B", intent: "Enter the hall.", visualDescription: "A hall." },
+        { id: "C", intent: "Enter the chamber.", visualDescription: "A chamber." },
+      ],
+    });
+    const next = projectWithRemovedDestination(planned, "C");
+    expect(director).not.toHaveBeenCalled();
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B"]);
+    expect(next.storyboard[1]?.intent).toBe("Enter the hall.");
   });
 
   it("still exposes an A→B production leg from actual adjacent canonicals without PLAN", () => {

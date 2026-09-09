@@ -93,9 +93,21 @@ project rather than a demonstration journey. Forest A→F remains
 research evidence and an explicit test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does
 not independently substitute a catalog still. Story text is project
-intent; PLAN in the Plan workspace is the only Director invocation.
+intent; PLAN in the Project panel is the only Director invocation.
+AUTO destination count lets the Director choose N; a number, typed or
+stepped, adds that
+many FPO slots. After the first PLAN response the count is read-only
+and follows storyboard add/delete. When auto-generate starting
+destination is on, PLAN generates unresolved A from the story before
+Director planning. When auto-generate all destinations is on, PLAN then
+constructs B…N in travel order from each preceding actual frame. Later
+beats cannot run in parallel. If a later construct fails, generation
+stops and the Director plan remains.
 Add Destination appends an unresolved slot after actual A and does not
-call the Director. The filmmaker can replace a destination's
+call the Director. It is disabled while PLAN or sequential destination
+generation is running. Delete removes a later storyboard beat without
+relabeling remaining ids or calling the Director; opening A cannot be
+deleted. The filmmaker can replace a destination's
 canonical still in place from the destination menu. Replacing either
 canonical still on a production leg returns that JourneyShot to not
 prepared and not shot. Add Destination
@@ -107,15 +119,18 @@ image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
-automatically, and PREPARE runs the existing Cinematographer on the
-selected leg. Shoot tiles read to block / blocked / rolling / in the can;
-after PREPARE the outline is clear / hold / no go. SHOOT on a prepared leg runs Camotion and a configurable
+automatically, and BLOCK runs the existing Cinematographer on the
+selected leg. Shoot tiles read to block / blocked / shooting / complete;
+after BLOCK the outline is clear / hold / no go. While BLOCK
+runs, that segment shows a progress spinner. SHOOT on a blocked leg runs Camotion and a configurable
 video model; the current development generator is `prunaai/p-video` with
 A′ as `image` and B′ as `last_frame_image`. After replacement, that destination
 keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
+Product Slice 4 UI:
+[genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user
@@ -133,7 +148,7 @@ the camera should move through their visible geography.** The
 primary question is how to shoot this pair, not whether a stochastic
 video model will succeed. A thin assessment lives in
 `media/src/cinematographer/assess-journey.ts` and is invoked from
-Shoot PREPARE for one JourneyShot. The result is stored on that journey and
+Shoot BLOCK for one JourneyShot. The result is stored on that journey and
 includes route, camera path, visible geometry, transition strategy,
 and a concise `segmentPromptAddition`, plus advisory shootability /
 Camotion suitability / concerns. Destinations stay canonical world
@@ -146,7 +161,9 @@ success. Always choreograph, including when shootability is
 `needs_review` or `not_shootable`. A mostly straight move is valid
 when the geography supports it. Apparent foreground obstacles are
 not automatic refusals; CM should say how the camera might negotiate
-visible geometry.
+visible geometry. Both stills are first-person POV along the same
+forward travel direction; the end still is the next forward viewpoint,
+not a reverse angle.
 
 Do **not** generate CameraMotionPlan, Camotion shooting frames, or
 video from this assessment. Do not expand the Integration Test 01

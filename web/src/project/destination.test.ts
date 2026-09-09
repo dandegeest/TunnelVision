@@ -2,14 +2,20 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { projectWithDirectorPlan } from "./storyboard";
 import { projectWithReplacedStartImage } from "./starting-frame";
+import { createNewProject } from "./new-project";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import {
   canConstructDestinationFrame,
+  canGenerateOpeningFrame,
+  nextConstructableDestinationId,
   destinationConstructionPrompt,
   destinationConstructionRequestFromProject,
+  openingFrameGenerationPrompt,
+  openingFrameGenerationRequestFromProject,
   parseDestinationConstructionResult,
   precedingActualFrame,
   projectWithConstructedDestination,
+  projectWithGeneratedOpeningFrame,
   requestConstructDestination,
 } from "./destination";
 
@@ -113,6 +119,7 @@ describe("construct B from current Project state", () => {
     expect(canConstructDestinationFrame(planned, b)).toBe(true);
     expect(canConstructDestinationFrame(planned, c)).toBe(false);
     expect(canConstructDestinationFrame(planned, d)).toBe(false);
+    expect(nextConstructableDestinationId(planned)).toBe("B");
   });
 
   it("assigns constructed image and trusted media identity without changing A, C...N, or story", () => {
@@ -178,6 +185,7 @@ describe("construct C from actual B", () => {
     expect(canConstructDestinationFrame(actualB, actualB.storyboard[1]!)).toBe(false);
     expect(canConstructDestinationFrame(actualB, actualB.storyboard[2]!)).toBe(true);
     expect(canConstructDestinationFrame(actualB, actualB.storyboard[3]!)).toBe(false);
+    expect(nextConstructableDestinationId(actualB)).toBe("C");
     expect(precedingActualFrame(actualB, actualB.storyboard[2]!)?.mediaId).toBe(generatedB.mediaId);
   });
 
@@ -306,5 +314,21 @@ describe("destination construction client", () => {
     expect(actualB.storyboard[2]?.mediaId).toBeUndefined();
     expect(actualB.storyboard[2]?.intent).toBe(beats.beats[1]?.intent);
     expect(actualB.storyboard[2]?.visualDescription).toBe(beats.beats[1]?.visualDescription);
+  });
+});
+
+describe("opening frame generation", () => {
+  it("requires a journey story and unresolved A", () => {
+    const empty = createNewProject();
+    expect(canGenerateOpeningFrame(empty)).toBe(false);
+    const withStory = { ...empty, story: "Travel forward through an imagined interior at night." };
+    expect(canGenerateOpeningFrame(withStory)).toBe(true);
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Travel forward through an imagined interior at night/);
+    expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({ story: withStory.story });
+    const generated = projectWithGeneratedOpeningFrame(withStory, generatedB);
+    expect(generated.storyboard[0]?.imageOrigin).toBe("generated");
+    expect(generated.storyboard[0]?.mediaId).toBe(generatedB.mediaId);
+    expect(generated.storyboard[0]?.destinationId).toBe("A");
+    expect(canGenerateOpeningFrame(generated)).toBe(false);
   });
 });

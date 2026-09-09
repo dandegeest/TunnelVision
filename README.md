@@ -260,6 +260,8 @@ First Director-derived destination construction:
 [`genesis/research/13-destination-construction.html`](genesis/research/13-destination-construction.html).
 Forest A→F Camotion continuity evidence:
 [`genesis/research/14-forest-a-to-f.html`](genesis/research/14-forest-a-to-f.html).
+Product Slice 4 UI:
+[`genesis/research/15-product-slice-4.html`](genesis/research/15-product-slice-4.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.

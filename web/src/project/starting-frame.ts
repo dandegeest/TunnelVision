@@ -30,10 +30,8 @@ export function canUploadStoryboardFrame(frame: Pick<StoryboardFrame, "image" | 
 
 export function hasAuthoritativeStartingFrame(project: Project): boolean {
   const start = project.storyboard.find((frame) => isAuthoritativeStartingFrame(frame));
-  return (
-    start?.imageOrigin === "user" &&
-    Boolean(start.image) &&
-    isTrustedMediaIdShape(start.mediaId)
+  return Boolean(
+    start?.image && start.imageOrigin !== "none" && isTrustedMediaIdShape(start.mediaId),
   );
 }
 

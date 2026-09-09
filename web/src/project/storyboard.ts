@@ -1,6 +1,7 @@
-import type { Project, Selection, StoryboardFrame, StoryboardImageOrigin } from "./types";
+import type { Project, Selection, StoryboardFrame, StoryboardImageOrigin, StoryDuration } from "./types";
 import { destinationById, storyboardFrameById } from "./types";
 import type { DirectorPlan } from "./director";
+import { projectWithSyncedProductionLegs } from "./production-legs";
 
 export type WorkspaceView = "plan" | "shoot";
 
@@ -94,11 +95,23 @@ export function selectionForWorkspaceView(
 }
 
 const STORYBOARD_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+export const MAX_STORYBOARD_DESTINATIONS = STORYBOARD_LABELS.length;
+export const MIN_STORY_DURATION_COUNT = 2;
 
 export function nextStoryboardSlot(
   frames: StoryboardFrame[],
 ): { id: string; label: string } | undefined {
   const used = new Set(frames.map((frame) => frame.id.trim().toUpperCase()));
+  const last = frames[frames.length - 1]?.id.trim().toUpperCase();
+  if (last && last.length === 1) {
+    const index = STORYBOARD_LABELS.indexOf(last);
+    if (index >= 0 && index < STORYBOARD_LABELS.length - 1) {
+      const candidate = STORYBOARD_LABELS[index + 1]!;
+      if (!used.has(candidate)) {
+        return { id: candidate, label: candidate };
+      }
+    }
+  }
   for (const letter of STORYBOARD_LABELS) {
     if (!used.has(letter)) {
       return { id: letter, label: letter };
@@ -113,17 +126,59 @@ export function projectWithAddedDestination(project: Project): Project {
   if (!next) {
     return project;
   }
+  const storyboard = [
+    ...project.storyboard,
+    {
+      id: next.id,
+      label: next.label,
+      imageOrigin: "none" as const,
+    },
+  ];
   return {
     ...project,
-    storyboard: [
-      ...project.storyboard,
-      {
-        id: next.id,
-        label: next.label,
-        imageOrigin: "none",
-      },
-    ],
+    storyboard,
+    ...(project.storyDurationLocked ? {} : { storyDuration: storyboard.length }),
   };
+}
+
+/** Later beats may be removed. Opening A stays; it is the required starting frame. */
+export function canRemoveStoryboardDestination(project: Project, frameId: string): boolean {
+  const frame = storyboardFrameById(project.storyboard, frameId);
+  if (!frame) {
+    return false;
+  }
+  return !sameStoryboardId(frame.id, "A");
+}
+
+/**
+ * Structural delete. Does not invoke the Director or relabel remaining beats.
+ * Adjacent remaining actuals become the current production legs.
+ */
+export function projectWithRemovedDestination(project: Project, frameId: string): Project {
+  if (!canRemoveStoryboardDestination(project, frameId)) {
+    return project;
+  }
+  const storyboard = project.storyboard.filter((frame) => !sameStoryboardId(frame.id, frameId));
+  const destinations = project.destinations.filter((destination) => !sameStoryboardId(destination.id, frameId));
+  const journeys = project.journeys.filter(
+    (journey) =>
+      !sameStoryboardId(journey.startDestinationId, frameId) &&
+      !(journey.endDestinationId && sameStoryboardId(journey.endDestinationId, frameId)),
+  );
+  const boundaryAnalysis = project.boundaryAnalysis?.filter(
+    (record) =>
+      !sameStoryboardId(record.sharedDestinationId, frameId) &&
+      !record.previousJourneyId.split("-").includes(frameId) &&
+      !record.nextJourneyId.split("-").includes(frameId),
+  );
+  return projectWithSyncedProductionLegs({
+    ...project,
+    storyboard,
+    destinations,
+    journeys,
+    ...(project.boundaryAnalysis ? { boundaryAnalysis } : {}),
+    ...(project.storyDurationLocked ? {} : { storyDuration: storyboard.length }),
+  });
 }
 
 function sameStoryboardId(left: string, right: string): boolean {
@@ -140,11 +195,22 @@ function storyboardFrameByLetter(frames: StoryboardFrame[], id: string): Storybo
   return frames.find((frame) => frame.id.trim().toLowerCase() === key);
 }
 
+function specifiedOpeningFrame(storyboard: StoryboardFrame[]): StoryboardFrame | undefined {
+  const opening = storyboardFrameByLetter(storyboard, "A");
+  if (opening && isSpecifiedStoryboardDestination(opening)) {
+    return opening;
+  }
+  return storyboard.find(isSpecifiedStoryboardDestination);
+}
+
 /**
  * Add Destination is structural only. It requires actual starting frame A,
  * then may append unresolved slots even when prior slots are still empty.
  */
 export function canAddStoryboardDestination(project: Project): boolean {
+  if (!project.story.trim()) {
+    return false;
+  }
   if (!nextStoryboardSlot(project.storyboard)) {
     return false;
   }
@@ -153,8 +219,107 @@ export function canAddStoryboardDestination(project: Project): boolean {
 }
 
 export function canPlanMovie(project: Project): boolean {
+  if (!project.story.trim()) {
+    return false;
+  }
   const start = storyboardFrameByLetter(project.storyboard, "A");
-  return Boolean(start && isSpecifiedStoryboardDestination(start));
+  if (start && isSpecifiedStoryboardDestination(start)) {
+    return true;
+  }
+  return Boolean(
+    project.autoGenerateOpening && start && start.imageOrigin === "none" && !start.image,
+  );
+}
+
+export function parseStoryDurationInput(raw: string): { ok: true; duration: StoryDuration } | { ok: false } {
+  const trimmed = raw.trim();
+  if (/^auto$/i.test(trimmed)) {
+    return { ok: true, duration: "auto" };
+  }
+  if (!/^\d+$/.test(trimmed)) {
+    return { ok: false };
+  }
+  const count = Number.parseInt(trimmed, 10);
+  if (count < MIN_STORY_DURATION_COUNT || count > MAX_STORYBOARD_DESTINATIONS) {
+    return { ok: false };
+  }
+  return { ok: true, duration: count };
+}
+
+export function storyDurationFieldValue(project: Project): string {
+  if (project.storyDurationLocked || project.storyDuration !== "auto") {
+    return String(project.storyboard.length);
+  }
+  return "AUTO";
+}
+
+export function projectWithAutoGenerateOpening(project: Project, enabled: boolean): Project {
+  if (project.autoGenerateOpening === enabled) {
+    return project;
+  }
+  return { ...project, autoGenerateOpening: enabled };
+}
+
+export function projectWithAutoGenerateAllDestinations(project: Project, enabled: boolean): Project {
+  if (project.autoGenerateAllDestinations === enabled) {
+    return project;
+  }
+  return { ...project, autoGenerateAllDestinations: enabled };
+}
+
+export function projectWithNudgedStoryDuration(project: Project, delta: 1 | -1): Project {
+  if (project.storyDurationLocked) {
+    return project;
+  }
+  if (project.storyDuration === "auto") {
+    return delta > 0 ? projectWithStoryDuration(project, MIN_STORY_DURATION_COUNT) : project;
+  }
+  const next = project.storyboard.length + delta;
+  if (next < MIN_STORY_DURATION_COUNT) {
+    return projectWithStoryDuration(project, "auto");
+  }
+  if (next > MAX_STORYBOARD_DESTINATIONS) {
+    return project;
+  }
+  return projectWithStoryDuration(project, next);
+}
+
+export function projectWithStoryDuration(project: Project, duration: StoryDuration): Project {
+  if (project.storyDurationLocked) {
+    return project;
+  }
+  if (duration === "auto") {
+    let next = project;
+    while (next.storyboard.length > 1) {
+      const last = next.storyboard[next.storyboard.length - 1]!;
+      const removed = projectWithRemovedDestination(next, last.id);
+      if (removed === next) {
+        break;
+      }
+      next = removed;
+    }
+    return { ...next, storyDuration: "auto" };
+  }
+  let next: Project = { ...project, storyDuration: duration };
+  while (next.storyboard.length < duration) {
+    const grown = projectWithAddedDestination(next);
+    if (grown.storyboard.length === next.storyboard.length) {
+      break;
+    }
+    next = grown;
+  }
+  while (next.storyboard.length > duration) {
+    const last = next.storyboard[next.storyboard.length - 1]!;
+    if (sameStoryboardId(last.id, "A")) {
+      break;
+    }
+    const trimmed = projectWithRemovedDestination(next, last.id);
+    if (trimmed === next) {
+      break;
+    }
+    next = trimmed;
+  }
+  return { ...next, storyDuration: next.storyboard.length };
 }
 
 function plannedFrameFromBeat(beat: DirectorPlan["beats"][number]): StoryboardFrame {
@@ -219,10 +384,9 @@ export function applyDirectorPlanToStoryboard(
   storyboard: StoryboardFrame[],
   plan: DirectorPlan,
 ): StoryboardFrame[] {
-  const startFrame =
-    storyboard.find((frame) => frame.imageOrigin === "user") ?? storyboard[0];
-  if (!startFrame || startFrame.imageOrigin !== "user" || !startFrame.image) {
-    throw new Error("Starting frame must remain the filmmaker-supplied opening beat");
+  const startFrame = specifiedOpeningFrame(storyboard);
+  if (!startFrame) {
+    throw new Error("Starting frame must remain the specified opening beat");
   }
   const subsequent = plan.beats.filter((beat) => !sameStoryboardId(beat.id, startFrame.id));
   if (subsequent.length < 1) {
@@ -340,13 +504,15 @@ function assertNoInventedTail(storyboard: StoryboardFrame[], next: StoryboardFra
 }
 
 export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): Project {
-  const start =
-    project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
+  const start = specifiedOpeningFrame(project.storyboard);
   if (!start) {
-    throw new Error("Project has no starting storyboard frame");
+    throw new Error("Project has no specified opening storyboard frame");
   }
+  const storyboard = applyDirectorPlanToStoryboard(project.storyboard, plan);
   return {
     ...project,
-    storyboard: applyDirectorPlanToStoryboard(project.storyboard, plan),
+    storyboard,
+    storyDuration: storyboard.length,
+    storyDurationLocked: true,
   };
 }

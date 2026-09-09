@@ -14,6 +14,10 @@ describe("new product project", () => {
     expect(project.destinations).toEqual([]);
     expect(project.journeys).toEqual([]);
     expect(project.boundaryAnalysis).toBeUndefined();
+    expect(project.storyDuration).toBe("auto");
+    expect(project.autoGenerateOpening).toBe(true);
+    expect(project.autoGenerateAllDestinations).toBe(false);
+    expect(project.storyDurationLocked).toBe(false);
     expect(canProvideStartingFrame(project.storyboard[0]!)).toBe(true);
     expect(hasAuthoritativeStartingFrame(project)).toBe(false);
   });

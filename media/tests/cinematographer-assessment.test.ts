@@ -58,7 +58,11 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.doesNotMatch(request.systemInstruction, /exposure\.strength/);
   assert.match(request.prompt, /Journey A-B/);
   assert.match(request.prompt, /night forest/);
+  assert.match(request.systemInstruction, /next viewpoint along that same travel direction/i);
+  assert.match(request.systemInstruction, /not a reverse angle/i);
   assert.match(request.prompt, /Image 1 is the START canonical set/);
+  assert.match(request.prompt, /same travel direction/);
+  assert.match(request.prompt, /not a reverse shot/i);
   assert.match(request.prompt, /Do not predict whether a video model will succeed/);
   assert.ok(request.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE));
   assert.deepEqual(request.images, [input.start.image, input.end.image]);

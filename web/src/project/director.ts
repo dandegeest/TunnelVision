@@ -38,6 +38,7 @@ export type DirectorEvidence = {
     startMediaId: string;
     anchors?: DirectorAnchor[];
     storyboard?: DirectorStoryboardSlot[];
+    storyDuration?: "auto" | number;
     systemInstruction: string;
     prompt: string;
   };
@@ -61,10 +62,21 @@ export type DirectorPlanRequest = {
   startMediaId: string;
   anchors?: DirectorAnchor[];
   storyboard?: DirectorStoryboardSlot[];
+  storyDuration?: "auto" | number;
 };
 
 export function authoritativeStartFrame(project: Project) {
-  return project.storyboard.find((frame) => frame.imageOrigin === "user") ?? project.storyboard[0];
+  const opening = project.storyboard.find((frame) => frame.id === "A");
+  if (opening && opening.imageOrigin !== "none" && isTrustedMediaIdShape(opening.mediaId)) {
+    return opening;
+  }
+  return (
+    project.storyboard.find(
+      (frame) =>
+        (frame.imageOrigin === "user" || frame.imageOrigin === "generated") &&
+        isTrustedMediaIdShape(frame.mediaId),
+    ) ?? project.storyboard[0]
+  );
 }
 
 function isSpecifiedDirectorAnchor(frame: StoryboardFrame): boolean {
@@ -114,11 +126,16 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
     (frame) => frame.id.trim().toLowerCase() !== start.id.trim().toLowerCase(),
   );
   const storyboard = project.storyboard.map(directorSlotFromFrame);
+  const storyDuration =
+    project.storyDuration === "auto" && !project.storyDurationLocked
+      ? "auto"
+      : project.storyboard.length;
   return {
     story: project.story,
     agency: project.agency,
     startFrameId: start.id,
     startMediaId: start.mediaId,
+    storyDuration,
     ...(startFrameIntent ? { startFrameIntent } : {}),
     ...(extra.length > 0 ? { anchors: specified.map(directorAnchorFromFrame) } : {}),
     ...(storyboard.length > 0 ? { storyboard } : {}),

@@ -68,6 +68,10 @@ export function directorDevPlugin(repoRoot: string): Plugin {
           const startFrame = directorStartFrameFromRequest(repoRoot, body);
           const anchors = directorAnchorsFromRequest(repoRoot, body);
           const storyboard = directorStoryboardFromRequest(body);
+          const storyDuration =
+            body.storyDuration === "auto" || typeof body.storyDuration === "number"
+              ? body.storyDuration
+              : undefined;
           const result = await plan({
             reasoning: new ReplicateReasoningProvider(),
             story: typeof body.story === "string" ? body.story : "",
@@ -75,6 +79,7 @@ export function directorDevPlugin(repoRoot: string): Plugin {
             startFrame,
             ...(anchors ? { anchors } : {}),
             ...(storyboard ? { storyboard } : {}),
+            ...(storyDuration !== undefined ? { storyDuration } : {}),
           });
           sendJson(res, 200, {
             plan: result.plan,
@@ -87,6 +92,9 @@ export function directorDevPlugin(repoRoot: string): Plugin {
                 startMediaId: body.startMediaId,
                 ...(result.request.anchors ? { anchors: result.request.anchors } : {}),
                 ...(result.request.storyboard ? { storyboard: result.request.storyboard } : {}),
+                ...(result.request.storyDuration !== undefined
+                  ? { storyDuration: result.request.storyDuration }
+                  : {}),
                 systemInstruction: result.request.systemInstruction,
                 prompt: result.request.prompt,
               },

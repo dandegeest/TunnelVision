@@ -8,6 +8,10 @@ export function createNewProject(): Project {
     story: "",
     agency: "directed",
     construction: "planned",
+    storyDuration: "auto",
+    autoGenerateOpening: true,
+    autoGenerateAllDestinations: false,
+    storyDurationLocked: false,
     storyboard: [
       {
         id: "A",

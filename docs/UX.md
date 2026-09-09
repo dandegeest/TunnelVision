@@ -17,32 +17,44 @@ concatenates rendered journey clips that already exist.
 deliberately no Edit workspace.
 
 **Current implementation:** Product Slice 3 Plan is a dominant
-storyboard grid plus Conversation. PLAN in the Plan workspace asks the
-Director to plan unspecified beats around the complete ordered
-storyboard; supplied stills remain
-authoritative. The composer edits `Project.story` as project intent and
-does not invoke the Director. Send is inactive. Planned beats start as FPO. Generate is centered beneath the
+storyboard grid between a conversation history rail and a Project
+panel. The left rail is conversation turn history only. The Project
+panel holds the journey story, destination count (AUTO or a
+number, typed or stepped), auto-generate-A, auto-generate-all, and PLAN, and can collapse to the right
+like conversation collapses to the left. Storyboard stays disabled
+until a journey story is entered; then the filmmaker can upload A or
+generate A from that story. AUTO leaves later beats to the Director;
+a number adds that many FPO destinations. After the first PLAN
+response the count is read-only and follows storyboard add/delete.
+When auto-generate starting destination is on, PLAN generates A from
+the story then runs Director planning. When it is off, PLAN stays
+disabled until A exists. When auto-generate all destinations is on,
+PLAN then constructs B…N in travel order; later beats cannot run in
+parallel because each is derived from the previous actual frame. PLAN asks the Director to plan unspecified
+beats around the complete ordered storyboard; supplied stills remain
+authoritative. Planned beats start as FPO. Generate is centered beneath the
 planned thumbnail and builds the next planned beat from the preceding
 actual destination through image-conditioned edit; later beats stay
-planned until the filmmaker generates them. Director intent stays in
-project state and is available from the destination thumbnail, not as
-persistent storyboard caption text. Construct is sequential **Derived**
+planned until the filmmaker generates them. Empty FPO thumbnails overlay
+Director intent in field form until an image exists; intent and visual
+description for actual cards stay on-demand from the thumbnail. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
 production view of the current Project: consecutive actual adjacent
 canonicals appear as Destinations / JourneyShots automatically. Unrendered
-legs stay outlined. Legs that still need blocking use a neutral outline. After PREPARE, the
+legs stay outlined. Legs that still need blocking use a neutral outline. After BLOCK, the
 outline follows advisory shootability: solid green for clear, dashed gold
-for hold, solid rust for no go. Green fill appears only after the clip is
-in the can. Tile copy uses to block / blocked / rolling / in the can, plus
+for hold, solid rust for no go. While BLOCK is running, that segment
+shows a progress spinner. Green fill appears only after the clip is
+complete. Tile copy uses to block / blocked / shooting / complete, plus
 clear / hold / no go when CM has returned. Select
-a real leg and PREPARE to run the existing Cinematographer on those
+a real leg and BLOCK to run the existing Cinematographer on those
 stills. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the leg,
 together with camera path and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
-disclosure. After PREPARE, SHOOT generates that one leg. The preview
+disclosure. After BLOCK, SHOOT generates that one leg. The preview
 plays the rendered clip when present. Take evidence (A′, B′, effective
 prompt, model) sits behind disclosure so the clip stays primary.
 Shootability does not block the journey. A-only projects
@@ -67,6 +79,8 @@ First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 Forest A→F Camotion continuity evidence:
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
+Product Slice 4 UI:
+[genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 
 ### Plan — conversational storyboard
 
@@ -145,25 +159,38 @@ toolbar. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
 stills expose Replace…, which swaps that
-destination's canonical still in place. An Add Destination affordance
+destination's canonical still in place. Later destinations also expose
+Delete; opening A cannot be deleted. Delete is structural: it does not
+invoke the Director or relabel remaining beats. An Add Destination affordance
 follows the last configured destination once A is actual; it appends an
 unresolved slot, is not itself a destination, does not invoke the
-Director, and does not encode Provided / Generated / Derived / Discovered.
+Director, and is disabled while PLAN or sequential destination
+generation is running. It does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
 thumbnail. Technical facts (provenance icon, friendly
 aspect, dimensions, format) appear in a thin bottom strip only when
 Media Info is on. Destination planning details (intent and visual
 description) are available from the destination thumbnail, not as
-persistent caption text. Do not silently alter filmmaker media.
+persistent caption text under actual stills. Empty FPO thumbnails
+overlay Director intent in field form until an image exists. Do not silently alter filmmaker media.
 
-Plan conversation is an interaction mechanism. The storyboard remains
-the authoritative Plan artifact. The filmmaking conversation rail is a
-project-level workspace control: the filmmaker can hide or show it
-without changing Plan / Shoot, agency, or conversation data. Send is
-not currently an active filmmaking command. PLAN appends a pending
+The storyboard remains
+the authoritative Plan artifact. Conversation is turn history only and
+can hide to the left. Journey story, destination count, auto-generate-A,
+auto-generate-all, and PLAN live in the Project panel,
+which can hide to the right. Storyboard stays disabled until a journey
+story is entered; then A may be uploaded or generated from that story.
+AUTO sizes later beats by Director choice; a number, typed or stepped,
+adds that many FPO
+slots. After the first PLAN response the count is read-only.
+When auto-generate starting destination is on, PLAN generates A then
+runs Director planning. When auto-generate all destinations is on,
+PLAN then generates each remaining destination in order from the
+previous actual frame. PLAN appends a pending
 Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
-summary. Timestamps are stored on each conversation entry when it is
+summary. Pending Director **Planning…** and construction turns show a
+progress spinner beside that status copy. Timestamps are stored on each conversation entry when it is
 created; the UI formats that stored time. Role labels are FILMMAKER
 and DIRECTOR.
 
@@ -181,7 +208,7 @@ boundary match is not a traversal or shootability claim.
 1.  Destinations and journeys appear on a locked timeline.
 2.  Optional cheap destination intervention: Approve, Redo, possibly
     Redo With Note / Adjust (Directed policy).
-3.  User presses **Shoot This Shot** or **Shoot Movie**.
+3.  User presses **Shoot** on the selected leg or **Export Movie**.
 4.  Cinematographer planning, Camotion, video generation,
     evaluation/retry, and deterministic assembly run (not wired in
     the current slice).
@@ -215,8 +242,8 @@ it. Directed vs Autonomous is one project policy flag, not two UIs.
 Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
 describes how to shoot it. Timeline tiles use to block / blocked /
-rolling / in the can, with clear / hold / no go outlines after
-PREPARE. Compact inspector Ready / Needs review / Not shootable,
+shooting / complete, with clear / hold / no go outlines after
+BLOCK. Compact inspector Ready / Needs review / Not shootable,
 camera path, and a concise summary remain on the analyzed leg;
 destination cards stay world-state. CM `not_shootable` does not change
 JourneyShot operational status.
@@ -322,8 +349,8 @@ ignore an unshootable journey.
 ## Expensive-generation boundary
 
 Approve still exploration before expensive video rendering. The
-current primary action names are **Shoot This Shot** and **Shoot
-Movie**. Destination Keep / Redo happens before those actions. In the
+current primary action names are **Shoot** on the selected journey and
+**Export Movie**. Destination Keep / Redo happens before those actions. In the
 current slice those production actions are labeled and disabled.
 Intended later Cinematographer review of actual canonicals (PASS /
 REGEN / REPAIR) is recorded in
@@ -332,11 +359,13 @@ REGEN / REPAIR) is recorded in
 ## First product vertical slice (started)
 
 `web/` is the product filmmaking surface. Plan is a storyboard plus an
-editable filmmaker story in the existing composer. A new project begins
+editable filmmaker story in the Project panel. A new project begins
 partially specified: unresolved opening frame A, empty story, no
-fabricated destinations or journeys. The filmmaker provides A, may add
-unresolved destination slots, asks the Director to PLAN, and generates
-unresolved destinations. Export Movie concatenates rendered takes that
+fabricated destinations or journeys. The storyboard stays disabled
+until a story is entered. Then the filmmaker provides or generates A, may set
+destination count, asks the Director to PLAN, and generates
+unresolved destinations. If auto-generate starting destination is on,
+PLAN can create A from the story. Export Movie concatenates rendered takes that
 exist.
 Forest A→F remains available so Plan preflight, Shoot boundary
 continuity, and CM tests can be exercised against a controlled

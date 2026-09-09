@@ -128,7 +128,7 @@ locomotion baseline. Shootability remains advisory; it does not
 gate JourneyShot status. Shoot is a production view of the current
 Project: consecutive actual adjacent storyboard canonicals become
 Destinations and JourneyShots on that same Project. There is no
-cloned Shoot model. SHOOT on a prepared JourneyShot renders Camotion
+cloned Shoot model. SHOOT on a blocked JourneyShot renders Camotion
 A′/B′ from a deterministic CameraMotionPlan v1 bridge, composes the
 frozen locomotion prompt, and generates a development clip. The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
@@ -144,8 +144,15 @@ story plus the complete ordered storyboard and `MediaInput` for actual
 destination stills. A project is a partially specified movie: the
 Director resolves what is not specified and preserves destinations
 that already have actual media. Story edits update `Project.story`
-without planning. PLAN does not generate images.
+without planning. Destination count (AUTO or a number, typed or stepped) sizes the
+storyboard before PLAN. When auto-generate starting destination is on,
+PLAN generates unresolved A from the story, then the Director plans.
+When auto-generate all destinations is on, PLAN then constructs B…N in
+travel order from each preceding actual frame; later beats cannot run
+in parallel.
 The filmmaker can replace a destination's canonical still in place.
+Delete removes a later storyboard beat without planning or relabeling;
+opening A cannot be deleted.
 Replacing either canonical still on a production leg returns that
 JourneyShot to not prepared and not shot.
 Uploaded media is
@@ -159,6 +166,8 @@ First Director-derived destination construction:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
 A later forest A→F evidence spike is recorded at
 [genesis/research/14-forest-a-to-f.html](../genesis/research/14-forest-a-to-f.html).
+Product Slice 4 UI:
+[genesis/research/15-product-slice-4.html](../genesis/research/15-product-slice-4.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and

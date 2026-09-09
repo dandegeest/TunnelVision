@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createForestPartialAnchorProject,
+  createForestProject,
   FOREST_STORYBOARD_INTENTS,
 } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, STORYBOARD_INTENTS } from "../fixtures/wardrobe-loop";
@@ -16,6 +17,13 @@ import {
   nextStoryboardSlot,
   projectWithAddedDestination,
   projectWithDirectorPlan,
+  projectWithRemovedDestination,
+  projectWithStoryDuration,
+  projectWithNudgedStoryDuration,
+  parseStoryDurationInput,
+  storyDurationFieldValue,
+  canPlanMovie,
+  canRemoveStoryboardDestination,
 } from "./storyboard";
 import { projectWithConstructedDestination } from "./destination";
 import type { StoryboardFrame } from "./types";
@@ -206,6 +214,27 @@ describe("Director owns the planned continuation", () => {
     expect(next.map((frame) => frame.id)).toEqual(["A", "B"]);
   });
 
+  it("keeps a generated opening frame A as the authoritative start", () => {
+    const opening: StoryboardFrame = {
+      id: "A",
+      label: "A",
+      intent: "Ticket hall after closing.",
+      image: "/api/runtime-media/gen-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageOrigin: "generated",
+      mediaId: "gen-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    };
+    const next = applyDirectorPlanToStoryboard([opening], {
+      summary: "Continue through the station.",
+      beats: [
+        { id: "B", intent: "Descend the escalator well.", visualDescription: "A long down-escalator." },
+        { id: "C", intent: "Follow the tiled platform.", visualDescription: "Wet tiles receding." },
+      ],
+    });
+    expect(next[0]).toEqual(opening);
+    expect(next.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
+    expect(next.slice(1).every((frame) => frame.imageOrigin === "none")).toBe(true);
+  });
+
   it("fails instead of replacing the opening if Director returns only the start beat", () => {
     expect(() =>
       applyDirectorPlanToStoryboard(project.storyboard, {
@@ -319,6 +348,41 @@ describe("Add Destination is structural after actual A", () => {
     expect(canAddStoryboardDestination(planned)).toBe(true);
     const actual = projectWithConstructedDestination(planned, constructedB);
     expect(canAddStoryboardDestination(actual)).toBe(true);
+  });
+});
+
+describe("Delete Destination is structural", () => {
+  it("cannot remove opening frame A", () => {
+    const wardrobe = createWardrobeProject();
+    expect(canRemoveStoryboardDestination(wardrobe, "A")).toBe(false);
+    expect(projectWithRemovedDestination(wardrobe, "A")).toEqual(wardrobe);
+  });
+
+  it("removes a later beat without relabeling or calling a planner", () => {
+    const forest = createForestProject();
+    const next = projectWithRemovedDestination(forest, "C");
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "D", "E", "F"]);
+    expect(next.storyboard.find((frame) => frame.id === "B")).toEqual(forest.storyboard[1]);
+    expect(next.storyboard.find((frame) => frame.id === "D")).toEqual(forest.storyboard[3]);
+    expect(next.destinations.find((destination) => destination.id === "C")).toBeUndefined();
+    expect(next.journeys.map((journey) => journey.id)).toEqual(["A-B", "B-D", "D-E", "E-F"]);
+    expect(next.journeys.find((journey) => journey.id === "B-D")?.status).toBe("ready");
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expect(nextStoryboardSlot(next.storyboard)?.id).toBe("G");
+  });
+
+  it("drops an unresolved tail slot and leaves remaining actuals", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), {
+      summary: "A planned journey.",
+      beats: [
+        { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
+        { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
+      ],
+    });
+    const next = projectWithRemovedDestination(planned, "C");
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B"]);
+    expect(next.storyboard[1]?.intent).toBe("Enter the wardrobe.");
+    expect(canRemoveStoryboardDestination(next, "B")).toBe(true);
   });
 });
 
@@ -524,5 +588,118 @@ describe("Director preserves specified destinations", () => {
     expect(replanned.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
     expect(replanned.storyboard[1]).toEqual(actualB);
     expect(replanned.storyboard[2]?.intent).toBe("New forest beat.");
+  });
+});
+
+describe("story duration", () => {
+  it("parses AUTO and destination counts", () => {
+    expect(parseStoryDurationInput("AUTO")).toEqual({ ok: true, duration: "auto" });
+    expect(parseStoryDurationInput(" auto ")).toEqual({ ok: true, duration: "auto" });
+    expect(parseStoryDurationInput("")).toEqual({ ok: false });
+    expect(parseStoryDurationInput("6")).toEqual({ ok: true, duration: 6 });
+    expect(parseStoryDurationInput("1")).toEqual({ ok: false });
+    expect(parseStoryDurationInput("27")).toEqual({ ok: false });
+    expect(parseStoryDurationInput("3.5")).toEqual({ ok: false });
+  });
+
+  it("starts AUTO and adds FPO slots when a count is committed", () => {
+    const project = createNewProject();
+    expect(storyDurationFieldValue(project)).toBe("AUTO");
+    const counted = projectWithStoryDuration(project, 4);
+    expect(counted.storyDuration).toBe(4);
+    expect(counted.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D"]);
+    expect(counted.storyboard.slice(1).every((frame) => frame.imageOrigin === "none")).toBe(true);
+    expect(storyDurationFieldValue(counted)).toBe("4");
+  });
+
+  it("clears later destinations when returning to AUTO", () => {
+    const counted = projectWithStoryDuration(createNewProject(), 4);
+    const auto = projectWithStoryDuration(counted, "auto");
+    expect(auto.storyDuration).toBe("auto");
+    expect(auto.storyboard.map((frame) => frame.id)).toEqual(["A"]);
+    expect(storyDurationFieldValue(auto)).toBe("AUTO");
+  });
+
+  it("keeps generated or uploaded A when returning to AUTO", () => {
+    const withA = {
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "generated" as const,
+          image: "/api/runtime-media/gen-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "gen-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    const counted = projectWithStoryDuration(withA, 3);
+    const auto = projectWithStoryDuration(counted, "auto");
+    expect(auto.storyboard).toEqual(withA.storyboard);
+  });
+
+  it("tracks storyboard add and delete while unlocked", () => {
+    const counted = projectWithStoryDuration(createNewProject(), 3);
+    const added = projectWithAddedDestination(counted);
+    expect(added.storyDuration).toBe(4);
+    expect(storyDurationFieldValue(added)).toBe("4");
+    const removed = projectWithRemovedDestination(added, "D");
+    expect(removed.storyDuration).toBe(3);
+    expect(removed.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
+  });
+
+  it("locks duration after the first Director plan and follows the storyboard", () => {
+    const ready = {
+      ...createNewProject(),
+      story: "Travel forward through connected volumes.",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    const planned = projectWithDirectorPlan(ready, {
+      summary: "Continue the interior.",
+      beats: [
+        { id: "B", intent: "Move forward.", visualDescription: "A deeper volume." },
+        { id: "C", intent: "Reach the far room.", visualDescription: "The destination chamber." },
+      ],
+    });
+    expect(planned.storyDurationLocked).toBe(true);
+    expect(planned.storyDuration).toBe(3);
+    expect(storyDurationFieldValue(planned)).toBe("3");
+    expect(projectWithStoryDuration(planned, "auto")).toEqual(planned);
+    const added = projectWithAddedDestination(planned);
+    expect(added.storyDurationLocked).toBe(true);
+    expect(storyDurationFieldValue(added)).toBe("4");
+  });
+
+  it("nudges AUTO to 2, decrements to AUTO below 2, and ignores locked projects", () => {
+    const untitled = createNewProject();
+    const fromAuto = projectWithNudgedStoryDuration(untitled, 1);
+    expect(fromAuto.storyDuration).toBe(2);
+    expect(fromAuto.storyboard.map((frame) => frame.id)).toEqual(["A", "B"]);
+    expect(projectWithNudgedStoryDuration(untitled, -1)).toEqual(untitled);
+
+    const counted = projectWithStoryDuration(untitled, 3);
+    const down = projectWithNudgedStoryDuration(counted, -1);
+    expect(down.storyDuration).toBe(2);
+    expect(projectWithNudgedStoryDuration(down, -1).storyDuration).toBe("auto");
+    expect(projectWithNudgedStoryDuration(down, -1).storyboard.map((frame) => frame.id)).toEqual(["A"]);
+
+    const locked = { ...counted, storyDurationLocked: true };
+    expect(projectWithNudgedStoryDuration(locked, 1)).toEqual(locked);
+  });
+
+  it("lets PLAN run from a story alone when auto generate opening is on", () => {
+    const untitled = createNewProject();
+    expect(canPlanMovie(untitled)).toBe(false);
+    const withStory = { ...untitled, story: "Travel forward through connected volumes." };
+    expect(canPlanMovie(withStory)).toBe(true);
+    expect(canPlanMovie({ ...withStory, autoGenerateOpening: false })).toBe(false);
   });
 });

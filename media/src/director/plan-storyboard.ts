@@ -39,6 +39,7 @@ export type DirectorPlanInput = {
     readonly intent?: string;
     readonly visualDescription?: string;
   }[];
+  readonly storyDuration?: "auto" | number;
 };
 
 export type DirectorRequestPayload = {
@@ -60,6 +61,7 @@ export type DirectorRequestPayload = {
     readonly intent?: string;
     readonly visualDescription?: string;
   }[];
+  readonly storyDuration?: "auto" | number;
   readonly systemInstruction: string;
   readonly prompt: string;
 };
@@ -74,7 +76,7 @@ export type DirectorPlanResult = {
   readonly elapsedMs: number;
 };
 
-const MAX_BEATS = 12;
+const MAX_BEATS = 25;
 const MAX_TEXT = 800;
 
 export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest & {
@@ -141,6 +143,7 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
     agency: input.agency,
     ...(promptAnchors ? { anchors: promptAnchors } : {}),
     ...(promptStoryboard && promptStoryboard.length > 0 ? { storyboard: promptStoryboard } : {}),
+    ...(input.storyDuration !== undefined ? { storyDuration: input.storyDuration } : {}),
   });
   const textualAnchors = promptAnchors?.map(({ id, label, intent, visualDescription }) => ({
     id,
@@ -163,6 +166,7 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
     startImage: input.startFrame.image,
     ...(textualAnchors ? { anchors: textualAnchors } : {}),
     ...(textualStoryboard && textualStoryboard.length > 0 ? { storyboard: textualStoryboard } : {}),
+    ...(input.storyDuration !== undefined ? { storyDuration: input.storyDuration } : {}),
     systemInstruction: DIRECTOR_SYSTEM_INSTRUCTION,
     prompt,
   };

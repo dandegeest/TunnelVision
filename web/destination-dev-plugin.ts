@@ -4,7 +4,7 @@ import type { Plugin } from "vite";
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
-import { constructDestinationImage } from "./destination-construct.ts";
+import { constructDestinationImage, generateOpeningFrameImage } from "./destination-construct.ts";
 import { UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
@@ -46,7 +46,7 @@ function statusForError(error: unknown): number {
     return 500;
   }
   const message = error instanceof Error ? error.message : "";
-  if (/not ready to construct|no trusted media identity|requires intent/i.test(message)) {
+  if (/not ready to construct|no trusted media identity|requires intent|requires a journey story|not ready to generate/i.test(message)) {
     return 400;
   }
   return 502;
@@ -59,21 +59,32 @@ export function destinationDevPlugin(repoRoot: string): Plugin {
       loadDotEnvLocal(repoRoot);
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
-        if (url !== "/api/destination/construct") {
+        if (url !== "/api/destination/construct" && url !== "/api/destination/generate-opening") {
           next();
           return;
         }
         if (req.method !== "POST") {
-          sendJson(res, 405, { error: "POST /api/destination/construct" });
+          sendJson(res, 405, {
+            error:
+              url === "/api/destination/generate-opening"
+                ? "POST /api/destination/generate-opening"
+                : "POST /api/destination/construct",
+          });
           return;
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
-          const constructed = await constructDestinationImage({
-            repoRoot,
-            body,
-            editImage: (request) => new ReplicateMediaProvider().editImage(request),
-          });
+          const constructed =
+            url === "/api/destination/generate-opening"
+              ? await generateOpeningFrameImage({
+                  body,
+                  generateImage: (request) => new ReplicateMediaProvider().generateImage(request),
+                })
+              : await constructDestinationImage({
+                  repoRoot,
+                  body,
+                  editImage: (request) => new ReplicateMediaProvider().editImage(request),
+                });
           sendJson(res, 200, constructed);
         } catch (error) {
           const message =

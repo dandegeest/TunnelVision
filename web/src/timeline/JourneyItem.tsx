@@ -3,6 +3,7 @@ import {
   journeySegmentAriaLabel,
   journeySegmentCaption,
 } from "../project/cinematographer";
+import { ProgressSpinner } from "../ui/ProgressSpinner";
 import type { LaidOutJourney } from "./geometry";
 
 export function journeySegmentTone(journey: JourneyShot): string {
@@ -27,18 +28,23 @@ export function JourneyItem({
   laid,
   journey,
   selected,
+  preparing = false,
   onSelect,
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
   selected: boolean;
+  preparing?: boolean;
   onSelect: () => void;
 }) {
   const tone = journeySegmentTone(journey);
   const ring = selected
     ? "ring-2 ring-[#ece7df]"
     : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";
-  const caption = journeySegmentCaption(journey);
+  const caption = preparing ? "blocking" : journeySegmentCaption(journey);
+  const ariaLabel = preparing
+    ? `${journeySegmentAriaLabel(journey)}, blocking`
+    : journeySegmentAriaLabel(journey);
 
   return (
     <button
@@ -46,10 +52,18 @@ export function JourneyItem({
       className={`absolute top-1 box-border h-12 overflow-hidden rounded border px-2 text-left text-xs tracking-[0.12em] outline-none ${tone} ${ring}`}
       style={{ left: laid.left, width: Math.max(laid.width, 8) }}
       onClick={onSelect}
-      aria-label={journeySegmentAriaLabel(journey)}
+      aria-label={ariaLabel}
+      aria-busy={preparing || undefined}
       title={journey.cinematographer?.summary}
     >
-      <span className="block truncate pt-1">{journey.id}</span>
+      <span className="relative block truncate pt-1 pr-4">
+        {preparing ? (
+          <span className="absolute top-1 right-0">
+            <ProgressSpinner />
+          </span>
+        ) : null}
+        <span className="truncate">{journey.id}</span>
+      </span>
       <span className="block truncate text-[10px] opacity-80">{caption}</span>
     </button>
   );

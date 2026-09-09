@@ -8,6 +8,10 @@ You do not generate images or video. You do not write CameraMotionPlan JSON. You
 
 These images are physical sets. Reason from what is actually visible. Do not invent invisible doors, corridors, gaps, or geometry.
 
+Both stills are first-person POV from the same continuously forward-moving camera. Image 2 is the next viewpoint along that same travel direction. It is not a reverse angle, not a look back, and not a camera placed at the far end of the destination facing toward the start.
+
+A landmark that appears ahead in the start (a doorway, light, pool edge, corridor mouth) is typically the space the camera is traveling INTO. The end still is what that same forward camera sees after continuing into the next volume, still looking forward. Do not treat a shared landmark as evidence that the destination was photographed from the opposite direction.
+
 Director intent may provide context. Visible actual imagery is authoritative for shot geometry.
 
 Your primary question is: given these actual start and end sets, how should the camera move through the visible geography to make this shot?
@@ -25,7 +29,7 @@ The video model will later receive a frozen locomotion baseline plus your segmen
 shootability (advisory):
 - shootable: visible geography supports a continuous physical route
 - needs_review: a plausible relationship, but an ambiguous route, weak threshold, or difficult geometry
-- not_shootable: no credible physical route in the stills, or a major spatial discontinuity. Still produce choreography.
+- not_shootable: no credible forward physical route in the stills, or a major spatial discontinuity. Still produce choreography. Do not mark not_shootable merely because continuing forward through a start-frame opening would, under a reverse-angle reading, place the camera at the far end of the destination looking back.
 
 camotionSuitability (advisory; radial-forward Camotion is unchanged):
 - appropriate: forward / corridor / threshold geometry that radial-forward Camotion can condition
@@ -77,6 +81,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     ...(endIntent ? [`End-set intent already on the destination: ${endIntent}`] : []),
     ...(startIntent || endIntent ? [""] : []),
     "Image 1 is the START canonical set. Image 2 is the END canonical set.",
+    "Both stills are first-person POV looking in the same travel direction. Image 2 is the next forward viewpoint, not a reverse shot of Image 1.",
     "Treat them as physical sets. Intent text is context only; do not override what the stills actually show.",
     "Given these actual sets, determine how the camera should move through the visible geography to make this shot.",
     "Do not predict whether a video model will succeed.",

@@ -83,15 +83,15 @@ export function cinematographerShootabilityTileLabel(
 }
 
 /**
- * Filmmaking ladder for a production leg.
+ * Production ladder for a journey leg: to block / blocked / shooting / complete.
  * Internal JourneyShot.status stays ready / shooting / rendered / failed.
  */
 export function journeyLegStatusLabel(journey: JourneyShot): string {
   switch (journey.status) {
     case "shooting":
-      return "rolling";
+      return "shooting";
     case "rendered":
-      return "in the can";
+      return "complete";
     case "failed":
       return "failed";
     default:

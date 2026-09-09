@@ -85,22 +85,22 @@ describe("Shoot boundary continuity UI", () => {
 });
 
 describe("Shoot Cinematographer journey assessment", () => {
-  it("keeps a rendered journey in the can and shows inspector Ready separately", () => {
+  it("keeps a rendered journey complete and shows inspector Ready separately", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
     expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, in the can, clear");
-    expect(html).toContain("in the can · clear");
+    expect(html).toContain("Journey A-B, complete, clear");
+    expect(html).toContain("complete · clear");
     expect(html).toContain("bg-[#142014]");
     expect(html).toContain("border-[#3f5a3a]");
-    expect(html).toContain("Status: in the can");
+    expect(html).toContain("Status: complete");
     expect(html).toContain(">Ready<");
     expect(html).toContain("Walk through the root gateway into the darker mouth.");
     expect(html).toContain("Camera path.");
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
-    expect(html).toContain('aria-label="Prepare A-B"');
-    expect(html).toContain(">Prepare<");
-    expect(html).toContain(">Prepared<");
+    expect(html).toContain('aria-label="Block A-B"');
+    expect(html).toContain(">Block<");
+    expect(html).toContain(">Blocked<");
     expect(html).toContain('aria-label="Shoot A-B"');
     expect(html).toContain(">Shoot<");
     expect(html).toContain('alt="A-B start A"');
@@ -129,14 +129,14 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(blocked.journeys.find((journey) => journey.id === "E-F")?.status).toBe("rendered");
     const cd = renderShoot(blocked, { journeyId: "C-D" });
     const ef = renderShoot(blocked, { journeyId: "E-F" });
-    expect(cd).toContain("Journey C-D, in the can, hold");
-    expect(cd).toContain("in the can · hold");
+    expect(cd).toContain("Journey C-D, complete, hold");
+    expect(cd).toContain("complete · hold");
     expect(cd).toContain("border-[#d4b36a]");
     expect(cd).toContain("border-dashed");
     expect(cd).toContain("bg-[#142014]");
     expect(cd).toContain(">Needs review<");
-    expect(ef).toContain("Journey E-F, in the can, no go");
-    expect(ef).toContain("in the can · no go");
+    expect(ef).toContain("Journey E-F, complete, no go");
+    expect(ef).toContain("complete · no go");
     expect(ef).toContain("border-[#c45c38]");
     expect(ef).toContain("bg-[#142014]");
     expect(ef).toContain(">Not shootable<");
@@ -179,7 +179,7 @@ describe("Shoot Cinematographer journey assessment", () => {
     };
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain("Cinematographer needs two actual destinations.");
-    expect(html).not.toContain('aria-label="Prepare A-B"');
+    expect(html).not.toContain('aria-label="Block A-B"');
     expect(html).not.toContain('aria-label="Shoot A-B"');
     expect(html).not.toContain(">Assess shot<");
   });
@@ -196,7 +196,7 @@ describe("empty Shoot", () => {
     expect(html).not.toContain("FOREST A→F");
     expect(html).not.toContain("Destination undefined");
     expect(html).not.toContain(">Assess shot<");
-    expect(html).not.toContain('aria-label="Prepare');
+    expect(html).not.toContain('aria-label="Block');
     expect(html).not.toContain('aria-label="Destination A"');
   });
 
@@ -225,7 +225,7 @@ describe("empty Shoot", () => {
     );
     expect(html).toContain("Nothing is ready to shoot until the journey has actual adjacent destinations.");
     expect(html).not.toContain("Cannot read");
-    expect(html).not.toContain('aria-label="Prepare');
+    expect(html).not.toContain('aria-label="Block');
   });
 });
 
@@ -271,7 +271,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Destination A"');
     expect(html).toContain('aria-label="Destination B"');
     expect(html).toContain('aria-label="Destination C"');
-    expect(html).toContain('aria-label="Prepare A-B"');
+    expect(html).toContain('aria-label="Block A-B"');
     expect(html).toContain('alt="A-B start A"');
     expect(html).toContain('alt="A-B end B"');
     expect(html).not.toContain("Nothing is ready to shoot");
@@ -312,5 +312,32 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("bg-transparent");
     expect(html).not.toContain("bg-[#142014]");
     expect(html).toContain(">Needs review<");
+  });
+
+  it("spins on the segment while BLOCK is running", () => {
+    const forest = createForestProject();
+    const project = {
+      ...forest,
+      journeys: forest.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? { ...journey, status: "ready" as const, videoUrl: undefined }
+          : journey,
+      ),
+    };
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={project}
+        initialView="shoot"
+        initialSelection={{ kind: "journey", journeyId: "A-B" }}
+        initialAssessingJourneyId="A-B"
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("animate-spin");
+    expect(html).toContain('aria-busy="true"');
+    expect(html).toContain("Journey A-B, to block, blocking");
+    expect(html).toContain(">blocking<");
+    expect(html).not.toContain("Journey B-C, to block, blocking");
   });
 });

@@ -90,6 +90,10 @@ export function createForestProject(): Project {
     story: FOREST_USER_PROMPT,
     agency: "directed",
     construction: "planned",
+    storyDuration: 6,
+    autoGenerateOpening: false,
+    autoGenerateAllDestinations: false,
+    storyDurationLocked: true,
     storyboard: [
       {
         id: "A",
@@ -221,5 +225,6 @@ export function createForestPartialAnchorProject(): Project {
     destinations: full.destinations.filter((destination) => keep.has(destination.id)),
     journeys: [],
     boundaryAnalysis: undefined,
+    storyDuration: 3,
   };
 }

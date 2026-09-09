@@ -32,6 +32,10 @@ export function createWardrobeProject(): Project {
     story: WARDROBE_USER_PROMPT,
     agency: "directed",
     construction: "planned",
+    storyDuration: "auto",
+    autoGenerateOpening: false,
+    autoGenerateAllDestinations: false,
+    storyDurationLocked: false,
     storyboard: [
       {
         id: "A",

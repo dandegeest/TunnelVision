@@ -177,11 +177,12 @@ actual destination through
 explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
-Project. PREPARE on a selected actual leg runs the existing
+Project. BLOCK on a selected actual leg runs the existing
 Cinematographer assessment through `ReasoningProvider` and stores
 segment-specific camera choreography on that JourneyShot, including
-`segmentPromptAddition`. Shootability remains advisory and does not
-gate JourneyShot status. SHOOT on a prepared leg derives a deterministic
+`segmentPromptAddition`. While BLOCK is running, that Shoot segment
+shows a progress spinner. Shootability remains advisory and does not
+gate JourneyShot status. SHOOT on a blocked leg derives a deterministic
 CameraMotionPlan v1 (centered radial-forward, pinned `forward=1.0` and
 01.8 exposure), renders A′ and B′ through the frozen Camotion CLI,
 composes `TUNNELVISION_LOCOMOTION_BASELINE` + `segmentPromptAddition`
@@ -196,9 +197,13 @@ The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture
 accepts story plus the complete ordered storyboard and `MediaInput` for
-actual destination stills. The Plan composer edits `Project.story`
-without planning; PLAN in the Plan workspace invokes the Director.
+actual destination stills. The Project panel edits `Project.story`
+without planning; destination count (AUTO or a number, typed or stepped) sizes the
+storyboard before PLAN; auto-generate starting destination lets PLAN
+create unresolved A from the story; auto-generate all destinations then
+constructs B…N in travel order after PLAN. PLAN in that panel invokes the Director.
 The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
+Delete removes a later storyboard beat without planning or relabeling; opening A cannot be deleted.
 Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
 Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
@@ -211,15 +216,21 @@ First Director-derived destination construction:
 [`genesis/research/13-destination-construction.html`](../genesis/research/13-destination-construction.html).
 Forest A→F Camotion continuity evidence:
 [`genesis/research/14-forest-a-to-f.html`](../genesis/research/14-forest-a-to-f.html).
+Product Slice 4 UI:
+[`genesis/research/15-product-slice-4.html`](../genesis/research/15-product-slice-4.html).
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; Media Info is an
 icon tool, not a global diagnostic banner. Destination actions live in
 the destination menu. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
-summary. Conversation timestamps are stored on the entry. The
-filmmaking conversation rail can be hidden or shown as workspace
-layout; that visibility is session UI, not project persistence, and
+summary. Conversation timestamps are stored on the entry. Pending
+Director **Planning…** and construction turns show a progress spinner
+beside that status copy. Empty Plan FPO thumbnails overlay Director
+intent in field form until an image exists. The
+filmmaking conversation rail is history-only and can be hidden to the
+left; the Project panel holds journey story, destination count,
+auto-generate-A, auto-generate-all, and PLAN and can hide to the right. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is

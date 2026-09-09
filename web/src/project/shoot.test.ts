@@ -73,11 +73,11 @@ function projectWithLeg(): Project {
 }
 
 describe("SHOOT gate and JourneyShot take", () => {
-  it("does not shoot until PREPARE has stored choreography", () => {
+  it("does not shoot until BLOCK has stored choreography", () => {
     const project = projectWithLeg();
     const journey = project.journeys[0]!;
     expect(canShootJourney(project, journey)).toBe(false);
-    expect(() => shootRequestFromProject(project, journey.id)).toThrow(/Prepare this journey/i);
+    expect(() => shootRequestFromProject(project, journey.id)).toThrow(/Block this journey/i);
   });
 
   it("does not map CM shootability onto operational status", () => {

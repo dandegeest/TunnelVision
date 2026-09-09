@@ -29,7 +29,7 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
     throw new Error("Unknown journey");
   }
   if (!journey.cinematographer) {
-    throw new Error("Prepare this journey before shooting");
+    throw new Error("Block this journey before shooting");
   }
   if (!journey.endDestinationId) {
     throw new Error("A journey requires two actual destinations");

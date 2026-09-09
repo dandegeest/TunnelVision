@@ -4,7 +4,6 @@ import {
   describeMovieExport,
   exportMovieUnavailableReason,
 } from "../project/export-movie";
-import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
 
 export function ProductionBar() {
@@ -13,17 +12,11 @@ export function ProductionBar() {
     selectedJourney,
     zoom,
     setZoom,
-    shootJourney,
-    shootingJourneyId,
     movieExport,
     exportingMovie,
     exportMovieError,
     exportMovie,
   } = useProject();
-  const shooting = selectedJourney
-    ? shootingJourneyId === selectedJourney.id || selectedJourney.status === "shooting"
-    : false;
-  const canShoot = selectedJourney ? canShootJourney(project, selectedJourney) : false;
   const shootReason = shootActionReason(selectedJourney);
   const canExport = canExportMovie(project) && !exportingMovie;
   const exportReason = exportMovieUnavailableReason(project);
@@ -57,19 +50,6 @@ export function ProductionBar() {
       </div>
       <p className="min-w-0 flex-1 truncate text-center text-[#9a8f7e]">{status}</p>
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className={`rounded border border-[#3a342c] px-3 py-1 ${canShoot && !shooting ? "" : "opacity-50"}`}
-          disabled={!canShoot || shooting}
-          title={shootReason || "Shoot this journey"}
-          onClick={() => {
-            if (selectedJourney && canShoot) {
-              void shootJourney(selectedJourney.id);
-            }
-          }}
-        >
-          {shooting ? "Shooting…" : "Shoot This Shot"}
-        </button>
         <button
           type="button"
           className={`rounded border border-[#3a342c] px-3 py-1 ${canExport ? "" : "opacity-50"}`}

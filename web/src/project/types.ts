@@ -162,12 +162,23 @@ export type JourneyShot = {
   shootError?: string;
 };
 
+/** AUTO lets the Director choose N destinations. A number is an exact storyboard length. */
+export type StoryDuration = "auto" | number;
+
 export type Project = {
   id: string;
   title: string;
   story: string;
   agency: Agency;
   construction: Construction;
+  /** AUTO, or an exact destination count. After the first Director plan this follows the storyboard. */
+  storyDuration: StoryDuration;
+  /** When true, PLAN generates unresolved A from the story before Director planning. */
+  autoGenerateOpening: boolean;
+  /** When true, PLAN then generates B…N in travel order from each preceding actual frame. */
+  autoGenerateAllDestinations: boolean;
+  /** After the first successful Director plan, duration is storyboard-driven and not typed. */
+  storyDurationLocked: boolean;
   storyboard: StoryboardFrame[];
   destinations: Destination[];
   journeys: JourneyShot[];

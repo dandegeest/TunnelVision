@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { constructDestinationImage } from "./destination-construct.ts";
-import { destinationConstructionPrompt } from "./src/project/destination.ts";
+import { constructDestinationImage, generateOpeningFrameImage } from "./destination-construct.ts";
+import { destinationConstructionPrompt, openingFrameGenerationPrompt } from "./src/project/destination.ts";
 import {
   createRuntimeMediaRegistry,
   setActiveRuntimeMediaRegistry,
@@ -229,5 +229,55 @@ describe("destination construction server path", () => {
         },
       }),
     ).rejects.toThrow(/not ready to construct/i);
+  });
+});
+
+describe("opening frame generation server path", () => {
+  it("generates from the journey story and registers runtime media", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-open-")));
+    setActiveRuntimeMediaRegistry(registry);
+    let prompt = "";
+    const result = await generateOpeningFrameImage({
+      body: { story: "Travel forward through an imagined interior at night." },
+      generateImage: async (request) => {
+        prompt = request.prompt;
+        return {
+          provider: "replicate",
+          model: "black-forest-labs/flux-1.1-pro-ultra",
+          modelVersion: "test",
+          predictionId: "pred-a",
+          status: "succeeded",
+          outputUrl: "https://example.test/a.png",
+          metadata: {},
+          startedAt: "2026-09-07T00:00:00.000Z",
+          completedAt: "2026-09-07T00:00:02.000Z",
+          elapsedMs: 2000,
+        };
+      },
+      fetchOutput: async (url) => {
+        expect(url).toBe("https://example.test/a.png");
+        return { bytes: PNG, contentType: "image/png" };
+      },
+    });
+    expect(prompt).toBe(
+      openingFrameGenerationPrompt("Travel forward through an imagined interior at night."),
+    );
+    expect(result.evidence.request.beatId).toBe("A");
+    expect(result.mediaId).not.toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
+    expect(resolveTrustedMedia(repoRoot, result.mediaId)).toEqual({
+      kind: "file",
+      path: registry.get(result.mediaId)?.filePath,
+    });
+  });
+
+  it("refuses an empty story before calling the image model", async () => {
+    await expect(
+      generateOpeningFrameImage({
+        body: { story: "  " },
+        generateImage: async () => {
+          throw new Error("generateImage should not run");
+        },
+      }),
+    ).rejects.toThrow(/journey story/i);
   });
 });

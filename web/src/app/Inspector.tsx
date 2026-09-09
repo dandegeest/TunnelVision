@@ -169,7 +169,7 @@ export function Inspector() {
       <p>Status: {journeyLegStatusLabel(journey)}</p>
       {assessment ? (
         <>
-          <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prepared</p>
+          <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Blocked</p>
           <CinematographerLegDetail assessment={assessment} />
         </>
       ) : (
@@ -182,10 +182,10 @@ export function Inspector() {
           type="button"
           className="self-start rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
           disabled={assessing || shooting}
-          aria-label={`Prepare ${journey.id}`}
+          aria-label={`Block ${journey.id}`}
           onClick={() => void assessJourney(journey.id)}
         >
-          {assessing ? "Preparing…" : "Prepare"}
+          {assessing ? "Blocking…" : "Block"}
         </button>
       ) : (
         <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
@@ -206,7 +206,7 @@ export function Inspector() {
           {shooting ? "Shooting…" : "Shoot"}
         </button>
       ) : canAssess ? (
-        <p className="text-[#9a8f7e]">Prepare this journey before shooting.</p>
+        <p className="text-[#9a8f7e]">Block this journey before shooting.</p>
       ) : null}
       {shootError || journey.shootError ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">

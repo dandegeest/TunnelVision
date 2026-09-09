@@ -8,7 +8,7 @@ import { JourneyLane } from "./JourneyLane";
 import { Playhead } from "./Playhead";
 
 export function Timeline() {
-  const { project, zoom, playheadTime, selection, select } = useProject();
+  const { project, zoom, playheadTime, selection, select, assessingJourneyId } = useProject();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const layout = useMemo(
     () => layoutTimeline(project.destinations, project.journeys, zoom),
@@ -64,6 +64,7 @@ export function Timeline() {
             journeys={layout.journeys}
             projectJourneys={project.journeys}
             selection={selection}
+            preparingJourneyId={assessingJourneyId}
             onSelect={(journeyId) => select({ kind: "journey", journeyId })}
           />
           <Playhead x={playheadX} />

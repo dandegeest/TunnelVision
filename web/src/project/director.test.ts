@@ -105,6 +105,7 @@ describe("Director request from Project state", () => {
       startFrameId: "A",
       startFrameIntent: project.storyboard[0]?.intent,
       startMediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+      storyDuration: "auto",
       storyboard: [
         {
           id: "A",

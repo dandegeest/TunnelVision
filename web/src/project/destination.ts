@@ -96,6 +96,74 @@ export function canConstructDestinationFrame(project: Project, frame: Storyboard
   return Boolean(precedingActualFrame(project, frame));
 }
 
+/** Next unresolved beat that can be derived from the immediately preceding actual frame. */
+export function nextConstructableDestinationId(project: Project): string | undefined {
+  return project.storyboard.find((frame) => canConstructDestinationFrame(project, frame))?.id;
+}
+
+export function openingFrameGenerationPrompt(story: string): string {
+  const trimmed = story.trim();
+  if (!trimmed) {
+    throw new Error("Opening frame requires a journey story");
+  }
+  return [
+    "Generate a still photograph of the opening viewpoint of this first-person POV journey.",
+    "The camera is already in the world, looking continuously forward. Do not show a person, a camera, or text.",
+    "",
+    "Journey:",
+    trimmed,
+    "",
+    "Show only the first moment of that journey: the starting place before the camera begins to move.",
+  ].join("\n");
+}
+
+export function canGenerateOpeningFrame(project: Project): boolean {
+  if (!project.story.trim()) {
+    return false;
+  }
+  const opening = project.storyboard.find((frame) => frame.id === "A");
+  return Boolean(opening && opening.imageOrigin === "none" && !opening.image);
+}
+
+export type OpeningFrameGenerationRequest = {
+  story: string;
+};
+
+export function openingFrameGenerationRequestFromProject(
+  project: Project,
+): OpeningFrameGenerationRequest {
+  if (!canGenerateOpeningFrame(project)) {
+    throw new Error("Opening frame is not ready to generate");
+  }
+  return { story: project.story };
+}
+
+export function projectWithGeneratedOpeningFrame(
+  project: Project,
+  next: DestinationConstructionResult,
+): Project {
+  if (!isTrustedMediaIdShape(next.mediaId)) {
+    throw new Error("Generated opening frame has no trusted media identity");
+  }
+  if (!canGenerateOpeningFrame(project)) {
+    throw new Error("Opening frame is not ready to generate");
+  }
+  return projectWithSyncedProductionLegs({
+    ...project,
+    storyboard: project.storyboard.map((frame) =>
+      frame.id === "A"
+        ? {
+            ...frame,
+            image: next.imageUrl,
+            mediaId: next.mediaId,
+            imageOrigin: "generated",
+            destinationId: frame.destinationId ?? "A",
+          }
+        : frame,
+    ),
+  });
+}
+
 export function destinationConstructionRequestFromProject(
   project: Project,
   beatId: string,
@@ -188,6 +256,33 @@ export async function requestConstructDestination(
       : undefined;
   if (!evidence || evidence.outputMediaId !== constructed.mediaId) {
     throw new Error("Destination construction failed.");
+  }
+  return { ...constructed, evidence };
+}
+
+export async function requestGenerateOpeningFrame(
+  input: OpeningFrameGenerationRequest,
+): Promise<DestinationConstructionResponse> {
+  const response = await fetch("/api/destination/generate-opening", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const body = (await response.json()) as unknown;
+  if (!response.ok) {
+    const message =
+      body && typeof body === "object" && "error" in body && typeof body.error === "string"
+        ? body.error
+        : "Opening frame generation failed.";
+    throw new Error(message);
+  }
+  const constructed = parseDestinationConstructionResult(body);
+  const evidence =
+    body && typeof body === "object" && "evidence" in body
+      ? (body.evidence as DestinationConstructionEvidence)
+      : undefined;
+  if (!evidence || evidence.outputMediaId !== constructed.mediaId) {
+    throw new Error("Opening frame generation failed.");
   }
   return { ...constructed, evidence };
 }
