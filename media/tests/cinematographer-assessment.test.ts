@@ -9,7 +9,7 @@ import {
   type CinematographerAssessmentInput,
 } from "../src/cinematographer/assess-journey.ts";
 import { CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION } from "../src/cinematographer/assessment-prompts.ts";
-import { TUNNELVISION_LOCOMOTION_BASELINE } from "../src/cinematographer/shooting-prompt.ts";
+import { TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE } from "../src/cinematographer/shooting-prompt.ts";
 import type { ReasoningProvider, ReasoningRequest, ReasoningResult } from "../src/reasoning/types.ts";
 
 const input: CinematographerAssessmentInput = {
@@ -38,6 +38,7 @@ function validAssessmentJson(overrides: Record<string, unknown> = {}) {
     transitionStrategy: "Pass through the visible opening so near geometry sweeps past the lens.",
     segmentPromptAddition:
       "Track forward along the path, pass between the near structures, and move through the visible opening toward the darker mouth.",
+    pace: "fast",
     camotionSuitability: "appropriate",
     concerns: [],
     ...overrides,
@@ -66,8 +67,11 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.prompt, /Image 1 is the START canonical set/);
   assert.match(request.prompt, /same travel direction/);
   assert.match(request.prompt, /not a reverse shot/i);
+  assert.match(request.systemInstruction, /Pace is a per-shot macro/);
+  assert.match(request.systemInstruction, /pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable/);
   assert.match(request.prompt, /Do not predict whether a video model will succeed/);
-  assert.ok(request.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE));
+  assert.ok(request.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE));
+  assert.match(request.prompt, /\{pace\} is replaced from your pace field/);
   assert.deepEqual(request.images, [input.start.image, input.end.image]);
   assert.equal(request.payload.startId, "A");
   assert.equal(request.payload.endId, "B");
@@ -81,6 +85,13 @@ test("structured Cinematographer assessment JSON includes segment choreography",
   assert.match(assessment.camera, /Track forward/);
   assert.match(assessment.transitionStrategy, /visible opening/);
   assert.match(assessment.segmentPromptAddition, /pass between the near structures/);
+  assert.equal(assessment.pace, "fast");
+});
+
+test("Cinematographer pace accepts slow-motion, hyperspeed, and variable", () => {
+  assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "slow-motion" })).pace, "slow-motion");
+  assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "hyperspeed" })).pace, "hyperspeed");
+  assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "variable" })).pace, "variable");
 });
 
 test("a straight route is valid choreography and does not require a turn", () => {
@@ -146,9 +157,16 @@ test("invalid Cinematographer assessment fails instead of inventing shootability
   assert.throws(
     () =>
       parseCinematographerAssessment(
-        validAssessmentJson({ transitionStrategy: "" }),
+        validAssessmentJson({ pace: "walking" }),
       ),
-    /transitionStrategy/,
+    /pace/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ pace: undefined }),
+      ),
+    /pace/,
   );
 });
 
@@ -180,6 +198,7 @@ test("Cinematographer.assessJourney uses ReasoningProvider only", async () => {
   const result = await assessJourney({ reasoning, ...input });
   assert.equal(captured?.images?.length, 2);
   assert.equal(result.assessment.shootability, "not_shootable");
+  assert.equal(result.assessment.pace, "fast");
   assert.ok(result.assessment.segmentPromptAddition.length > 0);
   assert.equal(result.predictionId, "pred-cm-1");
 });

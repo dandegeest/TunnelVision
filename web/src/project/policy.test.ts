@@ -60,6 +60,7 @@ describe("production bar copy", () => {
             parallax: "Walls.",
             transitionStrategy: "Pass through.",
             segmentPromptAddition: "Track forward.",
+            pace: "fast",
             camotionSuitability: "appropriate",
             concerns: [],
           },

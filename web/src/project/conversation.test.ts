@@ -317,6 +317,7 @@ describe("Plan conversation history", () => {
       parallax: "Near walls.",
       transitionStrategy: "Pass through.",
       segmentPromptAddition: "Track forward.",
+      pace: "fast" as const,
       camotionSuitability: "appropriate" as const,
       concerns: [],
     };

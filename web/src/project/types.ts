@@ -1,3 +1,6 @@
+import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+
+export type { LocomotionPace };
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
 
@@ -36,6 +39,8 @@ export type CinematographerAssessment = {
   parallax: string;
   transitionStrategy: string;
   segmentPromptAddition: string;
+  /** Apparent camera speed for this shot. Fills {pace} in the locomotion baseline. */
+  pace: LocomotionPace;
   camotionSuitability: CinematographerCamotionSuitability;
   concerns: string[];
 };
@@ -90,6 +95,7 @@ export type JourneyShotTake = {
   endPlan: CameraMotionPlanV1;
   segmentPromptAddition: string;
   effectivePrompt: string;
+  pace: LocomotionPace;
   provider: string;
   model: string;
   modelVersion: string | null;

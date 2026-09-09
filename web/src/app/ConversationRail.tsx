@@ -164,6 +164,7 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
               <div className="mt-2 space-y-2 leading-relaxed text-[#cfc6b8]">
                 <p>{entry.assessment.shootability}</p>
                 <p>{entry.assessment.camera}</p>
+                <p>{entry.assessment.pace}</p>
                 <p>{entry.assessment.route}</p>
                 <p>{entry.assessment.segmentPromptAddition}</p>
                 {entry.assessment.concerns.length > 0 ? (

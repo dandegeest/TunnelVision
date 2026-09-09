@@ -1,11 +1,12 @@
 import { actualFrameForDestination, canAssessJourney } from "./cinematographer";
-import type { JourneyShot, JourneyShotTake, Project } from "./types";
+import type { JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
 
 export type ShootJourneyRequest = {
   journeyId: string;
   startMediaId: string;
   endMediaId: string;
   segmentPromptAddition: string;
+  pace: LocomotionPace;
   /** When true, Camotion work dirs are kept on disk after A′/B′ are copied. */
   debug?: boolean;
 };
@@ -55,6 +56,7 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
     startMediaId: start.mediaId,
     endMediaId: end.mediaId,
     segmentPromptAddition: journey.cinematographer.segmentPromptAddition,
+    pace: journey.cinematographer.pace,
   };
 }
 

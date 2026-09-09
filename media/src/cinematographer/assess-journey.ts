@@ -6,6 +6,7 @@ import {
   CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
   cinematographerAssessmentUserPrompt,
 } from "./assessment-prompts.ts";
+import { isLocomotionPace, type LocomotionPace } from "./shooting-prompt.ts";
 
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
 export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
@@ -19,6 +20,7 @@ export type CinematographerAssessment = {
   readonly parallax: string;
   readonly transitionStrategy: string;
   readonly segmentPromptAddition: string;
+  readonly pace: LocomotionPace;
   readonly camotionSuitability: CinematographerCamotionSuitability;
   readonly concerns: readonly string[];
 };
@@ -131,6 +133,13 @@ function asNonEmptyString(value: unknown, name: string): string {
   return trimmed;
 }
 
+function asPace(value: unknown): LocomotionPace {
+  if (!isLocomotionPace(value)) {
+    throw new MediaGenerationError("generation_failed", "Cinematographer pace is invalid");
+  }
+  return value;
+}
+
 export function parseCinematographerAssessment(text: string): CinematographerAssessment {
   const raw = parseJsonObject(text);
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -162,6 +171,7 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     parallax: asNonEmptyString(record.parallax, "parallax"),
     transitionStrategy: asNonEmptyString(record.transitionStrategy, "transitionStrategy"),
     segmentPromptAddition: asNonEmptyString(record.segmentPromptAddition, "segmentPromptAddition"),
+    pace: asPace(record.pace),
     camotionSuitability: record.camotionSuitability as CinematographerCamotionSuitability,
     concerns,
   };

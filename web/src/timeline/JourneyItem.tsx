@@ -3,6 +3,7 @@ import {
   journeySegmentAriaLabel,
   journeySegmentCaption,
   journeyTileAction,
+  locomotionPaceLabel,
 } from "../project/cinematographer";
 import type { LaidOutJourney } from "./geometry";
 
@@ -70,7 +71,11 @@ export function JourneyItem({
       }`}
       style={{ left: laid.left, width: Math.max(laid.width, 8) }}
       aria-busy={busy || undefined}
-      title={journey.cinematographer?.summary}
+      title={
+        journey.cinematographer
+          ? `${journey.cinematographer.summary} · ${locomotionPaceLabel(journey.cinematographer.pace)}`
+          : undefined
+      }
     >
       <button
         type="button"

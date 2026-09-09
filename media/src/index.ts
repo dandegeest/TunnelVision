@@ -94,9 +94,18 @@ export {
 } from "./cinematographer/assessment-prompts.ts";
 export {
   UNEMBODIED_FIRST_PERSON_POV,
+  LOCOMOTION_PACE_MACRO,
+  LOCOMOTION_PACES,
+  LOCOMOTION_PACE_PHRASES,
+  DEFAULT_LOCOMOTION_PACE,
+  TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
   TUNNELVISION_LOCOMOTION_BASELINE,
+  isLocomotionPace,
+  locomotionPaceList,
+  locomotionBaseline,
   composeShootingPrompt,
 } from "./cinematographer/shooting-prompt.ts";
+export type { LocomotionPace } from "./cinematographer/shooting-prompt.ts";
 export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";
 export type {
   DirectorAgency,

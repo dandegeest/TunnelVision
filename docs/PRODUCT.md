@@ -355,15 +355,17 @@ may appear naturally as part of the world.
 
 Current product slice: CM inspects two actual canonical stills for
 one JourneyShot and returns structured choreography (route, camera
-path, visible geometry, transition strategy, and a concise
-`segmentPromptAddition`) plus advisory shootability / Camotion
+path, visible geometry, transition strategy, a concise
+`segmentPromptAddition`, and a per-shot `pace` (`slow-motion` / `slow` /
+`moderate` / `fast` / `hyperspeed` / `variable`) plus advisory shootability / Camotion
 suitability / concerns. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
 hard gate and not a prediction of whether the stochastic video model
 will succeed. A JourneyShot may progress even when CM reports
 `not_shootable`. Shoot tiles show Ready to block / Ready to shoot /
 Ready for edit, with clear / hold / no go outlines after BLOCK;
-while BLOCK or SHOOT runs, that segment uses the generating shimmer.
+the gutter between destination stills also shows a chevron pace mark after BLOCK. While
+BLOCK or SHOOT runs, that segment uses the generating shimmer.
 Inspector copy stays
 Ready / Needs review / Not shootable. CM does **not** yet emit CameraMotionPlan, run
 Camotion, or generate video.
@@ -376,7 +378,7 @@ The later video prompt, when wired, should be composed
 deterministically:
 
 ``` text
-stable locomotion baseline
+stable locomotion baseline ({pace} filled from BLOCK)
 +
 CM segmentPromptAddition
 ```

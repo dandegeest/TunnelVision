@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Destination, JourneyShot } from "../project/types";
-import { DESTINATION_THUMB_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, journeyBoundaryTimes, layoutTimeline, wholeSecondMarkTimes } from "./geometry";
+import { DESTINATION_THUMB_PX, MIN_PACE_GUTTER_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, journeyBoundaryTimes, journeyThumbGutter, layoutTimeline, wholeSecondMarkTimes } from "./geometry";
 
 const destinations: Destination[] = ["A", "B", "C", "D", "E"].map((id) => ({
   id,
@@ -87,5 +87,18 @@ describe("timeline geometry", () => {
     expect(layout.occurrences).toEqual([]);
     expect(layout.journeys).toEqual([]);
     expect(layout.totalDuration).toBe(0);
+  });
+
+  it("places the pace gutter between destination stills, not over the thumbs", () => {
+    const layout = layoutTimeline(destinations, journeys, 1);
+    const ab = layout.journeys[0]!;
+    const gutter = journeyThumbGutter(ab);
+    expect(gutter).toEqual({
+      left: ab.left + DESTINATION_THUMB_PX / 2,
+      width: ab.width - DESTINATION_THUMB_PX,
+    });
+    expect(gutter!.width).toBeGreaterThanOrEqual(MIN_PACE_GUTTER_PX);
+    const tight = journeyThumbGutter({ ...ab, width: DESTINATION_THUMB_PX + MIN_PACE_GUTTER_PX - 1 });
+    expect(tight).toBeNull();
   });
 });

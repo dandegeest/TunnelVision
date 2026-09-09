@@ -7,6 +7,7 @@ import { layoutTimeline, timeToX } from "./geometry";
 import { DestinationsLane } from "./DestinationsLane";
 import { GridMarks } from "./GridMarks";
 import { JourneyLane } from "./JourneyLane";
+import { JourneyPaceLane } from "./JourneyPaceLane";
 import { Playhead } from "./Playhead";
 
 export function Timeline() {
@@ -72,6 +73,7 @@ export function Timeline() {
               select({ kind: "destination", destinationId, occurrenceIndex })
             }
           />
+          <JourneyPaceLane journeys={layout.journeys} projectJourneys={project.journeys} />
           <JourneyLane
             journeys={layout.journeys}
             projectJourneys={project.journeys}

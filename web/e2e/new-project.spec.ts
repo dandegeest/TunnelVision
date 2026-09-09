@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  TUNNELVISION_LOCOMOTION_BASELINE,
   composeShootingPrompt,
+  locomotionBaseline,
 } from "../../media/src/cinematographer/shooting-prompt.ts";
 
 const STARTING_FRAME_PNG = Buffer.from(
@@ -47,6 +47,7 @@ const CM_ASSESSMENT = {
   parallax: "Near walls the camera can pass.",
   transitionStrategy: "Pass through the visible opening.",
   segmentPromptAddition: "Track forward through the visible opening into the next volume.",
+  pace: "fast",
   camotionSuitability: "appropriate",
   concerns: [],
 };
@@ -168,14 +169,16 @@ async function mockProviderBoundaries(page: Page) {
       startMediaId: string;
       endMediaId: string;
       segmentPromptAddition: string;
+      pace: string;
     };
     expect(request.journeyId).toBe("A-B");
     expect(request.startMediaId).toMatch(/^upload-/);
     expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
     expect(request.segmentPromptAddition).toBe(CM_ASSESSMENT.segmentPromptAddition);
+    expect(request.pace).toBe(CM_ASSESSMENT.pace);
     expect(request).not.toHaveProperty("endImage");
     const effectivePrompt = composeShootingPrompt(
-      TUNNELVISION_LOCOMOTION_BASELINE,
+      locomotionBaseline("fast"),
       request.segmentPromptAddition,
     );
     await route.fulfill({
@@ -206,6 +209,7 @@ async function mockProviderBoundaries(page: Page) {
           },
           segmentPromptAddition: request.segmentPromptAddition,
           effectivePrompt,
+          pace: request.pace,
           provider: "replicate",
           model: "prunaai/p-video",
           modelVersion: "e2e-mock",
@@ -339,7 +343,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByRole("button", { name: "Block A-B" }).first().click();
   const journeyInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A-B" }) });
   await expect(journeyInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
-  await expect(page.getByLabel("Journey A-B, Ready to shoot, clear")).toBeVisible();
+  await expect(page.getByLabel("Journey A-B, Ready to shoot, clear, Fast")).toBeVisible();
   await expect(page.getByText("Blocked", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Shoot A-B" })).toHaveCount(2);
   await journeyInspector.locator("summary", { hasText: "Shot" }).click();
@@ -349,7 +353,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
 
   await page.getByRole("button", { name: "Shoot A-B" }).first().click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
-  await expect(page.getByLabel("Journey A-B, Ready for edit, clear")).toBeVisible();
+  await expect(page.getByLabel("Journey A-B, Ready for edit, clear, Fast")).toBeVisible();
   await expect(page.getByRole("button", { name: "Shoot A-B" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Block A-B" })).toHaveCount(1);
   await journeyInspector.locator("summary", { hasText: "Take" }).click();

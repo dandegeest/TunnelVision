@@ -55,17 +55,20 @@ same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. Green fill appears only after the clip is
 complete. Tile copy uses Ready to block / Ready to shoot / Ready for
 edit, plus
-clear / hold / no go when CM has returned. The selected segment shows
+clear / hold / no go when CM has returned. After BLOCK, the gutter
+between destination stills shows a chevron pace mark: sparse for slow, denser
+for fast and hyperspeed, a trailing hold for slow-motion, and a swell
+for variable. The selected segment shows
 the next Block or Shoot control until the clip exists. The timeline is
 vertically resizable. Select
 a real leg and BLOCK to run the existing Cinematographer on those
 stills. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the leg,
-together with camera path and a concise summary. Route, transition
+together with camera path, pace, and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
 disclosure. After BLOCK, SHOOT generates that one leg. The preview
 plays the rendered clip when present. Take evidence (A′, B′, effective
-prompt, model) sits behind disclosure so the clip stays primary.
+prompt, pace, model) sits behind disclosure so the clip stays primary.
 Shootability does not block the journey. A-only projects
 remain valid and simply have no directed production leg yet. Do not
 redesign the Shoot timeline around diagnostics. The application starts untitled, with unresolved
@@ -265,7 +268,8 @@ Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
 describes how to shoot it. Timeline tiles use Ready to block / Ready
 to shoot / Ready for edit, with clear / hold / no go outlines after
-BLOCK. Compact inspector Ready / Needs review / Not shootable,
+BLOCK, and a chevron pace mark in the gutter between destination stills.
+Compact inspector Ready / Needs review / Not shootable,
 camera path, and a concise summary remain on the analyzed leg;
 destination cards stay world-state. CM `not_shootable` does not change
 JourneyShot operational status.

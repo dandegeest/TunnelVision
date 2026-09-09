@@ -176,7 +176,7 @@ primary question is how to shoot this pair, not whether a stochastic
 video model will succeed. A thin assessment lives in
 `media/src/cinematographer/assess-journey.ts` and is invoked from
 Shoot BLOCK for one JourneyShot. The result is stored on that journey and
-includes route, camera path, visible geometry, transition strategy,
+includes route, camera path, pace, visible geometry, transition strategy,
 and a concise `segmentPromptAddition`, plus advisory shootability /
 Camotion suitability / concerns. Destinations stay canonical world
 state; the JourneyShot is the traversal; boundary continuity remains
@@ -404,10 +404,13 @@ atmosphere can help preserve continuous locomotion.
 
 The frozen locomotion baseline now lives in
 `media/src/cinematographer/shooting-prompt.ts` as
-`TUNNELVISION_LOCOMOTION_BASELINE`. That baseline includes
-`UNEMBODIED_FIRST_PERSON_POV`. SHOOT concatenates that baseline
-with the CM `segmentPromptAddition` via `composeShootingPrompt`.
-Do not LLM-merge them. Preserve Terran
+`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is a per-segment
+macro: BLOCK sets `slow-motion`, `slow`, `moderate`, `fast`,
+`hyperspeed`, or `variable` from the geography;
+SHOOT fills the template with the matching speed phrase and concatenates `segmentPromptAddition` via
+`composeShootingPrompt`. Clip duration stays fixed; pace is apparent
+camera speed, not runtime. Do not LLM-merge the baseline and addition.
+Preserve Terran
 Boylan / original TunnelVision provenance for the baseline. Do not
 treat that text as model-independent or as a Camotion input. The
 genesis copy is also recorded in [IMPLEMENTATION.md](IMPLEMENTATION.md).

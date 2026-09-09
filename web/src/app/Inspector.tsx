@@ -7,7 +7,7 @@ import {
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
-import { canAssessJourney, cinematographerShootabilityLabel, journeyLegStatusLabel } from "../project/cinematographer";
+import { canAssessJourney, cinematographerShootabilityLabel, journeyLegStatusLabel, locomotionPaceLabel } from "../project/cinematographer";
 import { canShootJourney } from "../project/shoot";
 import { canReshootDestinationFrame } from "../project/destination";
 import { useProject } from "../project/ProjectProvider";
@@ -253,6 +253,10 @@ function CinematographerLegDetail({
         <span className="text-[#9a8f7e]">Camera path. </span>
         {assessment.camera}
       </p>
+      <p>
+        <span className="text-[#9a8f7e]">Pace. </span>
+        {locomotionPaceLabel(assessment.pace)}
+      </p>
       <details className="border-t border-[#2a2620] pt-2 text-xs">
         <summary className="cursor-pointer tracking-[0.16em] text-[#9a8f7e] uppercase">
           Shot
@@ -338,6 +342,10 @@ function TakeEvidence({ take, journeyId }: { take: JourneyShotTake; journeyId: s
         <p>
           <span className="text-[#9a8f7e]">Prompt addition. </span>
           {take.segmentPromptAddition || "None"}
+        </p>
+        <p>
+          <span className="text-[#9a8f7e]">Pace. </span>
+          {locomotionPaceLabel(take.pace)}
         </p>
         <p>
           <span className="text-[#9a8f7e]">Model. </span>

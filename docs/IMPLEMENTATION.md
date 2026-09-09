@@ -180,12 +180,14 @@ adjacent canonicals become Destinations and JourneyShots on that same
 Project. BLOCK on a selected actual leg runs the existing
 Cinematographer assessment through `ReasoningProvider` and stores
 segment-specific camera choreography on that JourneyShot, including
-`segmentPromptAddition`. While BLOCK is running, that Shoot segment
+`segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
+`moderate` / `fast` / `hyperspeed` / `variable`). While BLOCK is running, that Shoot segment
 shows a progress spinner. Shootability remains advisory and does not
 gate JourneyShot status. SHOOT on a blocked leg derives a deterministic
 CameraMotionPlan v1 (centered radial-forward, pinned `forward=1.0` and
 01.8 exposure), renders A′ and B′ through the frozen Camotion CLI,
-composes `TUNNELVISION_LOCOMOTION_BASELINE` + `segmentPromptAddition`
+fills `{pace}` in `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`, concatenates
+`segmentPromptAddition`
 via `composeShootingPrompt`, and generates video through MediaProvider.
 The current development model is `prunaai/p-video` (A′ as `image`, B′ as
 `last_frame_image`). The assessment does not emit CameraMotionPlan.
@@ -845,9 +847,12 @@ Evidence:
 
 `tuning/video-runs/prompt-control/camera-speed/replicate-bytedance-seedance-2.5/seedance-slow-embodied/`
 
-Unvalidated product ideas (pace UI, embodiment, Prompt Only vs Auto,
-and related brainstorms) are in
-[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Do not implement them
+Unvalidated filmmaker pace UI, embodiment, Prompt Only vs Auto,
+and related brainstorms remain in
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Product BLOCK now sets a
+per-segment `{pace}` macro (`slow-motion` / `slow` / `moderate` /
+`fast` / `hyperspeed` / `variable`) in the
+locomotion baseline; that is not a filmmaker pace control. Do not implement them
 here. The later 01.10 diagnostic is recorded below.
 
 ### Adaptive exposure integration (01.9; completed still-only)
@@ -1192,7 +1197,8 @@ next experiment here.
 
 Open question: module boundaries. Current product CM inspects actual
 adjacent stills and stores semantic choreography plus
-`segmentPromptAddition` on the JourneyShot. It does **not** emit
+`segmentPromptAddition` and `pace` on the JourneyShot. `{pace}` fills
+the frozen locomotion baseline. It does **not** emit
 ShotPlan, CameraMotionPlan, or video. Integration Test 01 used a
 separate thin pair planner in `media/src/cinematographer/plan-shot.ts`
 against actual stills; do not expand that planner into a product
@@ -1225,8 +1231,10 @@ This is an experimental artifact, not a frozen product template and
 passing prompt are fill-in, not the locomotion principle. The
 production locomotion baseline now lives in
 `media/src/cinematographer/shooting-prompt.ts` as
-`TUNNELVISION_LOCOMOTION_BASELINE`, which includes
-`UNEMBODIED_FIRST_PERSON_POV`. The later video
+`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is filled from
+the segment's BLOCK pace (`fast` by default; also `slow-motion`,
+`slow`, `moderate`, `hyperspeed`, `variable`). The filled baseline
+includes `UNEMBODIED_FIRST_PERSON_POV`. The later video
 prompt should concatenate that baseline with the CM
 `segmentPromptAddition` without an LLM rewrite. Do not treat this as
 a Camotion input.

@@ -88,6 +88,25 @@ export function cinematographerShootabilityTileLabel(
   }
 }
 
+export function locomotionPaceLabel(
+  pace: CinematographerAssessment["pace"],
+): "Slow-motion" | "Slow" | "Moderate" | "Fast" | "Hyperspeed" | "Variable" {
+  switch (pace) {
+    case "slow-motion":
+      return "Slow-motion";
+    case "slow":
+      return "Slow";
+    case "moderate":
+      return "Moderate";
+    case "fast":
+      return "Fast";
+    case "hyperspeed":
+      return "Hyperspeed";
+    case "variable":
+      return "Variable";
+  }
+}
+
 /**
  * Next production step for a journey leg, shown as Ready to [step].
  * Internal JourneyShot.status stays ready / shooting / rendered / failed.
@@ -129,7 +148,7 @@ export function journeySegmentAriaLabel(journey: JourneyShot): string {
   if (!journey.cinematographer) {
     return `Journey ${journey.id}, ${operational}`;
   }
-  return `Journey ${journey.id}, ${operational}, ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}`;
+  return `Journey ${journey.id}, ${operational}, ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}, ${locomotionPaceLabel(journey.cinematographer.pace)}`;
 }
 
 export function cinematographerRequestFromProject(

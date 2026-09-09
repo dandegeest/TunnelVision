@@ -21,6 +21,7 @@ const assessment: CinematographerAssessment = {
   parallax: "Near walls.",
   transitionStrategy: "Pass through the opening.",
   segmentPromptAddition: "Track forward through the opening.",
+  pace: "fast",
   camotionSuitability: "uncertain",
   concerns: ["Geometry is tight."],
 };
@@ -42,6 +43,7 @@ const take: JourneyShotTake = {
   },
   segmentPromptAddition: assessment.segmentPromptAddition,
   effectivePrompt: "baseline\nTrack forward through the opening.",
+  pace: "fast",
   provider: "replicate",
   model: "prunaai/p-video",
   modelVersion: "test",
@@ -84,6 +86,11 @@ describe("SHOOT gate and JourneyShot take", () => {
   it("does not map CM shootability onto operational status", () => {
     const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
     expect(prepared.journeys[0]?.status).toBe("ready");
+    expect(shootRequestFromProject(prepared, "A-B")).toMatchObject({
+      journeyId: "A-B",
+      segmentPromptAddition: assessment.segmentPromptAddition,
+      pace: "fast",
+    });
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
     const shooting = projectWithJourneyShooting(prepared, "A-B");
     expect(shooting.journeys[0]?.status).toBe("shooting");

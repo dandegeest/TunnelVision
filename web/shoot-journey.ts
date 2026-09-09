@@ -2,8 +2,12 @@ import { getOptionalEnv } from "../media/src/config/environment.ts";
 import { productionCameraMotionPlan } from "../media/src/cinematographer/camera-motion-plan.ts";
 import type { CameraMotionPlanV1 } from "../media/src/cinematographer/plan-shot.ts";
 import {
-  TUNNELVISION_LOCOMOTION_BASELINE,
+  DEFAULT_LOCOMOTION_PACE,
+  isLocomotionPace,
+  locomotionBaseline,
+  locomotionPaceList,
   composeShootingPrompt,
+  type LocomotionPace,
 } from "../media/src/cinematographer/shooting-prompt.ts";
 import { P_VIDEO_MODEL } from "../media/src/replicate/p-video.ts";
 import type { GeneratedVideo, VideoGenerationRequest } from "../media/src/types.ts";
@@ -19,6 +23,7 @@ export type ShootJourneyBody = {
   startMediaId?: unknown;
   endMediaId?: unknown;
   segmentPromptAddition?: unknown;
+  pace?: unknown;
   debug?: unknown;
 };
 
@@ -30,6 +35,7 @@ export type JourneyShotTakeResult = {
   endPlan: CameraMotionPlanV1;
   segmentPromptAddition: string;
   effectivePrompt: string;
+  pace: LocomotionPace;
   provider: string;
   model: string;
   modelVersion: string | null;
@@ -46,6 +52,16 @@ function requiredId(value: unknown, label: string): string {
     throw new Error(`${label} is required`);
   }
   return value.trim();
+}
+
+function locomotionPaceFromBody(value: unknown): LocomotionPace {
+  if (value === undefined || value === null || value === "") {
+    return DEFAULT_LOCOMOTION_PACE;
+  }
+  if (!isLocomotionPace(value)) {
+    throw new Error(`Pace must be ${locomotionPaceList()}`);
+  }
+  return value;
 }
 
 function optionalSeed(): number | undefined {
@@ -91,6 +107,7 @@ export async function shootPreparedJourney(input: {
   const retainWorkDir = input.body.debug === true;
   const segmentPromptAddition =
     typeof input.body.segmentPromptAddition === "string" ? input.body.segmentPromptAddition : "";
+  const pace = locomotionPaceFromBody(input.body.pace);
   const startImage = resolveTrustedMedia(input.repoRoot, startMediaId);
   const endImage = resolveTrustedMedia(input.repoRoot, endMediaId);
   if (startImage.kind !== "file" || endImage.kind !== "file") {
@@ -108,7 +125,7 @@ export async function shootPreparedJourney(input: {
   const startShootingFrame = registry.register(startRender.bytes, "image/png");
   const endShootingFrame = registry.register(endRender.bytes, "image/png");
   const effectivePrompt = composeShootingPrompt(
-    TUNNELVISION_LOCOMOTION_BASELINE,
+    locomotionBaseline(pace),
     segmentPromptAddition,
   );
   const seed = optionalSeed();
@@ -133,6 +150,7 @@ export async function shootPreparedJourney(input: {
     endPlan: plan,
     segmentPromptAddition: segmentPromptAddition.trim(),
     effectivePrompt,
+    pace,
     provider: generated.provider,
     model: generated.model,
     modelVersion: generated.modelVersion,

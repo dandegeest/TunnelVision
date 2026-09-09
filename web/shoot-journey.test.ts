@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { TUNNELVISION_LOCOMOTION_BASELINE, composeShootingPrompt } from "../media/src/cinematographer/shooting-prompt.ts";
+import { locomotionBaseline, composeShootingPrompt } from "../media/src/cinematographer/shooting-prompt.ts";
 import { productionCameraMotionPlan } from "../media/src/cinematographer/camera-motion-plan.ts";
 import { shootPreparedJourney } from "./shoot-journey.ts";
 import {
@@ -38,6 +38,7 @@ describe("shootPreparedJourney", () => {
         startMediaId: start.mediaId,
         endMediaId: end.mediaId,
         segmentPromptAddition: addition,
+        pace: "slow",
       },
       renderFrame: async (imagePath) => {
         rendered.push(imagePath);
@@ -68,8 +69,10 @@ describe("shootPreparedJourney", () => {
     expect(rendered).toEqual([start.filePath, end.filePath]);
     expect(take.journeyId).toBe("A-B");
     expect(take.videoInputs).toEqual({ startShootingFrame: true, endShootingFrame: true });
-    expect(take.effectivePrompt).toBe(composeShootingPrompt(TUNNELVISION_LOCOMOTION_BASELINE, addition));
-    expect(take.effectivePrompt.startsWith(TUNNELVISION_LOCOMOTION_BASELINE)).toBe(true);
+    expect(take.effectivePrompt).toBe(composeShootingPrompt(locomotionBaseline("slow"), addition));
+    expect(take.effectivePrompt.startsWith(locomotionBaseline("slow"))).toBe(true);
+    expect(take.effectivePrompt).toMatch(/at a constant, slow speed/);
+    expect(take.pace).toBe("slow");
     expect(take.startPlan).toEqual(productionCameraMotionPlan());
     expect(take.endPlan).toEqual(productionCameraMotionPlan());
     expect(take.durationSeconds).toBe(6);

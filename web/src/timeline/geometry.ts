@@ -7,6 +7,8 @@ export const MAX_ZOOM = 3;
 export const DESTINATION_THUMB_PX = 132;
 export const VIEWER_GUTTER_PX = 56;
 export const TRACK_PAD_PX = DESTINATION_THUMB_PX / 2 + VIEWER_GUTTER_PX;
+/** Hide pace marks when destination stills leave no readable gap. */
+export const MIN_PACE_GUTTER_PX = 28;
 
 export type LaidOutOccurrence = {
   occurrenceIndex: number;
@@ -124,6 +126,15 @@ export function timeToX(
 
 export function clampZoom(zoom: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+}
+
+/** Open span between destination stills for one journey, or null if the thumbs meet. */
+export function journeyThumbGutter(laid: LaidOutJourney): { left: number; width: number } | null {
+  const width = laid.width - DESTINATION_THUMB_PX;
+  if (width < MIN_PACE_GUTTER_PX) {
+    return null;
+  }
+  return { left: laid.left + DESTINATION_THUMB_PX / 2, width };
 }
 
 export function wholeSecondMarkTimes(totalDuration: number): number[] {

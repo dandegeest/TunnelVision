@@ -32,6 +32,7 @@ const assessment: CinematographerAssessment = {
   parallax: "Near walls.",
   transitionStrategy: "Pass through the opening.",
   segmentPromptAddition: "Track forward through the opening.",
+  pace: "fast",
   camotionSuitability: "uncertain",
   concerns: ["Geometry is tight."],
 };
@@ -193,6 +194,7 @@ describe("production leg merge", () => {
             },
             segmentPromptAddition: "Track forward.",
             effectivePrompt: "Track forward.",
+            pace: "fast",
             provider: "test",
             model: "p-video",
             modelVersion: null,

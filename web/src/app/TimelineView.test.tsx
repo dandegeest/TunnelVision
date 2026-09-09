@@ -44,6 +44,7 @@ const shootableAB: CinematographerAssessment = {
   transitionStrategy: "Pass through the visible gateway so near trunks sweep past the lens.",
   segmentPromptAddition:
     "Track forward along the path, pass between the near trunks, and move through the visible opening toward the darker mouth.",
+  pace: "fast",
   camotionSuitability: "appropriate",
   concerns: [],
 };
@@ -109,14 +110,16 @@ describe("Shoot Cinematographer journey assessment", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
     expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, Ready for edit, clear");
+    expect(html).toContain("Journey A-B, Ready for edit, clear, Fast");
+    expect(html).toContain('data-journey-pace="fast"');
+    expect(html).toContain('data-pace-gutter="A-B"');
     expect(html).toContain("Ready for edit · clear");
     expect(html).toContain("bg-[#142014]");
     expect(html).toContain("border-[#3f5a3a]");
     expect(html).toContain("border-2");
     expect(html).toContain("Status: Ready for edit");
     expect(html).toContain(">Ready<");
-    expect(html).toContain("Walk through the root gateway into the darker mouth.");
+    expect(html).toContain("Walk through the root gateway into the darker mouth. · Fast");
     expect(html).toContain("Camera path.");
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
     expect(html).toContain('aria-label="Block A-B"');
@@ -131,6 +134,20 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain("Journey A-B, Ready<");
     expect(html).not.toContain('"shootability"');
     expect(html).not.toContain(">Assess shot<");
+  });
+
+  it("draws a pace mark between destination stills and leaves unblocked legs empty", () => {
+    const opening = renderShoot();
+    expect(opening).not.toContain("data-journey-pace");
+    expect(opening).not.toContain("data-pace-gutter");
+    for (const pace of ["slow-motion", "slow", "moderate", "fast", "hyperspeed", "variable"] as const) {
+      const html = renderShoot(
+        projectWithCinematographerAssessment(createForestProject(), "A-B", { ...shootableAB, pace }),
+        { journeyId: "A-B" },
+      );
+      expect(html).toContain(`data-journey-pace="${pace}"`);
+      expect(html).toContain('data-pace-gutter="A-B"');
+    }
   });
 
   it("paints hold and no-go outlines without replacing rendered fill", () => {
@@ -152,14 +169,16 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(blocked.journeys.find((journey) => journey.id === "E-F")?.status).toBe("rendered");
     const cd = renderShoot(blocked, { journeyId: "C-D" });
     const ef = renderShoot(blocked, { journeyId: "E-F" });
-    expect(cd).toContain("Journey C-D, Ready for edit, hold");
+    expect(cd).toContain("Journey C-D, Ready for edit, hold, Fast");
+    expect(cd).toContain('data-journey-pace="fast"');
+    expect(cd).toContain('data-pace-gutter="C-D"');
     expect(cd).toContain("Ready for edit · hold");
     expect(cd).toContain("border-[#d4b36a]");
     expect(cd).toContain("border-dashed");
     expect(cd).toContain("border-2");
     expect(cd).toContain("bg-[#142014]");
     expect(cd).toContain(">Needs review<");
-    expect(ef).toContain("Journey E-F, Ready for edit, no go");
+    expect(ef).toContain("Journey E-F, Ready for edit, no go, Fast");
     expect(ef).toContain("Ready for edit · no go");
     expect(ef).toContain("border-[#c45c38]");
     expect(ef).toContain("border-2");
@@ -186,6 +205,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Threshold.");
     expect(html).toContain("The tall vertical portal remaining in the corridor.");
     expect(html).toContain("Camera path.");
+    expect(html).toContain("Pace.");
+    expect(html).toContain("Fast");
     expect(html).toContain("Geometry.");
     expect(html).toContain("Camotion.");
     expect(html).toContain("Appropriate");
@@ -288,6 +309,7 @@ describe("Shoot from a real planned project", () => {
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain("Journey A-B, Ready to block");
     expect(html).toContain("Journey B-C, Ready to block");
+    expect(html).not.toContain("data-journey-pace");
     expect(html).toContain("Ready to block");
     expect(html).toContain("border-[#3a342c]");
     expect(html).toContain("bg-transparent");
@@ -334,7 +356,7 @@ describe("Shoot from a real planned project", () => {
       shootability: "needs_review",
     });
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, Ready to shoot, hold");
+    expect(html).toContain("Journey A-B, Ready to shoot, hold, Fast");
     expect(html).toContain("Ready to shoot · hold");
     expect(html).toContain("border-[#d4b36a]");
     expect(html).toContain("border-dashed");

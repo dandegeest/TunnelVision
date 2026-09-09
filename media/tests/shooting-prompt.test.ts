@@ -3,12 +3,17 @@ import { test } from "node:test";
 
 import {
   UNEMBODIED_FIRST_PERSON_POV,
+  LOCOMOTION_PACE_MACRO,
+  LOCOMOTION_PACE_PHRASES,
   TUNNELVISION_LOCOMOTION_BASELINE,
+  TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
   composeShootingPrompt,
+  locomotionBaseline,
 } from "../src/cinematographer/shooting-prompt.ts";
 
 test("locomotion baseline keeps continuous travel and unembodied first-person POV", () => {
   assert.match(TUNNELVISION_LOCOMOTION_BASELINE, /First person POV camera continuously moving forward/);
+  assert.match(TUNNELVISION_LOCOMOTION_BASELINE, /at a constant, fast speed/);
   assert.match(TUNNELVISION_LOCOMOTION_BASELINE, /No music, no soundtrack, no dialogue/);
   assert.ok(TUNNELVISION_LOCOMOTION_BASELINE.endsWith(UNEMBODIED_FIRST_PERSON_POV));
   assert.match(UNEMBODIED_FIRST_PERSON_POV, /viewer\/camera operator must never be visible in-frame/);
@@ -19,13 +24,30 @@ test("locomotion baseline keeps continuous travel and unembodied first-person PO
   assert.doesNotMatch(TUNNELVISION_LOCOMOTION_BASELINE, /Do not show a person/);
 });
 
-test("composeShootingPrompt appends a segment addition without rewriting the baseline", () => {
+test("pace is a baseline macro filled per segment", () => {
+  assert.match(TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE, /environment \{pace\}, traveling/);
+  assert.equal(locomotionBaseline("fast"), TUNNELVISION_LOCOMOTION_BASELINE);
+  assert.match(locomotionBaseline("slow"), /at a constant, slow speed/);
+  assert.doesNotMatch(locomotionBaseline("slow"), /fast speed/);
+  assert.doesNotMatch(locomotionBaseline("moderate"), /fast speed/);
+  assert.match(locomotionBaseline("slow-motion"), /in continuous slow motion/);
+  assert.doesNotMatch(locomotionBaseline("slow-motion"), /constant/);
+  assert.match(locomotionBaseline("hyperspeed"), /at hyperspeed while still physically traversing space/);
+  assert.match(locomotionBaseline("variable"), /variable speed that quickens and eases/);
+  assert.doesNotMatch(locomotionBaseline("variable"), /constant/);
+  assert.equal(LOCOMOTION_PACE_PHRASES.fast, "at a constant, fast speed");
+  assert.ok(!TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE.includes("fast speed"));
+  assert.equal(LOCOMOTION_PACE_MACRO, "{pace}");
+});
+
+test("composeShootingPrompt uses the paced baseline without rewriting it", () => {
   const addition =
     "Push straight forward down the center of the corridor toward the destination ahead.";
-  const composed = composeShootingPrompt(TUNNELVISION_LOCOMOTION_BASELINE, addition);
-  assert.equal(composed, `${TUNNELVISION_LOCOMOTION_BASELINE}\n${addition}`);
-  assert.ok(composed.startsWith(TUNNELVISION_LOCOMOTION_BASELINE));
-  assert.ok(composed.endsWith(addition));
+  const slow = locomotionBaseline("slow");
+  const composed = composeShootingPrompt(slow, addition);
+  assert.equal(composed, `${slow}\n${addition}`);
+  assert.ok(composed.startsWith(slow));
+  assert.match(composed, /at a constant, slow speed/);
 });
 
 test("composeShootingPrompt returns the baseline when there is no addition", () => {

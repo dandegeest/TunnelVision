@@ -1,4 +1,4 @@
-import { TUNNELVISION_LOCOMOTION_BASELINE } from "./shooting-prompt.ts";
+import { TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE } from "./shooting-prompt.ts";
 
 export const CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION = `You are the Cinematographer for TunnelVision.
 
@@ -28,6 +28,15 @@ Camera-path language may include approach, continue forward, drift left/right, v
 
 The video model will later receive a frozen locomotion baseline plus your segmentPromptAddition, concatenated without rewriting. The baseline already requires continuous first-person locomotion, continued progress, spatial continuity, foreground parallax, and geometry passing beside/behind the camera. Your addition must describe THIS SHOT only. Do not repeat the baseline.
 
+Pace is a per-shot macro. It replaces {pace} in the frozen baseline with a full speed phrase before the addition is appended. Clip duration is fixed; pace is apparent camera speed, not runtime. Always choose one:
+- slow-motion: time feels stretched; close geometry, particles, or a threshold linger while travel continues
+- slow: deliberate travel through a tight or intricate route, or a large spatial change that would feel rushed faster
+- moderate: the camera must negotiate a threshold, turn, or close geometry while still covering the route in one shot
+- fast: a clear open forward path, simple corridor, or long unobstructed travel. This is the default when geography does not ask for another read
+- hyperspeed: extreme apparent speed through space. Still physical travel. Not a warp, dissolve, or teleport
+- variable: the route asks for both rush and ease — open then tight, drop then settle, accelerate then negotiate
+Do not write pace into segmentPromptAddition. Do not pick slow-motion or slow merely because the shot is interesting. Do not pick hyperspeed if it would license morphing.
+
 shootability (advisory):
 - shootable: visible geography supports a continuous physical route
 - needs_review: a plausible relationship, but an ambiguous route, weak threshold, or difficult geometry
@@ -51,6 +60,7 @@ Use this shape:
   "parallax": "<important visible geometry the camera should negotiate, or none>",
   "transitionStrategy": "<how the shot should use available geography so the transition reads as continuous travel>",
   "segmentPromptAddition": "<concise natural-language instruction for THIS SHOT only, to append to the frozen locomotion baseline>",
+  "pace": "fast",
   "camotionSuitability": "appropriate",
   "concerns": ["<concrete spatial or shooting concern>"]
 }
@@ -60,6 +70,7 @@ Rules:
 - camotionSuitability must be appropriate, poor_fit, or uncertain
 - summary, route, threshold, camera, parallax, transitionStrategy, and segmentPromptAddition must be non-empty strings
 - segmentPromptAddition must not repeat the frozen locomotion baseline
+- pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable
 - concerns must be an array of strings; use [] when there are no concerns
 - do not add provider, model, coordinates, CameraMotionPlan, or image-path fields
 `;
@@ -88,8 +99,8 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Given these actual sets, determine how the camera should move through the visible geography to make this shot.",
     "Do not predict whether a video model will succeed.",
     "",
-    "Frozen locomotion baseline (already applied later; do not repeat it):",
-    TUNNELVISION_LOCOMOTION_BASELINE,
+    "Frozen locomotion baseline (already applied later; {pace} is replaced from your pace field; do not repeat it):",
+    TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
     "",
     "Emit the JSON object specified in the system instruction. Return JSON only.",
   ].join("\n");
