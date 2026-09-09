@@ -141,22 +141,20 @@ function storyboardFrameByLetter(frames: StoryboardFrame[], id: string): Storybo
 }
 
 /**
- * + ADD DESTINATION extends an existing A→B journey. It is not how B is created.
- * Requires actual canonical A and B stills, not unresolved placeholders.
- * Does not require a JourneyShot. A-only projects remain valid.
+ * Add Destination is structural only. It requires actual starting frame A,
+ * then may append unresolved slots even when prior slots are still empty.
  */
 export function canAddStoryboardDestination(project: Project): boolean {
   if (!nextStoryboardSlot(project.storyboard)) {
     return false;
   }
   const start = storyboardFrameByLetter(project.storyboard, "A");
-  const firstEnd = storyboardFrameByLetter(project.storyboard, "B");
-  return Boolean(
-    start &&
-      firstEnd &&
-      isSpecifiedStoryboardDestination(start) &&
-      isSpecifiedStoryboardDestination(firstEnd),
-  );
+  return Boolean(start && isSpecifiedStoryboardDestination(start));
+}
+
+export function canPlanMovie(project: Project): boolean {
+  const start = storyboardFrameByLetter(project.storyboard, "A");
+  return Boolean(start && isSpecifiedStoryboardDestination(start));
 }
 
 function plannedFrameFromBeat(beat: DirectorPlan["beats"][number]): StoryboardFrame {
@@ -255,7 +253,90 @@ export function applyDirectorPlanToStoryboard(
     next.push(plannedFrameFromBeat(beat));
     placed.add(beatKey);
   }
+  restoreOmittedSlots(storyboard, startFrame, next, placed);
+  assertNoInventedIds(storyboard, next);
+  assertNoInventedTail(storyboard, next);
   return next;
+}
+
+function storyboardHasLetterGaps(storyboard: StoryboardFrame[]): boolean {
+  for (let index = 0; index < storyboard.length - 1; index += 1) {
+    const current = storyboard[index]!.id.trim().toUpperCase();
+    const next = storyboard[index + 1]!.id.trim().toUpperCase();
+    if (
+      current.length === 1 &&
+      next.length === 1 &&
+      next.charCodeAt(0) - current.charCodeAt(0) > 1
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function mayInventNewDestinationIds(storyboard: StoryboardFrame[]): boolean {
+  if (storyboard.length <= 1) {
+    return true;
+  }
+  if (storyboard.some((frame) => !isSpecifiedStoryboardDestination(frame))) {
+    return false;
+  }
+  return storyboardHasLetterGaps(storyboard);
+}
+
+function assertNoInventedIds(storyboard: StoryboardFrame[], next: StoryboardFrame[]): void {
+  if (mayInventNewDestinationIds(storyboard)) {
+    return;
+  }
+  const existing = new Set(storyboard.map((frame) => storyboardIdKey(frame.id)));
+  for (const frame of next) {
+    if (!existing.has(storyboardIdKey(frame.id))) {
+      throw new Error("Director invented extra destinations");
+    }
+  }
+}
+
+function restoreOmittedSlots(
+  storyboard: StoryboardFrame[],
+  startFrame: StoryboardFrame,
+  next: StoryboardFrame[],
+  placed: Set<string>,
+): void {
+  for (const frame of storyboard) {
+    const key = storyboardIdKey(frame.id);
+    if (sameStoryboardId(frame.id, startFrame.id) || placed.has(key)) {
+      continue;
+    }
+    const originIndex = storyboard.findIndex((item) => storyboardIdKey(item.id) === key);
+    let insertAt = next.length;
+    for (let later = originIndex + 1; later < storyboard.length; later += 1) {
+      const laterKey = storyboardIdKey(storyboard[later]!.id);
+      const found = next.findIndex((item) => storyboardIdKey(item.id) === laterKey);
+      if (found >= 0) {
+        insertAt = found;
+        break;
+      }
+    }
+    next.splice(insertAt, 0, { ...frame });
+    placed.add(key);
+  }
+}
+
+function assertNoInventedTail(storyboard: StoryboardFrame[], next: StoryboardFrame[]): void {
+  if (storyboard.length <= 1) {
+    return;
+  }
+  const existing = new Set(storyboard.map((frame) => storyboardIdKey(frame.id)));
+  const lastKey = storyboardIdKey(storyboard[storyboard.length - 1]!.id);
+  const lastIndex = next.findIndex((frame) => storyboardIdKey(frame.id) === lastKey);
+  if (lastIndex < 0) {
+    throw new Error(`Director omitted authoritative destination ${storyboard[storyboard.length - 1]!.id}`);
+  }
+  for (const frame of next.slice(lastIndex + 1)) {
+    if (!existing.has(storyboardIdKey(frame.id))) {
+      throw new Error("Director invented extra destinations");
+    }
+  }
 }
 
 export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): Project {

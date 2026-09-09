@@ -271,3 +271,37 @@ test("Director.plan with existing destinations still drops the opening beat", as
     ["B", "C", "D", "E", "F"],
   );
 });
+
+test("Director request lists a complete partially specified storyboard", () => {
+  const request = buildDirectorRequest({
+    ...input,
+    story: "Continue through the hall toward the window.",
+    storyboard: [
+      { id: "A", label: "A", specified: true, intent: "Inside the attic." },
+      { id: "B", label: "B", specified: false },
+      { id: "C", label: "C", specified: true, intent: "A moonlit window." },
+      { id: "D", label: "D", specified: false },
+    ],
+    anchors: [
+      { id: "A", label: "A", image: input.startFrame.image },
+      { id: "C", label: "C", intent: "A moonlit window.", image: { kind: "file", path: "/tmp/c.jpg" } },
+    ],
+  });
+  assert.match(request.prompt, /Complete ordered storyboard/);
+  assert.match(request.prompt, /B \(unresolved\)/);
+  assert.match(request.prompt, /D \(unresolved\)/);
+  assert.match(request.prompt, /Fill the unresolved slots \(B, D\)/);
+  assert.match(request.prompt, /Do not invent a destination after D/);
+  assert.match(request.systemInstruction, /does not overwrite specified filmmaking decisions/);
+  assert.deepEqual(request.images, [input.startFrame.image, { kind: "file", path: "/tmp/c.jpg" }]);
+  assert.deepEqual(
+    request.payload.storyboard?.map((slot) => ({ id: slot.id, specified: slot.specified })),
+    [
+      { id: "A", specified: true },
+      { id: "B", specified: false },
+      { id: "C", specified: true },
+      { id: "D", specified: false },
+    ],
+  );
+});
+

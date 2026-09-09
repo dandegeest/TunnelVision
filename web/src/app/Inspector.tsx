@@ -10,6 +10,7 @@ import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable, showApprovalChrome } from "../
 import {
   canAssessJourney,
   cinematographerShootabilityLabel,
+  journeyLegStatusLabel,
 } from "../project/cinematographer";
 import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
@@ -165,7 +166,7 @@ export function Inspector() {
           ) : null}
         </div>
       ) : null}
-      <p>Status: {journey.status.replaceAll("_", " ")}</p>
+      <p>Status: {journeyLegStatusLabel(journey)}</p>
       {assessment ? (
         <>
           <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prepared</p>

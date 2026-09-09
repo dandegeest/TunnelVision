@@ -98,7 +98,7 @@ function renderFrame(
 }
 
 describe("Plan composer", () => {
-  it("is an editable draft, not a live display of project.story", () => {
+  it("edits project story without treating Send as PLAN", () => {
     const html = renderPlan();
     expect(html).toContain('id="plan-composer"');
     expect(html).toContain("text-[13px]");
@@ -108,7 +108,11 @@ describe("Plan composer", () => {
     expect(html).not.toMatch(/id="plan-composer"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
     expect(html).toContain('aria-label="Plan movie"');
-    expect(html).not.toContain("Add Destination");
+    expect(html).toContain(">PLAN<");
+    expect(html).toContain('aria-label="Send"');
+    expect(html).toMatch(/disabled[^>]*aria-label="Send"|aria-label="Send"[^>]*disabled/);
+    expect(html).toContain("Send is not a filmmaking command yet");
+    expect(html).toContain("Add Destination");
     expect(html).toContain('id="replace-destination-image"');
     expect(html).toContain(`accept="${STARTING_FRAME_ACCEPT}"`);
     expect(html).not.toContain("Replace image");
@@ -118,16 +122,14 @@ describe("Plan composer", () => {
     expect(html).not.toContain("Filmmaker");
   });
 
-  it("clears the composer after an accepted submission without repopulating from project.story", () => {
+  it("keeps the current story in the composer after a Director plan", () => {
     const submitted = "Travel forward through this world...";
     const project = {
       ...createWardrobeProject(),
-      story: "Current project story that must not refill the composer.",
+      story: submitted,
     };
     const html = renderPlan(project, {
-      composerDraft: "",
       conversation: [
-        { id: "f1", createdAt: AT, kind: "filmmaker", text: submitted },
         {
           id: "d1",
           createdAt: AT2,
@@ -138,20 +140,18 @@ describe("Plan composer", () => {
         },
       ],
     });
-    expect(html).toContain("Filmmaker");
-    expect(html).toContain(submitted);
+    expect(html).not.toContain("Filmmaker");
     expect(html).toContain("A continuous forward journey.");
-    expect(html).toContain(formatConversationClock(AT));
+    expect(html).toContain(formatConversationClock(AT2));
     expect(html).not.toContain("Director planning…");
-    expect(html).not.toContain("Current project story that must not refill the composer.");
-    expect(html).toMatch(/<textarea[^>]*id="plan-composer"[^>]*><\/textarea>/);
+    expect(html).toContain(submitted);
     expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(1);
   });
 
-  it("keeps a whitespace draft in the composer and does not append history", () => {
+  it("keeps Send disabled even when the story draft has content", () => {
     const html = renderPlan(createWardrobeProject(), { composerDraft: "  \n " });
     expect(html).not.toContain("Filmmaker");
-    expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+    expect(html).toMatch(/disabled[^>]*aria-label="Send"|aria-label="Send"[^>]*disabled/);
   });
 
   it("keeps Replace… on destination A and does not show a text control under the thumbnail", () => {
@@ -809,7 +809,7 @@ describe("new-project Plan", () => {
     expect(html).not.toContain('src="/api/runtime-media/');
   });
 
-  it("hides Add Destination until actual A and actual B exist", () => {
+  it("shows Add Destination as soon as actual A exists", () => {
     const empty = renderPlan(createNewProject(), { composerDraft: "" });
     expect(empty).not.toContain("Add Destination");
 
@@ -825,20 +825,46 @@ describe("new-project Plan", () => {
         },
       ],
     };
-    expect(renderPlan(withA)).not.toContain("Add Destination");
+    expect(renderPlan(withA)).toContain('aria-label="Add Destination"');
     expect(withA.storyboard.map((frame) => frame.id)).toEqual(["A"]);
     expect(withA.destinations).toEqual([]);
     expect(withA.journeys).toEqual([]);
 
     const planned = projectWithDirectorPlan(withA, plannedBeats);
     expect(planned.storyboard[1]?.imageOrigin).toBe("none");
-    expect(renderPlan(planned)).not.toContain("Add Destination");
+    expect(renderPlan(planned)).toContain('aria-label="Add Destination"');
+  });
 
-    const actualB = projectWithConstructedDestination(planned, {
-      beatId: "B",
-      mediaId: "upload-11111111111111111111111111111111",
-      imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
-    });
-    expect(renderPlan(actualB)).toContain('aria-label="Add Destination"');
+  it("exposes Upload image on unresolved destinations added after A", () => {
+    const withA = {
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    const added = projectWithAddedDestination(
+      projectWithAddedDestination(projectWithAddedDestination(withA)),
+    );
+    const html = renderPlan(added);
+    expect(html).toContain('aria-label="Destination B actions"');
+    expect(html).toContain('aria-label="Destination C actions"');
+    expect(html).toContain('aria-label="Destination D actions"');
+    const openB = renderToStaticMarkup(
+      <DestinationMenu
+        frameId="B"
+        label="B"
+        initiallyOpen
+        actionLabel="Upload image"
+        onReplace={() => undefined}
+      />,
+    );
+    expect(openB).toContain("Upload image");
+    expect(openB).not.toContain("Replace…");
   });
 });

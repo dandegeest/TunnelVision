@@ -6,6 +6,7 @@ import { directorPlanRequestFromProject } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
 import {
   canProvideStartingFrame,
+  canUploadStoryboardFrame,
   hasAuthoritativeStartingFrame,
   parseStartingFrameUpload,
   projectWithReplacedFrameImage,
@@ -180,6 +181,15 @@ describe("replacing authoritative A", () => {
       startFrameId: "A",
       startMediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
       startFrameIntent: STORYBOARD_INTENTS.A,
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          specified: true,
+          intent: STORYBOARD_INTENTS.A,
+          mediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        },
+      ],
     });
     expect(prompt).toMatch(/Opening-beat intent/);
     expect(prompt).toMatch(/abandoned greenhouse/);
@@ -219,7 +229,15 @@ describe("replacing authoritative A", () => {
     expect(next.destinations.find((destination) => destination.id === "B")?.image).toBe(
       "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     );
-    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("ready");
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toBeUndefined();
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBeUndefined();
+    expect(next.journeys.find((journey) => journey.id === "B-C")?.status).toBe("ready");
+    expect(next.journeys.find((journey) => journey.id === "B-C")?.videoUrl).toBeUndefined();
+    expect(next.journeys.find((journey) => journey.id === "C-D")?.status).toBe("rendered");
+    expect(next.journeys.find((journey) => journey.id === "C-D")?.videoUrl).toBe(
+      forest.journeys.find((journey) => journey.id === "C-D")?.videoUrl,
+    );
   });
 });
 
@@ -242,20 +260,36 @@ describe("providing starting frame A on a new project", () => {
     expect(canProvideStartingFrame(next.storyboard[0]!)).toBe(false);
   });
 
-  it("does not treat a later unresolved beat as a starting-frame upload", () => {
+  it("fills an unresolved later slot without treating it as starting frame A", () => {
     const project = {
       ...createNewProject(),
       storyboard: [
-        ...createNewProject().storyboard,
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
         { id: "B", label: "B", imageOrigin: "none" as const },
       ],
     };
     expect(canProvideStartingFrame(project.storyboard[1]!)).toBe(false);
-    expect(() =>
-      projectWithReplacedFrameImage(project, "B", {
-        mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      }),
-    ).toThrow(/no canonical still/i);
+    expect(canUploadStoryboardFrame(project.storyboard[1]!)).toBe(true);
+    const next = projectWithReplacedFrameImage(project, "B", {
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    expect(next.storyboard.map((frame) => frame.id)).toEqual(["A", "B"]);
+    expect(next.storyboard[0]?.image).toBe(project.storyboard[0]?.image);
+    expect(next.storyboard[0]?.mediaId).toBe(project.storyboard[0]?.mediaId);
+    expect(next.storyboard[1]).toMatchObject({
+      id: "B",
+      imageOrigin: "user",
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      destinationId: "B",
+    });
+    expect(next.destinations.map((destination) => destination.id)).toEqual(["A", "B"]);
+    expect(next.journeys.map((journey) => journey.id)).toEqual(["A-B"]);
   });
 });

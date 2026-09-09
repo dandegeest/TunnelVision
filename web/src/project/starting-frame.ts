@@ -20,7 +20,12 @@ export function isAuthoritativeStartingFrame(frame: Pick<StoryboardFrame, "id">)
 
 /** Unresolved opening slot that can receive the filmmaker starting frame. */
 export function canProvideStartingFrame(frame: Pick<StoryboardFrame, "id" | "image" | "imageOrigin">): boolean {
-  return isAuthoritativeStartingFrame(frame) && frame.imageOrigin === "none" && !frame.image;
+  return isAuthoritativeStartingFrame(frame) && canUploadStoryboardFrame(frame);
+}
+
+/** Unresolved destination slot that can receive a filmmaker still. */
+export function canUploadStoryboardFrame(frame: Pick<StoryboardFrame, "image" | "imageOrigin">): boolean {
+  return frame.imageOrigin === "none" && !frame.image;
 }
 
 export function hasAuthoritativeStartingFrame(project: Project): boolean {
@@ -81,7 +86,7 @@ export function projectWithReplacedFrameImage(
   if (!target) {
     throw new Error("Unknown storyboard frame");
   }
-  if (!target.image && !canProvideStartingFrame(target)) {
+  if (!target.image && !canUploadStoryboardFrame(target)) {
     throw new Error("Destination has no canonical still to replace");
   }
   return projectWithSyncedProductionLegs({

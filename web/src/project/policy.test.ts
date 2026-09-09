@@ -65,6 +65,6 @@ describe("production bar copy", () => {
           },
         }),
       ),
-    ).toMatch(/Shoot Movie is not connected/i);
+    ).toBe("");
   });
 });

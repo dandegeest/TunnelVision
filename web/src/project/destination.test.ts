@@ -140,7 +140,11 @@ describe("construct B from current Project state", () => {
     expect(constructed.destinations.find((destination) => destination.id === "C")?.image).toBe(
       planned.destinations.find((destination) => destination.id === "C")?.image,
     );
-    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.status).toBe("ready");
+    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toBeUndefined();
+    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBeUndefined();
+    expect(constructed.journeys.find((journey) => journey.id === "B-C")?.status).toBe("ready");
+    expect(constructed.journeys.find((journey) => journey.id === "C-D")?.status).toBe("rendered");
     expect(constructed.journeys.map((journey) => journey.id)).toEqual(
       planned.journeys.map((journey) => journey.id),
     );
@@ -219,7 +223,10 @@ describe("construct C from actual B", () => {
     expect(constructed.destinations.find((destination) => destination.id === "B")?.image).toBe(
       generatedB.imageUrl,
     );
-    expect(constructed.journeys.find((journey) => journey.id === "B-C")?.status).toBe("rendered");
+    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.status).toBe("ready");
+    expect(constructed.journeys.find((journey) => journey.id === "B-C")?.status).toBe("ready");
+    expect(constructed.journeys.find((journey) => journey.id === "C-D")?.status).toBe("ready");
+    expect(constructed.journeys.find((journey) => journey.id === "D-E")?.status).toBe("rendered");
     expect(constructed.journeys.map((journey) => journey.id)).toEqual(
       actualB.journeys.map((journey) => journey.id),
     );

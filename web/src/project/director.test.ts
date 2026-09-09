@@ -105,6 +105,15 @@ describe("Director request from Project state", () => {
       startFrameId: "A",
       startFrameIntent: project.storyboard[0]?.intent,
       startMediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          specified: true,
+          intent: project.storyboard[0]?.intent,
+          mediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+        },
+      ],
     });
   });
 
@@ -192,16 +201,14 @@ describe("Director request from Project state", () => {
       beats: [
         { id: "B", intent: "New greenhouse beat.", visualDescription: "Broken glass." },
         { id: "C", intent: "New courtyard beat.", visualDescription: "Flooded stone." },
-        { id: "D", intent: "New workshop beat.", visualDescription: "Warm light." },
       ],
     });
     expect(second.story).toBe(edited.story);
     expect(second.storyboard[0]).toEqual(project.storyboard[0]);
-    expect(second.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D"]);
+    expect(second.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
     expect(second.storyboard.slice(1).map((frame) => frame.intent)).toEqual([
       "New greenhouse beat.",
       "New courtyard beat.",
-      "New workshop beat.",
     ]);
     expect(second.destinations).toEqual(project.destinations);
     expect(second.journeys).toEqual(project.journeys);
@@ -231,10 +238,10 @@ describe("Director request from Project state", () => {
       mediaId: TRUSTED_MEDIA_IDS.forestAtoFF,
     });
     const prompt = directorUserPrompt(request);
-    expect(prompt).toMatch(/Existing destinations in travel order/);
+    expect(prompt).toMatch(/Complete ordered storyboard/);
     expect(prompt).toMatch(/Image 2 is this destination/);
     expect(prompt).toMatch(/Image 3 is this destination/);
-    expect(prompt).toMatch(/You own the missing connective journey/);
+    expect(prompt).toMatch(/All listed destinations are actual/);
     expect(prompt).toMatch(/Intent: Root tunnel with a large glowing crystal/);
     expect(prompt).not.toMatch(/Plan the subsequent spatially traversable beats from this opening/);
   });

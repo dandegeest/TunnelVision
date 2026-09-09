@@ -48,31 +48,71 @@ function upsertDestination(existing: Destination | undefined, frame: ProductionE
   };
 }
 
-function upsertJourney(existing: JourneyShot | undefined, pair: ProductionPair): JourneyShot {
+function freshProductionJourney(
+  startDestinationId: string,
+  endDestinationId: string | null,
+  durationSeconds: number,
+): JourneyShot {
+  return {
+    id: endDestinationId ? `${startDestinationId}-${endDestinationId}` : startDestinationId,
+    startDestinationId,
+    endDestinationId,
+    durationSeconds,
+    status: "ready",
+  };
+}
+
+function destinationImageChanged(
+  previous: Map<string, Destination>,
+  next: Map<string, Destination>,
+  id: string | null,
+): boolean {
+  if (!id) {
+    return false;
+  }
+  const before = previous.get(id);
+  const after = next.get(id);
+  return Boolean(before && after && before.image !== after.image);
+}
+
+function journeyCanonicalsChanged(
+  journey: Pick<JourneyShot, "startDestinationId" | "endDestinationId">,
+  previous: Map<string, Destination>,
+  next: Map<string, Destination>,
+): boolean {
+  return (
+    destinationImageChanged(previous, next, journey.startDestinationId) ||
+    destinationImageChanged(previous, next, journey.endDestinationId)
+  );
+}
+
+function upsertJourney(
+  existing: JourneyShot | undefined,
+  pair: ProductionPair,
+  stale: boolean,
+): JourneyShot {
   const startDestinationId = productionDestinationId(pair.start);
   const endDestinationId = productionDestinationId(pair.end);
-  const id = `${startDestinationId}-${endDestinationId}`;
-  if (existing) {
+  if (existing && !stale) {
     return {
       ...existing,
-      id,
+      id: `${startDestinationId}-${endDestinationId}`,
       startDestinationId,
       endDestinationId,
     };
   }
-  return {
-    id,
+  return freshProductionJourney(
     startDestinationId,
     endDestinationId,
-    durationSeconds: DEFAULT_DURATION_SECONDS,
-    status: "ready",
-  };
+    existing?.durationSeconds ?? DEFAULT_DURATION_SECONDS,
+  );
 }
 
 /**
  * Project Shoot is the current Project's actual adjacent canonicals.
  * Merge into existing destinations/journeys. Do not wipe fixture extras.
  * A-only and unresolved-next remain valid projects with no directed legs.
+ * Changing either canonical still returns that leg to not prepared and not shot.
  */
 export function projectWithSyncedProductionLegs(project: Project): Project {
   const pairs = consecutiveProductionPairs(project);
@@ -105,16 +145,33 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     }
   }
 
+  const nextDestinationsById = new Map(destinations.map((destination) => [destination.id, destination]));
   const pairIds: string[] = [];
   const journeys: JourneyShot[] = pairs.map((pair) => {
-    const id = `${productionDestinationId(pair.start)}-${productionDestinationId(pair.end)}`;
+    const startDestinationId = productionDestinationId(pair.start);
+    const endDestinationId = productionDestinationId(pair.end);
+    const id = `${startDestinationId}-${endDestinationId}`;
     pairIds.push(id);
-    return upsertJourney(journeysById.get(id), pair);
+    const stale =
+      destinationImageChanged(destinationsById, nextDestinationsById, startDestinationId) ||
+      destinationImageChanged(destinationsById, nextDestinationsById, endDestinationId);
+    return upsertJourney(journeysById.get(id), pair, stale);
   });
   for (const journey of project.journeys) {
-    if (!pairIds.includes(journey.id)) {
-      journeys.push(journey);
+    if (pairIds.includes(journey.id)) {
+      continue;
     }
+    if (journeyCanonicalsChanged(journey, destinationsById, nextDestinationsById)) {
+      journeys.push(
+        freshProductionJourney(
+          journey.startDestinationId,
+          journey.endDestinationId,
+          journey.durationSeconds,
+        ),
+      );
+      continue;
+    }
+    journeys.push(journey);
   }
 
   const storyboard = project.storyboard.map((frame) => {

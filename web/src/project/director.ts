@@ -12,6 +12,15 @@ export type DirectorPlan = {
   beats: DirectorBeat[];
 };
 
+export type DirectorStoryboardSlot = {
+  id: string;
+  label: string;
+  specified: boolean;
+  intent?: string;
+  visualDescription?: string;
+  mediaId?: string;
+};
+
 export type DirectorAnchor = {
   id: string;
   label: string;
@@ -28,6 +37,7 @@ export type DirectorEvidence = {
     startFrameIntent?: string;
     startMediaId: string;
     anchors?: DirectorAnchor[];
+    storyboard?: DirectorStoryboardSlot[];
     systemInstruction: string;
     prompt: string;
   };
@@ -50,6 +60,7 @@ export type DirectorPlanRequest = {
   startFrameIntent?: string;
   startMediaId: string;
   anchors?: DirectorAnchor[];
+  storyboard?: DirectorStoryboardSlot[];
 };
 
 export function authoritativeStartFrame(project: Project) {
@@ -72,6 +83,20 @@ function directorAnchorFromFrame(frame: StoryboardFrame): DirectorAnchor {
   };
 }
 
+function directorSlotFromFrame(frame: StoryboardFrame): DirectorStoryboardSlot {
+  const intent = frame.intent?.trim();
+  const visualDescription = frame.visualDescription?.trim();
+  const specified = isSpecifiedDirectorAnchor(frame);
+  return {
+    id: frame.id,
+    label: frame.label,
+    specified,
+    ...(intent ? { intent } : {}),
+    ...(visualDescription ? { visualDescription } : {}),
+    ...(specified && isTrustedMediaIdShape(frame.mediaId) ? { mediaId: frame.mediaId } : {}),
+  };
+}
+
 export function directorPlanRequestFromProject(project: Project): DirectorPlanRequest {
   if (!project.story.trim()) {
     throw new Error("Director requires a filmmaker story");
@@ -88,6 +113,7 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
   const extra = specified.filter(
     (frame) => frame.id.trim().toLowerCase() !== start.id.trim().toLowerCase(),
   );
+  const storyboard = project.storyboard.map(directorSlotFromFrame);
   return {
     story: project.story,
     agency: project.agency,
@@ -95,6 +121,7 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
     startMediaId: start.mediaId,
     ...(startFrameIntent ? { startFrameIntent } : {}),
     ...(extra.length > 0 ? { anchors: specified.map(directorAnchorFromFrame) } : {}),
+    ...(storyboard.length > 0 ? { storyboard } : {}),
   };
 }
 

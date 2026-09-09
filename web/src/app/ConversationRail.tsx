@@ -158,7 +158,6 @@ export function ConversationRail() {
     conversation,
     directorStatus,
     planStartError,
-    planWithDirector,
     startingFrameError,
     replacingStart,
     project,
@@ -167,7 +166,6 @@ export function ConversationRail() {
   const followThread = useRef(true);
   const planning = directorStatus === "planning";
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
-  const canPlan = Boolean(composerDraft.trim()) && hasOpeningFrame && !planning;
 
   useEffect(() => {
     const thread = threadRef.current;
@@ -240,18 +238,10 @@ export function ConversationRail() {
           />
           <button
             type="button"
-            disabled={!canPlan}
-            aria-label="Plan movie"
-            title={
-              hasOpeningFrame
-                ? "Plan the movie from this story and starting frame."
-                : "Provide a starting frame before planning."
-            }
-            onClick={() => {
-              followThread.current = true;
-              void planWithDirector();
-            }}
-            className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
+            disabled
+            aria-label="Send"
+            title="Send is not a filmmaking command yet. Use PLAN in the Plan workspace."
+            className="mb-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#9a8f7e] disabled:cursor-not-allowed"
           >
             <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
               <path
@@ -265,6 +255,13 @@ export function ConversationRail() {
             </svg>
           </button>
         </div>
+        <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+          {hasOpeningFrame
+            ? planning
+              ? "Director is planning…"
+              : "Send is inactive. Use PLAN to ask the Director."
+            : "Upload starting frame A before planning."}
+        </p>
         {replacingStart ? (
           <p className="mt-2 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
             Uploading…

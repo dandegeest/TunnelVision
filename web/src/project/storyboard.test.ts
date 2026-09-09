@@ -232,20 +232,16 @@ describe("Director owns the planned continuation", () => {
         { id: "C", intent: "New forest beat.", visualDescription: "New trees." },
         { id: "D", intent: "New ruins beat.", visualDescription: "New stone." },
         { id: "E", intent: "New cavern beat.", visualDescription: "New glow." },
-        { id: "F", intent: "New stair beat.", visualDescription: "New steps." },
-        { id: "G", intent: "New observatory beat.", visualDescription: "New sky." },
       ],
     });
     expect(second.storyboard[0]).toEqual(first.storyboard[0]);
     expect(second.storyboard[0]).toEqual(project.storyboard[0]);
-    expect(second.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F", "G"]);
+    expect(second.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E"]);
     expect(second.storyboard.slice(1).map((frame) => frame.intent)).toEqual([
       "New wardrobe beat.",
       "New forest beat.",
       "New ruins beat.",
       "New cavern beat.",
-      "New stair beat.",
-      "New observatory beat.",
     ]);
     expect(second.storyboard.some((frame) => frame.intent?.startsWith("Old "))).toBe(false);
   });
@@ -288,27 +284,29 @@ describe("Director owns the planned continuation", () => {
   });
 });
 
-describe("Add Destination requires an actual A→B segment", () => {
+describe("Add Destination is structural after actual A", () => {
   const constructedB = {
     beatId: "B",
     mediaId: "upload-11111111111111111111111111111111",
     imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
   };
 
-  it("stays hidden on an empty or A-only project without inventing B or a journey", () => {
+  it("stays hidden on an empty project without inventing B or a journey", () => {
     const empty = createNewProject();
     expect(canAddStoryboardDestination(empty)).toBe(false);
     expect(empty.storyboard.map((frame) => frame.id)).toEqual(["A"]);
     expect(empty.destinations).toEqual([]);
     expect(empty.journeys).toEqual([]);
+  });
 
+  it("becomes available once A is an actual canonical still", () => {
     const wardrobe = createWardrobeProject();
     expect(isSpecifiedStoryboardDestination(wardrobe.storyboard[0]!)).toBe(true);
     expect(wardrobe.storyboard.find((frame) => frame.id === "B")).toBeUndefined();
-    expect(canAddStoryboardDestination(wardrobe)).toBe(false);
+    expect(canAddStoryboardDestination(wardrobe)).toBe(true);
   });
 
-  it("stays hidden while B is only a planned unresolved slot", () => {
+  it("remains available while later slots are still unresolved", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), {
       summary: "A planned journey.",
       beats: [
@@ -318,22 +316,9 @@ describe("Add Destination requires an actual A→B segment", () => {
     });
     expect(planned.storyboard[1]?.id).toBe("B");
     expect(isSpecifiedStoryboardDestination(planned.storyboard[1]!)).toBe(false);
-    expect(canAddStoryboardDestination(planned)).toBe(false);
-  });
-
-  it("becomes available once A and B are actual canonical stills", () => {
-    const planned = projectWithDirectorPlan(createWardrobeProject(), {
-      summary: "A planned journey.",
-      beats: [
-        { id: "B", intent: "Enter the wardrobe.", visualDescription: "Dark coats." },
-        { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
-      ],
-    });
+    expect(canAddStoryboardDestination(planned)).toBe(true);
     const actual = projectWithConstructedDestination(planned, constructedB);
-    expect(isSpecifiedStoryboardDestination(actual.storyboard[0]!)).toBe(true);
-    expect(isSpecifiedStoryboardDestination(actual.storyboard[1]!)).toBe(true);
     expect(canAddStoryboardDestination(actual)).toBe(true);
-    expect(actual.journeys).toEqual(planned.journeys);
   });
 });
 
@@ -534,12 +519,10 @@ describe("Director preserves specified destinations", () => {
       beats: [
         { id: "B", intent: "Rewrite the wardrobe.", visualDescription: "Restyled coats." },
         { id: "C", intent: "New forest beat.", visualDescription: "New trees." },
-        { id: "D", intent: "New ruins beat.", visualDescription: "New stone." },
       ],
     });
-    expect(replanned.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D"]);
+    expect(replanned.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C"]);
     expect(replanned.storyboard[1]).toEqual(actualB);
     expect(replanned.storyboard[2]?.intent).toBe("New forest beat.");
-    expect(replanned.storyboard[3]?.imageOrigin).toBe("none");
   });
 });

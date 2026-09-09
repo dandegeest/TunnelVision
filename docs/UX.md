@@ -7,8 +7,8 @@ fixtures; they do not initialize the running product. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
 After Plan Movie, the filmmaker can construct the next planned
 destination from the immediately preceding actual destination through
-image-conditioned edit. Each construction is explicit. Video remains
-unwired.
+image-conditioned edit. Each construction is explicit. Export Movie
+concatenates rendered journey clips that already exist.
 
 ## Primary interaction
 
@@ -17,13 +17,11 @@ unwired.
 deliberately no Edit workspace.
 
 **Current implementation:** Product Slice 3 Plan is a dominant
-storyboard grid plus Conversation. Send asks the Director to plan
-unspecified beats around existing destinations; supplied stills remain
-authoritative. The composer is a temporary
-draft. Accepted Plan Movie submissions append that exact draft to
-conversation history together with a pending Director entry, update
-`Project.story`, and clear the composer. The Director entry resolves
-in place. Planned beats start as FPO. Generate is centered beneath the
+storyboard grid plus Conversation. PLAN in the Plan workspace asks the
+Director to plan unspecified beats around the complete ordered
+storyboard; supplied stills remain
+authoritative. The composer edits `Project.story` as project intent and
+does not invoke the Director. Send is inactive. Planned beats start as FPO. Generate is centered beneath the
 planned thumbnail and builds the next planned beat from the preceding
 actual destination through image-conditioned edit; later beats stay
 planned until the filmmaker generates them. Director intent stays in
@@ -31,11 +29,16 @@ project state and is available from the destination thumbnail, not as
 persistent storyboard caption text. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
-previous-frame conditioning. Video remains unwired. Shoot is a
+previous-frame conditioning. Shoot is a
 production view of the current Project: consecutive actual adjacent
-canonicals appear as Destinations / JourneyShots automatically. Select
+canonicals appear as Destinations / JourneyShots automatically. Unrendered
+legs stay outlined. Legs that still need blocking use a neutral outline. After PREPARE, the
+outline follows advisory shootability: solid green for clear, dashed gold
+for hold, solid rust for no go. Green fill appears only after the clip is
+in the can. Tile copy uses to block / blocked / rolling / in the can, plus
+clear / hold / no go when CM has returned. Select
 a real leg and PREPARE to run the existing Cinematographer on those
-stills. Compact Ready / Needs
+stills. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the leg,
 together with camera path and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
@@ -49,9 +52,10 @@ opening frame A and no destinations or journeys. Forest A→F remains
 research evidence and a controlled test fixture.
 The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
-Accepted Plan submissions update `Project.story`. The filmmaker can replace
+Story edits update `Project.story` without planning. The filmmaker can replace
 a destination's canonical still in place from the destination menu.
-Uploaded media is
+Replacing either canonical still on a production leg returns that
+JourneyShot to not prepared and not shot. Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
 as provider input. After replacement, that destination's identity stays
@@ -139,10 +143,12 @@ convert source media.
 Storyboard **Media Info** is an icon tool in the workspace header
 toolbar. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
-kebab on that strip; the first action is Replace…, which swaps that
+kebab on that strip. Unresolved slots expose Upload image. Actual
+stills expose Replace…, which swaps that
 destination's canonical still in place. An Add Destination affordance
-follows the last configured destination; it is not itself a destination
-and does not encode Provided / Generated / Derived / Discovered.
+follows the last configured destination once A is actual; it appends an
+unresolved slot, is not itself a destination, does not invoke the
+Director, and does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
 thumbnail. Technical facts (provenance icon, friendly
 aspect, dimensions, format) appear in a thin bottom strip only when
@@ -153,9 +159,9 @@ persistent caption text. Do not silently alter filmmaker media.
 Plan conversation is an interaction mechanism. The storyboard remains
 the authoritative Plan artifact. The filmmaking conversation rail is a
 project-level workspace control: the filmmaker can hide or show it
-without changing Plan / Shoot, agency, or conversation data. A Send
-appends the filmmaker turn and
-a pending Director turn in history; that same Director entry resolves
+without changing Plan / Shoot, agency, or conversation data. Send is
+not currently an active filmmaking command. PLAN appends a pending
+Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
 summary. Timestamps are stored on each conversation entry when it is
 created; the UI formats that stored time. Role labels are FILMMAKER
@@ -208,10 +214,12 @@ it. Directed vs Autonomous is one project policy flag, not two UIs.
 
 Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
-describes how to shoot it. Compact status, camera path, and a
-concise summary appear on the analyzed leg; destination cards stay
-world-state. CM `not_shootable` does not change JourneyShot
-operational status.
+describes how to shoot it. Timeline tiles use to block / blocked /
+rolling / in the can, with clear / hold / no go outlines after
+PREPARE. Compact inspector Ready / Needs review / Not shootable,
+camera path, and a concise summary remain on the analyzed leg;
+destination cards stay world-state. CM `not_shootable` does not change
+JourneyShot operational status.
 
 A blocked journey is not automatically a Cinematographer repair.
 Some failures should return to Plan so the Director can revise the
@@ -326,8 +334,10 @@ REGEN / REPAIR) is recorded in
 `web/` is the product filmmaking surface. Plan is a storyboard plus an
 editable filmmaker story in the existing composer. A new project begins
 partially specified: unresolved opening frame A, empty story, no
-fabricated destinations or journeys. The filmmaker provides A, plans
-with the Director, and generates the next unresolved destination.
+fabricated destinations or journeys. The filmmaker provides A, may add
+unresolved destination slots, asks the Director to PLAN, and generates
+unresolved destinations. Export Movie concatenates rendered takes that
+exist.
 Forest A→F remains available so Plan preflight, Shoot boundary
 continuity, and CM tests can be exercised against a controlled
 journey. After a Director replan, Construct still builds the

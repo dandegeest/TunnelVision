@@ -68,8 +68,51 @@ export function cinematographerShootabilityLabel(
   }
 }
 
+/** Compact set-language shootability for the Shoot timeline tile. Inspector keeps the longer labels. */
+export function cinematographerShootabilityTileLabel(
+  shootability: CinematographerShootability,
+): "clear" | "hold" | "no go" {
+  switch (shootability) {
+    case "shootable":
+      return "clear";
+    case "needs_review":
+      return "hold";
+    case "not_shootable":
+      return "no go";
+  }
+}
+
+/**
+ * Filmmaking ladder for a production leg.
+ * Internal JourneyShot.status stays ready / shooting / rendered / failed.
+ */
 export function journeyLegStatusLabel(journey: JourneyShot): string {
-  return journey.status.replaceAll("_", " ");
+  switch (journey.status) {
+    case "shooting":
+      return "rolling";
+    case "rendered":
+      return "in the can";
+    case "failed":
+      return "failed";
+    default:
+      return journey.cinematographer ? "blocked" : "to block";
+  }
+}
+
+export function journeySegmentCaption(journey: JourneyShot): string {
+  const operational = journeyLegStatusLabel(journey);
+  if (!journey.cinematographer) {
+    return operational;
+  }
+  return `${operational} · ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}`;
+}
+
+export function journeySegmentAriaLabel(journey: JourneyShot): string {
+  const operational = journeyLegStatusLabel(journey);
+  if (!journey.cinematographer) {
+    return `Journey ${journey.id}, ${operational}`;
+  }
+  return `Journey ${journey.id}, ${operational}, ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}`;
 }
 
 export function cinematographerRequestFromProject(

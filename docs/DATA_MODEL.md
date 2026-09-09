@@ -273,7 +273,9 @@ world-state authority. Plan FPO drawings are provisional visualizations
 of Director intent; they are **not** canonicals. Once a storyboard beat
 has an actual trusted still, that still is the canonical endpoint Shoot
 uses. Destinations and JourneyShots are the same Project, not a cloned
-Shoot model. A **shooting frame**
+Shoot model. Changing either canonical still on a production leg
+returns that JourneyShot to `ready` without cinematographer, take, or
+clip. A **shooting frame**
 is a Camotion derivative produced from an image plus a
 `CameraMotionPlan` (and optional near-weight). TunnelVision currently
 supplies a canonical frame as that image. Camotion does not know what
@@ -334,6 +336,12 @@ Do **not** design these until a later milestone needs them:
 -   intermediate-canonical insertion as a typed decision
 -   destination construction strategy enums (Provided / Generated /
     Derived / Discovered)
+
+Product `Project.storyboard` may contain unresolved destination slots.
+That is the current partially specified movie interaction model, not a
+CameraMotionPlan field. Director planning receives the complete ordered
+storyboard; actual stills stay authoritative. Export Movie concatenates
+existing JourneyShot clips and is not an editing schema.
 
 Phase 1 produced bounded shootability evidence (Wardrobe E→A
 independently judged NEEDS_INTERMEDIATE; actual generated X rejected

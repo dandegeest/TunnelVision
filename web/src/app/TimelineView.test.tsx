@@ -85,12 +85,15 @@ describe("Shoot boundary continuity UI", () => {
 });
 
 describe("Shoot Cinematographer journey assessment", () => {
-  it("keeps a rendered journey rendered and shows CM Ready separately", () => {
+  it("keeps a rendered journey in the can and shows inspector Ready separately", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
     expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, rendered, CM Ready");
-    expect(html).toContain("rendered · CM Ready");
+    expect(html).toContain("Journey A-B, in the can, clear");
+    expect(html).toContain("in the can · clear");
+    expect(html).toContain("bg-[#142014]");
+    expect(html).toContain("border-[#3f5a3a]");
+    expect(html).toContain("Status: in the can");
     expect(html).toContain(">Ready<");
     expect(html).toContain("Walk through the root gateway into the darker mouth.");
     expect(html).toContain("Camera path.");
@@ -107,7 +110,7 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain(">Assess shot<");
   });
 
-  it("shows CM Needs review and Not shootable separately from rendered operational status", () => {
+  it("paints hold and no-go outlines without replacing rendered fill", () => {
     const review = projectWithCinematographerAssessment(createForestProject(), "C-D", {
       ...shootableAB,
       shootability: "needs_review",
@@ -126,11 +129,16 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(blocked.journeys.find((journey) => journey.id === "E-F")?.status).toBe("rendered");
     const cd = renderShoot(blocked, { journeyId: "C-D" });
     const ef = renderShoot(blocked, { journeyId: "E-F" });
-    expect(cd).toContain("Journey C-D, rendered, CM Needs review");
-    expect(cd).toContain("rendered · CM Needs review");
+    expect(cd).toContain("Journey C-D, in the can, hold");
+    expect(cd).toContain("in the can · hold");
+    expect(cd).toContain("border-[#d4b36a]");
+    expect(cd).toContain("border-dashed");
+    expect(cd).toContain("bg-[#142014]");
     expect(cd).toContain(">Needs review<");
-    expect(ef).toContain("Journey E-F, rendered, CM Not shootable");
-    expect(ef).toContain("rendered · CM Not shootable");
+    expect(ef).toContain("Journey E-F, in the can, no go");
+    expect(ef).toContain("in the can · no go");
+    expect(ef).toContain("border-[#c45c38]");
+    expect(ef).toContain("bg-[#142014]");
     expect(ef).toContain(">Not shootable<");
   });
 
@@ -253,8 +261,13 @@ describe("Shoot from a real planned project", () => {
       ],
     });
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, ready");
-    expect(html).toContain("Journey B-C, ready");
+    expect(html).toContain("Journey A-B, to block");
+    expect(html).toContain("Journey B-C, to block");
+    expect(html).toContain("to block");
+    expect(html).toContain("border-[#3a342c]");
+    expect(html).toContain("bg-transparent");
+    expect(html).not.toContain("bg-[#142014]");
+    expect(html).toContain("Status: to block");
     expect(html).toContain('aria-label="Destination A"');
     expect(html).toContain('aria-label="Destination B"');
     expect(html).toContain('aria-label="Destination C"');
@@ -263,5 +276,41 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('alt="A-B end B"');
     expect(html).not.toContain("Nothing is ready to shoot");
     expect(html).not.toContain(">Assess shot<");
+  });
+
+  it("outlines a blocked hold without filling until the take exists", () => {
+    const base = projectWithSyncedProductionLegs({
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user",
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          destinationId: "A",
+        },
+        {
+          id: "B",
+          label: "B",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          destinationId: "B",
+        },
+      ],
+    });
+    const project = projectWithCinematographerAssessment(base, "A-B", {
+      ...shootableAB,
+      shootability: "needs_review",
+    });
+    const html = renderShoot(project, { journeyId: "A-B" });
+    expect(html).toContain("Journey A-B, blocked, hold");
+    expect(html).toContain("blocked · hold");
+    expect(html).toContain("border-[#d4b36a]");
+    expect(html).toContain("border-dashed");
+    expect(html).toContain("bg-transparent");
+    expect(html).not.toContain("bg-[#142014]");
+    expect(html).toContain(">Needs review<");
   });
 });

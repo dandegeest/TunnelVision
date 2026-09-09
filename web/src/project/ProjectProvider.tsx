@@ -24,7 +24,7 @@ import {
   shootRequestFromProject,
 } from "./shoot";
 import { readStoryboardMediaInfo } from "./media-preflight";
-import { projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
+import { hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { projectWithAddedDestination, projectWithDirectorPlan, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
   requestConstructDestination,
@@ -34,11 +34,12 @@ import {
 import {
   appendConversationEntry,
   conversationTimestamp,
-  preparePlanSubmission,
+  prepareDirectorPlan,
   resolveConstructionEntry,
   resolveDirectorEntry,
   type ConversationEntry,
 } from "./conversation";
+import { requestExportMovie, type MovieExportResult } from "./export-movie";
 import type { Agency, JourneyShot, Project, Selection } from "./types";
 
 type DirectorStatus = "idle" | "planning" | "ready" | "error";
@@ -79,6 +80,10 @@ type ProjectContextValue = {
   addDestination: () => void;
   constructingBeatId: string | null;
   constructDestination: (beatId: string) => Promise<void>;
+  movieExport: MovieExportResult | null;
+  exportingMovie: boolean;
+  exportMovieError: string | null;
+  exportMovie: () => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -119,9 +124,12 @@ export function ProjectProvider({
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
   const [constructingBeatId, setConstructingBeatId] = useState<string | null>(null);
+  const [movieExport, setMovieExport] = useState<MovieExportResult | null>(null);
+  const [exportingMovie, setExportingMovie] = useState(false);
+  const [exportMovieError, setExportMovieError] = useState<string | null>(null);
   const [mediaInfoOn, setMediaInfoOn] = useState(initialMediaInfo);
   const [conversationRailOpen, setConversationRailOpen] = useState(initialConversationRailOpen);
-  const [composerDraft, setComposerDraft] = useState(
+  const [composerDraft, setComposerDraftState] = useState(
     () => initialComposerDraft ?? initialProject?.story ?? "",
   );
   const [conversation, setConversation] = useState<ConversationEntry[]>(
@@ -140,6 +148,9 @@ export function ProjectProvider({
   }, []);
 
   const setView = useCallback((next: WorkspaceView) => {
+    if (next === "shoot" && !hasAuthoritativeStartingFrame(project)) {
+      return;
+    }
     setViewState(next);
     setSelection((current) => selectionForWorkspaceView(next, current, project));
     setPlaying(false);
@@ -151,6 +162,11 @@ export function ProjectProvider({
 
   const setAgency = useCallback((agency: Agency) => {
     setProject((current) => ({ ...current, agency }));
+  }, []);
+
+  const setComposerDraft = useCallback((draft: string) => {
+    setComposerDraftState(draft);
+    setProject((current) => (current.story === draft ? current : { ...current, story: draft }));
   }, []);
 
   const replaceDestinationImage = useCallback(async (frameId: string, file: File) => {
@@ -219,34 +235,24 @@ export function ProjectProvider({
   }, [nextConversationId, project]);
 
   const planWithDirector = useCallback(async () => {
-    const prepared = preparePlanSubmission(composerDraft, project);
+    const prepared = prepareDirectorPlan(project);
     if (!prepared.ok) {
       if (prepared.reason === "invalid") {
         setPlanStartError(prepared.message ?? "Director planning failed");
+      } else {
+        setPlanStartError("Director requires a filmmaker story");
       }
       return;
     }
     setPlanStartError(null);
-    setComposerDraft("");
-    setProject((current) => ({ ...current, story: prepared.submitted }));
-    const filmmakerId = nextConversationId("filmmaker");
     const directorId = nextConversationId("director");
-    const submittedAt = conversationTimestamp();
     setConversation((entries) =>
-      appendConversationEntry(
-        appendConversationEntry(entries, {
-          id: filmmakerId,
-          createdAt: submittedAt,
-          kind: "filmmaker",
-          text: prepared.submitted,
-        }),
-        {
-          id: directorId,
-          createdAt: conversationTimestamp(),
-          kind: "director",
-          status: "planning",
-        },
-      ),
+      appendConversationEntry(entries, {
+        id: directorId,
+        createdAt: conversationTimestamp(),
+        kind: "director",
+        status: "planning",
+      }),
     );
     setDirectorStatus("planning");
     try {
@@ -274,7 +280,7 @@ export function ProjectProvider({
         }),
       );
     }
-  }, [composerDraft, nextConversationId, project]);
+  }, [nextConversationId, project]);
 
   const assessJourney = useCallback(async (journeyId: string) => {
     setCinematographerError(null);
@@ -311,6 +317,19 @@ export function ProjectProvider({
       setProject((current) => projectWithJourneyShotFailed(current, journeyId, message));
     } finally {
       setShootingJourneyId(null);
+    }
+  }, [project]);
+
+  const exportMovie = useCallback(async () => {
+    setExportMovieError(null);
+    setExportingMovie(true);
+    try {
+      const result = await requestExportMovie(project);
+      setMovieExport(result);
+    } catch (error) {
+      setExportMovieError(error instanceof Error ? error.message : "Movie export failed");
+    } finally {
+      setExportingMovie(false);
     }
   }, [project]);
 
@@ -358,6 +377,10 @@ export function ProjectProvider({
       addDestination,
       constructingBeatId,
       constructDestination,
+      movieExport,
+      exportingMovie,
+      exportMovieError,
+      exportMovie,
     }),
     [
       project,
@@ -390,6 +413,10 @@ export function ProjectProvider({
       addDestination,
       constructingBeatId,
       constructDestination,
+      movieExport,
+      exportingMovie,
+      exportMovieError,
+      exportMovie,
     ],
   );
 

@@ -6,7 +6,7 @@ import {
   appendConversationEntry,
   conversationTimestamp,
   formatConversationClock,
-  preparePlanSubmission,
+  prepareDirectorPlan,
   resolveConstructionEntry,
   resolveDirectorEntry,
   type ConversationEntry,
@@ -35,10 +35,10 @@ const evidence = (story: string, predictionId: string): DirectorEvidence => ({
   elapsedMs: 12,
 });
 
-describe("Plan composer submission", () => {
-  it("accepts the exact draft as the Director story", () => {
+describe("Director plan submission", () => {
+  it("uses current Project.story as the Director story", () => {
     const submitted = "Travel forward through this world...\nKeep moving. ";
-    const result = preparePlanSubmission(submitted, createWardrobeProject());
+    const result = prepareDirectorPlan({ ...createWardrobeProject(), story: submitted });
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;
@@ -47,21 +47,21 @@ describe("Plan composer submission", () => {
     expect(result.request.story).toBe(submitted);
   });
 
-  it("rejects whitespace-only drafts without building a request", () => {
-    expect(preparePlanSubmission("   \n\t  ", createWardrobeProject())).toEqual({
+  it("rejects whitespace-only stories without building a request", () => {
+    expect(prepareDirectorPlan({ ...createWardrobeProject(), story: "   \n\t  " })).toEqual({
       ok: false,
       reason: "empty",
     });
-    expect(preparePlanSubmission("", createWardrobeProject())).toEqual({
+    expect(prepareDirectorPlan({ ...createWardrobeProject(), story: "" })).toEqual({
       ok: false,
       reason: "empty",
     });
   });
 
-  it("rejects drafts that cannot start planning without treating them as empty", () => {
+  it("rejects projects that cannot start planning without treating them as empty", () => {
     const project = createWardrobeProject();
     delete project.storyboard[0]!.mediaId;
-    const result = preparePlanSubmission("A valid story.", project);
+    const result = prepareDirectorPlan({ ...project, story: "A valid story." });
     expect(result.ok).toBe(false);
     if (result.ok) {
       return;
@@ -71,7 +71,10 @@ describe("Plan composer submission", () => {
   });
 
   it("rejects a new project that has no starting frame yet", () => {
-    const result = preparePlanSubmission("Travel forward through an imagined world.", createNewProject());
+    const result = prepareDirectorPlan({
+      ...createNewProject(),
+      story: "Travel forward through an imagined world.",
+    });
     expect(result.ok).toBe(false);
     if (result.ok) {
       return;
@@ -80,17 +83,19 @@ describe("Plan composer submission", () => {
     expect(result.message).toMatch(/trusted media identity/i);
   });
 
-  it("includes existing destinations when the journey is only partially specified", () => {
-    const result = preparePlanSubmission(
-      "Keep traveling through this night forest.",
-      createForestPartialAnchorProject(),
-    );
+  it("includes the complete storyboard when the journey is only partially specified", () => {
+    const result = prepareDirectorPlan({
+      ...createForestPartialAnchorProject(),
+      story: "Keep traveling through this night forest.",
+    });
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;
     }
     expect(result.request.story).toBe("Keep traveling through this night forest.");
     expect(result.request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "D", "F"]);
+    expect(result.request.storyboard?.map((slot) => slot.id)).toEqual(["A", "D", "F"]);
+    expect(result.request.storyboard?.every((slot) => slot.specified)).toBe(true);
     expect(result.request.startMediaId).toBe(TRUSTED_MEDIA_IDS.forestAtoFA);
   });
 });

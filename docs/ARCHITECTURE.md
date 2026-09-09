@@ -112,8 +112,10 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
     last-frame-discovery architecture.
 
 The current **product surface** is Plan | Shoot in `web/`. Product
-Slice 3 Plan is conversation plus a storyboard grid; Send asks the
-Director to plan unspecified beats around existing destinations.
+Slice 3 Plan is a storyboard grid plus an informational conversation
+rail; PLAN asks the
+Director to plan unspecified beats around the complete ordered
+storyboard.
 Specified stills are preserved. After planning, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit and registers the still as
@@ -138,11 +140,14 @@ destinations or journeys. Forest A→F remains a research and test
 fixture. The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture accepts
-story plus `MediaInput` for the opening and any other existing
+story plus the complete ordered storyboard and `MediaInput` for actual
 destination stills. A project is a partially specified movie: the
 Director resolves what is not specified and preserves destinations
-that already have actual media. Accepted Plan submissions update `Project.story`.
+that already have actual media. Story edits update `Project.story`
+without planning. PLAN does not generate images.
 The filmmaker can replace a destination's canonical still in place.
+Replacing either canonical still on a production leg returns that
+JourneyShot to not prepared and not shot.
 Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 After

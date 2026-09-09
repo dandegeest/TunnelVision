@@ -28,5 +28,5 @@ export function shootActionReason(journey: JourneyShot | null): string {
 }
 
 export function productionUnavailableReason(journey: JourneyShot | null): string {
-  return shootActionReason(journey) || "Shoot Movie is not connected in this slice.";
+  return shootActionReason(journey);
 }

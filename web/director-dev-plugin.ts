@@ -5,7 +5,7 @@ import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
-import { directorAnchorsFromRequest, directorStartFrameFromRequest, UntrustedMediaError } from "./trusted-media.ts";
+import { directorAnchorsFromRequest, directorStartFrameFromRequest, directorStoryboardFromRequest, UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolveBody, reject) => {
@@ -67,12 +67,14 @@ export function directorDevPlugin(repoRoot: string): Plugin {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
           const startFrame = directorStartFrameFromRequest(repoRoot, body);
           const anchors = directorAnchorsFromRequest(repoRoot, body);
+          const storyboard = directorStoryboardFromRequest(body);
           const result = await plan({
             reasoning: new ReplicateReasoningProvider(),
             story: typeof body.story === "string" ? body.story : "",
             agency: body.agency === "autonomous" ? "autonomous" : "directed",
             startFrame,
             ...(anchors ? { anchors } : {}),
+            ...(storyboard ? { storyboard } : {}),
           });
           sendJson(res, 200, {
             plan: result.plan,
@@ -84,6 +86,7 @@ export function directorDevPlugin(repoRoot: string): Plugin {
                 startFrameIntent: result.request.startFrameIntent,
                 startMediaId: body.startMediaId,
                 ...(result.request.anchors ? { anchors: result.request.anchors } : {}),
+                ...(result.request.storyboard ? { storyboard: result.request.storyboard } : {}),
                 systemInstruction: result.request.systemInstruction,
                 prompt: result.request.prompt,
               },

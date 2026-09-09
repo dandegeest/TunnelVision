@@ -123,13 +123,21 @@ describe("consecutive production pairs", () => {
   });
 });
 
+function expectNotPreparedNotShot(journey: Project["journeys"][number] | undefined) {
+  expect(journey?.status).toBe("ready");
+  expect(journey?.cinematographer).toBeUndefined();
+  expect(journey?.take).toBeUndefined();
+  expect(journey?.videoUrl).toBeUndefined();
+  expect(journey?.shootError).toBeUndefined();
+}
+
 describe("production leg merge", () => {
-  it("preserves JourneyShot operational status, video, and cinematographer", () => {
+  it("preserves JourneyShot operational status, video, and cinematographer when canonicals are unchanged", () => {
     const prepared: Project = {
       ...projectWithFrames([actualFrame("A", A_MEDIA, "user"), actualFrame("B", B_MEDIA)]),
       destinations: [
-        { id: "A", label: "A", image: "/old-a.jpg", status: "ready" },
-        { id: "B", label: "B", image: "/old-b.jpg", status: "ready" },
+        { id: "A", label: "A", image: A_MEDIA.imageUrl, status: "ready" },
+        { id: "B", label: "B", image: B_MEDIA.imageUrl, status: "ready" },
       ],
       journeys: [
         {
@@ -148,6 +156,56 @@ describe("production leg merge", () => {
     expect(journey?.status).toBe("rendered");
     expect(journey?.videoUrl).toBe("/clip.mp4");
     expect(journey?.cinematographer).toEqual(assessment);
+    expect(next.destinations.find((destination) => destination.id === "B")?.image).toBe(B_MEDIA.imageUrl);
+  });
+
+  it("returns a leg to not prepared and not shot when either canonical still changes", () => {
+    const shot: Project = {
+      ...projectWithFrames([actualFrame("A", A_MEDIA, "user"), actualFrame("B", B_MEDIA)]),
+      destinations: [
+        { id: "A", label: "A", image: "/old-a.jpg", status: "ready" },
+        { id: "B", label: "B", image: "/old-b.jpg", status: "ready" },
+      ],
+      journeys: [
+        {
+          id: "A-B",
+          startDestinationId: "A",
+          endDestinationId: "B",
+          durationSeconds: 8,
+          status: "rendered",
+          videoUrl: "/clip.mp4",
+          cinematographer: assessment,
+          shootError: "stale",
+          take: {
+            startShootingFrame: { mediaId: A_MEDIA.mediaId, imageUrl: A_MEDIA.imageUrl },
+            endShootingFrame: { mediaId: B_MEDIA.mediaId, imageUrl: B_MEDIA.imageUrl },
+            startPlan: {
+              version: 1,
+              camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+              destination: { point: [0.5, 0.5], protect: false, bbox: [0, 0, 1, 1] },
+              exposure: { strength: 0.08, samples: 8 },
+            },
+            endPlan: {
+              version: 1,
+              camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+              destination: { point: [0.5, 0.5], protect: false, bbox: [0, 0, 1, 1] },
+              exposure: { strength: 0.08, samples: 8 },
+            },
+            segmentPromptAddition: "Track forward.",
+            effectivePrompt: "Track forward.",
+            provider: "test",
+            model: "p-video",
+            modelVersion: null,
+            durationSeconds: 8,
+            videoInputs: { startShootingFrame: true, endShootingFrame: true },
+          },
+        },
+      ],
+    };
+    const next = projectWithSyncedProductionLegs(shot);
+    const journey = next.journeys.find((item) => item.id === "A-B");
+    expectNotPreparedNotShot(journey);
+    expect(journey?.durationSeconds).toBe(8);
     expect(next.destinations.find((destination) => destination.id === "B")?.image).toBe(B_MEDIA.imageUrl);
   });
 
@@ -190,7 +248,9 @@ describe("production leg merge", () => {
     expect(constructed.journeys.map((journey) => journey.id)).toEqual(
       planned.journeys.map((journey) => journey.id),
     );
-    expect(constructed.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expectNotPreparedNotShot(constructed.journeys.find((journey) => journey.id === "A-B"));
+    expectNotPreparedNotShot(constructed.journeys.find((journey) => journey.id === "B-C"));
+    expect(constructed.journeys.find((journey) => journey.id === "C-D")?.status).toBe("rendered");
     expect(constructed.destinations.find((destination) => destination.id === "B")?.image).toBe(
       B_MEDIA.imageUrl,
     );
@@ -203,7 +263,20 @@ describe("production leg merge", () => {
     const withLegs = projectWithSyncedProductionLegs(
       projectWithFrames([actualFrame("A", A_MEDIA, "user"), actualFrame("B", B_MEDIA)]),
     );
-    const replaced = projectWithReplacedStartImage(withLegs, {
+    const rendered: Project = {
+      ...withLegs,
+      journeys: withLegs.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              status: "rendered",
+              videoUrl: "/clip.mp4",
+              cinematographer: assessment,
+            }
+          : journey,
+      ),
+    };
+    const replaced = projectWithReplacedStartImage(rendered, {
       mediaId: "upload-ffffffffffffffffffffffffffffffff",
       imageUrl: "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
     });
@@ -211,5 +284,6 @@ describe("production leg merge", () => {
       "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
     );
     expect(replaced.journeys.map((journey) => journey.id)).toEqual(["A-B"]);
+    expectNotPreparedNotShot(replaced.journeys.find((journey) => journey.id === "A-B"));
   });
 });

@@ -240,12 +240,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
   await expect(page.getByLabel("Plan movie")).toBeDisabled();
   await expect(page.getByLabel("Add Destination")).toHaveCount(0);
-
-  await page.getByRole("button", { name: "Shoot", exact: true }).click();
-  await expect(
-    page.getByText("Nothing is ready to shoot until the journey has actual adjacent destinations."),
-  ).toHaveCount(2);
-  await page.getByRole("button", { name: "Plan", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeDisabled();
 
   await page.getByLabel("Destination A actions").click();
   await expect(page.getByRole("menuitem", { name: "Upload image" })).toBeVisible();
@@ -258,7 +253,9 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   });
   await expect(page.getByRole("menuitem", { name: "Upload image" })).toHaveCount(0);
   await expect(page.locator('img[src^="/api/runtime-media/upload-"]')).toBeVisible();
-  await expect(page.getByLabel("Add Destination")).toHaveCount(0);
+  await expect(page.getByLabel("Add Destination")).toBeVisible();
+  await expect(page.getByLabel("Plan movie")).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeEnabled();
 
   await page.getByRole("button", { name: "Shoot", exact: true }).click();
   await expect(
@@ -271,7 +268,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Plan movie").click();
 
   await expect(page.getByLabel("Generate destination B")).toBeVisible();
-  await expect(page.getByLabel("Add Destination")).toHaveCount(0);
+  await expect(page.getByLabel("Add Destination")).toBeVisible();
   await expect(page.getByLabel("Storyboard C")).toBeVisible();
   await expect(page.getByLabel("Generate destination C")).toHaveCount(0);
 
@@ -292,8 +289,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Generate destination C")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Shoot", exact: true }).click();
-  await expect(page.getByLabel("Journey A-B, ready")).toBeVisible();
-  await expect(page.getByLabel("Journey B-C, ready")).toBeVisible();
+  await expect(page.getByLabel("Journey A-B, to block")).toBeVisible();
+  await expect(page.getByLabel("Journey B-C, to block")).toBeVisible();
   await expect(page.getByLabel("Destination A")).toBeVisible();
   await expect(page.getByLabel("Destination B")).toBeVisible();
   await expect(page.getByLabel("Destination C")).toBeVisible();
@@ -301,12 +298,12 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
     page.getByText("Nothing is ready to shoot until the journey has actual adjacent destinations."),
   ).toHaveCount(0);
 
-  await page.getByLabel("Journey A-B, ready").click();
+  await page.getByLabel("Journey A-B, to block").click();
   await expect(page.getByAltText("A-B start A")).toHaveCount(2);
   await expect(page.getByAltText("A-B end B")).toHaveCount(2);
   await page.getByLabel("Prepare A-B").click();
   await expect(page.getByText("Track forward through the connected volumes.")).toBeVisible();
-  await expect(page.getByLabel("Journey A-B, ready, CM Ready")).toBeVisible();
+  await expect(page.getByLabel("Journey A-B, blocked, clear")).toBeVisible();
   await expect(page.getByText("Prepared", { exact: true })).toBeVisible();
   await page.locator("summary", { hasText: "Shot" }).click();
   await expect(page.getByText("Advance from the current volume into the next.")).toBeVisible();
@@ -316,7 +313,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
 
   await page.getByLabel("Shoot A-B").click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
-  await expect(page.getByLabel("Journey A-B, rendered, CM Ready")).toBeVisible();
+  await expect(page.getByLabel("Journey A-B, in the can, clear")).toBeVisible();
   await page.locator("summary", { hasText: "Take" }).click();
   await expect(page.getByAltText("A-B start shooting frame")).toBeVisible();
   await expect(page.getByAltText("A-B end shooting frame")).toBeVisible();
@@ -327,7 +324,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   ).toBeVisible();
   await expect(page.getByText(/First person POV camera continuously moving forward/)).toBeVisible();
 
-  await page.getByLabel("Journey B-C, ready").click();
+  await page.getByLabel("Journey B-C, to block").click();
   await expect(page.getByLabel("Prepare B-C")).toBeVisible();
   await expect(page.getByText("Track forward through the connected volumes.")).toHaveCount(0);
   await expect(page.getByLabel("Shoot B-C")).toHaveCount(0);

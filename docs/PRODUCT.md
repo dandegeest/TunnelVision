@@ -66,25 +66,29 @@ disconnected workflows:
 -   Production evidence can send the filmmaker back to Plan.
 
 **Current implementation:** Product Slice 3 adds a thin Director that
-turns the filmmaker story plus existing destinations into
+turns the filmmaker story plus the complete ordered storyboard into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
 Replicate). A TunnelVision project is a **partially specified movie**:
-the filmmaker may supply some destinations and leave others
-unresolved. The Director fills unspecified connective beats and treats
-destinations that already have actual media as authoritative
-constraints. It does not replace, restyle, reorder, or rewrite those
-stills. Agency (Directed vs Autonomous) is orthogonal and is not a
-stand-in for Discovery. The Plan composer is a temporary draft. Accepted Send / Plan Movie
-submissions append the exact draft to conversation history with a pending
-Director entry that resolves in place, update
-`Project.story`, and clear the composer. It is not a live display of
-current project story.
+the filmmaker may supply as much or as little of the storyboard as they
+want before asking the Director to plan. Starting frame A must be an
+actual image before PLAN, Add Destination, or Shoot production. Add
+Destination is structural only: it appends one unresolved slot and does
+not invoke the Director or generate an image. Story text is project
+intent; editing it does not plan. **PLAN** in the Plan workspace is the
+only UI action that invokes Director planning. The Director treats
+actual filmmaker-specified canonicals as authoritative: it resolves
+unspecified directing decisions and does not overwrite specified
+filmmaking decisions or generate images. Agency (Directed vs Autonomous) is orthogonal and is not a
+stand-in for Discovery. The conversation rail remains visible as a
+future command surface; Send is inactive and does not mutate the
+storyboard. Director activity may still appear there when PLAN runs.
 After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned edit
 (`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
 planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
+PLAN is not a prerequisite for shooting actual adjacent canonicals.
 PREPARE on a selected actual leg runs the existing Cinematographer
 against those stills and stores choreography on that JourneyShot.
 SHOOT on a prepared leg derives a deterministic CameraMotionPlan v1,
@@ -94,18 +98,21 @@ clip. The current cheap generator is Replicate `prunaai/p-video` at the
 MediaProvider boundary; it receives A′ as `image` and B′ as
 `last_frame_image`. Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
-CameraMotionPlan; a narrow deterministic bridge does. The application starts as a
+CameraMotionPlan; a narrow deterministic bridge does. Export Movie
+concatenates whatever rendered journey clips currently exist, in
+storyboard order, without transitions, bridges, or repair. Incomplete
+exports report missing legs. The application starts as a
 genuinely new project: untitled, empty story, unresolved opening
 frame A, and no destinations, journeys, assessments, or media. Forest
 A→F and Wardrobe Loop remain research evidence and explicit test
 fixtures; they do not initialize the running product. The filmmaker
-provides starting frame A, describes the movie, asks the Director to
-plan, and constructs unresolved beats through the existing Generate
+provides starting frame A, may add unresolved destination slots,
+describes the movie, asks the Director to PLAN, and constructs unresolved beats through the existing Generate
 flow. Plan can replan
 around existing destinations; specified stills survive. The Director runtime resolves
 that identity from Project state; it does not independently substitute
-a catalog still. Accepted Plan submissions update `Project.story`. The filmmaker can
-replace a destination's canonical still in place. Uploaded media is
+a catalog still. Story edits update `Project.story` without planning. The filmmaker can
+replace a destination's canonical still in place. Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot. Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
 as provider input. After replacement, that destination keeps its identity. Visual checkpoint for the frozen Plan shell:
@@ -188,10 +195,11 @@ architecture.
     mismatch is marked on the affected thumbnail. Media Info is an
     explicit opt-in strip, not a global diagnostic banner. Destination
     actions live on the destination card (Replace…); Add Destination
-    extends the storyboard without encoding construction strategy.
-    Conversation remains session UI: one Director entry goes from
+    extends the storyboard without encoding construction strategy and
+    does not invoke the Director. Conversation remains session UI:
+    PLAN appends a Director entry that goes from
     planning to complete/failed, carrying structured evidence and a
-    filmmaker-facing summary. Entry timestamps are stored data. The
+    filmmaker-facing summary. Send is not an active filmmaking command. Entry timestamps are stored data. The
     filmmaking conversation rail is a project-level workspace the
     filmmaker can hide or show; its visibility is independent of
     Plan / Shoot and Directed / Autonomous.
@@ -316,7 +324,9 @@ suitability / concerns. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
 hard gate and not a prediction of whether the stochastic video model
 will succeed. A JourneyShot may progress even when CM reports
-`not_shootable`. CM does **not** yet emit CameraMotionPlan, run
+`not_shootable`. Shoot tiles show to block / blocked / rolling / in the can,
+with clear / hold / no go outlines after PREPARE; inspector copy stays
+Ready / Needs review / Not shootable. CM does **not** yet emit CameraMotionPlan, run
 Camotion, or generate video.
 
 The immediate product goal is an end-to-end working filmmaking
@@ -569,12 +579,14 @@ wired in this slice. Approximate duration and destination pointing
 are later collaborative controls.
 
 **Current implementation:** Product Slice 3 is the current Plan | Shoot
-shell. Plan is conversation → storyboard; Send asks the Director to
-plan unspecified beats around existing destinations. After planning, Construct builds the next
-planned beat from the preceding actual destination. Later beats and
-video remain unwired in the product until later slices. A forest A→F
+shell. Plan is an explicit PLAN action over the current storyboard;
+the conversation rail is informational. After planning, Construct builds the next
+planned beat from the preceding actual destination. Later beats remain
+unresolved until the filmmaker constructs them. Export Movie concatenates
+rendered journey clips that exist; it is a test convenience, not an
+Edit workspace. A forest A→F
 research spike assembled a review movie outside the product UI; do
-not treat that as a Render Movie feature. That spike showed a
+not treat that research concat as an NLE. That spike showed a
 directionally coherent 30-second journey
 (forest → mouth → tube → crystal → portal → void) whose destination /
 world continuity did **not** automatically produce physical traversal
@@ -583,8 +595,9 @@ view of the current Project's Destinations / Journey timeline. The running appli
 project rather than Forest A→F. Forest remains research evidence and
 a controlled test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does not independently
-substitute a catalog still. Accepted Plan submissions update `Project.story` in
-Plan and can replace a destination's canonical still in place.
+substitute a catalog still. Story edits update `Project.story` without
+planning. The filmmaker can replace a destination's canonical still in place.
+Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
 Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
 be resolved as provider input. After replacement, that destination keeps its identity. Visual

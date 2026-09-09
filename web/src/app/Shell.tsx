@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useProject } from "../project/ProjectProvider";
+import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import { FilmmakingFrame } from "./FilmmakingFrame";
 import { PlanView } from "./PlanView";
 import { ProductionBar } from "./ProductionBar";
@@ -50,7 +51,8 @@ function Brand() {
 }
 
 function ViewSwitch() {
-  const { view, setView } = useProject();
+  const { view, setView, project } = useProject();
+  const canOpenShoot = hasAuthoritativeStartingFrame(project);
   return (
     <nav className="flex shrink-0 items-center gap-1 rounded-full border border-[#3a342c] p-1 text-sm">
       <button
@@ -62,7 +64,9 @@ function ViewSwitch() {
       </button>
       <button
         type="button"
-        className={`rounded-full px-4 py-1 ${view === "shoot" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"}`}
+        className={`rounded-full px-4 py-1 ${view === "shoot" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"} disabled:cursor-not-allowed disabled:opacity-50`}
+        disabled={!canOpenShoot}
+        title={canOpenShoot ? "Shoot the current production legs." : "Upload starting frame A before shooting."}
         onClick={() => setView("shoot")}
       >
         Shoot

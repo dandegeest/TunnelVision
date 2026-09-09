@@ -195,11 +195,11 @@ evidence and an explicit test fixture.
 The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 The Director architecture
-accepts story plus `MediaInput` for the opening and any other existing
-destination stills. The Plan composer is a temporary draft;
-accepted planning submissions update `Project.story` and append that
-exact text to conversation history with a pending Director entry that
-resolves in place. The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
+accepts story plus the complete ordered storyboard and `MediaInput` for
+actual destination stills. The Plan composer edits `Project.story`
+without planning; PLAN in the Plan workspace invokes the Director.
+The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
+Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
 Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
 be resolved as provider input. After replacement, that destination keeps

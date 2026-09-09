@@ -141,3 +141,37 @@ export function directorAnchorsFromRequest(
     return anchor;
   });
 }
+
+export function directorStoryboardFromRequest(body: Record<string, unknown>): Array<{
+  id: string;
+  label: string;
+  specified: boolean;
+  intent?: string;
+  visualDescription?: string;
+}> | undefined {
+  if (!Array.isArray(body.storyboard) || body.storyboard.length < 1) {
+    return undefined;
+  }
+  return body.storyboard.map((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new UntrustedMediaError(`Invalid Director storyboard[${index}]`);
+    }
+    const record = item as Record<string, unknown>;
+    const id = typeof record.id === "string" ? record.id.trim() : "";
+    if (!id) {
+      throw new UntrustedMediaError(`Invalid Director storyboard[${index}]`);
+    }
+    const label =
+      typeof record.label === "string" && record.label.trim() ? record.label.trim() : id;
+    const intent = typeof record.intent === "string" ? record.intent.trim() : "";
+    const visualDescription =
+      typeof record.visualDescription === "string" ? record.visualDescription.trim() : "";
+    return {
+      id,
+      label,
+      specified: record.specified === true,
+      ...(intent ? { intent } : {}),
+      ...(visualDescription ? { visualDescription } : {}),
+    };
+  });
+}

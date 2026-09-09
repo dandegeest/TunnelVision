@@ -45,6 +45,7 @@ describe("default product project", () => {
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
     expect(html).toContain('placeholder="Describe the movie…"');
+    expect(html).toMatch(/disabled[^>]*>Shoot<|>Shoot<[^>]*disabled/);
   });
 });
 

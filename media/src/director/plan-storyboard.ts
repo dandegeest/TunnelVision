@@ -32,6 +32,13 @@ export type DirectorPlanInput = {
     readonly visualDescription?: string;
     readonly image?: MediaInput;
   }[];
+  readonly storyboard?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly specified: boolean;
+    readonly intent?: string;
+    readonly visualDescription?: string;
+  }[];
 };
 
 export type DirectorRequestPayload = {
@@ -43,6 +50,13 @@ export type DirectorRequestPayload = {
   readonly anchors?: readonly {
     readonly id: string;
     readonly label: string;
+    readonly intent?: string;
+    readonly visualDescription?: string;
+  }[];
+  readonly storyboard?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly specified: boolean;
     readonly intent?: string;
     readonly visualDescription?: string;
   }[];
@@ -91,6 +105,7 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
             label: startFrameId,
             ...(startFrameIntent ? { intent: startFrameIntent } : {}),
             hasImage: true,
+            specified: true as const,
           },
           ...extraAnchors.map((anchor) => ({
             id: anchor.id,
@@ -100,21 +115,45 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
               ? { visualDescription: anchor.visualDescription.trim() }
               : {}),
             ...(anchor.image ? { hasImage: true as const } : {}),
+            specified: Boolean(anchor.image),
           })),
         ]
       : undefined;
+  const promptStoryboard = input.storyboard?.map((slot) => {
+    const isOpening = slot.id.trim().toLowerCase() === startFrameId.toLowerCase();
+    const extra = extraAnchors.find(
+      (anchor) => anchor.id.trim().toLowerCase() === slot.id.trim().toLowerCase(),
+    );
+    const hasImage = isOpening || Boolean(extra?.image);
+    return {
+      id: slot.id,
+      label: slot.label,
+      specified: slot.specified,
+      ...(slot.intent?.trim() ? { intent: slot.intent.trim() } : {}),
+      ...(slot.visualDescription?.trim() ? { visualDescription: slot.visualDescription.trim() } : {}),
+      ...(hasImage ? { hasImage: true as const } : {}),
+    };
+  });
   const prompt = directorUserPrompt({
     story,
     startFrameId,
     startFrameIntent,
     agency: input.agency,
     ...(promptAnchors ? { anchors: promptAnchors } : {}),
+    ...(promptStoryboard && promptStoryboard.length > 0 ? { storyboard: promptStoryboard } : {}),
   });
   const textualAnchors = promptAnchors?.map(({ id, label, intent, visualDescription }) => ({
     id,
     label,
     ...(intent ? { intent } : {}),
     ...(visualDescription ? { visualDescription } : {}),
+  }));
+  const textualStoryboard = input.storyboard?.map((slot) => ({
+    id: slot.id,
+    label: slot.label,
+    specified: slot.specified,
+    ...(slot.intent?.trim() ? { intent: slot.intent.trim() } : {}),
+    ...(slot.visualDescription?.trim() ? { visualDescription: slot.visualDescription.trim() } : {}),
   }));
   const payload: DirectorRequestPayload = {
     story,
@@ -123,6 +162,7 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
     ...(startFrameIntent ? { startFrameIntent } : {}),
     startImage: input.startFrame.image,
     ...(textualAnchors ? { anchors: textualAnchors } : {}),
+    ...(textualStoryboard && textualStoryboard.length > 0 ? { storyboard: textualStoryboard } : {}),
     systemInstruction: DIRECTOR_SYSTEM_INSTRUCTION,
     prompt,
   };

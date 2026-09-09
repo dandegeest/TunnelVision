@@ -10,8 +10,8 @@ import {
   type DisplayProvenance,
   type FramePreflightWarning,
 } from "../project/media-preflight";
-import { STARTING_FRAME_ACCEPT, canProvideStartingFrame } from "../project/starting-frame";
-import { canAddStoryboardDestination } from "../project/storyboard";
+import { STARTING_FRAME_ACCEPT, canUploadStoryboardFrame } from "../project/starting-frame";
+import { canAddStoryboardDestination, canPlanMovie } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
@@ -432,6 +432,7 @@ export function PlanView() {
     selection,
     select,
     directorStatus,
+    planWithDirector,
     replaceDestinationImage,
     addDestination,
     constructingBeatId,
@@ -440,6 +441,7 @@ export function PlanView() {
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
+  const canPlan = canPlanMovie(project) && !planning;
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
@@ -483,6 +485,24 @@ export function PlanView() {
             }
           }}
         />
+        <div className="mb-4 flex items-center justify-end">
+          <button
+            type="button"
+            aria-label="Plan movie"
+            disabled={!canPlan}
+            title={
+              canPlanMovie(project)
+                ? "Ask the Director to plan unresolved directing decisions."
+                : "Upload starting frame A before planning."
+            }
+            onClick={() => {
+              void planWithDirector();
+            }}
+            className="rounded border border-[#3a342c] px-3 py-1 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
+          >
+            {planning ? "Planning…" : "PLAN"}
+          </button>
+        </div>
         <ol className="grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7">
           {project.storyboard.map((frame) => {
             const selectedCard = frame.id === selectedId;
@@ -562,7 +582,7 @@ export function PlanView() {
                     data-destination-card={frame.id}
                   >
                     {frameMedia}
-                    {canProvideStartingFrame(frame) ? (
+                    {canUploadStoryboardFrame(frame) ? (
                       <DestinationMenu
                         frameId={frame.id}
                         label={frame.label}

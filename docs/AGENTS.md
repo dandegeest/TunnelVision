@@ -86,25 +86,30 @@ Automated scoring of displacement or traversal is an **open question**.
 PreferenceState schema is an **open question**. A thin Director
 storyboard planner now lives in `media/src/director/` (Product Slice 3).
 The project is a partially specified movie. The Director fills
-unspecified connective beats and preserves existing destinations as
-authoritative constraints. The application starts as a new untitled
+unspecified directing decisions and preserves existing destinations as
+authoritative constraints. It does not overwrite specified filmmaking
+decisions or generate images. The application starts as a new untitled
 project rather than a demonstration journey. Forest A→F remains
 research evidence and an explicit test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does
-not independently substitute a catalog still. The filmmaker's Plan composer is a temporary draft; accepted planning
-submissions update `Project.story` and append that exact text to
-conversation history. The filmmaker can replace a destination's
-canonical still in place from the destination menu. Add Destination
+not independently substitute a catalog still. Story text is project
+intent; PLAN in the Plan workspace is the only Director invocation.
+Add Destination appends an unresolved slot after actual A and does not
+call the Director. The filmmaker can replace a destination's
+canonical still in place from the destination menu. Replacing either
+canonical still on a production leg returns that JourneyShot to not
+prepared and not shot. Add Destination
 extends the storyboard after the last configured frame; it is not
 itself a destination. Uploaded media is session/dev-runtime trusted media, not
 durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
-Video remains unwired in the product. Shoot is a production view of
+Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically, and PREPARE runs the existing Cinematographer on the
-selected leg. SHOOT on a prepared leg runs Camotion and a configurable
+selected leg. Shoot tiles read to block / blocked / rolling / in the can;
+after PREPARE the outline is clear / hold / no go. SHOOT on a prepared leg runs Camotion and a configurable
 video model; the current development generator is `prunaai/p-video` with
 A′ as `image` and B′ as `last_frame_image`. After replacement, that destination
 keeps its identity. First destination-construction observation:

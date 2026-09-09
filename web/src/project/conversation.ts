@@ -57,15 +57,15 @@ export function formatConversationClock(createdAt: string): string {
   return `${hour12}:${minutes} ${suffix}`;
 }
 
-export function preparePlanSubmission(draft: string, project: Project): PlanSubmission {
-  if (!draft.trim()) {
+export function prepareDirectorPlan(project: Project): PlanSubmission {
+  if (!project.story.trim()) {
     return { ok: false, reason: "empty" };
   }
   try {
     return {
       ok: true,
-      submitted: draft,
-      request: directorPlanRequestFromProject({ ...project, story: draft }),
+      submitted: project.story,
+      request: directorPlanRequestFromProject(project),
     };
   } catch (error) {
     return {

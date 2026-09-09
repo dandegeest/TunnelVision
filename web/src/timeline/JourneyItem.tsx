@@ -1,9 +1,27 @@
 import type { JourneyShot } from "../project/types";
 import {
-  cinematographerShootabilityLabel,
-  journeyLegStatusLabel,
+  journeySegmentAriaLabel,
+  journeySegmentCaption,
 } from "../project/cinematographer";
 import type { LaidOutJourney } from "./geometry";
+
+export function journeySegmentTone(journey: JourneyShot): string {
+  const fill = journey.status === "rendered" ? "bg-[#142014]" : "bg-transparent";
+  const shootability = journey.cinematographer?.shootability;
+  if (!shootability) {
+    return journey.status === "rendered"
+      ? `border-[#3f5a3a] ${fill} text-[#d7e7cf]`
+      : `border-[#3a342c] ${fill} text-[#cfc6b8]`;
+  }
+  switch (shootability) {
+    case "shootable":
+      return `border-[#3f5a3a] ${fill} text-[#d7e7cf]`;
+    case "needs_review":
+      return `border-[#d4b36a] border-dashed ${fill} text-[#e4d2a4]`;
+    case "not_shootable":
+      return `border-[#c45c38] ${fill} text-[#f0c2a8]`;
+  }
+}
 
 export function JourneyItem({
   laid,
@@ -16,18 +34,11 @@ export function JourneyItem({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const tone = "border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
+  const tone = journeySegmentTone(journey);
   const ring = selected
     ? "ring-2 ring-[#ece7df]"
     : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";
-  const operational = journeyLegStatusLabel(journey);
-  const cm = journey.cinematographer
-    ? cinematographerShootabilityLabel(journey.cinematographer.shootability)
-    : undefined;
-  const caption = cm ? `${operational} · CM ${cm}` : operational;
-  const ariaLabel = cm
-    ? `Journey ${journey.id}, ${operational}, CM ${cm}`
-    : `Journey ${journey.id}, ${operational}`;
+  const caption = journeySegmentCaption(journey);
 
   return (
     <button
@@ -35,7 +46,7 @@ export function JourneyItem({
       className={`absolute top-1 box-border h-12 overflow-hidden rounded border px-2 text-left text-xs tracking-[0.12em] outline-none ${tone} ${ring}`}
       style={{ left: laid.left, width: Math.max(laid.width, 8) }}
       onClick={onSelect}
-      aria-label={ariaLabel}
+      aria-label={journeySegmentAriaLabel(journey)}
       title={journey.cinematographer?.summary}
     >
       <span className="block truncate pt-1">{journey.id}</span>

@@ -5,7 +5,10 @@ import {
   canAssessJourney,
   cinematographerRequestFromProject,
   cinematographerShootabilityLabel,
+  cinematographerShootabilityTileLabel,
   journeyLegStatusLabel,
+  journeySegmentAriaLabel,
+  journeySegmentCaption,
   projectWithCinematographerAssessment,
   requestCinematographerAssessment,
 } from "./cinematographer";
@@ -121,25 +124,41 @@ describe("Cinematographer actual-set assessment", () => {
     expect(first.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(shootableAB);
   });
 
-  it("maps shootability to filmmaker-facing Ready / Needs review / Not shootable without replacing operational status", () => {
+  it("maps inspector shootability without replacing operational status, and uses the filmmaking ladder on the tile", () => {
     expect(cinematographerShootabilityLabel("shootable")).toBe("Ready");
     expect(cinematographerShootabilityLabel("needs_review")).toBe("Needs review");
     expect(cinematographerShootabilityLabel("not_shootable")).toBe("Not shootable");
+    expect(cinematographerShootabilityTileLabel("shootable")).toBe("clear");
+    expect(cinematographerShootabilityTileLabel("needs_review")).toBe("hold");
+    expect(cinematographerShootabilityTileLabel("not_shootable")).toBe("no go");
     const rendered = createForestProject().journeys[0]!;
     expect(rendered.status).toBe("rendered");
-    expect(journeyLegStatusLabel({ ...rendered, cinematographer: shootableAB })).toBe("rendered");
+    expect(journeyLegStatusLabel(rendered)).toBe("in the can");
+    expect(journeyLegStatusLabel({ ...rendered, cinematographer: shootableAB })).toBe("in the can");
     expect(
       journeyLegStatusLabel({
         ...rendered,
         cinematographer: { ...shootableAB, shootability: "needs_review" },
       }),
-    ).toBe("rendered");
+    ).toBe("in the can");
     expect(
       journeyLegStatusLabel({
         ...rendered,
         cinematographer: { ...shootableAB, shootability: "not_shootable" },
       }),
-    ).toBe("rendered");
+    ).toBe("in the can");
+    const unblocked = { ...rendered, status: "ready" as const, cinematographer: undefined, videoUrl: undefined };
+    expect(journeyLegStatusLabel(unblocked)).toBe("to block");
+    expect(journeySegmentCaption(unblocked)).toBe("to block");
+    expect(journeySegmentAriaLabel(unblocked)).toBe("Journey A-B, to block");
+    const blocked = { ...unblocked, cinematographer: shootableAB };
+    expect(journeyLegStatusLabel(blocked)).toBe("blocked");
+    expect(journeySegmentCaption(blocked)).toBe("blocked · clear");
+    expect(journeySegmentAriaLabel({ ...blocked, cinematographer: { ...shootableAB, shootability: "needs_review" } })).toBe(
+      "Journey A-B, blocked, hold",
+    );
+    expect(journeyLegStatusLabel({ ...blocked, status: "shooting" })).toBe("rolling");
+    expect(journeySegmentCaption({ ...rendered, cinematographer: shootableAB })).toBe("in the can · clear");
   });
 
   it("does not gate JourneyShot progression when CM says not_shootable", () => {
