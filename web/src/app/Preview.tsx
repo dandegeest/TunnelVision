@@ -1,13 +1,65 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
+import { canAssessJourney, journeyShootButtonLabel } from "../project/cinematographer";
+import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById } from "../project/types";
+import { destinationById, type JourneyShot } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
 
 function PreviewMonitor({ children }: { children: ReactNode }) {
   return (
     <div className="preview-stage">
       <div className="preview-monitor">{children}</div>
+    </div>
+  );
+}
+
+function JourneyActions({
+  journey,
+  assessing,
+  shooting,
+  canAssess,
+  canShoot,
+  playable,
+  playheadTime,
+  onBlock,
+  onShoot,
+}: {
+  journey: JourneyShot;
+  assessing: boolean;
+  shooting: boolean;
+  canAssess: boolean;
+  canShoot: boolean;
+  playable: boolean;
+  playheadTime: number;
+  onBlock: () => void;
+  onShoot: () => void;
+}) {
+  const shootLabel = journeyShootButtonLabel(journey);
+  const busy = assessing || shooting;
+  return (
+    <div className="flex h-8 flex-none items-center gap-2">
+      <button
+        type="button"
+        className="rounded border border-[#3a342c] px-3 py-1 text-sm text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
+        disabled={!canAssess || busy}
+        aria-label={`Block ${journey.id}`}
+        onClick={onBlock}
+      >
+        {assessing ? "Blocking…" : "Block"}
+      </button>
+      <button
+        type="button"
+        className="rounded border border-[#3a342c] px-3 py-1 text-sm text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
+        disabled={!canShoot || busy}
+        aria-label={`${shootLabel} ${journey.id}`}
+        onClick={onShoot}
+      >
+        {shooting ? "Shooting…" : shootLabel}
+      </button>
+      {playable ? (
+        <p className="min-w-0 truncate text-sm text-[#9a8f7e]">Rendered · {playheadTime.toFixed(1)}s</p>
+      ) : null}
     </div>
   );
 }
@@ -21,6 +73,10 @@ export function Preview() {
     playheadTime,
     setPlayheadTime,
     syncJourneyClipDuration,
+    assessJourney,
+    assessingJourneyIds,
+    shootJourney,
+    shootingJourneyIds,
   } = useProject();
   const videoRef = useRef<HTMLVideoElement>(null);
   const layout = layoutTimeline(project.destinations, project.journeys, 1);
@@ -45,6 +101,10 @@ export function Preview() {
     : undefined;
   const destination = startDestination;
   const shootEmpty = project.journeys.length === 0;
+  const assessing = selectedJourney ? assessingJourneyIds.includes(selectedJourney.id) : false;
+  const shooting = selectedJourney
+    ? shootingJourneyIds.includes(selectedJourney.id) || selectedJourney.status === "shooting"
+    : false;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -69,10 +129,6 @@ export function Preview() {
   let caption = destination ? `Destination ${destination.label}` : "";
   if (shootEmpty) {
     caption = "Nothing is ready to shoot until the journey has actual adjacent destinations.";
-  } else if (selectedJourney && !playable) {
-    caption = "This journey is not a finished movie clip.";
-  } else if (playable && selectedJourney) {
-    caption = `Rendered · ${playheadTime.toFixed(1)}s`;
   } else if (occurrence?.arrivalBlocked) {
     caption = ARRIVAL_BLOCKED_COPY;
   }
@@ -112,11 +168,25 @@ export function Preview() {
           <img src={destination.image} alt={`Destination ${destination.label}`} />
         ) : null}
       </PreviewMonitor>
-      <p
-        className={`h-5 flex-none truncate text-sm ${occurrence?.arrivalBlocked || (selectedJourney && !playable) ? "text-[#f0c2a8]" : "text-[#9a8f7e]"}`}
-      >
-        {caption}
-      </p>
+      {selectedJourney ? (
+        <JourneyActions
+          journey={selectedJourney}
+          assessing={assessing}
+          shooting={shooting}
+          canAssess={canAssessJourney(project, selectedJourney)}
+          canShoot={canShootJourney(project, selectedJourney)}
+          playable={playable}
+          playheadTime={playheadTime}
+          onBlock={() => void assessJourney(selectedJourney.id)}
+          onShoot={() => void shootJourney(selectedJourney.id)}
+        />
+      ) : (
+        <p
+          className={`h-5 flex-none truncate text-sm ${occurrence?.arrivalBlocked ? "text-[#f0c2a8]" : "text-[#9a8f7e]"}`}
+        >
+          {caption}
+        </p>
+      )}
     </section>
   );
 }

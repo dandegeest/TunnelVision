@@ -10,7 +10,7 @@ import {
   journeyLegStatusLabel,
   journeySegmentAriaLabel,
   journeySegmentCaption,
-  journeyTileAction,
+  journeyShootButtonLabel,
   journeysReadyToBlock,
   projectWithCinematographerAssessment,
   requestCinematographerAssessment,
@@ -162,7 +162,13 @@ describe("Cinematographer actual-set assessment", () => {
         cinematographer: { ...shootableAB, shootability: "not_shootable" },
       }),
     ).toBe("Ready for edit");
-    const unblocked = { ...rendered, status: "ready" as const, cinematographer: undefined, videoUrl: undefined };
+    const unblocked = {
+      ...rendered,
+      status: "ready" as const,
+      cinematographer: undefined,
+      videoUrl: undefined,
+      take: undefined,
+    };
     expect(journeyLegStatusLabel(unblocked)).toBe("Ready to block");
     expect(journeySegmentCaption(unblocked)).toBe("Ready to block");
     expect(journeySegmentAriaLabel(unblocked)).toBe("Journey A-B, Ready to block");
@@ -187,10 +193,11 @@ describe("Cinematographer actual-set assessment", () => {
     ).toBe("Journey A-B, Ready to shoot, clear, Variable");
     expect(journeyLegStatusLabel({ ...blocked, status: "shooting" })).toBe("Ready to shoot");
     expect(journeySegmentCaption({ ...rendered, cinematographer: shootableAB })).toBe("Ready for edit · clear");
-    expect(journeyTileAction(unblocked)).toBe("block");
-    expect(journeyTileAction(blocked)).toBe("shoot");
-    expect(journeyTileAction(rendered)).toBeNull();
-    expect(journeyTileAction({ ...blocked, status: "shooting" })).toBe("shoot");
+    expect(journeyShootButtonLabel(unblocked)).toBe("Shoot");
+    expect(journeyShootButtonLabel(blocked)).toBe("Shoot");
+    expect(journeyShootButtonLabel(rendered)).toBe("Reshoot");
+    expect(journeyShootButtonLabel({ ...blocked, status: "shooting" })).toBe("Shoot");
+    expect(journeyShootButtonLabel({ ...rendered, status: "shooting" })).toBe("Reshoot");
   });
 
   it("does not gate JourneyShot progression when CM says not_shootable", () => {

@@ -8,7 +8,6 @@ import {
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import { canAssessJourney, cinematographerShootabilityLabel, journeyLegStatusLabel, locomotionPaceLabel } from "../project/cinematographer";
-import { canShootJourney } from "../project/shoot";
 import { canReshootDestinationFrame } from "../project/destination";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake } from "../project/types";
@@ -20,11 +19,7 @@ export function Inspector() {
   const {
     project,
     selection,
-    assessJourney,
-    assessingJourneyIds,
     cinematographerError,
-    shootJourney,
-    shootingJourneyIds,
     shootError,
     constructingBeatId,
     setDestinationPlan,
@@ -135,9 +130,6 @@ export function Inspector() {
   const playable = journeyIsPlayable(journey);
   const assessment = journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
-  const assessing = assessingJourneyIds.includes(journey.id);
-  const canShoot = canShootJourney(project, journey);
-  const shooting = shootingJourneyIds.includes(journey.id) || journey.status === "shooting";
   const take = journey.take;
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
   const endDestination = journey.endDestinationId
@@ -191,15 +183,9 @@ export function Inspector() {
         </p>
       )}
       {canAssess ? (
-        <button
-          type="button"
-          className="self-start rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-          disabled={assessing || shooting}
-          aria-label={`Block ${journey.id}`}
-          onClick={() => void assessJourney(journey.id)}
-        >
-          {assessing ? "Blocking…" : "Block"}
-        </button>
+        assessment ? null : (
+          <p className="text-[#9a8f7e]">Block this journey before shooting.</p>
+        )
       ) : (
         <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
       )}
@@ -207,19 +193,6 @@ export function Inspector() {
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
           {cinematographerError}
         </p>
-      ) : null}
-      {assessment ? (
-        <button
-          type="button"
-          className="self-start rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-          disabled={!canShoot || shooting}
-          aria-label={`Shoot ${journey.id}`}
-          onClick={() => void shootJourney(journey.id)}
-        >
-          {shooting ? "Shooting…" : "Shoot"}
-        </button>
-      ) : canAssess ? (
-        <p className="text-[#9a8f7e]">Block this journey before shooting.</p>
       ) : null}
       {shootError || journey.shootError ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">

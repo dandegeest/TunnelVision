@@ -150,8 +150,9 @@ estimate depth maps.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically, and BLOCK runs the existing Cinematographer on the
-selected leg. The selected segment also shows the next move (Block or
-Shoot) until a clip exists. Shoot tiles read Ready to block / Ready to shoot / Ready for edit; after BLOCK the outline is clear / hold / no go.
+selected leg. Block and Shoot live under the preview for the selected
+leg; Shoot reads Reshoot after a clip exists. Journey tiles keep status
+copy only. Shoot tiles read Ready to block / Ready to shoot / Ready for edit; after BLOCK the outline is clear / hold / no go.
 The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels.
 While BLOCK or SHOOT runs, that segment uses the same generating

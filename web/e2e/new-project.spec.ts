@@ -350,23 +350,25 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Journey A-B, Ready to block").click();
   await expect(page.getByAltText("A-B start A")).toHaveCount(2);
   await expect(page.getByAltText("A-B end B")).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Block A-B" })).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Shoot A-B" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Block A-B" }).first().click();
+  await expect(page.getByRole("button", { name: "Block A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Block A-B" }).click();
   const journeyInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A-B" }) });
   await expect(journeyInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
   await expect(page.getByLabel("Journey A-B, Ready to shoot, clear, Fast")).toBeVisible();
   await expect(page.getByText("Blocked", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Shoot A-B" })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(1);
   await journeyInspector.locator("summary", { hasText: "Shot" }).click();
   await expect(journeyInspector.getByText("Advance from the current volume into the next.")).toBeVisible();
   await expect(journeyInspector.getByText("Track forward through the visible opening into the next volume.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Shoot A-B" }).first()).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toBeEnabled();
 
-  await page.getByRole("button", { name: "Shoot A-B" }).first().click();
+  await page.getByRole("button", { name: "Shoot A-B", exact: true }).click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
   await expect(page.getByLabel("Journey A-B, Ready for edit, clear, Fast")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Shoot A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Reshoot A-B", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Block A-B" })).toHaveCount(1);
   await journeyInspector.locator("summary", { hasText: "Take" }).click();
   await expect(journeyInspector.getByAltText("A-B start shooting frame")).toBeVisible();
@@ -379,10 +381,11 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(journeyInspector.getByText(/First person POV camera continuously moving forward/)).toBeVisible();
 
   await page.getByLabel("Journey B-C, Ready to block").click();
-  await expect(page.getByRole("button", { name: "Block B-C" })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Block B-C" })).toHaveCount(1);
   const nextInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "B-C" }) });
   await expect(nextInspector.getByText("Track forward through the connected volumes.")).toHaveCount(0);
-  await expect(page.getByLabel("Shoot B-C")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Shoot B-C", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Shoot B-C", exact: true })).toBeDisabled();
 });
 
 test("project video model selector defaults to Pruna and lists mid-tier and HQ options", async ({

@@ -125,12 +125,14 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain('aria-label="Block A-B"');
     expect(html).toContain(">Block<");
     expect(html).toContain(">Blocked<");
-    expect(html).toContain('aria-label="Shoot A-B"');
-    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(1);
+    expect(html).toContain('aria-label="Reshoot A-B"');
+    expect((html.match(/aria-label="Reshoot A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(1);
-    expect(html).toContain(">Shoot<");
+    expect(html).toContain(">Reshoot<");
+    expect(html).not.toContain('aria-label="Shoot A-B"');
     expect(html).toContain('alt="A-B start A"');
     expect(html).toContain('alt="A-B end B"');
+    expect(html).not.toContain("This journey is not a finished movie clip.");
     expect(html).not.toContain("Journey A-B, Ready<");
     expect(html).not.toContain('"shootability"');
     expect(html).not.toContain(">Assess shot<");
@@ -225,7 +227,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     };
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain("Cinematographer needs two actual destinations.");
-    expect(html).not.toContain('aria-label="Block A-B"');
+    expect(html).toContain('aria-label="Block A-B"');
+    expect(html).toContain('aria-label="Reshoot A-B"');
     expect(html).not.toContain('aria-label="Shoot A-B"');
     expect(html).not.toContain(">Assess shot<");
   });
@@ -319,9 +322,11 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Destination B"');
     expect(html).toContain('aria-label="Destination C"');
     expect(html).toContain('aria-label="Block A-B"');
-    expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(1);
+    expect(html).toContain('aria-label="Shoot A-B"');
+    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(1);
     expect(html).not.toContain('aria-label="Block B-C"');
-    expect(html).not.toContain('aria-label="Shoot A-B"');
+    expect(html).not.toContain("This journey is not a finished movie clip.");
     expect(html).toContain('aria-label="Resize timeline"');
     expect(html).toContain("cursor-row-resize");
     expect(html).toContain('alt="A-B end B"');
@@ -364,7 +369,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("bg-transparent");
     expect(html).not.toContain("bg-[#142014]");
     expect(html).toContain(">Needs review<");
-    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(1);
   });
 
@@ -392,6 +397,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("storyboard-generating-label");
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain("Journey A-B, Ready to block");
+    expect(html).toContain("Blocking…");
     expect(html).not.toContain("animate-spin");
     expect(html).toContain("Journey B-C, Ready for edit");
   });
@@ -421,6 +427,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain("Journey A-B, Ready to shoot");
     expect(html).toContain("Journey B-C, Ready to shoot");
+    expect(html).toContain("Shooting…");
     const spinningTiles = html.match(/animate-spin/g) ?? [];
     expect(spinningTiles).toHaveLength(0);
   });

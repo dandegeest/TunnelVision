@@ -66,8 +66,9 @@ edit, plus
 clear / hold / no go when CM has returned. After BLOCK, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. The selected segment shows
-the next Block or Shoot control until the clip exists. The timeline is
+for variable. Block and Shoot for the selected leg live under the
+preview. Shoot reads Reshoot after a clip exists. Journey tiles keep
+status copy only. The timeline is
 vertically resizable. Select
 a real leg and BLOCK to run the existing Cinematographer on those
 stills. Inspector Ready / Needs
@@ -392,7 +393,8 @@ ignore an unshootable journey.
 ## Expensive-generation boundary
 
 Approve still exploration before expensive video rendering. The
-current primary action names are **Shoot** on the selected journey and
+current primary action names are **Block** and **Shoot** (or **Reshoot**)
+on the selected journey under the preview, and
 **Export Movie**. Destination Keep / Redo happens before those actions. In the
 current slice those production actions are labeled and disabled.
 Intended later Cinematographer review of actual canonicals (PASS /

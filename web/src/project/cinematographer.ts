@@ -124,15 +124,12 @@ export function journeyLegStatusLabel(journey: JourneyShot): string {
   }
 }
 
-/** Next move on a selected Shoot tile. Hidden once the clip exists. */
-export function journeyTileAction(journey: JourneyShot): "block" | "shoot" | null {
-  if (journey.status === "rendered") {
-    return null;
+/** Visible Shoot control: Reshoot once a take or clip exists. */
+export function journeyShootButtonLabel(journey: JourneyShot): "Shoot" | "Reshoot" {
+  if (journey.status === "rendered" || journey.take || journey.videoUrl) {
+    return "Reshoot";
   }
-  if (journey.cinematographer || journey.status === "shooting") {
-    return "shoot";
-  }
-  return "block";
+  return "Shoot";
 }
 
 export function journeySegmentCaption(journey: JourneyShot): string {

@@ -2,7 +2,6 @@ import type { JourneyShot } from "../project/types";
 import {
   journeySegmentAriaLabel,
   journeySegmentCaption,
-  journeyTileAction,
   locomotionPaceLabel,
 } from "../project/cinematographer";
 import type { LaidOutJourney } from "./geometry";
@@ -31,22 +30,14 @@ export function JourneyItem({
   selected,
   preparing = false,
   shooting = false,
-  canBlock = false,
-  canShoot = false,
   onSelect,
-  onBlock,
-  onShoot,
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
   selected: boolean;
   preparing?: boolean;
   shooting?: boolean;
-  canBlock?: boolean;
-  canShoot?: boolean;
   onSelect: () => void;
-  onBlock?: () => void;
-  onShoot?: () => void;
 }) {
   const tone = journeySegmentTone(journey);
   const ring = selected
@@ -55,14 +46,6 @@ export function JourneyItem({
   const caption = journeySegmentCaption(journey);
   const ariaLabel = journeySegmentAriaLabel(journey);
   const busy = preparing || shooting;
-  const next = selected ? journeyTileAction(journey) : null;
-  const showBlock = next === "block" && canBlock;
-  const showShoot = next === "shoot";
-  const actionDisabled = showBlock
-    ? preparing || shooting
-    : showShoot
-      ? !canShoot || shooting
-      : true;
 
   return (
     <div
@@ -84,35 +67,17 @@ export function JourneyItem({
         aria-label={ariaLabel}
         aria-pressed={selected}
       >
-        <span className="relative z-[1] block truncate pt-1 pr-14">
+        <span className="relative z-[1] block truncate pt-1">
           <span className="truncate">{journey.id}</span>
         </span>
         <span
-          className={`relative z-[1] block truncate pr-14 text-[10px] opacity-80${
+          className={`relative z-[1] block truncate text-[10px] opacity-80${
             busy ? " storyboard-generating-label" : ""
           }`}
         >
           {caption}
         </span>
       </button>
-      {showBlock || showShoot ? (
-        <button
-          type="button"
-          className="absolute top-1 right-1 z-[2] h-6 rounded border border-[#3a342c] bg-[#12100d]/80 px-1.5 text-[10px] tracking-[0.14em] text-[#ece7df] uppercase outline-none hover:border-[#7a7266] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
-          disabled={actionDisabled}
-          aria-label={showBlock ? `Block ${journey.id}` : `Shoot ${journey.id}`}
-          onClick={(event) => {
-            event.stopPropagation();
-            if (showBlock) {
-              onBlock?.();
-              return;
-            }
-            onShoot?.();
-          }}
-        >
-          {showBlock ? (preparing ? "Blocking…" : "Block") : shooting ? "Shooting…" : "Shoot"}
-        </button>
-      ) : null}
     </div>
   );
 }

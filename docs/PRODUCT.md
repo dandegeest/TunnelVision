@@ -121,7 +121,9 @@ planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 PLAN is not a prerequisite for shooting actual adjacent canonicals.
-BLOCK on a selected actual leg runs the existing Cinematographer
+Block and Shoot for the selected leg live under the preview; Shoot
+reads Reshoot after a clip exists, and journey tiles keep status copy
+only. BLOCK on a selected actual leg runs the existing Cinematographer
 against those stills and stores choreography on that JourneyShot.
 SHOOT on a blocked leg derives a deterministic CameraMotionPlan v1,
 renders A′ and B′ with Camotion, composes the frozen locomotion

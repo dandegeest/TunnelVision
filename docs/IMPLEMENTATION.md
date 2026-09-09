@@ -182,7 +182,8 @@ no look-ahead. Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
-Project. BLOCK on a selected actual leg runs the existing
+Project. Block and Shoot for the selected leg live under the preview;
+Shoot reads Reshoot after a clip exists. BLOCK on a selected actual leg runs the existing
 Cinematographer assessment through `ReasoningProvider` and stores
 segment-specific camera choreography on that JourneyShot, including
 `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
