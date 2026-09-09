@@ -119,12 +119,13 @@ storyboard.
 Specified stills are preserved. After planning, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit and registers the still as
-session/dev-runtime trusted media. A following beat's visual description is a
-far-field hint after this destination's image; the last beat has no look-ahead. Later beats stay planned until
+session/dev-runtime trusted media. A following beat's visual description is
+demoted far-field continuity after this destination and the camera move from
+the source still; the last beat has no look-ahead. Later beats stay planned until
 explicitly constructed. A thin Cinematographer assessment inspects
 two actual canonical stills for one JourneyShot and stores
 segment-specific camera choreography on that leg, including a
-`segmentPromptAddition` that can later append to the frozen
+`segmentPromptAddition` that later leads the frozen
 locomotion baseline. Shootability remains advisory; it does not
 gate JourneyShot status. Shoot is a production view of the current
 Project: consecutive actual adjacent storyboard canonicals become

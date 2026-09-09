@@ -114,20 +114,21 @@ Empty Plan FPO thumbnails overlay Director intent as readable text until
 an image exists. After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned edit
 (`ImageEditProvider` / FLUX Kontext Pro). If a following beat already
-has a Director plan, that plan's visual description is a far-field hint after this
-destination's image; this viewpoint stays this destination. The last beat has
+has a Director plan, that plan's visual description is demoted far-field
+continuity after this destination and the camera move from the source
+still; this viewpoint stays this destination. The last beat has
 no look-ahead. Later planned beats stay
 planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 PLAN is not a prerequisite for shooting actual adjacent canonicals.
-Block and Shoot for the selected leg live under the preview; Shoot
-reads Reshoot after a clip exists, and journey tiles keep status copy
+Stage and Generate for the selected leg live under the preview.
+Generate stays Generate after a clip exists, and journey tiles keep status copy
 only. BLOCK on a selected actual leg runs the existing Cinematographer
 against those stills and stores choreography on that JourneyShot.
 SHOOT on a blocked leg derives a deterministic CameraMotionPlan v1,
-renders A′ and B′ with Camotion, composes the frozen locomotion
-baseline with `segmentPromptAddition`, and generates a development
+renders A′ and B′ with Camotion, composes `segmentPromptAddition`
+ahead of the frozen locomotion baseline, and generates a development
 clip. The Project panel Video control chooses the generator for every
 SHOOT in the current project. Pruna (`prunaai/p-video`) is the development
 default; mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last Frame, and
@@ -385,8 +386,7 @@ suitability / concerns. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
 hard gate and not a prediction of whether the stochastic video model
 will succeed. A JourneyShot may progress even when CM reports
-`not_shootable`. Shoot tiles show Ready to block / Ready to shoot /
-Ready for edit, with clear / hold / no go outlines after BLOCK;
+`not_shootable`. Shoot tiles show Stage / Film / Export, with clear / hold / no go outlines after BLOCK;
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
 Inspector copy stays
@@ -401,9 +401,9 @@ The later video prompt, when wired, should be composed
 deterministically:
 
 ``` text
-stable locomotion baseline ({pace} filled from BLOCK)
-+
 CM segmentPromptAddition
++
+stable locomotion baseline ({pace} filled from BLOCK)
 ```
 
 Do not have an LLM rewrite or merge those two pieces. Terran Boylan's

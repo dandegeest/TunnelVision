@@ -515,7 +515,7 @@ export function ProjectProvider({
     async (current: Project, journeyId: string): Promise<Project> => {
       const journey = current.journeys.find((item) => item.id === journeyId);
       if (!journey || !canShootJourney(current, journey)) {
-        throw new Error("Block this journey before shooting");
+        throw new Error("Stage this journey before generating");
       }
       const entryId = nextConversationId("shooting");
       setShootError(null);

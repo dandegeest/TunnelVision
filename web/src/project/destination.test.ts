@@ -12,6 +12,7 @@ import {
   generatedStillNeedsReshoot,
   nextConstructableDestinationId,
   destinationConstructionPrompt,
+  farFieldVisualDetails,
   destinationConstructionRequestFromProject,
   openingFrameGenerationPrompt,
   openingFrameGenerationRequestFromProject,
@@ -99,8 +100,9 @@ describe("destination construction prompt", () => {
     expect(prompt).not.toMatch(/vanishing point/i);
     expect(prompt).not.toMatch(/Camotion/i);
     expect(prompt).not.toMatch(/Seedance/i);
-    expect(prompt).not.toMatch(/Look ahead only/);
+    expect(prompt).not.toMatch(/Far-field continuity/);
     expect(prompt).not.toMatch(/far field/);
+    expect(prompt).not.toMatch(/following destination/i);
     expect(prompt.indexOf("Create this destination viewpoint:")).toBeLessThan(
       prompt.indexOf("Move the camera from the source viewpoint:"),
     );
@@ -109,7 +111,7 @@ describe("destination construction prompt", () => {
     );
   });
 
-  it("injects the following destination as far-field only", () => {
+  it("injects the next visual as demoted far-field continuity", () => {
     const visual = "A dark cobblestone alley with warm lanterns.";
     const prompt = destinationConstructionPrompt({
       intent: "Track forward through the lantern alley.",
@@ -120,16 +122,19 @@ describe("destination construction prompt", () => {
       },
     });
     expect(prompt).toMatch(/Create this destination viewpoint:\nA dark cobblestone alley with warm lanterns/);
-    expect(prompt).toMatch(/This viewpoint is the destination\. Do not advance to the following destination/);
-    expect(prompt).toMatch(/Look ahead only:/);
-    expect(prompt).toMatch(/far field or a visible opening/);
+    expect(prompt).toMatch(/Move the camera from the source viewpoint:\nTrack forward through the lantern alley/);
+    expect(prompt).toMatch(/Far-field continuity:/);
+    expect(prompt).toMatch(/distant environmental information only/);
+    expect(prompt).toMatch(/opening, path, or far field/);
     expect(prompt).toMatch(/iron gates/);
-    expect(prompt).toMatch(/Do not move the camera there, replace this place with it/);
-    expect(prompt).not.toMatch(/Following destination intent/);
+    expect(prompt).toMatch(/Do not arrive there, replace this destination with it, or adopt its overall lighting or style/);
+    expect(prompt).not.toMatch(/following destination/i);
+    expect(prompt).not.toMatch(/Look ahead only/);
     expect(prompt).not.toMatch(/The next viewpoint should look like this:/);
+    expect(prompt).not.toContain("Cross the threshold into the desert.");
     const visualAt = prompt.indexOf(visual);
     const intentAt = prompt.indexOf("Track forward through the lantern alley.");
-    const lookAt = prompt.indexOf("Look ahead only:");
+    const lookAt = prompt.indexOf("Far-field continuity:");
     const povAt = prompt.indexOf("unembodied first-person POV");
     expect(visualAt).toBeGreaterThan(-1);
     expect(visualAt).toBeLessThan(intentAt);
@@ -137,7 +142,7 @@ describe("destination construction prompt", () => {
     expect(lookAt).toBeLessThan(povAt);
   });
 
-  it("includes the following destination's full visual description as far-field only", () => {
+  it("keeps useful next-place visual detail as far-field without treating it as a second target", () => {
     const visual = "The shadowed threshold of the cabin interior. Rotted floorboards and fallen debris lead toward the main room.";
     const nextVisual =
       "A decaying room centered on an imposing, ornately carved stone fireplace draped in dense cobwebs. A weathered oval table and broken wooden chairs rest on the ruined plank floor.";
@@ -149,11 +154,39 @@ describe("destination construction prompt", () => {
         visualDescription: nextVisual,
       },
     });
-    expect(prompt).toContain(nextVisual);
-    expect(prompt).toMatch(/Look ahead only:\nA decaying room centered on an imposing, ornately carved stone fireplace draped in dense cobwebs/);
+    expect(prompt).toContain("ornately carved stone fireplace draped in dense cobwebs");
+    expect(prompt).toContain("weathered oval table and broken wooden chairs");
+    expect(prompt).toMatch(/Far-field continuity:\nA decaying room centered on an imposing, ornately carved stone fireplace draped in dense cobwebs/);
     expect(prompt).not.toMatch(/dense Hint at this/);
     expect(prompt).not.toContain("Move into the center of the main room, stopping before the fireplace.");
-    expect(prompt.indexOf(visual)).toBeLessThan(prompt.indexOf("Look ahead only:"));
+    expect(prompt).not.toMatch(/following destination/i);
+    expect(prompt.indexOf(visual)).toBeLessThan(prompt.indexOf("Far-field continuity:"));
+    expect(prompt.indexOf("Move the camera from the source viewpoint:")).toBeLessThan(
+      prompt.indexOf("Far-field continuity:"),
+    );
+  });
+
+  it("shortens a long far-field visual at a sentence boundary", () => {
+    const kept =
+      "A bright sunlit desert with iron gates standing before wind-carved cliffs. Endless dunes roll to the horizon under a hard blue sky with scattered stone outcrops. A caravan of camels waits beside a well.";
+    const dropped =
+      "Painted banners snap on tall poles above a marble palace that fills the skyline with musicians and market stalls stretching for hundreds of meters.";
+    const nextVisual = `${kept} ${dropped}`;
+    expect(farFieldVisualDetails(nextVisual)).toBe(kept);
+    expect(farFieldVisualDetails(nextVisual).endsWith(".")).toBe(true);
+    expect(farFieldVisualDetails(nextVisual)).not.toMatch(/\wHint /);
+    const prompt = destinationConstructionPrompt({
+      intent: "Track forward through the lantern alley.",
+      visualDescription: "A dark cobblestone alley with warm lanterns.",
+      nextDestination: {
+        intent: "Enter the desert city.",
+        visualDescription: nextVisual,
+      },
+    });
+    expect(prompt).toContain("iron gates");
+    expect(prompt).toContain("Endless dunes");
+    expect(prompt).not.toContain("marble palace");
+    expect(prompt).not.toContain("market stalls");
   });
 });
 
@@ -274,8 +307,8 @@ describe("construct C from actual B", () => {
     expect(destinationConstructionPrompt(request)).toContain(beats.beats[1]?.intent ?? "");
     expect(destinationConstructionPrompt(request)).toContain(beats.beats[1]?.visualDescription ?? "");
     expect(destinationConstructionPrompt(request)).toContain(beats.beats[2]?.visualDescription ?? "");
-    expect(destinationConstructionPrompt(request)).toMatch(/Do not advance to the following destination/);
-    expect(destinationConstructionPrompt(request)).toMatch(/Look ahead only:/);
+    expect(destinationConstructionPrompt(request)).toMatch(/Far-field continuity:/);
+    expect(destinationConstructionPrompt(request)).not.toMatch(/following destination/i);
   });
 
   it("gives C actual media without changing A, B, D...N, or story", () => {
@@ -326,7 +359,7 @@ describe("construct C from actual B", () => {
     const request = destinationConstructionRequestFromProject(actualD, "E");
     expect(request.beatId).toBe("E");
     expect(request.nextDestination).toBeUndefined();
-    expect(destinationConstructionPrompt(request)).not.toMatch(/Look ahead only/);
+    expect(destinationConstructionPrompt(request)).not.toMatch(/Far-field continuity/);
   });
 
   it("uses an uploaded following still's adopted plan as look-ahead", () => {
@@ -365,7 +398,7 @@ describe("construct C from actual B", () => {
       intent: "Reach the window.",
       visualDescription: "An empty window onto pines.",
     });
-    expect(destinationConstructionPrompt(request)).toMatch(/Look ahead only:/);
+    expect(destinationConstructionPrompt(request)).toMatch(/Far-field continuity:/);
     expect(destinationConstructionPrompt(request)).toContain("An empty window onto pines.");
   });
 

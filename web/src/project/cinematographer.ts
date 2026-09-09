@@ -108,28 +108,20 @@ export function locomotionPaceLabel(
 }
 
 /**
- * Next production step for a journey leg, shown as Ready to [step].
+ * Production ladder for a journey leg: Stage, Film, Export.
  * Internal JourneyShot.status stays ready / shooting / rendered / failed.
  */
 export function journeyLegStatusLabel(journey: JourneyShot): string {
   switch (journey.status) {
     case "shooting":
-      return "Ready to shoot";
+      return "Film";
     case "rendered":
-      return "Ready for edit";
+      return "Export";
     case "failed":
       return "failed";
     default:
-      return journey.cinematographer ? "Ready to shoot" : "Ready to block";
+      return journey.cinematographer ? "Film" : "Stage";
   }
-}
-
-/** Visible Shoot control: Reshoot once a take or clip exists. */
-export function journeyShootButtonLabel(journey: JourneyShot): "Shoot" | "Reshoot" {
-  if (journey.status === "rendered" || journey.take || journey.videoUrl) {
-    return "Reshoot";
-  }
-  return "Shoot";
 }
 
 export function journeySegmentCaption(journey: JourneyShot): string {

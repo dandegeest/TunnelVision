@@ -14,7 +14,7 @@ export type DestinationConstructionRequest = {
   beatId: string;
   intent: string;
   visualDescription: string;
-  /** Following beat's plan. Far-field only; this viewpoint stays this destination. */
+  /** Next beat's plan. Far-field continuity only; this viewpoint stays this destination. */
   nextDestination?: DestinationLookAhead;
 };
 
@@ -74,21 +74,42 @@ export function optionalDestinationLookAhead(value: unknown): DestinationLookAhe
   };
 }
 
-function followingDestinationLookAhead(next: DestinationLookAhead): string {
-  const payload = (next.visualDescription || next.intent).replace(/\s+/g, " ").trim();
+const FAR_FIELD_VISUAL_MAX_CHARS = 280;
+
+/** Sentence-bounded far-field copy. Never splits a word or a sentence mid-way. */
+export function farFieldVisualDetails(visual: string): string {
+  const text = visual.replace(/\s+/g, " ").trim();
+  if (!text || text.length <= FAR_FIELD_VISUAL_MAX_CHARS) {
+    return text;
+  }
+  const sentences =
+    text.match(/[^.!?]+(?:[.!?]+|$)/g)?.map((part) => part.trim()).filter(Boolean) ?? [text];
+  let assembled = "";
+  for (const sentence of sentences) {
+    const candidate = assembled ? `${assembled} ${sentence}` : sentence;
+    if (assembled && candidate.length > FAR_FIELD_VISUAL_MAX_CHARS) {
+      break;
+    }
+    assembled = candidate;
+  }
+  return assembled || sentences[0]!;
+}
+
+function farFieldContinuity(next: DestinationLookAhead): string {
+  const details = farFieldVisualDetails(next.visualDescription || next.intent);
   return [
-    "Look ahead only:",
-    payload,
-    "Hint at this only through the far field or a visible opening if physically appropriate. Do not move the camera there, replace this place with it, or relight this place to match it.",
+    "Far-field continuity:",
+    details,
+    "This is distant environmental information only. It may appear through an opening, path, or far field if physically appropriate. Do not arrive there, replace this destination with it, or adopt its overall lighting or style.",
   ].join("\n");
 }
 
 /**
  * Provider-neutral destination-construction prompt. Spatial intent and the
  * resulting viewpoint are both required. Not a shooting-geometry prompt.
- * Order: this destination's image, preserve world, A→B move, subordinate
- * far-field look-ahead, unembodied POV. A following beat is distant
- * foreshadowing only; this viewpoint stays this destination.
+ * Order: this destination (highest priority), camera move from the source
+ * image, subordinate far-field continuity, unembodied POV. Look-ahead is
+ * distant environment only; this viewpoint stays this destination.
  */
 export function destinationConstructionPrompt(input: {
   intent: string;
@@ -105,15 +126,12 @@ export function destinationConstructionPrompt(input: {
     "Create this destination viewpoint:",
     visualDescription,
     "",
-    ...(next
-      ? ["This viewpoint is the destination. Do not advance to the following destination.", ""]
-      : []),
     "Preserve the same physical world, materials, lighting character, and visual identity of the source image.",
     "Move the camera from the source viewpoint:",
     intent,
     "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera position must change.",
     "",
-    ...(next ? [followingDestinationLookAhead(next), ""] : []),
+    ...(next ? [farFieldContinuity(next), ""] : []),
     UNEMBODIED_FIRST_PERSON_POV,
   ].join("\n");
 }

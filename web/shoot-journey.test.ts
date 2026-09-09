@@ -70,7 +70,8 @@ describe("shootPreparedJourney", () => {
     expect(take.journeyId).toBe("A-B");
     expect(take.videoInputs).toEqual({ startShootingFrame: true, endShootingFrame: true });
     expect(take.effectivePrompt).toBe(composeShootingPrompt(locomotionBaseline("slow"), addition));
-    expect(take.effectivePrompt.startsWith(locomotionBaseline("slow"))).toBe(true);
+    expect(take.effectivePrompt.startsWith(addition)).toBe(true);
+    expect(take.effectivePrompt.endsWith(locomotionBaseline("slow"))).toBe(true);
     expect(take.effectivePrompt).toMatch(/at a constant, slow speed/);
     expect(take.pace).toBe("slow");
     expect(take.startPlan).toEqual(productionCameraMotionPlan());

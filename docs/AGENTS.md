@@ -137,9 +137,9 @@ next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
 When a following beat already has a plan, Construct injects that plan's
-visual description as a far-field hint after this destination's image so this still can include a visible
-handoff. This viewpoint stays this destination; the last beat has no
-look-ahead. Opening A is still generated from the journey story only.
+visual description as demoted far-field continuity after this destination
+and the camera move from the source still. This viewpoint stays this
+destination; the last beat has no look-ahead. Opening A is still generated from the journey story only.
 Debug is a session header toggle, not project persistence. Technical
 in the Project panel lists session store paths for canonical stills
 and, after SHOOT, segment A′/B′ and Camotion work dirs. With Debug on,
@@ -150,9 +150,9 @@ estimate depth maps.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically, and BLOCK runs the existing Cinematographer on the
-selected leg. Block and Shoot live under the preview for the selected
-leg; Shoot reads Reshoot after a clip exists. Journey tiles keep status
-copy only. Shoot tiles read Ready to block / Ready to shoot / Ready for edit; after BLOCK the outline is clear / hold / no go.
+selected leg. Stage and Generate live under the preview for the selected
+leg; Generate stays Generate after a clip exists. Journey tiles keep status
+copy only. Shoot tiles read Stage / Film / Export; after BLOCK the outline is clear / hold / no go.
 The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels.
 While BLOCK or SHOOT runs, that segment uses the same generating
@@ -218,8 +218,8 @@ Do **not** generate CameraMotionPlan, Camotion shooting frames, or
 video from this assessment. Do not expand the Integration Test 01
 pair planner into a product package. SHOOT uses a separate
 deterministic CameraMotionPlan v1 bridge, then Camotion, then
-`composeShootingPrompt` (frozen locomotion baseline plus
-`segmentPromptAddition`). Do not have an LLM rewrite or merge those
+`composeShootingPrompt` (`segmentPromptAddition` first, then the
+frozen locomotion baseline). Do not have an LLM rewrite or merge those
 two pieces. Terran Boylan's
 original TunnelVision continuous-locomotion prompting is the
 foundation of the baseline. Adaptive per-segment choreography is
@@ -427,7 +427,7 @@ The frozen locomotion baseline now lives in
 `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is a per-segment
 macro: BLOCK sets `slow-motion`, `slow`, `moderate`, `fast`,
 `hyperspeed`, or `variable` from the geography;
-SHOOT fills the template with the matching speed phrase and concatenates `segmentPromptAddition` via
+SHOOT fills the template with the matching speed phrase and concatenates `segmentPromptAddition` first, then the filled baseline, via
 `composeShootingPrompt`. Clip duration stays fixed; pace is apparent
 camera speed, not runtime. Do not LLM-merge the baseline and addition.
 Preserve Terran

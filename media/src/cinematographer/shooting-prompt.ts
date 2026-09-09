@@ -46,7 +46,8 @@ export function locomotionPaceList(): string {
 
 /**
  * Stable TunnelVision locomotion baseline plus segment-specific CM addition.
- * Composition is deterministic concatenation. Do not LLM-merge these strings.
+ * Composition is deterministic concatenation: shot choreography first,
+ * then the filled locomotion baseline. Do not LLM-merge these strings.
  * `{pace}` is filled from the segment's BLOCK pace before concatenation.
  *
  * The baseline inherits Terran Boylan's original TunnelVision continuous-
@@ -55,7 +56,7 @@ export function locomotionPaceList(): string {
  * Video generation is not invoked here.
  */
 export const TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE =
-  `First person POV camera continuously moving forward through a spatially-contiguous environment ${LOCOMOTION_PACE_MACRO}, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. No music, no soundtrack, no dialogue. ` +
+  `First person POV camera continuously moving forward through a spatially-contiguous environment ${LOCOMOTION_PACE_MACRO}, traveling forward from the supplied starting location through openings, tunnels, thresholds, or paths as necessary and arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. The camera physically crosses thresholds and continues moving forward into newly revealed space. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. ` +
   UNEMBODIED_FIRST_PERSON_POV;
 
 export function locomotionBaseline(pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE): string {
@@ -80,5 +81,5 @@ export function composeShootingPrompt(
   if (!addition) {
     return frozen;
   }
-  return `${frozen}\n${addition}`;
+  return `${addition}\n${frozen}`;
 }

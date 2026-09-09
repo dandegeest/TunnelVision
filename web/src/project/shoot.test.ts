@@ -83,7 +83,7 @@ describe("SHOOT gate and JourneyShot take", () => {
     const project = projectWithLeg();
     const journey = project.journeys[0]!;
     expect(canShootJourney(project, journey)).toBe(false);
-    expect(() => shootRequestFromProject(project, journey.id)).toThrow(/Block this journey/i);
+    expect(() => shootRequestFromProject(project, journey.id)).toThrow(/Stage this journey/i);
   });
 
   it("does not map CM shootability onto operational status", () => {

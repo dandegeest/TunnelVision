@@ -176,14 +176,15 @@ fields are not overwritten. After planning,
 Construct builds the next planned beat from the immediately preceding
 actual destination through
 `ImageEditProvider` (FLUX Kontext Pro). If a following beat already has
-a Director plan, that plan's visual description is a far-field hint after this
-destination's image; this viewpoint stays this destination. The last beat has
+a Director plan, that plan's visual description is demoted far-field
+continuity after this destination and the camera move from the source
+still; this viewpoint stays this destination. The last beat has
 no look-ahead. Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
-Project. Block and Shoot for the selected leg live under the preview;
-Shoot reads Reshoot after a clip exists. BLOCK on a selected actual leg runs the existing
+Project. Stage and Generate for the selected leg live under the preview;
+Generate stays Generate after a clip exists. BLOCK on a selected actual leg runs the existing
 Cinematographer assessment through `ReasoningProvider` and stores
 segment-specific camera choreography on that JourneyShot, including
 `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
@@ -193,7 +194,7 @@ gate JourneyShot status. SHOOT on a blocked leg derives a deterministic
 CameraMotionPlan v1 (centered radial-forward, pinned `forward=1.0` and
 01.8 exposure), renders A′ and B′ through the frozen Camotion CLI,
 fills `{pace}` in `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`, concatenates
-`segmentPromptAddition`
+`segmentPromptAddition` first, then the filled baseline,
 via `composeShootingPrompt`, and generates video through MediaProvider.
 The current development model is `prunaai/p-video` (A′ as `image`, B′ as
 `last_frame_image`) unless the Project panel Video control selects another
@@ -1253,9 +1254,9 @@ production locomotion baseline now lives in
 `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is filled from
 the segment's BLOCK pace (`fast` by default; also `slow-motion`,
 `slow`, `moderate`, `hyperspeed`, `variable`). The filled baseline
-includes `UNEMBODIED_FIRST_PERSON_POV`. The later video
-prompt should concatenate that baseline with the CM
-`segmentPromptAddition` without an LLM rewrite. Do not treat this as
+includes `UNEMBODIED_FIRST_PERSON_POV`. Audio is not constrained by the
+baseline. The later video prompt should concatenate the CM
+`segmentPromptAddition` first, then that baseline, without an LLM rewrite. Do not treat this as
 a Camotion input.
 
 Provenance: Terran Boylan's original TunnelVision motion-prompting;

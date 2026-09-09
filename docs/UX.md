@@ -8,8 +8,8 @@ v1 and the Integration Test 01 pipeline in `media/` are unchanged.
 After Plan Movie, the filmmaker can construct the next planned
 destination from the immediately preceding actual destination through
 image-conditioned edit. When a following beat already has a plan,
-Construct includes that plan's visual description as a far-field hint after this
-destination's image; this
+Construct includes that plan's visual as demoted far-field continuity after this
+destination and the camera move from the source still; this
 viewpoint stays this destination. The last beat has no look-ahead.
 Each construction is explicit. There is no filmmaker look-ahead
 control. Export Movie
@@ -61,13 +61,12 @@ outline follows advisory shootability: solid green for clear, dashed gold
 for hold, solid rust for no go. Those CM outlines are 2px. While BLOCK or SHOOT is running, the tile uses the
 same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. Green fill appears only after the clip is
-complete. Tile copy uses Ready to block / Ready to shoot / Ready for
-edit, plus
+complete. Tile copy uses Stage / Film / Export, plus
 clear / hold / no go when CM has returned. After BLOCK, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. Block and Shoot for the selected leg live under the
-preview. Shoot reads Reshoot after a clip exists. Journey tiles keep
+for variable. Stage and Generate for the selected leg live under the
+preview. Generate stays Generate after a clip exists. Journey tiles keep
 status copy only. The timeline is
 vertically resizable. Select
 a real leg and BLOCK to run the existing Cinematographer on those
@@ -284,8 +283,7 @@ it. Directed vs Autonomous is one project policy flag, not two UIs.
 
 Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
-describes how to shoot it. Timeline tiles use Ready to block / Ready
-to shoot / Ready for edit, with clear / hold / no go outlines after
+describes how to shoot it. Timeline tiles use Stage / Film / Export, with clear / hold / no go outlines after
 BLOCK, and a chevron pace mark in the gutter between destination stills.
 Compact inspector Ready / Needs review / Not shootable,
 camera path, and a concise summary remain on the analyzed leg;
@@ -393,7 +391,7 @@ ignore an unshootable journey.
 ## Expensive-generation boundary
 
 Approve still exploration before expensive video rendering. The
-current primary action names are **Block** and **Shoot** (or **Reshoot**)
+current primary action names are **Stage** and **Generate**
 on the selected journey under the preview, and
 **Export Movie**. Destination Keep / Redo happens before those actions. In the
 current slice those production actions are labeled and disabled.

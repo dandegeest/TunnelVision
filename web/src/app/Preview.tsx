@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
-import { canAssessJourney, journeyShootButtonLabel } from "../project/cinematographer";
+import { canAssessJourney } from "../project/cinematographer";
 import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, type JourneyShot } from "../project/types";
@@ -35,7 +35,6 @@ function JourneyActions({
   onBlock: () => void;
   onShoot: () => void;
 }) {
-  const shootLabel = journeyShootButtonLabel(journey);
   const busy = assessing || shooting;
   return (
     <div className="flex h-8 flex-none items-center gap-2">
@@ -43,19 +42,19 @@ function JourneyActions({
         type="button"
         className="rounded border border-[#3a342c] px-3 py-1 text-sm text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={!canAssess || busy}
-        aria-label={`Block ${journey.id}`}
+        aria-label={`Stage ${journey.id}`}
         onClick={onBlock}
       >
-        {assessing ? "Blocking…" : "Block"}
+        {assessing ? "Staging…" : "Stage"}
       </button>
       <button
         type="button"
         className="rounded border border-[#3a342c] px-3 py-1 text-sm text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={!canShoot || busy}
-        aria-label={`${shootLabel} ${journey.id}`}
+        aria-label={`Generate ${journey.id}`}
         onClick={onShoot}
       >
-        {shooting ? "Shooting…" : shootLabel}
+        {shooting ? "Generating…" : "Generate"}
       </button>
       {playable ? (
         <p className="min-w-0 truncate text-sm text-[#9a8f7e]">Rendered · {playheadTime.toFixed(1)}s</p>

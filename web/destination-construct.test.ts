@@ -249,7 +249,7 @@ describe("destination construction server path", () => {
         visualDescription: "A jagged underground tunnel.",
       }),
     );
-    expect(edited.prompt).not.toMatch(/Look ahead only/);
+    expect(edited.prompt).not.toMatch(/Far-field continuity/);
     expect(result.mediaId).not.toBe(sourceA.mediaId);
     expect(result.mediaId).not.toBe(sourceB.mediaId);
     expect(registry.get(sourceB.mediaId)?.filePath).toBe(sourceB.filePath);

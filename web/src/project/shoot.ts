@@ -37,7 +37,7 @@ export function journeysReadyToAutoShoot(project: Project): JourneyShot[] {
   });
 }
 
-/** Switch generator. Unshot legs preview that model's clip length; rendered takes keep theirs until Reshoot. */
+/** Switch generator. Unshot legs preview that model's clip length; rendered takes keep theirs until a new take. */
 export function projectWithVideoModel(project: Project, videoModel: VideoModelId): Project {
   if (project.videoModel === videoModel) {
     return project;
@@ -60,7 +60,7 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
     throw new Error("Unknown journey");
   }
   if (!journey.cinematographer) {
-    throw new Error("Block this journey before shooting");
+    throw new Error("Stage this journey before generating");
   }
   if (!journey.endDestinationId) {
     throw new Error("A journey requires two actual destinations");

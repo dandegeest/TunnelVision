@@ -184,7 +184,7 @@ export function Inspector() {
       )}
       {canAssess ? (
         assessment ? null : (
-          <p className="text-[#9a8f7e]">Block this journey before shooting.</p>
+          <p className="text-[#9a8f7e]">Stage this journey before generating.</p>
         )
       ) : (
         <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>

@@ -16,13 +16,13 @@ export function journeyIsPlayable(journey: JourneyShot): boolean {
 
 export function shootActionReason(journey: JourneyShot | null): string {
   if (!journey) {
-    return "Select a blocked journey to shoot.";
+    return "Select a staged journey to generate.";
   }
   if (journey.status === "shooting") {
-    return "Shooting…";
+    return "Generating…";
   }
   if (!journey.cinematographer) {
-    return "Block this journey before shooting.";
+    return "Stage this journey before generating.";
   }
   return "";
 }

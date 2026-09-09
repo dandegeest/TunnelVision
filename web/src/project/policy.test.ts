@@ -44,9 +44,9 @@ describe("journey playback policy", () => {
 });
 
 describe("production bar copy", () => {
-  it("asks for a blocked journey before shooting", () => {
-    expect(productionUnavailableReason(null)).toMatch(/blocked journey/i);
-    expect(productionUnavailableReason(journey({ status: "ready" }))).toMatch(/Block this journey/i);
+  it("asks for a staged journey before generating", () => {
+    expect(productionUnavailableReason(null)).toMatch(/staged journey/i);
+    expect(productionUnavailableReason(journey({ status: "ready" }))).toMatch(/Stage this journey/i);
     expect(
       productionUnavailableReason(
         journey({
