@@ -64,6 +64,22 @@ export type ShootingFrameRef = {
 };
 
 /**
+ * Local Camotion scratch for one take. Present after SHOOT. Work dirs exist
+ * on disk only when Debug retained them; otherwise they were deleted after A′/B′
+ * were copied into the session store.
+ */
+export type CamotionDebug = {
+  startWorkDir?: string;
+  endWorkDir?: string;
+  startOutput?: string;
+  endOutput?: string;
+  /** Product shoot does not pass --depth and Camotion does not estimate depth. */
+  depthSupplied: false;
+  depthPath: null;
+  workDirRetained: boolean;
+};
+
+/**
  * One current take for a JourneyShot. Not a parallel clip model.
  * Session/in-memory; provider URLs are allowed until Node persistence exists.
  */
@@ -82,6 +98,7 @@ export type JourneyShotTake = {
   providerOutputUrl?: string;
   /** Directed Shoot sends A′ as the start image and B′ as the last-frame condition. */
   videoInputs: { startShootingFrame: true; endShootingFrame: boolean };
+  camotion?: CamotionDebug;
 };
 
 export type Destination = {
@@ -142,6 +159,11 @@ export type StoryboardFrame = {
   destinationId?: string;
   /** Present only when dimensions/format are known. Missing facts do not invent preflight warnings. */
   mediaInfo?: StoryboardMediaInfo;
+  /**
+   * Generation inputs that produced the current still. Used to detect a plan
+   * that changed after the image was made. Absent on uploads and unresolved FPO.
+   */
+  generatedFrom?: string;
 };
 
 export type JourneyShot = {
@@ -177,6 +199,10 @@ export type Project = {
   autoGenerateOpening: boolean;
   /** When true, PLAN then generates B…N in travel order from each preceding actual frame. */
   autoGenerateAllDestinations: boolean;
+  /** When true, PLAN then blocks every actual adjacent journey after destinations exist. */
+  autoBlockShots: boolean;
+  /** When true, PLAN then shoots blocked journeys, including those with CM warnings. */
+  autoShoot: boolean;
   /** After the first successful Director plan, duration is storyboard-driven and not typed. */
   storyDurationLocked: boolean;
   storyboard: StoryboardFrame[];
@@ -203,4 +229,14 @@ export function storyboardFrameById(
   id: string,
 ): StoryboardFrame | undefined {
   return frames.find((frame) => frame.id === id);
+}
+
+export function storyboardFrameForDestination(
+  frames: StoryboardFrame[],
+  destinationId: string,
+): StoryboardFrame | undefined {
+  return (
+    frames.find((frame) => frame.destinationId === destinationId) ??
+    frames.find((frame) => frame.id === destinationId)
+  );
 }

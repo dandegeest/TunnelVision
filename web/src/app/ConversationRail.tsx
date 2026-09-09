@@ -118,12 +118,13 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
     );
   }
   if (entry.kind === "director") {
+    const busyLabel = entry.phase === "story" ? "Writing story…" : "Planning…";
     return (
       <article className="conversation-director">
         <ConversationStamp role="Director" createdAt={entry.createdAt} />
         {entry.status === "planning" ? (
           <ConversationBusyStatus className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-            Planning…
+            {busyLabel}
           </ConversationBusyStatus>
         ) : null}
         {entry.status === "failed" ? (
@@ -142,6 +143,93 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
       </article>
     );
   }
+  if (entry.kind === "blocking") {
+    return (
+      <article className="conversation-blocking">
+        <ConversationStamp role="Cinematographer" createdAt={entry.createdAt} />
+        {entry.status === "blocking" ? (
+          <ConversationBusyStatus className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            Blocking {entry.journeyId}…
+          </ConversationBusyStatus>
+        ) : null}
+        {entry.status === "failed" ? (
+          <p className="mt-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+            {entry.error}
+          </p>
+        ) : null}
+        {entry.status === "blocked" && entry.assessment ? (
+          <div className="mt-3 space-y-4">
+            <details className="text-xs text-[#9a8f7e]">
+              <summary className="cursor-pointer tracking-[0.16em] uppercase">Cinematographer</summary>
+              <div className="mt-2 space-y-2 leading-relaxed text-[#cfc6b8]">
+                <p>{entry.assessment.shootability}</p>
+                <p>{entry.assessment.camera}</p>
+                <p>{entry.assessment.route}</p>
+                <p>{entry.assessment.segmentPromptAddition}</p>
+                {entry.assessment.concerns.length > 0 ? (
+                  <div>
+                    {entry.assessment.concerns.map((concern) => (
+                      <p key={concern}>{concern}</p>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </details>
+            <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">
+              {entry.assessment.summary}
+            </p>
+          </div>
+        ) : null}
+      </article>
+    );
+  }
+  if (entry.kind === "shooting") {
+    return (
+      <article className="conversation-shooting">
+        <ConversationStamp role="Shoot" createdAt={entry.createdAt} />
+        {entry.status === "shooting" ? (
+          <ConversationBusyStatus className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            Shooting {entry.journeyId}…
+          </ConversationBusyStatus>
+        ) : null}
+        {entry.status === "failed" ? (
+          <p className="mt-3 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+            {entry.error}
+          </p>
+        ) : null}
+        {entry.status === "shot" && entry.take ? (
+          <div className="mt-3 space-y-4">
+            <details className="text-xs text-[#9a8f7e]">
+              <summary className="cursor-pointer tracking-[0.16em] uppercase">Take</summary>
+              <div className="mt-2 space-y-2 leading-relaxed text-[#cfc6b8]">
+                <div className="grid grid-cols-2 gap-2">
+                  <img
+                    src={entry.take.startShootingFrame.imageUrl}
+                    alt=""
+                    className="media-contain aspect-video w-full rounded"
+                  />
+                  <img
+                    src={entry.take.endShootingFrame.imageUrl}
+                    alt=""
+                    className="media-contain aspect-video w-full rounded"
+                  />
+                </div>
+                <p>{entry.take.effectivePrompt}</p>
+                <p>
+                  {entry.take.provider} · {entry.take.model}
+                  {entry.take.modelVersion ? ` · ${entry.take.modelVersion}` : ""}
+                </p>
+                <p>{entry.take.durationSeconds}s</p>
+              </div>
+            </details>
+            <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">
+              Shot {entry.journeyId}.
+            </p>
+          </div>
+        ) : null}
+      </article>
+    );
+  }
   return (
     <article>
       {entry.status === "constructing" ? (
@@ -155,7 +243,7 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
             Constructed {entry.beatId}
           </p>
           {entry.imageUrl ? (
-            <img src={entry.imageUrl} alt="" className="mt-2 aspect-video w-full object-cover" />
+            <img src={entry.imageUrl} alt="" className="media-contain mt-2 aspect-video w-full" />
           ) : null}
         </>
       ) : null}

@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
 import { access } from "node:fs/promises";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,7 +45,41 @@ describe("Camotion CLI adapter", () => {
     expect(args).toContain(imagePath);
     expect(args).toContain("--plan");
     expect(args).toContain("--output");
-    expect(result.equals(PNG)).toBe(true);
+    expect(result.bytes.equals(PNG)).toBe(true);
+    expect(result.depthSupplied).toBe(false);
+    expect(result.workDirRetained).toBe(false);
+    expect(existsSync(result.workDir)).toBe(false);
+  });
+
+  it("keeps the Camotion work dir when Debug retain is on", async () => {
+    const work = mkdtempSync(join(tmpdir(), "tv-camotion-cli-"));
+    const imagePath = join(work, "A.png");
+    writeFileSync(imagePath, PNG);
+    const pythonBin = join(work, "python");
+    writeFileSync(pythonBin, "");
+    const result = await renderCamotionShootingFrame({
+      repoRoot: work,
+      imagePath,
+      plan: productionCameraMotionPlan(),
+      pythonBin,
+      retainWorkDir: true,
+      spawnImpl: (_command, spawnArgs) => {
+        const output = spawnArgs[spawnArgs.indexOf("--output") + 1];
+        if (output) {
+          writeFileSync(output, PNG);
+        }
+        const child = new EventEmitter() as ReturnType<typeof import("node:child_process").spawn>;
+        child.stderr = new EventEmitter() as NodeJS.ReadableStream;
+        child.kill = () => true;
+        queueMicrotask(() => child.emit("close", 0));
+        return child;
+      },
+    });
+    expect(result.workDirRetained).toBe(true);
+    expect(existsSync(result.workDir)).toBe(true);
+    expect(existsSync(result.outputPath)).toBe(true);
+    expect(existsSync(result.planPath)).toBe(true);
+    expect(result.depthPath).toBeNull();
   });
 
   it("runs the frozen Camotion CLI when the venv is present", async () => {
@@ -62,7 +96,7 @@ describe("Camotion CLI adapter", () => {
       imagePath,
       plan: productionCameraMotionPlan(),
     });
-    expect(bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe(
+    expect(bytes.bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe(
       true,
     );
   });

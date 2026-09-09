@@ -87,8 +87,11 @@ export function projectWithReplacedFrameImage(
   if (!target.image && !canUploadStoryboardFrame(target)) {
     throw new Error("Destination has no canonical still to replace");
   }
+  const autoGenerateOpening =
+    frameId === "A" && !project.storyDurationLocked ? false : project.autoGenerateOpening;
   return projectWithSyncedProductionLegs({
     ...project,
+    autoGenerateOpening,
     storyboard: project.storyboard.map((frame) => {
       if (frame.id !== frameId) {
         return frame;
@@ -100,6 +103,7 @@ export function projectWithReplacedFrameImage(
         imageOrigin: "user",
         ...(frame.destinationId ? {} : { destinationId: frame.id }),
       };
+      delete replaced.generatedFrom;
       if (next.mediaInfo) {
         replaced.mediaInfo = next.mediaInfo;
       } else {

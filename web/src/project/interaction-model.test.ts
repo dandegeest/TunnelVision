@@ -62,9 +62,9 @@ describe("partially specified movie interaction model", () => {
     expect(consecutiveProductionPairs(empty)).toEqual([]);
   });
 
-  it("makes Add Destination and PLAN available after a story and actual A", () => {
+  it("makes PLAN available from actual A even without a story", () => {
     const withA = projectWithA();
-    expect(canPlanMovie(withA)).toBe(false);
+    expect(canPlanMovie(withA)).toBe(true);
     expect(canAddStoryboardDestination(withA)).toBe(false);
     const ready = projectWithA("Travel forward through connected volumes.");
     expect(canPlanMovie(ready)).toBe(true);

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   boundaryContinuitiesForProject,
   boundaryContinuityAtSeam,
@@ -6,27 +6,29 @@ import {
   formatRaster,
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
-import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable, showApprovalChrome } from "../project/policy";
-import {
-  canAssessJourney,
-  cinematographerShootabilityLabel,
-  journeyLegStatusLabel,
-} from "../project/cinematographer";
+import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
+import { canAssessJourney, cinematographerShootabilityLabel, journeyLegStatusLabel } from "../project/cinematographer";
 import { canShootJourney } from "../project/shoot";
+import { canReshootDestinationFrame } from "../project/destination";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById, type CinematographerAssessment, type JourneyShotTake } from "../project/types";
+import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake } from "../project/types";
 import { layoutTimeline } from "../timeline/geometry";
+import { DestinationPlanFields } from "./PlanView";
+import { TechnicalPanel } from "./TechnicalPanel";
 
 export function Inspector() {
   const {
     project,
     selection,
     assessJourney,
-    assessingJourneyId,
+    assessingJourneyIds,
     cinematographerError,
     shootJourney,
-    shootingJourneyId,
+    shootingJourneyIds,
     shootError,
+    constructingBeatId,
+    setDestinationPlan,
+    reshootDestination,
   } = useProject();
   const layout = useMemo(
     () => layoutTimeline(project.destinations, project.journeys, 1),
@@ -42,6 +44,7 @@ export function Inspector() {
         <p className="text-[#cfc6b8]">
           Nothing is ready to shoot until the journey has actual adjacent destinations.
         </p>
+        <TechnicalPanel />
       </aside>
     );
   }
@@ -67,7 +70,11 @@ export function Inspector() {
         )
       : undefined;
     const blockedArrival = Boolean(occurrence?.arrivalBlocked);
-    const showApprovals = showApprovalChrome(project.agency, blockedArrival);
+    const frame = destination
+      ? storyboardFrameForDestination(project.storyboard, destination.id)
+      : undefined;
+    const canReshoot = frame ? canReshootDestinationFrame(project, frame) : false;
+    const reshooting = Boolean(frame && constructingBeatId === frame.id);
 
     return (
       <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
@@ -79,7 +86,7 @@ export function Inspector() {
             : ""}
         </h2>
         {destination ? (
-          <img src={destination.image} alt="" className="aspect-video w-full rounded object-cover" />
+          <img src={destination.image} alt="" className="media-contain aspect-video w-full rounded" />
         ) : null}
         <p>Status: {destination?.status?.replaceAll("_", " ")}</p>
         {occurrence?.occurrenceIndex === 0 ? (
@@ -90,25 +97,32 @@ export function Inspector() {
             {ARRIVAL_BLOCKED_COPY} The problem is the inbound journey
             {inbound ? ` ${inbound.id}` : ""}, not destination {destination?.label} itself.
           </p>
-        ) : (
-          <p className="text-[#cfc6b8]">
-            This is what the generated world actually gave us. The Cinematographer judges how to shoot the journeys that leave or arrive here.
-          </p>
-        )}
+        ) : null}
+        {frame ? (
+          <DestinationPlanFields
+            frame={frame}
+            disabled={reshooting}
+            onPlanChange={(next) => setDestinationPlan(frame.id, next)}
+          />
+        ) : null}
         {continuity ? <BoundaryContinuityDetail continuity={continuity} /> : null}
-        {showApprovals ? (
+        {canReshoot && frame ? (
           <div className="flex gap-2">
             <button
               type="button"
               className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-              disabled
-              title="Generation is not connected in this slice."
+              disabled={reshooting}
+              aria-label={`Redo destination ${frame.label}`}
+              title="Regenerate this destination from its current prompt."
+              onClick={() => {
+                void reshootDestination(frame.id);
+              }}
             >
-              Redo
+              {reshooting ? "Reshooting…" : "Redo"}
             </button>
           </div>
         ) : null}
-        <TechnicalSeam />
+        <TechnicalPanel />
       </aside>
     );
   }
@@ -118,13 +132,12 @@ export function Inspector() {
     return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
   }
 
-  const showApprovals = showApprovalChrome(project.agency, false);
   const playable = journeyIsPlayable(journey);
   const assessment = journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
-  const assessing = assessingJourneyId === journey.id;
+  const assessing = assessingJourneyIds.includes(journey.id);
   const canShoot = canShootJourney(project, journey);
-  const shooting = shootingJourneyId === journey.id || journey.status === "shooting";
+  const shooting = shootingJourneyIds.includes(journey.id) || journey.status === "shooting";
   const take = journey.take;
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
   const endDestination = journey.endDestinationId
@@ -145,7 +158,7 @@ export function Inspector() {
               <img
                 src={startDestination.image}
                 alt={`${journey.id} start ${startDestination.label}`}
-                className="aspect-video w-full rounded object-cover"
+                className="media-contain aspect-video w-full rounded"
               />
               <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
                 {startDestination.label}
@@ -157,7 +170,7 @@ export function Inspector() {
               <img
                 src={endDestination.image}
                 alt={`${journey.id} end ${endDestination.label}`}
-                className="aspect-video w-full rounded object-cover"
+                className="media-contain aspect-video w-full rounded"
               />
               <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
                 {endDestination.label}
@@ -215,19 +228,7 @@ export function Inspector() {
       ) : null}
       {take ? <TakeEvidence take={take} journeyId={journey.id} /> : null}
       {playable ? <p className="text-[#cfc6b8]">This shot is available in the preview.</p> : null}
-      {showApprovals ? (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-            disabled
-            title="Generation is not connected in this slice."
-          >
-            Redo
-          </button>
-        </div>
-      ) : null}
-      <TechnicalSeam />
+      <TechnicalPanel />
     </aside>
   );
 }
@@ -313,7 +314,7 @@ function TakeEvidence({ take, journeyId }: { take: JourneyShotTake; journeyId: s
             <img
               src={take.startShootingFrame.imageUrl}
               alt={`${journeyId} start shooting frame`}
-              className="aspect-video w-full rounded object-cover"
+              className="media-contain aspect-video w-full rounded"
             />
             <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
               Start′
@@ -323,7 +324,7 @@ function TakeEvidence({ take, journeyId }: { take: JourneyShotTake; journeyId: s
             <img
               src={take.endShootingFrame.imageUrl}
               alt={`${journeyId} end shooting frame`}
-              className="aspect-video w-full rounded object-cover"
+              className="media-contain aspect-video w-full rounded"
             />
             <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
               End′
@@ -352,27 +353,6 @@ function TakeEvidence({ take, journeyId }: { take: JourneyShotTake; journeyId: s
           {take.videoInputs.endShootingFrame
             ? "Start shooting frame A′ and end shooting frame B′ were sent as the video start and last-frame conditions."
             : "Start shooting frame A′ was sent to the video model. End shooting frame B′ was not used as last-frame conditioning."}
-        </p>
-      </div>
-    </details>
-  );
-}
-
-function TechnicalSeam() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <details
-      className="mt-auto border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]"
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-    >
-      <summary className="cursor-pointer tracking-[0.16em] uppercase">Technical</summary>
-      <div className="mt-2 space-y-1 leading-relaxed">
-        <p>Construction: planned. Discovery is not implemented.</p>
-        <p>
-          Video uses Camotion shooting frames and a configurable provider model. The current
-          development generator receives only the start shooting frame.
         </p>
       </div>
     </details>

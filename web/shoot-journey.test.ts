@@ -82,5 +82,10 @@ describe("shootPreparedJourney", () => {
     expect(videoRequest.endPath).toBe(registry.get(take.endShootingFrame.mediaId)?.filePath);
     expect(take.startShootingFrame.mediaId).not.toBe(take.endShootingFrame.mediaId);
     expect(take.videoUrl).toBe("https://example.test/a-b.mp4");
+    expect(take.camotion).toEqual({
+      depthSupplied: false,
+      depthPath: null,
+      workDirRetained: false,
+    });
   });
 });

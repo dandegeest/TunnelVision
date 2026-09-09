@@ -6,6 +6,8 @@ export type ShootJourneyRequest = {
   startMediaId: string;
   endMediaId: string;
   segmentPromptAddition: string;
+  /** When true, Camotion work dirs are kept on disk after A′/B′ are copied. */
+  debug?: boolean;
 };
 
 export type ShootJourneyResponse = {
@@ -21,6 +23,15 @@ export function canShootJourney(project: Project, journey: JourneyShot): boolean
     return false;
   }
   return canAssessJourney(project, journey);
+}
+
+export function journeysReadyToAutoShoot(project: Project): JourneyShot[] {
+  return project.journeys.filter((journey) => {
+    if (journey.status === "rendered" || journey.status === "shooting") {
+      return false;
+    }
+    return canShootJourney(project, journey);
+  });
 }
 
 export function shootRequestFromProject(project: Project, journeyId: string): ShootJourneyRequest {

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { boundaryContinuitiesForProject } from "../project/boundary-continuity";
+import { canAssessJourney } from "../project/cinematographer";
+import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
 import { layoutTimeline, timeToX } from "./geometry";
 import { DestinationsLane } from "./DestinationsLane";
@@ -8,7 +10,17 @@ import { JourneyLane } from "./JourneyLane";
 import { Playhead } from "./Playhead";
 
 export function Timeline() {
-  const { project, zoom, playheadTime, selection, select, assessingJourneyId } = useProject();
+  const {
+    project,
+    zoom,
+    playheadTime,
+    selection,
+    select,
+    assessingJourneyIds,
+    shootingJourneyIds,
+    assessJourney,
+    shootJourney,
+  } = useProject();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const layout = useMemo(
     () => layoutTimeline(project.destinations, project.journeys, zoom),
@@ -64,8 +76,13 @@ export function Timeline() {
             journeys={layout.journeys}
             projectJourneys={project.journeys}
             selection={selection}
-            preparingJourneyId={assessingJourneyId}
+            preparingJourneyIds={assessingJourneyIds}
+            shootingJourneyIds={shootingJourneyIds}
+            canBlockJourney={(journey) => canAssessJourney(project, journey)}
+            canShootJourney={(journey) => canShootJourney(project, journey)}
             onSelect={(journeyId) => select({ kind: "journey", journeyId })}
+            onBlock={(journeyId) => void assessJourney(journeyId)}
+            onShoot={(journeyId) => void shootJourney(journeyId)}
           />
           <Playhead x={playheadX} />
         </div>

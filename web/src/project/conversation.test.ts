@@ -9,6 +9,8 @@ import {
   prepareDirectorPlan,
   resolveConstructionEntry,
   resolveDirectorEntry,
+  resolveBlockingEntry,
+  resolveShootingEntry,
   type ConversationEntry,
   type DirectorConversationEntry,
 } from "./conversation";
@@ -302,6 +304,42 @@ describe("Plan conversation history", () => {
       beatId: "D",
       status: "failed",
       error: "Destination construction failed.",
+    });
+  });
+
+  it("creates pending Blocking and Shooting entries and resolves them in place", () => {
+    const assessment = {
+      shootability: "shootable" as const,
+      summary: "Track forward through the connected volumes.",
+      route: "Advance.",
+      threshold: "The opening.",
+      camera: "Track forward.",
+      parallax: "Near walls.",
+      transitionStrategy: "Pass through.",
+      segmentPromptAddition: "Track forward.",
+      camotionSuitability: "appropriate" as const,
+      concerns: [],
+    };
+    let entries: ConversationEntry[] = [
+      { id: "b1", createdAt: AT, kind: "blocking", journeyId: "A-B", status: "blocking" },
+      { id: "s1", createdAt: AT2, kind: "shooting", journeyId: "A-B", status: "shooting" },
+    ];
+    entries = resolveBlockingEntry(entries, "b1", { status: "blocked", assessment });
+    expect(entries[0]).toMatchObject({
+      id: "b1",
+      kind: "blocking",
+      status: "blocked",
+      assessment,
+    });
+    entries = resolveShootingEntry(entries, "s1", {
+      status: "failed",
+      error: "Shoot failed",
+    });
+    expect(entries[1]).toMatchObject({
+      id: "s1",
+      kind: "shooting",
+      status: "failed",
+      error: "Shoot failed",
     });
   });
 });

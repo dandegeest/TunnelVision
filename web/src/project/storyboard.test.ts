@@ -24,6 +24,7 @@ import {
   storyDurationFieldValue,
   canPlanMovie,
   canRemoveStoryboardDestination,
+  projectWithStoryboardBeatPlan,
 } from "./storyboard";
 import { projectWithConstructedDestination } from "./destination";
 import type { StoryboardFrame } from "./types";
@@ -701,5 +702,45 @@ describe("story duration", () => {
     const withStory = { ...untitled, story: "Travel forward through connected volumes." };
     expect(canPlanMovie(withStory)).toBe(true);
     expect(canPlanMovie({ ...withStory, autoGenerateOpening: false })).toBe(false);
+  });
+
+  it("lets PLAN run from actual A without a story", () => {
+    const withA = {
+      ...createNewProject(),
+      story: "",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    expect(canPlanMovie(withA)).toBe(true);
+    expect(canPlanMovie({ ...withA, autoGenerateOpening: false })).toBe(true);
+  });
+
+  it("updates a beat's intent and visual description without changing media", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), {
+      summary: "A test journey.",
+      beats: [
+        {
+          id: "B",
+          intent: "Move forward into the next space.",
+          visualDescription: "A corridor continuing the same world.",
+        },
+      ],
+    });
+    const image = planned.storyboard[1]?.image;
+    const next = projectWithStoryboardBeatPlan(planned, "B", {
+      intent: "Approach the lit threshold.",
+      visualDescription: "A warmer corridor with an open doorway.",
+    });
+    expect(next.storyboard[1]?.intent).toBe("Approach the lit threshold.");
+    expect(next.storyboard[1]?.visualDescription).toBe("A warmer corridor with an open doorway.");
+    expect(next.storyboard[1]?.image).toBe(image);
+    expect(next.storyboard[0]).toEqual(planned.storyboard[0]);
   });
 });

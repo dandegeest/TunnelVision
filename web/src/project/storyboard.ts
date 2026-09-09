@@ -219,12 +219,12 @@ export function canAddStoryboardDestination(project: Project): boolean {
 }
 
 export function canPlanMovie(project: Project): boolean {
-  if (!project.story.trim()) {
-    return false;
-  }
   const start = storyboardFrameByLetter(project.storyboard, "A");
   if (start && isSpecifiedStoryboardDestination(start)) {
     return true;
+  }
+  if (!project.story.trim()) {
+    return false;
   }
   return Boolean(
     project.autoGenerateOpening && start && start.imageOrigin === "none" && !start.image,
@@ -265,6 +265,47 @@ export function projectWithAutoGenerateAllDestinations(project: Project, enabled
     return project;
   }
   return { ...project, autoGenerateAllDestinations: enabled };
+}
+
+export function projectWithAutoBlockShots(project: Project, enabled: boolean): Project {
+  if (project.autoBlockShots === enabled) {
+    return project;
+  }
+  return { ...project, autoBlockShots: enabled };
+}
+
+export function projectWithAutoShoot(project: Project, enabled: boolean): Project {
+  if (project.autoShoot === enabled) {
+    return project;
+  }
+  return { ...project, autoShoot: enabled };
+}
+
+/** Updates Director plan fields on a beat. Does not invoke the Director or regenerate media. */
+export function projectWithStoryboardBeatPlan(
+  project: Project,
+  frameId: string,
+  next: { intent?: string; visualDescription?: string },
+): Project {
+  if (!project.storyboard.some((frame) => frame.id === frameId)) {
+    return project;
+  }
+  return {
+    ...project,
+    storyboard: project.storyboard.map((frame) => {
+      if (frame.id !== frameId) {
+        return frame;
+      }
+      const updated = { ...frame };
+      if (next.intent !== undefined) {
+        updated.intent = next.intent;
+      }
+      if (next.visualDescription !== undefined) {
+        updated.visualDescription = next.visualDescription;
+      }
+      return updated;
+    }),
+  };
 }
 
 export function projectWithNudgedStoryDuration(project: Project, delta: 1 | -1): Project {

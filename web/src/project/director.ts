@@ -159,3 +159,46 @@ export async function requestDirectorPlan(input: DirectorPlanRequest): Promise<D
   }
   return body;
 }
+
+export type DirectorStoryRequest = {
+  startFrameId: string;
+  startFrameIntent?: string;
+  startMediaId: string;
+};
+
+export type DirectorStoryResponse = {
+  story: string;
+  evidence: DirectorEvidence;
+};
+
+export function directorStoryRequestFromProject(project: Project): DirectorStoryRequest {
+  const start = authoritativeStartFrame(project);
+  if (!start) {
+    throw new Error("Project has no starting storyboard frame");
+  }
+  if (!isTrustedMediaIdShape(start.mediaId)) {
+    throw new Error("Starting frame has no trusted media identity");
+  }
+  const startFrameIntent = start.intent?.trim() || undefined;
+  return {
+    startFrameId: start.id,
+    startMediaId: start.mediaId,
+    ...(startFrameIntent ? { startFrameIntent } : {}),
+  };
+}
+
+export async function requestDirectorStory(input: DirectorStoryRequest): Promise<DirectorStoryResponse> {
+  const response = await fetch("/api/director/story", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const body = (await response.json()) as DirectorStoryResponse | { error?: string };
+  if (!response.ok) {
+    throw new Error("error" in body && body.error ? body.error : "Director story failed");
+  }
+  if (!("story" in body) || !body.story?.trim() || !("evidence" in body) || !body.evidence) {
+    throw new Error("Director story failed");
+  }
+  return body;
+}

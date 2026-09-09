@@ -7,6 +7,7 @@ import { Shell } from "./Shell";
 
 function renderShell(options?: {
   mediaInfo?: boolean;
+  debug?: boolean;
   view?: "plan" | "shoot";
   conversationRailOpen?: boolean;
   projectRailOpen?: boolean;
@@ -22,6 +23,7 @@ function renderShell(options?: {
     <ProjectProvider
       initialProject={project}
       initialMediaInfo={options?.mediaInfo}
+      initialDebug={options?.debug}
       initialView={options?.view}
       initialConversationRailOpen={options?.conversationRailOpen}
       initialProjectRailOpen={options?.projectRailOpen}
@@ -43,7 +45,8 @@ describe("default product project", () => {
     expect(html).toContain('aria-label="Current project: UNTITLED"');
     expect(html).not.toContain("FOREST A→F");
     expect(html).not.toContain("Travel forward through this night forest");
-    expect(html).not.toContain('aria-label="Destination A actions"');
+    expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).not.toContain('aria-label="Generate destination A"');
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
     expect(html).toContain('placeholder="Describe the journey…"');
@@ -67,13 +70,22 @@ describe("Shell header chrome", () => {
     const on = renderShell({ mediaInfo: true });
     expect(off).toContain("workspace-toolbar");
     expect(off).toContain('aria-label="Media info"');
-    expect(off).toContain('title="Media info"');
+    expect(off).toContain('aria-label="Debug"');
     expect(off).toContain('aria-pressed="false"');
     expect(on).toContain('aria-pressed="true"');
     expect(off).not.toContain(">Media Info<");
     expect(off).not.toContain(">MEDIA INFO<");
     const storyboard = off.slice(off.indexOf('aria-label="Storyboard"'));
     expect(storyboard).not.toContain('aria-label="Media info"');
+  });
+
+  it("places Debug in the workspace header toolbar", () => {
+    const off = renderShell();
+    const on = renderShell({ debug: true });
+    expect(off).toContain('aria-label="Debug"');
+    expect(off).toContain('aria-pressed="false" aria-label="Debug"');
+    expect(on).toContain('aria-pressed="true" aria-label="Debug"');
+    expect(on).toContain(">Debug<");
   });
 
   it("centers Plan/Shoot in the workspace toolbar grid, not as a viewport heading", () => {
@@ -178,6 +190,8 @@ describe("Filmmaking conversation rail", () => {
     expect(shootOpen).toContain('title="Hide filmmaking conversation"');
     expect(planOpen).toContain('aria-label="Resize story panel"');
     expect(shootOpen).toContain('aria-label="Resize story panel"');
+    expect(shootOpen).toContain('aria-label="Resize timeline"');
+    expect(planOpen).not.toContain('aria-label="Resize timeline"');
     expect(shootOpen).not.toContain("Shoot This Shot");
     expect(shootOpen).toContain('aria-label="Story"');
   });

@@ -201,7 +201,10 @@ actual destination stills. The Project panel edits `Project.story`
 without planning; destination count (AUTO or a number, typed or stepped) sizes the
 storyboard before PLAN; auto-generate starting destination lets PLAN
 create unresolved A from the story; auto-generate all destinations then
-constructs B…N in travel order after PLAN. PLAN in that panel invokes the Director.
+constructs B…N in travel order after PLAN. If A is actual and the story
+is empty, PLAN first derives a journey story from that still. Auto
+block shots and Auto shoot then block and shoot actual adjacent legs.
+PLAN in that panel invokes the Director.
 The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
 Delete removes a later storyboard beat without planning or relabeling; opening A cannot be deleted.
 Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
@@ -221,16 +224,21 @@ Product Slice 4 UI:
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; Media Info is an
-icon tool, not a global diagnostic banner. Destination actions live in
+icon tool, not a global diagnostic banner. 16:9 tiles stay fixed;
+source stills are contained (letterboxed or pillarboxed), not
+stretched or cropped to fill. Debug is a session header
+toggle; Technical lists session asset paths, and Camotion work dirs
+are kept only while Debug is on. Destination actions live in
 the destination menu. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
 summary. Conversation timestamps are stored on the entry. Pending
-Director **Planning…** and construction turns show a progress spinner
+Director **Planning…**, Cinematographer **Blocking…**, **Shooting…**,
+and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
-intent in field form until an image exists. The
+intent as readable text until an image exists. The
 filmmaking conversation rail is history-only and can be hidden to the
 left; the Project panel holds journey story, destination count,
-auto-generate-A, auto-generate-all, and PLAN and can hide to the right. That visibility is session UI, not project persistence, and
+auto-generate-A, auto-generate-all, auto-block, auto-shoot, and PLAN and can hide to the right. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is
@@ -1216,7 +1224,9 @@ This is an experimental artifact, not a frozen product template and
 **not** claimed to be model-independent. Scene-specific nouns in the
 passing prompt are fill-in, not the locomotion principle. The
 production locomotion baseline now lives in
-`media/src/cinematographer/shooting-prompt.ts`. The later video
+`media/src/cinematographer/shooting-prompt.ts` as
+`TUNNELVISION_LOCOMOTION_BASELINE`, which includes
+`UNEMBODIED_FIRST_PERSON_POV`. The later video
 prompt should concatenate that baseline with the CM
 `segmentPromptAddition` without an LLM rewrite. Do not treat this as
 a Camotion input.

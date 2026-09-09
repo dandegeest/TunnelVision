@@ -60,6 +60,9 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.prompt, /night forest/);
   assert.match(request.systemInstruction, /next viewpoint along that same travel direction/i);
   assert.match(request.systemInstruction, /not a reverse angle/i);
+  assert.match(request.systemInstruction, /camera is unembodied/i);
+  assert.match(request.systemInstruction, /People, animals, vehicles, objects, and other subjects in the stills are part of the world/);
+  assert.doesNotMatch(request.systemInstruction, /no people/i);
   assert.match(request.prompt, /Image 1 is the START canonical set/);
   assert.match(request.prompt, /same travel direction/);
   assert.match(request.prompt, /not a reverse shot/i);

@@ -64,7 +64,7 @@ export function DestinationItem({
         <img
           src={destination.image}
           alt=""
-          className={`aspect-video w-full rounded object-cover ${ring}`}
+          className={`media-contain aspect-video w-full rounded ${ring}`}
         />
         {continuity && matchLabel ? (
           <span

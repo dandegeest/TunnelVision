@@ -10,6 +10,8 @@ These images are physical sets. Reason from what is actually visible. Do not inv
 
 Both stills are first-person POV from the same continuously forward-moving camera. Image 2 is the next viewpoint along that same travel direction. It is not a reverse angle, not a look back, and not a camera placed at the far end of the destination facing toward the start.
 
+The camera is unembodied. The viewer/camera operator is never a visible character. People, animals, vehicles, objects, and other subjects in the stills are part of the world.
+
 A landmark that appears ahead in the start (a doorway, light, pool edge, corridor mouth) is typically the space the camera is traveling INTO. The end still is what that same forward camera sees after continuing into the next volume, still looking forward. Do not treat a shared landmark as evidence that the destination was photographed from the opposite direction.
 
 Director intent may provide context. Visible actual imagery is authoritative for shot geometry.

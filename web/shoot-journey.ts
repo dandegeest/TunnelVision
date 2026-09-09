@@ -7,8 +7,10 @@ import {
 } from "../media/src/cinematographer/shooting-prompt.ts";
 import { P_VIDEO_MODEL } from "../media/src/replicate/p-video.ts";
 import type { GeneratedVideo, VideoGenerationRequest } from "../media/src/types.ts";
-import { resolveTrustedMedia } from "./trusted-media.ts";
+import type { CamotionRenderResult } from "./camotion-cli.ts";
+import type { CamotionDebug } from "./src/project/types.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
+import { resolveTrustedMedia } from "./trusted-media.ts";
 
 export const JOURNEY_VIDEO_DURATION_SECONDS = 6;
 
@@ -17,6 +19,7 @@ export type ShootJourneyBody = {
   startMediaId?: unknown;
   endMediaId?: unknown;
   segmentPromptAddition?: unknown;
+  debug?: unknown;
 };
 
 export type JourneyShotTakeResult = {
@@ -35,6 +38,7 @@ export type JourneyShotTakeResult = {
   videoUrl: string;
   providerOutputUrl: string;
   videoInputs: { startShootingFrame: true; endShootingFrame: true };
+  camotion: CamotionDebug;
 };
 
 function requiredId(value: unknown, label: string): string {
@@ -56,6 +60,15 @@ function optionalSeed(): number | undefined {
   return seed;
 }
 
+function asCamotionRender(result: Buffer | CamotionRenderResult): Partial<CamotionRenderResult> & {
+  bytes: Buffer;
+} {
+  if (Buffer.isBuffer(result)) {
+    return { bytes: result };
+  }
+  return result;
+}
+
 /**
  * One prepared directed leg → Camotion A′/B′ → composed prompt → video.
  * Video generation receives A′ as the start image and B′ as the last frame.
@@ -63,7 +76,10 @@ function optionalSeed(): number | undefined {
 export async function shootPreparedJourney(input: {
   repoRoot: string;
   body: ShootJourneyBody;
-  renderFrame: (imagePath: string, plan: CameraMotionPlanV1) => Promise<Buffer>;
+  renderFrame: (
+    imagePath: string,
+    plan: CameraMotionPlanV1,
+  ) => Promise<Buffer | CamotionRenderResult>;
   generateVideo: (request: VideoGenerationRequest) => Promise<GeneratedVideo>;
 }): Promise<JourneyShotTakeResult> {
   const journeyId = requiredId(input.body.journeyId, "journeyId");
@@ -72,6 +88,7 @@ export async function shootPreparedJourney(input: {
   if (startMediaId === endMediaId) {
     throw new Error("A journey requires two actual destinations");
   }
+  const retainWorkDir = input.body.debug === true;
   const segmentPromptAddition =
     typeof input.body.segmentPromptAddition === "string" ? input.body.segmentPromptAddition : "";
   const startImage = resolveTrustedMedia(input.repoRoot, startMediaId);
@@ -80,16 +97,16 @@ export async function shootPreparedJourney(input: {
     throw new Error("Canonical stills must be trusted local media");
   }
   const plan = productionCameraMotionPlan();
-  const [startBytes, endBytes] = await Promise.all([
-    input.renderFrame(startImage.path, plan),
-    input.renderFrame(endImage.path, plan),
+  const [startRender, endRender] = await Promise.all([
+    input.renderFrame(startImage.path, plan).then(asCamotionRender),
+    input.renderFrame(endImage.path, plan).then(asCamotionRender),
   ]);
   const registry = getActiveRuntimeMediaRegistry();
   if (!registry) {
     throw new Error("Shoot failed.");
   }
-  const startShootingFrame = registry.register(startBytes, "image/png");
-  const endShootingFrame = registry.register(endBytes, "image/png");
+  const startShootingFrame = registry.register(startRender.bytes, "image/png");
+  const endShootingFrame = registry.register(endRender.bytes, "image/png");
   const effectivePrompt = composeShootingPrompt(
     TUNNELVISION_LOCOMOTION_BASELINE,
     segmentPromptAddition,
@@ -128,6 +145,17 @@ export async function shootPreparedJourney(input: {
     videoUrl: generated.outputUrl,
     providerOutputUrl: generated.outputUrl,
     videoInputs: { startShootingFrame: true, endShootingFrame: true },
+    camotion: {
+      ...(startRender.workDir
+        ? { startWorkDir: startRender.workDir, startOutput: startRender.outputPath }
+        : {}),
+      ...(endRender.workDir
+        ? { endWorkDir: endRender.workDir, endOutput: endRender.outputPath }
+        : {}),
+      depthSupplied: false,
+      depthPath: null,
+      workDirRetained: retainWorkDir && Boolean(startRender.workDir || endRender.workDir),
+    },
   };
 }
 

@@ -95,6 +95,30 @@ function MediaInfoButton() {
   );
 }
 
+function DebugButton() {
+  const { debugOn, setDebugOn } = useProject();
+  return (
+    <button
+      type="button"
+      aria-pressed={debugOn}
+      aria-label="Debug"
+      title={
+        debugOn
+          ? "Debug is on. Camotion work dirs are kept. Asset paths are under Technical."
+          : "Show session asset paths under Technical and keep Camotion work dirs."
+      }
+      onClick={() => setDebugOn(!debugOn)}
+      className={`h-7 shrink-0 rounded border px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
+        debugOn
+          ? "border-[#ece7df] text-[#ece7df]"
+          : "border-[#3a342c] text-[#9a8f7e] hover:border-[#7a7266] hover:text-[#cfc6b8]"
+      }`}
+    >
+      Debug
+    </button>
+  );
+}
+
 function AgencySelect() {
   const { project, setAgency } = useProject();
   return (
@@ -117,6 +141,7 @@ export function WorkspaceToolbar({ leading }: { leading?: ReactNode } = {}) {
       <ViewSwitch />
       <div className="flex min-w-0 items-center justify-end gap-2">
         <MediaInfoButton />
+        <DebugButton />
         <AgencySelect />
       </div>
     </div>

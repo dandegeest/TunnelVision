@@ -93,6 +93,8 @@ export function createForestProject(): Project {
     storyDuration: 6,
     autoGenerateOpening: false,
     autoGenerateAllDestinations: false,
+    autoBlockShots: false,
+    autoShoot: false,
     storyDurationLocked: true,
     storyboard: [
       {

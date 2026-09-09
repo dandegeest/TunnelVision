@@ -9,7 +9,12 @@ import {
   subsequentDirectorBeats,
   type DirectorPlanInput,
 } from "../src/director/plan-storyboard.ts";
-import { DIRECTOR_SYSTEM_INSTRUCTION } from "../src/director/prompts.ts";
+import { DIRECTOR_STORY_SYSTEM_INSTRUCTION, DIRECTOR_SYSTEM_INSTRUCTION } from "../src/director/prompts.ts";
+import {
+  buildDirectorStoryRequest,
+  deriveStory,
+  parseDirectorStory,
+} from "../src/director/derive-story.ts";
 import type { ReasoningProvider, ReasoningRequest, ReasoningResult } from "../src/reasoning/types.ts";
 
 const input: DirectorPlanInput = {
@@ -48,6 +53,7 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.match(request.systemInstruction, /one continuous shot/);
   assert.match(request.systemInstruction, /Simple journeys may require only 2–4 subsequent destinations/);
   assert.match(request.systemInstruction, /Use more when the filmmaker's story genuinely requires them/);
+  assert.match(request.systemInstruction, /People, animals, vehicles, objects, and other subjects may appear in viewpoints/);
   assert.doesNotMatch(request.systemInstruction, /typically 4 to 8/);
   assert.doesNotMatch(request.systemInstruction, /must (?:return|use|contain) \d+/i);
   assert.doesNotMatch(request.systemInstruction, /(?:minimum|maximum) of \d+/i);
@@ -303,5 +309,53 @@ test("Director request lists a complete partially specified storyboard", () => {
       { id: "D", specified: false },
     ],
   );
+});
+
+test("Director story request looks at the opening still and forbids FPOV and looping language", () => {
+  const request = buildDirectorStoryRequest({
+    startFrame: input.startFrame,
+  });
+  assert.equal(request.systemInstruction, DIRECTOR_STORY_SYSTEM_INSTRUCTION);
+  assert.match(request.systemInstruction, /starting place/);
+  assert.match(request.systemInstruction, /Do not mention first-person, FPOV, POV/);
+  assert.match(request.systemInstruction, /People, animals, vehicles, objects, and other subjects may appear naturally/);
+  assert.match(request.systemInstruction, /Do not mention looping/);
+  assert.match(request.prompt, /Authoritative starting frame id: A/);
+  assert.match(request.prompt, /Opening-beat intent already on the storyboard/);
+  assert.deepEqual(request.images, [input.startFrame.image]);
+  assert.doesNotMatch(request.prompt, /beats\[\]/);
+});
+
+test("Director story JSON validates into a filmmaker prompt", () => {
+  assert.equal(
+    parseDirectorStory('{"story":"Start in the attic and travel through the wardrobe into winter woods."}'),
+    "Start in the attic and travel through the wardrobe into winter woods.",
+  );
+  assert.throws(() => parseDirectorStory("{}"), /story must be a string/);
+  assert.throws(() => parseDirectorStory('{"story":"   "}'), /story must not be empty/);
+});
+
+test("Director.deriveStory uses ReasoningProvider and returns the story plus evidence", async () => {
+  const reasoning: ReasoningProvider = {
+    async complete() {
+      const result: ReasoningResult = {
+        provider: "replicate",
+        model: "mock/director",
+        modelVersion: "test",
+        predictionId: "pred-story",
+        status: "succeeded",
+        text: '{"story":"Start in the attic bedroom and keep moving through connected rooms."}',
+        metadata: {},
+        startedAt: "2026-09-06T00:00:00.000Z",
+        completedAt: "2026-09-06T00:00:01.000Z",
+        elapsedMs: 400,
+      };
+      return result;
+    },
+  };
+  const result = await deriveStory({ reasoning, startFrame: input.startFrame });
+  assert.equal(result.story, "Start in the attic bedroom and keep moving through connected rooms.");
+  assert.equal(result.predictionId, "pred-story");
+  assert.equal(result.request.startFrameId, "A");
 });
 

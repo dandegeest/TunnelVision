@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
 
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
+import { deriveStory } from "../media/src/director/derive-story.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
@@ -55,17 +56,43 @@ export function directorDevPlugin(repoRoot: string): Plugin {
       loadDotEnvLocal(repoRoot);
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
-        if (url !== "/api/director/plan") {
+        if (url !== "/api/director/plan" && url !== "/api/director/story") {
           next();
           return;
         }
         if (req.method !== "POST") {
-          sendJson(res, 405, { error: "POST /api/director/plan" });
+          sendJson(res, 405, { error: `POST ${url}` });
           return;
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
           const startFrame = directorStartFrameFromRequest(repoRoot, body);
+          if (url === "/api/director/story") {
+            const result = await deriveStory({
+              reasoning: new ReplicateReasoningProvider(),
+              startFrame,
+            });
+            sendJson(res, 200, {
+              story: result.story,
+              evidence: {
+                request: {
+                  story: result.story,
+                  agency: "directed",
+                  startFrameId: result.request.startFrameId,
+                  startFrameIntent: result.request.startFrameIntent,
+                  startMediaId: body.startMediaId,
+                  systemInstruction: result.request.systemInstruction,
+                  prompt: result.request.prompt,
+                },
+                rawText: result.rawText,
+                model: result.model,
+                modelVersion: result.modelVersion,
+                predictionId: result.predictionId,
+                elapsedMs: result.elapsedMs,
+              },
+            });
+            return;
+          }
           const anchors = directorAnchorsFromRequest(repoRoot, body);
           const storyboard = directorStoryboardFromRequest(body);
           const storyDuration =

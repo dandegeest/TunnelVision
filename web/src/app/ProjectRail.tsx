@@ -10,6 +10,7 @@ import {
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import type { Project } from "../project/types";
+import { TechnicalPanel } from "./TechnicalPanel";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { projectRailOpen, setProjectRailOpen } = useProject();
@@ -114,7 +115,7 @@ function StoryDurationField({
               : "AUTO lets the Director choose how many destinations. Type a number or use the stepper."
           }
           placeholder="AUTO"
-          className="min-w-0 flex-1 rounded-l border border-r-0 border-[#3a342c] bg-[#161410] px-2.5 py-1.5 text-[13px] tracking-[0.08em] text-[#ece7df] uppercase outline-none placeholder:text-[#9a8f7e] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e] read-only:cursor-default read-only:text-[#cfc6b8]"
+          className="min-w-0 flex-1 rounded-l border border-r-0 border-[#3a342c] bg-[#161410] px-2.5 py-1.5 text-[11px] tracking-[0.08em] text-[#ece7df] uppercase outline-none placeholder:text-[#9a8f7e] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e] read-only:cursor-default read-only:text-[#cfc6b8]"
           onFocus={() => {
             if (!locked) {
               setDraft(committed);
@@ -196,6 +197,27 @@ function StoryDurationField({
   );
 }
 
+export function planActionLabel(state: {
+  constructingBeatId: string | null;
+  blocking: boolean;
+  shooting: boolean;
+  planning: boolean;
+}): string {
+  if (state.constructingBeatId) {
+    return `Generating ${state.constructingBeatId}…`;
+  }
+  if (state.blocking) {
+    return "Blocking…";
+  }
+  if (state.shooting) {
+    return "Shooting…";
+  }
+  if (state.planning) {
+    return "Planning…";
+  }
+  return "PLAN";
+}
+
 export function ProjectRail() {
   const {
     composerDraft,
@@ -204,29 +226,44 @@ export function ProjectRail() {
     nudgeStoryDuration,
     setAutoGenerateOpening,
     setAutoGenerateAllDestinations,
+    setAutoBlockShots,
+    setAutoShoot,
     directorStatus,
     planStartError,
     startingFrameError,
     replacingStart,
     constructingBeatId,
+    assessingJourneyIds,
+    shootingJourneyIds,
     project,
     planWithDirector,
   } = useProject();
   const planning = directorStatus === "planning";
-  const busy = planning || Boolean(constructingBeatId);
+  const blocking = assessingJourneyIds.length > 0;
+  const shooting = shootingJourneyIds.length > 0;
+  const busy = planning || Boolean(constructingBeatId) || blocking || shooting;
   const canPlan = canPlanMovie(project) && !busy;
   const generatingA = constructingBeatId === "A";
   const generatingLater = Boolean(constructingBeatId && constructingBeatId !== "A");
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
+  const openingLocked = hasOpeningFrame;
+  const actionLabel = planActionLabel({
+    constructingBeatId,
+    blocking,
+    shooting,
+    planning,
+  });
   const planTitle = canPlanMovie(project)
-    ? project.autoGenerateAllDestinations
-      ? "Ask the Director to plan, then generate each remaining destination in order."
-      : project.autoGenerateOpening && !hasOpeningFrame
-        ? "Generate starting destination A from the story, then ask the Director to plan."
-        : "Ask the Director to plan unresolved directing decisions."
+    ? !project.story.trim()
+      ? "Write a journey story from starting frame A, then ask the Director to plan."
+      : project.autoGenerateAllDestinations
+        ? "Ask the Director to plan, then generate each remaining destination in order."
+        : project.autoGenerateOpening && !hasOpeningFrame
+          ? "Generate starting destination A from the story, then ask the Director to plan."
+          : "Ask the Director to plan unresolved directing decisions."
     : project.story.trim()
       ? "Add starting frame A before planning, or enable auto generate starting destination."
-      : "Enter a journey story before planning.";
+      : "Enter a journey story or upload starting frame A.";
 
   return (
     <aside
@@ -257,7 +294,7 @@ export function ProjectRail() {
           value={composerDraft}
           placeholder="Describe the journey…"
           aria-label="Journey story"
-          className="min-h-[10rem] w-full resize-y overflow-auto rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[13px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+          className="min-h-[10rem] w-full resize-y overflow-auto rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
           onChange={(event) => setComposerDraft(event.target.value)}
         />
         <StoryDurationField
@@ -269,9 +306,14 @@ export function ProjectRail() {
         <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
           <input
             type="checkbox"
-            checked={project.autoGenerateOpening}
-            disabled={busy}
+            checked={openingLocked ? false : project.autoGenerateOpening}
+            disabled={busy || openingLocked}
             aria-label="Auto generate starting destination"
+            title={
+              openingLocked
+                ? "Starting destination A is already actual."
+                : "Generate unresolved A from the journey story before planning."
+            }
             className="mt-0.5 accent-[#ece7df]"
             onChange={(event) => setAutoGenerateOpening(event.target.checked)}
           />
@@ -288,17 +330,44 @@ export function ProjectRail() {
           />
           Auto generate all destinations
         </label>
+        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+          <input
+            type="checkbox"
+            checked={project.autoBlockShots}
+            disabled={busy}
+            aria-label="Auto blocking"
+            className="mt-0.5 accent-[#ece7df]"
+            onChange={(event) => setAutoBlockShots(event.target.checked)}
+          />
+          Auto blocking
+        </label>
+        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+          <input
+            type="checkbox"
+            checked={project.autoShoot}
+            disabled={busy}
+            aria-label="Auto shoot"
+            className="mt-0.5 accent-[#ece7df]"
+            onChange={(event) => setAutoShoot(event.target.checked)}
+          />
+          Auto shoot
+        </label>
         <button
           type="button"
           aria-label="Plan movie"
+          aria-busy={busy || undefined}
           disabled={!canPlan}
           title={planTitle}
           onClick={() => {
             void planWithDirector();
           }}
-          className="self-start rounded border border-[#3a342c] px-3 py-1 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
+          className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
+            busy ? " storyboard-generating" : ""
+          }`}
         >
-          {planning ? "Planning…" : "PLAN"}
+          <span className={`relative z-[1]${busy ? " storyboard-generating-label" : ""}`}>
+            {actionLabel}
+          </span>
         </button>
         <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
           {replacingStart
@@ -307,20 +376,27 @@ export function ProjectRail() {
               ? "Generating A…"
               : generatingLater
                 ? `Generating ${constructingBeatId}…`
-                : planning
-                  ? "Director is planning…"
-                  : !project.story.trim()
-                    ? "Enter a journey story to begin."
-                    : !hasOpeningFrame && project.autoGenerateOpening
-                      ? project.autoGenerateAllDestinations
-                        ? "PLAN generates A, plans the journey, then generates each remaining destination in order."
-                        : "PLAN generates A from the story, then asks the Director to plan."
-                      : !hasOpeningFrame
-                        ? "Upload A or generate A from the story."
-                        : project.autoGenerateAllDestinations
-                          ? "PLAN then generates each remaining destination in order from the previous frame."
-                          : "PLAN asks the Director to fill unspecified beats."}
+                : blocking
+                  ? "Blocking shots…"
+                  : shooting
+                    ? "Shooting…"
+                    : planning
+                      ? "Director is planning…"
+                      : !project.story.trim() && hasOpeningFrame
+                        ? "PLAN writes a story from A, then asks the Director to plan."
+                        : !project.story.trim()
+                          ? "Enter a journey story or upload starting frame A."
+                          : !hasOpeningFrame && project.autoGenerateOpening
+                            ? project.autoGenerateAllDestinations
+                              ? "PLAN generates A, plans the journey, then generates each remaining destination in order."
+                              : "PLAN generates A from the story, then asks the Director to plan."
+                            : !hasOpeningFrame
+                              ? "Upload A or generate A from the story."
+                              : project.autoGenerateAllDestinations
+                                ? "PLAN then generates each remaining destination in order from the previous frame."
+                                : "PLAN asks the Director to fill unspecified beats."}
         </p>
+        <TechnicalPanel />
       </div>
     </aside>
   );

@@ -76,12 +76,19 @@ storyboard slots. After the first PLAN response the count is read-only and follo
 storyboard add/delete. Starting frame A must be an actual image before
 Add Destination or Shoot, and before PLAN unless auto-generate starting
 destination is on. When that toggle is on, PLAN generates unresolved A
-from the story and then runs Director planning. Auto-generate all
+from the story and then runs Director planning. If A is already actual
+and the story is empty, PLAN first asks the Director to write a
+journey story from that image, then continues with the existing plan.
+Auto-generate all
 destinations is independent and off by default; after a successful PLAN
 it constructs B…N in travel order from each preceding actual frame.
 Construction is sequential because each later beat is derived from the
 previous one. If a later construct fails, generation stops and the
-Director plan remains. Add
+Director plan remains. Auto blocking and Auto shoot are also
+independent and off by default. After destinations exist, Auto blocking
+blocks every actual adjacent pair. Auto shoot then generates
+those blocked legs, including CM hold and no-go warnings.
+Add
 Destination is structural only: it appends one unresolved slot and does
 not invoke the Director or generate an image. Delete is the same class of
 edit: it removes a later beat without planning or relabeling; opening A
@@ -93,13 +100,13 @@ unspecified directing decisions and does not overwrite specified
 filmmaking decisions or generate images. Agency (Directed vs Autonomous) is orthogonal and is not a
 stand-in for Discovery. Conversation is turn history; the Project panel
 holds the journey story, destination count, auto-generate-A,
-auto-generate-all, and PLAN. Storyboard stays disabled until a
-story is entered; then A may be uploaded or generated from that story.
+auto-generate-all, auto-block, auto-shoot, and PLAN. Opening A can be
+uploaded before a story is entered.
 When auto-generate starting destination is on, PLAN can generate A
 before Director planning. When auto-generate all destinations is on,
 PLAN then generates each remaining destination in order. Director activity appears in conversation when PLAN runs;
-pending **Planning…** and construction turns show a progress spinner.
-Empty Plan FPO thumbnails overlay Director intent in field form until
+pending **Planning…**, **Blocking…**, **Shooting…**, and construction turns show a progress spinner.
+Empty Plan FPO thumbnails overlay Director intent as readable text until
 an image exists. After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned edit
 (`ImageEditProvider` / FLUX Kontext Pro). Later planned beats stay
@@ -212,8 +219,14 @@ architecture.
     (informational), and format (informational). Unconstructed or
     metadata-less frames do not invent findings. Preflight does not
     crop, resize, convert, or replace filmmaker-provided media. Aspect
-    mismatch is marked on the affected thumbnail. Media Info is an
-    explicit opt-in strip, not a global diagnostic banner. Destination
+    mismatch is marked on the affected thumbnail. 16:9 tiles stay
+    fixed; source stills are contained (letterboxed or pillarboxed)
+    rather than stretched or cropped to fill. Media Info is an
+    explicit opt-in strip, not a global diagnostic banner. Debug is a
+    session header toggle: Technical lists session disk paths for
+    canonical stills and shooting frames, and Camotion work dirs are
+    kept only while Debug is on. Product shoot does not pass a depth
+    map. Destination
     actions live on the destination card (Replace…); Add Destination
     extends the storyboard without encoding construction strategy and
     does not invoke the Director. Conversation remains session UI:
@@ -336,7 +349,9 @@ canonical exists. **Cinematographer inspects actual adjacent sets and
 determines how the camera should move through their visible
 geography.** Both stills are first-person POV along the same forward
 travel; the end still is the next forward viewpoint, not a reverse
-angle.
+angle. The POV is unembodied: the viewer/camera operator must never be
+visible, while people, animals, vehicles, objects, and other subjects
+may appear naturally as part of the world.
 
 Current product slice: CM inspects two actual canonical stills for
 one JourneyShot and returns structured choreography (route, camera
@@ -346,9 +361,10 @@ suitability / concerns. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
 hard gate and not a prediction of whether the stochastic video model
 will succeed. A JourneyShot may progress even when CM reports
-`not_shootable`. Shoot tiles show to block / blocked / shooting / complete,
-with clear / hold / no go outlines after BLOCK; while BLOCK runs,
-that segment shows a progress spinner. Inspector copy stays
+`not_shootable`. Shoot tiles show Ready to block / Ready to shoot /
+Ready for edit, with clear / hold / no go outlines after BLOCK;
+while BLOCK or SHOOT runs, that segment uses the generating shimmer.
+Inspector copy stays
 Ready / Needs review / Not shootable. CM does **not** yet emit CameraMotionPlan, run
 Camotion, or generate video.
 

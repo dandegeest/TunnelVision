@@ -20,24 +20,29 @@ deliberately no Edit workspace.
 storyboard grid between a conversation history rail and a Project
 panel. The left rail is conversation turn history only. The Project
 panel holds the journey story, destination count (AUTO or a
-number, typed or stepped), auto-generate-A, auto-generate-all, and PLAN, and can collapse to the right
-like conversation collapses to the left. Storyboard stays disabled
-until a journey story is entered; then the filmmaker can upload A or
-generate A from that story. AUTO leaves later beats to the Director;
+number, typed or stepped), auto-generate-A, auto-generate-all, auto-block,
+auto-shoot, and PLAN, and can collapse to the right
+like conversation collapses to the left. Opening A can be uploaded
+before a story exists. AUTO leaves later beats to the Director;
 a number adds that many FPO destinations. After the first PLAN
 response the count is read-only and follows storyboard add/delete.
 When auto-generate starting destination is on, PLAN generates A from
-the story then runs Director planning. When it is off, PLAN stays
-disabled until A exists. When auto-generate all destinations is on,
+the story then runs Director planning. When A is already actual and
+the story is empty, PLAN first writes a journey story from that image.
+When auto-generate all destinations is on,
 PLAN then constructs B…N in travel order; later beats cannot run in
-parallel because each is derived from the previous actual frame. PLAN asks the Director to plan unspecified
+parallel because each is derived from the previous actual frame. Auto
+blocking then blocks every actual adjacent pair. Auto shoot then
+shoots blocked legs regardless of CM warnings. PLAN asks the Director to plan unspecified
 beats around the complete ordered storyboard; supplied stills remain
 authoritative. Planned beats start as FPO. Generate is centered beneath the
 planned thumbnail and builds the next planned beat from the preceding
 actual destination through image-conditioned edit; later beats stay
 planned until the filmmaker generates them. Empty FPO thumbnails overlay
-Director intent in field form until an image exists; intent and visual
-description for actual cards stay on-demand from the thumbnail. Construct is sequential **Derived**
+Director intent as readable text until an image exists; intent and visual
+description for actual cards stay on-demand from the thumbnail, with an
+editable prompt and Reshoot for generated stills. A generated still whose
+plan later changes shows Plan changed until Reshoot. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
@@ -45,10 +50,14 @@ production view of the current Project: consecutive actual adjacent
 canonicals appear as Destinations / JourneyShots automatically. Unrendered
 legs stay outlined. Legs that still need blocking use a neutral outline. After BLOCK, the
 outline follows advisory shootability: solid green for clear, dashed gold
-for hold, solid rust for no go. While BLOCK is running, that segment
-shows a progress spinner. Green fill appears only after the clip is
-complete. Tile copy uses to block / blocked / shooting / complete, plus
-clear / hold / no go when CM has returned. Select
+for hold, solid rust for no go. Those CM outlines are 2px. While BLOCK or SHOOT is running, the tile uses the
+same generating shimmer as Plan FPO thumbs, and more than one shoot
+can be in progress. Green fill appears only after the clip is
+complete. Tile copy uses Ready to block / Ready to shoot / Ready for
+edit, plus
+clear / hold / no go when CM has returned. The selected segment shows
+the next Block or Shoot control until the clip exists. The timeline is
+vertically resizable. Select
 a real leg and BLOCK to run the existing Cinematographer on those
 stills. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the leg,
@@ -155,7 +164,11 @@ The icon exposes the underlying finding; it does not crop, resize, or
 convert source media.
 
 Storyboard **Media Info** is an icon tool in the workspace header
-toolbar. Frame labels occupy a
+toolbar. **Debug** sits beside it and is session UI, not project
+persistence. With Debug on, Technical in the Project panel (and Shoot
+inspector) shows session disk paths for canonical stills and shooting
+frames. Camotion work dirs are kept only while Debug is on; product
+shoot does not pass a depth map. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
 stills expose Replace…, which swaps that
@@ -172,24 +185,33 @@ aspect, dimensions, format) appear in a thin bottom strip only when
 Media Info is on. Destination planning details (intent and visual
 description) are available from the destination thumbnail, not as
 persistent caption text under actual stills. Empty FPO thumbnails
-overlay Director intent in field form until an image exists. Do not silently alter filmmaker media.
+overlay Director intent as readable text until an image exists. Storyboard
+and other 16:9 thumbnails keep a fixed 16:9 tile. Source stills are
+centered and scaled to fit so the entire image stays visible; unused
+area letterboxes or pillarboxes. 16:9 stills fill the tile. Do not
+stretch or crop source media to fill the tile. Do not silently alter filmmaker media.
 
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. Journey story, destination count, auto-generate-A,
-auto-generate-all, and PLAN live in the Project panel,
-which can hide to the right. Storyboard stays disabled until a journey
-story is entered; then A may be uploaded or generated from that story.
-AUTO sizes later beats by Director choice; a number, typed or stepped,
+auto-generate-all, auto-block, auto-shoot, and PLAN live in the Project panel,
+which can hide to the right. Opening A can be uploaded before a journey
+story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first PLAN response the count is read-only.
 When auto-generate starting destination is on, PLAN generates A then
-runs Director planning. When auto-generate all destinations is on,
+runs Director planning. Uploading A before the first plan unchecks and
+disables that toggle. When A is actual and the story is empty, PLAN
+writes a story from A first. When auto-generate all destinations is on,
 PLAN then generates each remaining destination in order from the
-previous actual frame. PLAN appends a pending
+previous actual frame. Auto blocking and Auto shoot continue that
+pipeline after destinations exist. While PLAN or those auto stages run,
+the PLAN button uses the generating shimmer and names the current
+stage. PLAN appends a pending
 Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
-summary. Pending Director **Planning…** and construction turns show a
+summary. Pending Director **Planning…**, **Blocking…**, and
+**Shooting…** turns, and construction, show a
 progress spinner beside that status copy. Timestamps are stored on each conversation entry when it is
 created; the UI formats that stored time. Role labels are FILMMAKER
 and DIRECTOR.
@@ -241,8 +263,8 @@ it. Directed vs Autonomous is one project policy flag, not two UIs.
 
 Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
-describes how to shoot it. Timeline tiles use to block / blocked /
-shooting / complete, with clear / hold / no go outlines after
+describes how to shoot it. Timeline tiles use Ready to block / Ready
+to shoot / Ready for edit, with clear / hold / no go outlines after
 BLOCK. Compact inspector Ready / Needs review / Not shootable,
 camera path, and a concise summary remain on the analyzed leg;
 destination cards stay world-state. CM `not_shootable` does not change

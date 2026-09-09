@@ -147,9 +147,11 @@ that already have actual media. Story edits update `Project.story`
 without planning. Destination count (AUTO or a number, typed or stepped) sizes the
 storyboard before PLAN. When auto-generate starting destination is on,
 PLAN generates unresolved A from the story, then the Director plans.
-When auto-generate all destinations is on, PLAN then constructs B…N in
+When A is already actual and the story is empty, PLAN first derives a
+journey story from that opening still. When auto-generate all destinations is on, PLAN then constructs B…N in
 travel order from each preceding actual frame; later beats cannot run
-in parallel.
+in parallel. Auto blocking and Auto shoot continue after
+destinations exist.
 The filmmaker can replace a destination's canonical still in place.
 Delete removes a later storyboard beat without planning or relabeling;
 opening A cannot be deleted.

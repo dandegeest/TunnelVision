@@ -6,14 +6,24 @@ export function JourneyLane({
   journeys,
   projectJourneys,
   selection,
-  preparingJourneyId,
+  preparingJourneyIds,
+  shootingJourneyIds,
+  canBlockJourney,
+  canShootJourney,
   onSelect,
+  onBlock,
+  onShoot,
 }: {
   journeys: LaidOutJourney[];
   projectJourneys: JourneyShot[];
   selection: Selection;
-  preparingJourneyId?: string | null;
+  preparingJourneyIds?: readonly string[];
+  shootingJourneyIds?: readonly string[];
+  canBlockJourney?: (journey: JourneyShot) => boolean;
+  canShootJourney?: (journey: JourneyShot) => boolean;
   onSelect: (journeyId: string) => void;
+  onBlock?: (journeyId: string) => void;
+  onShoot?: (journeyId: string) => void;
 }) {
   return (
     <div className="absolute inset-x-0 top-[128px] z-[1] h-[56px]">
@@ -29,8 +39,15 @@ export function JourneyLane({
             laid={laid}
             journey={journey}
             selected={selected}
-            preparing={preparingJourneyId === laid.journeyId}
+            preparing={preparingJourneyIds?.includes(laid.journeyId) ?? false}
+            shooting={
+              (shootingJourneyIds?.includes(laid.journeyId) ?? false) || journey.status === "shooting"
+            }
+            canBlock={canBlockJourney?.(journey) ?? false}
+            canShoot={canShootJourney?.(journey) ?? false}
             onSelect={() => onSelect(laid.journeyId)}
+            onBlock={() => onBlock?.(laid.journeyId)}
+            onShoot={() => onShoot?.(laid.journeyId)}
           />
         );
       })}

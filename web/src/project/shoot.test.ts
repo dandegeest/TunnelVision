@@ -4,6 +4,7 @@ import { projectWithCinematographerAssessment } from "./cinematographer";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import {
   canShootJourney,
+  journeysReadyToAutoShoot,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
   projectWithJourneyShotTake,
@@ -99,5 +100,17 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(failed.journeys[0]?.status).toBe("failed");
     expect(failed.journeys[0]?.cinematographer).toEqual(assessment);
     expect(failed.journeys[0]?.shootError).toBe("provider down");
+  });
+
+  it("auto-shoots blocked legs regardless of CM warnings and skips completed takes", () => {
+    const hold = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    expect(journeysReadyToAutoShoot(hold).map((journey) => journey.id)).toEqual(["A-B"]);
+    const shooting = projectWithJourneyShooting(hold, "A-B");
+    expect(journeysReadyToAutoShoot(shooting)).toEqual([]);
+    const rendered = projectWithJourneyShotTake(shooting, "A-B", {
+      take,
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    expect(journeysReadyToAutoShoot(rendered)).toEqual([]);
   });
 });

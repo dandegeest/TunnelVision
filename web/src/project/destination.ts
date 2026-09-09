@@ -1,3 +1,4 @@
+import { UNEMBODIED_FIRST_PERSON_POV } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
 import { projectWithSyncedProductionLegs } from "./production-legs";
@@ -70,6 +71,8 @@ export function destinationConstructionPrompt(input: {
     visualDescription,
     "",
     "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera must have changed position. Preserve recognizable environmental continuity where physically appropriate.",
+    "",
+    UNEMBODIED_FIRST_PERSON_POV,
   ].join("\n");
 }
 
@@ -86,11 +89,66 @@ export function precedingActualFrame(
   return isActualTrustedFrame(previous) ? previous : undefined;
 }
 
+/** Spatial intent plus viewpoint prompt. Either field may stand in for a missing pair on reshoot. */
+export function destinationConstructionPlan(
+  frame: StoryboardFrame,
+): { intent: string; visualDescription: string } | null {
+  const intent = frame.intent?.trim() ?? "";
+  const visualDescription = frame.visualDescription?.trim() ?? "";
+  if (!intent && !visualDescription) {
+    return null;
+  }
+  return {
+    intent: intent || visualDescription,
+    visualDescription: visualDescription || intent,
+  };
+}
+
+/** Inputs that would be used to generate or reshoot this still right now. */
+export function storyboardGenerationSignature(project: Project, frame: StoryboardFrame): string | undefined {
+  if (frame.id === "A") {
+    const story = project.story.trim();
+    return story ? `story:${story}` : undefined;
+  }
+  const plan = destinationConstructionPlan(frame);
+  return plan ? `plan:${plan.intent}\n${plan.visualDescription}` : undefined;
+}
+
+export function generatedStillNeedsReshoot(project: Project, frame: StoryboardFrame): boolean {
+  if (frame.imageOrigin !== "generated" || !frame.image || !frame.generatedFrom) {
+    return false;
+  }
+  const current = storyboardGenerationSignature(project, frame);
+  return Boolean(current && current !== frame.generatedFrom);
+}
+
 export function canConstructDestinationFrame(project: Project, frame: StoryboardFrame): boolean {
   if (frame.imageOrigin !== "none" || frame.image) {
     return false;
   }
   if (!frame.intent?.trim() || !frame.visualDescription?.trim()) {
+    return false;
+  }
+  return Boolean(precedingActualFrame(project, frame));
+}
+
+export function canReshootOpeningFrame(project: Project): boolean {
+  if (!project.story.trim()) {
+    return false;
+  }
+  const opening = project.storyboard.find((frame) => frame.id === "A");
+  return Boolean(opening && opening.imageOrigin === "generated" && opening.image);
+}
+
+/** Regenerates an already-generated still. User-uploaded stills stay on Replace. */
+export function canReshootDestinationFrame(project: Project, frame: StoryboardFrame): boolean {
+  if (frame.imageOrigin !== "generated" || !frame.image) {
+    return false;
+  }
+  if (frame.id === "A") {
+    return canReshootOpeningFrame(project);
+  }
+  if (!destinationConstructionPlan(frame)) {
     return false;
   }
   return Boolean(precedingActualFrame(project, frame));
@@ -108,7 +166,9 @@ export function openingFrameGenerationPrompt(story: string): string {
   }
   return [
     "Generate a still photograph of the opening viewpoint of this first-person POV journey.",
-    "The camera is already in the world, looking continuously forward. Do not show a person, a camera, or text.",
+    "The camera is already in the world, looking continuously forward.",
+    UNEMBODIED_FIRST_PERSON_POV,
+    "Do not show text.",
     "",
     "Journey:",
     trimmed,
@@ -132,7 +192,7 @@ export type OpeningFrameGenerationRequest = {
 export function openingFrameGenerationRequestFromProject(
   project: Project,
 ): OpeningFrameGenerationRequest {
-  if (!canGenerateOpeningFrame(project)) {
+  if (!canGenerateOpeningFrame(project) && !canReshootOpeningFrame(project)) {
     throw new Error("Opening frame is not ready to generate");
   }
   return { story: project.story };
@@ -145,7 +205,7 @@ export function projectWithGeneratedOpeningFrame(
   if (!isTrustedMediaIdShape(next.mediaId)) {
     throw new Error("Generated opening frame has no trusted media identity");
   }
-  if (!canGenerateOpeningFrame(project)) {
+  if (!canGenerateOpeningFrame(project) && !canReshootOpeningFrame(project)) {
     throw new Error("Opening frame is not ready to generate");
   }
   return projectWithSyncedProductionLegs({
@@ -158,6 +218,7 @@ export function projectWithGeneratedOpeningFrame(
             mediaId: next.mediaId,
             imageOrigin: "generated",
             destinationId: frame.destinationId ?? "A",
+            generatedFrom: storyboardGenerationSignature(project, frame),
           }
         : frame,
     ),
@@ -169,17 +230,18 @@ export function destinationConstructionRequestFromProject(
   beatId: string,
 ): DestinationConstructionRequest {
   const beat = project.storyboard.find((frame) => frame.id === beatId);
-  const intent = beat?.intent?.trim() ?? "";
-  const visualDescription = beat?.visualDescription?.trim() ?? "";
+  const plan = beat ? destinationConstructionPlan(beat) : null;
   const previous = beat ? precedingActualFrame(project, beat) : undefined;
-  if (!beat || !previous || !canConstructDestinationFrame(project, beat) || !intent || !visualDescription) {
+  const constructable = Boolean(beat && canConstructDestinationFrame(project, beat));
+  const reshootable = Boolean(beat && beat.id !== "A" && canReshootDestinationFrame(project, beat));
+  if (!beat || !previous || !plan || (!constructable && !reshootable)) {
     throw new Error("Destination is not ready to construct");
   }
   return {
     sourceMediaId: previous.mediaId,
     beatId: beat.id,
-    intent,
-    visualDescription,
+    intent: plan.intent,
+    visualDescription: plan.visualDescription,
   };
 }
 
@@ -211,7 +273,7 @@ export function projectWithConstructedDestination(
     throw new Error("Constructed destination has no trusted media identity");
   }
   const beat = project.storyboard.find((frame) => frame.id === next.beatId);
-  if (!beat || beat.imageOrigin !== "none") {
+  if (!beat || (beat.imageOrigin !== "none" && beat.imageOrigin !== "generated")) {
     throw new Error("Destination is not a planned beat");
   }
   if (!precedingActualFrame(project, beat)) {
@@ -227,6 +289,7 @@ export function projectWithConstructedDestination(
             mediaId: next.mediaId,
             imageOrigin: "generated",
             destinationId: frame.destinationId ?? frame.id,
+            generatedFrom: storyboardGenerationSignature(project, frame),
           }
         : frame,
     ),

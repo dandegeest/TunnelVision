@@ -35,6 +35,8 @@ export function createWardrobeProject(): Project {
     storyDuration: "auto",
     autoGenerateOpening: false,
     autoGenerateAllDestinations: false,
+    autoBlockShots: false,
+    autoShoot: false,
     storyDurationLocked: false,
     storyboard: [
       {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
-import { canConstructDestinationFrame, canGenerateOpeningFrame } from "../project/destination";
+import { canConstructDestinationFrame, canGenerateOpeningFrame, canReshootDestinationFrame, generatedStillNeedsReshoot } from "../project/destination";
 import {
   displayProvenanceForFrame,
   formatMediaInfoLine,
@@ -10,7 +10,7 @@ import {
   type DisplayProvenance,
   type FramePreflightWarning,
 } from "../project/media-preflight";
-import { STARTING_FRAME_ACCEPT, canUploadStoryboardFrame } from "../project/starting-frame";
+import { STARTING_FRAME_ACCEPT, canUploadStoryboardFrame, hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
 
@@ -130,6 +130,7 @@ export function StoryboardFrameMedia({
   constructing,
   showMediaInfo = false,
   hasWarning = false,
+  planChanged = false,
   onSelect,
   detailOpen = false,
 }: {
@@ -138,26 +139,40 @@ export function StoryboardFrameMedia({
   constructing: boolean;
   showMediaInfo?: boolean;
   hasWarning?: boolean;
+  planChanged?: boolean;
   onSelect?: () => void;
   detailOpen?: boolean;
 }) {
   const frameBorder = selected
     ? "border-2 border-[#ece7df]"
-    : "border-2 border-[#3a342c]";
+    : planChanged
+      ? "border-2 border-dashed border-[#d4b36a]"
+      : "border-2 border-[#3a342c]";
   const provenance = displayProvenanceForFrame(frame);
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
   const fpoIntent = frame.intent?.trim() || undefined;
+  const showPlanChanged = planChanged && !constructing;
 
   return (
-    <span className={`relative block aspect-video w-full overflow-hidden ${frameBorder}`}>
+    <span className={`relative block aspect-video w-full overflow-hidden bg-black ${frameBorder}`}>
       {frame.image ? (
         <>
-          <img src={frame.image} alt="" className="block h-full w-full object-cover" />
+          <img src={frame.image} alt="" className="media-contain block h-full w-full" />
+          {showPlanChanged ? <span className="storyboard-plan-changed-veil" aria-hidden /> : null}
           <span className="storyboard-frame-label pointer-events-none absolute inset-x-0 top-0 flex h-6 items-center bg-[#0c0b0a]/72 px-1.5 pr-7">
             <span className={`min-w-0 truncate text-[11px] text-[#ece7df] ${labelTracking}`} title={frame.label}>
               {frame.label}
             </span>
           </span>
+          {showPlanChanged ? (
+            <span
+              className={`storyboard-plan-changed-flag pointer-events-none ${
+                showMediaInfo && frame.mediaInfo ? "bottom-8" : "bottom-1.5"
+              }`}
+            >
+              Plan changed
+            </span>
+          ) : null}
           {showMediaInfo && frame.mediaInfo ? (
             <span
               className={`storyboard-media-info pointer-events-none absolute inset-x-0 bottom-0 flex h-6 items-center gap-1.5 bg-[#0c0b0a]/72 px-1.5 text-[9px] leading-none tracking-[0.08em] text-[#d4cdc2] ${
@@ -240,7 +255,7 @@ export function DestinationGenerateControl({
 }
 
 export function formatFpoIntentField(intent: string): string {
-  return `"intent": ${JSON.stringify(intent)}`;
+  return intent.trim();
 }
 
 export function destinationDetailContent(frame: StoryboardFrame): {
@@ -262,16 +277,86 @@ export function destinationDetailContent(frame: StoryboardFrame): {
   return { label: frame.label, intent };
 }
 
+export function DestinationPlanFields({
+  frame,
+  disabled = false,
+  onPlanChange,
+}: {
+  frame: StoryboardFrame;
+  disabled?: boolean;
+  onPlanChange?: (next: { intent?: string; visualDescription?: string }) => void;
+}) {
+  const intent = frame.intent ?? "";
+  const visualDescription = frame.visualDescription ?? "";
+  const prompt = visualDescription || intent;
+  const showSeparateIntent = Boolean(intent.trim() && visualDescription.trim() && intent.trim() !== visualDescription.trim());
+  const editable = Boolean(onPlanChange);
+  const fieldClass =
+    "destination-detail-prompt mt-2 block w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2 py-1.5 text-[10px] leading-snug text-[#ece7df] outline-none focus-visible:border-[#ece7df] read-only:border-transparent read-only:bg-transparent read-only:px-0 read-only:py-0 disabled:opacity-40";
+
+  return (
+    <>
+      {showSeparateIntent ? (
+        <label className="mt-2 block">
+          <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
+          <textarea
+            aria-label={`Destination ${frame.label} intent`}
+            rows={2}
+            value={intent}
+            readOnly={!editable}
+            disabled={disabled}
+            className={fieldClass}
+            onChange={(event) => onPlanChange?.({ intent: event.target.value })}
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+          />
+        </label>
+      ) : null}
+      <label className="mt-2 block">
+        <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Prompt</span>
+        <textarea
+          aria-label={`Destination ${frame.label} prompt`}
+          rows={3}
+          value={prompt}
+          readOnly={!editable}
+          disabled={disabled}
+          className={`${fieldClass} destination-detail-visual`}
+          onChange={(event) => {
+            if (!onPlanChange) {
+              return;
+            }
+            if (frame.id === "A" && frame.visualDescription === undefined) {
+              onPlanChange({ intent: event.target.value });
+              return;
+            }
+            onPlanChange({ visualDescription: event.target.value });
+          }}
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        />
+      </label>
+    </>
+  );
+}
+
 export function DestinationDetailPopover({
   frame,
   initiallyOpen = false,
   open: openProp,
   onClose,
+  onPlanChange,
+  onReshoot,
+  canReshoot = false,
+  reshooting = false,
 }: {
   frame: StoryboardFrame;
   initiallyOpen?: boolean;
   open?: boolean;
   onClose?: () => void;
+  onPlanChange?: (next: { intent?: string; visualDescription?: string }) => void;
+  onReshoot?: () => void;
+  canReshoot?: boolean;
+  reshooting?: boolean;
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(initiallyOpen);
   const open = openProp ?? uncontrolledOpen;
@@ -326,13 +411,20 @@ export function DestinationDetailPopover({
           className="block rounded border border-[#3a342c] bg-[#12100d] px-2.5 py-2 text-left shadow-lg"
         >
           <span className="block text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">{content.label}</span>
-          {content.intent ? (
-            <span className="mt-2 block text-[12px] leading-snug text-[#cfc6b8]">{content.intent}</span>
-          ) : null}
-          {content.visualDescription ? (
-            <span className="destination-detail-visual mt-2 block text-[12px] leading-snug text-[#ece7df]">
-              {content.visualDescription}
-            </span>
+          <DestinationPlanFields frame={frame} disabled={reshooting} onPlanChange={onPlanChange} />
+          {canReshoot && onReshoot ? (
+            <button
+              type="button"
+              aria-label={`Reshoot destination ${frame.label}`}
+              disabled={reshooting}
+              className="mt-2 inline-flex h-7 items-center rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.16em] text-[#ece7df] uppercase outline-none hover:border-[#7a7266] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={(event) => {
+                event.stopPropagation();
+                onReshoot();
+              }}
+            >
+              {reshooting ? "Reshooting…" : "Reshoot"}
+            </button>
           ) : null}
         </span>
       ) : null}
@@ -475,11 +567,25 @@ export function PlanView() {
     constructingBeatId,
     constructDestination,
     generateOpeningFrame,
+    setDestinationPlan,
+    reshootDestination,
     mediaInfoOn,
+    assessingJourneyIds,
+    shootingJourneyIds,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
-  const storyboardLive = Boolean(project.story.trim());
+  const pipelineBusy =
+    planning ||
+    Boolean(constructingBeatId) ||
+    assessingJourneyIds.length > 0 ||
+    shootingJourneyIds.length > 0;
+  const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
+  const storyboardLive = Boolean(project.story.trim()) || hasOpeningFrame;
+  const openingUploadReady = project.storyboard.some(
+    (frame) => frame.id === "A" && frame.imageOrigin === "none" && !frame.image,
+  );
+  const boardInteractive = storyboardLive || openingUploadReady;
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
@@ -524,19 +630,22 @@ export function PlanView() {
           }}
         />
         {!storyboardLive ? (
-          <p className="mb-4 text-sm text-[#9a8f7e]">Enter a journey story in Project to begin.</p>
+          <p className="mb-4 text-sm text-[#9a8f7e]">
+            Enter a journey story or upload starting frame A.
+          </p>
         ) : null}
         <ol
           className={`grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7 ${
-            storyboardLive ? "" : "pointer-events-none opacity-40"
+            boardInteractive ? "" : "pointer-events-none opacity-40"
           }`}
-          aria-disabled={!storyboardLive || undefined}
+          aria-disabled={!boardInteractive || undefined}
         >
           {project.storyboard.map((frame) => {
             const selectedCard = frame.id === selectedId;
             const canConstruct = canConstructDestinationFrame(project, frame);
             const canGenerateOpening = frame.id === "A" && canGenerateOpeningFrame(project);
             const constructing = constructingBeatId === frame.id;
+            const planChanged = generatedStillNeedsReshoot(project, frame);
             const warnings = preflightWarningsForFrame(mediaPreflight, frame.id);
             const frameMedia = (
               <StoryboardFrameMedia
@@ -545,8 +654,9 @@ export function PlanView() {
                 constructing={constructing}
                 showMediaInfo={mediaInfoOn}
                 hasWarning={warnings.length > 0}
+                planChanged={planChanged}
                 onSelect={() => {
-                  if (!storyboardLive) {
+                  if (!boardInteractive) {
                     return;
                   }
                   select({ kind: "storyboard", frameId: frame.id });
@@ -563,7 +673,7 @@ export function PlanView() {
                   frameId={frame.id}
                   constructing={constructing}
                   canConstruct={canGenerateOpening || canConstruct}
-                  disabled={Boolean(constructingBeatId) || planning}
+                  disabled={pipelineBusy}
                   title={
                     canGenerateOpening
                       ? "Generate this opening frame from the journey story."
@@ -585,6 +695,12 @@ export function PlanView() {
                 frame={frame}
                 open={detailFrameId === frame.id}
                 onClose={() => setDetailFrameId(null)}
+                onPlanChange={(next) => setDestinationPlan(frame.id, next)}
+                canReshoot={canReshootDestinationFrame(project, frame)}
+                reshooting={constructing}
+                onReshoot={() => {
+                  void reshootDestination(frame.id);
+                }}
               />
             );
             return (
@@ -600,9 +716,14 @@ export function PlanView() {
                           setDetailFrameId((current) => (current === frame.id ? null : frame.id));
                         }
                       }}
-                      aria-label={`Storyboard ${frame.label}`}
+                      aria-label={planChanged ? `Storyboard ${frame.label}, plan changed` : `Storyboard ${frame.label}`}
                       aria-pressed={selectedCard}
                       aria-expanded={detailFrameId === frame.id}
+                      title={
+                        planChanged
+                          ? "The plan changed after this still was generated. Reshoot to update it."
+                          : undefined
+                      }
                     >
                       {frameMedia}
                     </button>
@@ -633,7 +754,7 @@ export function PlanView() {
                     data-destination-card={frame.id}
                   >
                     {frameMedia}
-                    {storyboardLive &&
+                    {boardInteractive &&
                     (canUploadStoryboardFrame(frame) || canRemoveStoryboardDestination(project, frame.id)) ? (
                       <DestinationMenu
                         frameId={frame.id}
@@ -669,7 +790,7 @@ export function PlanView() {
             <li className="min-w-0">
               <AddDestinationCard
                 onAdd={addDestination}
-                disabled={planning || Boolean(constructingBeatId)}
+                disabled={pipelineBusy}
               />
             </li>
           ) : null}

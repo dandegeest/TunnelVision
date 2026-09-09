@@ -93,7 +93,12 @@ export function shootDevPlugin(repoRoot: string): Plugin {
             repoRoot,
             body,
             renderFrame: (imagePath, plan) =>
-              renderCamotionShootingFrame({ repoRoot, imagePath, plan }),
+              renderCamotionShootingFrame({
+                repoRoot,
+                imagePath,
+                plan,
+                retainWorkDir: body.debug === true,
+              }),
             generateVideo: (request) => provider.generateVideo(request),
           });
           sendJson(res, 200, { take, videoUrl: take.videoUrl });

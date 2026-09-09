@@ -154,6 +154,28 @@ describe("runtime media HTTP", () => {
       false,
     );
   });
+
+  it("lists the session store directory for debug", async () => {
+    const registry = tempRegistry();
+    const recorded = registry.register(PNG, "image/png");
+    const req = Readable.from([]) as IncomingMessage;
+    req.method = "GET";
+    req.url = "/api/debug/media";
+    req.headers = {};
+    const res = mockResponse();
+    expect(await handleRuntimeMediaRequest(req, res as unknown as ServerResponse)).toBe(true);
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(String(res.body)) as {
+      storeDirectory: string;
+      records: { mediaId: string; filePath: string }[];
+      camotion: { depth: string };
+    };
+    expect(body.storeDirectory).toBe(registry.directory);
+    expect(body.records).toEqual([
+      expect.objectContaining({ mediaId: recorded.mediaId, filePath: recorded.filePath }),
+    ]);
+    expect(body.camotion.depth).toMatch(/does not pass --depth/i);
+  });
 });
 
 function mockResponse() {

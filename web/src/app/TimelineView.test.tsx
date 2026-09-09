@@ -62,6 +62,13 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain("Strong · raster");
   });
 
+  it("keeps destination tiles 16:9 and contains source stills without stretching", () => {
+    const html = renderShoot();
+    expect(html).toContain("media-contain");
+    expect(html).toContain("aspect-video");
+    expect(html).not.toContain("object-cover");
+  });
+
   it("exposes seam metrics in the inspector without a dashboard", () => {
     const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 });
     expect(html).toContain("Boundary continuity");
@@ -82,6 +89,19 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).not.toContain("Boundary continuity");
     expect(html).not.toContain("boundary match");
   });
+
+  it("lets Redo regenerate a generated canonical from the destination inspector", () => {
+    const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 });
+    expect(html).toContain('aria-label="Redo destination B"');
+    expect(html).toContain(">Redo<");
+    expect(html).toContain('aria-label="Destination B prompt"');
+    expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
+    expect(html).not.toContain("This is what the generated world actually gave us");
+    expect(html).not.toContain("The Cinematographer judges how to shoot");
+    const opening = renderShoot();
+    expect(opening).not.toContain('aria-label="Redo destination A"');
+    expect(opening).toContain("This is the opening destination.");
+  });
 });
 
 describe("Shoot Cinematographer journey assessment", () => {
@@ -89,11 +109,12 @@ describe("Shoot Cinematographer journey assessment", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
     expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, complete, clear");
-    expect(html).toContain("complete · clear");
+    expect(html).toContain("Journey A-B, Ready for edit, clear");
+    expect(html).toContain("Ready for edit · clear");
     expect(html).toContain("bg-[#142014]");
     expect(html).toContain("border-[#3f5a3a]");
-    expect(html).toContain("Status: complete");
+    expect(html).toContain("border-2");
+    expect(html).toContain("Status: Ready for edit");
     expect(html).toContain(">Ready<");
     expect(html).toContain("Walk through the root gateway into the darker mouth.");
     expect(html).toContain("Camera path.");
@@ -102,10 +123,12 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain(">Block<");
     expect(html).toContain(">Blocked<");
     expect(html).toContain('aria-label="Shoot A-B"');
+    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(1);
+    expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(1);
     expect(html).toContain(">Shoot<");
     expect(html).toContain('alt="A-B start A"');
     expect(html).toContain('alt="A-B end B"');
-    expect(html).not.toContain("Journey A-B, Ready");
+    expect(html).not.toContain("Journey A-B, Ready<");
     expect(html).not.toContain('"shootability"');
     expect(html).not.toContain(">Assess shot<");
   });
@@ -129,15 +152,17 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(blocked.journeys.find((journey) => journey.id === "E-F")?.status).toBe("rendered");
     const cd = renderShoot(blocked, { journeyId: "C-D" });
     const ef = renderShoot(blocked, { journeyId: "E-F" });
-    expect(cd).toContain("Journey C-D, complete, hold");
-    expect(cd).toContain("complete · hold");
+    expect(cd).toContain("Journey C-D, Ready for edit, hold");
+    expect(cd).toContain("Ready for edit · hold");
     expect(cd).toContain("border-[#d4b36a]");
     expect(cd).toContain("border-dashed");
+    expect(cd).toContain("border-2");
     expect(cd).toContain("bg-[#142014]");
     expect(cd).toContain(">Needs review<");
-    expect(ef).toContain("Journey E-F, complete, no go");
-    expect(ef).toContain("complete · no go");
+    expect(ef).toContain("Journey E-F, Ready for edit, no go");
+    expect(ef).toContain("Ready for edit · no go");
     expect(ef).toContain("border-[#c45c38]");
+    expect(ef).toContain("border-2");
     expect(ef).toContain("bg-[#142014]");
     expect(ef).toContain(">Not shootable<");
   });
@@ -261,18 +286,22 @@ describe("Shoot from a real planned project", () => {
       ],
     });
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, to block");
-    expect(html).toContain("Journey B-C, to block");
-    expect(html).toContain("to block");
+    expect(html).toContain("Journey A-B, Ready to block");
+    expect(html).toContain("Journey B-C, Ready to block");
+    expect(html).toContain("Ready to block");
     expect(html).toContain("border-[#3a342c]");
     expect(html).toContain("bg-transparent");
     expect(html).not.toContain("bg-[#142014]");
-    expect(html).toContain("Status: to block");
+    expect(html).toContain("Status: Ready to block");
     expect(html).toContain('aria-label="Destination A"');
     expect(html).toContain('aria-label="Destination B"');
     expect(html).toContain('aria-label="Destination C"');
     expect(html).toContain('aria-label="Block A-B"');
-    expect(html).toContain('alt="A-B start A"');
+    expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(2);
+    expect(html).not.toContain('aria-label="Block B-C"');
+    expect(html).not.toContain('aria-label="Shoot A-B"');
+    expect(html).toContain('aria-label="Resize timeline"');
+    expect(html).toContain("cursor-row-resize");
     expect(html).toContain('alt="A-B end B"');
     expect(html).not.toContain("Nothing is ready to shoot");
     expect(html).not.toContain(">Assess shot<");
@@ -305,16 +334,19 @@ describe("Shoot from a real planned project", () => {
       shootability: "needs_review",
     });
     const html = renderShoot(project, { journeyId: "A-B" });
-    expect(html).toContain("Journey A-B, blocked, hold");
-    expect(html).toContain("blocked · hold");
+    expect(html).toContain("Journey A-B, Ready to shoot, hold");
+    expect(html).toContain("Ready to shoot · hold");
     expect(html).toContain("border-[#d4b36a]");
     expect(html).toContain("border-dashed");
+    expect(html).toContain("border-2");
     expect(html).toContain("bg-transparent");
     expect(html).not.toContain("bg-[#142014]");
     expect(html).toContain(">Needs review<");
+    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Block A-B"/g) ?? []).length).toBe(1);
   });
 
-  it("spins on the segment while BLOCK is running", () => {
+  it("animates the segment while BLOCK is running", () => {
     const forest = createForestProject();
     const project = {
       ...forest,
@@ -329,15 +361,45 @@ describe("Shoot from a real planned project", () => {
         initialProject={project}
         initialView="shoot"
         initialSelection={{ kind: "journey", journeyId: "A-B" }}
-        initialAssessingJourneyId="A-B"
+        initialAssessingJourneyIds={["A-B"]}
       >
         <TimelineView />
       </ProjectProvider>,
     );
-    expect(html).toContain("animate-spin");
+    expect(html).toContain("storyboard-generating");
+    expect(html).toContain("storyboard-generating-label");
     expect(html).toContain('aria-busy="true"');
-    expect(html).toContain("Journey A-B, to block, blocking");
-    expect(html).toContain(">blocking<");
-    expect(html).not.toContain("Journey B-C, to block, blocking");
+    expect(html).toContain("Journey A-B, Ready to block");
+    expect(html).not.toContain("animate-spin");
+    expect(html).toContain("Journey B-C, Ready for edit");
+  });
+
+  it("animates shooting tiles without a spinner and tracks more than one in-progress shoot", () => {
+    const forest = createForestProject();
+    const project = {
+      ...forest,
+      journeys: forest.journeys.map((journey) =>
+        journey.id === "A-B" || journey.id === "B-C"
+          ? { ...journey, status: "shooting" as const }
+          : journey,
+      ),
+    };
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={project}
+        initialView="shoot"
+        initialSelection={{ kind: "journey", journeyId: "A-B" }}
+        initialShootingJourneyIds={["A-B", "B-C"]}
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("storyboard-generating");
+    expect(html).toContain("storyboard-generating-label");
+    expect(html).toContain('aria-busy="true"');
+    expect(html).toContain("Journey A-B, Ready to shoot");
+    expect(html).toContain("Journey B-C, Ready to shoot");
+    const spinningTiles = html.match(/animate-spin/g) ?? [];
+    expect(spinningTiles).toHaveLength(0);
   });
 });

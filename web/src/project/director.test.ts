@@ -9,7 +9,9 @@ import { createNewProject } from "./new-project";
 import {
   authoritativeStartFrame,
   directorPlanRequestFromProject,
+  directorStoryRequestFromProject,
   requestDirectorPlan,
+  requestDirectorStory,
 } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
@@ -84,6 +86,47 @@ describe("Director client boundary", () => {
         }),
     );
     await expect(requestDirectorPlan(payload)).rejects.toThrow(/beats\[\]/);
+  });
+
+  it("posts the opening still and returns a filmmaker journey story", async () => {
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
+      expect(JSON.parse(String(init?.body))).toEqual({
+        startFrameId: "A",
+        startMediaId: payload.startMediaId,
+        startFrameIntent: payload.startFrameIntent,
+      });
+      return new Response(
+        JSON.stringify({
+          story: "Start in the attic bedroom and travel through the wardrobe into winter woods.",
+          evidence: {
+            request: {
+              story: "Start in the attic bedroom and travel through the wardrobe into winter woods.",
+              agency: "directed",
+              startFrameId: "A",
+              startFrameIntent: payload.startFrameIntent,
+              startMediaId: payload.startMediaId,
+              systemInstruction: "Director story",
+              prompt: "Write a story",
+            },
+            rawText: '{"story":"..."}',
+            model: "google/gemini-3.1-pro",
+            modelVersion: null,
+            predictionId: "pred-story",
+            elapsedMs: 40,
+          },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await requestDirectorStory({
+      startFrameId: "A",
+      startMediaId: payload.startMediaId,
+      startFrameIntent: payload.startFrameIntent,
+    });
+    expect(fetchMock).toHaveBeenCalledWith("/api/director/story", expect.objectContaining({ method: "POST" }));
+    expect(result.story).toMatch(/attic bedroom/);
+    expect(result.evidence.predictionId).toBe("pred-story");
   });
 });
 
@@ -176,6 +219,11 @@ describe("Director request from Project state", () => {
     expect(() => directorPlanRequestFromProject({ ...project, story: "   \n" })).toThrow(
       /filmmaker story/i,
     );
+    expect(directorStoryRequestFromProject({ ...project, story: "" })).toEqual({
+      startFrameId: "A",
+      startMediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+      startFrameIntent: project.storyboard[0]?.intent,
+    });
   });
 
   it("sends the edited story on re-plan without substituting the Wardrobe prompt", () => {

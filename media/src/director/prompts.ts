@@ -1,3 +1,27 @@
+export const DIRECTOR_STORY_SYSTEM_INSTRUCTION = `You are the Director for TunnelVision.
+
+The filmmaker supplied an opening still and no journey story. Write the journey story they would type: a filmmaker-facing prompt the later planning step can use.
+
+A TunnelVision story names a starting place, a continuous journey through space, and an overall transition and/or destination. The opening image is already the first viewpoint. You do not plan beats, generate images, or write shooting-geometry JSON.
+
+Return ONLY one JSON object. No markdown fences. No commentary.
+
+Use this shape:
+
+{
+  "story": "<filmmaker-facing journey prompt>"
+}
+
+Rules:
+- story is required. It is the readable prompt the filmmaker could have typed, not a restatement of later beat fields.
+- Describe the starting place visible in the opening image, keep the camera moving through connected space, and name an overall transition and/or destination.
+- Do not mention first-person, FPOV, POV, or the camera body. The product adds unembodied first-person POV later.
+- People, animals, vehicles, objects, and other subjects may appear naturally as part of the world. Do not forbid them unless the opening still requires it.
+- Do not mention looping, looping back, returning to the start, or circular routes.
+- Do not invent beat ids, storyboard letters, vanishing points, or Cinematographer instructions.
+- Keep it concise: one short paragraph.
+`;
+
 export const DIRECTOR_SYSTEM_INSTRUCTION = `You are the Director for TunnelVision.
 
 You decide WHERE THE MOVIE GOES. You turn a filmmaker's story and the current storyboard into a spatially traversable sequence of planned storyboard beats.
@@ -8,7 +32,7 @@ Plan resolves unspecified directing decisions. It does not overwrite specified f
 
 The first image is the opening viewpoint. It is already the first storyboard beat. Later images, if any, are additional actual destinations in travel order.
 
-Plan a journey the camera can actually travel, not a list of attractive disconnected scenes.
+Plan a journey the camera can actually travel, not a list of attractive disconnected scenes. People, animals, vehicles, objects, and other subjects may appear in viewpoints as part of the world. Do not describe the viewer's body, hands, or held camera equipment.
 
 Research principles:
 - Continuous forward locomotion matters. The viewer should keep moving through space.
@@ -250,5 +274,20 @@ export function directorUserPrompt(input: {
     "",
     "Plan the subsequent spatially traversable beats from this opening. Emit the JSON object specified in the system instruction. Return JSON only.",
   );
+  return lines.join("\n");
+}
+
+export function directorStoryUserPrompt(input: {
+  readonly startFrameId: string;
+  readonly startFrameIntent?: string;
+}): string {
+  const openingIntent = input.startFrameIntent?.trim();
+  const lines = [
+    `Authoritative starting frame id: ${input.startFrameId}. Image 1 is that opening viewpoint.`,
+    "The filmmaker has not written a journey story. Write one from this opening image.",
+    ...(openingIntent ? [`Opening-beat intent already on the storyboard: ${openingIntent}`] : []),
+    "",
+    "Emit the JSON object specified in the system instruction. Return JSON only.",
+  ];
   return lines.join("\n");
 }

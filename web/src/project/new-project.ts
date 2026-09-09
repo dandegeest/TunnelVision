@@ -11,6 +11,8 @@ export function createNewProject(): Project {
     storyDuration: "auto",
     autoGenerateOpening: true,
     autoGenerateAllDestinations: false,
+    autoBlockShots: false,
+    autoShoot: false,
     storyDurationLocked: false,
     storyboard: [
       {

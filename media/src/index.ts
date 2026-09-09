@@ -93,6 +93,7 @@ export {
   cinematographerAssessmentUserPrompt,
 } from "./cinematographer/assessment-prompts.ts";
 export {
+  UNEMBODIED_FIRST_PERSON_POV,
   TUNNELVISION_LOCOMOTION_BASELINE,
   composeShootingPrompt,
 } from "./cinematographer/shooting-prompt.ts";

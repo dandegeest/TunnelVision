@@ -259,6 +259,8 @@ describe("providing starting frame A on a new project", () => {
     expect(next.journeys).toEqual([]);
     expect(hasAuthoritativeStartingFrame(next)).toBe(true);
     expect(canProvideStartingFrame(next.storyboard[0]!)).toBe(false);
+    expect(next.autoGenerateOpening).toBe(false);
+    expect(project.autoGenerateOpening).toBe(true);
   });
 
   it("fills an unresolved later slot without treating it as starting frame A", () => {

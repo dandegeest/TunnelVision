@@ -9,12 +9,13 @@ import { FilmmakingFrame } from "./FilmmakingFrame";
 import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField } from "./PlanView";
 import {
   canConstructDestinationFrame,
+  generatedStillNeedsReshoot,
   projectWithConstructedDestination,
 } from "../project/destination";
 import type { DirectorEvidence } from "../project/director";
 import { ProjectProvider } from "../project/ProjectProvider";
 import { STARTING_FRAME_ACCEPT } from "../project/starting-frame";
-import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan } from "../project/storyboard";
+import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "../project/storyboard";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
 
 const AT = "2026-09-07T22:03:00.000Z";
@@ -67,6 +68,10 @@ function renderPlan(
     composerDraft?: string;
     mediaInfo?: boolean;
     constructingBeatId?: string | null;
+    assessingJourneyIds?: readonly string[];
+    shootingJourneyIds?: readonly string[];
+    directorStatus?: "idle" | "planning" | "ready" | "error";
+    debug?: boolean;
   },
 ) {
   return renderToStaticMarkup(
@@ -75,7 +80,11 @@ function renderPlan(
       initialConversation={options?.conversation}
       initialComposerDraft={options?.composerDraft}
       initialMediaInfo={options?.mediaInfo}
+      initialDebug={options?.debug}
       initialConstructingBeatId={options?.constructingBeatId}
+      initialAssessingJourneyIds={options?.assessingJourneyIds}
+      initialShootingJourneyIds={options?.shootingJourneyIds}
+      initialDirectorStatus={options?.directorStatus}
     >
       <FilmmakingFrame>
         <PlanView />
@@ -104,14 +113,18 @@ describe("Plan project story", () => {
     const html = renderPlan();
     expect(html).toContain('id="project-story"');
     expect(html).toContain('aria-label="Journey story"');
-    expect(html).toContain("text-[13px]");
+    expect(html).toContain("text-[11px]");
     expect(html).toContain("resize-y");
     expect(html).toContain('aria-label="Resize story panel"');
     expect(html).toContain('aria-label="Resize project panel"');
     expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
     expect(html).toContain('aria-label="Plan movie"');
+    expect(html).toContain("relative w-full overflow-hidden rounded");
     expect(html).toContain(">PLAN<");
+    expect(html).toContain(">Technical<");
+    expect(html).toContain("Turn on Debug in the header");
+    expect(html).not.toContain(">Debug<");
     expect(html).not.toContain('aria-label="Send"');
     expect(html).not.toContain("Send is not a filmmaking command yet");
     expect(html).toContain("Add Destination");
@@ -122,6 +135,16 @@ describe("Plan project story", () => {
     expect(html).not.toContain("You ·");
     expect(html).not.toContain('aria-label="Construct destination B"');
     expect(html).not.toContain("Filmmaker");
+  });
+
+  it("shows session asset paths under Technical when Debug is on", () => {
+    const html = renderPlan(createWardrobeProject(), { debug: true });
+    expect(html).toContain(">Technical<");
+    expect(html).toContain(">Debug<");
+    expect(html).toContain("Session store.");
+    expect(html).toContain("Canonical A.");
+    expect(html).toContain("does not pass --depth");
+    expect(html).not.toContain("Turn on Debug in the header");
   });
 
   it("keeps the current story in the Project panel after a Director plan", () => {
@@ -150,11 +173,11 @@ describe("Plan project story", () => {
     expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(1);
   });
 
-  it("does not enable the storyboard while the journey story is empty", () => {
+  it("does not enable later destinations while the journey story is empty", () => {
     const html = renderPlan(createNewProject(), { composerDraft: "" });
     expect(html).not.toContain("Filmmaker");
-    expect(html).toContain("Enter a journey story in Project to begin.");
-    expect(html).not.toContain('aria-label="Destination A actions"');
+    expect(html).toContain("Enter a journey story or upload starting frame A.");
+    expect(html).toContain('aria-label="Destination A actions"');
     expect(html).not.toContain('aria-label="Generate destination A"');
     expect(html).not.toContain("Add Destination");
   });
@@ -173,16 +196,17 @@ describe("Plan project story", () => {
 });
 
 describe("Plan storyboard FPO intent", () => {
-  it("overlays Director intent on empty FPO thumbnails in field form", () => {
+  it("overlays Director intent on empty FPO thumbnails as readable text", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
     const html = renderPlan(planned);
     expect(html).toContain("storyboard-fpo-label");
     expect(html).toContain("storyboard-fpo-intent");
     expect(formatFpoIntentField("Move forward into the next space.")).toBe(
-      `"intent": "Move forward into the next space."`,
+      "Move forward into the next space.",
     );
     expect(html).toContain("Move forward into the next space.");
-    expect(html).toContain("&quot;intent&quot;");
+    expect(html).not.toContain("&quot;intent&quot;");
+    expect(html).not.toContain('"intent":');
     expect(html).not.toContain("A corridor continuing the same world.");
     expect(html).not.toContain("Deeper volume ahead.");
     expect(html).not.toContain("A cavern continuing the same world.");
@@ -460,6 +484,13 @@ describe("Plan storyboard chrome", () => {
     expect(html).not.toContain("Uploaded</span>");
   });
 
+  it("keeps storyboard tiles 16:9 and contains source stills without stretching", () => {
+    const html = renderFrame(createForestProject().storyboard[0]!);
+    expect(html).toContain("aspect-video");
+    expect(html).toContain("media-contain");
+    expect(html).not.toContain("object-cover");
+  });
+
   it("keeps the label strip visible regardless of Media Info", () => {
     const off = renderPlan(createForestProject());
     const on = renderPlan(createForestProject(), { mediaInfo: true });
@@ -671,6 +702,8 @@ describe("Plan destination details", () => {
     expect(html).toContain("Move forward into the next space.");
     expect(html).toContain("A corridor continuing the same world.");
     expect(html).toContain("destination-detail-visual");
+    expect(html).toContain('aria-label="Destination B intent"');
+    expect(html).toContain('aria-label="Destination B prompt"');
     const closed = renderPlan(planned);
     expect(closed).toContain("Move forward into the next space.");
     expect(closed).not.toContain("A corridor continuing the same world.");
@@ -693,10 +726,36 @@ describe("Plan destination details", () => {
       visualDescription: "A corridor continuing the same world.",
     });
     const html = renderToStaticMarkup(
-      <DestinationDetailPopover frame={constructedB.storyboard[1]!} initiallyOpen />,
+      <DestinationDetailPopover
+        frame={constructedB.storyboard[1]!}
+        initiallyOpen
+        canReshoot
+        onReshoot={() => undefined}
+      />,
     );
     expect(html).toContain("Move forward into the next space.");
     expect(html).toContain("A corridor continuing the same world.");
+    expect(html).toContain('aria-label="Reshoot destination B"');
+    expect(html).toContain(">Reshoot<");
+  });
+
+  it("marks a generated still when the plan changes before reshoot", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    const constructedB = projectWithConstructedDestination(planned, {
+      beatId: "B",
+      mediaId: "upload-11111111111111111111111111111111",
+      imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
+    });
+    expect(generatedStillNeedsReshoot(constructedB, constructedB.storyboard[1]!)).toBe(false);
+    const stale = projectWithStoryboardBeatPlan(constructedB, "B", {
+      visualDescription: "A warmer corridor with an open doorway.",
+    });
+    expect(generatedStillNeedsReshoot(stale, stale.storyboard[1]!)).toBe(true);
+    const html = renderPlan(stale);
+    expect(html).toContain("Plan changed");
+    expect(html).toContain("storyboard-plan-changed-flag");
+    expect(html).toContain('aria-label="Storyboard B, plan changed"');
+    expect(renderPlan(constructedB)).not.toContain("Plan changed");
   });
 
   it("does not treat Add Destination or empty frames as destination details", () => {
@@ -808,18 +867,106 @@ describe("Plan Director conversation UI", () => {
     expect(html).toContain(formatConversationClock(AT));
     expect(html).toContain(formatConversationClock(AT2));
   });
+
+  it("renders Blocking and Shooting cards with collapsible results", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        {
+          id: "b1",
+          createdAt: AT,
+          kind: "blocking",
+          journeyId: "A-B",
+          status: "blocking",
+        },
+        {
+          id: "b2",
+          createdAt: AT2,
+          kind: "blocking",
+          journeyId: "B-C",
+          status: "blocked",
+          assessment: {
+            shootability: "shootable",
+            summary: "Track forward through the connected volumes.",
+            route: "Advance from the current volume into the next.",
+            threshold: "The opening ahead.",
+            camera: "Track forward along the visible corridor.",
+            parallax: "Near walls the camera can pass.",
+            transitionStrategy: "Pass through the visible opening.",
+            segmentPromptAddition: "Track forward through the visible opening.",
+            camotionSuitability: "appropriate",
+            concerns: [],
+          },
+        },
+        {
+          id: "s1",
+          createdAt: AT2,
+          kind: "shooting",
+          journeyId: "A-B",
+          status: "shooting",
+        },
+        {
+          id: "s2",
+          createdAt: AT2,
+          kind: "shooting",
+          journeyId: "B-C",
+          status: "shot",
+          videoUrl: "/api/runtime-media/upload-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          take: {
+            startShootingFrame: {
+              mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              imageUrl: "/a-prime.png",
+            },
+            endShootingFrame: {
+              mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              imageUrl: "/b-prime.png",
+            },
+            startPlan: {
+              version: 1,
+              camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+              destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+              exposure: { strength: 0.08, samples: 16 },
+            },
+            endPlan: {
+              version: 1,
+              camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+              destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+              exposure: { strength: 0.08, samples: 16 },
+            },
+            segmentPromptAddition: "Track forward.",
+            effectivePrompt: "First person POV camera continuously moving forward.",
+            provider: "replicate",
+            model: "prunaai/p-video",
+            modelVersion: "test",
+            durationSeconds: 6,
+            videoInputs: { startShootingFrame: true, endShootingFrame: true },
+          },
+        },
+      ],
+    });
+    expect(html).toContain("Blocking A-B…");
+    expect(html).toContain("Shooting A-B…");
+    expect(html).toContain("conversation-blocking");
+    expect(html).toContain("conversation-shooting");
+    expect(html).toContain("Track forward through the connected volumes.");
+    expect(html).toContain("Shot B-C.");
+    expect(html).toContain("<summary");
+    expect(html).toContain("Cinematographer");
+    expect(html).toContain("Take");
+  });
 });
 
 describe("new-project Plan", () => {
-  it("keeps unresolved A disabled until a journey story exists", () => {
+  it("lets A be uploaded before a journey story exists", () => {
     const html = renderPlan(createNewProject(), { composerDraft: "" });
     expect(html).toContain('data-destination-card="A"');
     expect(html).toContain("storyboard-fpo");
     expect(html).toContain('aria-label="Storyboard A"');
-    expect(html).not.toContain('aria-label="Destination A actions"');
+    expect(html).toContain('aria-label="Destination A actions"');
     expect(html).not.toContain('aria-label="Generate destination A"');
     expect(html).toContain('placeholder="Describe the journey…"');
     expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+    expect(html).toContain("Enter a journey story or upload starting frame A.");
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
     expect(html).not.toContain("FOREST A→F");
@@ -841,8 +988,16 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Decrease destinations"');
     expect(html).toContain('aria-label="Auto generate starting destination"');
     expect(html).toContain('aria-label="Auto generate all destinations"');
+    expect(html).toContain('aria-label="Auto blocking"');
+    expect(html).toContain('aria-label="Auto shoot"');
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Auto generate all destinations"|aria-label="Auto generate all destinations"[^>]*checked/,
+    );
+    expect(html).not.toMatch(
+      /checked[^>]*aria-label="Auto blocking"|aria-label="Auto blocking"[^>]*checked/,
+    );
+    expect(html).not.toMatch(
+      /checked[^>]*aria-label="Auto shoot"|aria-label="Auto shoot"[^>]*checked/,
     );
     expect(html).not.toMatch(/<button type="button" aria-label="Plan movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
@@ -855,6 +1010,32 @@ describe("new-project Plan", () => {
       autoGenerateOpening: false,
     });
     expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+  });
+
+  it("lets PLAN run when A is actual and the story is empty", () => {
+    const withA = {
+      ...createNewProject(),
+      story: "",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    const html = renderPlan(withA, { composerDraft: "" });
+    expect(html).not.toMatch(/<button type="button" aria-label="Plan movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).toContain("PLAN writes a story from A");
+    expect(html).not.toContain("Add Destination");
+    expect(html).toMatch(
+      /disabled[^>]*aria-label="Auto generate starting destination"|aria-label="Auto generate starting destination"[^>]*disabled/,
+    );
+    expect(html).not.toMatch(
+      /checked[^>]*aria-label="Auto generate starting destination"|aria-label="Auto generate starting destination"[^>]*checked/,
+    );
   });
 
   it("shows Add Destination as soon as actual A exists", () => {
@@ -905,6 +1086,32 @@ describe("new-project Plan", () => {
     expect(html).toMatch(
       /<button[^>]*aria-label="Add Destination"[^>]*\sdisabled(?:="[^"]*")?[\s>]|<button[^>]*\sdisabled(?:="[^"]*")?[^>]*aria-label="Add Destination"/,
     );
+  });
+
+  it("animates PLAN with the current pipeline stage", () => {
+    const withA = {
+      ...createNewProject(),
+      story: "Travel forward through an imagined interior at night.",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        },
+      ],
+    };
+    const planning = renderPlan(withA, { directorStatus: "planning" });
+    expect(planning).toContain("storyboard-generating");
+    expect(planning).toContain("Planning…");
+    const generating = renderPlan(withA, { constructingBeatId: "B" });
+    expect(generating).toContain("Generating B…");
+    expect(generating).toContain("storyboard-generating");
+    const blocking = renderPlan(withA, { assessingJourneyIds: ["A-B"] });
+    expect(blocking).toContain("Blocking…");
+    const shooting = renderPlan(withA, { shootingJourneyIds: ["A-B"] });
+    expect(shooting).toContain("Shooting…");
   });
 
   it("exposes Upload image on unresolved destinations added after A", () => {

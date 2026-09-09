@@ -55,6 +55,12 @@ export function canAssessJourney(project: Project, journey: JourneyShot): boolea
   );
 }
 
+export function journeysReadyToBlock(project: Project): JourneyShot[] {
+  return project.journeys.filter(
+    (journey) => canAssessJourney(project, journey) && !journey.cinematographer,
+  );
+}
+
 export function cinematographerShootabilityLabel(
   shootability: CinematographerShootability,
 ): "Ready" | "Needs review" | "Not shootable" {
@@ -83,20 +89,31 @@ export function cinematographerShootabilityTileLabel(
 }
 
 /**
- * Production ladder for a journey leg: to block / blocked / shooting / complete.
+ * Next production step for a journey leg, shown as Ready to [step].
  * Internal JourneyShot.status stays ready / shooting / rendered / failed.
  */
 export function journeyLegStatusLabel(journey: JourneyShot): string {
   switch (journey.status) {
     case "shooting":
-      return "shooting";
+      return "Ready to shoot";
     case "rendered":
-      return "complete";
+      return "Ready for edit";
     case "failed":
       return "failed";
     default:
-      return journey.cinematographer ? "blocked" : "to block";
+      return journey.cinematographer ? "Ready to shoot" : "Ready to block";
   }
+}
+
+/** Next move on a selected Shoot tile. Hidden once the clip exists. */
+export function journeyTileAction(journey: JourneyShot): "block" | "shoot" | null {
+  if (journey.status === "rendered") {
+    return null;
+  }
+  if (journey.cinematographer || journey.status === "shooting") {
+    return "shoot";
+  }
+  return "block";
 }
 
 export function journeySegmentCaption(journey: JourneyShot): string {

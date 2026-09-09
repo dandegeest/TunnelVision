@@ -1,12 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
-import { projectWithDirectorPlan } from "./storyboard";
+import { projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "./storyboard";
 import { projectWithReplacedStartImage } from "./starting-frame";
 import { createNewProject } from "./new-project";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import {
   canConstructDestinationFrame,
   canGenerateOpeningFrame,
+  canReshootDestinationFrame,
+  canReshootOpeningFrame,
+  generatedStillNeedsReshoot,
   nextConstructableDestinationId,
   destinationConstructionPrompt,
   destinationConstructionRequestFromProject,
@@ -85,6 +88,9 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/narrow stone corridor with orange light/);
     expect(prompt).toMatch(/spatial continuation/i);
     expect(prompt).toMatch(/camera must have changed position/i);
+    expect(prompt).toMatch(/unembodied first-person POV/);
+    expect(prompt).toMatch(/People, animals, vehicles, objects, and other subjects may appear naturally/);
+    expect(prompt).not.toMatch(/Do not show a person/);
     expect(prompt).not.toMatch(/vanishing point/i);
     expect(prompt).not.toMatch(/Camotion/i);
     expect(prompt).not.toMatch(/Seedance/i);
@@ -324,11 +330,49 @@ describe("opening frame generation", () => {
     const withStory = { ...empty, story: "Travel forward through an imagined interior at night." };
     expect(canGenerateOpeningFrame(withStory)).toBe(true);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Travel forward through an imagined interior at night/);
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/unembodied first-person POV/);
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
+      /People, animals, vehicles, objects, and other subjects may appear naturally/,
+    );
+    expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/Do not show a person/);
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Do not show text/);
     expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({ story: withStory.story });
     const generated = projectWithGeneratedOpeningFrame(withStory, generatedB);
     expect(generated.storyboard[0]?.imageOrigin).toBe("generated");
     expect(generated.storyboard[0]?.mediaId).toBe(generatedB.mediaId);
     expect(generated.storyboard[0]?.destinationId).toBe("A");
+    expect(generated.storyboard[0]?.generatedFrom).toBe(`story:${withStory.story}`);
+    expect(generatedStillNeedsReshoot(generated, generated.storyboard[0]!)).toBe(false);
     expect(canGenerateOpeningFrame(generated)).toBe(false);
+    expect(canReshootOpeningFrame(generated)).toBe(true);
+    expect(openingFrameGenerationRequestFromProject(generated)).toEqual({ story: generated.story });
+    const reshots = projectWithGeneratedOpeningFrame(generated, generatedC);
+    expect(reshots.storyboard[0]?.mediaId).toBe(generatedC.mediaId);
+  });
+});
+
+describe("destination reshoot", () => {
+  it("rebuilds an already generated beat from the current plan and previous actual", () => {
+    const actualB = withActualB();
+    expect(canConstructDestinationFrame(actualB, actualB.storyboard[1]!)).toBe(false);
+    expect(canReshootDestinationFrame(actualB, actualB.storyboard[1]!)).toBe(true);
+    const request = destinationConstructionRequestFromProject(actualB, "B");
+    expect(request.sourceMediaId).toBe(actualB.storyboard[0]?.mediaId);
+    expect(request.intent).toBe(beats.beats[0]?.intent);
+    const reshots = projectWithConstructedDestination(actualB, {
+      beatId: "B",
+      ...generatedC,
+    });
+    expect(reshots.storyboard[1]?.mediaId).toBe(generatedC.mediaId);
+    expect(reshots.storyboard[1]?.imageOrigin).toBe("generated");
+    expect(reshots.storyboard[1]?.intent).toBe(actualB.storyboard[1]?.intent);
+    expect(canReshootDestinationFrame(actualB, actualB.storyboard[0]!)).toBe(false);
+    expect(actualB.storyboard[1]?.generatedFrom).toContain("plan:");
+    expect(generatedStillNeedsReshoot(actualB, actualB.storyboard[1]!)).toBe(false);
+    const stale = projectWithStoryboardBeatPlan(actualB, "B", {
+      visualDescription: "A rewritten viewpoint after the still already exists.",
+    });
+    expect(generatedStillNeedsReshoot(stale, stale.storyboard[1]!)).toBe(true);
+    expect(generatedStillNeedsReshoot(reshots, reshots.storyboard[1]!)).toBe(false);
   });
 });

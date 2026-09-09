@@ -13,6 +13,7 @@ import {
   RuntimeMediaError,
   setActiveRuntimeMediaRegistry,
 } from "./runtime-media.ts";
+import { debugMediaSnapshot } from "./debug-media.ts";
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.statusCode = status;
@@ -57,6 +58,10 @@ export async function handleRuntimeMediaRequest(
   res: ServerResponse,
 ): Promise<boolean> {
   const url = req.url?.split("?")[0] ?? "";
+  if (req.method === "GET" && url === "/api/debug/media") {
+    sendJson(res, 200, debugMediaSnapshot());
+    return true;
+  }
   if (req.method === "POST" && url === "/api/runtime-media") {
     try {
       const registry = getActiveRuntimeMediaRegistry();

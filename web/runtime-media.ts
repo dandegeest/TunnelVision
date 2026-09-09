@@ -90,6 +90,7 @@ export type RuntimeMediaRegistry = {
   directory: string;
   register(bytes: Buffer, contentType?: string): RuntimeMediaRecord & { imageUrl: string };
   get(id: string): RuntimeMediaRecord | undefined;
+  list(): RuntimeMediaRecord[];
 };
 
 export function createRuntimeMediaRegistry(directory: string): RuntimeMediaRegistry {
@@ -135,6 +136,9 @@ export function createRuntimeMediaRegistry(directory: string): RuntimeMediaRegis
         return undefined;
       }
       return entries.get(id);
+    },
+    list() {
+      return [...entries.values()];
     },
   };
 }

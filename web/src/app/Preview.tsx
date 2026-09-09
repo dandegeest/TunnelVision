@@ -65,7 +65,7 @@ export function Preview() {
         ? `Preview · Destination ${destination.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`
         : "Preview";
 
-  let caption = "This is what the generated world actually gave us.";
+  let caption = destination ? `Destination ${destination.label}` : "";
   if (shootEmpty) {
     caption = "Nothing is ready to shoot until the journey has actual adjacent destinations.";
   } else if (selectedJourney && !playable) {

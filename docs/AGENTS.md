@@ -99,16 +99,31 @@ stepped, adds that
 many FPO slots. After the first PLAN response the count is read-only
 and follows storyboard add/delete. When auto-generate starting
 destination is on, PLAN generates unresolved A from the story before
-Director planning. When auto-generate all destinations is on, PLAN then
+Director planning. Uploading A before the first plan turns that toggle
+off and disables it. When the opening still is already actual and the
+story is empty, PLAN first asks the Director to write a journey story
+from that image, then continues with the existing plan. When auto-generate all destinations is on, PLAN then
 constructs B…N in travel order from each preceding actual frame. Later
 beats cannot run in parallel. If a later construct fails, generation
 stops and the Director plan remains.
+Auto blocking and Auto shoot are independent and off by default.
+After destinations exist, Auto blocking runs the Cinematographer on
+every actual adjacent pair. Auto shoot then generates each blocked
+leg, including those with CM hold or no-go warnings.
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while PLAN or sequential destination
 generation is running. Delete removes a later storyboard beat without
 relabeling remaining ids or calling the Director; opening A cannot be
 deleted. The filmmaker can replace a destination's
-canonical still in place from the destination menu. Replacing either
+canonical still in place from the destination menu. Storyboard and
+other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
+(letterbox or pillarbox) rather than stretching or cropping them.
+Clicking a
+storyboard still opens destination details: the prompt is editable and
+updates that beat's plan; Reshoot regenerates a generated still from
+the current prompt. If the plan changes after a still exists, that
+thumbnail shows Plan changed until Reshoot. Shoot Redo on the same canonical does the same
+thing. Replacing either
 canonical still on a production leg returns that JourneyShot to not
 prepared and not shot. Add Destination
 extends the storyboard after the last configured frame; it is not
@@ -117,12 +132,24 @@ durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
+Debug is a session header toggle, not project persistence. Technical
+in the Project panel lists session store paths for canonical stills
+and, after SHOOT, segment A′/B′ and Camotion work dirs. With Debug on,
+Camotion keeps plan.json and shooting.png; otherwise those work dirs
+are deleted after the shooting frames are copied into the session
+store. Product shoot does not pass --depth, and Camotion does not
+estimate depth maps.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically, and BLOCK runs the existing Cinematographer on the
-selected leg. Shoot tiles read to block / blocked / shooting / complete;
-after BLOCK the outline is clear / hold / no go. While BLOCK
-runs, that segment shows a progress spinner. SHOOT on a blocked leg runs Camotion and a configurable
+selected leg. The selected segment also shows the next move (Block or
+Shoot) until a clip exists. Shoot tiles read Ready to block / Ready to shoot / Ready for edit; after BLOCK the outline is clear / hold / no go.
+The Shoot timeline height is resizable with the same separator
+interaction as the story and project panels.
+While BLOCK or SHOOT runs, that segment uses the same generating
+shimmer as Plan FPO thumbs. The app
+can track more than one blocking or shooting operation at a time.
+SHOOT on a blocked leg runs Camotion and a configurable
 video model; the current development generator is `prunaai/p-video` with
 A′ as `image` and B′ as `last_frame_image`. After replacement, that destination
 keeps its identity. First destination-construction observation:
@@ -163,7 +190,12 @@ when the geography supports it. Apparent foreground obstacles are
 not automatic refusals; CM should say how the camera might negotiate
 visible geometry. Both stills are first-person POV along the same
 forward travel direction; the end still is the next forward viewpoint,
-not a reverse angle.
+not a reverse angle. TunnelVision uses an unembodied first-person POV:
+the camera has a position and trajectory, but the viewer/camera
+operator must never be visible. People, animals, vehicles, objects, and
+other subjects may appear naturally as part of the world. Product still
+and video prompts add that constraint; filmmaker and Director story
+text should not.
 
 Do **not** generate CameraMotionPlan, Camotion shooting frames, or
 video from this assessment. Do not expand the Integration Test 01
@@ -372,7 +404,8 @@ atmosphere can help preserve continuous locomotion.
 
 The frozen locomotion baseline now lives in
 `media/src/cinematographer/shooting-prompt.ts` as
-`TUNNELVISION_LOCOMOTION_BASELINE`. SHOOT concatenates that baseline
+`TUNNELVISION_LOCOMOTION_BASELINE`. That baseline includes
+`UNEMBODIED_FIRST_PERSON_POV`. SHOOT concatenates that baseline
 with the CM `segmentPromptAddition` via `composeShootingPrompt`.
 Do not LLM-merge them. Preserve Terran
 Boylan / original TunnelVision provenance for the baseline. Do not
