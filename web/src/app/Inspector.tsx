@@ -14,6 +14,8 @@ import { destinationById, storyboardFrameForDestination, type CinematographerAss
 import { layoutTimeline } from "../timeline/geometry";
 import { DestinationPlanFields } from "./PlanView";
 import { TechnicalPanel } from "./TechnicalPanel";
+import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
+import { camotionRecordsForDestination } from "../project/camotion-diagnostics";
 
 export function Inspector() {
   const {
@@ -70,6 +72,12 @@ export function Inspector() {
       : undefined;
     const canReshoot = frame ? canReshootDestinationFrame(project, frame) : false;
     const reshooting = Boolean(frame && constructingBeatId === frame.id);
+    const camotionRecords = camotionRecordsForDestination(
+      project,
+      selection.destinationId,
+      occurrence?.inboundJourneyId ?? null,
+      occurrence?.outboundJourneyId ?? null,
+    );
 
     return (
       <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
@@ -117,6 +125,7 @@ export function Inspector() {
             </button>
           </div>
         ) : null}
+        <CamotionDiagnosticPanel records={camotionRecords} />
         <TechnicalPanel />
       </aside>
     );

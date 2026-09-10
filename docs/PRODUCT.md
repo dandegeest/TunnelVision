@@ -123,7 +123,10 @@ the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 PLAN is not a prerequisite for shooting actual adjacent canonicals.
 Stage and Generate for the selected leg live under the preview.
-Generate stays Generate after a clip exists, and journey tiles keep status copy
+Generate stays Generate after a clip exists. After a clip exists, the
+preview tabs between the take and the A|B canonical stills. Selecting a destination
+exposes stored Camotion A′/B′ for that occurrence as a read-only preview
+toggle, a CameraMotionPlan overlay on the still, and inspector facts. Journey tiles keep status copy
 only. BLOCK on a selected actual leg runs the existing Cinematographer
 against those stills and stores choreography on that JourneyShot.
 SHOOT on a blocked leg derives a deterministic CameraMotionPlan v1,
@@ -248,7 +251,7 @@ architecture.
     canonical stills and shooting frames, and Camotion work dirs are
     kept only while Debug is on. Product shoot does not pass a depth
     map. Destination
-    actions live on the destination card (Replace…); Add Destination
+    actions live on the destination card (Reshoot on generated stills, Replace…); Add Destination
     extends the storyboard without encoding construction strategy and
     does not invoke the Director. Conversation remains session UI:
     PLAN appends a Director entry that goes from

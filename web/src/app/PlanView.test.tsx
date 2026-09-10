@@ -6,7 +6,7 @@ import { createNewProject } from "../project/new-project";
 import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
 import { FilmmakingFrame } from "./FilmmakingFrame";
-import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField } from "./PlanView";
+import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, StoryboardReel, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField, storyboardReelFrames } from "./PlanView";
 import {
   canConstructDestinationFrame,
   generatedStillNeedsReshoot,
@@ -645,8 +645,27 @@ describe("Plan destination affordance and menu", () => {
     expect(html).not.toContain("Duplicate");
     expect(html).not.toContain("Rename");
     expect(html).not.toContain("Regenerate");
+    expect(html).not.toContain("Reshoot");
     expect(html).not.toContain("Download");
     expect(html).not.toContain("Discover");
+  });
+
+  it("exposes Reshoot on generated stills", () => {
+    const html = renderToStaticMarkup(
+      <DestinationMenu
+        frameId="B"
+        label="B"
+        initiallyOpen
+        onReshoot={() => undefined}
+        onReplace={() => undefined}
+        onDelete={() => undefined}
+      />,
+    );
+    expect(html).toContain('aria-label="Reshoot destination B"');
+    expect(html).toContain(">Reshoot<");
+    expect(html).toContain("Replace…");
+    expect(html).toContain("Delete");
+    expect(html.indexOf("Reshoot")).toBeLessThan(html.indexOf("Replace…"));
   });
 
   it("exposes Upload image on unresolved starting frame A", () => {
@@ -672,6 +691,92 @@ describe("Plan destination affordance and menu", () => {
     const html = renderFrame(createForestProject().storyboard[0]!, { showMediaInfo: true });
     expect(html).toContain("storyboard-frame-label");
     expect(html).toContain("pr-7");
+  });
+});
+
+describe("Plan storyboard reel", () => {
+  function buttonOpenTag(html: string, label: string) {
+    const start = html.indexOf(`aria-label="${label}"`);
+    const tagStart = html.lastIndexOf("<button", start);
+    const tagEnd = html.indexOf(">", start);
+    return html.slice(tagStart, tagEnd + 1);
+  }
+
+  function isDisabled(html: string, label: string) {
+    return /\sdisabled(?:="[^"]*")?[\s>]/.test(buttonOpenTag(html, label));
+  }
+
+  it("keeps the reel overlay inside the storyboard, not over the rails", () => {
+    const html = renderPlan(createForestProject());
+    const storyboard = html.indexOf('aria-label="Storyboard"');
+    const sectionOpen = html.lastIndexOf("<section", storyboard);
+    expect(html.slice(sectionOpen, storyboard)).toContain("relative");
+    expect(html.slice(sectionOpen, storyboard)).toContain("overflow-hidden");
+    expect(html).not.toContain("storyboard-reel");
+    expect(html).toContain('aria-label="Destination A plan"');
+  });
+
+  it("contains the still at the largest scale that fits the storyboard area", () => {
+    const forest = createForestProject();
+    const html = renderToStaticMarkup(
+      <StoryboardReel
+        frames={forest.storyboard}
+        currentId="B"
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    expect(html).toContain("storyboard-reel");
+    expect(html).toContain("absolute inset-0");
+    expect(html).not.toContain("fixed inset-0");
+    expect(html).toContain('aria-label="Storyboard reel, destination B"');
+    expect(html).toContain('alt="Destination B"');
+    expect(html).toContain("media-contain");
+    expect(html).toContain("max-h-full max-w-full");
+    expect(html).not.toContain("object-cover");
+    expect(html).toContain('aria-label="Previous destination"');
+    expect(html).toContain('aria-label="Next destination"');
+    expect(html).toContain('aria-label="Close storyboard reel"');
+    expect(isDisabled(html, "Previous destination")).toBe(false);
+    expect(isDisabled(html, "Next destination")).toBe(false);
+  });
+
+  it("disables previous on the first actual still and next on the last", () => {
+    const forest = createForestProject();
+    const first = renderToStaticMarkup(
+      <StoryboardReel
+        frames={forest.storyboard}
+        currentId="A"
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    const last = renderToStaticMarkup(
+      <StoryboardReel
+        frames={forest.storyboard}
+        currentId="F"
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    expect(isDisabled(first, "Previous destination")).toBe(true);
+    expect(isDisabled(first, "Next destination")).toBe(false);
+    expect(isDisabled(last, "Next destination")).toBe(true);
+    expect(isDisabled(last, "Previous destination")).toBe(false);
+  });
+
+  it("skips unresolved FPO slots in the reel", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    expect(storyboardReelFrames(planned.storyboard).map((frame) => frame.id)).toEqual(["A"]);
+    const html = renderToStaticMarkup(
+      <StoryboardReel
+        frames={planned.storyboard}
+        currentId="A"
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    expect(isDisabled(html, "Next destination")).toBe(true);
   });
 });
 

@@ -184,7 +184,8 @@ explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
 Project. Stage and Generate for the selected leg live under the preview;
-Generate stays Generate after a clip exists. BLOCK on a selected actual leg runs the existing
+Generate stays Generate after a clip exists. After a clip exists, the
+preview tabs between the take and the A|B canonical stills. BLOCK on a selected actual leg runs the existing
 Cinematographer assessment through `ReasoningProvider` and stores
 segment-specific camera choreography on that JourneyShot, including
 `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
@@ -243,7 +244,7 @@ source stills are contained (letterboxed or pillarboxed), not
 stretched or cropped to fill. Debug is a session header
 toggle; Technical lists session asset paths, and Camotion work dirs
 are kept only while Debug is on. Destination actions live in
-the destination menu. Director conversation entries resolve in place
+the destination menu, including Reshoot for generated stills. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
 summary. Conversation timestamps are stored on the entry. Pending
 Director **Planning…**, Cinematographer **Blocking…**, **Shooting…**,

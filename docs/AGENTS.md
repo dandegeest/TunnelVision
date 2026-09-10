@@ -117,14 +117,19 @@ call the Director. It is disabled while PLAN or sequential destination
 generation is running. Delete removes a later storyboard beat without
 relabeling remaining ids or calling the Director; opening A cannot be
 deleted. The filmmaker can replace a destination's
-canonical still in place from the destination menu. If that slot already has
+canonical still in place from the destination menu, or Reshoot a generated
+still from the current prompt. If that slot already has
 intent or a visual description, upload asks whether to clear them so a later
 PLAN can describe the new still. Storyboard and
 other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
 (letterbox or pillarbox) rather than stretching or cropping them.
 Clicking a
-storyboard still opens destination details: the prompt is editable and
-updates that beat's plan; Reshoot regenerates a generated still from
+storyboard still (outside the label, kebab, and media-info strips) opens a
+storyboard-bounded reel: the still is contained at the largest scale that
+fits the storyboard area, with previous and next among actual stills. The
+reel does not cover the conversation or Project rails. Clicking the label
+strip opens destination details: the prompt is editable and
+updates that beat's plan; Reshoot on the kebab or in details regenerates a generated still from
 the current prompt. If the plan changes after a still exists, that
 thumbnail shows Plan changed until Reshoot. Shoot Redo on the same canonical does the same
 thing. Replacing either
@@ -151,7 +156,13 @@ Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically, and BLOCK runs the existing Cinematographer on the
 selected leg. Stage and Generate live under the preview for the selected
-leg; Generate stays Generate after a clip exists. Journey tiles keep status
+leg; Generate stays Generate after a clip exists. After a clip exists, the
+preview tabs between the take and the same A|B canonical stills shown
+before the clip. When a destination is selected, the preview can toggle
+that occurrence's canonical still against stored Camotion A′/B′, draw the
+stored CameraMotionPlan as a read-only overlay on the displayed still
+(travel path, radial direction, points; letterboxed to the image), and the
+inspector lists the take's CameraMotionPlan facts read-only. Journey tiles keep status
 copy only. Shoot tiles read Stage / Film / Export; after BLOCK the outline is clear / hold / no go.
 The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels.

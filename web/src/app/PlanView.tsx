@@ -137,6 +137,8 @@ export function StoryboardFrameMedia({
   hasWarning = false,
   planChanged = false,
   onSelect,
+  onOpenReel,
+  onOpenDetails,
   detailOpen = false,
 }: {
   frame: StoryboardFrame;
@@ -146,6 +148,8 @@ export function StoryboardFrameMedia({
   hasWarning?: boolean;
   planChanged?: boolean;
   onSelect?: () => void;
+  onOpenReel?: () => void;
+  onOpenDetails?: () => void;
   detailOpen?: boolean;
 }) {
   const frameBorder = selected
@@ -157,18 +161,53 @@ export function StoryboardFrameMedia({
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
   const fpoIntent = frame.intent?.trim() || undefined;
   const showPlanChanged = planChanged && !constructing;
+  const stillLabel = planChanged ? `Storyboard ${frame.label}, plan changed` : `Storyboard ${frame.label}`;
+  const still = frame.image ? (
+    <img src={frame.image} alt="" className="media-contain block h-full w-full" />
+  ) : null;
 
   return (
     <span className={`relative block aspect-video w-full overflow-hidden bg-black ${frameBorder}`}>
       {frame.image ? (
         <>
-          <img src={frame.image} alt="" className="media-contain block h-full w-full" />
+          {onOpenReel ? (
+            <button
+              type="button"
+              className="absolute inset-0 z-0 p-0"
+              onClick={onOpenReel}
+              aria-label={stillLabel}
+              aria-pressed={selected}
+              title={
+                planChanged
+                  ? "The plan changed after this still was generated. Reshoot to update it."
+                  : undefined
+              }
+            >
+              {still}
+            </button>
+          ) : (
+            still
+          )}
           {showPlanChanged ? <span className="storyboard-plan-changed-veil" aria-hidden /> : null}
-          <span className="storyboard-frame-label pointer-events-none absolute inset-x-0 top-0 flex h-6 items-center bg-[#0c0b0a]/72 px-1.5 pr-7">
-            <span className={`min-w-0 truncate text-[11px] text-[#ece7df] ${labelTracking}`} title={frame.label}>
-              {frame.label}
+          {onOpenDetails ? (
+            <button
+              type="button"
+              className="storyboard-frame-label absolute inset-x-0 top-0 z-[1] flex h-6 items-center bg-[#0c0b0a]/72 px-1.5 pr-7 outline-none focus-visible:ring-1 focus-visible:ring-[#d4b36a]"
+              onClick={onOpenDetails}
+              aria-label={`Destination ${frame.label} plan`}
+              aria-expanded={detailOpen || undefined}
+            >
+              <span className={`min-w-0 truncate text-[11px] text-[#ece7df] ${labelTracking}`} title={frame.label}>
+                {frame.label}
+              </span>
+            </button>
+          ) : (
+            <span className="storyboard-frame-label pointer-events-none absolute inset-x-0 top-0 flex h-6 items-center bg-[#0c0b0a]/72 px-1.5 pr-7">
+              <span className={`min-w-0 truncate text-[11px] text-[#ece7df] ${labelTracking}`} title={frame.label}>
+                {frame.label}
+              </span>
             </span>
-          </span>
+          )}
           {showPlanChanged ? (
             <span
               className={`storyboard-plan-changed-flag pointer-events-none ${
@@ -180,9 +219,9 @@ export function StoryboardFrameMedia({
           ) : null}
           {showMediaInfo && frame.mediaInfo ? (
             <span
-              className={`storyboard-media-info pointer-events-none absolute inset-x-0 bottom-0 flex h-6 items-center gap-1.5 bg-[#0c0b0a]/72 px-1.5 text-[9px] leading-none tracking-[0.08em] text-[#d4cdc2] ${
-                hasWarning ? "pr-8" : ""
-              }`}
+              className={`storyboard-media-info absolute inset-x-0 bottom-0 z-[1] flex h-6 items-center gap-1.5 bg-[#0c0b0a]/72 px-1.5 text-[9px] leading-none tracking-[0.08em] text-[#d4cdc2] ${
+                onOpenReel ? "pointer-events-auto" : "pointer-events-none"
+              } ${hasWarning ? "pr-8" : ""}`}
             >
               {provenance ? <ProvenanceIcon provenance={provenance} /> : null}
               <span className="min-w-0 truncate">{formatMediaInfoLine(frame.mediaInfo)}</span>
@@ -443,14 +482,20 @@ export function DestinationMenu({
   initiallyOpen = false,
   actionLabel = "Replace…",
   onReplace,
+  onReshoot,
   onDelete,
+  reshooting = false,
+  reshootDisabled = false,
 }: {
   frameId: string;
   label: string;
   initiallyOpen?: boolean;
   actionLabel?: string;
   onReplace?: () => void;
+  onReshoot?: () => void;
   onDelete?: () => void;
+  reshooting?: boolean;
+  reshootDisabled?: boolean;
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -502,6 +547,22 @@ export function DestinationMenu({
           role="menu"
           className="absolute top-full right-0 z-20 mt-0.5 min-w-[7.5rem] rounded border border-[#3a342c] bg-[#12100d] py-1 shadow-lg"
         >
+          {onReshoot ? (
+            <button
+              type="button"
+              role="menuitem"
+              aria-label={`Reshoot destination ${label}`}
+              disabled={reshooting || reshootDisabled}
+              className="block w-full px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916] disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={(event) => {
+                event.stopPropagation();
+                setOpen(false);
+                onReshoot();
+              }}
+            >
+              {reshooting ? "Reshooting…" : "Reshoot"}
+            </button>
+          ) : null}
           {onReplace ? (
             <button
               type="button"
@@ -560,6 +621,143 @@ export function AddDestinationCard({
   );
 }
 
+function ReelChevron({ direction }: { direction: "prev" | "next" }) {
+  return (
+    <svg viewBox="0 0 12 24" className="h-8 w-4" aria-hidden>
+      {direction === "prev" ? (
+        <path
+          d="M8.5 2 2.5 12 8.5 22"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <path
+          d="M3.5 2 9.5 12 3.5 22"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+    </svg>
+  );
+}
+
+export function storyboardReelFrames(frames: readonly StoryboardFrame[]): StoryboardFrame[] {
+  return frames.filter((frame) => Boolean(frame.image));
+}
+
+export function StoryboardReel({
+  frames,
+  currentId,
+  onClose,
+  onSelect,
+}: {
+  frames: readonly StoryboardFrame[];
+  currentId: string;
+  onClose: () => void;
+  onSelect: (frameId: string) => void;
+}) {
+  const reel = storyboardReelFrames(frames);
+  const index = reel.findIndex((frame) => frame.id === currentId);
+  const current = index >= 0 ? reel[index] : undefined;
+  const prev = index > 0 ? reel[index - 1] : undefined;
+  const next = index >= 0 && index < reel.length - 1 ? reel[index + 1] : undefined;
+
+  useEffect(() => {
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key === "ArrowLeft" && prev?.id) {
+        event.preventDefault();
+        onSelect(prev.id);
+        return;
+      }
+      if (event.key === "ArrowRight" && next?.id) {
+        event.preventDefault();
+        onSelect(next.id);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose, onSelect, prev?.id, next?.id]);
+
+  if (!current?.image) {
+    return null;
+  }
+
+  return (
+    <div
+      className="storyboard-reel absolute inset-0 z-30 flex bg-[#0c0b0a]"
+      role="dialog"
+      aria-label={`Storyboard reel, destination ${current.label}`}
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        aria-label="Close storyboard reel"
+        className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+        onClick={(event) => {
+          event.stopPropagation();
+          onClose();
+        }}
+      >
+        <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden>
+          <path d="M3 3l6 6M9 3 3 9" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      </button>
+      <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.22em] text-[#ece7df] uppercase">
+        {current.label}
+      </span>
+      <button
+        type="button"
+        aria-label="Previous destination"
+        disabled={!prev}
+        className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
+        onClick={(event) => {
+          event.stopPropagation();
+          if (prev) {
+            onSelect(prev.id);
+          }
+        }}
+      >
+        <ReelChevron direction="prev" />
+      </button>
+      <div
+        className="flex h-full min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden px-1 py-10"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <img
+          src={current.image}
+          alt={`Destination ${current.label}`}
+          className="media-contain max-h-full max-w-full"
+        />
+      </div>
+      <button
+        type="button"
+        aria-label="Next destination"
+        disabled={!next}
+        className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
+        onClick={(event) => {
+          event.stopPropagation();
+          if (next) {
+            onSelect(next.id);
+          }
+        }}
+      >
+        <ReelChevron direction="next" />
+      </button>
+    </div>
+  );
+}
+
 export function PlanView() {
   const {
     project,
@@ -595,6 +793,7 @@ export function PlanView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
   const [detailFrameId, setDetailFrameId] = useState<string | null>(null);
+  const [reelFrameId, setReelFrameId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!detailFrameId) {
@@ -611,11 +810,22 @@ export function PlanView() {
     return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [detailFrameId]);
 
+  useEffect(() => {
+    if (!reelFrameId) {
+      return;
+    }
+    const frame = project.storyboard.find((item) => item.id === reelFrameId);
+    if (!frame?.image) {
+      setReelFrameId(null);
+    }
+  }, [project.storyboard, reelFrameId]);
+
   return (
     <section
-      className="h-full min-h-0 min-w-0 overflow-auto px-6 py-5"
+      className="relative h-full min-h-0 min-w-0 overflow-hidden"
       aria-label="Storyboard"
     >
+      <div className="h-full min-h-0 overflow-auto px-6 py-5">
         <input
           ref={fileInputRef}
           id="replace-destination-image"
@@ -656,6 +866,19 @@ export function PlanView() {
             const constructing = constructingBeatId === frame.id;
             const planChanged = generatedStillNeedsReshoot(project, frame);
             const warnings = preflightWarningsForFrame(mediaPreflight, frame.id);
+            const selectFrame = () => {
+              if (!boardInteractive) {
+                return;
+              }
+              select({ kind: "storyboard", frameId: frame.id });
+            };
+            const openDetails = () => {
+              selectFrame();
+              setReelFrameId(null);
+              if (destinationDetailContent(frame)) {
+                setDetailFrameId((current) => (current === frame.id ? null : frame.id));
+              }
+            };
             const frameMedia = (
               <StoryboardFrameMedia
                 frame={frame}
@@ -664,15 +887,17 @@ export function PlanView() {
                 showMediaInfo={mediaInfoOn}
                 hasWarning={warnings.length > 0}
                 planChanged={planChanged}
-                onSelect={() => {
-                  if (!boardInteractive) {
-                    return;
-                  }
-                  select({ kind: "storyboard", frameId: frame.id });
-                  if (destinationDetailContent(frame)) {
-                    setDetailFrameId((current) => (current === frame.id ? null : frame.id));
-                  }
-                }}
+                onSelect={openDetails}
+                onOpenReel={
+                  frame.image
+                    ? () => {
+                        selectFrame();
+                        setDetailFrameId(null);
+                        setReelFrameId(frame.id);
+                      }
+                    : undefined
+                }
+                onOpenDetails={frame.image ? openDetails : undefined}
                 detailOpen={detailFrameId === frame.id}
               />
             );
@@ -715,32 +940,26 @@ export function PlanView() {
             return (
               <li key={frame.id} className="min-w-0">
                 {frame.image ? (
-                  <div className="relative" data-destination-card={frame.id}>
-                    <button
-                      type="button"
-                      className={`block w-full p-0 text-left outline-none ${selectedCard ? "" : "opacity-90"}`}
-                      onClick={() => {
-                        select({ kind: "storyboard", frameId: frame.id });
-                        if (destinationDetailContent(frame)) {
-                          setDetailFrameId((current) => (current === frame.id ? null : frame.id));
-                        }
-                      }}
-                      aria-label={planChanged ? `Storyboard ${frame.label}, plan changed` : `Storyboard ${frame.label}`}
-                      aria-pressed={selectedCard}
-                      aria-expanded={detailFrameId === frame.id}
-                      title={
-                        planChanged
-                          ? "The plan changed after this still was generated. Reshoot to update it."
-                          : undefined
-                      }
-                    >
-                      {frameMedia}
-                    </button>
+                  <div
+                    className={`relative ${selectedCard ? "" : "opacity-90"}`}
+                    data-destination-card={frame.id}
+                  >
+                    {frameMedia}
                     <PreflightWarningControl warnings={warnings} />
                     {storyboardLive ? (
                     <DestinationMenu
                       frameId={frame.id}
                       label={frame.label}
+                      onReshoot={
+                        canReshootDestinationFrame(project, frame)
+                          ? () => {
+                              select({ kind: "storyboard", frameId: frame.id });
+                              void reshootDestination(frame.id);
+                            }
+                          : undefined
+                      }
+                      reshooting={constructing}
+                      reshootDisabled={pipelineBusy}
                       onReplace={() => {
                         replacingFrameId.current = frame.id;
                         fileInputRef.current?.click();
@@ -749,6 +968,7 @@ export function PlanView() {
                         canRemoveStoryboardDestination(project, frame.id)
                           ? () => {
                               setDetailFrameId((current) => (current === frame.id ? null : current));
+                              setReelFrameId((current) => (current === frame.id ? null : current));
                               removeDestination(frame.id);
                             }
                           : undefined
@@ -782,6 +1002,7 @@ export function PlanView() {
                           canRemoveStoryboardDestination(project, frame.id)
                             ? () => {
                                 setDetailFrameId((current) => (current === frame.id ? null : current));
+                                setReelFrameId((current) => (current === frame.id ? null : current));
                                 removeDestination(frame.id);
                               }
                             : undefined
@@ -804,6 +1025,18 @@ export function PlanView() {
             </li>
           ) : null}
         </ol>
+      </div>
+      {reelFrameId ? (
+        <StoryboardReel
+          frames={project.storyboard}
+          currentId={reelFrameId}
+          onClose={() => setReelFrameId(null)}
+          onSelect={(frameId) => {
+            setReelFrameId(frameId);
+            select({ kind: "storyboard", frameId });
+          }}
+        />
+      ) : null}
     </section>
   );
 }

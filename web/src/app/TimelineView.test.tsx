@@ -5,9 +5,14 @@ import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { createNewProject } from "../project/new-project";
 import { projectWithCinematographerAssessment } from "../project/cinematographer";
 import { projectWithSyncedProductionLegs } from "../project/production-legs";
-import type { CinematographerAssessment } from "../project/types";
+import { projectWithJourneyShotTake } from "../project/shoot";
+import type { CinematographerAssessment, JourneyShotTake } from "../project/types";
 import { ProjectProvider } from "../project/ProjectProvider";
 import { TimelineView } from "./TimelineView";
+import { CamotionFrameSwitch } from "./CamotionDiagnostic";
+import { CamotionOverlayToggles, CamotionPlanOverlay } from "./CamotionOverlay";
+import { DEFAULT_OVERLAY_LAYERS } from "../project/camotion-overlay";
+import { JourneyCanonicalPair, PreviewModeSwitch } from "./Preview";
 
 function renderShoot(
   project = createForestProject(),
@@ -134,6 +139,13 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain('aria-label="Block A-B"');
     expect(html).toContain('alt="A-B start A"');
     expect(html).toContain('alt="A-B end B"');
+    expect(html).toContain('aria-label="Preview mode"');
+    expect(html).toContain('aria-pressed="true" aria-label="Preview video"');
+    expect(html).toContain('aria-pressed="false" aria-label="Preview A|B"');
+    expect(html).toContain(">Video<");
+    expect(html).toContain(">A|B<");
+    expect(html).toContain("<video");
+    expect(html).not.toContain("preview-leg");
     expect(html).not.toContain("This journey is not a finished movie clip.");
     expect(html).not.toContain("Journey A-B, Ready<");
     expect(html).not.toContain('"shootability"');
@@ -251,6 +263,8 @@ describe("empty Shoot", () => {
     expect(html).not.toContain('aria-label="Stage');
     expect(html).not.toContain('aria-label="Generate');
     expect(html).not.toContain('aria-label="Destination A"');
+    expect(html).not.toContain('aria-label="Preview canonical"');
+    expect(html).not.toContain("No Camotion data for this destination");
   });
 
   it("stays coherent after the opening frame exists but Shoot destinations do not", () => {
@@ -335,6 +349,10 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Resize timeline"');
     expect(html).toContain("cursor-row-resize");
     expect(html).toContain('alt="A-B end B"');
+    expect(html).toContain("preview-leg");
+    expect(html).not.toContain('aria-label="Preview video"');
+    expect(html).not.toContain('aria-label="Preview mode"');
+    expect(html).not.toContain('aria-label="Preview canonical"');
     expect(html).not.toContain("Nothing is ready to shoot");
     expect(html).not.toContain(">Assess shot<");
   });
@@ -435,5 +453,153 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("Generating…");
     const spinningTiles = html.match(/animate-spin/g) ?? [];
     expect(spinningTiles).toHaveLength(0);
+  });
+});
+
+describe("Shoot preview mode", () => {
+  it("labels the stills tab with the selected journey's canonical pair", () => {
+    const html = renderToStaticMarkup(
+      <PreviewModeSwitch startLabel="B" endLabel="C" mode="stills" onChange={() => undefined} />,
+    );
+    expect(html).toContain('aria-label="Preview mode"');
+    expect(html).toContain('aria-pressed="true" aria-label="Preview B|C"');
+    expect(html).toContain(">B|C<");
+    expect(html).toContain('aria-pressed="false" aria-label="Preview video"');
+  });
+
+  it("renders the side-by-side canonical pair in the preview monitor", () => {
+    const html = renderToStaticMarkup(
+      <JourneyCanonicalPair
+        journeyId="A-B"
+        startLabel="A"
+        startImage="/a.jpg"
+        endLabel="B"
+        endImage="/b.jpg"
+      />,
+    );
+    expect(html).toContain("preview-leg");
+    expect(html).toContain('alt="A-B start A"');
+    expect(html).toContain('alt="A-B end B"');
+    expect(html).toContain('src="/a.jpg"');
+    expect(html).toContain('src="/b.jpg"');
+  });
+});
+
+const diagnosticTake: JourneyShotTake = {
+  startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "/a-prime.png" },
+  endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b-prime.png" },
+  startPlan: {
+    version: 1,
+    camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+    destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+    exposure: { strength: 0.08, samples: 16 },
+  },
+  endPlan: {
+    version: 1,
+    camera: { vanishing_point: [0.4, 0.6], forward: 1 },
+    destination: { point: [0.4, 0.6], protect: false, bbox: [0.1, 0.1, 0.9, 0.9] },
+    exposure: { strength: 0.04, samples: 16 },
+  },
+  segmentPromptAddition: "Track forward.",
+  effectivePrompt: "Track forward.",
+  pace: "fast",
+  provider: "replicate",
+  model: "prunaai/p-video",
+  modelVersion: "test",
+  durationSeconds: 6,
+  videoInputs: { startShootingFrame: true, endShootingFrame: true },
+};
+
+describe("Camotion destination diagnostic", () => {
+  it("labels the canonical vs primed preview switch", () => {
+    const html = renderToStaticMarkup(
+      <CamotionFrameSwitch
+        destinationLabel="A"
+        primedLabel="A′"
+        mode="canonical"
+        onChange={() => undefined}
+      />,
+    );
+    expect(html).toContain('aria-label="Camotion frame"');
+    expect(html).toContain('aria-pressed="true" aria-label="Preview canonical"');
+    expect(html).toContain('aria-pressed="false" aria-label="Preview A′"');
+  });
+
+  it("offers a read-only Camotion switch on Forest destination A before any take", () => {
+    const html = renderShoot();
+    expect(html).toContain('aria-label="Preview canonical"');
+    expect(html).toContain('aria-label="Preview A′"');
+    expect(html).toContain("Canonical A");
+    expect(html).toContain("No Camotion data for this destination");
+    expect(html).toContain('alt="Destination A"');
+    expect(html).not.toContain('aria-label="Toggle overlay"');
+    expect(html).not.toContain("vanishing_point");
+  });
+
+  it("does not put the destination Camotion switch on a selected journey", () => {
+    const html = renderShoot(createForestProject(), { journeyId: "A-B" });
+    expect(html).toContain('aria-label="Preview video"');
+    expect(html).not.toContain('aria-label="Preview canonical"');
+    expect(html).not.toContain("No Camotion data for this destination");
+  });
+
+  it("surfaces stored CameraMotionPlan facts for the selected destination occurrence", () => {
+    const shot = projectWithJourneyShotTake(createForestProject(), "A-B", {
+      take: diagnosticTake,
+      videoUrl: "/a-b.mp4",
+    });
+    const fromA = renderShoot(shot, { destinationId: "A", occurrenceIndex: 0 });
+    expect(fromA).toContain('aria-label="Camotion diagnostic"');
+    expect(fromA).toContain("A′ · A-B start′");
+    expect(fromA).toContain("Vanishing point.");
+    expect(fromA).toContain("0.50, 0.50");
+    expect(fromA).toContain("Radial forward.");
+    expect(fromA).toContain("0.08 · Strong");
+    expect(fromA).toContain("/a-prime.png");
+    expect(fromA).toContain("upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    expect(fromA).toContain("CameraMotionPlan v1. Read-only take evidence.");
+    expect(fromA).toContain("Canonical A");
+    expect(fromA).toContain('alt="Destination A"');
+    expect(fromA).toContain('aria-label="Toggle overlay"');
+    expect(fromA).toContain("camotion-overlay");
+    expect(fromA).toContain('data-overlay-layer="path"');
+    expect(fromA).toContain('data-overlay-layer="direction"');
+    expect(fromA).toContain('data-overlay-layer="points"');
+    expect(fromA).toContain(">VP<");
+    expect(fromA).not.toContain('alt="A′ · A-B start′"');
+    expect(fromA).not.toContain("vanishing_point");
+    expect(fromA).not.toContain("No Camotion data for this destination");
+
+    const fromB = renderShoot(shot, { destinationId: "B", occurrenceIndex: 1 });
+    expect(fromB).toContain('aria-label="Preview B′"');
+    expect(fromB).toContain("A-B end′");
+    expect(fromB).toContain("0.04 · Medium");
+    expect(fromB).toContain("/b-prime.png");
+  });
+
+  it("keeps overlay layer toggles compact and omits raw plan keys", () => {
+    const html = renderToStaticMarkup(
+      <>
+        <CamotionOverlayToggles
+          overlay
+          layers={DEFAULT_OVERLAY_LAYERS}
+          onOverlayChange={() => undefined}
+          onLayersChange={() => undefined}
+        />
+        <CamotionPlanOverlay
+          plan={diagnosticTake.startPlan}
+          layers={{ path: true, direction: false, points: true }}
+          fitted={null}
+        />
+      </>,
+    );
+    expect(html).toContain('aria-label="Toggle overlay"');
+    expect(html).toContain('aria-label="Travel path"');
+    expect(html).toContain('aria-label="Camotion direction"');
+    expect(html).toContain('aria-label="Plan points"');
+    expect(html).toContain('data-overlay-layer="path"');
+    expect(html).toContain('data-overlay-layer="points"');
+    expect(html).not.toContain('data-overlay-layer="direction"');
+    expect(html).not.toContain("vanishing_point");
   });
 });

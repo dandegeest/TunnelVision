@@ -1,0 +1,95 @@
+import { describe, expect, it } from "vitest";
+import { createForestProject } from "../fixtures/forest-a-to-f";
+import { layoutTimeline } from "../timeline/geometry";
+import {
+  camotionRecordKey,
+  camotionRecordsForDestination,
+  camotionSourceLabel,
+  formatExposureStrength,
+  formatPlanPoint,
+  preferredCamotionRecord,
+} from "./camotion-diagnostics";
+import { projectWithJourneyShotTake } from "./shoot";
+import type { JourneyShotTake } from "./types";
+
+const take: JourneyShotTake = {
+  startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "/a-prime.png" },
+  endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b-prime.png" },
+  startPlan: {
+    version: 1,
+    camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+    destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+    exposure: { strength: 0.08, samples: 16 },
+  },
+  endPlan: {
+    version: 1,
+    camera: { vanishing_point: [0.4, 0.6], forward: 1 },
+    destination: { point: [0.4, 0.6], protect: false, bbox: [0.1, 0.1, 0.9, 0.9] },
+    exposure: { strength: 0.04, samples: 16 },
+  },
+  segmentPromptAddition: "Track forward.",
+  effectivePrompt: "Track forward.",
+  pace: "fast",
+  provider: "replicate",
+  model: "prunaai/p-video",
+  modelVersion: "test",
+  durationSeconds: 6,
+  videoInputs: { startShootingFrame: true, endShootingFrame: true },
+};
+
+describe("Camotion destination diagnostics", () => {
+  it("reads take evidence for the selected occurrence and does not invent records", () => {
+    const forest = createForestProject();
+    const opening = layoutTimeline(forest.destinations, forest.journeys, 1).occurrences[0]!;
+    expect(
+      camotionRecordsForDestination(forest, "A", opening.inboundJourneyId, opening.outboundJourneyId),
+    ).toEqual([]);
+    const shot = projectWithJourneyShotTake(forest, "A-B", { take, videoUrl: "/a-b.mp4" });
+    const laid = layoutTimeline(shot.destinations, shot.journeys, 1);
+    const a = laid.occurrences[0]!;
+    const b = laid.occurrences[1]!;
+    const fromA = camotionRecordsForDestination(shot, "A", a.inboundJourneyId, a.outboundJourneyId);
+    expect(fromA).toHaveLength(1);
+    expect(fromA[0]).toMatchObject({
+      primedLabel: "A′",
+      journeyId: "A-B",
+      role: "start",
+      shootingFrame: take.startShootingFrame,
+      plan: take.startPlan,
+    });
+    const fromB = camotionRecordsForDestination(shot, "B", b.inboundJourneyId, b.outboundJourneyId);
+    expect(fromB.map((record) => camotionRecordKey(record))).toEqual(["A-B:end"]);
+    expect(fromB[0]?.plan.exposure.strength).toBe(0.04);
+    expect(camotionSourceLabel(fromB[0]!)).toBe("A-B end′");
+    expect(preferredCamotionRecord(fromA)?.role).toBe("start");
+  });
+
+  it("keeps inbound end′ and outbound start′ as separate occurrence records", () => {
+    const forest = createForestProject();
+    const withAB = projectWithJourneyShotTake(forest, "A-B", { take, videoUrl: "/a-b.mp4" });
+    const withBoth = projectWithJourneyShotTake(withAB, "B-C", {
+      take: {
+        ...take,
+        startShootingFrame: { mediaId: "upload-cccccccccccccccccccccccccccccccc", imageUrl: "/b-from-bc.png" },
+        startPlan: {
+          ...take.startPlan,
+          camera: { vanishing_point: [0.3, 0.3], forward: 1 },
+          exposure: { strength: 0.02, samples: 16 },
+        },
+      },
+      videoUrl: "/b-c.mp4",
+    });
+    const b = layoutTimeline(withBoth.destinations, withBoth.journeys, 1).occurrences[1]!;
+    const fromB = camotionRecordsForDestination(withBoth, "B", b.inboundJourneyId, b.outboundJourneyId);
+    expect(fromB.map((record) => camotionRecordKey(record))).toEqual(["A-B:end", "B-C:start"]);
+    expect(preferredCamotionRecord(fromB)?.journeyId).toBe("B-C");
+    expect(preferredCamotionRecord(fromB)?.plan.exposure.strength).toBe(0.02);
+  });
+
+  it("labels stored exposure strengths without changing them", () => {
+    expect(formatExposureStrength(0.08)).toBe("0.08 · Strong");
+    expect(formatExposureStrength(0.04)).toBe("0.04 · Medium");
+    expect(formatExposureStrength(0.02)).toBe("0.02 · Light");
+    expect(formatPlanPoint([0.5, 0.5])).toBe("0.50, 0.50");
+  });
+});

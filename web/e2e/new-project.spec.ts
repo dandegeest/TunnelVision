@@ -325,7 +325,20 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Generate destination C")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toBeVisible();
 
+  await page.getByLabel("Destination B actions").click();
+  await expect(page.getByRole("menuitem", { name: "Reshoot destination B" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Replace…" })).toBeVisible();
+  await page.keyboard.press("Escape");
+
   await page.getByLabel("Storyboard B").click();
+  await expect(page.getByRole("dialog", { name: "Storyboard reel, destination B" })).toBeVisible();
+  await expect(page.getByLabel("Previous destination")).toBeEnabled();
+  await expect(page.getByLabel("Next destination")).toBeDisabled();
+  await page.getByLabel("Previous destination").click();
+  await expect(page.getByRole("dialog", { name: "Storyboard reel, destination A" })).toBeVisible();
+  await page.getByLabel("Close storyboard reel").click();
+  await expect(page.getByRole("dialog", { name: "Storyboard reel, destination A" })).toHaveCount(0);
+  await page.getByLabel("Destination B plan").click();
   await page.getByLabel("Destination B prompt").fill("A warmer corridor with an open doorway.");
   await expect(page.getByLabel("Storyboard B, plan changed")).toBeVisible();
 
@@ -350,6 +363,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Journey A-B, Stage").click();
   await expect(page.getByAltText("A-B start A")).toHaveCount(2);
   await expect(page.getByAltText("A-B end B")).toHaveCount(2);
+  await expect(page.getByLabel("Preview video")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Stage A-B" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toBeDisabled();
@@ -366,6 +380,17 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
 
   await page.getByRole("button", { name: "Generate A-B", exact: true }).click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
+  await expect(page.getByLabel("Preview video")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Preview A|B")).toHaveAttribute("aria-pressed", "false");
+  await page.getByLabel("Preview A|B").click();
+  await expect(page.getByLabel("Preview A|B")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("video")).toHaveCount(0);
+  await expect(page.locator(".preview-leg")).toBeVisible();
+  await expect(page.getByAltText("A-B start A")).toHaveCount(2);
+  await expect(page.getByAltText("A-B end B")).toHaveCount(2);
+  await page.getByLabel("Preview video").click();
+  await expect(page.locator("video")).toBeVisible();
+  await expect(page.locator(".preview-leg")).toHaveCount(0);
   await expect(page.getByLabel("Journey A-B, Export, clear, Fast")).toBeVisible();
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(0);
@@ -379,6 +404,46 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
     journeyInspector.getByText("Start shooting frame A′ and end shooting frame B′ were sent as the video start and last-frame conditions."),
   ).toBeVisible();
   await expect(journeyInspector.getByText(/First person POV camera continuously moving forward/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Destination A", exact: true }).click();
+  await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByLabel("Preview video")).toHaveCount(0);
+  await expect(page.getByText("Canonical A")).toBeVisible();
+  await expect(page.getByLabel("Toggle overlay")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".camotion-overlay")).toBeVisible();
+  await expect(page.getByLabel("Travel path")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Camotion direction")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Plan points")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('[data-overlay-layer="path"]')).toHaveCount(1);
+  await page.getByLabel("Travel path").click();
+  await expect(page.locator('[data-overlay-layer="path"]')).toHaveCount(0);
+  await page.getByLabel("Toggle overlay").click();
+  await expect(page.locator(".camotion-overlay")).toHaveCount(0);
+  await page.getByLabel("Toggle overlay").click();
+  await expect(page.locator(".camotion-overlay")).toBeVisible();
+  const destInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A", exact: true }) });
+  await expect(destInspector.getByLabel("Camotion diagnostic")).toBeVisible();
+  await expect(destInspector.getByText("A′ · A-B start′")).toBeVisible();
+  await expect(destInspector.getByText("Vanishing point.")).toBeVisible();
+  await expect(destInspector.getByText("0.50, 0.50").first()).toBeVisible();
+  await expect(destInspector.getByText("0.08 · Strong")).toBeVisible();
+  await page.getByLabel("Preview A′").click();
+  await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByAltText("A′ · A-B start′")).toBeVisible();
+  await expect(page.locator(".preview-monitor img")).toHaveAttribute("src", SHOOTING_A_PRIME.imageUrl);
+
+  await page.getByRole("button", { name: "Destination C", exact: true }).click();
+  await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Preview C′")).toBeVisible();
+  await expect(page.getByText("Canonical C")).toBeVisible();
+  await expect(page.getByLabel("Toggle overlay")).toHaveCount(0);
+  const destCInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "C", exact: true }) });
+  await expect(destCInspector.getByText("No Camotion data for this destination")).toBeVisible();
+  await page.getByLabel("Preview C′").click();
+  await expect(page.getByLabel("Preview C′")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".preview-monitor")).toContainText("No Camotion data for this destination");
+  await expect(destCInspector.getByText("No Camotion data for this destination")).toBeVisible();
 
   await page.getByLabel("Journey B-C, Stage").click();
   await expect(page.getByRole("button", { name: "Stage B-C" })).toHaveCount(1);

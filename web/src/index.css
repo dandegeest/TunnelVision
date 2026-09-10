@@ -33,11 +33,17 @@ body,
 
 .preview-monitor {
   position: relative;
+  display: grid;
   aspect-ratio: 16 / 9;
   width: min(100cqw, calc(100cqh * 16 / 9));
   height: min(100cqh, calc(100cqw * 9 / 16));
   overflow: hidden;
   background: #000;
+}
+
+.preview-monitor > * {
+  min-width: 0;
+  min-height: 0;
 }
 
 .preview-monitor img,

@@ -47,8 +47,8 @@ look-ahead is part of that Construct algorithm, not a Project-panel
 toggle; later beats stay
 planned until the filmmaker generates them. Empty FPO thumbnails overlay
 Director intent as readable text until an image exists; intent and visual
-description for actual cards stay on-demand from the thumbnail, with an
-editable prompt and Reshoot for generated stills. A generated still whose
+description for actual cards stay on-demand from the label strip, with an
+editable prompt and Reshoot for generated stills on the kebab and in details. A generated still whose
 plan later changes, including a following destination used as look-ahead,
 shows Plan changed until Reshoot. Construct is sequential **Derived**
 construction, not
@@ -75,7 +75,11 @@ review / Not shootable status is advisory and lives on the leg,
 together with camera path, pace, and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
 disclosure. After BLOCK, SHOOT generates that one leg. The preview
-plays the rendered clip when present. Take evidence (A′, B′, effective
+plays the rendered clip when present, and can tab back to the A|B
+canonical stills shown before the clip. Selecting a destination still
+offers a compact read-only Camotion diagnostic: canonical vs stored A′/B′
+in the preview, a thin overlay of the stored CameraMotionPlan on the
+displayed still, and CameraMotionPlan facts in the inspector. Take evidence (A′, B′, effective
 prompt, pace, model) sits behind disclosure so the clip stays primary.
 Shootability does not block the journey. A-only projects
 remain valid and simply have no directed production leg yet. Do not
@@ -187,7 +191,9 @@ shoot does not pass a depth map. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
 stills expose Replace…, which swaps that
-destination's canonical still in place. If the slot already has intent or a
+destination's canonical still in place. Generated stills also expose
+Reshoot, which regenerates that canonical from the current prompt.
+If the slot already has intent or a
 visual description, that action asks whether to clear them so the next PLAN can
 describe the new still. Later destinations also expose
 Delete; opening A cannot be deleted. Delete is structural: it does not
@@ -200,8 +206,12 @@ Approximate duration belongs to a Journey/segment, not the destination
 thumbnail. Technical facts (provenance icon, friendly
 aspect, dimensions, format) appear in a thin bottom strip only when
 Media Info is on. Destination planning details (intent and visual
-description) are available from the destination thumbnail, not as
-persistent caption text under actual stills. Empty FPO thumbnails
+description) are available from the destination label strip, not as
+persistent caption text under actual stills. Clicking the still outside the
+label, kebab, and media-info strips opens a lightbox-style reel in the
+storyboard area, with previous and next among actual stills. The image is
+contained at the largest scale that fits that area and does not cover the
+conversation or Project rails. Empty FPO thumbnails
 overlay Director intent as readable text until an image exists. Storyboard
 and other 16:9 thumbnails keep a fixed 16:9 tile. Source stills are
 centered and scaled to fit so the entire image stays visible; unused
