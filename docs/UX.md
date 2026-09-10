@@ -35,7 +35,9 @@ a number adds that many FPO destinations. After the first DIRECT
 response the count is read-only and follows storyboard add/delete.
 When auto-generate starting destination is on, DIRECT generates A from
 the story then runs Director planning. That generated still stores opening
-intent from the story and the TunnelVision prompt as visual description. When A is already actual and
+intent from the story and the TunnelVision prompt as visual description. The
+prompt asks for the opening instant only and does not depict later
+destinations. When A is already actual and
 the story is empty, DIRECT first writes a journey story from that image.
 When auto-generate all destinations is on,
 DIRECT then constructs B…N in travel order; later beats cannot run in

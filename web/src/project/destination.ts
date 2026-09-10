@@ -264,15 +264,11 @@ export function openingFrameGenerationPrompt(story: string): string {
     throw new Error("Opening frame requires a journey story");
   }
   return [
-    "Generate a still photograph of the opening viewpoint of this first-person POV journey.",
-    "The camera is already in the world, looking continuously forward.",
-    UNEMBODIED_FIRST_PERSON_POV,
-    "Do not show text.",
+    "Generate a still photograph of the opening viewpoint of this first-person POV journey. Use the Journey to determine the specific physical viewpoint, orientation, environment, and situation at the instant the journey begins. Show only that opening moment; do not anticipate, combine, or depict later destinations or events from the Journey.",
     "",
-    "Journey:",
-    trimmed,
+    `The camera is already in the world, oriented along the journey's intended direction of travel. ${UNEMBODIED_FIRST_PERSON_POV} Do not show text.`,
     "",
-    "Show only the first moment of that journey: the starting place before the camera begins to move.",
+    `Journey: ${trimmed}`,
   ].join("\n");
 }
 

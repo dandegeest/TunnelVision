@@ -219,7 +219,8 @@ accepts story plus the complete ordered storyboard and `MediaInput` for
 actual destination stills. The Project panel edits `Project.story`
 without planning; destination count (AUTO or a number, typed or stepped) sizes the
 storyboard before DIRECT; auto-generate starting destination lets DIRECT
-create unresolved A from the story; auto-generate all destinations then
+create unresolved A from the story; that prompt asks for the opening
+instant only and does not depict later destinations; auto-generate all destinations then
 constructs B…N in travel order after DIRECT. Generated A stores opening intent
 from the story and the generation prompt as visual description. Uploaded A
 with a story fills empty opening intent the same way and leaves visual
@@ -1272,7 +1273,9 @@ production locomotion baseline now lives in
 `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is filled from
 the segment's BLOCK pace (`fast` by default; also `slow-motion`,
 `slow`, `moderate`, `hyperspeed`, `variable`). The filled baseline
-includes `UNEMBODIED_FIRST_PERSON_POV`. Audio is not constrained by the
+includes `UNEMBODIED_FIRST_PERSON_POV`. The baseline follows the
+available route in the supplied world and does not instruct the model
+to invent openings, tunnels, or thresholds. Audio is not constrained by the
 baseline. The later video prompt should concatenate the CM
 `segmentPromptAddition` first, then that baseline, without an LLM rewrite. Do not treat this as
 a Camotion input.

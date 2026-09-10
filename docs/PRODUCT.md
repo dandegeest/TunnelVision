@@ -108,7 +108,8 @@ auto-generate-all, auto-block, auto-shoot, and DIRECT. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is
 no TunnelVision prompt). Generating A stores opening intent from the story and the
-generation prompt as visual description. Destination details stay available on an
+generation prompt as visual description. That prompt asks for the
+opening instant only and does not depict later destinations. Destination details stay available on an
 actual opening even when those fields are still empty so the filmmaker can type them.
 When auto-generate starting destination is on, DIRECT can generate A
 before Director planning. When auto-generate all destinations is on,
@@ -427,7 +428,9 @@ stable locomotion baseline ({pace} filled from BLOCK)
 
 Do not have an LLM rewrite or merge those two pieces. Terran Boylan's
 original TunnelVision continuous-locomotion / environment-negotiation
-prompting is the foundation of the stable baseline. Adaptive
+prompting is the foundation of the stable baseline. The production
+baseline follows the available route in the supplied world and does
+not instruct the model to invent openings, tunnels, or thresholds. Adaptive
 per-segment choreography is current TunnelVision product work, not
 Terran's agent design.
 

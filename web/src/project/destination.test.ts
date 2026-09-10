@@ -536,12 +536,22 @@ describe("opening frame generation", () => {
     const withStory = { ...empty, story: "Travel forward through an imagined interior at night." };
     expect(canGenerateOpeningFrame(withStory)).toBe(true);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Travel forward through an imagined interior at night/);
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
+      /oriented along the journey's intended direction of travel/,
+    );
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
+      /do not anticipate, combine, or depict later destinations or events from the Journey/,
+    );
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/unembodied first-person POV/);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
       /People, animals, vehicles, objects, and other subjects may appear naturally/,
     );
     expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/Do not show a person/);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Do not show text/);
+    expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/looking continuously forward/);
+    expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(
+      /starting place before the camera begins to move/,
+    );
     expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({
       story: withStory.story,
       aspectRatio: { width: 16, height: 9 },
