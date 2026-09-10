@@ -6,7 +6,6 @@ import { ProjectProvider } from "../project/ProjectProvider";
 import { Shell } from "./Shell";
 
 function renderShell(options?: {
-  mediaInfo?: boolean;
   debug?: boolean;
   view?: "plan" | "shoot";
   conversationRailOpen?: boolean;
@@ -22,7 +21,6 @@ function renderShell(options?: {
   return renderToStaticMarkup(
     <ProjectProvider
       initialProject={project}
-      initialMediaInfo={options?.mediaInfo}
       initialDebug={options?.debug}
       initialView={options?.view}
       initialConversationRailOpen={options?.conversationRailOpen}
@@ -63,25 +61,25 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Agency"');
     expect(html).toContain("Directed");
     expect(html).toContain("Autonomous");
+    const agency = html.slice(html.indexOf('aria-label="Agency"'), html.indexOf('aria-label="Agency"') + 900);
+    expect(agency).toContain('aria-pressed="true"');
+    expect(agency).toContain('aria-pressed="false"');
+    expect(agency).not.toContain("<select");
+    expect(agency).not.toContain("<option");
   });
 
-  it("places the Media Info icon in the workspace header toolbar", () => {
-    const off = renderShell();
-    const on = renderShell({ mediaInfo: true });
-    expect(off).toContain("workspace-toolbar");
-    expect(off).toContain('aria-label="Media info"');
-    expect(off).toContain('aria-label="Debug"');
-    expect(off).toContain('aria-pressed="false"');
-    expect(on).toContain('aria-pressed="true"');
-    expect(off).not.toContain(">Media Info<");
-    expect(off).not.toContain(">MEDIA INFO<");
-    const storyboard = off.slice(off.indexOf('aria-label="Storyboard"'));
-    expect(storyboard).not.toContain('aria-label="Media info"');
+  it("does not place a Media Info tool in the workspace header toolbar", () => {
+    const html = renderShell();
+    expect(html).toContain("workspace-toolbar");
+    expect(html).toContain('aria-label="Debug"');
+    expect(html).not.toContain('aria-label="Media info"');
+    expect(html).not.toContain(">Media Info<");
+    expect(html).not.toContain(">MEDIA INFO<");
   });
 
   it("places Debug in the workspace header toolbar", () => {
-    const off = renderShell();
-    const on = renderShell({ debug: true });
+    const off = renderShell({ debug: false });
+    const on = renderShell();
     expect(off).toContain('aria-label="Debug"');
     expect(off).toContain('aria-pressed="false" aria-label="Debug"');
     expect(on).toContain('aria-pressed="true" aria-label="Debug"');
@@ -99,7 +97,6 @@ describe("Shell header chrome", () => {
   it("keeps the toolbar on Shoot without the supervising caption", () => {
     const html = renderShell({ view: "shoot" });
     expect(html).toContain("workspace-toolbar");
-    expect(html).toContain('aria-label="Media info"');
     expect(html).toContain('aria-label="Agency"');
     expect(html).not.toContain("You are supervising");
     expect(html).not.toContain("Live production monitor");
@@ -188,6 +185,8 @@ describe("Filmmaking conversation rail", () => {
     expect(shootClosed).not.toContain("Shoot This Shot");
     expect(planOpen).toContain('title="Hide filmmaking conversation"');
     expect(shootOpen).toContain('title="Hide filmmaking conversation"');
+    expect(shootOpen).toContain('title="Hide inspector"');
+    expect(planOpen).not.toContain('title="Hide inspector"');
     expect(planOpen).toContain('aria-label="Resize story panel"');
     expect(shootOpen).toContain('aria-label="Resize story panel"');
     expect(shootOpen).toContain('aria-label="Resize timeline"');

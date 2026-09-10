@@ -41,6 +41,12 @@ body,
   background: #000;
 }
 
+.preview-monitor.preview-monitor-pair {
+  aspect-ratio: 32 / 9;
+  width: min(100cqw, calc(100cqh * 32 / 9));
+  height: min(100cqh, calc(100cqw * 9 / 32));
+}
+
 .preview-monitor > * {
   min-width: 0;
   min-height: 0;

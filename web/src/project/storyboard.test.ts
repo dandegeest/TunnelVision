@@ -122,6 +122,7 @@ describe("storyboard domain", () => {
     expect(shootSelection).toEqual({
       kind: "journey",
       journeyId: "A-B",
+      band: "footage",
     });
   });
 
@@ -712,7 +713,15 @@ describe("story duration", () => {
     };
     const counted = projectWithStoryDuration(withA, 3);
     const auto = projectWithStoryDuration(counted, "auto");
-    expect(auto.storyboard).toEqual(withA.storyboard);
+    expect(auto.storyboard).toHaveLength(1);
+    expect(auto.storyboard[0]).toMatchObject({
+      id: "A",
+      label: "A",
+      imageOrigin: "generated",
+      image: "/api/runtime-media/gen-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      mediaId: "gen-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      destinationId: "A",
+    });
   });
 
   it("tracks storyboard add and delete while unlocked", () => {

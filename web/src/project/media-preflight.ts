@@ -221,22 +221,101 @@ export function mediaFormatFromFile(file: { type: string; name?: string }): Medi
   return undefined;
 }
 
-export async function readStoryboardMediaInfo(file: File): Promise<StoryboardMediaInfo | undefined> {
-  const format = mediaFormatFromFile(file);
-  if (!format) {
+async function mediaFormatFromBlob(blob: Blob, nameHint?: string): Promise<MediaFormat | undefined> {
+  const named = mediaFormatFromFile({
+    type: blob.type,
+    name: nameHint ?? (blob instanceof File ? blob.name : undefined),
+  });
+  if (named) {
+    return named;
+  }
+  const bytes = new Uint8Array(await blob.slice(0, 16).arrayBuffer());
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+    return "png";
+  }
+  if (bytes[0] === 0xff && bytes[1] === 0xd8) {
+    return "jpeg";
+  }
+  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
+    return "webp";
+  }
+  return undefined;
+}
+
+function rasterSizeFromImageUrl(url: string): Promise<{ width: number; height: number } | undefined> {
+  if (typeof Image !== "function") {
+    return Promise.resolve(undefined);
+  }
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      resolve(
+        image.naturalWidth > 0 && image.naturalHeight > 0
+          ? { width: image.naturalWidth, height: image.naturalHeight }
+          : undefined,
+      );
+    };
+    image.onerror = () => resolve(undefined);
+    image.src = url;
+  });
+}
+
+async function rasterSizeFromBlob(blob: Blob): Promise<{ width: number; height: number } | undefined> {
+  if (typeof createImageBitmap === "function") {
+    try {
+      const bitmap = await createImageBitmap(blob);
+      const size = { width: bitmap.width, height: bitmap.height };
+      bitmap.close();
+      if (size.width > 0 && size.height > 0) {
+        return size;
+      }
+    } catch {
+      // Fall through to HTMLImageElement.
+    }
+  }
+  if (typeof URL === "undefined") {
     return undefined;
   }
-  if (typeof createImageBitmap !== "function") {
-    return undefined;
-  }
+  const objectUrl = URL.createObjectURL(blob);
   try {
-    const bitmap = await createImageBitmap(file);
-    const info: StoryboardMediaInfo = { width: bitmap.width, height: bitmap.height, format };
-    bitmap.close();
-    return info;
-  } catch {
+    return await rasterSizeFromImageUrl(objectUrl);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
+export async function readStoryboardMediaInfo(
+  source: Blob,
+  nameHint?: string,
+): Promise<StoryboardMediaInfo | undefined> {
+  const format = await mediaFormatFromBlob(source, nameHint);
+  const size = await rasterSizeFromBlob(source);
+  if (!format || !size) {
     return undefined;
   }
+  return { width: size.width, height: size.height, format };
+}
+
+export async function readStoryboardMediaInfoFromUrl(url: string): Promise<StoryboardMediaInfo | undefined> {
+  let format = mediaFormatFromFile({ type: "", name: url });
+  let size: { width: number; height: number } | undefined;
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      const blob = await response.blob();
+      format = format ?? (await mediaFormatFromBlob(blob, url));
+      size = await rasterSizeFromBlob(blob);
+    }
+  } catch {
+    // Decode the already-displayable URL when fetch is blocked or unavailable.
+  }
+  if (!size) {
+    size = await rasterSizeFromImageUrl(url);
+  }
+  if (!format || !size) {
+    return undefined;
+  }
+  return { width: size.width, height: size.height, format };
 }
 
 function actualStoryboardFrames(frames: StoryboardFrame[]): (StoryboardFrame & {

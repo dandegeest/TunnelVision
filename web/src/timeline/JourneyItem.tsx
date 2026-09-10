@@ -1,13 +1,13 @@
-import type { JourneyShot } from "../project/types";
-import {
-  journeySegmentAriaLabel,
-  journeySegmentCaption,
-  locomotionPaceLabel,
-} from "../project/cinematographer";
+import type { MouseEvent } from "react";
+import { canAssessJourney, locomotionPaceLabel, motionBandAriaLabel, footageBandAriaLabel } from "../project/cinematographer";
+import { canShootJourney } from "../project/shoot";
+import { useProject } from "../project/ProjectProvider";
+import type { JourneyBand, JourneyShot, Selection } from "../project/types";
 import type { LaidOutJourney } from "./geometry";
 
 export function journeySegmentTone(journey: JourneyShot): string {
-  const fill = journey.status === "rendered" ? "bg-[#142014]" : "bg-transparent";
+  const planned = Boolean(journey.cinematographer) || journey.status === "rendered";
+  const fill = planned ? "bg-[#142014]" : "bg-transparent";
   const shootability = journey.cinematographer?.shootability;
   if (!shootability) {
     return journey.status === "rendered"
@@ -18,15 +18,29 @@ export function journeySegmentTone(journey: JourneyShot): string {
     case "shootable":
       return `border-2 border-[#3f5a3a] ${fill} text-[#d7e7cf]`;
     case "needs_review":
-      return `border-2 border-[#d4b36a] border-dashed ${fill} text-[#e4d2a4]`;
+      return "border-2 border-[#d4b36a] bg-[#443922] text-[#e4d2a4]";
     case "not_shootable":
       return `border-2 border-[#c45c38] ${fill} text-[#f0c2a8]`;
   }
 }
 
+function footageBandTone(journey: JourneyShot): string {
+  if (journey.status === "rendered") {
+    return "border border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
+  }
+  if (journey.status === "failed") {
+    return "border border-[#c45c38] bg-transparent text-[#f0c2a8]";
+  }
+  return "border border-[#3a342c] bg-transparent text-[#cfc6b8]";
+}
+
+const ctaClass =
+  "relative z-[2] shrink-0 rounded border border-[#3a342c] px-1.5 py-0 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
+
 export function JourneyItem({
   laid,
   journey,
+  band,
   selected,
   preparing = false,
   shooting = false,
@@ -34,50 +48,94 @@ export function JourneyItem({
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
+  band: JourneyBand;
   selected: boolean;
   preparing?: boolean;
   shooting?: boolean;
   onSelect: () => void;
 }) {
-  const tone = journeySegmentTone(journey);
+  const { project, assessJourney, shootJourney } = useProject();
+  const motion = band === "motion";
+  const tone = motion ? journeySegmentTone(journey) : footageBandTone(journey);
   const ring = selected
     ? "ring-2 ring-[#ece7df]"
     : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";
-  const caption = journeySegmentCaption(journey);
-  const ariaLabel = journeySegmentAriaLabel(journey);
-  const busy = preparing || shooting;
+  const ariaLabel = motion ? motionBandAriaLabel(journey) : footageBandAriaLabel(journey);
+  const busy = motion ? preparing : shooting;
+  const actionsBusy = preparing || shooting;
+  const label = motion ? "MOTION" : "FOOTAGE";
+
+  const onStage = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onSelect();
+    void assessJourney(journey.id);
+  };
+  const onGenerate = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onSelect();
+    void shootJourney(journey.id);
+  };
 
   return (
     <div
-      className={`absolute top-1 box-border h-12 overflow-hidden rounded ${tone} ${ring}${
+      className={`absolute box-border overflow-hidden rounded ${tone} ${ring}${
         busy ? " storyboard-generating" : ""
       }`}
-      style={{ left: laid.left, width: Math.max(laid.width, 8) }}
+      style={{
+        top: motion ? 0 : 30,
+        left: laid.left,
+        width: Math.max(laid.width, 8),
+        height: 26,
+      }}
       aria-busy={busy || undefined}
       title={
-        journey.cinematographer
+        motion && journey.cinematographer
           ? `${journey.cinematographer.summary} · ${locomotionPaceLabel(journey.cinematographer.pace)}`
           : undefined
       }
     >
-      <button
-        type="button"
-        className="absolute inset-0 z-[1] px-2 text-left text-xs tracking-[0.12em] outline-none"
-        onClick={onSelect}
-        aria-label={ariaLabel}
-        aria-pressed={selected}
-      >
-        <span className="relative z-[1] block truncate pt-1">
-          <span className="truncate">{journey.id}</span>
-        </span>
-        <span
-          className={`relative z-[1] block truncate text-[10px] opacity-80${
-            busy ? " storyboard-generating-label" : ""
-          }`}
+      <div className="flex h-full items-center gap-1 px-1.5">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center text-left outline-none"
+          onClick={onSelect}
+          aria-label={ariaLabel}
+          aria-pressed={selected}
         >
-          {caption}
-        </span>
-      </button>
+          <span
+            className={`truncate text-[9px] tracking-[0.16em] opacity-70${
+              busy ? " storyboard-generating-label" : ""
+            }`}
+          >
+            {label}
+          </span>
+        </button>
+        {motion ? (
+          <button
+            type="button"
+            className={ctaClass}
+            disabled={!canAssessJourney(project, journey) || actionsBusy}
+            aria-label={`Plan ${journey.id}`}
+            onClick={onStage}
+          >
+            {preparing ? "Planning…" : "Plan"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={ctaClass}
+            disabled={!canShootJourney(project, journey) || actionsBusy}
+            aria-label={`Generate ${journey.id}`}
+            onClick={onGenerate}
+          >
+            {shooting ? "Generating…" : "Generate"}
+          </button>
+        )}
+      </div>
     </div>
   );
+}
+
+export function journeyBandSelected(selection: Selection, journeyId: string, band: JourneyBand): boolean {
+  return selection.kind === "journey" && selection.journeyId === journeyId && selection.band === band;
 }

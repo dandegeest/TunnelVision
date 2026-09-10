@@ -112,13 +112,36 @@ function upsertJourney(
 /**
  * Project Shoot is the current Project's actual adjacent canonicals.
  * Merge into existing destinations/journeys. Do not wipe fixture extras.
- * A-only and unresolved-next remain valid projects with no directed legs.
+ * A-only still records destination A so Shoot can show the opening still.
+ * Unresolved-next remains a valid project with no directed legs.
  * Changing either canonical still returns that leg to not prepared and not shot.
  */
 export function projectWithSyncedProductionLegs(project: Project): Project {
   const pairs = consecutiveProductionPairs(project);
   if (pairs.length === 0) {
-    return project;
+    const opening = project.storyboard.find((frame) => isProductionEndpoint(frame));
+    if (!opening) {
+      return project;
+    }
+    const openingId = productionDestinationId(opening);
+    const destination = upsertDestination(
+      project.destinations.find((item) => item.id === openingId),
+      opening,
+    );
+    const storyboard = project.storyboard.map((frame) => {
+      if (!isProductionEndpoint(frame) || frame.destinationId) {
+        return frame;
+      }
+      return { ...frame, destinationId: frame.id };
+    });
+    return {
+      ...project,
+      storyboard,
+      destinations: [
+        destination,
+        ...project.destinations.filter((item) => item.id !== openingId),
+      ],
+    };
   }
 
   const destinationsById = new Map(project.destinations.map((destination) => [destination.id, destination]));

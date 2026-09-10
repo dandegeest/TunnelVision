@@ -171,11 +171,15 @@ Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. The project is a
 partially specified movie: existing destination stills are preserved,
 and the Director fills unspecified connective beats. Empty intent or
-visual description on an actual still is adopted from that PLAN; filled
+visual description on an actual still is adopted from that DIRECT; filled
 fields are not overwritten. After planning,
 Construct builds the next planned beat from the immediately preceding
 actual destination through
-`ImageEditProvider` (FLUX Kontext Pro). If a following beat already has
+`ImageEditProvider` (FLUX Kontext Pro). Generated A requests 16:9.
+Uploaded A stores its pixel aspect as `Project.canonicalAspectRatio`.
+Construct maps that ratio onto an explicit provider aspect_ratio and
+does not send match_input_image. The previous canonical remains the
+reference image. If a following beat already has
 a Director plan, that plan's visual description is demoted far-field
 continuity after this destination and the camera move from the source
 still; this viewpoint stays this destination. The last beat has
@@ -183,13 +187,16 @@ no look-ahead. Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
-Project. Stage and Generate for the selected leg live under the preview;
-Generate stays Generate after a clip exists. After a clip exists, the
-preview tabs between the take and the A|B canonical stills. BLOCK on a selected actual leg runs the existing
+Project. Plan lives on the MOTION band and Generate on the FOOTAGE band;
+Generate stays Generate after a clip exists. Each interval is two stacked
+bands under the destination rail: MOTION (A|B stills and Camotion) and
+FOOTAGE (the generated take). Canonicals remain clickable places above
+those bands. When only A is actual, Shoot still shows A and an FPO B
+that opens Plan on B. Band labels are MOTION and FOOTAGE only. Plan on MOTION runs the existing
 Cinematographer assessment through `ReasoningProvider` and stores
 segment-specific camera choreography on that JourneyShot, including
 `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
-`moderate` / `fast` / `hyperspeed` / `variable`). While BLOCK is running, that Shoot segment
+`moderate` / `fast` / `hyperspeed` / `variable`). While Plan is running, that MOTION band
 shows a progress spinner. Shootability remains advisory and does not
 gate JourneyShot status. SHOOT on a blocked leg derives a deterministic
 CameraMotionPlan v1 (centered radial-forward, pinned `forward=1.0` and
@@ -210,12 +217,15 @@ The Director architecture
 accepts story plus the complete ordered storyboard and `MediaInput` for
 actual destination stills. The Project panel edits `Project.story`
 without planning; destination count (AUTO or a number, typed or stepped) sizes the
-storyboard before PLAN; auto-generate starting destination lets PLAN
+storyboard before DIRECT; auto-generate starting destination lets DIRECT
 create unresolved A from the story; auto-generate all destinations then
-constructs B…N in travel order after PLAN. If A is actual and the story
-is empty, PLAN first derives a journey story from that still. Auto
+constructs B…N in travel order after DIRECT. Generated A stores opening intent
+from the story and the generation prompt as visual description. Uploaded A
+with a story fills empty opening intent the same way and leaves visual
+description empty. If A is actual and the story
+is empty, DIRECT first derives a journey story from that still. Auto
 block shots and Auto shoot then block and shoot actual adjacent legs.
-PLAN in that panel invokes the Director.
+DIRECT in that panel invokes the Director.
 The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
 Delete removes a later storyboard beat without planning or relabeling; opening A cannot be deleted.
 Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
@@ -236,14 +246,17 @@ Product Slice 5 Project video model:
 [`genesis/research/16-product-slice-5.html`](../genesis/research/16-product-slice-5.html).
 Product Slice 6 destination look-ahead:
 [`genesis/research/17-product-slice-6.html`](../genesis/research/17-product-slice-6.html).
+Product Slice 7 Plan | Shoot UI:
+[`genesis/research/18-product-slice-7.html`](../genesis/research/18-product-slice-7.html).
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
-Aspect warnings appear on the affected thumbnail; Media Info is an
-icon tool, not a global diagnostic banner. 16:9 tiles stay fixed;
+Aspect warnings appear on the affected thumbnail; media facts appear
+on the selected storyboard still, including generated images, not as a
+global diagnostic banner. 16:9 tiles stay fixed;
 source stills are contained (letterboxed or pillarboxed), not
 stretched or cropped to fill. Debug is a session header
-toggle; Technical lists session asset paths, and Camotion work dirs
-are kept only while Debug is on. Destination actions live in
+toggle and is on by default for now; Technical lists session asset
+paths, and Camotion work dirs are kept only while Debug is on. Destination actions live in
 the destination menu, including Reshoot for generated stills. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
 summary. Conversation timestamps are stored on the entry. Pending
@@ -253,7 +266,7 @@ beside that status copy. Empty Plan FPO thumbnails overlay Director
 intent as readable text until an image exists. The
 filmmaking conversation rail is history-only and can be hidden to the
 left; the Project panel holds journey story, destination count,
-auto-generate-A, auto-generate-all, auto-block, auto-shoot, and PLAN and can hide to the right. That visibility is session UI, not project persistence, and
+auto-generate-A, auto-generate-all, auto-block, auto-shoot, and DIRECT and can hide to the right. The Shoot inspector can hide to a reopen strip. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is

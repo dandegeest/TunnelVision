@@ -1,4 +1,9 @@
 import { MediaGenerationError } from "../errors.ts";
+import {
+  FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS,
+  nearestExplicitAspectRatio,
+  requireImageAspectRatio,
+} from "../image-aspect-ratio.ts";
 import { toReplicateFileInput, type ResolvedMedia } from "../media-input.ts";
 import { ImageEditRequest } from "../types.ts";
 
@@ -84,10 +89,16 @@ export function toFluxKontextProInput(
   }
 
   const seed = request.seed ?? merged.seed;
+  const aspectRatio = request.aspectRatio
+    ? nearestExplicitAspectRatio(
+        requireImageAspectRatio(request.aspectRatio),
+        FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS,
+      )
+    : merged.aspectRatio;
   const input: FluxKontextProInput = {
     prompt: request.prompt,
     input_image: toReplicateFileInput(resolvedSource),
-    aspect_ratio: merged.aspectRatio,
+    aspect_ratio: aspectRatio,
     prompt_upsampling: merged.promptUpsampling,
     output_format: merged.outputFormat,
     safety_tolerance: merged.safetyTolerance,

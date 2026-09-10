@@ -10,6 +10,9 @@ import {
   journeyLegStatusLabel,
   journeySegmentAriaLabel,
   journeySegmentCaption,
+  footageBandAriaLabel,
+  footageBandCaption,
+  motionBandAriaLabel,
   journeysReadyToBlock,
   projectWithCinematographerAssessment,
   requestCinematographerAssessment,
@@ -170,28 +173,35 @@ describe("Cinematographer actual-set assessment", () => {
     };
     expect(journeyLegStatusLabel(unblocked)).toBe("Stage");
     expect(journeySegmentCaption(unblocked)).toBe("Stage");
-    expect(journeySegmentAriaLabel(unblocked)).toBe("Journey A-B, Stage");
+    expect(journeySegmentAriaLabel(unblocked)).toBe("Motion A-B");
+    expect(motionBandAriaLabel(unblocked)).toBe("Motion A-B");
+    expect(footageBandCaption(unblocked)).toBe("—");
+    expect(footageBandAriaLabel(unblocked)).toBe("Footage A-B");
     const blocked = { ...unblocked, cinematographer: shootableAB };
     expect(journeyLegStatusLabel(blocked)).toBe("Film");
     expect(journeySegmentCaption(blocked)).toBe("Film · clear");
-    expect(journeySegmentAriaLabel(blocked)).toBe("Journey A-B, Film, clear, Fast");
+    expect(journeySegmentAriaLabel(blocked)).toBe("Motion A-B");
     expect(journeySegmentAriaLabel({ ...blocked, cinematographer: { ...shootableAB, shootability: "needs_review" } })).toBe(
-      "Journey A-B, Film, hold, Fast",
+      "Motion A-B",
     );
     expect(
       journeySegmentAriaLabel({
         ...blocked,
         cinematographer: { ...shootableAB, pace: "slow-motion" },
       }),
-    ).toBe("Journey A-B, Film, clear, Slow-motion");
+    ).toBe("Motion A-B");
     expect(
       journeySegmentAriaLabel({
         ...blocked,
         cinematographer: { ...shootableAB, pace: "variable" },
       }),
-    ).toBe("Journey A-B, Film, clear, Variable");
+    ).toBe("Motion A-B");
     expect(journeyLegStatusLabel({ ...blocked, status: "shooting" })).toBe("Film");
-    expect(journeySegmentCaption({ ...rendered, cinematographer: shootableAB })).toBe("Export · clear");
+    expect(footageBandCaption({ ...blocked, status: "shooting" })).toBe("Generating…");
+    expect(footageBandAriaLabel({ ...blocked, status: "shooting" })).toBe("Footage A-B");
+    expect(journeySegmentCaption({ ...rendered, cinematographer: shootableAB })).toBe("Film · clear");
+    expect(footageBandCaption({ ...rendered, cinematographer: shootableAB })).toBe("Take");
+    expect(footageBandAriaLabel({ ...rendered, cinematographer: shootableAB })).toBe("Footage A-B");
   });
 
   it("does not gate JourneyShot progression when CM says not_shootable", () => {

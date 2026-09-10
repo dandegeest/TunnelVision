@@ -14,9 +14,16 @@ export type VideoGenerationRequest = {
   readonly seed?: number;
 };
 
+/** Pixel pair or reduced ratio. Adapters map this onto an explicit provider aspect_ratio. */
+export type ImageAspectRatio = {
+  readonly width: number;
+  readonly height: number;
+};
+
 export type ImageGenerationRequest = {
   readonly prompt: string;
   readonly seed?: number;
+  readonly aspectRatio?: ImageAspectRatio;
 };
 
 /**
@@ -27,6 +34,8 @@ export type ImageEditRequest = {
   readonly sourceImage: MediaInput;
   readonly prompt: string;
   readonly seed?: number;
+  /** Explicit output aspect. Adapters must not substitute match_input_image when this is set. */
+  readonly aspectRatio?: ImageAspectRatio;
 };
 
 export type GeneratedVideo = {

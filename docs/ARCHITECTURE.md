@@ -113,7 +113,7 @@ python -m camotion --image input.png --plan camera-motion.json --depth near-weig
 
 The current **product surface** is Plan | Shoot in `web/`. Product
 Slice 3 Plan is a storyboard grid plus an informational conversation
-rail; PLAN asks the
+rail; DIRECT asks the
 Director to plan unspecified beats around the complete ordered
 storyboard.
 Specified stills are preserved. After planning, Construct builds the next planned
@@ -147,12 +147,16 @@ destination stills. A project is a partially specified movie: the
 Director resolves what is not specified and preserves destinations
 that already have actual media. Empty intent or visual description on an
 actual still is filled from the attached image; existing plan text is kept.
+Generating A writes opening intent from the story and stores the generation
+prompt as visual description. Uploading A with a story fills empty opening
+intent and leaves visual description empty so DIRECT can still describe the
+look of the still.
 Story edits update `Project.story`
 without planning. Destination count (AUTO or a number, typed or stepped) sizes the
-storyboard before PLAN. When auto-generate starting destination is on,
-PLAN generates unresolved A from the story, then the Director plans.
-When A is already actual and the story is empty, PLAN first derives a
-journey story from that opening still. When auto-generate all destinations is on, PLAN then constructs B…N in
+storyboard before DIRECT. When auto-generate starting destination is on,
+DIRECT generates unresolved A from the story, then the Director plans.
+When A is already actual and the story is empty, DIRECT first derives a
+journey story from that opening still. When auto-generate all destinations is on, DIRECT then constructs B…N in
 travel order from each preceding actual frame; later beats cannot run
 in parallel. Auto blocking and Auto shoot continue after
 destinations exist.
@@ -178,6 +182,8 @@ Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
+Product Slice 7 Plan | Shoot UI:
+[genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and
@@ -455,9 +461,12 @@ interface ImageEditProvider {
 `VideoGenerationRequest` currently carries a start shooting frame, an
 optional end shooting frame, a prompt, optional duration, and optional
 seed. Shoot's current development path sends **only** the start
-shooting frame. `ImageGenerationRequest` currently carries a prompt and optional seed.
-`ImageEditRequest` currently carries a source image, a prompt, and
-optional seed. Text-to-image (`generateImage`) and image-conditioned
+shooting frame. `ImageGenerationRequest` currently carries a prompt, optional seed, and optional
+aspect ratio (`{ width, height }`). Generated opening A always requests 16:9.
+`ImageEditRequest` currently carries a source image, a prompt,
+optional seed, and optional aspect ratio. When that ratio is present, adapters
+map it onto an explicit provider aspect_ratio and must not send
+`match_input_image`. Text-to-image (`generateImage`) and image-conditioned
 editing (`editImage`) are distinct. Model- and provider-specific
 capabilities stay behind `ReplicateMediaProvider` (Seedance 2.5,
 `prunaai/p-video`, FLUX 1.1 Pro Ultra, and FLUX Kontext Pro). Extra

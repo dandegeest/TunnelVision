@@ -1,8 +1,13 @@
 import { UNEMBODIED_FIRST_PERSON_POV } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import type { ImageAspectRatio } from "../../../media/src/types.ts";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
+import {
+  GENERATED_OPENING_ASPECT_RATIO,
+  projectCanonicalAspectRatio,
+} from "./canonical-aspect";
 import { projectWithSyncedProductionLegs } from "./production-legs";
-import type { Project, StoryboardFrame } from "./types";
+import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 
 export type DestinationLookAhead = {
   intent: string;
@@ -16,6 +21,8 @@ export type DestinationConstructionRequest = {
   visualDescription: string;
   /** Next beat's plan. Far-field continuity only; this viewpoint stays this destination. */
   nextDestination?: DestinationLookAhead;
+  /** Project canonical aspect. Adapters map this onto an explicit provider AR. */
+  aspectRatio?: ImageAspectRatio;
 };
 
 export type DestinationConstructionResult = {
@@ -31,6 +38,7 @@ export type DestinationConstructionEvidence = {
     visualDescription: string;
     nextDestination?: DestinationLookAhead;
     prompt: string;
+    aspectRatio?: ImageAspectRatio;
   };
   model: string;
   modelVersion: string | null;
@@ -239,6 +247,17 @@ export function nextConstructableDestinationId(project: Project): string | undef
   return project.storyboard.find((frame) => canConstructDestinationFrame(project, frame))?.id;
 }
 
+/** First sentence of the journey story. Opening A uses this as intent when that field is empty. */
+export function openingFrameIntent(story: string): string | undefined {
+  const trimmed = story.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  const match = trimmed.match(/^[\s\S]+?(?:[.!?](?:\s|$)|$)/);
+  const intent = (match?.[0] ?? trimmed).trim();
+  return intent || undefined;
+}
+
 export function openingFrameGenerationPrompt(story: string): string {
   const trimmed = story.trim();
   if (!trimmed) {
@@ -257,6 +276,28 @@ export function openingFrameGenerationPrompt(story: string): string {
   ].join("\n");
 }
 
+/**
+ * Attach opening plan text to A. Generated stills store the TunnelVision
+ * prompt as visualDescription. Uploads only fill empty intent from the story.
+ */
+export function storyboardFrameWithOpeningPlan(
+  frame: StoryboardFrame,
+  story: string,
+  origin: "user" | "generated",
+): StoryboardFrame {
+  const next: StoryboardFrame = { ...frame };
+  if (!next.intent?.trim()) {
+    const intent = openingFrameIntent(story);
+    if (intent) {
+      next.intent = intent;
+    }
+  }
+  if (origin === "generated") {
+    next.visualDescription = openingFrameGenerationPrompt(story);
+  }
+  return next;
+}
+
 export function canGenerateOpeningFrame(project: Project): boolean {
   if (!project.story.trim()) {
     return false;
@@ -267,6 +308,7 @@ export function canGenerateOpeningFrame(project: Project): boolean {
 
 export type OpeningFrameGenerationRequest = {
   story: string;
+  aspectRatio: ImageAspectRatio;
 };
 
 export function openingFrameGenerationRequestFromProject(
@@ -275,12 +317,33 @@ export function openingFrameGenerationRequestFromProject(
   if (!canGenerateOpeningFrame(project) && !canReshootOpeningFrame(project)) {
     throw new Error("Opening frame is not ready to generate");
   }
-  return { story: project.story };
+  return { story: project.story, aspectRatio: GENERATED_OPENING_ASPECT_RATIO };
+}
+
+function frameWithConstructedStill(
+  frame: StoryboardFrame,
+  next: DestinationConstructionResult & { mediaInfo?: StoryboardMediaInfo },
+  extras: Pick<StoryboardFrame, "destinationId" | "generatedFrom">,
+): StoryboardFrame {
+  const constructed: StoryboardFrame = {
+    ...frame,
+    image: next.imageUrl,
+    mediaId: next.mediaId,
+    imageOrigin: "generated",
+    destinationId: extras.destinationId,
+    generatedFrom: extras.generatedFrom,
+  };
+  if (next.mediaInfo) {
+    constructed.mediaInfo = next.mediaInfo;
+  } else {
+    delete constructed.mediaInfo;
+  }
+  return constructed;
 }
 
 export function projectWithGeneratedOpeningFrame(
   project: Project,
-  next: DestinationConstructionResult,
+  next: DestinationConstructionResult & { mediaInfo?: StoryboardMediaInfo },
 ): Project {
   if (!isTrustedMediaIdShape(next.mediaId)) {
     throw new Error("Generated opening frame has no trusted media identity");
@@ -290,16 +353,17 @@ export function projectWithGeneratedOpeningFrame(
   }
   return projectWithSyncedProductionLegs({
     ...project,
+    canonicalAspectRatio: GENERATED_OPENING_ASPECT_RATIO,
     storyboard: project.storyboard.map((frame) =>
       frame.id === "A"
-        ? {
-            ...frame,
-            image: next.imageUrl,
-            mediaId: next.mediaId,
-            imageOrigin: "generated",
-            destinationId: frame.destinationId ?? "A",
-            generatedFrom: storyboardGenerationSignature(project, frame),
-          }
+        ? storyboardFrameWithOpeningPlan(
+            frameWithConstructedStill(frame, next, {
+              destinationId: frame.destinationId ?? "A",
+              generatedFrom: storyboardGenerationSignature(project, frame),
+            }),
+            project.story,
+            "generated",
+          )
         : frame,
     ),
   });
@@ -318,12 +382,14 @@ export function destinationConstructionRequestFromProject(
     throw new Error("Destination is not ready to construct");
   }
   const nextDestination = followingDestinationPlan(project, beat);
+  const aspectRatio = projectCanonicalAspectRatio(project);
   return {
     sourceMediaId: previous.mediaId,
     beatId: beat.id,
     intent: plan.intent,
     visualDescription: plan.visualDescription,
     ...(nextDestination ? { nextDestination } : {}),
+    ...(aspectRatio ? { aspectRatio } : {}),
   };
 }
 
@@ -349,7 +415,7 @@ export function parseDestinationConstructionResult(body: unknown): DestinationCo
  */
 export function projectWithConstructedDestination(
   project: Project,
-  next: DestinationConstructionResult & { beatId: string },
+  next: DestinationConstructionResult & { beatId: string; mediaInfo?: StoryboardMediaInfo },
 ): Project {
   if (!isTrustedMediaIdShape(next.mediaId)) {
     throw new Error("Constructed destination has no trusted media identity");
@@ -365,14 +431,10 @@ export function projectWithConstructedDestination(
     ...project,
     storyboard: project.storyboard.map((frame) =>
       frame.id === next.beatId
-        ? {
-            ...frame,
-            image: next.imageUrl,
-            mediaId: next.mediaId,
-            imageOrigin: "generated",
+        ? frameWithConstructedStill(frame, next, {
             destinationId: frame.destinationId ?? frame.id,
             generatedFrom: storyboardGenerationSignature(project, frame),
-          }
+          })
         : frame,
     ),
   });

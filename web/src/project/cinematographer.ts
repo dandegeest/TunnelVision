@@ -125,19 +125,39 @@ export function journeyLegStatusLabel(journey: JourneyShot): string {
 }
 
 export function journeySegmentCaption(journey: JourneyShot): string {
-  const operational = journeyLegStatusLabel(journey);
-  if (!journey.cinematographer) {
-    return operational;
-  }
-  return `${operational} · ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}`;
+  return motionBandCaption(journey);
 }
 
 export function journeySegmentAriaLabel(journey: JourneyShot): string {
-  const operational = journeyLegStatusLabel(journey);
+  return motionBandAriaLabel(journey);
+}
+
+export function motionBandCaption(journey: JourneyShot): string {
   if (!journey.cinematographer) {
-    return `Journey ${journey.id}, ${operational}`;
+    return "Stage";
   }
-  return `Journey ${journey.id}, ${operational}, ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}, ${locomotionPaceLabel(journey.cinematographer.pace)}`;
+  return `Film · ${cinematographerShootabilityTileLabel(journey.cinematographer.shootability)}`;
+}
+
+export function motionBandAriaLabel(journey: JourneyShot): string {
+  return `Motion ${journey.id}`;
+}
+
+export function footageBandCaption(journey: JourneyShot): string {
+  if (journey.status === "shooting") {
+    return "Generating…";
+  }
+  if (journey.status === "rendered") {
+    return "Take";
+  }
+  if (journey.status === "failed") {
+    return "Failed";
+  }
+  return "—";
+}
+
+export function footageBandAriaLabel(journey: JourneyShot): string {
+  return `Footage ${journey.id}`;
 }
 
 export function cinematographerRequestFromProject(

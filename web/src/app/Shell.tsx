@@ -6,16 +6,6 @@ import { PlanView } from "./PlanView";
 import { ProductionBar } from "./ProductionBar";
 import { TimelineView } from "./TimelineView";
 
-function MediaInfoToolIcon() {
-  return (
-    <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
-      <circle cx="6" cy="6" r="4.4" fill="none" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M6 5.35v3.1" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      <circle cx="6" cy="3.85" r="0.55" fill="currentColor" />
-    </svg>
-  );
-}
-
 function Brand() {
   const { project } = useProject();
   return (
@@ -75,26 +65,6 @@ function ViewSwitch() {
   );
 }
 
-function MediaInfoButton() {
-  const { mediaInfoOn, setMediaInfoOn } = useProject();
-  return (
-    <button
-      type="button"
-      aria-pressed={mediaInfoOn}
-      aria-label="Media info"
-      title="Media info"
-      onClick={() => setMediaInfoOn(!mediaInfoOn)}
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded border outline-none ${
-        mediaInfoOn
-          ? "border-[#ece7df] text-[#ece7df]"
-          : "border-[#3a342c] text-[#9a8f7e] hover:border-[#7a7266] hover:text-[#cfc6b8]"
-      }`}
-    >
-      <MediaInfoToolIcon />
-    </button>
-  );
-}
-
 function DebugButton() {
   const { debugOn, setDebugOn } = useProject();
   return (
@@ -121,16 +91,29 @@ function DebugButton() {
 
 function AgencySelect() {
   const { project, setAgency } = useProject();
+  const optionClass = (selected: boolean) =>
+    `h-full rounded px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
+      selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
+    }`;
   return (
-    <select
-      aria-label="Agency"
-      className="h-7 shrink-0 rounded border border-[#3a342c] bg-[#161410] px-2 text-sm text-[#ece7df]"
-      value={project.agency}
-      onChange={(event) => setAgency(event.target.value as "directed" | "autonomous")}
-    >
-      <option value="directed">Directed</option>
-      <option value="autonomous">Autonomous</option>
-    </select>
+    <nav aria-label="Agency" className="flex h-7 shrink-0 items-center rounded border border-[#3a342c] p-0.5">
+      <button
+        type="button"
+        aria-pressed={project.agency === "directed"}
+        className={optionClass(project.agency === "directed")}
+        onClick={() => setAgency("directed")}
+      >
+        Directed
+      </button>
+      <button
+        type="button"
+        aria-pressed={project.agency === "autonomous"}
+        className={optionClass(project.agency === "autonomous")}
+        onClick={() => setAgency("autonomous")}
+      >
+        Autonomous
+      </button>
+    </nav>
   );
 }
 
@@ -140,7 +123,6 @@ export function WorkspaceToolbar({ leading }: { leading?: ReactNode } = {}) {
       <div className="min-w-0">{leading}</div>
       <ViewSwitch />
       <div className="flex min-w-0 items-center justify-end gap-2 overflow-hidden">
-        <MediaInfoButton />
         <DebugButton />
         <AgencySelect />
       </div>

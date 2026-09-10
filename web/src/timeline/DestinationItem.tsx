@@ -26,11 +26,14 @@ export function DestinationItem({
   onSelect,
 }: {
   occurrence: LaidOutOccurrence;
-  destination: Destination;
+  destination?: Destination;
   selected: boolean;
   continuity?: BoundaryContinuity;
   onSelect: () => void;
 }) {
+  const image = destination?.image ?? occurrence.image;
+  const fpo = Boolean(occurrence.fpo) || !image;
+  const label = destination?.label ?? occurrence.label;
   const loopReturn = occurrence.destinationId === "A" && occurrence.occurrenceIndex > 0;
   const ring = occurrence.arrivalBlocked
     ? "ring-2 ring-[#c45c38]"
@@ -39,7 +42,7 @@ export function DestinationItem({
       : "ring-1 ring-[#3a342c] group-hover:ring-[#7a7266] group-focus-visible:ring-[#7a7266]";
   const matchLabel = continuity ? boundaryContinuityLabel(continuity.classification) : null;
   const ariaBits = [
-    loopReturn ? `Destination ${destination.label} again` : `Destination ${destination.label}`,
+    loopReturn ? `Destination ${label} again` : fpo ? `Plan destination ${label}` : `Destination ${label}`,
     continuity ? `boundary match ${matchLabel}` : null,
     continuity?.rasterMismatch ? "output raster mismatch" : null,
   ].filter(Boolean);
@@ -54,18 +57,22 @@ export function DestinationItem({
     >
       <span className="mb-1 flex h-5 items-baseline justify-center gap-1 border-b border-[#3a342c]">
         <span className="truncate text-center text-[11px] tracking-[0.2em] text-[#ece7df]">
-          {destination.label}
+          {label}
         </span>
         {loopReturn ? (
           <span className="shrink-0 text-[10px] tracking-[0.08em] text-[#9a8f7e]">(loop)</span>
         ) : null}
       </span>
       <span className="relative block">
-        <img
-          src={destination.image}
-          alt=""
-          className={`media-contain aspect-video w-full rounded ${ring}`}
-        />
+        {fpo ? (
+          <span className={`storyboard-fpo relative block aspect-video w-full overflow-hidden rounded ${ring}`} />
+        ) : (
+          <img
+            src={image}
+            alt=""
+            className={`media-contain aspect-video w-full rounded ${ring}`}
+          />
+        )}
         {continuity && matchLabel ? (
           <span
             className={`pointer-events-none absolute inset-x-0 bottom-0 rounded-b bg-[#0c0b0a]/75 px-1 py-0.5 text-center text-[8px] tracking-[0.12em] uppercase ${seamTone(continuity)}`}

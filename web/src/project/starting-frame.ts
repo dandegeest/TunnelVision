@@ -1,3 +1,5 @@
+import { storyboardFrameWithOpeningPlan } from "./destination";
+import { canonicalAspectRatioFromMediaInfo } from "./canonical-aspect";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
@@ -69,7 +71,7 @@ export function parseStartingFrameUpload(body: unknown): StartingFrameUpload {
 }
 
 export const CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT =
-  "This destination already has a plan. Clear the intent and visual description so the next PLAN can describe the new still?";
+  "This destination already has a plan. Clear the intent and visual description so the next DIRECT can describe the new still?";
 
 export function storyboardFrameHasPlanText(
   frame: Pick<StoryboardFrame, "intent" | "visualDescription">,
@@ -77,7 +79,7 @@ export function storyboardFrameHasPlanText(
   return Boolean(frame.intent?.trim() || frame.visualDescription?.trim());
 }
 
-/** Ask whether to null existing plan text so a later PLAN can describe the new still. */
+/** Ask whether to null existing plan text so a later DIRECT can describe the new still. */
 export function shouldClearStoryboardPlanOnUpload(
   frame: Pick<StoryboardFrame, "intent" | "visualDescription">,
   confirm: (message: string) => boolean,
@@ -114,7 +116,7 @@ export function projectWithReplacedFrameImage(
   }
   const autoGenerateOpening =
     frameId === "A" && !project.storyDurationLocked ? false : project.autoGenerateOpening;
-  return projectWithSyncedProductionLegs({
+  const nextProject: Project = {
     ...project,
     autoGenerateOpening,
     storyboard: project.storyboard.map((frame) => {
@@ -133,14 +135,27 @@ export function projectWithReplacedFrameImage(
         delete replaced.intent;
         delete replaced.visualDescription;
       }
+      const withPlan =
+        !options?.clearPlan && frameId === "A"
+          ? storyboardFrameWithOpeningPlan(replaced, project.story, "user")
+          : replaced;
       if (next.mediaInfo) {
-        replaced.mediaInfo = next.mediaInfo;
+        withPlan.mediaInfo = next.mediaInfo;
       } else {
-        delete replaced.mediaInfo;
+        delete withPlan.mediaInfo;
       }
-      return replaced;
+      return withPlan;
     }),
-  });
+  };
+  if (frameId === "A") {
+    const aspectRatio = next.mediaInfo ? canonicalAspectRatioFromMediaInfo(next.mediaInfo) : undefined;
+    if (aspectRatio) {
+      nextProject.canonicalAspectRatio = aspectRatio;
+    } else {
+      delete nextProject.canonicalAspectRatio;
+    }
+  }
+  return projectWithSyncedProductionLegs(nextProject);
 }
 
 /**

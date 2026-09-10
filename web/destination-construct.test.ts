@@ -27,7 +27,7 @@ describe("destination construction server path", () => {
     const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-")));
     setActiveRuntimeMediaRegistry(registry);
     const uploaded = registry.register(PNG, "image/png");
-    let edited: { sourcePath?: string; prompt?: string } = {};
+    let edited: { sourcePath?: string; prompt?: string; aspectRatio?: { width: number; height: number } } = {};
     const result = await constructDestinationImage({
       repoRoot,
       body: {
@@ -35,11 +35,13 @@ describe("destination construction server path", () => {
         beatId: "B",
         intent: "Move forward into the cleft.",
         visualDescription: "A narrow stone corridor with orange light.",
+        aspectRatio: { width: 1000, height: 558 },
       },
       editImage: async (request) => {
         edited = {
           sourcePath: request.sourceImage.kind === "file" ? request.sourceImage.path : undefined,
           prompt: request.prompt,
+          aspectRatio: request.aspectRatio,
         };
         return {
           provider: "replicate",
@@ -60,6 +62,8 @@ describe("destination construction server path", () => {
       },
     });
     expect(edited.sourcePath).toBe(uploaded.filePath);
+    expect(edited.aspectRatio).toEqual({ width: 1000, height: 558 });
+    expect(result.evidence.request.aspectRatio).toEqual({ width: 1000, height: 558 });
     expect(edited.prompt).toBe(
       destinationConstructionPrompt({
         intent: "Move forward into the cleft.",
@@ -285,10 +289,12 @@ describe("opening frame generation server path", () => {
     const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-open-")));
     setActiveRuntimeMediaRegistry(registry);
     let prompt = "";
+    let aspectRatio: { width: number; height: number } | undefined;
     const result = await generateOpeningFrameImage({
       body: { story: "Travel forward through an imagined interior at night." },
       generateImage: async (request) => {
         prompt = request.prompt;
+        aspectRatio = request.aspectRatio;
         return {
           provider: "replicate",
           model: "black-forest-labs/flux-1.1-pro-ultra",
@@ -310,6 +316,8 @@ describe("opening frame generation server path", () => {
     expect(prompt).toBe(
       openingFrameGenerationPrompt("Travel forward through an imagined interior at night."),
     );
+    expect(aspectRatio).toEqual({ width: 16, height: 9 });
+    expect(result.evidence.request.aspectRatio).toEqual({ width: 16, height: 9 });
     expect(result.evidence.request.beatId).toBe("A");
     expect(result.mediaId).not.toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
     expect(resolveTrustedMedia(repoRoot, result.mediaId)).toEqual({

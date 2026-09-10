@@ -19,6 +19,9 @@ export type LaidOutOccurrence = {
   inboundJourneyId: string | null;
   outboundJourneyId: string | null;
   arrivalBlocked: boolean;
+  /** Unresolved storyboard beat. Click opens Plan; it is not a production destination. */
+  fpo?: boolean;
+  image?: string;
 };
 
 export type LaidOutJourney = {

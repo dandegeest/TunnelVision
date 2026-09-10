@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import {
   boundaryContinuitiesForProject,
   boundaryContinuityAtSeam,
@@ -7,15 +7,68 @@ import {
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
-import { canAssessJourney, cinematographerShootabilityLabel, journeyLegStatusLabel, locomotionPaceLabel } from "../project/cinematographer";
+import { canAssessJourney, cinematographerShootabilityLabel, locomotionPaceLabel } from "../project/cinematographer";
 import { canReshootDestinationFrame } from "../project/destination";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake } from "../project/types";
-import { layoutTimeline } from "../timeline/geometry";
+import { layoutShootTimeline } from "../timeline/shoot-layout";
 import { DestinationPlanFields } from "./PlanView";
 import { TechnicalPanel } from "./TechnicalPanel";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
-import { camotionRecordsForDestination } from "../project/camotion-diagnostics";
+import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
+
+export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
+  const { inspectorOpen, setInspectorOpen } = useProject();
+  const label = inspectorOpen ? "Hide inspector" : "Show inspector";
+  return (
+    <button
+      type="button"
+      aria-pressed={inspectorOpen}
+      aria-controls="shoot-inspector"
+      aria-label="Inspector"
+      title={label}
+      onClick={() => setInspectorOpen(!inspectorOpen)}
+      className={
+        compact
+          ? "flex h-5 w-5 shrink-0 items-center justify-center rounded text-[#9a8f7e] outline-none hover:text-[#cfc6b8] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+          : `flex h-7 w-7 shrink-0 items-center justify-center rounded border outline-none ${
+              inspectorOpen
+                ? "border-[#ece7df] text-[#ece7df]"
+                : "border-[#3a342c] text-[#9a8f7e] hover:border-[#7a7266] hover:text-[#cfc6b8]"
+            }`
+      }
+    >
+      <svg viewBox="0 0 12 12" className={compact ? "h-2.5 w-2.5" : "h-3 w-3"} aria-hidden>
+        <rect
+          x="1.6"
+          y="2.1"
+          width="8.8"
+          height="7.8"
+          rx="1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+        />
+        <path d="M7.3 2.1v7.8" fill="none" stroke="currentColor" strokeWidth="1.3" />
+      </svg>
+    </button>
+  );
+}
+
+function InspectorShell({ children }: { children: ReactNode }) {
+  return (
+    <aside
+      id="shoot-inspector"
+      className="flex h-full min-h-0 flex-col border-l border-[#2a2620] bg-[#12100d] text-sm"
+      aria-label="Inspector"
+    >
+      <div className="inspector-header flex h-9 shrink-0 items-center justify-start border-b border-[#2a2620] bg-[#0c0b0a] px-2">
+        <InspectorToggle />
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-4">{children}</div>
+    </aside>
+  );
+}
 
 export function Inspector() {
   const {
@@ -27,27 +80,24 @@ export function Inspector() {
     setDestinationPlan,
     reshootDestination,
   } = useProject();
-  const layout = useMemo(
-    () => layoutTimeline(project.destinations, project.journeys, 1),
-    [project.destinations, project.journeys],
-  );
+  const layout = useMemo(() => layoutShootTimeline(project, 1), [project]);
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
-  const shootEmpty = project.journeys.length === 0;
+  const shootEmpty = layout.occurrences.length === 0;
 
   if (shootEmpty) {
     return (
-      <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
+      <InspectorShell>
         <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Journey</p>
         <p className="text-[#cfc6b8]">
           Nothing is ready to shoot until the journey has actual adjacent destinations.
         </p>
         <TechnicalPanel />
-      </aside>
+      </InspectorShell>
     );
   }
 
   if (selection.kind === "storyboard") {
-    return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
+    return <InspectorShell>Nothing selected.</InspectorShell>;
   }
 
   if (selection.kind === "destination") {
@@ -80,7 +130,7 @@ export function Inspector() {
     );
 
     return (
-      <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
+      <InspectorShell>
         <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Destination</p>
         <h2 className="text-2xl">
           {destination?.label}
@@ -127,13 +177,13 @@ export function Inspector() {
         ) : null}
         <CamotionDiagnosticPanel records={camotionRecords} />
         <TechnicalPanel />
-      </aside>
+      </InspectorShell>
     );
   }
 
   const journey = project.journeys.find((item) => item.id === selection.journeyId);
-  if (!journey) {
-    return <aside className="border-l border-[#2a2620] bg-[#12100d] p-4">Nothing selected.</aside>;
+  if (!journey || selection.kind !== "journey") {
+    return <InspectorShell>Nothing selected.</InspectorShell>;
   }
 
   const playable = journeyIsPlayable(journey);
@@ -144,22 +194,24 @@ export function Inspector() {
   const endDestination = journey.endDestinationId
     ? destinationById(project.destinations, journey.endDestinationId)
     : undefined;
+  const motion = selection.band === "motion";
+  const motionRecords = camotionRecordsForJourney(project, journey.id);
 
   return (
-    <aside className="flex min-h-0 flex-col gap-3 overflow-auto border-l border-[#2a2620] bg-[#12100d] p-4 text-sm">
-      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Journey</p>
+    <InspectorShell>
+      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">{motion ? "Motion" : "Footage"}</p>
       <h2 className="text-2xl">{journey.id}</h2>
       <p>
         {journey.startDestinationId} → {journey.endDestinationId ?? "?"}
       </p>
       {startDestination || endDestination ? (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1">
           {startDestination ? (
             <figure className="min-w-0">
               <img
                 src={startDestination.image}
                 alt={`${journey.id} start ${startDestination.label}`}
-                className="media-contain aspect-video w-full rounded"
+                className="w-full rounded"
               />
               <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
                 {startDestination.label}
@@ -171,7 +223,7 @@ export function Inspector() {
               <img
                 src={endDestination.image}
                 alt={`${journey.id} end ${endDestination.label}`}
-                className="media-contain aspect-video w-full rounded"
+                className="w-full rounded"
               />
               <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
                 {endDestination.label}
@@ -180,38 +232,48 @@ export function Inspector() {
           ) : null}
         </div>
       ) : null}
-      <p>Status: {journeyLegStatusLabel(journey)}</p>
-      {assessment ? (
+      {motion ? (
         <>
-          <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Blocked</p>
-          <CinematographerLegDetail assessment={assessment} />
+          <p>Status: {journey.cinematographer ? "Film" : "Stage"}</p>
+          {assessment ? (
+            <>
+              <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Blocked</p>
+              <CinematographerLegDetail assessment={assessment} />
+            </>
+          ) : (
+            <p className="text-[#cfc6b8]">
+              The Cinematographer inspects the actual adjacent sets and determines how the camera should move through their geography.
+            </p>
+          )}
+          {canAssess ? (
+            assessment ? null : (
+              <p className="text-[#9a8f7e]">Plan this traversal before generating.</p>
+            )
+          ) : (
+            <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
+          )}
+          {cinematographerError ? (
+            <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+              {cinematographerError}
+            </p>
+          ) : null}
+          <CamotionDiagnosticPanel records={motionRecords} emptyCopy="No Camotion data for this traversal." />
         </>
       ) : (
-        <p className="text-[#cfc6b8]">
-          The Cinematographer inspects the actual adjacent sets and determines how the camera should move through their geography.
-        </p>
+        <>
+          {shootError || journey.shootError ? (
+            <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+              {shootError ?? journey.shootError}
+            </p>
+          ) : null}
+          {take ? <TakeEvidence take={take} journeyId={journey.id} /> : playable ? null : (
+            <p className="text-[#9a8f7e]">No footage for this traversal.</p>
+          )}
+          {playable ? <p className="text-[#cfc6b8]">This take is available in the preview.</p> : null}
+        </>
       )}
-      {canAssess ? (
-        assessment ? null : (
-          <p className="text-[#9a8f7e]">Stage this journey before generating.</p>
-        )
-      ) : (
-        <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
-      )}
-      {cinematographerError ? (
-        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-          {cinematographerError}
-        </p>
-      ) : null}
-      {shootError || journey.shootError ? (
-        <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-          {shootError ?? journey.shootError}
-        </p>
-      ) : null}
-      {take ? <TakeEvidence take={take} journeyId={journey.id} /> : null}
-      {playable ? <p className="text-[#cfc6b8]">This shot is available in the preview.</p> : null}
       <TechnicalPanel />
-    </aside>
+    </InspectorShell>
   );
 }
 

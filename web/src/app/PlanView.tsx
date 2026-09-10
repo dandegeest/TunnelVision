@@ -170,17 +170,25 @@ export function StoryboardFrameMedia({
     <span className={`relative block aspect-video w-full overflow-hidden bg-black ${frameBorder}`}>
       {frame.image ? (
         <>
-          {onOpenReel ? (
+          {onOpenReel || onSelect ? (
             <button
               type="button"
               className="absolute inset-0 z-0 p-0"
-              onClick={onOpenReel}
+              onClick={() => {
+                if (selected && onOpenReel) {
+                  onOpenReel();
+                  return;
+                }
+                onSelect?.();
+              }}
               aria-label={stillLabel}
               aria-pressed={selected}
               title={
                 planChanged
                   ? "The plan changed after this still was generated. Reshoot to update it."
-                  : undefined
+                  : selected
+                    ? "View still"
+                    : undefined
               }
             >
               {still}
@@ -310,6 +318,9 @@ export function destinationDetailContent(frame: StoryboardFrame): {
   const intent = frame.intent?.trim() || undefined;
   const visualDescription = frame.visualDescription?.trim() || undefined;
   if (!intent && !visualDescription) {
+    if (frame.image && (frame.imageOrigin === "user" || frame.imageOrigin === "generated")) {
+      return { label: frame.label };
+    }
     return null;
   }
   if (visualDescription && intent && intent !== visualDescription) {
@@ -772,7 +783,6 @@ export function PlanView() {
     generateOpeningFrame,
     setDestinationPlan,
     reshootDestination,
-    mediaInfoOn,
     assessingJourneyIds,
     shootingJourneyIds,
   } = useProject();
@@ -879,24 +889,26 @@ export function PlanView() {
                 setDetailFrameId((current) => (current === frame.id ? null : frame.id));
               }
             };
+            const selectStill = () => {
+              selectFrame();
+              setDetailFrameId(null);
+              setReelFrameId(null);
+            };
+            const openReel = () => {
+              selectFrame();
+              setDetailFrameId(null);
+              setReelFrameId(frame.id);
+            };
             const frameMedia = (
               <StoryboardFrameMedia
                 frame={frame}
                 selected={selectedCard}
                 constructing={constructing}
-                showMediaInfo={mediaInfoOn}
+                showMediaInfo={selectedCard}
                 hasWarning={warnings.length > 0}
                 planChanged={planChanged}
-                onSelect={openDetails}
-                onOpenReel={
-                  frame.image
-                    ? () => {
-                        selectFrame();
-                        setDetailFrameId(null);
-                        setReelFrameId(frame.id);
-                      }
-                    : undefined
-                }
+                onSelect={frame.image ? selectStill : openDetails}
+                onOpenReel={frame.image ? openReel : undefined}
                 onOpenDetails={frame.image ? openDetails : undefined}
                 detailOpen={detailFrameId === frame.id}
               />

@@ -97,6 +97,7 @@ export function createForestProject(): Project {
     autoShoot: false,
     videoModel: "pruna-p-video",
     storyDurationLocked: true,
+    canonicalAspectRatio: { width: MEDIA_A.width, height: MEDIA_A.height },
     storyboard: [
       {
         id: "A",

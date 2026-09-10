@@ -80,6 +80,22 @@ export function camotionRecordsForDestination(
   return records;
 }
 
+export function camotionRecordsForJourney(
+  project: Pick<Project, "destinations" | "journeys">,
+  journeyId: string,
+): DestinationCamotionRecord[] {
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  if (!journey) {
+    return [];
+  }
+  return [
+    ...camotionRecordsForDestination(project, journey.startDestinationId, null, journey.id),
+    ...(journey.endDestinationId
+      ? camotionRecordsForDestination(project, journey.endDestinationId, journey.id, null)
+      : []),
+  ];
+}
+
 export function formatPlanPoint(point: readonly [number, number]): string {
   return `${formatPlanScalar(point[0])}, ${formatPlanScalar(point[1])}`;
 }

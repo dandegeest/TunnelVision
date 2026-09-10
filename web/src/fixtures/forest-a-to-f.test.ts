@@ -13,6 +13,7 @@ describe("forest A→F development fixture", () => {
     expect(project.id).toBe("forest-a-to-f");
     expect(project.title).toBe("FOREST A→F");
     expect(project.story).toBe(FOREST_USER_PROMPT);
+    expect(project.canonicalAspectRatio).toEqual({ width: 1000, height: 558 });
     expect(project.destinations.map((destination) => destination.id)).toEqual([
       "A",
       "B",

@@ -23,7 +23,7 @@ export function DestinationsLane({
     <div className="absolute inset-x-0 top-7 z-[1] h-[100px]">
       {occurrences.map((occurrence) => {
         const destination = destinations.find((item) => item.id === occurrence.destinationId);
-        if (!destination) {
+        if (!destination && !occurrence.fpo && !occurrence.image) {
           return null;
         }
         const selected =

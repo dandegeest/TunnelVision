@@ -27,7 +27,7 @@ import {
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
-import { readStoryboardMediaInfo } from "./media-preflight";
+import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoGenerateOpening, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
@@ -52,7 +52,7 @@ import {
   type ConversationEntry,
 } from "./conversation";
 import { requestExportMovie, type MovieExportResult } from "./export-movie";
-import type { Agency, JourneyShot, Project, Selection, VideoModelId } from "./types";
+import { storyboardFrameById, type Agency, type JourneyShot, type Project, type Selection, type VideoModelId } from "./types";
 
 function withId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids : [...ids, id];
@@ -76,14 +76,14 @@ type ProjectContextValue = {
   setPlayheadTime: (time: number) => void;
   playing: boolean;
   setPlaying: (playing: boolean) => void;
-  mediaInfoOn: boolean;
-  setMediaInfoOn: (on: boolean) => void;
   debugOn: boolean;
   setDebugOn: (on: boolean) => void;
   conversationRailOpen: boolean;
   setConversationRailOpen: (open: boolean) => void;
   projectRailOpen: boolean;
   setProjectRailOpen: (open: boolean) => void;
+  inspectorOpen: boolean;
+  setInspectorOpen: (open: boolean) => void;
   setAgency: (agency: Agency) => void;
   setVideoModel: (videoModel: VideoModelId) => void;
   syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
@@ -110,6 +110,7 @@ type ProjectContextValue = {
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File, options?: { clearPlan?: boolean }) => Promise<void>;
   addDestination: () => void;
+  openStoryboardInPlan: (frameId: string) => void;
   removeDestination: (frameId: string) => void;
   constructingBeatId: string | null;
   constructDestination: (beatId: string) => Promise<void>;
@@ -131,10 +132,10 @@ export function ProjectProvider({
   initialComposerDraft,
   initialView = "plan",
   initialSelection,
-  initialMediaInfo = false,
-  initialDebug = false,
+  initialDebug = true, // temporary: retain Camotion work dirs by default
   initialConversationRailOpen = true,
   initialProjectRailOpen = true,
+  initialInspectorOpen = true,
   initialAssessingJourneyIds = [],
   initialShootingJourneyIds = [],
   initialConstructingBeatId = null,
@@ -146,10 +147,10 @@ export function ProjectProvider({
   initialComposerDraft?: string;
   initialView?: WorkspaceView;
   initialSelection?: Selection;
-  initialMediaInfo?: boolean;
   initialDebug?: boolean;
   initialConversationRailOpen?: boolean;
   initialProjectRailOpen?: boolean;
+  initialInspectorOpen?: boolean;
   initialAssessingJourneyIds?: readonly string[];
   initialShootingJourneyIds?: readonly string[];
   initialConstructingBeatId?: string | null;
@@ -183,12 +184,12 @@ export function ProjectProvider({
   const [movieExport, setMovieExport] = useState<MovieExportResult | null>(null);
   const [exportingMovie, setExportingMovie] = useState(false);
   const [exportMovieError, setExportMovieError] = useState<string | null>(null);
-  const [mediaInfoOn, setMediaInfoOn] = useState(initialMediaInfo);
   const [debugOn, setDebugOn] = useState(initialDebug);
   const debugOnRef = useRef(debugOn);
   debugOnRef.current = debugOn;
   const [conversationRailOpen, setConversationRailOpen] = useState(initialConversationRailOpen);
   const [projectRailOpen, setProjectRailOpen] = useState(initialProjectRailOpen);
+  const [inspectorOpen, setInspectorOpen] = useState(initialInspectorOpen);
   const [composerDraft, setComposerDraftState] = useState(
     () => initialComposerDraft ?? initialProject?.story ?? "",
   );
@@ -306,6 +307,26 @@ export function ProjectProvider({
     });
   }, [assessingJourneyIds.length, constructingBeatId, directorStatus, shootingJourneyIds.length]);
 
+  const openStoryboardInPlan = useCallback((frameId: string) => {
+    setProject((current) => {
+      if (storyboardFrameById(current.storyboard, frameId)) {
+        return current;
+      }
+      let next = current;
+      while (!storyboardFrameById(next.storyboard, frameId)) {
+        const grown = projectWithAddedDestination(next);
+        if (grown === next) {
+          break;
+        }
+        next = grown;
+      }
+      return next;
+    });
+    setSelection({ kind: "storyboard", frameId });
+    setViewState("plan");
+    setPlaying(false);
+  }, []);
+
   const removeDestination = useCallback((frameId: string) => {
     setProject((current) => projectWithRemovedDestination(current, frameId));
     setSelection((current) => {
@@ -341,10 +362,12 @@ export function ProjectProvider({
       try {
         const request = destinationConstructionRequestFromProject(current, beatId);
         const result = await requestConstructDestination(request);
+        const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
         const next = projectWithConstructedDestination(current, {
           beatId: request.beatId,
           mediaId: result.mediaId,
           imageUrl: result.imageUrl,
+          ...(mediaInfo ? { mediaInfo } : {}),
         });
         applyProject(next);
         setConversation((entries) =>
@@ -398,10 +421,12 @@ export function ProjectProvider({
       try {
         const request = openingFrameGenerationRequestFromProject(current);
         const result = await requestGenerateOpeningFrame(request);
+        const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
         const next = applyProject(
           projectWithGeneratedOpeningFrame(current, {
             mediaId: result.mediaId,
             imageUrl: result.imageUrl,
+            ...(mediaInfo ? { mediaInfo } : {}),
           }),
         );
         setConversation((entries) =>
@@ -536,6 +561,11 @@ export function ProjectProvider({
         const result = await requestShootJourney({ ...request, debug: debugOnRef.current });
         const next = projectWithJourneyShotTake(projectRef.current, journeyId, result);
         applyProject(next);
+        setSelection((current) =>
+          current.kind === "journey" && current.journeyId === journeyId
+            ? { kind: "journey", journeyId, band: "footage" }
+            : current,
+        );
         setConversation((entries) =>
           resolveShootingEntry(entries, entryId, {
             status: "shot",
@@ -748,14 +778,14 @@ export function ProjectProvider({
       setPlayheadTime,
       playing,
       setPlaying,
-      mediaInfoOn,
-      setMediaInfoOn,
       debugOn,
       setDebugOn,
       conversationRailOpen,
       setConversationRailOpen,
       projectRailOpen,
       setProjectRailOpen,
+      inspectorOpen,
+      setInspectorOpen,
       setAgency,
       setVideoModel,
       syncJourneyClipDuration,
@@ -782,6 +812,7 @@ export function ProjectProvider({
       replacingStart,
       replaceDestinationImage,
       addDestination,
+      openStoryboardInPlan,
       removeDestination,
       constructingBeatId,
       constructDestination,
@@ -803,10 +834,10 @@ export function ProjectProvider({
       setZoom,
       playheadTime,
       playing,
-      mediaInfoOn,
       debugOn,
       conversationRailOpen,
       projectRailOpen,
+      inspectorOpen,
       setAgency,
       setVideoModel,
       syncJourneyClipDuration,
@@ -832,6 +863,7 @@ export function ProjectProvider({
       replacingStart,
       replaceDestinationImage,
       addDestination,
+      openStoryboardInPlan,
       removeDestination,
       constructingBeatId,
       constructDestination,

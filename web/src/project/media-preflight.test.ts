@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import {
@@ -10,6 +10,8 @@ import {
   formatMediaInfoLine,
   mediaFormatFromFile,
   mediaPreflightForProject,
+  readStoryboardMediaInfo,
+  readStoryboardMediaInfoFromUrl,
   preflightWarningsForFrame,
   provenanceAccessibleLabel,
 } from "./media-preflight";
@@ -181,5 +183,51 @@ describe("media preflight", () => {
     expect(sameAspect.findings.some((finding) => finding.kind === "resolution")).toBe(true);
     expect(preflightWarningsForFrame(sameAspect, "A")).toEqual([]);
     expect(preflightWarningsForFrame(sameAspect, "B")).toEqual([]);
+  });
+});
+
+const PNG_1X1 = Uint8Array.from(
+  atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="),
+  (char) => char.charCodeAt(0),
+);
+
+describe("storyboard media facts", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("reads png dimensions from a blob even without a filename", async () => {
+    vi.stubGlobal("createImageBitmap", async () => ({ width: 1, height: 1, close() {} }));
+    const info = await readStoryboardMediaInfo(new Blob([PNG_1X1], { type: "image/png" }));
+    expect(info).toEqual({ width: 1, height: 1, format: "png" });
+  });
+
+  it("reads generated stills from a fetchable image URL without a file extension", async () => {
+    vi.stubGlobal("createImageBitmap", async () => ({ width: 1392, height: 752, close() {} }));
+    vi.stubGlobal("fetch", async () =>
+      new Response(PNG_1X1, { headers: { "content-type": "image/png" } }),
+    );
+    const info = await readStoryboardMediaInfoFromUrl("/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    expect(info).toEqual({ width: 1392, height: 752, format: "png" });
+  });
+
+  it("decodes a displayable URL when fetch is unavailable", async () => {
+    vi.stubGlobal("fetch", async () => {
+      throw new Error("blocked");
+    });
+    vi.stubGlobal(
+      "Image",
+      class {
+        naturalWidth = 1024;
+        naturalHeight = 576;
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        set src(_value: string) {
+          queueMicrotask(() => this.onload?.());
+        }
+      },
+    );
+    const info = await readStoryboardMediaInfoFromUrl("https://cdn.example/generated.png");
+    expect(info).toEqual({ width: 1024, height: 576, format: "png" });
   });
 });

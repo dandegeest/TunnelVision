@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Product Slice 7 — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="09-shootability-intermediate-volume.html">Shootability</a>
+  <a href="10-product-slice-1.html">Product Slice 1</a>
+  <a href="11-product-slice-2.html">Product Slice 2</a>
+  <a href="12-product-slice-3.html">Product Slice 3</a>
+  <a href="13-destination-construction.html">Destination Construction</a>
+  <a href="14-forest-a-to-f.html">Forest A→F</a>
+  <a href="15-product-slice-4.html">Product Slice 4</a>
+  <a href="16-product-slice-5.html">Product Slice 5</a>
+  <a href="17-product-slice-6.html">Product Slice 6</a>
+  <a href="18-product-slice-7.html" class="active">Product Slice 7</a>
+</nav>
+<main>
+<section class="ready-code" id="product-slice-7">
+<div class="eyebrow">PRODUCT SLICE 7 · SEPTEMBER 10, 2026</div>
+<h2>Product Slice 7 — Sequential Destinations, Shoot Preview, and Camotion Overlay</h2>
+<p>This chapter records the current Plan | Shoot product UI on a live untitled ten-destination train journey. Plan is a storyboard of constructed stills with media facts on the selected tile. Shoot is a production view of those destinations: MOTION Plan, FOOTAGE Generate, stored Camotion overlay on destination preview, and Export Movie. Camotion Phase 1 remains frozen. These captures are a UI checkpoint, not a Camotion experiment.</p>
+
+<div class="finding">
+<strong>Header chrome is session. The storyboard is the movie.</strong>
+<p>Debug and Directed / Autonomous sit in the workspace header. Debug is on by default for now so Camotion work dirs are kept; it is still session UI, not project persistence. The Project panel holds the journey story, destination count, video model, auto stages, and DIRECT. DIRECT is the only Director invocation. Add Destination remains structural.</p>
+</div>
+
+<div class="results-grid">
+<figure class="image-card">
+<img src="../assets/product/product-slice-07-plan.jpg" alt="Plan workspace: untitled ten-destination train journey A through J on a storyboard grid, destination C selected with media facts, Debug and Directed in the header, Project panel with DIRECT"/>
+<figcaption>Plan — A live untitled project after sequential destination construction. C is selected; media facts sit on that still (~1.85:1 · 1392×752 · PNG). Add Destination follows J.</figcaption>
+</figure>
+<figure class="image-card">
+<img src="../assets/product/product-slice-07-shoot.jpg" alt="Shoot workspace: preview of destination C with stored Camotion overlay, Canonical toggle, inspector Intent and Prompt, MOTION Plan and FOOTAGE Generate under destinations A through J"/>
+<figcaption>Shoot — Destination C with stored Camotion overlay on the canonical still. MOTION Plan runs the Cinematographer only. FOOTAGE Generate runs Camotion A′/B′ then video. Export Movie hard-joins rendered clips.</figcaption>
+</figure>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Plan</h3><span class="result-pill info">STORYBOARD WITH MEDIA FACTS</span></div>
+<p>The capture is a live train / tunnel spectacle planned and constructed from a filmmaker story, not a research fixture. Specified stills remain authoritative. The selected tile shows provenance, friendly aspect, dimensions, and format. Generated A requests 16:9; uploaded A stores its pixel aspect as the project canonical. Construct of B…N passes that ratio as an explicit provider aspect_ratio, not match_input_image.</p>
+<p>Clicking an unselected still selects it. Clicking the selected still opens the storyboard reel. The label strip opens destination details. Empty plan text on an actual still no longer blocks those details: generated A stores opening intent and the TV prompt; uploaded A with a story fills empty intent from the first sentence.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Shoot</h3><span class="result-pill info">MOTION PLAN · FOOTAGE GENERATE</span></div>
+<p>Each interval is two stacked bands under the destination rail. Plan on MOTION inspects the pair and stores choreography; it does not create A′/B′. Generate on FOOTAGE runs Camotion then video. After a take exists, the destination preview can toggle Canonical against primed shooting frames and draw the stored CameraMotionPlan as a read-only overlay. The inspector lists that take's intent and prompt. Overlay, diagnostics, and A|B remain read-only on the take.</p>
+<p>When only A is actual, Shoot still shows A and an FPO B that opens Plan on B. Product shoot does not pass a depth map. Camotion work dirs are kept while Debug is on.</p>
+</article>
+
+<div class="finding">
+<strong>This slice records product UI, not a new Camotion result.</strong>
+<p>Destination construction, Cinematographer inspection, stored overlay, and development video are wired for this live session. Camotion Phase 1 is unchanged. A constructed still is not by itself shootability evidence; Plan on MOTION is the Cinematographer inspection of the actual pair.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Product Slice 7 UI milestone. Live untitled train journey. Not a Camotion experiment.</span>
+</footer>
+<nav class="chapter-nav"><a href="17-product-slice-6.html" class="prev-link">← Product Slice 6</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

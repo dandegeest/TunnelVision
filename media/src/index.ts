@@ -2,6 +2,7 @@ export type {
   MediaProvider,
   ImageEditProvider,
   MediaInput,
+  ImageAspectRatio,
   VideoGenerationRequest,
   ImageGenerationRequest,
   ImageEditRequest,
@@ -9,6 +10,14 @@ export type {
   GeneratedImage,
   MediaErrorCode,
 } from "./types.ts";
+export {
+  GENERATED_OPENING_ASPECT_RATIO,
+  FLUX_11_PRO_ULTRA_ASPECT_RATIOS,
+  FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS,
+  isImageAspectRatio,
+  parseImageAspectRatio,
+  nearestExplicitAspectRatio,
+} from "./image-aspect-ratio.ts";
 export type { ReasoningProvider, ReasoningRequest, ReasoningResult } from "./reasoning/types.ts";
 export { MediaGenerationError } from "./errors.ts";
 export { sha256File, sha256Bytes } from "./hash.ts";

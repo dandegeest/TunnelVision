@@ -149,7 +149,11 @@ describe("replacing authoritative A", () => {
     expect(next.storyboard[0]?.mediaId).toBe("upload-dddddddddddddddddddddddddddddddd");
     expect(next.storyboard[0]?.id).toBe("A");
     expect(next.storyboard[0]?.label).toBe(planned.storyboard[0]?.label);
-    expect(next.destinations).toEqual(project.destinations);
+    expect(next.destinations.map((destination) => destination.id)).toEqual(
+      project.destinations.map((destination) => destination.id),
+    );
+    expect(next.destinations[0]?.image).toBe("/api/runtime-media/upload-dddddddddddddddddddddddddddddddd");
+    expect(next.destinations.slice(1)).toEqual(project.destinations.slice(1));
     expect(next.journeys).toEqual(project.journeys);
   });
 
@@ -210,11 +214,13 @@ describe("replacing authoritative A", () => {
     });
     expect(withFacts.storyboard).toHaveLength(6);
     expect(withFacts.storyboard[0]?.mediaInfo).toEqual({ width: 1280, height: 720, format: "png" });
+    expect(withFacts.canonicalAspectRatio).toEqual({ width: 1280, height: 720 });
     const withoutFacts = projectWithReplacedStartImage(forest, {
       mediaId: "upload-ffffffffffffffffffffffffffffffff",
       imageUrl: "/api/runtime-media/upload-ffffffffffffffffffffffffffffffff",
     });
     expect(withoutFacts.storyboard[0]?.mediaInfo).toBeUndefined();
+    expect(withoutFacts.canonicalAspectRatio).toBeUndefined();
   });
 
   it("replaces destination B in place without changing identity or neighbors", () => {
@@ -228,6 +234,7 @@ describe("replacing authoritative A", () => {
     expect(next.storyboard[1]?.label).toBe(forest.storyboard[1]?.label);
     expect(next.storyboard[1]?.imageOrigin).toBe("user");
     expect(next.storyboard[1]?.mediaId).toBe("upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    expect(next.canonicalAspectRatio).toEqual(forest.canonicalAspectRatio);
     expect(next.storyboard[0]).toEqual(forest.storyboard[0]);
     expect(next.storyboard[2]).toEqual(forest.storyboard[2]);
     expect(next.destinations.find((destination) => destination.id === "B")?.image).toBe(
@@ -258,12 +265,56 @@ describe("providing starting frame A on a new project", () => {
     expect(next.storyboard[0]?.imageOrigin).toBe("user");
     expect(next.storyboard[0]?.mediaId).toBe("upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     expect(next.storyboard[0]?.destinationId).toBe("A");
-    expect(next.destinations).toEqual([]);
+    expect(next.storyboard[0]?.intent).toBeUndefined();
+    expect(next.storyboard[0]?.visualDescription).toBeUndefined();
+    expect(next.canonicalAspectRatio).toBeUndefined();
+    expect(next.destinations.map((destination) => destination.id)).toEqual(["A"]);
     expect(next.journeys).toEqual([]);
     expect(hasAuthoritativeStartingFrame(next)).toBe(true);
     expect(canProvideStartingFrame(next.storyboard[0]!)).toBe(false);
     expect(next.autoGenerateOpening).toBe(false);
     expect(project.autoGenerateOpening).toBe(true);
+  });
+
+  it("stores uploaded A's pixel aspect as the project canonical aspect ratio", () => {
+    const next = projectWithReplacedStartImage(createNewProject(), {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      mediaInfo: { width: 1000, height: 558, format: "jpeg" },
+    });
+    expect(next.canonicalAspectRatio).toEqual({ width: 1000, height: 558 });
+  });
+
+  it("fills empty opening intent from the journey story and leaves visual description unset", () => {
+    const project = {
+      ...createNewProject(),
+      story: "Travel forward through a quiet abandoned greenhouse at night. Keep moving.",
+    };
+    const next = projectWithReplacedStartImage(project, {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    expect(next.storyboard[0]?.intent).toBe(
+      "Travel forward through a quiet abandoned greenhouse at night.",
+    );
+    expect(next.storyboard[0]?.visualDescription).toBeUndefined();
+    const replacedAgain = projectWithReplacedStartImage(next, {
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    expect(replacedAgain.storyboard[0]?.intent).toBe(
+      "Travel forward through a quiet abandoned greenhouse at night.",
+    );
+    const cleared = projectWithReplacedStartImage(
+      next,
+      {
+        mediaId: "upload-cccccccccccccccccccccccccccccccc",
+        imageUrl: "/api/runtime-media/upload-cccccccccccccccccccccccccccccccc",
+      },
+      { clearPlan: true },
+    );
+    expect(cleared.storyboard[0]?.intent).toBeUndefined();
+    expect(cleared.storyboard[0]?.visualDescription).toBeUndefined();
   });
 
   it("fills an unresolved later slot without treating it as starting frame A", () => {

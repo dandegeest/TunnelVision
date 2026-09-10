@@ -11,6 +11,7 @@ describe("new product project", () => {
     expect(project.agency).toBe("directed");
     expect(project.construction).toBe("planned");
     expect(project.storyboard).toEqual([{ id: "A", label: "A", imageOrigin: "none" }]);
+    expect(project.canonicalAspectRatio).toBeUndefined();
     expect(project.destinations).toEqual([]);
     expect(project.journeys).toEqual([]);
     expect(project.boundaryAnalysis).toBeUndefined();

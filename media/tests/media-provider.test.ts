@@ -279,6 +279,7 @@ test("generic image request maps onto FLUX 1.1 Pro Ultra without a reference ima
     {
       prompt: "First-person cinematic POV inside a cozy attic bedroom",
       seed: 10101,
+      aspectRatio: { width: 16, height: 9 },
     },
     {
       aspectRatio: "16:9",
@@ -329,6 +330,7 @@ test("successful image prediction returns structured GeneratedImage without secr
   const result = await provider.generateImage({
     prompt: "attic bedroom",
     seed: 10101,
+    aspectRatio: { width: 16, height: 9 },
   });
   assert.equal(result.provider, "replicate");
   assert.equal(result.predictionId, "pred_img");
@@ -392,6 +394,22 @@ test("image-conditioned edit maps onto FLUX Kontext Pro with input_image", () =>
   assert.equal("image_prompt" in input, false);
 });
 
+test("image-conditioned edit uses an explicit aspect ratio instead of match_input_image", () => {
+  const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
+  const input = toFluxKontextProInput(
+    {
+      sourceImage: source,
+      prompt: "Move the camera through the open wardrobe.",
+      aspectRatio: { width: 1000, height: 558 },
+    },
+    { kind: "url", url: source.url },
+    { aspectRatio: "match_input_image" },
+  );
+  assert.equal(input.aspect_ratio, "16:9");
+  assert.equal(input.input_image, "https://example.com/a.jpg");
+  assert.notEqual(input.aspect_ratio, "match_input_image");
+});
+
 test("successful image edit returns structured GeneratedImage without secrets", async () => {
   const client: ReplicatePredictionClient = {
     async create(options) {
@@ -433,6 +451,41 @@ test("successful image edit returns structured GeneratedImage without secrets", 
   assert.equal(kontext.prompt, "Move the camera through the open wardrobe.");
   assert.equal(kontext.input_image, "https://example.com/a.jpg");
   assert.equal(kontext.seed, 42);
+});
+
+test("image edit with a project aspect ratio sends an explicit Kontext aspect_ratio", async () => {
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      assert.equal(options.input.aspect_ratio, "16:9");
+      assert.notEqual(options.input.aspect_ratio, "match_input_image");
+      assert.equal(options.input.input_image, "https://example.com/a.jpg");
+      return {
+        id: "pred_edit_ar",
+        status: "starting",
+        model: "black-forest-labs/flux-kontext-pro",
+      };
+    },
+    async wait() {
+      return {
+        id: "pred_edit_ar",
+        status: "succeeded",
+        model: "black-forest-labs/flux-kontext-pro",
+        output: "https://replicate.delivery/edited-ar.png",
+      };
+    },
+  };
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    client,
+    kontext: { aspectRatio: "match_input_image" },
+  });
+  const result = await provider.editImage({
+    sourceImage: { kind: "url", url: "https://example.com/a.jpg" },
+    prompt: "Move the camera through the open wardrobe.",
+    aspectRatio: { width: 1000, height: 558 },
+  });
+  const kontext = result.metadata.kontext as Record<string, unknown>;
+  assert.equal(kontext.aspect_ratio, "16:9");
 });
 
 test("image edit local MediaInput is uploaded as file bytes", async () => {

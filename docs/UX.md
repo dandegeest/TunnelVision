@@ -5,7 +5,7 @@ filmmaking shell that starts from a genuinely new project. Forest A→F
 stills and Journey videos remain research evidence and explicit test
 fixtures; they do not initialize the running product. Camotion
 v1 and the Integration Test 01 pipeline in `media/` are unchanged.
-After Plan Movie, the filmmaker can construct the next planned
+After DIRECT, the filmmaker can construct the next planned
 destination from the immediately preceding actual destination through
 image-conditioned edit. When a following beat already has a plan,
 Construct includes that plan's visual as demoted far-field continuity after this
@@ -26,23 +26,27 @@ storyboard grid between a conversation history rail and a Project
 panel. The left rail is conversation turn history only. The Project
 panel holds the journey story, destination count (AUTO or a
 number, typed or stepped), Video model, auto-generate-A, auto-generate-all, auto-block,
-auto-shoot, and PLAN, and can collapse to the right
+auto-shoot, and DIRECT, and can collapse to the right
 like conversation collapses to the left. Opening A can be uploaded
 before a story exists. AUTO leaves later beats to the Director;
-a number adds that many FPO destinations. After the first PLAN
+a number adds that many FPO destinations. After the first DIRECT
 response the count is read-only and follows storyboard add/delete.
-When auto-generate starting destination is on, PLAN generates A from
-the story then runs Director planning. When A is already actual and
-the story is empty, PLAN first writes a journey story from that image.
+When auto-generate starting destination is on, DIRECT generates A from
+the story then runs Director planning. That generated still stores opening
+intent from the story and the TunnelVision prompt as visual description. When A is already actual and
+the story is empty, DIRECT first writes a journey story from that image.
 When auto-generate all destinations is on,
-PLAN then constructs B…N in travel order; later beats cannot run in
+DIRECT then constructs B…N in travel order; later beats cannot run in
 parallel because each is derived from the previous actual frame. Auto
 blocking then blocks every actual adjacent pair. Auto shoot then
-shoots blocked legs regardless of CM warnings. PLAN asks the Director to plan unspecified
+shoots blocked legs regardless of CM warnings. DIRECT asks the Director to plan unspecified
 beats around the complete ordered storyboard; supplied stills remain
 authoritative. Planned beats start as FPO. Generate is centered beneath the
 planned thumbnail and builds the next planned beat from the preceding
-actual destination through image-conditioned edit. Following-beat
+actual destination through image-conditioned edit. Generated A is requested
+at 16:9. Uploaded A records its pixel aspect for later destinations, which
+pass that ratio explicitly instead of matching the input image's resolution
+path. Following-beat
 look-ahead is part of that Construct algorithm, not a Project-panel
 toggle; later beats stay
 planned until the filmmaker generates them. Empty FPO thumbnails overlay
@@ -55,28 +59,38 @@ construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
 production view of the current Project: consecutive actual adjacent
-canonicals appear as Destinations / JourneyShots automatically. Unrendered
-legs stay outlined. Legs that still need blocking use a neutral outline. After BLOCK, the
-outline follows advisory shootability: solid green for clear, dashed gold
-for hold, solid rust for no go. Those CM outlines are 2px. While BLOCK or SHOOT is running, the tile uses the
+canonicals appear as Destinations / JourneyShots automatically. Each
+interval is two stacked bands under the destination rail: MOTION
+(CM + Camotion planning for A→B) and FOOTAGE (the generated take).
+When only A is actual, Shoot still shows A and an FPO B; clicking that
+FPO opens Plan with B selected. MOTION/FOOTAGE appear once adjacent
+canonicals exist. Unrendered motion stays outlined. After Plan, the
+band follows advisory shootability: 2px solid green for clear, 2px
+solid gold fill and border for hold, 2px solid rust for no go.
+Clear MOTION uses the same green fill as completed FOOTAGE. Hold uses
+the same filled-band treatment in the current gold. While Plan or Generate is running, the matching band uses the
 same generating shimmer as Plan FPO thumbs, and more than one shoot
-can be in progress. Green fill appears only after the clip is
-complete. Tile copy uses Stage / Film / Export, plus
-clear / hold / no go when CM has returned. After BLOCK, the gutter
+can be in progress. Green fill on FOOTAGE appears only after the clip is
+complete. MOTION and FOOTAGE bands show those labels only; Plan lives on
+MOTION and Generate lives on FOOTAGE. After Plan, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. Stage and Generate for the selected leg live under the
-preview. Generate stays Generate after a clip exists. Journey tiles keep
-status copy only. The timeline is
-vertically resizable. Select
-a real leg and BLOCK to run the existing Cinematographer on those
+for variable. Plan lives on the MOTION band and Generate on the FOOTAGE band.
+Generate stays Generate after a clip exists. The timeline is
+vertically resizable. The Shoot inspector can hide to a reopen strip like the
+conversation and Project rails; that visibility is session UI, not project
+persistence. Canonicals are places;
+MOTION is how the camera traverses between
+canonicals; FOOTAGE is the generated take for that traversal.
+Canonical destinations stay clickable places on the rail above those
+bands. Select MOTION and Plan to run the existing Cinematographer on those
 stills. Inspector Ready / Needs
-review / Not shootable status is advisory and lives on the leg,
+review / Not shootable status is advisory and lives on the motion band,
 together with camera path, pace, and a concise summary. Route, transition
 strategy, prompt addition, and remaining shot notes sit behind a
-disclosure. After BLOCK, SHOOT generates that one leg. The preview
-plays the rendered clip when present, and can tab back to the A|B
-canonical stills shown before the clip. Selecting a destination still
+disclosure. After Plan, Generate on FOOTAGE produces that one take. The preview
+shows the A|B stills and Camotion diagnostic on MOTION, and the
+rendered clip on FOOTAGE. Selecting a destination still
 offers a compact read-only Camotion diagnostic: canonical vs stored A′/B′
 in the preview, a thin overlay of the stored CameraMotionPlan on the
 displayed still, and CameraMotionPlan facts in the inspector. Take evidence (A′, B′, effective
@@ -109,6 +123,8 @@ Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
+Product Slice 7 Plan | Shoot UI:
+[genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
 
 ### Plan — conversational storyboard
 
@@ -178,13 +194,17 @@ the black-and-white direction. See
 Plan **media preflight** marks aspect-ratio mismatch on the affected
 storyboard thumbnail. Resolution and format differences remain
 informational and do not produce warning icons. There is no global
-preflight banner. Warning visibility is independent of Media Info.
+preflight banner. Warning visibility is independent of the selected-tile media strip.
 The icon exposes the underlying finding; it does not crop, resize, or
 convert source media.
 
-Storyboard **Media Info** is an icon tool in the workspace header
-toolbar. **Debug** sits beside it and is session UI, not project
-persistence. With Debug on, Technical in the Project panel (and Shoot
+Storyboard media facts appear on the selected still as a thin bottom
+strip (provenance icon, friendly aspect, dimensions, format). There is
+no Media Info toolbar toggle. Generated stills store the same facts as
+uploads once the image exists. **Debug** sits in the workspace header
+toolbar and is session UI, not project
+persistence. Debug is on by default for now. **Agency** is a Directed / Autonomous segmented control
+in that same toolbar, not a native OS menu. With Debug on, Technical in the Project panel (and Shoot
 inspector) shows session disk paths for canonical stills and shooting
 frames. Camotion work dirs are kept only while Debug is on; product
 shoot does not pass a depth map. Frame labels occupy a
@@ -194,21 +214,22 @@ stills expose Replace…, which swaps that
 destination's canonical still in place. Generated stills also expose
 Reshoot, which regenerates that canonical from the current prompt.
 If the slot already has intent or a
-visual description, that action asks whether to clear them so the next PLAN can
+visual description, that action asks whether to clear them so the next DIRECT can
 describe the new still. Later destinations also expose
 Delete; opening A cannot be deleted. Delete is structural: it does not
 invoke the Director or relabel remaining beats. An Add Destination affordance
 follows the last configured destination once A is actual; it appends an
 unresolved slot, is not itself a destination, does not invoke the
-Director, and is disabled while PLAN or sequential destination
+Director, and is disabled while DIRECT or sequential destination
 generation is running. It does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
-thumbnail. Technical facts (provenance icon, friendly
-aspect, dimensions, format) appear in a thin bottom strip only when
-Media Info is on. Destination planning details (intent and visual
-description) are available from the destination label strip, not as
-persistent caption text under actual stills. Clicking the still outside the
-label, kebab, and media-info strips opens a lightbox-style reel in the
+thumbnail. Destination planning details (intent, visual
+description, and the generation prompt on a TunnelVision-made still) are available from the destination label strip, not as
+persistent caption text under actual stills. Uploaded A with a journey story
+stores opening intent from that story; generated A also stores the opening
+prompt. Actual A can still open details when those fields are empty. Clicking an unselected still outside the
+label, kebab, and media-info strips selects it. Clicking the selected
+still opens a lightbox-style reel in the
 storyboard area, with previous and next among actual stills. The image is
 contained at the largest scale that fits that area and does not cover the
 conversation or Project rails. Empty FPO thumbnails
@@ -221,20 +242,22 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. Journey story, destination count, auto-generate-A,
-auto-generate-all, auto-block, auto-shoot, Video model, and PLAN live in the Project panel,
+auto-generate-all, auto-block, auto-shoot, Video model, and DIRECT live in the Project panel,
 which can hide to the right. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
-slots. After the first PLAN response the count is read-only.
-When auto-generate starting destination is on, PLAN generates A then
+slots. After the first DIRECT response the count is read-only.
+When auto-generate starting destination is on, DIRECT generates A then
 runs Director planning. Uploading A before the first plan unchecks and
-disables that toggle. When A is actual and the story is empty, PLAN
+disables that toggle. When A is actual and the story is empty, DIRECT
 writes a story from A first. When auto-generate all destinations is on,
-PLAN then generates each remaining destination in order from the
+DIRECT then generates each remaining destination in order from the
 previous actual frame. Auto blocking and Auto shoot continue that
-pipeline after destinations exist. While PLAN or those auto stages run,
-the PLAN button uses the generating shimmer and names the current
-stage. PLAN appends a pending
+pipeline after destinations exist. While DIRECT or those auto stages run,
+the DIRECT button uses the generating shimmer and names the current
+stage on that button only: Generating A…, Planning Destinations…,
+Planning A→B…, Generating A→B…. Do not repeat that status as helper
+copy under the button, and do not prefix it with "Director is". DIRECT appends a pending
 Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
 summary. Pending Director **Planning…**, **Blocking…**, and
@@ -401,8 +424,8 @@ ignore an unshootable journey.
 ## Expensive-generation boundary
 
 Approve still exploration before expensive video rendering. The
-current primary action names are **Stage** and **Generate**
-on the selected journey under the preview, and
+current primary action names are **Plan** and **Generate**
+on the MOTION and FOOTAGE bands, and
 **Export Movie**. Destination Keep / Redo happens before those actions. In the
 current slice those production actions are labeled and disabled.
 Intended later Cinematographer review of actual canonicals (PASS /
@@ -416,9 +439,9 @@ editable filmmaker story in the Project panel. A new project begins
 partially specified: unresolved opening frame A, empty story, no
 fabricated destinations or journeys. The storyboard stays disabled
 until a story is entered. Then the filmmaker provides or generates A, may set
-destination count, asks the Director to PLAN, and generates
+destination count, asks the Director with DIRECT, and generates
 unresolved destinations. If auto-generate starting destination is on,
-PLAN can create A from the story. Export Movie concatenates rendered takes that
+DIRECT can create A from the story. Export Movie concatenates rendered takes that
 exist.
 Forest A→F remains available so Plan preflight, Shoot boundary
 continuity, and CM tests can be exercised against a controlled

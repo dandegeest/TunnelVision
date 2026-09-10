@@ -1,6 +1,6 @@
 import type { JourneyShot, Selection } from "../project/types";
 import type { LaidOutJourney } from "./geometry";
-import { JourneyItem } from "./JourneyItem";
+import { JourneyItem, journeyBandSelected } from "./JourneyItem";
 
 export function JourneyLane({
   journeys,
@@ -15,7 +15,7 @@ export function JourneyLane({
   selection: Selection;
   preparingJourneyIds?: readonly string[];
   shootingJourneyIds?: readonly string[];
-  onSelect: (journeyId: string) => void;
+  onSelect: (journeyId: string, band: "motion" | "footage") => void;
 }) {
   return (
     <div className="absolute inset-x-0 top-[128px] z-[1] h-[56px]">
@@ -24,19 +24,28 @@ export function JourneyLane({
         if (!journey) {
           return null;
         }
-        const selected = selection.kind === "journey" && selection.journeyId === laid.journeyId;
+        const preparing = preparingJourneyIds?.includes(laid.journeyId) ?? false;
+        const shooting =
+          (shootingJourneyIds?.includes(laid.journeyId) ?? false) || journey.status === "shooting";
         return (
-          <JourneyItem
-            key={laid.journeyId}
-            laid={laid}
-            journey={journey}
-            selected={selected}
-            preparing={preparingJourneyIds?.includes(laid.journeyId) ?? false}
-            shooting={
-              (shootingJourneyIds?.includes(laid.journeyId) ?? false) || journey.status === "shooting"
-            }
-            onSelect={() => onSelect(laid.journeyId)}
-          />
+          <div key={laid.journeyId}>
+            <JourneyItem
+              laid={laid}
+              journey={journey}
+              band="motion"
+              selected={journeyBandSelected(selection, laid.journeyId, "motion")}
+              preparing={preparing}
+              onSelect={() => onSelect(laid.journeyId, "motion")}
+            />
+            <JourneyItem
+              laid={laid}
+              journey={journey}
+              band="footage"
+              selected={journeyBandSelected(selection, laid.journeyId, "footage")}
+              shooting={shooting}
+              onSelect={() => onSelect(laid.journeyId, "footage")}
+            />
+          </div>
         );
       })}
     </div>

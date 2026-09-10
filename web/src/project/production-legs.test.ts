@@ -66,7 +66,8 @@ describe("consecutive production pairs", () => {
       projectWithFrames([actualFrame("A", A_MEDIA, "user")]),
     );
     expect(consecutiveProductionPairs(project)).toEqual([]);
-    expect(project.destinations).toEqual([]);
+    expect(project.destinations.map((destination) => destination.id)).toEqual(["A"]);
+    expect(project.destinations[0]?.image).toBe(A_MEDIA.imageUrl);
     expect(project.journeys).toEqual([]);
   });
 
@@ -78,6 +79,7 @@ describe("consecutive production pairs", () => {
       ]),
     );
     expect(consecutiveProductionPairs(project)).toEqual([]);
+    expect(project.destinations.map((destination) => destination.id)).toEqual(["A"]);
     expect(project.journeys).toEqual([]);
   });
 

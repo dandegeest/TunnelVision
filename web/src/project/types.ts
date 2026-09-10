@@ -155,13 +155,17 @@ export type BoundaryAnalysisRecord = {
 export type StoryboardFrame = {
   id: string;
   label: string;
-  /** Director beat intent. Absent on a replaced starting frame until the filmmaker supplies one. */
+  /** Director beat intent. Opening A fills this from the journey story when the field is empty. */
   intent?: string;
   image?: string;
   imageOrigin: StoryboardImageOrigin;
   /** Trusted server media identity. Opaque; never a filesystem path. */
   mediaId?: string;
-  /** Director visual description for a planned beat. Absent on the filmmaker starting frame. */
+  /**
+   * Director visual description for a planned beat. Generated A stores the
+   * TunnelVision opening prompt here. Uploaded A leaves this empty unless DIRECT
+   * or the filmmaker supplies one.
+   */
   visualDescription?: string;
   destinationId?: string;
   /** Present only when dimensions/format are known. Missing facts do not invent preflight warnings. */
@@ -202,19 +206,25 @@ export type Project = {
   construction: Construction;
   /** AUTO, or an exact destination count. After the first Director plan this follows the storyboard. */
   storyDuration: StoryDuration;
-  /** When true, PLAN generates unresolved A from the story before Director planning. */
+  /** When true, DIRECT generates unresolved A from the story before Director planning. */
   autoGenerateOpening: boolean;
-  /** When true, PLAN then generates B…N in travel order from each preceding actual frame. */
+  /** When true, DIRECT then generates B…N in travel order from each preceding actual frame. */
   autoGenerateAllDestinations: boolean;
-  /** When true, PLAN then blocks every actual adjacent journey after destinations exist. */
+  /** When true, DIRECT then blocks every actual adjacent journey after destinations exist. */
   autoBlockShots: boolean;
-  /** When true, PLAN then shoots blocked journeys, including those with CM warnings. */
+  /** When true, DIRECT then shoots blocked journeys, including those with CM warnings. */
   autoShoot: boolean;
   /**
    * Video generator for every SHOOT in this project.
    * Pruna is the development default; mid-tier and Seedance 2.5 are opt-in.
    */
   videoModel: VideoModelId;
+  /**
+   * Aspect of canonical stills used for later generation. 16:9 when TunnelVision
+   * generates A; otherwise A's pixel dimensions after upload. Adapters map this
+   * onto an explicit provider aspect_ratio.
+   */
+  canonicalAspectRatio?: { width: number; height: number };
   /** After the first successful Director plan, duration is storyboard-driven and not typed. */
   storyDurationLocked: boolean;
   storyboard: StoryboardFrame[];
@@ -224,10 +234,13 @@ export type Project = {
   boundaryAnalysis?: BoundaryAnalysisRecord[];
 };
 
+/** Which Shoot band is selected for a JourneyShot. UI only; not a project entity. */
+export type JourneyBand = "motion" | "footage";
+
 export type Selection =
   | { kind: "storyboard"; frameId: string }
   | { kind: "destination"; destinationId: string; occurrenceIndex: number }
-  | { kind: "journey"; journeyId: string };
+  | { kind: "journey"; journeyId: string; band: JourneyBand };
 
 export function destinationById(
   destinations: Destination[],

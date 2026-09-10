@@ -360,6 +360,10 @@ images are not part of the current architecture. `Project.videoModel`
 chooses which catalog generator films those frames for every SHOOT in
 the current project; Pruna is the development default. Model- and
 provider-specific knobs stay behind the adapter.
+`Project.canonicalAspectRatio` is the aspect used for later still
+generation: 16:9 when TunnelVision generates A, otherwise A's pixel
+dimensions after upload. Adapters translate that pair onto each image
+provider's explicit aspect_ratio enum.
 
 ## Open questions
 

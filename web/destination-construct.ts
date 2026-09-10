@@ -1,4 +1,5 @@
 import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
+import { GENERATED_OPENING_ASPECT_RATIO, parseImageAspectRatio } from "../media/src/image-aspect-ratio.ts";
 import { destinationConstructionPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead } from "./src/project/destination.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
@@ -9,6 +10,7 @@ export type ConstructDestinationBody = {
   intent?: unknown;
   visualDescription?: unknown;
   nextDestination?: unknown;
+  aspectRatio?: unknown;
 };
 
 export async function fetchGeneratedOutputBytes(url: string): Promise<{
@@ -44,6 +46,7 @@ export async function constructDestinationImage(input: {
       visualDescription: string;
       nextDestination?: { intent: string; visualDescription: string };
       prompt: string;
+      aspectRatio?: { width: number; height: number };
     };
     model: string;
     modelVersion: string | null;
@@ -66,9 +69,14 @@ export async function constructDestinationImage(input: {
   const visualDescription =
     typeof input.body.visualDescription === "string" ? input.body.visualDescription.trim() : "";
   const nextDestination = optionalDestinationLookAhead(input.body.nextDestination);
+  const aspectRatio = parseImageAspectRatio(input.body.aspectRatio);
   const prompt = destinationConstructionPrompt({ intent, visualDescription, nextDestination });
   const sourceImage = resolveTrustedMedia(input.repoRoot, sourceMediaId);
-  const generated = await input.editImage({ sourceImage, prompt });
+  const generated = await input.editImage({
+    sourceImage,
+    prompt,
+    ...(aspectRatio ? { aspectRatio } : {}),
+  });
   const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;
   const output = await fetchOutput(generated.outputUrl);
   const registry = getActiveRuntimeMediaRegistry();
@@ -87,6 +95,7 @@ export async function constructDestinationImage(input: {
         visualDescription,
         ...(nextDestination ? { nextDestination } : {}),
         prompt,
+        ...(aspectRatio ? { aspectRatio } : {}),
       },
       model: generated.model,
       modelVersion: generated.modelVersion,
@@ -99,7 +108,7 @@ export async function constructDestinationImage(input: {
 }
 
 export async function generateOpeningFrameImage(input: {
-  body: { story?: unknown };
+  body: { story?: unknown; aspectRatio?: unknown };
   generateImage: (request: ImageGenerationRequest) => Promise<GeneratedImage>;
   fetchOutput?: (url: string) => Promise<{ bytes: Buffer; contentType?: string }>;
 }): Promise<{
@@ -112,6 +121,7 @@ export async function generateOpeningFrameImage(input: {
       intent: string;
       visualDescription: string;
       prompt: string;
+      aspectRatio: { width: number; height: number };
     };
     model: string;
     modelVersion: string | null;
@@ -123,7 +133,8 @@ export async function generateOpeningFrameImage(input: {
 }> {
   const story = typeof input.body.story === "string" ? input.body.story.trim() : "";
   const prompt = openingFrameGenerationPrompt(story);
-  const generated = await input.generateImage({ prompt });
+  const aspectRatio = GENERATED_OPENING_ASPECT_RATIO;
+  const generated = await input.generateImage({ prompt, aspectRatio });
   const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;
   const output = await fetchOutput(generated.outputUrl);
   const registry = getActiveRuntimeMediaRegistry();
@@ -141,6 +152,7 @@ export async function generateOpeningFrameImage(input: {
         intent: story,
         visualDescription: "",
         prompt,
+        aspectRatio,
       },
       model: generated.model,
       modelVersion: generated.modelVersion,

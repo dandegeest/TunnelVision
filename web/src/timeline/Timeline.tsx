@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { boundaryContinuitiesForProject } from "../project/boundary-continuity";
 import { useProject } from "../project/ProjectProvider";
-import { layoutTimeline, timeToX } from "./geometry";
+import { layoutShootTimeline } from "./shoot-layout";
+import { timeToX } from "./geometry";
 import { DestinationsLane } from "./DestinationsLane";
 import { GridMarks } from "./GridMarks";
 import { JourneyLane } from "./JourneyLane";
@@ -15,14 +16,12 @@ export function Timeline() {
     playheadTime,
     selection,
     select,
+    openStoryboardInPlan,
     assessingJourneyIds,
     shootingJourneyIds,
   } = useProject();
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const layout = useMemo(
-    () => layoutTimeline(project.destinations, project.journeys, zoom),
-    [project.destinations, project.journeys, zoom],
-  );
+  const layout = useMemo(() => layoutShootTimeline(project, zoom), [project, zoom]);
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
   const playheadX = timeToX(playheadTime, zoom);
 
@@ -65,9 +64,14 @@ export function Timeline() {
             destinations={project.destinations}
             selection={selection}
             continuities={continuities}
-            onSelect={(occurrenceIndex, destinationId) =>
-              select({ kind: "destination", destinationId, occurrenceIndex })
-            }
+            onSelect={(occurrenceIndex, destinationId) => {
+              const occurrence = layout.occurrences.find((item) => item.occurrenceIndex === occurrenceIndex);
+              if (occurrence?.fpo) {
+                openStoryboardInPlan(destinationId);
+                return;
+              }
+              select({ kind: "destination", destinationId, occurrenceIndex });
+            }}
           />
           <JourneyPaceLane journeys={layout.journeys} projectJourneys={project.journeys} />
           <JourneyLane
@@ -76,7 +80,7 @@ export function Timeline() {
             selection={selection}
             preparingJourneyIds={assessingJourneyIds}
             shootingJourneyIds={shootingJourneyIds}
-            onSelect={(journeyId) => select({ kind: "journey", journeyId })}
+            onSelect={(journeyId, band) => select({ kind: "journey", journeyId, band })}
           />
           <Playhead x={playheadX} />
         </div>

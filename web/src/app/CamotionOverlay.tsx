@@ -192,7 +192,7 @@ export function CamotionOverlayToggles({
           <button
             type="button"
             aria-pressed={layers.points}
-            aria-label="Plan points"
+            aria-label="Motion points"
             className={chipClass(layers.points)}
             onClick={() => onLayersChange({ ...layers, points: !layers.points })}
           >

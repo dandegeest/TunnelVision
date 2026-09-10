@@ -95,10 +95,16 @@ export function CamotionSourceSwitch({
   );
 }
 
-export function CamotionEmptyState({ compact = false }: { compact?: boolean }) {
+export function CamotionEmptyState({
+  compact = false,
+  copy = NO_CAMOTION_DATA,
+}: {
+  compact?: boolean;
+  copy?: string;
+} = {}) {
   return (
     <p className={compact ? "text-sm text-[#9a8f7e]" : "flex h-full w-full items-center justify-center px-6 text-center text-sm text-[#9a8f7e]"}>
-      {NO_CAMOTION_DATA}
+      {copy}
     </p>
   );
 }
@@ -136,12 +142,18 @@ export function CamotionRecordFields({ record }: { record: DestinationCamotionRe
   );
 }
 
-export function CamotionDiagnosticPanel({ records }: { records: readonly DestinationCamotionRecord[] }) {
+export function CamotionDiagnosticPanel({
+  records,
+  emptyCopy,
+}: {
+  records: readonly DestinationCamotionRecord[];
+  emptyCopy?: string;
+}) {
   return (
     <section className="border-t border-[#2a2620] pt-3 text-xs" aria-label="Camotion diagnostic">
       <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Camotion</p>
       {records.length === 0 ? (
-        <CamotionEmptyState compact />
+        <CamotionEmptyState compact copy={emptyCopy} />
       ) : (
         <div className="mt-2 space-y-3">
           {records.map((record) => (

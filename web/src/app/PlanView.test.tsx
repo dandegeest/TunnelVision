@@ -10,13 +10,16 @@ import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningCo
 import {
   canConstructDestinationFrame,
   generatedStillNeedsReshoot,
+  openingFrameGenerationPrompt,
   projectWithConstructedDestination,
+  projectWithGeneratedOpeningFrame,
 } from "../project/destination";
 import type { DirectorEvidence } from "../project/director";
 import { ProjectProvider } from "../project/ProjectProvider";
-import { STARTING_FRAME_ACCEPT } from "../project/starting-frame";
+import { STARTING_FRAME_ACCEPT, projectWithReplacedStartImage } from "../project/starting-frame";
 import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "../project/storyboard";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
+import type { Selection } from "../project/types";
 
 const AT = "2026-09-07T22:03:00.000Z";
 const AT2 = "2026-09-07T22:04:00.000Z";
@@ -66,7 +69,7 @@ function renderPlan(
   options?: {
     conversation?: ConversationEntry[];
     composerDraft?: string;
-    mediaInfo?: boolean;
+    selection?: Selection;
     constructingBeatId?: string | null;
     assessingJourneyIds?: readonly string[];
     shootingJourneyIds?: readonly string[];
@@ -79,7 +82,7 @@ function renderPlan(
       initialProject={project}
       initialConversation={options?.conversation}
       initialComposerDraft={options?.composerDraft}
-      initialMediaInfo={options?.mediaInfo}
+      initialSelection={options?.selection}
       initialDebug={options?.debug}
       initialConstructingBeatId={options?.constructingBeatId}
       initialAssessingJourneyIds={options?.assessingJourneyIds}
@@ -110,7 +113,7 @@ function renderFrame(
 
 describe("Plan project story", () => {
   it("edits project story from the Project panel without a Send control", () => {
-    const html = renderPlan();
+    const html = renderPlan(undefined, { debug: false });
     expect(html).toContain('id="project-story"');
     expect(html).toContain('aria-label="Journey story"');
     expect(html).toContain("text-[11px]");
@@ -119,9 +122,9 @@ describe("Plan project story", () => {
     expect(html).toContain('aria-label="Resize project panel"');
     expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
-    expect(html).toContain('aria-label="Plan movie"');
+    expect(html).toContain('aria-label="Direct movie"');
     expect(html).toContain("relative w-full overflow-hidden rounded");
-    expect(html).toContain(">PLAN<");
+    expect(html).toContain(">DIRECT<");
     expect(html).toContain(">Technical<");
     expect(html).toContain("Turn on Debug in the header");
     expect(html).not.toContain(">Debug<");
@@ -491,11 +494,9 @@ describe("Plan storyboard chrome", () => {
     expect(html).not.toContain("object-cover");
   });
 
-  it("keeps the label strip visible regardless of Media Info", () => {
-    const off = renderPlan(createForestProject());
-    const on = renderPlan(createForestProject(), { mediaInfo: true });
-    expect(off).toContain("storyboard-frame-label");
-    expect(on).toContain("storyboard-frame-label");
+  it("keeps the label strip visible with or without media facts", () => {
+    const html = renderPlan(createForestProject());
+    expect(html).toContain("storyboard-frame-label");
   });
 
   it("truncates long labels across the top strip so they cannot collide with media info", () => {
@@ -513,36 +514,35 @@ describe("Plan storyboard chrome", () => {
     expect(html).not.toContain("tracking-[0.22em]");
   });
 
-  it("does not keep the Media Info tool in the storyboard canvas", () => {
+  it("shows technical media info only on the selected storyboard still", () => {
+    const selectedA = renderPlan(createForestProject());
+    expect(selectedA).toContain("storyboard-media-info");
+    expect(selectedA).toContain('aria-label="Uploaded frame"');
+    expect(selectedA).toContain("~16:9 · 1000×558 · JPG");
+    expect(selectedA).not.toContain('aria-label="Derived destination"');
+    expect(selectedA).not.toContain("~1.85:1 · 1392×752 · PNG");
+    const selectedB = renderPlan(createForestProject(), {
+      selection: { kind: "storyboard", frameId: "B" },
+    });
+    expect(selectedB).toContain("storyboard-media-info");
+    expect(selectedB).toContain('aria-label="Derived destination"');
+    expect(selectedB).toContain("~1.85:1 · 1392×752 · PNG");
+    expect(selectedB).not.toContain("~16:9 · 1000×558 · JPG");
+  });
+
+  it("does not keep a Media Info toolbar control", () => {
     const html = renderPlan(createForestProject());
     expect(html).not.toContain('aria-label="Media info"');
     expect(html).not.toContain(">Media Info<");
     expect(html).not.toContain(">MEDIA INFO<");
   });
 
-  it("keeps optional technical media info off until the tool is active", () => {
-    const html = renderPlan(createForestProject());
-    expect(html).not.toContain("storyboard-media-info");
-    expect(html).not.toContain("Uploaded frame");
-    expect(html).not.toContain("Derived destination");
-    expect(html).not.toContain("~16:9 · 1000×558 · JPG");
-  });
-
-  it("reveals provenance, friendly aspect, dimensions, and format when Media Info is on", () => {
-    const html = renderPlan(createForestProject(), { mediaInfo: true });
-    expect(html).toContain("storyboard-media-info");
-    expect(html).toContain('aria-label="Uploaded frame"');
-    expect(html).toContain('title="Uploaded frame"');
-    expect(html).toContain('aria-label="Derived destination"');
-    expect(html).toContain("~16:9 · 1000×558 · JPG");
-    expect(html).toContain("~1.85:1 · 1392×752 · PNG");
-    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
-  });
-
-  it("keeps an aspect warning on A in both Media Info states, not on healthy B–F", () => {
-    const off = renderPlan(createForestProject());
-    const on = renderPlan(createForestProject(), { mediaInfo: true });
-    for (const html of [off, on]) {
+  it("keeps an aspect warning on A whether or not that tile shows media facts, not on healthy B–F", () => {
+    const selectedA = renderPlan(createForestProject());
+    const selectedB = renderPlan(createForestProject(), {
+      selection: { kind: "storyboard", frameId: "B" },
+    });
+    for (const html of [selectedA, selectedB]) {
       expect(html).toContain("storyboard-preflight-warning");
       expect(html).toContain('aria-label="Aspect ratio differs"');
       expect(html).toContain("A is ~16:9 (1000×558).");
@@ -551,9 +551,9 @@ describe("Plan storyboard chrome", () => {
       expect(html).toContain("pr-1.5");
       expect((html.match(/storyboard-preflight-warning/g) ?? []).length).toBe(1);
     }
-    expect(on).toContain("pr-8");
-    expect(off).not.toContain("storyboard-media-info");
-    expect(on).toContain("storyboard-media-info");
+    expect(selectedA).toContain("pr-8");
+    expect(selectedA).toContain("storyboard-media-info");
+    expect(selectedB).toContain("storyboard-media-info");
   });
 
   it("exposes warning detail without hover-only access", () => {
@@ -714,6 +714,15 @@ describe("Plan storyboard reel", () => {
     expect(html.slice(sectionOpen, storyboard)).toContain("overflow-hidden");
     expect(html).not.toContain("storyboard-reel");
     expect(html).toContain('aria-label="Destination A plan"');
+    expect(html).toContain('title="View still"');
+  });
+
+  it("does not mark unselected stills as view-still", () => {
+    const html = renderPlan(createForestProject());
+    const a = html.indexOf('aria-label="Storyboard A"');
+    const b = html.indexOf('aria-label="Storyboard B"');
+    expect(html.slice(a, a + 400)).toContain('title="View still"');
+    expect(html.slice(b, b + 400)).not.toContain('title="View still"');
   });
 
   it("contains the still at the largest scale that fits the storyboard area", () => {
@@ -874,6 +883,43 @@ describe("Plan destination details", () => {
     const html = renderPlan(createForestProject());
     expect(html).toContain("storyboard-add-destination");
     expect(html).not.toContain("Destination G details");
+  });
+
+  it("keeps destination details available on actual A even before plan text exists", () => {
+    const uploaded = projectWithReplacedStartImage(createNewProject(), {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    expect(destinationDetailContent(uploaded.storyboard[0]!)).toEqual({ label: "A" });
+    const html = renderToStaticMarkup(
+      <DestinationDetailPopover frame={uploaded.storyboard[0]!} initiallyOpen />,
+    );
+    expect(html).toContain('aria-label="Destination A details"');
+    expect(html).toContain('aria-label="Destination A prompt"');
+  });
+
+  it("stores generated A's opening intent and TunnelVision prompt in destination details", () => {
+    const story = "Travel forward through an imagined interior at night.";
+    const generated = projectWithGeneratedOpeningFrame(
+      { ...createNewProject(), story },
+      {
+        mediaId: "upload-11111111111111111111111111111111",
+        imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
+      },
+    );
+    const prompt = openingFrameGenerationPrompt(story);
+    expect(destinationDetailContent(generated.storyboard[0]!)).toEqual({
+      label: "A",
+      intent: story,
+      visualDescription: prompt,
+    });
+    const html = renderToStaticMarkup(
+      <DestinationDetailPopover frame={generated.storyboard[0]!} initiallyOpen />,
+    );
+    expect(html).toContain('aria-label="Destination A intent"');
+    expect(html).toContain('aria-label="Destination A prompt"');
+    expect(html).toContain(story);
+    expect(html).toContain("unembodied first-person POV");
   });
 });
 
@@ -1077,7 +1123,7 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Destination A actions"');
     expect(html).not.toContain('aria-label="Generate destination A"');
     expect(html).toContain('placeholder="Describe the journey…"');
-    expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+    expect(html).toMatch(/disabled[^>]*aria-label="Direct movie"|aria-label="Direct movie"[^>]*disabled/);
     expect(html).toContain("Enter a journey story or upload starting frame A.");
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
@@ -1118,7 +1164,7 @@ describe("new-project Plan", () => {
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Auto shoot"|aria-label="Auto shoot"[^>]*checked/,
     );
-    expect(html).not.toMatch(/<button type="button" aria-label="Plan movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).not.toMatch(/<button type="button" aria-label="Direct movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
   });
 
@@ -1128,7 +1174,7 @@ describe("new-project Plan", () => {
       story: "Travel forward through an imagined interior at night.",
       autoGenerateOpening: false,
     });
-    expect(html).toMatch(/disabled[^>]*aria-label="Plan movie"|aria-label="Plan movie"[^>]*disabled/);
+    expect(html).toMatch(/disabled[^>]*aria-label="Direct movie"|aria-label="Direct movie"[^>]*disabled/);
   });
 
   it("lets PLAN run when A is actual and the story is empty", () => {
@@ -1146,8 +1192,8 @@ describe("new-project Plan", () => {
       ],
     };
     const html = renderPlan(withA, { composerDraft: "" });
-    expect(html).not.toMatch(/<button type="button" aria-label="Plan movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
-    expect(html).toContain("PLAN writes a story from A");
+    expect(html).not.toMatch(/<button type="button" aria-label="Direct movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).toContain("Create a journey starting at A, then ask the Director to plan the shots.");
     expect(html).not.toContain("Add Destination");
     expect(html).toMatch(
       /disabled[^>]*aria-label="Auto generate starting destination"|aria-label="Auto generate starting destination"[^>]*disabled/,
@@ -1223,14 +1269,19 @@ describe("new-project Plan", () => {
     };
     const planning = renderPlan(withA, { directorStatus: "planning" });
     expect(planning).toContain("storyboard-generating");
-    expect(planning).toContain("Planning…");
+    expect(planning).toContain("Planning Destinations…");
+    expect(planning).not.toContain("Director is planning");
+    expect(planning).not.toContain("Directing…");
     const generating = renderPlan(withA, { constructingBeatId: "B" });
     expect(generating).toContain("Generating B…");
     expect(generating).toContain("storyboard-generating");
+    expect(generating).not.toContain("Director is");
     const blocking = renderPlan(withA, { assessingJourneyIds: ["A-B"] });
-    expect(blocking).toContain("Blocking…");
+    expect(blocking).toContain("Planning A→B…");
+    expect(blocking).not.toContain("Blocking…");
     const shooting = renderPlan(withA, { shootingJourneyIds: ["A-B"] });
-    expect(shooting).toContain("Shooting…");
+    expect(shooting).toContain("Generating A→B…");
+    expect(shooting).not.toContain("Shooting…");
   });
 
   it("exposes Upload image on unresolved destinations added after A", () => {

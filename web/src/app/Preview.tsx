@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
-import { canAssessJourney } from "../project/cinematographer";
-import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById, type Destination, type JourneyShot } from "../project/types";
-import { layoutTimeline } from "../timeline/geometry";
+import { destinationById, type CameraMotionPlanV1, type Destination } from "../project/types";
+import { layoutShootTimeline } from "../timeline/shoot-layout";
 import {
   camotionRecordKey,
   camotionRecordsForDestination,
@@ -20,10 +18,19 @@ import {
 } from "./CamotionOverlay";
 import type { OverlayLayers } from "../project/camotion-overlay";
 
-function PreviewMonitor({ children }: { children: ReactNode }) {
+function PreviewMonitor({ children, pair = false }: { children: ReactNode; pair?: boolean }) {
   return (
     <div className="preview-stage">
-      <div className="preview-monitor">{children}</div>
+      <div className={pair ? "preview-monitor preview-monitor-pair" : "preview-monitor"}>{children}</div>
+    </div>
+  );
+}
+
+function PreviewHeader({ title, trailing }: { title: string; trailing?: ReactNode }) {
+  return (
+    <div className="flex h-7 shrink-0 items-center justify-between gap-3">
+      <p className="min-w-0 truncate text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">{title}</p>
+      {trailing}
     </div>
   );
 }
@@ -61,16 +68,18 @@ function DestinationCamotionPreview({
   const stillCaption = primed && active ? primedCaption : undefined;
 
   return (
-    <section className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-black p-4">
-      <div className="flex min-h-5 flex-none items-center justify-between gap-3">
-        <p className="min-w-0 truncate text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">{title}</p>
-        <CamotionFrameSwitch
-          destinationLabel={destination.label}
-          primedLabel={`${destination.label}′`}
-          mode={mode}
-          onChange={setMode}
-        />
-      </div>
+    <section className="flex h-full min-h-0 flex-col gap-1.5 overflow-hidden bg-black p-2">
+      <PreviewHeader
+        title={title}
+        trailing={
+          <CamotionFrameSwitch
+            destinationLabel={destination.label}
+            primedLabel={`${destination.label}′`}
+            mode={mode}
+            onChange={setMode}
+          />
+        }
+      />
       <PreviewMonitor>
         {primed && !active ? (
           <CamotionEmptyState />
@@ -113,109 +122,47 @@ export function JourneyCanonicalPair({
   startImage,
   endLabel,
   endImage,
+  startPlan = null,
+  endPlan = null,
+  overlay = false,
+  layers,
 }: {
   journeyId: string;
   startLabel: string;
   startImage: string;
   endLabel: string;
   endImage: string;
+  startPlan?: CameraMotionPlanV1 | null;
+  endPlan?: CameraMotionPlanV1 | null;
+  overlay?: boolean;
+  layers?: OverlayLayers;
 }) {
+  const overlayLayers = layers ?? DEFAULT_OVERLAY_LAYERS;
   return (
     <div className="preview-leg">
-      <img src={startImage} alt={`${journeyId} start ${startLabel}`} />
-      <img src={endImage} alt={`${journeyId} end ${endLabel}`} />
-    </div>
-  );
-}
-
-export function PreviewModeSwitch({
-  startLabel,
-  endLabel,
-  mode,
-  onChange,
-}: {
-  startLabel: string;
-  endLabel: string;
-  mode: "video" | "stills";
-  onChange: (mode: "video" | "stills") => void;
-}) {
-  const stillsLabel = `${startLabel}|${endLabel}`;
-  return (
-    <nav
-      className="flex shrink-0 items-center gap-0.5 rounded-full border border-[#3a342c] p-0.5 text-[11px]"
-      aria-label="Preview mode"
-    >
-      <button
-        type="button"
-        aria-pressed={mode === "video"}
-        aria-label="Preview video"
-        className={`rounded-full px-2.5 py-0.5 tracking-[0.14em] uppercase outline-none ${
-          mode === "video" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8] hover:text-[#ece7df]"
-        }`}
-        onClick={() => onChange("video")}
-      >
-        Video
-      </button>
-      <button
-        type="button"
-        aria-pressed={mode === "stills"}
-        aria-label={`Preview ${stillsLabel}`}
-        className={`rounded-full px-2.5 py-0.5 tracking-[0.14em] uppercase outline-none ${
-          mode === "stills" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8] hover:text-[#ece7df]"
-        }`}
-        onClick={() => onChange("stills")}
-      >
-        {stillsLabel}
-      </button>
-    </nav>
-  );
-}
-
-function JourneyActions({
-  journey,
-  assessing,
-  shooting,
-  canAssess,
-  canShoot,
-  playable,
-  playheadTime,
-  onBlock,
-  onShoot,
-}: {
-  journey: JourneyShot;
-  assessing: boolean;
-  shooting: boolean;
-  canAssess: boolean;
-  canShoot: boolean;
-  playable: boolean;
-  playheadTime: number;
-  onBlock: () => void;
-  onShoot: () => void;
-}) {
-  const busy = assessing || shooting;
-  return (
-    <div className="flex h-8 flex-none items-center gap-2">
-      <button
-        type="button"
-        className="rounded border border-[#3a342c] px-3 py-1 text-sm text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
-        disabled={!canAssess || busy}
-        aria-label={`Stage ${journey.id}`}
-        onClick={onBlock}
-      >
-        {assessing ? "Staging…" : "Stage"}
-      </button>
-      <button
-        type="button"
-        className="rounded border border-[#3a342c] px-3 py-1 text-sm text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
-        disabled={!canShoot || busy}
-        aria-label={`Generate ${journey.id}`}
-        onClick={onShoot}
-      >
-        {shooting ? "Generating…" : "Generate"}
-      </button>
-      {playable ? (
-        <p className="min-w-0 truncate text-sm text-[#9a8f7e]">Rendered · {playheadTime.toFixed(1)}s</p>
-      ) : null}
+      {overlay && (startPlan || endPlan) ? (
+        <>
+          <DiagnosticStill
+            src={startImage}
+            alt={`${journeyId} start ${startLabel}`}
+            plan={startPlan}
+            overlay={overlay && Boolean(startPlan)}
+            layers={overlayLayers}
+          />
+          <DiagnosticStill
+            src={endImage}
+            alt={`${journeyId} end ${endLabel}`}
+            plan={endPlan}
+            overlay={overlay && Boolean(endPlan)}
+            layers={overlayLayers}
+          />
+        </>
+      ) : (
+        <>
+          <img src={startImage} alt={`${journeyId} start ${startLabel}`} />
+          <img src={endImage} alt={`${journeyId} end ${endLabel}`} />
+        </>
+      )}
     </div>
   );
 }
@@ -229,19 +176,17 @@ export function Preview() {
     playheadTime,
     setPlayheadTime,
     syncJourneyClipDuration,
-    assessJourney,
-    assessingJourneyIds,
-    shootJourney,
-    shootingJourneyIds,
   } = useProject();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [previewMode, setPreviewMode] = useState<"video" | "stills">("video");
-  const layout = layoutTimeline(project.destinations, project.journeys, 1);
+  const [overlay, setOverlay] = useState(true);
+  const [layers, setLayers] = useState<OverlayLayers>(DEFAULT_OVERLAY_LAYERS);
+  const layout = layoutShootTimeline(project, 1);
 
   const selectedJourney =
     selection.kind === "journey"
       ? project.journeys.find((journey) => journey.id === selection.journeyId)
       : null;
+  const journeyBand = selection.kind === "journey" ? selection.band : null;
   const occurrence =
     selection.kind === "destination"
       ? layout.occurrences.find((item) => item.occurrenceIndex === selection.occurrenceIndex)
@@ -257,15 +202,12 @@ export function Preview() {
     : undefined;
   const playable = selectedJourney ? journeyIsPlayable(selectedJourney) : false;
   const canShowStills = Boolean(selectedJourney && startDestination && endDestination);
-  const showPreviewTabs = playable && canShowStills;
-  const showVideo = playable && Boolean(selectedJourney?.videoUrl) && previewMode === "video";
-  const showStills = canShowStills && (!playable || previewMode === "stills");
+  const showMotion = Boolean(selectedJourney && journeyBand === "motion");
+  const showFootage = Boolean(selectedJourney && journeyBand === "footage");
+  const showVideo = showFootage && playable && Boolean(selectedJourney?.videoUrl);
+  const showStills = showMotion && canShowStills;
   const destination = startDestination;
-  const shootEmpty = project.journeys.length === 0;
-  const assessing = selectedJourney ? assessingJourneyIds.includes(selectedJourney.id) : false;
-  const shooting = selectedJourney
-    ? shootingJourneyIds.includes(selectedJourney.id) || selectedJourney.status === "shooting"
-    : false;
+  const shootEmpty = layout.occurrences.length === 0;
   const camotionRecords =
     selection.kind === "destination"
       ? camotionRecordsForDestination(
@@ -275,17 +217,16 @@ export function Preview() {
           occurrence?.outboundJourneyId ?? null,
         )
       : [];
-  const showCamotionToggle = !shootEmpty && selection.kind === "destination" && Boolean(destination);
+  const showCamotionToggle =
+    project.journeys.length > 0 && selection.kind === "destination" && Boolean(destination);
   const destinationKey =
     selection.kind === "destination" ? `${selection.destinationId}:${selection.occurrenceIndex}` : "";
-
-  useEffect(() => {
-    setPreviewMode("video");
-  }, [selectedJourney?.id]);
+  const take = selectedJourney?.take;
+  const showMotionOverlay = showMotion && Boolean(take);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !playable || previewMode !== "video") {
+    if (!video || !showVideo) {
       video?.pause();
       return;
     }
@@ -294,15 +235,17 @@ export function Preview() {
     } else {
       video.pause();
     }
-  }, [playing, playable, previewMode, selectedJourney?.id]);
+  }, [playing, showVideo, selectedJourney?.id]);
 
   const title = shootEmpty
     ? "Preview"
-    : selectedJourney
-      ? `Preview · ${selectedJourney.id}`
-      : destination
-        ? `Preview · Destination ${destination.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`
-        : "Preview";
+    : showMotion && selectedJourney
+      ? `Preview · Motion ${selectedJourney.id}`
+      : showFootage && selectedJourney
+        ? `Preview · Footage ${selectedJourney.id}`
+        : destination
+          ? `Preview · Destination ${destination.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`
+          : "Preview";
 
   let caption = destination ? `Destination ${destination.label}` : "";
   if (shootEmpty) {
@@ -324,24 +267,9 @@ export function Preview() {
   }
 
   return (
-    <section className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-black p-4">
-      <div className="flex min-h-5 flex-none items-center justify-between gap-3">
-        <p className="min-w-0 truncate text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">{title}</p>
-        {showPreviewTabs && startDestination && endDestination ? (
-          <PreviewModeSwitch
-            startLabel={startDestination.label}
-            endLabel={endDestination.label}
-            mode={previewMode}
-            onChange={(mode) => {
-              if (mode !== "video") {
-                setPlaying(false);
-              }
-              setPreviewMode(mode);
-            }}
-          />
-        ) : null}
-      </div>
-      <PreviewMonitor>
+    <section className="flex h-full min-h-0 flex-col gap-1.5 overflow-hidden bg-black p-2">
+      <PreviewHeader title={title} />
+      <PreviewMonitor pair={showStills}>
         {showVideo && selectedJourney?.videoUrl ? (
           <video
             ref={videoRef}
@@ -364,6 +292,10 @@ export function Preview() {
               setPlayheadTime(laid.startTime + event.currentTarget.currentTime);
             }}
           />
+        ) : showFootage && selectedJourney ? (
+          <p className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-[#9a8f7e]">
+            No footage for this traversal.
+          </p>
         ) : showStills && selectedJourney && startDestination && endDestination ? (
           <JourneyCanonicalPair
             journeyId={selectedJourney.id}
@@ -371,23 +303,26 @@ export function Preview() {
             startImage={startDestination.image}
             endLabel={endDestination.label}
             endImage={endDestination.image}
+            startPlan={take?.startPlan ?? null}
+            endPlan={take?.endPlan ?? null}
+            overlay={overlay && showMotionOverlay}
+            layers={layers}
           />
         ) : destination ? (
           <img src={destination.image} alt={`Destination ${destination.label}`} />
         ) : null}
       </PreviewMonitor>
-      {selectedJourney ? (
-        <JourneyActions
-          journey={selectedJourney}
-          assessing={assessing}
-          shooting={shooting}
-          canAssess={canAssessJourney(project, selectedJourney)}
-          canShoot={canShootJourney(project, selectedJourney)}
-          playable={playable}
-          playheadTime={playheadTime}
-          onBlock={() => void assessJourney(selectedJourney.id)}
-          onShoot={() => void shootJourney(selectedJourney.id)}
-        />
+      {showMotion && selectedJourney && showMotionOverlay ? (
+        <div className="flex min-h-5 flex-none flex-wrap items-center gap-2">
+          <CamotionOverlayToggles
+            overlay={overlay}
+            layers={layers}
+            onOverlayChange={setOverlay}
+            onLayersChange={setLayers}
+          />
+        </div>
+      ) : showFootage && selectedJourney && playable ? (
+        <p className="h-5 flex-none truncate text-sm text-[#9a8f7e]">Rendered · {playheadTime.toFixed(1)}s</p>
       ) : (
         <p
           className={`h-5 flex-none truncate text-sm ${occurrence?.arrivalBlocked ? "text-[#f0c2a8]" : "text-[#9a8f7e]"}`}

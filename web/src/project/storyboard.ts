@@ -81,7 +81,11 @@ export function selectionForWorkspaceView(
       )
     : undefined;
   if (outbound) {
-    return { kind: "journey", journeyId: outbound.id };
+    return {
+      kind: "journey",
+      journeyId: outbound.id,
+      band: outbound.status === "rendered" ? "footage" : "motion",
+    };
   }
   const destinationId = frame?.destinationId ?? project.destinations[0]?.id;
   if (!destinationId) {

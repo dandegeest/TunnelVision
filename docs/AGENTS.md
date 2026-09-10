@@ -89,22 +89,22 @@ The project is a partially specified movie. The Director fills
 unspecified directing decisions and preserves existing destinations as
 authoritative constraints. It does not overwrite specified filmmaking
 decisions or generate images. Empty intent and visual description on an
-actual still are directing gaps: PLAN examines the attached image and
-fills them; later PLANs skip fields that are already set. The application starts as a new untitled
+actual still are directing gaps: DIRECT examines the attached image and
+fills them; later DIRECTs skip fields that are already set. The application starts as a new untitled
 project rather than a demonstration journey. Forest A→F remains
 research evidence and an explicit test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does
 not independently substitute a catalog still. Story text is project
-intent; PLAN in the Project panel is the only Director invocation.
+intent; DIRECT in the Project panel is the only Director invocation.
 AUTO destination count lets the Director choose N; a number, typed or
 stepped, adds that
-many FPO slots. After the first PLAN response the count is read-only
+many FPO slots. After the first DIRECT response the count is read-only
 and follows storyboard add/delete. When auto-generate starting
-destination is on, PLAN generates unresolved A from the story before
+destination is on, DIRECT generates unresolved A from the story before
 Director planning. Uploading A before the first plan turns that toggle
 off and disables it. When the opening still is already actual and the
-story is empty, PLAN first asks the Director to write a journey story
-from that image, then continues with the existing plan. When auto-generate all destinations is on, PLAN then
+story is empty, DIRECT first asks the Director to write a journey story
+from that image, then continues with the existing plan. When auto-generate all destinations is on, DIRECT then
 constructs B…N in travel order from each preceding actual frame. Later
 beats cannot run in parallel. If a later construct fails, generation
 stops and the Director plan remains.
@@ -113,23 +113,25 @@ After destinations exist, Auto blocking runs the Cinematographer on
 every actual adjacent pair. Auto shoot then generates each blocked
 leg, including those with CM hold or no-go warnings.
 Add Destination appends an unresolved slot after actual A and does not
-call the Director. It is disabled while PLAN or sequential destination
+call the Director. It is disabled while DIRECT or sequential destination
 generation is running. Delete removes a later storyboard beat without
 relabeling remaining ids or calling the Director; opening A cannot be
 deleted. The filmmaker can replace a destination's
 canonical still in place from the destination menu, or Reshoot a generated
 still from the current prompt. If that slot already has
 intent or a visual description, upload asks whether to clear them so a later
-PLAN can describe the new still. Storyboard and
+DIRECT can describe the new still. Storyboard and
 other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
 (letterbox or pillarbox) rather than stretching or cropping them.
-Clicking a
-storyboard still (outside the label, kebab, and media-info strips) opens a
-storyboard-bounded reel: the still is contained at the largest scale that
+Clicking an unselected storyboard still (outside the label, kebab, and
+media-info strips) selects it. Clicking the already-selected still
+opens a storyboard-bounded reel: the still is contained at the largest scale that
 fits the storyboard area, with previous and next among actual stills. The
 reel does not cover the conversation or Project rails. Clicking the label
 strip opens destination details: the prompt is editable and
-updates that beat's plan; Reshoot on the kebab or in details regenerates a generated still from
+updates that beat's plan. Uploaded A with a story stores opening intent from
+that story; generated A also stores the TunnelVision opening prompt as visual
+description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current prompt. If the plan changes after a still exists, that
 thumbnail shows Plan changed until Reshoot. Shoot Redo on the same canonical does the same
 thing. Replacing either
@@ -141,11 +143,16 @@ durable project persistence. After planning, Construct builds the
 next planned beat from the preceding actual destination through
 image-conditioned edit and registers the
 still the same way so it can later be resolved as provider input.
+Generated A requests 16:9. Uploaded A stores its pixel aspect as the project
+canonical aspect. Construct passes that ratio as an explicit provider
+aspect_ratio, not match_input_image, while still using the previous
+canonical as the reference image.
 When a following beat already has a plan, Construct injects that plan's
 visual description as demoted far-field continuity after this destination
 and the camera move from the source still. This viewpoint stays this
 destination; the last beat has no look-ahead. Opening A is still generated from the journey story only.
-Debug is a session header toggle, not project persistence. Technical
+Debug is a session header toggle, not project persistence. It is on by
+default for now so Camotion work dirs are kept. Technical
 in the Project panel lists session store paths for canonical stills
 and, after SHOOT, segment A′/B′ and Camotion work dirs. With Debug on,
 Camotion keeps plan.json and shooting.png; otherwise those work dirs
@@ -154,19 +161,22 @@ store. Product shoot does not pass --depth, and Camotion does not
 estimate depth maps.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
-automatically, and BLOCK runs the existing Cinematographer on the
-selected leg. Stage and Generate live under the preview for the selected
-leg; Generate stays Generate after a clip exists. After a clip exists, the
-preview tabs between the take and the same A|B canonical stills shown
-before the clip. When a destination is selected, the preview can toggle
+automatically. Each interval is two stacked bands under the destination
+rail: MOTION (CM + Camotion for A→B) and FOOTAGE (the generated take).
+Canonicals remain clickable places above those bands. When only A is actual,
+Shoot still shows A and an FPO B that opens Plan on B. Plan lives on the MOTION
+band and Generate on the FOOTAGE band; Generate stays Generate after a clip exists. MOTION shows the
+A|B canonical stills and stored Camotion overlay when a take exists;
+FOOTAGE shows the clip. When a destination is selected, the preview can toggle
 that occurrence's canonical still against stored Camotion A′/B′, draw the
 stored CameraMotionPlan as a read-only overlay on the displayed still
 (travel path, radial direction, points; letterboxed to the image), and the
-inspector lists the take's CameraMotionPlan facts read-only. Journey tiles keep status
-copy only. Shoot tiles read Stage / Film / Export; after BLOCK the outline is clear / hold / no go.
+inspector lists the take's CameraMotionPlan facts read-only. Band labels are MOTION and FOOTAGE only.
 The Shoot timeline height is resizable with the same separator
-interaction as the story and project panels.
-While BLOCK or SHOOT runs, that segment uses the same generating
+interaction as the story and project panels. The Shoot inspector can hide to a
+reopen strip like the conversation and Project rails; that visibility is
+session UI, not project persistence.
+While Plan or Generate runs, that band uses the same generating
 shimmer as Plan FPO thumbs. The app
 can track more than one blocking or shooting operation at a time.
 SHOOT on a blocked leg runs Camotion and a configurable
@@ -186,6 +196,8 @@ Product Slice 5 Project video model:
 [genesis/research/16-product-slice-5.html](../genesis/research/16-product-slice-5.html).
 Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
+Product Slice 7 Plan | Shoot UI:
+[genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

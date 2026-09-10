@@ -1,4 +1,9 @@
 import { MediaGenerationError } from "../errors.ts";
+import {
+  FLUX_11_PRO_ULTRA_ASPECT_RATIOS,
+  nearestExplicitAspectRatio,
+  requireImageAspectRatio,
+} from "../image-aspect-ratio.ts";
 import { ImageGenerationRequest } from "../types.ts";
 
 export const FLUX_11_PRO_ULTRA_MODEL = "black-forest-labs/flux-1.1-pro-ultra";
@@ -52,9 +57,12 @@ export function toFlux11ProUltraInput(
 
   const merged = mergeFlux11ProUltraSettings(settings);
   const seed = request.seed ?? merged.seed;
+  const aspectRatio = request.aspectRatio
+    ? nearestExplicitAspectRatio(requireImageAspectRatio(request.aspectRatio), FLUX_11_PRO_ULTRA_ASPECT_RATIOS)
+    : merged.aspectRatio;
   const input: Flux11ProUltraInput = {
     prompt: request.prompt,
-    aspect_ratio: merged.aspectRatio,
+    aspect_ratio: aspectRatio,
     raw: merged.raw,
     output_format: merged.outputFormat,
     safety_tolerance: merged.safetyTolerance,

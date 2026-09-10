@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { Inspector } from "./Inspector";
+import { useProject } from "../project/ProjectProvider";
+import { Inspector, InspectorToggle } from "./Inspector";
 import { Preview } from "./Preview";
 import { Timeline } from "../timeline/Timeline";
 
@@ -17,6 +18,7 @@ function clampTimelineHeight(height: number, containerHeight: number) {
 }
 
 export function TimelineView() {
+  const { inspectorOpen } = useProject();
   const frameRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startY: number; startHeight: number } | null>(null);
   const [timelineHeight, setTimelineHeight] = useState(TIMELINE_HEIGHT_DEFAULT);
@@ -60,15 +62,32 @@ export function TimelineView() {
   return (
     <div
       ref={frameRef}
-      className="grid h-full min-h-0 grid-cols-[minmax(0,1fr)_320px] overflow-hidden"
+      className="grid h-full min-h-0 overflow-hidden"
       style={{
+        gridTemplateColumns: inspectorOpen ? "minmax(0,1fr) 320px" : "minmax(0,1fr) 2rem",
         gridTemplateRows: `minmax(${PREVIEW_MIN}px, 1fr) ${SEPARATOR_PX}px ${timelineHeight}px`,
       }}
     >
-      <div className="min-h-0 overflow-hidden">
+      <div className="min-h-0 overflow-hidden" style={{ gridColumn: 1, gridRow: 1 }}>
         <Preview />
       </div>
-      <Inspector />
+      <div
+        className="min-h-0 overflow-hidden"
+        {...(inspectorOpen ? {} : { hidden: true })}
+        style={inspectorOpen ? { gridColumn: 2, gridRow: 1 } : undefined}
+      >
+        <Inspector />
+      </div>
+      {inspectorOpen ? null : (
+        <div
+          className="inspector-reopen flex h-full flex-col items-center border-l border-[#2a2620]"
+          style={{ gridColumn: 2, gridRow: "1 / span 3" }}
+        >
+          <div className="flex h-9 w-full items-center justify-center">
+            <InspectorToggle compact />
+          </div>
+        </div>
+      )}
       <div
         role="separator"
         aria-orientation="horizontal"
@@ -77,14 +96,21 @@ export function TimelineView() {
         aria-valuemax={Math.max(TIMELINE_HEIGHT_MIN, 800 - PREVIEW_MIN - SEPARATOR_PX)}
         aria-valuenow={timelineHeight}
         tabIndex={0}
-        className="col-span-2 cursor-row-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
+        className="cursor-row-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
+        style={{ gridColumn: inspectorOpen ? "1 / -1" : 1, gridRow: 2 }}
         onPointerDown={onResizePointerDown}
         onPointerMove={onResizePointerMove}
         onPointerUp={onResizePointerUp}
         onPointerCancel={onResizePointerUp}
         onKeyDown={onResizeKeyDown}
       />
-      <div className="col-span-2 min-h-0 overflow-hidden">
+      <div
+        className="min-h-0 overflow-hidden"
+        style={{
+          gridColumn: inspectorOpen ? "1 / -1" : 1,
+          gridRow: 3,
+        }}
+      >
         <Timeline />
       </div>
     </div>

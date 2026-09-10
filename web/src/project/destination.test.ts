@@ -16,6 +16,7 @@ import {
   destinationConstructionRequestFromProject,
   openingFrameGenerationPrompt,
   openingFrameGenerationRequestFromProject,
+  openingFrameIntent,
   parseDestinationConstructionResult,
   precedingActualFrame,
   projectWithConstructedDestination,
@@ -240,6 +241,13 @@ describe("construct B from current Project state", () => {
     expect(b.image).toBe(generatedB.imageUrl);
     expect(b.mediaId).toBe(generatedB.mediaId);
     expect(b.imageOrigin).toBe("generated");
+    expect(b.mediaInfo).toBeUndefined();
+    const withFacts = projectWithConstructedDestination(planned, {
+      beatId: "B",
+      ...generatedB,
+      mediaInfo: { width: 1392, height: 752, format: "png" },
+    });
+    expect(withFacts.storyboard[1]?.mediaInfo).toEqual({ width: 1392, height: 752, format: "png" });
     expect(constructed.storyboard[0]).toEqual(a);
     expect(constructed.storyboard[2]).toEqual(c);
     expect(constructed.story).toBe(story);
@@ -360,6 +368,50 @@ describe("construct C from actual B", () => {
     expect(request.beatId).toBe("E");
     expect(request.nextDestination).toBeUndefined();
     expect(destinationConstructionPrompt(request)).not.toMatch(/Far-field continuity/);
+  });
+
+  it("passes the stored canonical aspect ratio when constructing later destinations", () => {
+    const generated = projectWithGeneratedOpeningFrame(
+      { ...createNewProject(), story: "Travel forward through connected volumes." },
+      generatedB,
+    );
+    const planned = projectWithDirectorPlan(generated, {
+      summary: "Continue forward.",
+      beats: [
+        {
+          id: "B",
+          intent: "Move forward into the next space.",
+          visualDescription: "A corridor continuing the same world.",
+        },
+      ],
+    });
+    expect(destinationConstructionRequestFromProject(planned, "B").aspectRatio).toEqual({
+      width: 16,
+      height: 9,
+    });
+    const uploaded = projectWithDirectorPlan(
+      projectWithReplacedStartImage(
+        { ...createNewProject(), story: "Travel forward through connected volumes." },
+        {
+          ...upload,
+          mediaInfo: { width: 1000, height: 558, format: "jpeg" },
+        },
+      ),
+      {
+        summary: "Continue forward.",
+        beats: [
+          {
+            id: "B",
+            intent: "Move forward into the next space.",
+            visualDescription: "A corridor continuing the same world.",
+          },
+        ],
+      },
+    );
+    expect(destinationConstructionRequestFromProject(uploaded, "B").aspectRatio).toEqual({
+      width: 1000,
+      height: 558,
+    });
   });
 
   it("uses an uploaded following still's adopted plan as look-ahead", () => {
@@ -490,18 +542,57 @@ describe("opening frame generation", () => {
     );
     expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/Do not show a person/);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Do not show text/);
-    expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({ story: withStory.story });
-    const generated = projectWithGeneratedOpeningFrame(withStory, generatedB);
+    expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({
+      story: withStory.story,
+      aspectRatio: { width: 16, height: 9 },
+    });
+    expect(openingFrameIntent(withStory.story)).toBe(
+      "Travel forward through an imagined interior at night.",
+    );
+    expect(openingFrameIntent("Leave the attic. Cross into the forest.")).toBe("Leave the attic.");
+    expect(openingFrameIntent("  ")).toBeUndefined();
+    const generated = projectWithGeneratedOpeningFrame(withStory, {
+      ...generatedB,
+      mediaInfo: { width: 1024, height: 576, format: "png" },
+    });
     expect(generated.storyboard[0]?.imageOrigin).toBe("generated");
     expect(generated.storyboard[0]?.mediaId).toBe(generatedB.mediaId);
     expect(generated.storyboard[0]?.destinationId).toBe("A");
+    expect(generated.storyboard[0]?.mediaInfo).toEqual({ width: 1024, height: 576, format: "png" });
     expect(generated.storyboard[0]?.generatedFrom).toBe(`story:${withStory.story}`);
+    expect(generated.canonicalAspectRatio).toEqual({ width: 16, height: 9 });
+    expect(generated.storyboard[0]?.intent).toBe(
+      "Travel forward through an imagined interior at night.",
+    );
+    expect(generated.storyboard[0]?.visualDescription).toBe(
+      openingFrameGenerationPrompt(withStory.story),
+    );
     expect(generatedStillNeedsReshoot(generated, generated.storyboard[0]!)).toBe(false);
     expect(canGenerateOpeningFrame(generated)).toBe(false);
     expect(canReshootOpeningFrame(generated)).toBe(true);
-    expect(openingFrameGenerationRequestFromProject(generated)).toEqual({ story: generated.story });
+    expect(openingFrameGenerationRequestFromProject(generated)).toEqual({
+      story: generated.story,
+      aspectRatio: { width: 16, height: 9 },
+    });
+    const keptIntent = projectWithGeneratedOpeningFrame(
+      {
+        ...generated,
+        storyboard: generated.storyboard.map((frame) =>
+          frame.id === "A" ? { ...frame, intent: "Filmmaker opening note." } : frame,
+        ),
+      },
+      generatedC,
+    );
+    expect(keptIntent.storyboard[0]?.intent).toBe("Filmmaker opening note.");
+    expect(keptIntent.storyboard[0]?.visualDescription).toBe(
+      openingFrameGenerationPrompt(generated.story),
+    );
     const reshots = projectWithGeneratedOpeningFrame(generated, generatedC);
     expect(reshots.storyboard[0]?.mediaId).toBe(generatedC.mediaId);
+    expect(reshots.storyboard[0]?.intent).toBe(generated.storyboard[0]?.intent);
+    expect(reshots.storyboard[0]?.visualDescription).toBe(
+      openingFrameGenerationPrompt(generated.story),
+    );
   });
 });
 

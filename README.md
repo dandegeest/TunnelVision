@@ -262,6 +262,12 @@ Forest A→F Camotion continuity evidence:
 [`genesis/research/14-forest-a-to-f.html`](genesis/research/14-forest-a-to-f.html).
 Product Slice 4 UI:
 [`genesis/research/15-product-slice-4.html`](genesis/research/15-product-slice-4.html).
+Product Slice 5 Project video model:
+[`genesis/research/16-product-slice-5.html`](genesis/research/16-product-slice-5.html).
+Product Slice 6 destination look-ahead:
+[`genesis/research/17-product-slice-6.html`](genesis/research/17-product-slice-6.html).
+Product Slice 7 Plan | Shoot UI:
+[`genesis/research/18-product-slice-7.html`](genesis/research/18-product-slice-7.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
