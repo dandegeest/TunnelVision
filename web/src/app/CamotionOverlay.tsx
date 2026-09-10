@@ -10,12 +10,27 @@ import {
   type OverlayLayers,
 } from "../project/camotion-overlay";
 
-const stroke = {
-  stroke: "white",
-  strokeWidth: 1,
+const knockout = {
   vectorEffect: "non-scaling-stroke" as const,
   fill: "none",
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
 };
+
+const haloStroke = {
+  ...knockout,
+  stroke: "rgba(12, 11, 10, 0.85)",
+  strokeWidth: 3,
+};
+
+const hairlineStroke = {
+  ...knockout,
+  stroke: "white",
+  strokeWidth: 1,
+};
+
+const labelChipClass =
+  "pointer-events-none absolute rounded bg-black/70 px-1.5 py-0.5 text-[9px] tracking-[0.16em] text-[#cfc6b8] uppercase";
 
 function arrowHead(from: readonly [number, number], to: readonly [number, number], size = 0.022) {
   const dx = to[0] - from[0];
@@ -33,6 +48,119 @@ function arrowHead(from: readonly [number, number], to: readonly [number, number
   return `${to[0]},${to[1]} ${backX + px},${backY + py} ${backX - px},${backY - py}`;
 }
 
+type OverlayPass = "halo" | "hairline";
+
+function HaloLine({
+  x1,
+  y1,
+  x2,
+  y2,
+  opacity,
+  dasharray,
+  pass = "both",
+}: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  opacity: number;
+  dasharray?: string;
+  pass?: OverlayPass | "both";
+}) {
+  const dash = dasharray ? { strokeDasharray: dasharray } : {};
+  return (
+    <>
+      {pass !== "hairline" ? (
+        <line x1={x1} y1={y1} x2={x2} y2={y2} {...haloStroke} {...dash} opacity={opacity} data-overlay-halo="" />
+      ) : null}
+      {pass !== "halo" ? (
+        <line x1={x1} y1={y1} x2={x2} y2={y2} {...hairlineStroke} {...dash} opacity={opacity} />
+      ) : null}
+    </>
+  );
+}
+
+function HaloCircle({
+  cx,
+  cy,
+  r,
+  opacity,
+  pass = "both",
+}: {
+  cx: number;
+  cy: number;
+  r: number;
+  opacity: number;
+  pass?: OverlayPass | "both";
+}) {
+  return (
+    <>
+      {pass !== "hairline" ? (
+        <circle cx={cx} cy={cy} r={r} {...haloStroke} opacity={opacity} data-overlay-halo="" />
+      ) : null}
+      {pass !== "halo" ? <circle cx={cx} cy={cy} r={r} {...hairlineStroke} opacity={opacity} /> : null}
+    </>
+  );
+}
+
+function HaloRect({
+  x,
+  y,
+  width,
+  height,
+  opacity,
+  dasharray,
+  pass = "both",
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+  dasharray?: string;
+  pass?: OverlayPass | "both";
+}) {
+  const dash = dasharray ? { strokeDasharray: dasharray } : {};
+  return (
+    <>
+      {pass !== "hairline" ? (
+        <rect x={x} y={y} width={width} height={height} {...haloStroke} {...dash} opacity={opacity} data-overlay-halo="" />
+      ) : null}
+      {pass !== "halo" ? (
+        <rect x={x} y={y} width={width} height={height} {...hairlineStroke} {...dash} opacity={opacity} />
+      ) : null}
+    </>
+  );
+}
+
+function HaloPolygon({
+  points,
+  opacity,
+  pass = "both",
+}: {
+  points: string;
+  opacity: number;
+  pass?: OverlayPass | "both";
+}) {
+  return (
+    <>
+      {pass !== "hairline" ? (
+        <polygon
+          points={points}
+          fill="rgba(12, 11, 10, 0.85)"
+          stroke="rgba(12, 11, 10, 0.85)"
+          strokeWidth={3}
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+          opacity={opacity}
+          data-overlay-halo=""
+        />
+      ) : null}
+      {pass !== "halo" ? <polygon points={points} fill="white" opacity={opacity} /> : null}
+    </>
+  );
+}
+
 export function CamotionPlanOverlay({
   plan,
   layers,
@@ -48,12 +176,23 @@ export function CamotionPlanOverlay({
   const dest = plan.destination.point;
   const bbox = plan.destination.bbox;
   const showMotion = layers.direction && overlayHasDrawableMotion(samples);
+  const pathHead = arrowHead(path.near, path.apex);
+  const motionMarks = showMotion
+    ? samples.flatMap((sample, index) => {
+        const to: [number, number] = [
+          sample.origin[0] + sample.vector[0],
+          sample.origin[1] + sample.vector[1],
+        ];
+        const head = arrowHead(sample.origin, to, 0.016);
+        return head ? [{ index, origin: sample.origin, to, head }] : [];
+      })
+    : [];
   const boxStyle = fitted
     ? { left: fitted.x, top: fitted.y, width: fitted.width, height: fitted.height }
     : { left: 0, top: 0, width: "100%", height: "100%" };
 
   return (
-    <div className="pointer-events-none absolute" style={boxStyle} data-camotion-overlay="">
+    <div className="pointer-events-none absolute" style={boxStyle} data-camotion-overlay="" data-vanishing-point={`${vp[0]},${vp[1]}`} data-destination-point={`${dest[0]},${dest[1]}`}>
       <svg
         className="camotion-overlay absolute inset-0 h-full w-full"
         viewBox="0 0 1 1"
@@ -62,72 +201,99 @@ export function CamotionPlanOverlay({
       >
         {layers.path ? (
           <g data-overlay-layer="path">
-            <line
+            <HaloLine
               x1={path.near[0]}
               y1={path.near[1]}
               x2={path.apex[0]}
               y2={path.apex[1]}
-              {...stroke}
-              strokeDasharray="5 4"
+              dasharray="5 4"
               opacity={0.85}
+              pass="halo"
             />
-            {arrowHead(path.near, path.apex) ? (
-              <polygon points={arrowHead(path.near, path.apex)!} fill="white" opacity={0.85} />
-            ) : null}
+            {pathHead ? <HaloPolygon points={pathHead} opacity={0.85} pass="halo" /> : null}
+            <HaloLine
+              x1={path.near[0]}
+              y1={path.near[1]}
+              x2={path.apex[0]}
+              y2={path.apex[1]}
+              dasharray="5 4"
+              opacity={0.85}
+              pass="hairline"
+            />
+            {pathHead ? <HaloPolygon points={pathHead} opacity={0.85} pass="hairline" /> : null}
           </g>
         ) : null}
-        {showMotion
-          ? samples.map((sample, index) => {
-              const to: [number, number] = [
-                sample.origin[0] + sample.vector[0],
-                sample.origin[1] + sample.vector[1],
-              ];
-              const head = arrowHead(sample.origin, to, 0.016);
-              if (!head) {
-                return null;
-              }
-              return (
-                <g key={`motion-${index}`} data-overlay-layer="direction">
-                  <line
-                    x1={sample.origin[0]}
-                    y1={sample.origin[1]}
-                    x2={to[0]}
-                    y2={to[1]}
-                    {...stroke}
-                    opacity={0.75}
-                  />
-                  <polygon points={head} fill="white" opacity={0.75} />
-                </g>
-              );
-            })
-          : null}
+        {showMotion ? (
+          <g data-overlay-layer="direction">
+            {motionMarks.map((mark) => (
+              <g key={`halo-${mark.index}`}>
+                <HaloLine
+                  x1={mark.origin[0]}
+                  y1={mark.origin[1]}
+                  x2={mark.to[0]}
+                  y2={mark.to[1]}
+                  opacity={0.75}
+                  pass="halo"
+                />
+                <HaloPolygon points={mark.head} opacity={0.75} pass="halo" />
+              </g>
+            ))}
+            {motionMarks.map((mark) => (
+              <g key={`hairline-${mark.index}`}>
+                <HaloLine
+                  x1={mark.origin[0]}
+                  y1={mark.origin[1]}
+                  x2={mark.to[0]}
+                  y2={mark.to[1]}
+                  opacity={0.75}
+                  pass="hairline"
+                />
+                <HaloPolygon points={mark.head} opacity={0.75} pass="hairline" />
+              </g>
+            ))}
+          </g>
+        ) : null}
         {layers.points ? (
           <g data-overlay-layer="points">
-            <rect
+            <HaloRect
               x={bbox[0]}
               y={bbox[1]}
               width={Math.max(0, bbox[2] - bbox[0])}
               height={Math.max(0, bbox[3] - bbox[1])}
-              {...stroke}
-              strokeDasharray="3 3"
+              dasharray="3 3"
               opacity={0.55}
+              pass="halo"
             />
-            <line x1={vp[0] - 0.018} y1={vp[1]} x2={vp[0] + 0.018} y2={vp[1]} {...stroke} opacity={0.9} />
-            <line x1={vp[0]} y1={vp[1] - 0.018} x2={vp[0]} y2={vp[1] + 0.018} {...stroke} opacity={0.9} />
-            <circle cx={dest[0]} cy={dest[1]} r={0.012} {...stroke} opacity={0.9} />
+            <HaloLine x1={vp[0] - 0.018} y1={vp[1]} x2={vp[0] + 0.018} y2={vp[1]} opacity={0.9} pass="halo" />
+            <HaloLine x1={vp[0]} y1={vp[1] - 0.018} x2={vp[0]} y2={vp[1] + 0.018} opacity={0.9} pass="halo" />
+            <HaloCircle cx={dest[0]} cy={dest[1]} r={0.012} opacity={0.9} pass="halo" />
+            <HaloRect
+              x={bbox[0]}
+              y={bbox[1]}
+              width={Math.max(0, bbox[2] - bbox[0])}
+              height={Math.max(0, bbox[3] - bbox[1])}
+              dasharray="3 3"
+              opacity={0.55}
+              pass="hairline"
+            />
+            <HaloLine x1={vp[0] - 0.018} y1={vp[1]} x2={vp[0] + 0.018} y2={vp[1]} opacity={0.9} pass="hairline" />
+            <HaloLine x1={vp[0]} y1={vp[1] - 0.018} x2={vp[0]} y2={vp[1] + 0.018} opacity={0.9} pass="hairline" />
+            <HaloCircle cx={dest[0]} cy={dest[1]} r={0.012} opacity={0.9} pass="hairline" />
           </g>
         ) : null}
       </svg>
       {layers.points ? (
         <>
           <span
-            className="absolute -translate-x-1/2 -translate-y-[140%] text-[9px] tracking-[0.16em] text-white/80 uppercase"
+            className={`${labelChipClass} -translate-x-1/2 -translate-y-[140%]`}
+            data-overlay-label="vp"
             style={{ left: `${vp[0] * 100}%`, top: `${vp[1] * 100}%` }}
           >
             VP
           </span>
           <span
-            className="absolute translate-x-[8px] -translate-y-1/2 text-[9px] tracking-[0.16em] text-white/80 uppercase"
+            className={`${labelChipClass} translate-x-[8px] -translate-y-1/2`}
+            data-overlay-label="dest"
             style={{ left: `${dest[0] * 100}%`, top: `${dest[1] * 100}%` }}
           >
             D

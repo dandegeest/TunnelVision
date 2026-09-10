@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createNewProject } from "./new-project";
 import { projectWithCinematographerAssessment } from "./cinematographer";
+import { projectWithMotionPlan } from "./motion-plan";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import {
   canShootJourney,
@@ -13,7 +14,7 @@ import {
   shootRequestFromProject,
 } from "./shoot";
 import { layoutTimeline } from "../timeline/geometry";
-import type { CinematographerAssessment, JourneyShotTake, Project } from "./types";
+import type { CinematographerAssessment, JourneyShotTake, Project, SegmentMotionPlan } from "./types";
 
 const assessment: CinematographerAssessment = {
   shootability: "needs_review",
@@ -54,6 +55,17 @@ const take: JourneyShotTake = {
   videoInputs: { startShootingFrame: true, endShootingFrame: true },
 };
 
+const motionPlan: SegmentMotionPlan = {
+  cinematographer: assessment,
+  startShootingFrame: take.startShootingFrame,
+  endShootingFrame: take.endShootingFrame,
+  startPlan: take.startPlan,
+  endPlan: take.endPlan,
+  segmentPromptAddition: assessment.segmentPromptAddition,
+  effectivePrompt: take.effectivePrompt,
+  pace: assessment.pace,
+};
+
 function projectWithLeg(): Project {
   return projectWithSyncedProductionLegs({
     ...createNewProject(),
@@ -79,21 +91,26 @@ function projectWithLeg(): Project {
 }
 
 describe("SHOOT gate and JourneyShot take", () => {
-  it("does not shoot until BLOCK has stored choreography", () => {
+  it("does not shoot until the segment Motion Plan has A′/B′", () => {
     const project = projectWithLeg();
     const journey = project.journeys[0]!;
     expect(canShootJourney(project, journey)).toBe(false);
     expect(() => shootRequestFromProject(project, journey.id)).toThrow(/Stage this journey/i);
+    const choreographed = projectWithCinematographerAssessment(project, "A-B", assessment);
+    expect(canShootJourney(choreographed, choreographed.journeys[0]!)).toBe(false);
+    expect(() => shootRequestFromProject(choreographed, "A-B")).toThrow(/Stage this journey/i);
   });
 
   it("does not map CM shootability onto operational status", () => {
-    const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    const prepared = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
     expect(prepared.journeys[0]?.status).toBe("ready");
     expect(shootRequestFromProject(prepared, "A-B")).toMatchObject({
       journeyId: "A-B",
       segmentPromptAddition: assessment.segmentPromptAddition,
       pace: "fast",
       videoModel: "pruna-p-video",
+      startShootingMediaId: take.startShootingFrame.mediaId,
+      endShootingMediaId: take.endShootingFrame.mediaId,
     });
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
     const luma = shootRequestFromProject({ ...prepared, videoModel: "luma-ray-flash-2-720p" }, "A-B");
@@ -116,7 +133,7 @@ describe("SHOOT gate and JourneyShot take", () => {
   });
 
   it("auto-shoots blocked legs regardless of CM warnings and skips completed takes", () => {
-    const hold = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    const hold = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
     expect(journeysReadyToAutoShoot(hold).map((journey) => journey.id)).toEqual(["A-B"]);
     const shooting = projectWithJourneyShooting(hold, "A-B");
     expect(journeysReadyToAutoShoot(shooting)).toEqual([]);

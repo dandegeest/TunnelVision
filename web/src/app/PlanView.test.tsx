@@ -125,9 +125,11 @@ describe("Plan project story", () => {
     expect(html).toContain('aria-label="Direct movie"');
     expect(html).toContain("relative w-full overflow-hidden rounded");
     expect(html).toContain(">DIRECT<");
-    expect(html).toContain(">Technical<");
-    expect(html).toContain("Turn on Debug in the header");
-    expect(html).not.toContain(">Debug<");
+    expect(html).not.toContain(">Technical<");
+    expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
+    expect(html).not.toContain("Turn on Debug at the bottom of the Project panel");
+    expect(html).toContain('aria-label="Debug"');
+    expect(html).toContain('aria-label="Agency"');
     expect(html).not.toContain('aria-label="Send"');
     expect(html).not.toContain("Send is not a filmmaking command yet");
     expect(html).toContain("Add Destination");
@@ -140,14 +142,13 @@ describe("Plan project story", () => {
     expect(html).not.toContain("Filmmaker");
   });
 
-  it("shows session asset paths under Technical when Debug is on", () => {
+  it("keeps Technical debug copy out of the Project panel", () => {
     const html = renderPlan(createWardrobeProject(), { debug: true });
-    expect(html).toContain(">Technical<");
-    expect(html).toContain(">Debug<");
-    expect(html).toContain("Session store.");
-    expect(html).toContain("Canonical A.");
-    expect(html).toContain("does not pass --depth");
-    expect(html).not.toContain("Turn on Debug in the header");
+    expect(html).not.toContain(">Technical<");
+    expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
+    expect(html).toContain('aria-label="Debug"');
+    expect(html).not.toContain("Session store.");
+    expect(html).not.toContain("Canonical A.");
   });
 
   it("keeps the current story in the Project panel after a Director plan", () => {
@@ -1144,6 +1145,21 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Story destinations"');
     expect(html).toContain('aria-label="Video model"');
     expect(html).toContain('value="pruna-p-video"');
+    const storyAt = html.indexOf('id="project-story"');
+    const directAt = html.indexOf('aria-label="Direct movie"');
+    const debugAt = html.indexOf('aria-label="Debug"');
+    const agencyAt = html.indexOf('aria-label="Agency"');
+    const videoAt = html.indexOf('aria-label="Video model"');
+    expect(agencyAt).toBeLessThan(storyAt);
+    expect(videoAt).toBeGreaterThan(storyAt);
+    expect(videoAt).toBeLessThan(directAt);
+    expect(debugAt).toBeGreaterThan(directAt);
+    const underDirect = html.slice(directAt, debugAt);
+    expect(underDirect).toContain("DIRECT generates A from the story, then asks the Director to plan.");
+    expect(underDirect).not.toContain('aria-label="Agency"');
+    expect(underDirect).not.toContain('aria-label="Video model"');
+    expect(underDirect).not.toContain('aria-label="Debug"');
+    expect(html).not.toContain(">Technical<");
     expect(html).toContain("Pruna $");
     expect(html).toContain("Luma Ray Flash 2 720p $$");
     expect(html).toContain("Wan 2.2 First/Last Frame $$");

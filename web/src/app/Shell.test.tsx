@@ -61,29 +61,48 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Agency"');
     expect(html).toContain("Directed");
     expect(html).toContain("Autonomous");
-    const agency = html.slice(html.indexOf('aria-label="Agency"'), html.indexOf('aria-label="Agency"') + 900);
+    const agencyStart = html.indexOf('aria-label="Agency"');
+    const agency = html.slice(agencyStart, html.indexOf("</nav>", agencyStart) + "</nav>".length);
     expect(agency).toContain('aria-pressed="true"');
     expect(agency).toContain('aria-pressed="false"');
     expect(agency).not.toContain("<select");
     expect(agency).not.toContain("<option");
   });
 
-  it("does not place a Media Info tool in the workspace header toolbar", () => {
+  it("does not place Debug, Agency, or Media Info in the workspace header toolbar", () => {
     const html = renderShell();
+    const toolbar = html.slice(html.indexOf("workspace-toolbar"), html.indexOf("conversation-rail-header"));
     expect(html).toContain("workspace-toolbar");
-    expect(html).toContain('aria-label="Debug"');
+    expect(toolbar).not.toContain('aria-label="Debug"');
+    expect(toolbar).not.toContain('aria-label="Agency"');
     expect(html).not.toContain('aria-label="Media info"');
     expect(html).not.toContain(">Media Info<");
     expect(html).not.toContain(">MEDIA INFO<");
   });
 
-  it("places Debug in the workspace header toolbar", () => {
+  it("places Agency at the top of the Project panel and Debug as a gear at the bottom", () => {
     const off = renderShell({ debug: false });
     const on = renderShell();
-    expect(off).toContain('aria-label="Debug"');
     expect(off).toContain('aria-pressed="false" aria-label="Debug"');
     expect(on).toContain('aria-pressed="true" aria-label="Debug"');
-    expect(on).toContain(">Debug<");
+    const project = on.slice(on.indexOf('id="project-panel"'));
+    const storyAt = project.indexOf('id="project-story"');
+    const directAt = project.indexOf('aria-label="Direct movie"');
+    const debugAt = project.indexOf('aria-label="Debug"');
+    const agencyAt = project.indexOf('aria-label="Agency"');
+    const videoAt = project.indexOf('aria-label="Video model"');
+    expect(agencyAt).toBeGreaterThan(-1);
+    expect(agencyAt).toBeLessThan(storyAt);
+    expect(videoAt).toBeGreaterThan(storyAt);
+    expect(videoAt).toBeLessThan(directAt);
+    expect(debugAt).toBeGreaterThan(directAt);
+    const underDirect = project.slice(directAt, debugAt);
+    expect(underDirect).toContain("DIRECT asks the Director to fill unspecified beats.");
+    expect(underDirect).not.toContain('aria-label="Agency"');
+    expect(underDirect).not.toContain('aria-label="Video model"');
+    expect(underDirect).not.toContain('aria-label="Debug"');
+    expect(project).not.toContain(">Technical<");
+    expect(project).not.toContain("Construction: planned. Discovery is not implemented.");
   });
 
   it("centers Plan/Shoot in the workspace toolbar grid, not as a viewport heading", () => {

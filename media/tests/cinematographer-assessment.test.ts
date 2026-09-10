@@ -55,8 +55,13 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.systemInstruction, /not predicting whether a stochastic video model will succeed/i);
   assert.match(request.systemInstruction, /always produce camera choreography/i);
   assert.doesNotMatch(request.systemInstruction, /will the video model succeed/i);
-  assert.doesNotMatch(request.systemInstruction, /vanishing_point/);
+  assert.doesNotMatch(request.systemInstruction, /"vanishing_point"/);
   assert.doesNotMatch(request.systemInstruction, /exposure\.strength/);
+  assert.match(request.systemInstruction, /vanishingPoint/);
+  assert.match(request.systemInstruction, /semantic travel target/);
+  assert.match(request.systemInstruction, /pupil/);
+  assert.match(request.systemInstruction, /Winding road/);
+  assert.match(request.systemInstruction, /Do not default to image center/);
   assert.match(request.prompt, /Journey A-B/);
   assert.match(request.prompt, /night forest/);
   assert.match(request.systemInstruction, /next viewpoint along that same travel direction/i);
@@ -69,6 +74,7 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.prompt, /not a reverse shot/i);
   assert.match(request.systemInstruction, /Pace is a per-shot macro/);
   assert.match(request.systemInstruction, /pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable/);
+  assert.match(request.prompt, /Report travel geometry for each still/);
   assert.match(request.prompt, /Do not predict whether a video model will succeed/);
   assert.ok(request.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE));
   assert.match(request.prompt, /\{pace\} is replaced from your pace field/);
@@ -86,6 +92,54 @@ test("structured Cinematographer assessment JSON includes segment choreography",
   assert.match(assessment.transitionStrategy, /visible opening/);
   assert.match(assessment.segmentPromptAddition, /pass between the near structures/);
   assert.equal(assessment.pace, "fast");
+  assert.equal(assessment.travel, undefined);
+});
+
+test("Cinematographer travel geometry is optional and ignored when malformed", () => {
+  const withTravel = parseCinematographerAssessment(
+    validAssessmentJson({
+      travel: {
+        start: {
+          vanishingPoint: [0.62, 0.41],
+          destinationPoint: [0.64, 0.43],
+          destinationBbox: [0.54, 0.33, 0.74, 0.53],
+          vector: [0.1, -0.4],
+          label: "pupil, not the reflected window",
+        },
+        end: {
+          vanishingPoint: [0.71, 0.36],
+          destinationPoint: [0.71, 0.36],
+          label: "road vanishing on the right bend",
+        },
+        direction: "into the pupil, then along the right-hand road bend",
+        confidence: "high",
+      },
+    }),
+  );
+  assert.deepEqual(withTravel.travel?.start?.vanishingPoint, [0.62, 0.41]);
+  assert.equal(withTravel.travel?.start?.label, "pupil, not the reflected window");
+  assert.deepEqual(withTravel.travel?.end?.vanishingPoint, [0.71, 0.36]);
+  assert.equal(withTravel.travel?.confidence, "high");
+
+  const missingSide = parseCinematographerAssessment(
+    validAssessmentJson({
+      travel: {
+        start: { vanishingPoint: [1.4, 0.2], label: "off frame" },
+        end: { destinationPoint: [0.33, 0.48], label: "door threshold" },
+        confidence: "maybe",
+      },
+    }),
+  );
+  assert.equal(missingSide.travel?.start, undefined);
+  assert.deepEqual(missingSide.travel?.end?.destinationPoint, [0.33, 0.48]);
+  assert.equal(missingSide.travel?.confidence, "medium");
+
+  const ignored = parseCinematographerAssessment(
+    validAssessmentJson({
+      travel: { start: { label: "no points" }, confidence: "high" },
+    }),
+  );
+  assert.equal(ignored.travel, undefined);
 });
 
 test("Cinematographer pace accepts slow-motion, hyperspeed, and variable", () => {

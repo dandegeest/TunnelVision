@@ -6,7 +6,7 @@ import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
 import { videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { renderCamotionShootingFrame } from "./camotion-cli.ts";
-import { shootPreparedJourney, videoModelIdFromBody } from "./shoot-journey.ts";
+import { shootPreparedJourney, stagePreparedMotionPlan, videoModelIdFromBody } from "./shoot-journey.ts";
 import { UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
@@ -48,7 +48,7 @@ function statusForError(error: unknown): number {
     return 500;
   }
   const message = error instanceof Error ? error.message : "";
-  if (/prepare this journey|requires two actual|is required|Unknown video model/i.test(message)) {
+  if (/prepare this journey|Stage this journey|Staged shooting frames|requires two actual|is required|Unknown video model|Motion Plan failed/i.test(message)) {
     return 400;
   }
   return 502;
@@ -70,16 +70,32 @@ export function shootDevPlugin(repoRoot: string): Plugin {
       loadDotEnvLocal(repoRoot);
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
-        if (url !== "/api/journey/shoot") {
+        if (url !== "/api/journey/shoot" && url !== "/api/journey/motion-plan") {
           next();
           return;
         }
         if (req.method !== "POST") {
-          sendJson(res, 405, { error: "POST /api/journey/shoot" });
+          sendJson(res, 405, { error: `POST ${url}` });
           return;
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
+          const renderFrame = (imagePath: string, plan: Parameters<typeof renderCamotionShootingFrame>[0]["plan"]) =>
+            renderCamotionShootingFrame({
+              repoRoot,
+              imagePath,
+              plan,
+              retainWorkDir: body.debug === true,
+            });
+          if (url === "/api/journey/motion-plan") {
+            const staged = await stagePreparedMotionPlan({
+              repoRoot,
+              body,
+              renderFrame,
+            });
+            sendJson(res, 200, staged);
+            return;
+          }
           const videoModelId = videoModelIdFromBody(body.videoModel);
           const provider = new ReplicateMediaProvider({
             model: videoModelSlug(videoModelId),
@@ -102,13 +118,7 @@ export function shootDevPlugin(repoRoot: string): Plugin {
           const take = await shootPreparedJourney({
             repoRoot,
             body,
-            renderFrame: (imagePath, plan) =>
-              renderCamotionShootingFrame({
-                repoRoot,
-                imagePath,
-                plan,
-                retainWorkDir: body.debug === true,
-              }),
+            renderFrame,
             generateVideo: (request) => provider.generateVideo(request),
           });
           sendJson(res, 200, { take, videoUrl: take.videoUrl });

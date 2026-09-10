@@ -1,8 +1,9 @@
 import { destinationById, type CameraMotionPlanV1, type CamotionDebug, type Project, type ShootingFrameRef } from "./types";
+import { segmentCamotionSource } from "./motion-plan";
 
 export type DestinationCamotionRole = "start" | "end";
 
-/** One Camotion-conditioned frame already stored on a JourneyShot take. */
+/** One Camotion-conditioned frame already stored on this segment's Motion Plan (or take). */
 export type DestinationCamotionRecord = {
   destinationId: string;
   destinationLabel: string;
@@ -32,7 +33,7 @@ export function preferredCamotionRecord(
 
 /**
  * Camotion output for one Shoot destination occurrence.
- * Reads JourneyShot.take only. Does not invent plans or conditioned stills.
+ * Reads the segment Motion Plan, then take evidence. Does not invent plans or conditioned stills.
  */
 export function camotionRecordsForDestination(
   project: Pick<Project, "destinations" | "journeys">,
@@ -48,8 +49,8 @@ export function camotionRecordsForDestination(
       continue;
     }
     const journey = project.journeys.find((item) => item.id === journeyId);
-    const take = journey?.take;
-    if (!journey || !take) {
+    const source = segmentCamotionSource(journey);
+    if (!journey || !source) {
       continue;
     }
     if (journey.startDestinationId === destinationId) {
@@ -59,9 +60,9 @@ export function camotionRecordsForDestination(
         primedLabel,
         journeyId,
         role: "start",
-        shootingFrame: take.startShootingFrame,
-        plan: take.startPlan,
-        camotion: take.camotion,
+        shootingFrame: source.startShootingFrame,
+        plan: source.startPlan,
+        camotion: source.camotion,
       });
     }
     if (journey.endDestinationId === destinationId) {
@@ -71,9 +72,9 @@ export function camotionRecordsForDestination(
         primedLabel,
         journeyId,
         role: "end",
-        shootingFrame: take.endShootingFrame,
-        plan: take.endPlan,
-        camotion: take.camotion,
+        shootingFrame: source.endShootingFrame,
+        plan: source.endPlan,
+        camotion: source.camotion,
       });
     }
   }

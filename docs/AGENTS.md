@@ -109,9 +109,10 @@ constructs B…N in travel order from each preceding actual frame. Later
 beats cannot run in parallel. If a later construct fails, generation
 stops and the Director plan remains.
 Auto blocking and Auto shoot are independent and off by default.
-After destinations exist, Auto blocking runs the Cinematographer on
-every actual adjacent pair. Auto shoot then generates each blocked
-leg, including those with CM hold or no-go warnings.
+After destinations exist, Auto blocking runs the Cinematographer and
+Camotion on every actual adjacent pair, storing one Motion Plan per
+segment. Auto shoot then generates each staged leg, including those
+with CM hold or no-go warnings.
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while DIRECT or sequential destination
 generation is running. Delete removes a later storyboard beat without
@@ -151,10 +152,10 @@ When a following beat already has a plan, Construct injects that plan's
 visual description as demoted far-field continuity after this destination
 and the camera move from the source still. This viewpoint stays this
 destination; the last beat has no look-ahead. Opening A is still generated from the journey story only.
-Debug is a session header toggle, not project persistence. It is on by
+Debug is a session gear at the bottom right of the Project panel, not project persistence. It is on by
 default for now so Camotion work dirs are kept. Technical
-in the Project panel lists session store paths for canonical stills
-and, after SHOOT, segment A′/B′ and Camotion work dirs. With Debug on,
+in the Shoot inspector lists session store paths for canonical stills
+and, after a Motion Plan is staged, segment A′/B′ and Camotion work dirs. With Debug on,
 Camotion keeps plan.json and shooting.png; otherwise those work dirs
 are deleted after the shooting frames are copied into the session
 store. Product shoot does not pass --depth, and Camotion does not
@@ -162,16 +163,24 @@ estimate depth maps.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically. Each interval is two stacked bands under the destination
-rail: MOTION (CM + Camotion for A→B) and FOOTAGE (the generated take).
+rail: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated take).
 Canonicals remain clickable places above those bands. When only A is actual,
 Shoot still shows A and an FPO B that opens Plan on B. Plan lives on the MOTION
-band and Generate on the FOOTAGE band; Generate stays Generate after a clip exists. MOTION shows the
-A|B canonical stills and stored Camotion overlay when a take exists;
-FOOTAGE shows the clip. When a destination is selected, the preview can toggle
-that occurrence's canonical still against stored Camotion A′/B′, draw the
+band and Generate on the FOOTAGE band; Generate stays Generate after a clip exists.
+Plan on MOTION stages that segment's Motion Plan: CM inspects the actual A/B
+canonicals, reports semantic travel geometry in the same assessment turn, a
+deterministic CameraMotionPlan v1 bridge derives Camotion
+geometry from that travel object (centered `[0.5, 0.5]` only as a fallback
+when CM cannot determine a better target), and Camotion renders A′/B′ for that shot only. Neighboring
+segments are unchanged. MOTION shows the A|B canonical stills, a canonical vs
+conditioned toggle, and the stored CameraMotionPlan overlay once the Motion
+Plan exists; FOOTAGE shows the clip. When a destination is selected, the preview can toggle
+that occurrence's canonical still against stored Camotion A′/B′ from the
+inbound/outbound Motion Plans, draw the
 stored CameraMotionPlan as a read-only overlay on the displayed still
-(travel path, radial direction, points; letterboxed to the image), and the
-inspector lists the take's CameraMotionPlan facts read-only. Band labels are MOTION and FOOTAGE only.
+(travel path, radial direction, points; letterboxed to the image; knockout
+halo and chipped VP/D labels), and the
+inspector lists that segment's Motion Plan facts read-only. Band labels are MOTION and FOOTAGE only.
 The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels. The Shoot inspector can hide to a
 reopen strip like the conversation and Project rails; that visibility is
@@ -179,7 +188,7 @@ session UI, not project persistence.
 While Plan or Generate runs, that band uses the same generating
 shimmer as Plan FPO thumbs. The app
 can track more than one blocking or shooting operation at a time.
-SHOOT on a blocked leg runs Camotion and a configurable
+SHOOT on a staged leg uses the Motion Plan's A′/B′ and a configurable
 video model chosen in the Project panel. Pruna (`prunaai/p-video`) is the
 development default. Mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last
 Frame, and Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in for the
@@ -215,11 +224,13 @@ the camera should move through their visible geography.** The
 primary question is how to shoot this pair, not whether a stochastic
 video model will succeed. A thin assessment lives in
 `media/src/cinematographer/assess-journey.ts` and is invoked from
-Shoot BLOCK for one JourneyShot. The result is stored on that journey and
-includes route, camera path, pace, visible geometry, transition strategy,
+Shoot BLOCK/Plan for one JourneyShot. CM output lives on that segment's
+Motion Plan and includes route, camera path, pace, visible geometry, transition strategy,
 and a concise `segmentPromptAddition`, plus advisory shootability /
-Camotion suitability / concerns. Destinations stay canonical world
-state; the JourneyShot is the traversal; boundary continuity remains
+Camotion suitability / concerns and optional per-still travel geometry
+(semantic target, vanishing point / focus of expansion, heading, confidence).
+Destinations stay canonical world
+state; the JourneyShot owns the Motion Plan and the footage; boundary continuity remains
 a later seam-level video concept.
 
 Shootability is **advisory set analysis**. It does not gate
@@ -237,11 +248,16 @@ other subjects may appear naturally as part of the world. Product still
 and video prompts add that constraint; filmmaker and Director story
 text should not.
 
-Do **not** generate CameraMotionPlan, Camotion shooting frames, or
-video from this assessment. Do not expand the Integration Test 01
-pair planner into a product package. SHOOT uses a separate
-deterministic CameraMotionPlan v1 bridge, then Camotion, then
-`composeShootingPrompt` (`segmentPromptAddition` first, then the
+Do **not** generate CameraMotionPlan JSON, Camotion shooting frames, or
+video from the Cinematographer assessment itself. Do not expand the Integration Test 01
+pair planner into a product package. The same CM turn reports semantic
+travel geometry (`travel.start` / `travel.end`); a deterministic
+CameraMotionPlan v1 bridge (`cameraMotionPlansFromAssessment`) pins
+`forward=1.0` and 01.8 STRONG exposure and fills vanishing_point /
+destination from that object. Centered `[0.5, 0.5]` is only the fallback
+when a still has no usable target. Plan on MOTION then renders Camotion A′/B′ for that
+segment, and stores the complete Motion Plan on the JourneyShot. FOOTAGE
+Generate uses those staged frames and `composeShootingPrompt` (`segmentPromptAddition` first, then the
 frozen locomotion baseline). Do not have an LLM rewrite or merge those
 two pieces. Terran Boylan's
 original TunnelVision continuous-locomotion prompting is the

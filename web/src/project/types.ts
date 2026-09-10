@@ -30,6 +30,22 @@ export type JourneyStatus =
  */
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
 export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
+export type CinematographerTravelConfidence = "high" | "medium" | "low";
+
+export type CinematographerTravelTarget = {
+  vanishingPoint?: readonly [number, number];
+  destinationPoint?: readonly [number, number];
+  destinationBbox?: readonly [number, number, number, number];
+  vector?: readonly [number, number];
+  label: string;
+};
+
+export type CinematographerTravel = {
+  start?: CinematographerTravelTarget;
+  end?: CinematographerTravelTarget;
+  direction?: string;
+  confidence: CinematographerTravelConfidence;
+};
 
 export type CinematographerAssessment = {
   shootability: CinematographerShootability;
@@ -44,9 +60,14 @@ export type CinematographerAssessment = {
   pace: LocomotionPace;
   camotionSuitability: CinematographerCamotionSuitability;
   concerns: string[];
+  /**
+   * Semantic travel geometry from the same CM assessment turn.
+   * A deterministic bridge turns this into CameraMotionPlan v1.
+   */
+  travel?: CinematographerTravel;
 };
 
-/** CameraMotionPlan v1 JSON stored as take evidence. Frozen Camotion contract. */
+/** CameraMotionPlan v1 JSON stored on the segment Motion Plan. Frozen Camotion contract. */
 export type CameraMotionPlanV1 = {
   version: 1;
   camera: {
@@ -86,8 +107,26 @@ export type CamotionDebug = {
 };
 
 /**
+ * Per-segment Motion Plan for one adjacent canonical pair (A→B, B→C, …).
+ * Owned by the JourneyShot, not by either canonical. Canonicals stay pristine.
+ * Cinematographer choreography stays semantic; CameraMotionPlan stays Camotion math.
+ */
+export type SegmentMotionPlan = {
+  cinematographer: CinematographerAssessment;
+  startShootingFrame: ShootingFrameRef;
+  endShootingFrame: ShootingFrameRef;
+  startPlan: CameraMotionPlanV1;
+  endPlan: CameraMotionPlanV1;
+  segmentPromptAddition: string;
+  effectivePrompt: string;
+  pace: LocomotionPace;
+  camotion?: CamotionDebug;
+};
+
+/**
  * One current take for a JourneyShot. Not a parallel clip model.
  * Session/in-memory; provider URLs are allowed until Node persistence exists.
+ * A′/B′ on the take are the shooting frames that were sent to video.
  */
 export type JourneyShotTake = {
   startShootingFrame: ShootingFrameRef;
@@ -188,9 +227,15 @@ export type JourneyShot = {
   /**
    * Actual-set Cinematographer choreography for this leg. Absent until analyzed.
    * Shootability on this object is advisory and must not replace `status`.
+   * Also stored on `motionPlan.cinematographer` once Camotion A′/B′ exist.
    */
   cinematographer?: CinematographerAssessment;
-  /** Latest successful or inspectable take. Absent until SHOOT completes. */
+  /**
+   * Staged A→B Motion Plan: CM choreography plus this shot's CameraMotionPlan,
+   * Camotion parameters, and conditioned S/E frames. Absent until Plan on MOTION.
+   */
+  motionPlan?: SegmentMotionPlan;
+  /** Latest successful or inspectable take. Absent until FOOTAGE Generate completes. */
   take?: JourneyShotTake;
   shootError?: string;
 };

@@ -132,14 +132,14 @@ JourneyShots automatically. There is no separate send-to-Shoot step.
 DIRECT is not a prerequisite for shooting actual adjacent canonicals.
 Plan lives on the MOTION band and Generate on the FOOTAGE band.
 Generate stays Generate after a clip exists. Each Shoot interval is two
-stacked bands: MOTION (CM + Camotion A→B) and FOOTAGE (the generated
+stacked bands: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated
 take). Canonicals remain clickable places above those bands. When only A is
 actual, Shoot still shows A and an FPO B that opens Plan on B. Band labels are MOTION and FOOTAGE only. Selecting a destination
 exposes stored Camotion A′/B′ for that occurrence as a read-only preview
-toggle, a CameraMotionPlan overlay on the still, and inspector facts. BLOCK on a selected actual leg runs the existing Cinematographer
-against those stills and stores choreography on that JourneyShot.
-SHOOT on a blocked leg derives a deterministic CameraMotionPlan v1,
-renders A′ and B′ with Camotion, composes `segmentPromptAddition`
+toggle, a CameraMotionPlan overlay on the still, and inspector facts. Plan on a selected actual leg runs the existing Cinematographer
+against those stills, renders Camotion A′/B′ for that pair, and stores the
+Motion Plan on that JourneyShot.
+Generate on FOOTAGE uses those staged frames, composes `segmentPromptAddition`
 ahead of the frozen locomotion baseline, and generates a development
 clip. The Project panel Video control chooses the generator for every
 SHOOT in the current project. Pruna (`prunaai/p-video`) is the development
@@ -150,7 +150,8 @@ follows the generator: Pruna, Wan, and Seedance product shots are 6s;
 Luma Ray Flash 2 720p is 5s. The Shoot timeline tiles follow the take.
 Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
-CameraMotionPlan; a narrow deterministic bridge does. Export Movie
+CameraMotionPlan JSON; a narrow deterministic bridge turns the same
+assessment's travel geometry into CameraMotionPlan v1. Export Movie
 concatenates whatever rendered journey clips currently exist, in
 storyboard order, without transitions, bridges, or repair. Incomplete
 exports report missing legs. The application starts as a
@@ -259,7 +260,7 @@ architecture.
     rather than stretched or cropped to fill. Media facts appear on the
     selected storyboard still, including generated images once their
     dimensions are known. Debug is a
-    session header toggle and is on by default for now: Technical lists
+    session gear at the bottom right of the Project panel and is on by default for now: Technical in the Shoot inspector lists
     session disk paths for canonical stills and shooting frames, and
     Camotion work dirs are kept only while Debug is on. Product shoot does not pass a depth
     map. Destination
@@ -397,16 +398,19 @@ one JourneyShot and returns structured choreography (route, camera
 path, visible geometry, transition strategy, a concise
 `segmentPromptAddition`, and a per-shot `pace` (`slow-motion` / `slow` /
 `moderate` / `fast` / `hyperspeed` / `variable`) plus advisory shootability / Camotion
-suitability / concerns. Shootability is a property of the leg A→B,
+suitability / concerns and per-still semantic travel geometry (travel
+VP / target / heading). That output is stored on the segment Motion Plan
+with CameraMotionPlan and A′/B′. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
 hard gate and not a prediction of whether the stochastic video model
 will succeed. A JourneyShot may progress even when CM reports
-`not_shootable`. Shoot tiles show Stage / Film / Export, with filled clear / hold / no go bands after BLOCK;
+`not_shootable`. Shoot tiles show Stage / Film / Export, with filled clear / hold / no go bands after Plan;
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
 Inspector copy stays
-Ready / Needs review / Not shootable. CM does **not** yet emit CameraMotionPlan, run
-Camotion, or generate video.
+Ready / Needs review / Not shootable. CM does **not** emit CameraMotionPlan JSON
+or generate video; the same assessment turn's travel object is bridged
+deterministically into CameraMotionPlan, then Plan runs Camotion.
 
 The immediate product goal is an end-to-end working filmmaking
 pipeline. Individual components will be tuned through the application

@@ -1,24 +1,28 @@
+import type { CinematographerTravelTarget } from "./assess-journey.ts";
 import { BASELINE_EXPOSURE, BASELINE_FORWARD, type CameraMotionPlanV1 } from "./plan-shot.ts";
 
 /**
- * Narrowest production-safe CameraMotionPlan v1 for Shoot.
+ * Production CameraMotionPlan v1 for Shoot.
  *
- * Production Cinematographer assessment is semantic choreography
- * (route, camera, segmentPromptAddition). It does not emit vanishing
- * points, bboxes, or Camotion strength numbers. The Integration Test 01
- * vision pair planner is research evidence, not this product path.
+ * Cinematographer assessment is semantic choreography, including optional
+ * per-still travel geometry (VP / semantic target / heading). It does not
+ * emit CameraMotionPlan JSON, `forward`, or Camotion strength. A
+ * deterministic bridge (`cameraMotionPlansFromAssessment`) pins
+ * `forward=1.0` and 01.8 STRONG exposure (`0.08` / 16 samples) and
+ * fills vanishing_point / destination from that travel object.
  *
- * Assumption for this PR: centered radial-forward v1 with pinned
- * `forward=1.0` and 01.8 STRONG exposure (`0.08` / 16 samples). The
- * same plan is used for A′ and B′. Strength is not yet chosen from the
- * LIGHT/MEDIUM/STRONG vocabulary here because the production assessment
- * does not carry a numeric strength. Do not treat this as CV measurement
- * or as CM prompt tuning.
+ * `productionCameraMotionPlan` remains the centered fallback when CM
+ * cannot determine a better target for that still. The Integration Test
+ * 01 vision pair planner is research evidence, not this product path.
  */
 export const PRODUCTION_CAMOTION_FORWARD = BASELINE_FORWARD;
 export const PRODUCTION_CAMOTION_EXPOSURE = BASELINE_EXPOSURE;
 export const PRODUCTION_CAMOTION_CENTER = [0.5, 0.5] as const;
 export const PRODUCTION_CAMOTION_BBOX = [0.25, 0.2, 0.75, 0.8] as const;
+/** DATA_MODEL default protect square half-extent around destination.point. */
+export const PRODUCTION_CAMOTION_BBOX_HALF_EXTENT = 0.1;
+const COINCIDENT = 1e-6;
+const VECTOR_NEAR_OFFSET = 0.12;
 
 export function productionCameraMotionPlan(): CameraMotionPlanV1 {
   return {
@@ -36,5 +40,85 @@ export function productionCameraMotionPlan(): CameraMotionPlanV1 {
       strength: PRODUCTION_CAMOTION_EXPOSURE.strength,
       samples: PRODUCTION_CAMOTION_EXPOSURE.samples,
     },
+  };
+}
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
+}
+
+export function protectBboxAround(point: readonly [number, number]): readonly [number, number, number, number] {
+  const half = PRODUCTION_CAMOTION_BBOX_HALF_EXTENT;
+  let left = clamp01(point[0] - half);
+  let top = clamp01(point[1] - half);
+  let right = clamp01(point[0] + half);
+  let bottom = clamp01(point[1] + half);
+  if (!(left < right)) {
+    right = Math.min(1, left + 1e-3);
+    left = Math.max(0, right - 1e-3);
+  }
+  if (!(top < bottom)) {
+    bottom = Math.min(1, top + 1e-3);
+    top = Math.max(0, bottom - 1e-3);
+  }
+  return [left, top, right, bottom];
+}
+
+function nearPointAlongHeading(
+  vanishingPoint: readonly [number, number],
+  vector: readonly [number, number],
+): readonly [number, number] {
+  const length = Math.hypot(vector[0], vector[1]);
+  if (length < COINCIDENT) {
+    return vanishingPoint;
+  }
+  return [
+    clamp01(vanishingPoint[0] - (vector[0] / length) * VECTOR_NEAR_OFFSET),
+    clamp01(vanishingPoint[1] - (vector[1] / length) * VECTOR_NEAR_OFFSET),
+  ];
+}
+
+export function cameraMotionPlanFromTravelTarget(
+  target: CinematographerTravelTarget | undefined,
+): CameraMotionPlanV1 {
+  if (!target) {
+    return productionCameraMotionPlan();
+  }
+  const vanishingPoint = target.vanishingPoint ?? target.destinationPoint ?? PRODUCTION_CAMOTION_CENTER;
+  let destinationPoint = target.destinationPoint ?? target.vanishingPoint ?? PRODUCTION_CAMOTION_CENTER;
+  if (
+    !target.destinationPoint &&
+    target.vector &&
+    Math.hypot(destinationPoint[0] - vanishingPoint[0], destinationPoint[1] - vanishingPoint[1]) < COINCIDENT
+  ) {
+    destinationPoint = nearPointAlongHeading(vanishingPoint, target.vector);
+  }
+  return {
+    version: 1,
+    camera: {
+      vanishing_point: vanishingPoint,
+      forward: PRODUCTION_CAMOTION_FORWARD,
+    },
+    destination: {
+      point: destinationPoint,
+      protect: true,
+      bbox: target.destinationBbox ?? protectBboxAround(destinationPoint),
+    },
+    exposure: {
+      strength: PRODUCTION_CAMOTION_EXPOSURE.strength,
+      samples: PRODUCTION_CAMOTION_EXPOSURE.samples,
+    },
+  };
+}
+
+export function cameraMotionPlansFromAssessment(assessment: {
+  readonly travel?: {
+    readonly start?: CinematographerTravelTarget;
+    readonly end?: CinematographerTravelTarget;
+  };
+}): { readonly start: CameraMotionPlanV1; readonly end: CameraMotionPlanV1 } {
+  return {
+    start: cameraMotionPlanFromTravelTarget(assessment.travel?.start),
+    end: cameraMotionPlanFromTravelTarget(assessment.travel?.end),
   };
 }

@@ -1,6 +1,6 @@
-import { actualFrameForDestination, canAssessJourney } from "./cinematographer";
+import { actualFrameForDestination, canAssessJourney, hasStagedMotionPlan } from "./cinematographer";
 import { videoModelDurationSeconds, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
-import type { JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
+import type { CameraMotionPlanV1, JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
 
 export type ShootJourneyRequest = {
   journeyId: string;
@@ -9,6 +9,11 @@ export type ShootJourneyRequest = {
   segmentPromptAddition: string;
   pace: LocomotionPace;
   videoModel: VideoModelId;
+  startShootingMediaId?: string;
+  endShootingMediaId?: string;
+  startPlan?: CameraMotionPlanV1;
+  endPlan?: CameraMotionPlanV1;
+  effectivePrompt?: string;
   /** When true, Camotion work dirs are kept on disk after A′/B′ are copied. */
   debug?: boolean;
 };
@@ -19,7 +24,7 @@ export type ShootJourneyResponse = {
 };
 
 export function canShootJourney(project: Project, journey: JourneyShot): boolean {
-  if (!journey.cinematographer) {
+  if (!hasStagedMotionPlan(journey)) {
     return false;
   }
   if (journey.status === "shooting") {
@@ -59,7 +64,7 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
   if (!journey) {
     throw new Error("Unknown journey");
   }
-  if (!journey.cinematographer) {
+  if (!hasStagedMotionPlan(journey) || !journey.motionPlan) {
     throw new Error("Stage this journey before generating");
   }
   if (!journey.endDestinationId) {
@@ -74,9 +79,14 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
     journeyId: journey.id,
     startMediaId: start.mediaId,
     endMediaId: end.mediaId,
-    segmentPromptAddition: journey.cinematographer.segmentPromptAddition,
-    pace: journey.cinematographer.pace,
+    segmentPromptAddition: journey.motionPlan.segmentPromptAddition,
+    pace: journey.motionPlan.pace,
     videoModel: project.videoModel,
+    startShootingMediaId: journey.motionPlan.startShootingFrame.mediaId,
+    endShootingMediaId: journey.motionPlan.endShootingFrame.mediaId,
+    startPlan: journey.motionPlan.startPlan,
+    endPlan: journey.motionPlan.endPlan,
+    effectivePrompt: journey.motionPlan.effectivePrompt,
   };
 }
 

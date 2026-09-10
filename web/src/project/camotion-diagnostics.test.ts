@@ -92,4 +92,46 @@ describe("Camotion destination diagnostics", () => {
     expect(formatExposureStrength(0.02)).toBe("0.02 · Light");
     expect(formatPlanPoint([0.5, 0.5])).toBe("0.50, 0.50");
   });
+
+  it("reads Motion Plan A′/B′ before a take exists", () => {
+    const forest = createForestProject();
+    const staged = {
+      ...forest,
+      journeys: forest.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              status: "ready" as const,
+              videoUrl: undefined,
+              motionPlan: {
+                cinematographer: {
+                  shootability: "shootable" as const,
+                  summary: "Forward.",
+                  route: "Forward.",
+                  threshold: "Opening.",
+                  camera: "Track.",
+                  parallax: "Trunks.",
+                  transitionStrategy: "Pass through.",
+                  segmentPromptAddition: "Track forward.",
+                  pace: "fast" as const,
+                  camotionSuitability: "appropriate" as const,
+                  concerns: [],
+                },
+                startShootingFrame: take.startShootingFrame,
+                endShootingFrame: take.endShootingFrame,
+                startPlan: take.startPlan,
+                endPlan: take.endPlan,
+                segmentPromptAddition: "Track forward.",
+                effectivePrompt: "Track forward.",
+                pace: "fast" as const,
+              },
+            }
+          : journey,
+      ),
+    };
+    const a = layoutTimeline(staged.destinations, staged.journeys, 1).occurrences[0]!;
+    const fromA = camotionRecordsForDestination(staged, "A", a.inboundJourneyId, a.outboundJourneyId);
+    expect(fromA).toHaveLength(1);
+    expect(fromA[0]?.shootingFrame).toEqual(take.startShootingFrame);
+  });
 });

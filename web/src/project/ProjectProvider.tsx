@@ -13,9 +13,13 @@ import { directorStoryRequestFromProject, requestDirectorPlan, requestDirectorSt
 import {
   cinematographerRequestFromProject,
   journeysReadyToBlock,
-  projectWithCinematographerAssessment,
   requestCinematographerAssessment,
 } from "./cinematographer";
+import {
+  motionPlanStageRequestFromAssessment,
+  projectWithMotionPlan,
+  requestMotionPlan,
+} from "./motion-plan";
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
@@ -506,11 +510,26 @@ export function ProjectProvider({
       try {
         const request = cinematographerRequestFromProject(current, journeyId);
         const result = await requestCinematographerAssessment(request);
-        const next = projectWithCinematographerAssessment(
-          projectRef.current,
-          journeyId,
-          result.assessment,
+        const staged = await requestMotionPlan(
+          motionPlanStageRequestFromAssessment(
+            journeyId,
+            request.startMediaId,
+            request.endMediaId,
+            result.assessment,
+            debugOnRef.current,
+          ),
         );
+        const next = projectWithMotionPlan(projectRef.current, journeyId, {
+          cinematographer: result.assessment,
+          startShootingFrame: staged.startShootingFrame,
+          endShootingFrame: staged.endShootingFrame,
+          startPlan: staged.startPlan,
+          endPlan: staged.endPlan,
+          segmentPromptAddition: staged.segmentPromptAddition,
+          effectivePrompt: staged.effectivePrompt,
+          pace: staged.pace,
+          camotion: staged.camotion,
+        });
         applyProject(next);
         setConversation((entries) =>
           resolveBlockingEntry(entries, entryId, {

@@ -10,6 +10,31 @@ import { isLocomotionPace, type LocomotionPace } from "./shooting-prompt.ts";
 
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
 export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
+export type CinematographerTravelConfidence = "high" | "medium" | "low";
+
+/**
+ * Semantic travel target in one still. Normalized image coords: (0,0)
+ * top-left, (1,1) bottom-right. Not CameraMotionPlan JSON.
+ */
+export type CinematographerTravelTarget = {
+  readonly vanishingPoint?: readonly [number, number];
+  readonly destinationPoint?: readonly [number, number];
+  readonly destinationBbox?: readonly [number, number, number, number];
+  /** Camera heading in this still, toward the travel target. Not unit-length. */
+  readonly vector?: readonly [number, number];
+  readonly label: string;
+};
+
+/**
+ * Per-segment semantic route geometry from the same CM assessment turn.
+ * A deterministic bridge turns this into CameraMotionPlan v1.
+ */
+export type CinematographerTravel = {
+  readonly start?: CinematographerTravelTarget;
+  readonly end?: CinematographerTravelTarget;
+  readonly direction?: string;
+  readonly confidence: CinematographerTravelConfidence;
+};
 
 export type CinematographerAssessment = {
   readonly shootability: CinematographerShootability;
@@ -23,6 +48,7 @@ export type CinematographerAssessment = {
   readonly pace: LocomotionPace;
   readonly camotionSuitability: CinematographerCamotionSuitability;
   readonly concerns: readonly string[];
+  readonly travel?: CinematographerTravel;
 };
 
 export type CinematographerAssessmentInput = {
@@ -65,6 +91,7 @@ export type CinematographerAssessmentResult = {
 
 const MAX_TEXT = 800;
 const MAX_CONCERNS = 8;
+const COINCIDENT = 1e-6;
 const SHOOTABILITY = new Set<CinematographerShootability>([
   "shootable",
   "needs_review",
@@ -75,6 +102,7 @@ const CAMOTION = new Set<CinematographerCamotionSuitability>([
   "poor_fit",
   "uncertain",
 ]);
+const TRAVEL_CONFIDENCE = new Set<CinematographerTravelConfidence>(["high", "medium", "low"]);
 
 export function buildCinematographerAssessmentRequest(
   input: CinematographerAssessmentInput,
@@ -140,6 +168,119 @@ function asPace(value: unknown): LocomotionPace {
   return value;
 }
 
+function optionalUnitNumber(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1) {
+    return undefined;
+  }
+  return value;
+}
+
+function optionalUnitPoint(value: unknown): readonly [number, number] | undefined {
+  if (!Array.isArray(value) || value.length !== 2) {
+    return undefined;
+  }
+  const x = optionalUnitNumber(value[0]);
+  const y = optionalUnitNumber(value[1]);
+  if (x === undefined || y === undefined) {
+    return undefined;
+  }
+  return [x, y];
+}
+
+function optionalBBox(value: unknown): readonly [number, number, number, number] | undefined {
+  if (!Array.isArray(value) || value.length !== 4) {
+    return undefined;
+  }
+  const left = optionalUnitNumber(value[0]);
+  const top = optionalUnitNumber(value[1]);
+  const right = optionalUnitNumber(value[2]);
+  const bottom = optionalUnitNumber(value[3]);
+  if (
+    left === undefined ||
+    top === undefined ||
+    right === undefined ||
+    bottom === undefined ||
+    !(left < right) ||
+    !(top < bottom)
+  ) {
+    return undefined;
+  }
+  return [left, top, right, bottom];
+}
+
+function optionalVector(value: unknown): readonly [number, number] | undefined {
+  if (!Array.isArray(value) || value.length !== 2) {
+    return undefined;
+  }
+  const x = value[0];
+  const y = value[1];
+  if (typeof x !== "number" || typeof y !== "number" || !Number.isFinite(x) || !Number.isFinite(y)) {
+    return undefined;
+  }
+  if (Math.hypot(x, y) < COINCIDENT) {
+    return undefined;
+  }
+  return [x, y];
+}
+
+function optionalLabel(value: unknown): string {
+  if (typeof value !== "string") {
+    return "travel target";
+  }
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > MAX_TEXT) {
+    return "travel target";
+  }
+  return trimmed;
+}
+
+function parseTravelTarget(value: unknown): CinematographerTravelTarget | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+  const record = value as Record<string, unknown>;
+  const vanishingPoint = optionalUnitPoint(record.vanishingPoint);
+  const destinationPoint = optionalUnitPoint(record.destinationPoint);
+  if (!vanishingPoint && !destinationPoint) {
+    return undefined;
+  }
+  const destinationBbox = optionalBBox(record.destinationBbox);
+  const vector = optionalVector(record.vector);
+  return {
+    ...(vanishingPoint ? { vanishingPoint } : {}),
+    ...(destinationPoint ? { destinationPoint } : {}),
+    ...(destinationBbox ? { destinationBbox } : {}),
+    ...(vector ? { vector } : {}),
+    label: optionalLabel(record.label),
+  };
+}
+
+function parseTravel(value: unknown): CinematographerTravel | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+  const record = value as Record<string, unknown>;
+  const start = parseTravelTarget(record.start);
+  const end = parseTravelTarget(record.end);
+  if (!start && !end) {
+    return undefined;
+  }
+  const direction =
+    typeof record.direction === "string" && record.direction.trim() && record.direction.trim().length <= MAX_TEXT
+      ? record.direction.trim()
+      : undefined;
+  const confidence =
+    typeof record.confidence === "string" && TRAVEL_CONFIDENCE.has(record.confidence as CinematographerTravelConfidence)
+      ? (record.confidence as CinematographerTravelConfidence)
+      : "medium";
+  return {
+    ...(start ? { start } : {}),
+    ...(end ? { end } : {}),
+    ...(direction ? { direction } : {}),
+    confidence,
+  };
+}
+
 export function parseCinematographerAssessment(text: string): CinematographerAssessment {
   const raw = parseJsonObject(text);
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -162,6 +303,7 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     throw new MediaGenerationError("generation_failed", "Cinematographer returned too many concerns");
   }
   const concerns = record.concerns.map((item, index) => asNonEmptyString(item, `concerns[${index}]`));
+  const travel = parseTravel(record.travel);
   return {
     shootability: record.shootability as CinematographerShootability,
     summary: asNonEmptyString(record.summary, "summary"),
@@ -174,6 +316,7 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     pace: asPace(record.pace),
     camotionSuitability: record.camotionSuitability as CinematographerCamotionSuitability,
     concerns,
+    ...(travel ? { travel } : {}),
   };
 }
 

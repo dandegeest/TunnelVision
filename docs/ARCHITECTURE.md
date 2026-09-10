@@ -123,16 +123,15 @@ session/dev-runtime trusted media. A following beat's visual description is
 demoted far-field continuity after this destination and the camera move from
 the source still; the last beat has no look-ahead. Later beats stay planned until
 explicitly constructed. A thin Cinematographer assessment inspects
-two actual canonical stills for one JourneyShot and stores
-segment-specific camera choreography on that leg, including a
-`segmentPromptAddition` that later leads the frozen
+two actual canonical stills for one JourneyShot. Plan on MOTION stores
+that choreography on a per-segment Motion Plan together with CameraMotionPlan
+v1 derived from the same assessment's travel geometry, Camotion A′/B′, and `segmentPromptAddition` that later leads the frozen
 locomotion baseline. Shootability remains advisory; it does not
 gate JourneyShot status. Shoot is a production view of the current
 Project: consecutive actual adjacent storyboard canonicals become
 Destinations and JourneyShots on that same Project. There is no
-cloned Shoot model. SHOOT on a blocked JourneyShot renders Camotion
-A′/B′ from a deterministic CameraMotionPlan v1 bridge, composes the
-frozen locomotion prompt, and generates a development clip. The current
+cloned Shoot model. Generate on FOOTAGE uses the staged Motion Plan's
+A′/B′, composes the frozen locomotion prompt, and generates a development clip. The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
 A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
 is not this path. Discovery, and

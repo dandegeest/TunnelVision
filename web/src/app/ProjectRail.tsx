@@ -15,7 +15,6 @@ import {
   isVideoModelId,
   videoModelMenuLabel,
 } from "../../../media/src/replicate/video-models.ts";
-import { TechnicalPanel } from "./TechnicalPanel";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { projectRailOpen, setProjectRailOpen } = useProject();
@@ -202,6 +201,95 @@ function StoryDurationField({
   );
 }
 
+function DebugButton() {
+  const { debugOn, setDebugOn } = useProject();
+  return (
+    <button
+      type="button"
+      aria-pressed={debugOn}
+      aria-label="Debug"
+      title={
+        debugOn
+          ? "Debug is on. Camotion work dirs are kept. Asset paths are under Technical in the Shoot inspector."
+          : "Show session asset paths under Technical in the Shoot inspector and keep Camotion work dirs."
+      }
+      onClick={() => setDebugOn(!debugOn)}
+      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded border outline-none ${
+        debugOn
+          ? "border-[#ece7df] text-[#ece7df]"
+          : "border-[#3a342c] text-[#9a8f7e] hover:border-[#7a7266] hover:text-[#cfc6b8]"
+      }`}
+    >
+      <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+        <circle cx="6" cy="6" r="1.7" fill="none" stroke="currentColor" strokeWidth="1.3" />
+        <path
+          d="M6 1.15v1.45M6 9.4v1.45M1.15 6h1.45M9.4 6h1.45M2.55 2.55l1.05 1.05M8.4 8.4l1.05 1.05M2.55 9.45l1.05-1.05M8.4 3.6l1.05-1.05"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function AgencySelect() {
+  const { project, setAgency } = useProject();
+  const optionClass = (selected: boolean) =>
+    `h-full flex-1 rounded px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
+      selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
+    }`;
+  return (
+    <nav aria-label="Agency" className="flex h-7 w-full items-center rounded border border-[#3a342c] p-0.5">
+      <button
+        type="button"
+        aria-pressed={project.agency === "directed"}
+        className={optionClass(project.agency === "directed")}
+        onClick={() => setAgency("directed")}
+      >
+        Directed
+      </button>
+      <button
+        type="button"
+        aria-pressed={project.agency === "autonomous"}
+        className={optionClass(project.agency === "autonomous")}
+        onClick={() => setAgency("autonomous")}
+      >
+        Autonomous
+      </button>
+    </nav>
+  );
+}
+
+function VideoModelSelect({ disabled }: { disabled: boolean }) {
+  const { project, setVideoModel } = useProject();
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Video</span>
+      <select
+        aria-label="Video model"
+        title="Used for every SHOOT in this project. Pruna is the development default."
+        disabled={disabled}
+        className="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
+        value={project.videoModel}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (isVideoModelId(next)) {
+            setVideoModel(next);
+          }
+        }}
+      >
+        {VIDEO_MODELS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {videoModelMenuLabel(option)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 export function journeyStageLabel(journeyId: string): string {
   return journeyId.replaceAll("-", "→");
 }
@@ -239,7 +327,6 @@ export function ProjectRail() {
     setAutoGenerateAllDestinations,
     setAutoBlockShots,
     setAutoShoot,
-    setVideoModel,
     directorStatus,
     planStartError,
     startingFrameError,
@@ -294,6 +381,7 @@ export function ProjectRail() {
             {planStartError}
           </p>
         ) : null}
+        <AgencySelect />
         <label className="sr-only" htmlFor="project-story">
           Journey story
         </label>
@@ -312,28 +400,7 @@ export function ProjectRail() {
           onCommit={setStoryDurationInput}
           onNudge={nudgeStoryDuration}
         />
-        <label className="flex flex-col gap-1.5">
-          <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Video</span>
-          <select
-            aria-label="Video model"
-            title="Used for every SHOOT in this project. Pruna is the development default."
-            disabled={busy}
-            className="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
-            value={project.videoModel}
-            onChange={(event) => {
-              const next = event.target.value;
-              if (isVideoModelId(next)) {
-                setVideoModel(next);
-              }
-            }}
-          >
-            {VIDEO_MODELS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {videoModelMenuLabel(option)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <VideoModelSelect disabled={busy} />
         <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
           <input
             type="checkbox"
@@ -419,7 +486,9 @@ export function ProjectRail() {
                         : "DIRECT asks the Director to fill unspecified beats."}
           </p>
         ) : null}
-        <TechnicalPanel />
+      </div>
+      <div className="flex shrink-0 items-center justify-end px-3 pb-3">
+        <DebugButton />
       </div>
     </aside>
   );

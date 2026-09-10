@@ -65,67 +65,12 @@ function ViewSwitch() {
   );
 }
 
-function DebugButton() {
-  const { debugOn, setDebugOn } = useProject();
-  return (
-    <button
-      type="button"
-      aria-pressed={debugOn}
-      aria-label="Debug"
-      title={
-        debugOn
-          ? "Debug is on. Camotion work dirs are kept. Asset paths are under Technical."
-          : "Show session asset paths under Technical and keep Camotion work dirs."
-      }
-      onClick={() => setDebugOn(!debugOn)}
-      className={`h-7 shrink-0 rounded border px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
-        debugOn
-          ? "border-[#ece7df] text-[#ece7df]"
-          : "border-[#3a342c] text-[#9a8f7e] hover:border-[#7a7266] hover:text-[#cfc6b8]"
-      }`}
-    >
-      Debug
-    </button>
-  );
-}
-
-function AgencySelect() {
-  const { project, setAgency } = useProject();
-  const optionClass = (selected: boolean) =>
-    `h-full rounded px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
-      selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
-    }`;
-  return (
-    <nav aria-label="Agency" className="flex h-7 shrink-0 items-center rounded border border-[#3a342c] p-0.5">
-      <button
-        type="button"
-        aria-pressed={project.agency === "directed"}
-        className={optionClass(project.agency === "directed")}
-        onClick={() => setAgency("directed")}
-      >
-        Directed
-      </button>
-      <button
-        type="button"
-        aria-pressed={project.agency === "autonomous"}
-        className={optionClass(project.agency === "autonomous")}
-        onClick={() => setAgency("autonomous")}
-      >
-        Autonomous
-      </button>
-    </nav>
-  );
-}
-
 export function WorkspaceToolbar({ leading }: { leading?: ReactNode } = {}) {
   return (
     <div className="workspace-toolbar grid min-w-0 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
       <div className="min-w-0">{leading}</div>
       <ViewSwitch />
-      <div className="flex min-w-0 items-center justify-end gap-2 overflow-hidden">
-        <DebugButton />
-        <AgencySelect />
-      </div>
+      <div className="min-w-0" />
     </div>
   );
 }

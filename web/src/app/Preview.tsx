@@ -180,6 +180,7 @@ export function Preview() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [overlay, setOverlay] = useState(true);
   const [layers, setLayers] = useState<OverlayLayers>(DEFAULT_OVERLAY_LAYERS);
+  const [motionMode, setMotionMode] = useState<"canonical" | "primed">("canonical");
   const layout = layoutShootTimeline(project, 1);
 
   const selectedJourney =
@@ -222,7 +223,8 @@ export function Preview() {
   const destinationKey =
     selection.kind === "destination" ? `${selection.destinationId}:${selection.occurrenceIndex}` : "";
   const take = selectedJourney?.take;
-  const showMotionOverlay = showMotion && Boolean(take);
+  const motionSource = selectedJourney?.motionPlan ?? take;
+  const showMotionOverlay = showMotion && Boolean(motionSource);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -268,7 +270,19 @@ export function Preview() {
 
   return (
     <section className="flex h-full min-h-0 flex-col gap-1.5 overflow-hidden bg-black p-2">
-      <PreviewHeader title={title} />
+      <PreviewHeader
+        title={title}
+        trailing={
+          showMotion && selectedJourney && startDestination && endDestination && motionSource ? (
+            <CamotionFrameSwitch
+              destinationLabel={`${startDestination.label}|${endDestination.label}`}
+              primedLabel={`${startDestination.label}′|${endDestination.label}′`}
+              mode={motionMode}
+              onChange={setMotionMode}
+            />
+          ) : undefined
+        }
+      />
       <PreviewMonitor pair={showStills}>
         {showVideo && selectedJourney?.videoUrl ? (
           <video
@@ -300,11 +314,19 @@ export function Preview() {
           <JourneyCanonicalPair
             journeyId={selectedJourney.id}
             startLabel={startDestination.label}
-            startImage={startDestination.image}
+            startImage={
+              motionMode === "primed" && motionSource
+                ? motionSource.startShootingFrame.imageUrl
+                : startDestination.image
+            }
             endLabel={endDestination.label}
-            endImage={endDestination.image}
-            startPlan={take?.startPlan ?? null}
-            endPlan={take?.endPlan ?? null}
+            endImage={
+              motionMode === "primed" && motionSource
+                ? motionSource.endShootingFrame.imageUrl
+                : endDestination.image
+            }
+            startPlan={motionSource?.startPlan ?? null}
+            endPlan={motionSource?.endPlan ?? null}
             overlay={overlay && showMotionOverlay}
             layers={layers}
           />

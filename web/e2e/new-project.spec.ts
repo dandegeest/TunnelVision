@@ -50,6 +50,21 @@ const CM_ASSESSMENT = {
   pace: "fast",
   camotionSuitability: "appropriate",
   concerns: [],
+  travel: {
+    start: {
+      vanishingPoint: [0.62, 0.41],
+      destinationPoint: [0.62, 0.41],
+      vector: [0.08, -0.42],
+      label: "corridor mouth left of center",
+    },
+    end: {
+      vanishingPoint: [0.71, 0.36],
+      destinationPoint: [0.71, 0.36],
+      label: "same corridor, now right of center",
+    },
+    direction: "forward through the left-of-center opening as the corridor bends right",
+    confidence: "high",
+  },
 };
 
 async function mockProviderBoundaries(page: Page) {
@@ -170,7 +185,7 @@ async function mockProviderBoundaries(page: Page) {
     });
   });
 
-  await page.route("**/api/journey/shoot", async (route) => {
+  await page.route("**/api/journey/motion-plan", async (route) => {
     if (route.request().method() !== "POST") {
       await route.fallback();
       return;
@@ -181,11 +196,67 @@ async function mockProviderBoundaries(page: Page) {
       endMediaId: string;
       segmentPromptAddition: string;
       pace: string;
-      videoModel: string;
+      startPlan?: {
+        camera: { vanishing_point: number[] };
+      };
+      endPlan?: {
+        camera: { vanishing_point: number[] };
+      };
     };
     expect(request.journeyId).toBe("A-B");
     expect(request.startMediaId).toMatch(/^upload-/);
     expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
+    expect(request.segmentPromptAddition).toBe(CM_ASSESSMENT.segmentPromptAddition);
+    expect(request.pace).toBe(CM_ASSESSMENT.pace);
+    expect(request.startPlan?.camera.vanishing_point).toEqual([0.62, 0.41]);
+    expect(request.endPlan?.camera.vanishing_point).toEqual([0.71, 0.36]);
+    const effectivePrompt = composeShootingPrompt(
+      locomotionBaseline("fast"),
+      request.segmentPromptAddition,
+    );
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        startShootingFrame: {
+          mediaId: SHOOTING_A_PRIME.mediaId,
+          imageUrl: SHOOTING_A_PRIME.imageUrl,
+        },
+        endShootingFrame: {
+          mediaId: SHOOTING_B_PRIME.mediaId,
+          imageUrl: SHOOTING_B_PRIME.imageUrl,
+        },
+        startPlan: request.startPlan,
+        endPlan: request.endPlan,
+        segmentPromptAddition: request.segmentPromptAddition,
+        effectivePrompt,
+        pace: request.pace,
+      }),
+    });
+  });
+
+  await page.route("**/api/journey/shoot", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.fallback();
+      return;
+    }
+    const request = route.request().postDataJSON() as {
+      journeyId: string;
+      startMediaId: string;
+      endMediaId: string;
+      startShootingMediaId: string;
+      endShootingMediaId: string;
+      segmentPromptAddition: string;
+      pace: string;
+      videoModel: string;
+      startPlan?: unknown;
+      endPlan?: unknown;
+    };
+    expect(request.journeyId).toBe("A-B");
+    expect(request.startMediaId).toMatch(/^upload-/);
+    expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
+    expect(request.startShootingMediaId).toBe(SHOOTING_A_PRIME.mediaId);
+    expect(request.endShootingMediaId).toBe(SHOOTING_B_PRIME.mediaId);
     expect(request.segmentPromptAddition).toBe(CM_ASSESSMENT.segmentPromptAddition);
     expect(request.pace).toBe(CM_ASSESSMENT.pace);
     expect(request.videoModel).toBe("pruna-p-video");
@@ -208,18 +279,8 @@ async function mockProviderBoundaries(page: Page) {
             mediaId: SHOOTING_B_PRIME.mediaId,
             imageUrl: SHOOTING_B_PRIME.imageUrl,
           },
-          startPlan: {
-            version: 1,
-            camera: { vanishing_point: [0.5, 0.5], forward: 1 },
-            destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
-            exposure: { strength: 0.08, samples: 16 },
-          },
-          endPlan: {
-            version: 1,
-            camera: { vanishing_point: [0.5, 0.5], forward: 1 },
-            destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
-            exposure: { strength: 0.08, samples: 16 },
-          },
+          startPlan: request.startPlan,
+          endPlan: request.endPlan,
           segmentPromptAddition: request.segmentPromptAddition,
           effectivePrompt,
           pace: request.pace,
@@ -259,6 +320,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
   await expect(page.getByLabel("Generate destination A")).toHaveCount(0);
   await expect(page.getByLabel("Direct movie")).toBeDisabled();
+  await expect(page.getByLabel("Debug")).toBeVisible();
+  await expect(page.getByLabel("Agency")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeDisabled();
   await expect(page.getByLabel("Auto blocking")).not.toBeChecked();
@@ -409,12 +472,18 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   const journeyInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A-B" }) });
   await expect(journeyInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
   await expect(page.getByLabel("Motion A-B")).toBeVisible();
-  await expect(page.getByText("Blocked", { exact: true })).toBeVisible();
+  await expect(page.getByText("Motion Plan", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toHaveCount(1);
   await journeyInspector.locator("summary", { hasText: "Shot" }).click();
   await expect(journeyInspector.getByText("Advance from the current volume into the next.")).toBeVisible();
   await expect(journeyInspector.getByText("Track forward through the visible opening into the next volume.")).toBeVisible();
+  await expect(journeyInspector.getByText("corridor mouth left of center (0.62, 0.41)")).toBeVisible();
+  await expect(journeyInspector.getByText("forward through the left-of-center opening as the corridor bends right")).toBeVisible();
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Destination A", exact: true }).click();
+  await expect(page.locator(".camotion-overlay")).toBeVisible();
+  await expect(page.locator('[data-vanishing-point="0.62,0.41"]')).toBeVisible();
+  await page.getByLabel("Motion A-B").click();
 
   await page.getByRole("button", { name: "Generate A-B", exact: true }).click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
@@ -447,9 +516,12 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByLabel("Preview video")).toHaveCount(0);
-  await expect(page.getByText("Canonical A")).toBeVisible();
+  await expect(page.getByText("Canonical A", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Toggle overlay")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".camotion-overlay")).toBeVisible();
+  await expect(page.locator('[data-vanishing-point="0.62,0.41"]')).toBeVisible();
+  await expect(page.locator("[data-overlay-halo]").first()).toBeAttached();
+  await expect(page.locator('[data-overlay-label="vp"]')).toBeVisible();
   await expect(page.getByLabel("Travel path")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Camotion direction")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Motion points")).toHaveAttribute("aria-pressed", "true");
@@ -464,7 +536,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(destInspector.getByLabel("Camotion diagnostic")).toBeVisible();
   await expect(destInspector.getByText("A′ · A-B start′")).toBeVisible();
   await expect(destInspector.getByText("Vanishing point.")).toBeVisible();
-  await expect(destInspector.getByText("0.50, 0.50").first()).toBeVisible();
+  await expect(destInspector.getByText("0.62, 0.41").first()).toBeVisible();
   await expect(destInspector.getByText("0.08 · Strong")).toBeVisible();
   await page.getByLabel("Preview A′").click();
   await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "true");
@@ -474,7 +546,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByRole("button", { name: "Destination C", exact: true }).click();
   await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Preview C′")).toBeVisible();
-  await expect(page.getByText("Canonical C")).toBeVisible();
+  await expect(page.getByText("Canonical C", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Toggle overlay")).toHaveCount(0);
   const destCInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "C", exact: true }) });
   await expect(destCInspector.getByText("No Camotion data for this destination")).toBeVisible();

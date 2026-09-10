@@ -112,7 +112,11 @@ export {
 } from "./cinematographer/plan-shot.ts";
 export type { CameraMotionPlanV1, ShotMotionPlans } from "./cinematographer/plan-shot.ts";
 export {
+  cameraMotionPlanFromTravelTarget,
+  cameraMotionPlansFromAssessment,
   productionCameraMotionPlan,
+  protectBboxAround,
+  PRODUCTION_CAMOTION_BBOX_HALF_EXTENT,
   PRODUCTION_CAMOTION_EXPOSURE,
   PRODUCTION_CAMOTION_FORWARD,
 } from "./cinematographer/camera-motion-plan.ts";
@@ -128,6 +132,9 @@ export type {
   CinematographerAssessmentResult,
   CinematographerCamotionSuitability,
   CinematographerShootability,
+  CinematographerTravel,
+  CinematographerTravelConfidence,
+  CinematographerTravelTarget,
 } from "./cinematographer/assess-journey.ts";
 export {
   CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,

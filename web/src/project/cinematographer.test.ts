@@ -72,7 +72,7 @@ describe("Cinematographer actual-set assessment", () => {
       journeysReadyToBlock(projectWithCinematographerAssessment(project, "A-B", shootableAB)).some(
         (journey) => journey.id === "A-B",
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("posts trusted media identities rather than filesystem paths", async () => {

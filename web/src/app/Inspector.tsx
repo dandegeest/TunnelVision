@@ -7,7 +7,7 @@ import {
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
-import { canAssessJourney, cinematographerShootabilityLabel, locomotionPaceLabel } from "../project/cinematographer";
+import { canAssessJourney, cinematographerShootabilityLabel, cinematographerTravelConfidenceLabel, locomotionPaceLabel } from "../project/cinematographer";
 import { canReshootDestinationFrame } from "../project/destination";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake } from "../project/types";
@@ -15,7 +15,7 @@ import { layoutShootTimeline } from "../timeline/shoot-layout";
 import { DestinationPlanFields } from "./PlanView";
 import { TechnicalPanel } from "./TechnicalPanel";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
-import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
+import { camotionRecordsForDestination, camotionRecordsForJourney, formatPlanPoint } from "../project/camotion-diagnostics";
 
 export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
   const { inspectorOpen, setInspectorOpen } = useProject();
@@ -187,9 +187,10 @@ export function Inspector() {
   }
 
   const playable = journeyIsPlayable(journey);
-  const assessment = journey.cinematographer;
+  const assessment = journey.motionPlan?.cinematographer ?? journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
   const take = journey.take;
+  const motionSource = journey.motionPlan ?? journey.take;
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
   const endDestination = journey.endDestinationId
     ? destinationById(project.destinations, journey.endDestinationId)
@@ -234,10 +235,10 @@ export function Inspector() {
       ) : null}
       {motion ? (
         <>
-          <p>Status: {journey.cinematographer ? "Film" : "Stage"}</p>
+          <p>Status: {assessment ? "Film" : "Stage"}</p>
           {assessment ? (
             <>
-              <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Blocked</p>
+              <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Motion Plan</p>
               <CinematographerLegDetail assessment={assessment} />
             </>
           ) : (
@@ -257,6 +258,30 @@ export function Inspector() {
               {cinematographerError}
             </p>
           ) : null}
+          {motionSource ? (
+            <div className="grid grid-cols-2 gap-2">
+              <figure className="min-w-0">
+                <img
+                  src={motionSource.startShootingFrame.imageUrl}
+                  alt={`${journey.id} start shooting frame`}
+                  className="media-contain aspect-video w-full rounded"
+                />
+                <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+                  Start′
+                </figcaption>
+              </figure>
+              <figure className="min-w-0">
+                <img
+                  src={motionSource.endShootingFrame.imageUrl}
+                  alt={`${journey.id} end shooting frame`}
+                  className="media-contain aspect-video w-full rounded"
+                />
+                <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+                  End′
+                </figcaption>
+              </figure>
+            </div>
+          ) : null}
           <CamotionDiagnosticPanel records={motionRecords} emptyCopy="No Camotion data for this traversal." />
         </>
       ) : (
@@ -275,6 +300,15 @@ export function Inspector() {
       <TechnicalPanel />
     </InspectorShell>
   );
+}
+
+function travelTargetCopy(target: NonNullable<CinematographerAssessment["travel"]>["start"]): string {
+  if (!target) {
+    return "";
+  }
+  const point = target.vanishingPoint ?? target.destinationPoint;
+  const coords = point ? formatPlanPoint(point) : undefined;
+  return coords ? `${target.label} (${coords})` : target.label;
 }
 
 function CinematographerLegDetail({
@@ -326,6 +360,32 @@ function CinematographerLegDetail({
             <span className="text-[#9a8f7e]">Geometry. </span>
             {assessment.parallax}
           </p>
+          {assessment.travel ? (
+            <>
+              {assessment.travel.direction ? (
+                <p>
+                  <span className="text-[#9a8f7e]">Travel. </span>
+                  {assessment.travel.direction}
+                </p>
+              ) : null}
+              {assessment.travel.start ? (
+                <p>
+                  <span className="text-[#9a8f7e]">Start target. </span>
+                  {travelTargetCopy(assessment.travel.start)}
+                </p>
+              ) : null}
+              {assessment.travel.end ? (
+                <p>
+                  <span className="text-[#9a8f7e]">End target. </span>
+                  {travelTargetCopy(assessment.travel.end)}
+                </p>
+              ) : null}
+              <p>
+                <span className="text-[#9a8f7e]">Travel confidence. </span>
+                {cinematographerTravelConfidenceLabel(assessment.travel.confidence)}
+              </p>
+            </>
+          ) : null}
           <p>
             <span className="text-[#9a8f7e]">Camotion. </span>
             {suitability}

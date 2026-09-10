@@ -189,24 +189,25 @@ Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
 Project. Plan lives on the MOTION band and Generate on the FOOTAGE band;
 Generate stays Generate after a clip exists. Each interval is two stacked
-bands under the destination rail: MOTION (A|B stills and Camotion) and
+bands under the destination rail: MOTION (the stored A→B Motion Plan) and
 FOOTAGE (the generated take). Canonicals remain clickable places above
 those bands. When only A is actual, Shoot still shows A and an FPO B
 that opens Plan on B. Band labels are MOTION and FOOTAGE only. Plan on MOTION runs the existing
-Cinematographer assessment through `ReasoningProvider` and stores
-segment-specific camera choreography on that JourneyShot, including
-`segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
-`moderate` / `fast` / `hyperspeed` / `variable`). While Plan is running, that MOTION band
+Cinematographer assessment through `ReasoningProvider`, including semantic travel
+geometry in that same JSON, derives CameraMotionPlan
+v1 from it (`cameraMotionPlansFromAssessment`; centered fallback only when a
+still has no usable target), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
+on that JourneyShot, including `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
+`moderate` / `fast` / `hyperspeed` / `variable`). Restaging one segment does not
+alter neighboring Motion Plans. While Plan is running, that MOTION band
 shows a progress spinner. Shootability remains advisory and does not
-gate JourneyShot status. SHOOT on a blocked leg derives a deterministic
-CameraMotionPlan v1 (centered radial-forward, pinned `forward=1.0` and
-01.8 exposure), renders A′ and B′ through the frozen Camotion CLI,
-fills `{pace}` in `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`, concatenates
-`segmentPromptAddition` first, then the filled baseline,
-via `composeShootingPrompt`, and generates video through MediaProvider.
+gate JourneyShot status. Generate on FOOTAGE uses the staged A′/B′ and
+composed prompt (`segmentPromptAddition` first, then the filled baseline via
+`composeShootingPrompt`) and generates video through MediaProvider.
 The current development model is `prunaai/p-video` (A′ as `image`, B′ as
 `last_frame_image`) unless the Project panel Video control selects another
-catalog generator. The assessment does not emit CameraMotionPlan.
+catalog generator. The assessment does not emit CameraMotionPlan JSON;
+Camotion only executes the derived plan.
 The running application
 initializes a new untitled project: unresolved opening frame A, empty
 story, no destinations or journeys. Forest A→F remains research
@@ -254,8 +255,8 @@ Aspect warnings appear on the affected thumbnail; media facts appear
 on the selected storyboard still, including generated images, not as a
 global diagnostic banner. 16:9 tiles stay fixed;
 source stills are contained (letterboxed or pillarboxed), not
-stretched or cropped to fill. Debug is a session header
-toggle and is on by default for now; Technical lists session asset
+stretched or cropped to fill. Debug is a session
+gear at the bottom right of the Project panel and is on by default for now; Technical in the Shoot inspector lists session asset
 paths, and Camotion work dirs are kept only while Debug is on. Destination actions live in
 the destination menu, including Reshoot for generated stills. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
@@ -265,8 +266,9 @@ and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
 intent as readable text until an image exists. The
 filmmaking conversation rail is history-only and can be hidden to the
-left; the Project panel holds journey story, destination count,
-auto-generate-A, auto-generate-all, auto-block, auto-shoot, and DIRECT and can hide to the right. The Shoot inspector can hide to a reopen strip. That visibility is session UI, not project persistence, and
+left; the Project panel holds Directed / Autonomous, journey story, destination count,
+Video model, auto-generate-A, auto-generate-all, auto-block, auto-shoot, and DIRECT
+and can hide to the right. Helper copy sits directly under DIRECT. The Shoot inspector can hide to a reopen strip. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is
@@ -1231,9 +1233,11 @@ next experiment here.
 
 Open question: module boundaries. Current product CM inspects actual
 adjacent stills and stores semantic choreography plus
-`segmentPromptAddition` and `pace` on the JourneyShot. `{pace}` fills
+`segmentPromptAddition`, `pace`, and optional `travel` geometry on the
+JourneyShot. `{pace}` fills
 the frozen locomotion baseline. It does **not** emit
-ShotPlan, CameraMotionPlan, or video. Integration Test 01 used a
+ShotPlan, CameraMotionPlan JSON, or video; a deterministic bridge
+turns `travel` into CameraMotionPlan v1. Integration Test 01 used a
 separate thin pair planner in `media/src/cinematographer/plan-shot.ts`
 against actual stills; do not expand that planner into a product
 package in this checkpoint. The later intended path is: inspect

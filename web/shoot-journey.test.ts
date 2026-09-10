@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { locomotionBaseline, composeShootingPrompt } from "../media/src/cinematographer/shooting-prompt.ts";
 import { productionCameraMotionPlan } from "../media/src/cinematographer/camera-motion-plan.ts";
-import { shootPreparedJourney, videoModelIdFromBody } from "./shoot-journey.ts";
+import { shootPreparedJourney, stagePreparedMotionPlan, videoModelIdFromBody } from "./shoot-journey.ts";
 import {
   createRuntimeMediaRegistry,
   setActiveRuntimeMediaRegistry,
@@ -127,6 +127,115 @@ describe("shootPreparedJourney", () => {
     expect(duration).toBe(5);
     expect(take.durationSeconds).toBe(5);
     expect(take.model).toBe("luma/ray-flash-2-720p");
+  });
+
+  it("stages A′/B′ without generating video", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const addition = "Track forward through the visible opening into the next volume.";
+    const staged = await stagePreparedMotionPlan({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        segmentPromptAddition: addition,
+        pace: "slow",
+      },
+      renderFrame: async () => PNG,
+    });
+    expect(staged.effectivePrompt.startsWith(addition)).toBe(true);
+    expect(staged.startShootingFrame.mediaId).not.toBe(staged.endShootingFrame.mediaId);
+    expect(registry.get(staged.startShootingFrame.mediaId)?.filePath).toBeDefined();
+  });
+
+  it("renders A′/B′ with the supplied per-segment CameraMotionPlans", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-plans-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const startPlan = {
+      version: 1 as const,
+      camera: { vanishing_point: [0.62, 0.41] as const, forward: 1 },
+      destination: { point: [0.62, 0.41] as const, protect: true, bbox: [0.52, 0.31, 0.72, 0.51] as const },
+      exposure: { strength: 0.08, samples: 16 },
+    };
+    const endPlan = {
+      version: 1 as const,
+      camera: { vanishing_point: [0.71, 0.36] as const, forward: 1 },
+      destination: { point: [0.71, 0.36] as const, protect: true, bbox: [0.61, 0.26, 0.81, 0.46] as const },
+      exposure: { strength: 0.08, samples: 16 },
+    };
+    const used: unknown[] = [];
+    const staged = await stagePreparedMotionPlan({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        segmentPromptAddition: "Track forward through the visible opening into the next volume.",
+        pace: "fast",
+        startPlan,
+        endPlan,
+      },
+      renderFrame: async (_imagePath, plan) => {
+        used.push(plan);
+        return PNG;
+      },
+    });
+    expect(used).toEqual([startPlan, endPlan]);
+    expect(staged.startPlan).toEqual(startPlan);
+    expect(staged.endPlan).toEqual(endPlan);
+  });
+
+  it("films staged A′/B′ without rendering Camotion again", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-staged-shoot-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const primedStart = registry.register(PNG, "image/png");
+    const primedEnd = registry.register(PNG, "image/png");
+    const rendered: string[] = [];
+    const addition = "Track forward through the visible opening into the next volume.";
+    const take = await shootPreparedJourney({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        startShootingMediaId: primedStart.mediaId,
+        endShootingMediaId: primedEnd.mediaId,
+        segmentPromptAddition: addition,
+        pace: "slow",
+        effectivePrompt: composeShootingPrompt(locomotionBaseline("slow"), addition),
+      },
+      renderFrame: async (imagePath) => {
+        rendered.push(imagePath);
+        return PNG;
+      },
+      generateVideo: async (request) => {
+        expect(request.startImage.kind === "file" ? request.startImage.path : undefined).toBe(primedStart.filePath);
+        expect(request.endImage?.kind === "file" ? request.endImage.path : undefined).toBe(primedEnd.filePath);
+        return {
+          provider: "replicate",
+          model: "prunaai/p-video",
+          modelVersion: "test",
+          predictionId: "pred-staged",
+          status: "succeeded",
+          outputUrl: "https://example.test/staged.mp4",
+          metadata: {},
+          startedAt: "2026-09-10T00:00:00.000Z",
+          completedAt: "2026-09-10T00:00:06.000Z",
+          elapsedMs: 6000,
+        };
+      },
+    });
+    expect(rendered).toEqual([]);
+    expect(take.startShootingFrame.mediaId).toBe(primedStart.mediaId);
+    expect(take.endShootingFrame.mediaId).toBe(primedEnd.mediaId);
+    expect(take.videoUrl).toBe("https://example.test/staged.mp4");
   });
 
   it("accepts a catalog video model id or Replicate slug", () => {

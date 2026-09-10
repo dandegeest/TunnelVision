@@ -72,7 +72,7 @@ export function TechnicalPanel() {
     return () => {
       cancelled = true;
     };
-  }, [debugOn, project, open]);
+  }, [debugOn, open, project]);
 
   const startCanonical = selectedJourney
     ? actualFrameForDestination(project, selectedJourney.startDestinationId)
@@ -125,18 +125,26 @@ export function TechnicalPanel() {
                 />
                 <DebugPath
                   label="Segment A′"
-                  value={pathForId(snapshot, selectedJourney.take?.startShootingFrame.mediaId)}
+                  value={pathForId(
+                    snapshot,
+                    selectedJourney.motionPlan?.startShootingFrame.mediaId ??
+                      selectedJourney.take?.startShootingFrame.mediaId,
+                  )}
                 />
                 <DebugPath
                   label="Segment B′"
-                  value={pathForId(snapshot, selectedJourney.take?.endShootingFrame.mediaId)}
+                  value={pathForId(
+                    snapshot,
+                    selectedJourney.motionPlan?.endShootingFrame.mediaId ??
+                      selectedJourney.take?.endShootingFrame.mediaId,
+                  )}
                 />
                 <DebugPath
                   label="Camotion A′ work"
                   value={
-                    selectedJourney.take?.camotion?.workDirRetained
-                      ? selectedJourney.take.camotion.startWorkDir
-                      : selectedJourney.take
+                    (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.workDirRetained
+                      ? (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.startWorkDir
+                      : selectedJourney.motionPlan || selectedJourney.take
                         ? "Deleted after copy (Debug was off)"
                         : undefined
                   }
@@ -144,9 +152,9 @@ export function TechnicalPanel() {
                 <DebugPath
                   label="Camotion B′ work"
                   value={
-                    selectedJourney.take?.camotion?.workDirRetained
-                      ? selectedJourney.take.camotion.endWorkDir
-                      : selectedJourney.take
+                    (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.workDirRetained
+                      ? (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.endWorkDir
+                      : selectedJourney.motionPlan || selectedJourney.take
                         ? "Deleted after copy (Debug was off)"
                         : undefined
                   }
@@ -154,7 +162,7 @@ export function TechnicalPanel() {
                 <DebugPath
                   label="Depth map"
                   value={
-                    selectedJourney.take
+                    selectedJourney.motionPlan || selectedJourney.take
                       ? "Not created. Product shoot does not pass --depth."
                       : undefined
                   }
@@ -168,7 +176,7 @@ export function TechnicalPanel() {
             </p>
           </div>
         ) : (
-          <p>Turn on Debug in the header to inspect session asset paths and Camotion work dirs.</p>
+          <p>Turn on Debug at the bottom of the Project panel to inspect session asset paths and Camotion work dirs.</p>
         )}
       </div>
     </details>

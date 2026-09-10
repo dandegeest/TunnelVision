@@ -17,7 +17,7 @@ import { JourneyCanonicalPair } from "./Preview";
 function renderShoot(
   project = createForestProject(),
   selection?: { destinationId: string; occurrenceIndex: number } | { journeyId: string; band?: "motion" | "footage" },
-  options?: { inspectorOpen?: boolean },
+  options?: { inspectorOpen?: boolean; debug?: boolean },
 ) {
   const initialSelection =
     selection && "journeyId" in selection
@@ -35,6 +35,7 @@ function renderShoot(
       initialView="shoot"
       initialSelection={initialSelection}
       initialInspectorOpen={options?.inspectorOpen}
+      initialDebug={options?.debug}
     >
       <TimelineView />
     </ProjectProvider>,
@@ -134,7 +135,7 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
     expect(html).toContain('aria-label="Plan A-B"');
     expect(html).toContain(">Plan<");
-    expect(html).toContain(">Blocked<");
+    expect(html).toContain(">Motion Plan<");
     expect(html).toContain('aria-label="Generate A-B"');
     expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(1);
@@ -253,6 +254,36 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Keep the previous space from disappearing too early.");
     expect(html).toContain("Advisory set analysis. Does not block this journey.");
     expect(html).not.toContain('"camotionSuitability"');
+    expect(html).not.toContain("vanishing_point");
+  });
+
+  it("shows CM travel targets behind the same Shot disclosure", () => {
+    const project = projectWithCinematographerAssessment(createForestProject(), "D-E", {
+      ...shootableAB,
+      travel: {
+        start: {
+          vanishingPoint: [0.62, 0.41],
+          destinationPoint: [0.62, 0.41],
+          label: "corridor mouth left of center",
+        },
+        end: {
+          vanishingPoint: [0.71, 0.36],
+          destinationPoint: [0.71, 0.36],
+          label: "fantasy portal, not the surrounding wall",
+        },
+        direction: "forward through the left-of-center opening as the corridor bends right",
+        confidence: "high",
+      },
+    });
+    const html = renderShoot(project, { journeyId: "D-E" });
+    expect(html).toContain("Travel.");
+    expect(html).toContain("forward through the left-of-center opening as the corridor bends right");
+    expect(html).toContain("Start target.");
+    expect(html).toContain("corridor mouth left of center (0.62, 0.41)");
+    expect(html).toContain("End target.");
+    expect(html).toContain("fantasy portal, not the surrounding wall (0.71, 0.36)");
+    expect(html).toContain("Travel confidence.");
+    expect(html).toContain("High");
     expect(html).not.toContain("vanishing_point");
   });
 
@@ -577,7 +608,7 @@ describe("Camotion destination diagnostic", () => {
     expect(fromA).toContain("0.08 · Strong");
     expect(fromA).toContain("/a-prime.png");
     expect(fromA).toContain("upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-    expect(fromA).toContain("CameraMotionPlan v1. Read-only take evidence.");
+    expect(fromA).toContain("CameraMotionPlan v1. Read-only Motion Plan evidence.");
     expect(fromA).toContain("Canonical A");
     expect(fromA).toContain('alt="Destination A"');
     expect(fromA).toContain('aria-label="Toggle overlay"');
@@ -621,10 +652,47 @@ describe("Camotion destination diagnostic", () => {
     expect(html).toContain('data-overlay-layer="points"');
     expect(html).not.toContain('data-overlay-layer="direction"');
     expect(html).not.toContain("vanishing_point");
+    expect(html).toContain('data-vanishing-point="0.5,0.5"');
+    expect(html).toContain('data-destination-point="0.5,0.5"');
+    expect(html).toContain("data-overlay-halo");
+    expect(html).toContain('data-overlay-label="vp"');
+    expect(html).toContain("bg-black/70");
+    expect(html).not.toContain("text-white/80");
+  });
+
+  it("draws the stored per-segment VP on the overlay, including off-center plans", () => {
+    const html = renderToStaticMarkup(
+      <CamotionPlanOverlay
+        plan={diagnosticTake.endPlan}
+        layers={DEFAULT_OVERLAY_LAYERS}
+        fitted={null}
+      />,
+    );
+    expect(html).toContain('data-vanishing-point="0.4,0.6"');
+    expect(html).toContain('data-destination-point="0.4,0.6"');
+    expect(html).toContain(">VP<");
   });
 });
 
 describe("Shoot inspector panel", () => {
+  it("shows Technical in the inspector, including session asset paths when Debug is on", () => {
+    const html = renderShoot();
+    expect(html).toContain(">Technical<");
+    expect(html).toMatch(/<summary[^>]*>Technical<\/summary>/);
+    expect(html).toContain("Construction: planned. Discovery is not implemented.");
+    expect(html).toContain("Session store.");
+    expect(html).toContain("Canonical A.");
+    expect(html).toContain("does not pass --depth");
+    expect(html).not.toContain("Turn on Debug at the bottom of the Project panel");
+  });
+
+  it("prompts to turn on Debug from Technical when Debug is off", () => {
+    const html = renderShoot(createForestProject(), { destinationId: "A", occurrenceIndex: 0 }, { debug: false });
+    expect(html).toContain(">Technical<");
+    expect(html).toContain("Turn on Debug at the bottom of the Project panel");
+    expect(html).not.toContain("Session store.");
+  });
+
   it("hides the inspector when collapsed and keeps a control to reopen it", () => {
     const open = renderShoot(createForestProject(), { journeyId: "A-B" });
     const closed = renderShoot(createForestProject(), { journeyId: "A-B" }, { inspectorOpen: false });

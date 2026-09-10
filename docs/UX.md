@@ -24,9 +24,11 @@ deliberately no Edit workspace.
 **Current implementation:** Product Slice 3 Plan is a dominant
 storyboard grid between a conversation history rail and a Project
 panel. The left rail is conversation turn history only. The Project
-panel holds the journey story, destination count (AUTO or a
+panel holds Directed / Autonomous at the top, then the journey story, destination count (AUTO or a
 number, typed or stepped), Video model, auto-generate-A, auto-generate-all, auto-block,
-auto-shoot, and DIRECT, and can collapse to the right
+auto-shoot, and DIRECT with helper copy directly beneath it. Debug is a
+gear at the bottom right of that panel (session UI; a later settings
+menu may grow from it). The panel can collapse to the right
 like conversation collapses to the left. Opening A can be uploaded
 before a story exists. AUTO leaves later beats to the Director;
 a number adds that many FPO destinations. After the first DIRECT
@@ -61,7 +63,7 @@ previous-frame conditioning. Shoot is a
 production view of the current Project: consecutive actual adjacent
 canonicals appear as Destinations / JourneyShots automatically. Each
 interval is two stacked bands under the destination rail: MOTION
-(CM + Camotion planning for A→B) and FOOTAGE (the generated take).
+(the stored A→B Motion Plan) and FOOTAGE (the generated take).
 When only A is actual, Shoot still shows A and an FPO B; clicking that
 FPO opens Plan with B selected. MOTION/FOOTAGE appear once adjacent
 canonicals exist. Unrendered motion stays outlined. After Plan, the
@@ -83,17 +85,21 @@ persistence. Canonicals are places;
 MOTION is how the camera traverses between
 canonicals; FOOTAGE is the generated take for that traversal.
 Canonical destinations stay clickable places on the rail above those
-bands. Select MOTION and Plan to run the existing Cinematographer on those
-stills. Inspector Ready / Needs
+bands. Select MOTION and Plan to stage that segment's Motion Plan: CM
+inspects the actual pair, Camotion derives A′/B′ for that shot, and
+neighboring segments stay untouched. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the motion band,
 together with camera path, pace, and a concise summary. Route, transition
-strategy, prompt addition, and remaining shot notes sit behind a
-disclosure. After Plan, Generate on FOOTAGE produces that one take. The preview
-shows the A|B stills and Camotion diagnostic on MOTION, and the
+strategy, prompt addition, travel targets, and remaining shot notes sit behind a
+disclosure. After Plan, Generate on FOOTAGE produces that one take from the
+staged frames. The preview
+shows the A|B stills, canonical vs conditioned frames, and Camotion overlay on MOTION, and the
 rendered clip on FOOTAGE. Selecting a destination still
 offers a compact read-only Camotion diagnostic: canonical vs stored A′/B′
 in the preview, a thin overlay of the stored CameraMotionPlan on the
-displayed still, and CameraMotionPlan facts in the inspector. Take evidence (A′, B′, effective
+displayed still (that segment's VP / travel direction). Overlay marks use a
+knockout halo and chipped VP/D labels so they read on both dark and bright
+stills. CameraMotionPlan facts sit in the inspector. Take evidence (effective
 prompt, pace, model) sits behind disclosure so the clip stays primary.
 Shootability does not block the journey. A-only projects
 remain valid and simply have no directed production leg yet. Do not
@@ -201,11 +207,11 @@ convert source media.
 Storyboard media facts appear on the selected still as a thin bottom
 strip (provenance icon, friendly aspect, dimensions, format). There is
 no Media Info toolbar toggle. Generated stills store the same facts as
-uploads once the image exists. **Debug** sits in the workspace header
-toolbar and is session UI, not project
+uploads once the image exists. **Debug** is a gear at the bottom right
+of the Project panel and is session UI, not project
 persistence. Debug is on by default for now. **Agency** is a Directed / Autonomous segmented control
-in that same toolbar, not a native OS menu. With Debug on, Technical in the Project panel (and Shoot
-inspector) shows session disk paths for canonical stills and shooting
+at the top of that panel, not a native OS menu and not in the workspace header. With Debug on, Technical in the Shoot
+inspector shows session disk paths for canonical stills and shooting
 frames. Camotion work dirs are kept only while Debug is on; product
 shoot does not pass a depth map. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
@@ -241,9 +247,9 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
-can hide to the left. Journey story, destination count, auto-generate-A,
-auto-generate-all, auto-block, auto-shoot, Video model, and DIRECT live in the Project panel,
-which can hide to the right. Opening A can be uploaded before a journey
+can hide to the left. Directed / Autonomous, journey story, destination count, Video model, auto-generate-A,
+auto-generate-all, auto-block, auto-shoot, and DIRECT live in the Project panel,
+which can hide to the right. Helper copy sits directly under DIRECT. Debug is a gear at the bottom right of that panel. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.

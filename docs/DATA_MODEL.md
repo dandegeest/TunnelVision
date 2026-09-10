@@ -274,7 +274,7 @@ of Director intent; they are **not** canonicals. Once a storyboard beat
 has an actual trusted still, that still is the canonical endpoint Shoot
 uses. Destinations and JourneyShots are the same Project, not a cloned
 Shoot model. Changing either canonical still on a production leg
-returns that JourneyShot to `ready` without cinematographer, take, or
+returns that JourneyShot to `ready` without cinematographer, Motion Plan, take, or
 clip. A **shooting frame**
 is a Camotion derivative produced from an image plus a
 `CameraMotionPlan` (and optional near-weight). TunnelVision currently
@@ -283,7 +283,7 @@ a canonical frame is.
 
 Canonical frames remain important. They are **not** currently supplied
 to the video model. Video generation currently receives shooting
-frames as start and end images.
+frames as start and end images from that segment's Motion Plan.
 
 Whether a later system should emit distinct `B_in` and `B_out`
 derivatives, and whether those can hand off invisibly, is an **open
@@ -296,13 +296,19 @@ templating. It is **not** consumed by Camotion. The example below is
 illustrative only and is **not** a frozen contract.
 
 Production Cinematographer output is currently
-`CinematographerAssessment` on `JourneyShot` (application types in
+`CinematographerAssessment` on the JourneyShot Motion Plan
+(application types in
 `web/` / `media/`), including `segmentPromptAddition`. That is **not**
 `ShotPlan` and **not** CameraMotionPlan. Shoot derives CameraMotionPlan
-v1 for Camotion with a deterministic centered radial-forward bridge
-(`productionCameraMotionPlan`); it does not ask the assessment LLM for
-geometry. JourneyShot `take` stores A′/B′, the composed prompt, and
-provider metadata for the current clip.
+v1 for Camotion from the same CM assessment's semantic `travel` object
+(`cameraMotionPlansFromAssessment`); it does not ask a second LLM for
+geometry and does not emit CameraMotionPlan JSON from CM. Centered
+`productionCameraMotionPlan` is the fallback when a still has no usable
+target. `JourneyShot.motionPlan` stores that segment's CM choreography,
+CameraMotionPlan, Camotion parameters, and A′/B′. JourneyShot `take` stores
+the composed prompt, provider metadata, and the current clip. Automated
+set-consistency / traversal-confidence scores remain unspecified; product
+uses advisory `shootability` and `camotionSuitability`.
 
 ``` json
 {

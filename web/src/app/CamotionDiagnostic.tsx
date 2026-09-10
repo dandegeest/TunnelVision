@@ -137,7 +137,7 @@ export function CamotionRecordFields({ record }: { record: DestinationCamotionRe
       <DiagnosticLine label="Asset" value={record.shootingFrame.imageUrl} />
       {generated ? <DiagnosticLine label="Camotion output" value={generated} /> : null}
       {work ? <DiagnosticLine label="Work dir" value={work} /> : null}
-      <p className="text-[#9a8f7e]">CameraMotionPlan v1. Read-only take evidence.</p>
+      <p className="text-[#9a8f7e]">CameraMotionPlan v1. Read-only Motion Plan evidence.</p>
     </div>
   );
 }

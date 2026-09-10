@@ -55,9 +55,13 @@ export function canAssessJourney(project: Project, journey: JourneyShot): boolea
   );
 }
 
+export function hasStagedMotionPlan(journey: JourneyShot): boolean {
+  return Boolean(journey.motionPlan?.startShootingFrame && journey.motionPlan.endShootingFrame);
+}
+
 export function journeysReadyToBlock(project: Project): JourneyShot[] {
   return project.journeys.filter(
-    (journey) => canAssessJourney(project, journey) && !journey.cinematographer,
+    (journey) => canAssessJourney(project, journey) && !hasStagedMotionPlan(journey),
   );
 }
 
@@ -104,6 +108,19 @@ export function locomotionPaceLabel(
       return "Hyperspeed";
     case "variable":
       return "Variable";
+  }
+}
+
+export function cinematographerTravelConfidenceLabel(
+  confidence: NonNullable<CinematographerAssessment["travel"]>["confidence"],
+): "High" | "Medium" | "Low" {
+  switch (confidence) {
+    case "high":
+      return "High";
+    case "medium":
+      return "Medium";
+    case "low":
+      return "Low";
   }
 }
 
