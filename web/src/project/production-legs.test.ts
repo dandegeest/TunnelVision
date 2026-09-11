@@ -8,7 +8,7 @@ import {
   consecutiveProductionPairs,
   projectWithSyncedProductionLegs,
 } from "./production-legs";
-import type { CinematographerAssessment, Project, StoryboardFrame } from "./types";
+import type { CinematographerAssessment, Project, SegmentMotionPlan, StoryboardFrame } from "./types";
 
 const A_MEDIA = {
   mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -36,6 +36,28 @@ const assessment: CinematographerAssessment = {
   camotionSuitability: "uncertain",
   concerns: ["Geometry is tight."],
 };
+
+const CAMERA_PLAN = {
+  version: 1 as const,
+  camera: { vanishing_point: [0.5, 0.5] as const, forward: 1 },
+  destination: { point: [0.5, 0.5] as const, protect: false, bbox: [0, 0, 1, 1] as const },
+  exposure: { strength: 0.08, samples: 8 },
+};
+
+function motionPlanFor(start: typeof A_MEDIA, end: typeof B_MEDIA): SegmentMotionPlan {
+  return {
+    cinematographer: assessment,
+    startCanonicalMediaId: start.mediaId,
+    endCanonicalMediaId: end.mediaId,
+    startShootingFrame: { mediaId: start.mediaId, imageUrl: start.imageUrl },
+    endShootingFrame: { mediaId: end.mediaId, imageUrl: end.imageUrl },
+    startPlan: CAMERA_PLAN,
+    endPlan: CAMERA_PLAN,
+    segmentPromptAddition: assessment.segmentPromptAddition,
+    effectivePrompt: assessment.segmentPromptAddition,
+    pace: "fast",
+  };
+}
 
 function actualFrame(
   id: string,
@@ -129,6 +151,7 @@ describe("consecutive production pairs", () => {
 function expectNotPreparedNotShot(journey: Project["journeys"][number] | undefined) {
   expect(journey?.status).toBe("ready");
   expect(journey?.cinematographer).toBeUndefined();
+  expect(journey?.motionPlan).toBeUndefined();
   expect(journey?.take).toBeUndefined();
   expect(journey?.videoUrl).toBeUndefined();
   expect(journey?.shootError).toBeUndefined();
@@ -178,22 +201,13 @@ describe("production leg merge", () => {
           status: "rendered",
           videoUrl: "/clip.mp4",
           cinematographer: assessment,
+          motionPlan: motionPlanFor(A_MEDIA, B_MEDIA),
           shootError: "stale",
           take: {
             startShootingFrame: { mediaId: A_MEDIA.mediaId, imageUrl: A_MEDIA.imageUrl },
             endShootingFrame: { mediaId: B_MEDIA.mediaId, imageUrl: B_MEDIA.imageUrl },
-            startPlan: {
-              version: 1,
-              camera: { vanishing_point: [0.5, 0.5], forward: 1 },
-              destination: { point: [0.5, 0.5], protect: false, bbox: [0, 0, 1, 1] },
-              exposure: { strength: 0.08, samples: 8 },
-            },
-            endPlan: {
-              version: 1,
-              camera: { vanishing_point: [0.5, 0.5], forward: 1 },
-              destination: { point: [0.5, 0.5], protect: false, bbox: [0, 0, 1, 1] },
-              exposure: { strength: 0.08, samples: 8 },
-            },
+            startPlan: CAMERA_PLAN,
+            endPlan: CAMERA_PLAN,
             segmentPromptAddition: "Track forward.",
             effectivePrompt: "Track forward.",
             pace: "fast",
@@ -289,5 +303,35 @@ describe("production leg merge", () => {
     );
     expect(replaced.journeys.map((journey) => journey.id)).toEqual(["A-B"]);
     expectNotPreparedNotShot(replaced.journeys.find((journey) => journey.id === "A-B"));
+  });
+
+  it("invalidates a Motion Plan when canonical media identity changes even if the image URL does not", () => {
+    const withLegs = projectWithSyncedProductionLegs(
+      projectWithFrames([actualFrame("A", A_MEDIA, "user"), actualFrame("B", B_MEDIA)]),
+    );
+    const planned: Project = {
+      ...withLegs,
+      journeys: withLegs.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              cinematographer: assessment,
+              motionPlan: motionPlanFor(A_MEDIA, B_MEDIA),
+            }
+          : journey,
+      ),
+    };
+    const sameImage = projectWithSyncedProductionLegs(planned);
+    expect(sameImage.journeys.find((journey) => journey.id === "A-B")?.motionPlan).toEqual(
+      motionPlanFor(A_MEDIA, B_MEDIA),
+    );
+    const replacedA = "upload-ffffffffffffffffffffffffffffffff";
+    const next = projectWithSyncedProductionLegs({
+      ...planned,
+      storyboard: planned.storyboard.map((frame) =>
+        frame.id === "A" ? { ...frame, mediaId: replacedA } : frame,
+      ),
+    });
+    expectNotPreparedNotShot(next.journeys.find((journey) => journey.id === "A-B"));
   });
 });

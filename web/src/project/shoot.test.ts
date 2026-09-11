@@ -57,6 +57,8 @@ const take: JourneyShotTake = {
 
 const motionPlan: SegmentMotionPlan = {
   cinematographer: assessment,
+  startCanonicalMediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  endCanonicalMediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   startShootingFrame: take.startShootingFrame,
   endShootingFrame: take.endShootingFrame,
   startPlan: take.startPlan,
@@ -142,6 +144,20 @@ describe("SHOOT gate and JourneyShot take", () => {
       videoUrl: "https://example.test/a-b.mp4",
     });
     expect(journeysReadyToAutoShoot(rendered)).toEqual([]);
+  });
+
+  it("does not generate footage from a Motion Plan for a previous canonical pair", () => {
+    const prepared = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
+    const stale = {
+      ...prepared,
+      storyboard: prepared.storyboard.map((frame) =>
+        frame.id === "A"
+          ? { ...frame, mediaId: "upload-ffffffffffffffffffffffffffffffff" }
+          : frame,
+      ),
+    };
+    expect(canShootJourney(stale, stale.journeys[0]!)).toBe(false);
+    expect(() => shootRequestFromProject(stale, "A-B")).toThrow(/Stage this journey/i);
   });
 
   it("resizes a rendered leg to the take's clip length", () => {

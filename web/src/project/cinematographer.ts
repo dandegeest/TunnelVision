@@ -59,9 +59,58 @@ export function hasStagedMotionPlan(journey: JourneyShot): boolean {
   return Boolean(journey.motionPlan?.startShootingFrame && journey.motionPlan.endShootingFrame);
 }
 
+/** True when staged A′/B′ exist and were computed from this segment's current canonical pair. */
+export function hasCurrentMotionPlan(project: Project, journey: JourneyShot): boolean {
+  if (!hasStagedMotionPlan(journey) || !journey.motionPlan || !journey.endDestinationId) {
+    return false;
+  }
+  const start = actualFrameForDestination(project, journey.startDestinationId);
+  const end = actualFrameForDestination(project, journey.endDestinationId);
+  if (!start || !end) {
+    return false;
+  }
+  const plannedStart = journey.motionPlan.startCanonicalMediaId;
+  const plannedEnd = journey.motionPlan.endCanonicalMediaId;
+  if (!plannedStart || !plannedEnd) {
+    return true;
+  }
+  return plannedStart === start.mediaId && plannedEnd === end.mediaId;
+}
+
+/** Identity of the actual adjacent canonical pair this Motion Plan must match. */
+export function journeyMotionPlanInputKey(project: Project, journey: JourneyShot): string | null {
+  if (!canAssessJourney(project, journey) || !journey.endDestinationId) {
+    return null;
+  }
+  const start = actualFrameForDestination(project, journey.startDestinationId);
+  const end = actualFrameForDestination(project, journey.endDestinationId);
+  if (!start || !end) {
+    return null;
+  }
+  return `${journey.id}:${start.mediaId}:${end.mediaId}`;
+}
+
+/**
+ * Effect key for automatic Motion Planning.
+ * Includes only each actual adjacent pair and whether that pair already has a current plan.
+ * Story, debug, and session UI must not appear here.
+ */
+export function motionPlanAutoKey(project: Project): string {
+  return project.journeys
+    .map((journey) => {
+      const input = journeyMotionPlanInputKey(project, journey);
+      if (!input) {
+        return "";
+      }
+      return `${input}:${hasCurrentMotionPlan(project, journey) ? "planned" : "needed"}`;
+    })
+    .filter(Boolean)
+    .join("|");
+}
+
 export function journeysReadyToBlock(project: Project): JourneyShot[] {
   return project.journeys.filter(
-    (journey) => canAssessJourney(project, journey) && !hasStagedMotionPlan(journey),
+    (journey) => canAssessJourney(project, journey) && !hasCurrentMotionPlan(project, journey),
   );
 }
 

@@ -1,6 +1,11 @@
 import { cameraMotionPlansFromAssessment } from "../../../media/src/cinematographer/camera-motion-plan.ts";
 import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
-import { actualFrameForDestination, canAssessJourney, hasStagedMotionPlan } from "./cinematographer";
+import {
+  actualFrameForDestination,
+  canAssessJourney,
+  hasCurrentMotionPlan,
+  hasStagedMotionPlan,
+} from "./cinematographer";
 import type { CinematographerAssessment, JourneyShot, Project, SegmentMotionPlan } from "./types";
 
 export { hasStagedMotionPlan };
@@ -103,32 +108,40 @@ export function projectWithMotionPlan(
   journeyId: string,
   motionPlan: SegmentMotionPlan,
 ): Project {
-  if (!project.journeys.some((journey) => journey.id === journeyId)) {
-    throw new Error("Unknown journey");
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  if (!journey || !journey.endDestinationId) {
+    throw new Error(journey ? "A journey requires two actual destinations" : "Unknown journey");
   }
+  const start = actualFrameForDestination(project, journey.startDestinationId);
+  const end = actualFrameForDestination(project, journey.endDestinationId);
+  const stamped: SegmentMotionPlan = {
+    ...motionPlan,
+    startCanonicalMediaId: start?.mediaId ?? motionPlan.startCanonicalMediaId,
+    endCanonicalMediaId: end?.mediaId ?? motionPlan.endCanonicalMediaId,
+  };
   const durationSeconds = videoModelDurationSeconds(project.videoModel);
   return {
     ...project,
-    journeys: project.journeys.map((journey) =>
-      journey.id === journeyId
+    journeys: project.journeys.map((item) =>
+      item.id === journeyId
         ? {
-            ...journey,
-            cinematographer: motionPlan.cinematographer,
-            motionPlan,
-            status: journey.status === "shooting" ? "shooting" : "ready",
+            ...item,
+            cinematographer: stamped.cinematographer,
+            motionPlan: stamped,
+            status: item.status === "shooting" ? "shooting" : "ready",
             durationSeconds,
             take: undefined,
             videoUrl: undefined,
             shootError: undefined,
           }
-        : journey,
+        : item,
     ),
   };
 }
 
 export function journeysReadyToStageMotionPlan(project: Project): JourneyShot[] {
   return project.journeys.filter(
-    (journey) => canAssessJourney(project, journey) && !hasStagedMotionPlan(journey),
+    (journey) => canAssessJourney(project, journey) && !hasCurrentMotionPlan(project, journey),
   );
 }
 

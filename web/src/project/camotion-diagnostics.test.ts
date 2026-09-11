@@ -10,6 +10,7 @@ import {
   preferredCamotionRecord,
 } from "./camotion-diagnostics";
 import { projectWithJourneyShotTake } from "./shoot";
+import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { JourneyShotTake } from "./types";
 
 const take: JourneyShotTake = {
@@ -117,6 +118,8 @@ describe("Camotion destination diagnostics", () => {
                   camotionSuitability: "appropriate" as const,
                   concerns: [],
                 },
+                startCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+                endCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
                 startShootingFrame: take.startShootingFrame,
                 endShootingFrame: take.endShootingFrame,
                 startPlan: take.startPlan,

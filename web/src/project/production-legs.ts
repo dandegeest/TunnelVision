@@ -86,6 +86,16 @@ function journeyCanonicalsChanged(
   );
 }
 
+function motionPlanCanonicalsChanged(journey: JourneyShot | undefined, pair: ProductionPair): boolean {
+  const plan = journey?.motionPlan;
+  if (!plan?.startCanonicalMediaId || !plan.endCanonicalMediaId) {
+    return false;
+  }
+  return (
+    plan.startCanonicalMediaId !== pair.start.mediaId || plan.endCanonicalMediaId !== pair.end.mediaId
+  );
+}
+
 function upsertJourney(
   existing: JourneyShot | undefined,
   pair: ProductionPair,
@@ -177,10 +187,12 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     const endDestinationId = productionDestinationId(pair.end);
     const id = `${startDestinationId}-${endDestinationId}`;
     pairIds.push(id);
+    const existing = journeysById.get(id);
     const stale =
       destinationImageChanged(destinationsById, nextDestinationsById, startDestinationId) ||
-      destinationImageChanged(destinationsById, nextDestinationsById, endDestinationId);
-    return upsertJourney(journeysById.get(id), pair, stale, defaultDuration);
+      destinationImageChanged(destinationsById, nextDestinationsById, endDestinationId) ||
+      motionPlanCanonicalsChanged(existing, pair);
+    return upsertJourney(existing, pair, stale, defaultDuration);
   });
   for (const journey of project.journeys) {
     if (pairIds.includes(journey.id)) {

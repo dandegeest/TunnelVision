@@ -123,7 +123,8 @@ session/dev-runtime trusted media. A following beat's visual description is
 demoted far-field continuity after this destination and the camera move from
 the source still; the last beat has no look-ahead. Later beats stay planned until
 explicitly constructed. A thin Cinematographer assessment inspects
-two actual canonical stills for one JourneyShot. Plan on MOTION stores
+two actual canonical stills for one JourneyShot. When that actual adjacent pair
+exists, the existing Cinematographer path stores
 that choreography on a per-segment Motion Plan together with CameraMotionPlan
 v1 derived from the same assessment's travel geometry, Camotion A′/B′, and `segmentPromptAddition` that later leads the frozen
 locomotion baseline. Shootability remains advisory; it does not

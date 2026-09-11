@@ -1,4 +1,4 @@
-import { actualFrameForDestination, canAssessJourney, hasStagedMotionPlan } from "./cinematographer";
+import { actualFrameForDestination, canAssessJourney, hasCurrentMotionPlan } from "./cinematographer";
 import { videoModelDurationSeconds, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
 import type { CameraMotionPlanV1, JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
 
@@ -24,7 +24,7 @@ export type ShootJourneyResponse = {
 };
 
 export function canShootJourney(project: Project, journey: JourneyShot): boolean {
-  if (!hasStagedMotionPlan(journey)) {
+  if (!hasCurrentMotionPlan(project, journey)) {
     return false;
   }
   if (journey.status === "shooting") {
@@ -64,7 +64,7 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
   if (!journey) {
     throw new Error("Unknown journey");
   }
-  if (!hasStagedMotionPlan(journey) || !journey.motionPlan) {
+  if (!hasCurrentMotionPlan(project, journey) || !journey.motionPlan) {
     throw new Error("Stage this journey before generating");
   }
   if (!journey.endDestinationId) {

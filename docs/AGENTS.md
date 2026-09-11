@@ -109,10 +109,10 @@ constructs B…N in travel order from each preceding actual frame. Later
 beats cannot run in parallel. If a later construct fails, generation
 stops and the Director plan remains.
 Auto blocking and Auto shoot are independent and off by default.
-After destinations exist, Auto blocking runs the Cinematographer and
-Camotion on every actual adjacent pair, storing one Motion Plan per
-segment. Auto shoot then generates each staged leg, including those
-with CM hold or no-go warnings.
+Motion Planning is automatic whenever an actual adjacent canonical pair
+exists, using the same Cinematographer and Camotion path. Auto blocking
+during CREATE JOURNEY is that same operation. Auto shoot then generates
+each staged leg, including those with CM hold or no-go warnings.
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while DIRECT or sequential destination
 generation is running. Delete removes a later storyboard beat without
@@ -166,14 +166,18 @@ the current Project: actual adjacent canonicals become JourneyShots
 automatically. Each interval is two stacked bands under the destination
 rail: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated take).
 Canonicals remain clickable places above those bands. When only A is actual,
-Shoot still shows A and an FPO B that opens Plan on B. Plan lives on the MOTION
-band and Generate on the FOOTAGE band; Generate stays Generate after a clip exists.
-Plan on MOTION stages that segment's Motion Plan: CM inspects the actual A/B
+Shoot still shows A and an FPO B that opens Plan on B. MOTION is an
+inspect/status surface for that segment's automatically generated Motion Plan;
+Generate lives on the FOOTAGE band and stays Generate after a clip exists.
+When an actual adjacent canonical pair exists, the existing Cinematographer
+path runs automatically: CM inspects the actual A/B
 canonicals, reports semantic travel geometry in the same assessment turn, a
 deterministic CameraMotionPlan v1 bridge derives Camotion
 geometry from that travel object (centered `[0.5, 0.5]` only as a fallback
 when CM cannot determine a better target), and Camotion renders A′/B′ for that shot only. Neighboring
-segments are unchanged. MOTION shows the A|B canonical stills, a canonical vs
+segments are unchanged. Changing either canonical invalidates that segment's
+Motion Plan and recomputes it; unrelated UI and story edits do not. Footage
+generation remains an explicit FOOTAGE action. MOTION shows the A|B canonical stills, a canonical vs
 conditioned toggle, and the stored CameraMotionPlan overlay once the Motion
 Plan exists; FOOTAGE shows the clip. When a destination is selected, the preview can toggle
 that occurrence's canonical still against stored Camotion A′/B′ from the
@@ -186,7 +190,7 @@ The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels. The Shoot inspector can hide to a
 reopen strip like the conversation and Project rails; that visibility is
 session UI, not project persistence.
-While Plan or Generate runs, that band uses the same generating
+While a Motion Plan or Generate runs, that band uses the same generating
 shimmer as Plan FPO thumbs. The app
 can track more than one blocking or shooting operation at a time.
 SHOOT on a staged leg uses the Motion Plan's A′/B′ and a configurable
@@ -224,8 +228,9 @@ are **not** CM inputs.
 the camera should move through their visible geography.** The
 primary question is how to shoot this pair, not whether a stochastic
 video model will succeed. A thin assessment lives in
-`media/src/cinematographer/assess-journey.ts` and is invoked from
-Shoot BLOCK/Plan for one JourneyShot. CM output lives on that segment's
+`media/src/cinematographer/assess-journey.ts` and runs automatically
+for one JourneyShot whenever that segment has two actual adjacent
+canonicals. CM output lives on that segment's
 Motion Plan and includes route, camera path, pace, visible geometry, transition strategy,
 and a concise `segmentPromptAddition`, plus advisory shootability /
 Camotion suitability / concerns and optional per-still travel geometry
@@ -256,7 +261,8 @@ travel geometry (`travel.start` / `travel.end`); a deterministic
 CameraMotionPlan v1 bridge (`cameraMotionPlansFromAssessment`) pins
 `forward=1.0` and 01.8 STRONG exposure and fills vanishing_point /
 destination from that object. Centered `[0.5, 0.5]` is only the fallback
-when a still has no usable target. Plan on MOTION then renders Camotion A′/B′ for that
+when a still has no usable target. An actual adjacent canonical pair then
+automatically renders Camotion A′/B′ for that
 segment, and stores the complete Motion Plan on the JourneyShot. FOOTAGE
 Generate uses those staged frames and `composeShootingPrompt` (`segmentPromptAddition` first, then the
 frozen locomotion baseline). Do not have an LLM rewrite or merge those

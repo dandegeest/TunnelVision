@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
-import { projectWithCinematographerAssessment } from "./cinematographer";
+import { motionPlanAutoKey, projectWithCinematographerAssessment } from "./cinematographer";
 import { projectWithMotionPlan, motionPlanStageRequestFromAssessment } from "./motion-plan";
 import { projectWithJourneyShotTake } from "./shoot";
+import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { CinematographerAssessment, SegmentMotionPlan } from "./types";
 
 const assessment: CinematographerAssessment = {
@@ -23,6 +24,8 @@ function planFor(id: "A-B" | "B-C"): SegmentMotionPlan {
   const token = id === "A-B" ? "a" : "c";
   return {
     cinematographer: { ...assessment, summary: `${id} choreography.` },
+    startCanonicalMediaId: id === "A-B" ? TRUSTED_MEDIA_IDS.forestAtoFA : TRUSTED_MEDIA_IDS.forestAtoFB,
+    endCanonicalMediaId: id === "A-B" ? TRUSTED_MEDIA_IDS.forestAtoFB : TRUSTED_MEDIA_IDS.forestAtoFC,
     startShootingFrame: {
       mediaId: `upload-${token.repeat(32)}`,
       imageUrl: `/${id}-start.png`,
@@ -64,6 +67,17 @@ describe("per-segment Motion Plan", () => {
     );
     expect(withBoth.destinations).toEqual(forest.destinations);
     expect(withBoth.journeys.find((journey) => journey.id === "C-D")?.motionPlan).toBeUndefined();
+    expect(motionPlanAutoKey(forest)).toContain(
+      `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:needed`,
+    );
+    expect(motionPlanAutoKey(withAB)).toContain(
+      `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:planned`,
+    );
+    expect(motionPlanAutoKey(withAB)).not.toBe(motionPlanAutoKey(forest));
+    expect(withAB.journeys.find((journey) => journey.id === "A-B")?.motionPlan).toMatchObject({
+      startCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+      endCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
+    });
   });
 
   it("restaging A→B clears only A→B footage", () => {

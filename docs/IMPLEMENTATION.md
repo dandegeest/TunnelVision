@@ -187,20 +187,24 @@ no look-ahead. Later beats stay planned until
 explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
-Project. Plan lives on the MOTION band and Generate on the FOOTAGE band;
-Generate stays Generate after a clip exists. Each interval is two stacked
+Project. MOTION is an inspect/status surface for that segment's automatically
+generated Motion Plan; Generate lives on the FOOTAGE band and stays Generate
+after a clip exists. Each interval is two stacked
 bands under the destination rail: MOTION (the stored A→B Motion Plan) and
 FOOTAGE (the generated take). Canonicals remain clickable places above
 those bands. When only A is actual, Shoot still shows A and an FPO B
-that opens Plan on B. Band labels are MOTION and FOOTAGE only. Plan on MOTION runs the existing
-Cinematographer assessment through `ReasoningProvider`, including semantic travel
+that opens Plan on B. Band labels are MOTION and FOOTAGE only. When an actual
+adjacent canonical pair exists, the existing
+Cinematographer assessment runs automatically through `ReasoningProvider`, including semantic travel
 geometry in that same JSON, derives CameraMotionPlan
 v1 from it (`cameraMotionPlansFromAssessment`; centered fallback only when a
 still has no usable target), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
 on that JourneyShot, including `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
-`moderate` / `fast` / `hyperspeed` / `variable`). Restaging one segment does not
-alter neighboring Motion Plans. While Plan is running, that MOTION band
-shows a progress spinner. Shootability remains advisory and does not
+`moderate` / `fast` / `hyperspeed` / `variable`). Changing either canonical
+invalidates that segment's Motion Plan and recomputes it. Restaging one segment does not
+alter neighboring Motion Plans. Footage generation remains an explicit FOOTAGE
+action. While a Motion Plan is running, that MOTION band
+uses the same generating shimmer as Plan FPO thumbs. Shootability remains advisory and does not
 gate JourneyShot status. Generate on FOOTAGE uses the staged A′/B′ and
 composed prompt (`segmentPromptAddition` first, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.

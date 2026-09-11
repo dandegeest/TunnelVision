@@ -78,6 +78,7 @@ export function Inspector() {
     cinematographerError,
     shootError,
     constructingBeatId,
+    assessingJourneyIds,
     setDestinationPlan,
     reshootDestination,
   } = useProject();
@@ -190,6 +191,7 @@ export function Inspector() {
   const playable = journeyIsPlayable(journey);
   const assessment = journey.motionPlan?.cinematographer ?? journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
+  const assessing = assessingJourneyIds.includes(journey.id);
   const take = journey.take;
   const motionSource = journey.motionPlan ?? journey.take;
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
@@ -236,21 +238,18 @@ export function Inspector() {
       ) : null}
       {motion ? (
         <>
-          <p>Status: {assessment ? "Film" : "Stage"}</p>
+          <p>Status: {assessing ? "Planning" : assessment ? "Film" : "Stage"}</p>
           {assessment ? (
             <>
               <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Motion Plan</p>
               <CinematographerLegDetail assessment={assessment} />
             </>
-          ) : (
+          ) : assessing ? (
+            <p className="text-[#cfc6b8]">Planning this traversal…</p>
+          ) : canAssess ? (
             <p className="text-[#cfc6b8]">
-              The Cinematographer inspects the actual adjacent sets and determines how the camera should move through their geography.
+              Motion Plan is created automatically from this actual adjacent pair.
             </p>
-          )}
-          {canAssess ? (
-            assessment ? null : (
-              <p className="text-[#9a8f7e]">Plan this traversal before generating.</p>
-            )
           ) : (
             <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
           )}

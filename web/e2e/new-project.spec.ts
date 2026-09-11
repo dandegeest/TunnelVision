@@ -175,9 +175,14 @@ async function mockProviderBoundaries(page: Page) {
       startMediaId: string;
       endMediaId: string;
     };
-    expect(request.journeyId).toBe("A-B");
+    expect(["A-B", "B-C"]).toContain(request.journeyId);
     expect(request.startMediaId).toMatch(/^upload-/);
-    expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
+    if (request.journeyId === "A-B") {
+      expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
+    } else {
+      expect(request.startMediaId).toBe(CONSTRUCTED_B.mediaId);
+      expect(request.endMediaId).toBe(CONSTRUCTED_C.mediaId);
+    }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -203,9 +208,14 @@ async function mockProviderBoundaries(page: Page) {
         camera: { vanishing_point: number[] };
       };
     };
-    expect(request.journeyId).toBe("A-B");
+    expect(["A-B", "B-C"]).toContain(request.journeyId);
     expect(request.startMediaId).toMatch(/^upload-/);
-    expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
+    if (request.journeyId === "A-B") {
+      expect(request.endMediaId).toBe(CONSTRUCTED_B.mediaId);
+    } else {
+      expect(request.startMediaId).toBe(CONSTRUCTED_B.mediaId);
+      expect(request.endMediaId).toBe(CONSTRUCTED_C.mediaId);
+    }
     expect(request.segmentPromptAddition).toBe(CM_ASSESSMENT.segmentPromptAddition);
     expect(request.pace).toBe(CM_ASSESSMENT.pace);
     expect(request.startPlan?.camera.vanishing_point).toEqual([0.62, 0.41]);
@@ -470,10 +480,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Resize timeline")).toBeVisible();
   await page.locator(".inspector-reopen").getByRole("button", { name: "Inspector" }).click();
   await expect(page.getByRole("heading", { name: "A-B" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toBeDisabled();
-  await page.getByRole("button", { name: "Plan A-B" }).click();
   const journeyInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A-B" }) });
   await expect(journeyInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
   await expect(page.getByLabel("Motion A-B")).toBeVisible();
@@ -511,7 +519,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.locator(".preview-leg")).toBeVisible();
   await expect(page.getByAltText("A-B start A")).toHaveCount(2);
   await expect(page.getByAltText("A-B end B")).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toHaveCount(1);
   await page.getByLabel("Footage A-B").click();
   await expect(page.locator("video")).toBeVisible();
@@ -548,24 +556,29 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByAltText("A′ · A-B start′")).toBeVisible();
   await expect(page.locator(".preview-monitor img")).toHaveAttribute("src", SHOOTING_A_PRIME.imageUrl);
 
+  await expect(page.getByRole("button", { name: "Generate B-C", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Destination C", exact: true }).click();
   await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Preview C′")).toBeVisible();
   await expect(page.getByText("Canonical C", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("Toggle overlay")).toHaveCount(0);
+  await expect(page.getByLabel("Toggle overlay")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".camotion-overlay")).toBeVisible();
+  await expect(page.locator('[data-vanishing-point="0.71,0.36"]')).toBeVisible();
   const destCInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "C", exact: true }) });
-  await expect(destCInspector.getByText("No Camotion data for this destination")).toBeVisible();
+  await expect(destCInspector.getByLabel("Camotion diagnostic")).toBeVisible();
+  await expect(destCInspector.getByText("C′ · B-C end′")).toBeVisible();
   await page.getByLabel("Preview C′").click();
   await expect(page.getByLabel("Preview C′")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".preview-monitor")).toContainText("No Camotion data for this destination");
-  await expect(destCInspector.getByText("No Camotion data for this destination")).toBeVisible();
+  await expect(page.getByAltText("C′ · B-C end′")).toBeVisible();
+  await expect(page.locator(".preview-monitor img")).toHaveAttribute("src", SHOOTING_B_PRIME.imageUrl);
 
   await page.getByLabel("Motion B-C").click();
-  await expect(page.getByRole("button", { name: "Plan B-C" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Plan B-C" })).toHaveCount(0);
   const nextInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "B-C" }) });
-  await expect(nextInspector.getByText("Track forward through the connected volumes.")).toHaveCount(0);
+  await expect(nextInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
+  await expect(page.getByText("Motion Plan", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Generate B-C", exact: true })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Generate B-C", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Generate B-C", exact: true })).toBeEnabled();
 });
 
 test("project video model selector defaults to Pruna and lists mid-tier and HQ options", async ({

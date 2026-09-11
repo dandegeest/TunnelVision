@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import { canAssessJourney, locomotionPaceLabel, motionBandAriaLabel, footageBandAriaLabel } from "../project/cinematographer";
+import { locomotionPaceLabel, motionBandAriaLabel, footageBandAriaLabel } from "../project/cinematographer";
 import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
 import type { JourneyBand, JourneyShot, Selection } from "../project/types";
@@ -54,7 +54,7 @@ export function JourneyItem({
   shooting?: boolean;
   onSelect: () => void;
 }) {
-  const { project, assessJourney, shootJourney } = useProject();
+  const { project, shootJourney } = useProject();
   const motion = band === "motion";
   const tone = motion ? journeySegmentTone(journey) : footageBandTone(journey);
   const ring = selected
@@ -65,11 +65,6 @@ export function JourneyItem({
   const actionsBusy = preparing || shooting;
   const label = motion ? "MOTION" : "FOOTAGE";
 
-  const onStage = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    onSelect();
-    void assessJourney(journey.id);
-  };
   const onGenerate = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     onSelect();
@@ -111,15 +106,11 @@ export function JourneyItem({
           </span>
         </button>
         {motion ? (
-          <button
-            type="button"
-            className={ctaClass}
-            disabled={!canAssessJourney(project, journey) || actionsBusy}
-            aria-label={`Plan ${journey.id}`}
-            onClick={onStage}
-          >
-            {preparing ? "Planning…" : "Plan"}
-          </button>
+          preparing ? (
+            <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] text-[#ece7df] storyboard-generating-label">
+              Planning…
+            </span>
+          ) : null
         ) : (
           <button
             type="button"

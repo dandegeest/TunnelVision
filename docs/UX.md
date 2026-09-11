@@ -70,18 +70,18 @@ interval is two stacked bands under the destination rail: MOTION
 (the stored A→B Motion Plan) and FOOTAGE (the generated take).
 When only A is actual, Shoot still shows A and an FPO B; clicking that
 FPO opens Plan with B selected. MOTION/FOOTAGE appear once adjacent
-canonicals exist. Unrendered motion stays outlined. After Plan, the
+canonicals exist. Unrendered motion stays outlined. After a Motion Plan exists, the
 band follows advisory shootability: 2px solid green for clear, 2px
 solid gold fill and border for hold, 2px solid rust for no go.
 Clear MOTION uses the same green fill as completed FOOTAGE. Hold uses
-the same filled-band treatment in the current gold. While Plan or Generate is running, the matching band uses the
+the same filled-band treatment in the current gold. While a Motion Plan or Generate is running, the matching band uses the
 same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. Green fill on FOOTAGE appears only after the clip is
-complete. MOTION and FOOTAGE bands show those labels only; Plan lives on
-MOTION and Generate lives on FOOTAGE. After Plan, the gutter
+complete. MOTION and FOOTAGE bands show those labels only; MOTION is
+inspect/status for the automatically generated Motion Plan and Generate lives on FOOTAGE. After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. Plan lives on the MOTION band and Generate on the FOOTAGE band.
+for variable. Generate lives on the FOOTAGE band.
 Generate stays Generate after a clip exists. The timeline is
 vertically resizable. The Shoot inspector can hide to a reopen strip like the
 conversation and Project rails; that visibility is session UI, not project
@@ -89,13 +89,13 @@ persistence. Canonicals are places;
 MOTION is how the camera traverses between
 canonicals; FOOTAGE is the generated take for that traversal.
 Canonical destinations stay clickable places on the rail above those
-bands. Select MOTION and Plan to stage that segment's Motion Plan: CM
+bands. MOTION inspects that segment's automatically generated Motion Plan: when an actual adjacent pair exists, CM
 inspects the actual pair, Camotion derives A′/B′ for that shot, and
 neighboring segments stay untouched. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the motion band,
 together with camera path, pace, and a concise summary. Route, transition
 strategy, prompt addition, travel targets, and remaining shot notes sit behind a
-disclosure. After Plan, Generate on FOOTAGE produces that one take from the
+disclosure. Generate on FOOTAGE remains explicit and produces that one take from the
 staged frames. The preview
 shows the A|B stills, canonical vs conditioned frames, and Camotion overlay on MOTION, and the
 rendered clip on FOOTAGE. Selecting a destination still

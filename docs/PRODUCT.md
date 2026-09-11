@@ -132,15 +132,16 @@ planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 DIRECT is not a prerequisite for shooting actual adjacent canonicals.
-Plan lives on the MOTION band and Generate on the FOOTAGE band.
-Generate stays Generate after a clip exists. Each Shoot interval is two
+MOTION is an inspect/status surface for the automatically generated Motion Plan;
+Generate lives on the FOOTAGE band and stays Generate after a clip exists. Each Shoot interval is two
 stacked bands: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated
 take). Canonicals remain clickable places above those bands. When only A is
 actual, Shoot still shows A and an FPO B that opens Plan on B. Band labels are MOTION and FOOTAGE only. Selecting a destination
 exposes stored Camotion A′/B′ for that occurrence as a read-only preview
-toggle, a CameraMotionPlan overlay on the still, and inspector facts. Plan on a selected actual leg runs the existing Cinematographer
-against those stills, renders Camotion A′/B′ for that pair, and stores the
-Motion Plan on that JourneyShot.
+toggle, a CameraMotionPlan overlay on the still, and inspector facts. When an actual adjacent pair exists, the existing Cinematographer
+runs against those stills automatically, renders Camotion A′/B′ for that pair, and stores the
+Motion Plan on that JourneyShot. Changing either canonical invalidates and
+recomputes that segment's Motion Plan. Footage generation remains explicit.
 Generate on FOOTAGE uses those staged frames, composes `segmentPromptAddition`
 ahead of the frozen locomotion baseline, and generates a development
 clip. The Project panel Video control chooses the generator for every

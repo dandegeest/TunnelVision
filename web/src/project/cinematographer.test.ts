@@ -7,6 +7,7 @@ import {
   cinematographerShootabilityLabel,
   cinematographerShootabilityTileLabel,
   locomotionPaceLabel,
+  hasCurrentMotionPlan,
   journeyLegStatusLabel,
   journeySegmentAriaLabel,
   journeySegmentCaption,
@@ -14,10 +15,12 @@ import {
   footageBandCaption,
   motionBandAriaLabel,
   journeysReadyToBlock,
+  motionPlanAutoKey,
   projectWithCinematographerAssessment,
   requestCinematographerAssessment,
 } from "./cinematographer";
 import { directorPlanRequestFromProject } from "./director";
+import { projectWithMotionPlan } from "./motion-plan";
 import { journeyIsPlayable } from "./policy";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { CinematographerAssessment, Project } from "./types";
@@ -73,6 +76,69 @@ describe("Cinematographer actual-set assessment", () => {
         (journey) => journey.id === "A-B",
       ),
     ).toBe(true);
+  });
+
+  it("keys automatic Motion Planning to the actual adjacent pair only", () => {
+    const project = createForestProject();
+    const ready = motionPlanAutoKey(project);
+    expect(ready).toContain(`A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:needed`);
+    expect(motionPlanAutoKey({ ...project, story: "Unrelated story edit." })).toBe(ready);
+    expect(motionPlanAutoKey({ ...project, title: "Unrelated title." })).toBe(ready);
+    expect(motionPlanAutoKey({ ...project, agency: "autonomous" })).toBe(ready);
+    const fpo = withFpoB(project);
+    expect(motionPlanAutoKey(fpo)).not.toContain("A-B:");
+    expect(journeysReadyToBlock(fpo).some((journey) => journey.id === "A-B")).toBe(false);
+  });
+
+  it("invalidates a Motion Plan when either canonical media identity changes", () => {
+    const forest = createForestProject();
+    const planned = projectWithMotionPlan(forest, "A-B", {
+      cinematographer: shootableAB,
+      startCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+      endCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
+      startShootingFrame: {
+        mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        imageUrl: "/a-prime.png",
+      },
+      endShootingFrame: {
+        mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        imageUrl: "/b-prime.png",
+      },
+      startPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+        destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+        exposure: { strength: 0.08, samples: 16 },
+      },
+      endPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+        destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+        exposure: { strength: 0.08, samples: 16 },
+      },
+      segmentPromptAddition: shootableAB.segmentPromptAddition,
+      effectivePrompt: shootableAB.segmentPromptAddition,
+      pace: "fast",
+    });
+    const journey = planned.journeys.find((item) => item.id === "A-B")!;
+    expect(hasCurrentMotionPlan(planned, journey)).toBe(true);
+    expect(journeysReadyToBlock(planned).some((item) => item.id === "A-B")).toBe(false);
+    expect(motionPlanAutoKey(planned)).toContain(
+      `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:planned`,
+    );
+    expect(motionPlanAutoKey({ ...planned, story: "Unrelated story edit." })).toBe(motionPlanAutoKey(planned));
+    const swappedA = {
+      ...planned,
+      storyboard: planned.storyboard.map((frame) =>
+        frame.id === "A" ? { ...frame, mediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA } : frame,
+      ),
+    };
+    const stale = swappedA.journeys.find((item) => item.id === "A-B")!;
+    expect(hasCurrentMotionPlan(swappedA, stale)).toBe(false);
+    expect(journeysReadyToBlock(swappedA).some((item) => item.id === "A-B")).toBe(true);
+    expect(motionPlanAutoKey(swappedA)).toContain(
+      `A-B:${TRUSTED_MEDIA_IDS.wardrobeLoopVisionA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:needed`,
+    );
   });
 
   it("posts trusted media identities rather than filesystem paths", async () => {

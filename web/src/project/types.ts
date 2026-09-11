@@ -113,6 +113,9 @@ export type CamotionDebug = {
  */
 export type SegmentMotionPlan = {
   cinematographer: CinematographerAssessment;
+  /** Actual adjacent canonical pair this plan was computed from. */
+  startCanonicalMediaId: string;
+  endCanonicalMediaId: string;
   startShootingFrame: ShootingFrameRef;
   endShootingFrame: ShootingFrameRef;
   startPlan: CameraMotionPlanV1;
@@ -232,7 +235,8 @@ export type JourneyShot = {
   cinematographer?: CinematographerAssessment;
   /**
    * Staged A→B Motion Plan: CM choreography plus this shot's CameraMotionPlan,
-   * Camotion parameters, and conditioned S/E frames. Absent until Plan on MOTION.
+   * Camotion parameters, and conditioned S/E frames. Present once an actual
+   * adjacent canonical pair exists and planning has completed for that pair.
    */
   motionPlan?: SegmentMotionPlan;
   /** Latest successful or inspectable take. Absent until FOOTAGE Generate completes. */

@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -12,7 +13,11 @@ import { clampZoom } from "../timeline/geometry";
 import { directorStoryRequestFromProject, requestDirectorPlan, requestDirectorStory } from "./director";
 import {
   cinematographerRequestFromProject,
+  canAssessJourney,
+  hasCurrentMotionPlan,
+  journeyMotionPlanInputKey,
   journeysReadyToBlock,
+  motionPlanAutoKey,
   requestCinematographerAssessment,
 } from "./cinematographer";
 import {
@@ -106,7 +111,6 @@ type ProjectContextValue = {
   planWithDirector: () => Promise<void>;
   assessingJourneyIds: readonly string[];
   cinematographerError: string | null;
-  assessJourney: (journeyId: string) => Promise<void>;
   shootingJourneyIds: readonly string[];
   shootError: string | null;
   shootJourney: (journeyId: string) => Promise<void>;
@@ -128,6 +132,9 @@ type ProjectContextValue = {
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
+
+/** Survives React Strict Mode remount so one canonical pair is not planned twice. */
+const inFlightMotionPlanKeys = new Set<string>();
 
 export function ProjectProvider({
   children,
@@ -495,6 +502,15 @@ export function ProjectProvider({
 
   const assessJourneyOn = useCallback(
     async (current: Project, journeyId: string): Promise<Project> => {
+      const journey = current.journeys.find((item) => item.id === journeyId);
+      if (!journey || !canAssessJourney(current, journey) || hasCurrentMotionPlan(current, journey)) {
+        return current;
+      }
+      const inputKey = journeyMotionPlanInputKey(current, journey);
+      if (!inputKey || inFlightMotionPlanKeys.has(inputKey)) {
+        return current;
+      }
+      inFlightMotionPlanKeys.add(inputKey);
       const entryId = nextConversationId("blocking");
       setCinematographerError(null);
       setAssessingJourneyIds((ids) => withId(ids, journeyId));
@@ -519,8 +535,30 @@ export function ProjectProvider({
             debugOnRef.current,
           ),
         );
-        const next = projectWithMotionPlan(projectRef.current, journeyId, {
+        const latest = projectRef.current;
+        const latestJourney = latest.journeys.find((item) => item.id === journeyId);
+        if (!latestJourney || journeyMotionPlanInputKey(latest, latestJourney) !== inputKey) {
+          setConversation((entries) =>
+            resolveBlockingEntry(entries, entryId, {
+              status: "failed",
+              error: "Canonical pair changed",
+            }),
+          );
+          return latest;
+        }
+        if (hasCurrentMotionPlan(latest, latestJourney)) {
+          setConversation((entries) =>
+            resolveBlockingEntry(entries, entryId, {
+              status: "blocked",
+              assessment: result.assessment,
+            }),
+          );
+          return latest;
+        }
+        const next = projectWithMotionPlan(latest, journeyId, {
           cinematographer: result.assessment,
+          startCanonicalMediaId: request.startMediaId,
+          endCanonicalMediaId: request.endMediaId,
           startShootingFrame: staged.startShootingFrame,
           endShootingFrame: staged.endShootingFrame,
           startPlan: staged.startPlan,
@@ -549,6 +587,7 @@ export function ProjectProvider({
         );
         throw error;
       } finally {
+        inFlightMotionPlanKeys.delete(inputKey);
         setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
       }
     },
@@ -622,6 +661,14 @@ export function ProjectProvider({
     },
     [assessJourneyOn],
   );
+
+  const autoMotionKey = useMemo(() => motionPlanAutoKey(project), [project]);
+  useEffect(() => {
+    const current = projectRef.current;
+    for (const journey of journeysReadyToBlock(current)) {
+      void assessJourney(journey.id);
+    }
+  }, [assessJourney, autoMotionKey]);
 
   const shootJourney = useCallback(
     async (journeyId: string) => {
@@ -823,7 +870,6 @@ export function ProjectProvider({
       planWithDirector,
       assessingJourneyIds,
       cinematographerError,
-      assessJourney,
       shootingJourneyIds,
       shootError,
       shootJourney,
@@ -874,7 +920,6 @@ export function ProjectProvider({
       planWithDirector,
       assessingJourneyIds,
       cinematographerError,
-      assessJourney,
       shootingJourneyIds,
       shootError,
       shootJourney,
