@@ -176,7 +176,7 @@ export function TechnicalPanel() {
             </p>
           </div>
         ) : (
-          <p>Turn on Debug at the bottom of the Project panel to inspect session asset paths and Camotion work dirs.</p>
+          <p>Turn on Debug mode in Project settings to inspect session asset paths and Camotion work dirs.</p>
         )}
       </div>
     </details>

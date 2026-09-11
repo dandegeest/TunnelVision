@@ -205,7 +205,7 @@ gate JourneyShot status. Generate on FOOTAGE uses the staged A′/B′ and
 composed prompt (`segmentPromptAddition` first, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.
 The current development model is `prunaai/p-video` (A′ as `image`, B′ as
-`last_frame_image`) unless the Project panel Video control selects another
+`last_frame_image`) unless the Project settings Video control selects another
 catalog generator. The assessment does not emit CameraMotionPlan JSON;
 Camotion only executes the derived plan.
 The running application
@@ -257,7 +257,7 @@ on the selected storyboard still, including generated images, not as a
 global diagnostic banner. 16:9 tiles stay fixed;
 source stills are contained (letterboxed or pillarboxed), not
 stretched or cropped to fill. Debug is a session
-gear at the bottom right of the Project panel and is on by default for now; Technical in the Shoot inspector lists session asset
+toggle in Project settings and is on by default for now; Technical in the Shoot inspector lists session asset
 paths, and Camotion work dirs are kept only while Debug is on. Destination actions live in
 the destination menu, including Reshoot for generated stills. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
@@ -265,11 +265,14 @@ summary. Conversation timestamps are stored on the entry. Pending
 Director **Planning…**, Cinematographer **Blocking…**, **Shooting…**,
 and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
-intent as readable text until an image exists. The
-filmmaking conversation rail is history-only and can be hidden to the
-left; the Project panel holds Directed / Autonomous, journey story, destination count,
-Video model, auto-generate-A, auto-generate-all, auto-block, auto-shoot, and DIRECT
-and can hide to the right. Helper copy sits directly under DIRECT. The Shoot inspector can hide to a reopen strip. That visibility is session UI, not project persistence, and
+intent as readable text until an image exists. A full-width app header keeps
+TunnelVision on the left and Plan | Shoot centered. The project selector lives
+in the Project panel under the Project header. The
+Director conversation rail is history-only and can be hidden to the
+left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
+Directed Options, and CREATE JOURNEY
+and can hide to the right. Video and Debug mode live in Project settings. Director, Project, and Inspector
+headers put the panel name and collapse control on one row below the app header. The Shoot inspector can hide to a reopen strip. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is
@@ -311,7 +314,7 @@ must mock the paid media-provider boundary.
 
 The current Shoot development generator is Replicate `prunaai/p-video`,
 the Project default. The filmmaker can switch the current project's
-video model in the Project panel (`pruna-p-video`,
+video model in Project settings (`pruna-p-video`,
 `luma-ray-flash-2-720p`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
 Seedance models use `image`/`last_frame_image`; Luma Ray Flash 2 720p

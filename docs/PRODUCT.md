@@ -93,7 +93,7 @@ Destination is structural only: it appends one unresolved slot and does
 not invoke the Director or generate an image. Delete is the same class of
 edit: it removes a later beat without planning or relabeling; opening A
 cannot be deleted. Story text is project
-intent; editing it does not plan. **DIRECT** in the Project panel is the
+intent; editing it does not plan. **CREATE JOURNEY** in the Project panel is the
 only UI action that invokes Director planning. The Director treats
 actual filmmaker-specified canonicals as authoritative: it resolves
 unspecified directing decisions and does not overwrite specified
@@ -101,10 +101,11 @@ filmmaking decisions or generate images. When an uploaded or other actual still
 has no intent or visual description, DIRECT describes that still from the attached
 image and adopts the text. Later DIRECTs leave filled fields alone. Uploading or
 replacing a still asks whether to clear existing plan text so the next DIRECT can
-describe the new image. Agency (Directed vs Autonomous) is orthogonal and is not a
+describe the new image. Agency (Directed vs Agent) is orthogonal and is not a
 stand-in for Discovery. Conversation is turn history; the Project panel
-holds the journey story, destination count, auto-generate-A,
-auto-generate-all, auto-block, auto-shoot, and DIRECT. Opening A can be
+holds the journey prompt, destination count, Directed Options
+(generate start destination, generate all destinations, shoot), and CREATE JOURNEY.
+Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is
 no TunnelVision prompt). Generating A stores opening intent from the story and the
@@ -261,7 +262,7 @@ architecture.
     rather than stretched or cropped to fill. Media facts appear on the
     selected storyboard still, including generated images once their
     dimensions are known. Debug is a
-    session gear at the bottom right of the Project panel and is on by default for now: Technical in the Shoot inspector lists
+    session toggle in Project settings and is on by default for now: Technical in the Shoot inspector lists
     session disk paths for canonical stills and shooting frames, and
     Camotion work dirs are kept only while Debug is on. Product shoot does not pass a depth
     map. Destination
@@ -273,7 +274,7 @@ architecture.
     filmmaker-facing summary. Send is not an active filmmaking command. Entry timestamps are stored data. The
     filmmaking conversation rail is a project-level workspace the
     filmmaker can hide or show; its visibility is independent of
-    Plan / Shoot and Directed / Autonomous.
+    Plan / Shoot and Directed / Agent.
 -   **Boundary continuity (Shoot)** is the visual match of adjacent
     **completed** Journey clips at their shared destination: previous
     clip final decoded frame ↔ next clip first decoded frame. It
@@ -665,8 +666,8 @@ wired in this slice. Approximate duration and destination pointing
 are later collaborative controls.
 
 **Current implementation:** Product Slice 3 is the current Plan | Shoot
-shell. Plan is an explicit DIRECT action over the current storyboard;
-the conversation rail is history. Journey story and DIRECT live in the
+shell. Plan is an explicit CREATE JOURNEY action over the current storyboard;
+the Director rail is history. Journey prompt and CREATE JOURNEY live in the
 Project panel. After planning, Construct builds the next
 planned beat from the preceding actual destination, with following-beat
 look-ahead in the Construct prompt when a successor plan exists.

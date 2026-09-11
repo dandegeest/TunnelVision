@@ -3,16 +3,17 @@ import { formatConversationClock, type ConversationEntry } from "../project/conv
 import type { DirectorEvidence } from "../project/director";
 import { useProject } from "../project/ProjectProvider";
 import { ProgressSpinner } from "../ui/ProgressSpinner";
+import { PanelHeader } from "./PanelHeader";
 
 export function ConversationRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { conversationRailOpen, setConversationRailOpen } = useProject();
-  const label = conversationRailOpen ? "Hide filmmaking conversation" : "Show filmmaking conversation";
+  const label = conversationRailOpen ? "Hide director" : "Show director";
   return (
     <button
       type="button"
       aria-pressed={conversationRailOpen}
       aria-controls="filmmaking-conversation"
-      aria-label="Filmmaking conversation"
+      aria-label="Director"
       title={label}
       onClick={() => setConversationRailOpen(!conversationRailOpen)}
       className={
@@ -274,11 +275,11 @@ export function ConversationRail() {
     <aside
       id="filmmaking-conversation"
       className="conversation-rail flex h-full min-h-0 min-w-0 flex-col bg-[#12100d]"
-      aria-label="Story"
+      aria-label="Director"
     >
-      <div className="conversation-rail-header flex h-9 shrink-0 items-center justify-end border-b border-[#2a2620] bg-[#0c0b0a] px-2">
+      <PanelHeader className="conversation-rail-header" title="Director">
         <ConversationRailToggle />
-      </div>
+      </PanelHeader>
       <div
         ref={threadRef}
         className="min-h-0 flex-1 overflow-auto px-4 py-3"

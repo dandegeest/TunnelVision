@@ -95,7 +95,7 @@ project rather than a demonstration journey. Forest A→F remains
 research evidence and an explicit test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does
 not independently substitute a catalog still. Story text is project
-intent; DIRECT in the Project panel is the only Director invocation.
+intent; CREATE JOURNEY in the Project panel is the only Director invocation.
 AUTO destination count lets the Director choose N; a number, typed or
 stepped, adds that
 many FPO slots. After the first DIRECT response the count is read-only
@@ -153,7 +153,7 @@ visual description as demoted far-field continuity after this destination
 and the camera move from the source still. This viewpoint stays this
 destination; the last beat has no look-ahead. Opening A is still generated from the journey story only;
 the prompt asks for that opening instant and does not depict later destinations.
-Debug is a session gear at the bottom right of the Project panel, not project persistence. It is on by
+Debug is a session toggle in Project settings, not project persistence. It is on by
 default for now so Camotion work dirs are kept. Technical
 in the Shoot inspector lists session store paths for canonical stills
 and, after a Motion Plan is staged, segment A′/B′ and Camotion work dirs. With Debug on,
@@ -190,7 +190,7 @@ While Plan or Generate runs, that band uses the same generating
 shimmer as Plan FPO thumbs. The app
 can track more than one blocking or shooting operation at a time.
 SHOOT on a staged leg uses the Motion Plan's A′/B′ and a configurable
-video model chosen in the Project panel. Pruna (`prunaai/p-video`) is the
+video model chosen in Project settings. Pruna (`prunaai/p-video`) is the
 development default. Mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last
 Frame, and Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in for the
 same A′/B′ pipeline. Clip duration follows the generator (Pruna 6s,
@@ -281,7 +281,7 @@ storyboard images exist. Agent reasons. CV observes / measures.
 Camotion renders. Video model films.
 
 Video currently receives shooting frames A′ and B′ plus the composed
-locomotion prompt. The Project panel Video control chooses the generator
+locomotion prompt. The Project settings Video control chooses the generator
 for every SHOOT in the current project. Pruna maps those frames to
 `image` and `last_frame_image`; Luma uses `start_image`/`end_image`;
 Wan 2.2 I2V Fast uses `image`/`last_image`; Seedance 2.0 Fast and 2.5

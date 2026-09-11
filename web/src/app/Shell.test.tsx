@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import type { ConversationEntry } from "../project/conversation";
 import { ProjectProvider } from "../project/ProjectProvider";
+import { ProjectRail } from "./ProjectRail";
 import { Shell } from "./Shell";
 
 function renderShell(options?: {
@@ -60,7 +61,8 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain("Live production monitor");
     expect(html).toContain('aria-label="Agency"');
     expect(html).toContain("Directed");
-    expect(html).toContain("Autonomous");
+    expect(html).toContain("Agent");
+    expect(html).not.toContain("Autonomous");
     const agencyStart = html.indexOf('aria-label="Agency"');
     const agency = html.slice(agencyStart, html.indexOf("</nav>", agencyStart) + "</nav>".length);
     expect(agency).toContain('aria-pressed="true"');
@@ -73,36 +75,76 @@ describe("Shell header chrome", () => {
     const html = renderShell();
     const toolbar = html.slice(html.indexOf("workspace-toolbar"), html.indexOf("conversation-rail-header"));
     expect(html).toContain("workspace-toolbar");
-    expect(toolbar).not.toContain('aria-label="Debug"');
+    expect(toolbar).not.toContain('aria-label="Debug mode"');
+    expect(toolbar).not.toContain('aria-label="Project settings"');
     expect(toolbar).not.toContain('aria-label="Agency"');
+    expect(toolbar).not.toContain('aria-label="Current project:');
     expect(html).not.toContain('aria-label="Media info"');
     expect(html).not.toContain(">Media Info<");
     expect(html).not.toContain(">MEDIA INFO<");
   });
 
-  it("places Agency at the top of the Project panel and Debug as a gear at the bottom", () => {
-    const off = renderShell({ debug: false });
-    const on = renderShell();
-    expect(off).toContain('aria-pressed="false" aria-label="Debug"');
-    expect(on).toContain('aria-pressed="true" aria-label="Debug"');
-    const project = on.slice(on.indexOf('id="project-panel"'));
+  it("places Agency at the top of the Project panel and settings behind the gear", () => {
+    const html = renderShell();
+    const project = html.slice(html.indexOf('id="project-panel"'));
     const storyAt = project.indexOf('id="project-story"');
-    const directAt = project.indexOf('aria-label="Direct movie"');
-    const debugAt = project.indexOf('aria-label="Debug"');
+    const createAt = project.indexOf('aria-label="Create journey"');
+    const settingsAt = project.indexOf('aria-label="Project settings"');
     const agencyAt = project.indexOf('aria-label="Agency"');
-    const videoAt = project.indexOf('aria-label="Video model"');
-    expect(agencyAt).toBeGreaterThan(-1);
+    expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Current project:'));
+    expect(project.indexOf('aria-label="Current project:')).toBeLessThan(agencyAt);
     expect(agencyAt).toBeLessThan(storyAt);
-    expect(videoAt).toBeGreaterThan(storyAt);
-    expect(videoAt).toBeLessThan(directAt);
-    expect(debugAt).toBeGreaterThan(directAt);
-    const underDirect = project.slice(directAt, debugAt);
-    expect(underDirect).toContain("DIRECT asks the Director to fill unspecified beats.");
-    expect(underDirect).not.toContain('aria-label="Agency"');
-    expect(underDirect).not.toContain('aria-label="Video model"');
-    expect(underDirect).not.toContain('aria-label="Debug"');
-    expect(project).not.toContain(">Technical<");
-    expect(project).not.toContain("Construction: planned. Discovery is not implemented.");
+    expect(createAt).toBeGreaterThan(storyAt);
+    expect(settingsAt).toBeGreaterThan(createAt);
+    expect(project).toContain(">Journey prompt<");
+    expect(project).toContain(">Destinations<");
+    expect(project).toContain(">Options<");
+    expect(project).toContain("Generate start destination");
+    expect(project).toContain("Generate all destinations");
+    expect(project).not.toContain("Auto generate");
+    expect(project).not.toContain("Auto blocking");
+    expect(project).not.toContain("Auto shoot");
+    expect(project).not.toContain('aria-label="Video model"');
+    expect(project).not.toContain('aria-label="Debug mode"');
+    expect(project).not.toContain("DIRECT asks the Director");
+    expect(project).toContain(">CREATE JOURNEY<");
+    expect(project).toContain("project-rail-header");
+    expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Agency"'));
+    expect(project).toContain("text-[13px] font-semibold");
+    expect(project).toContain('title="Hide project"');
+  });
+
+  it("swaps the Project panel to settings for Video and Debug mode", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider initialProject={createForestProject()} initialDebug={false}>
+        <ProjectRail initialSettingsOpen />
+      </ProjectProvider>,
+    );
+    expect(html).toContain(">Project settings<");
+    expect(html).toContain('aria-label="Back to project"');
+    expect(html).toContain('aria-label="Video model"');
+    expect(html).toContain('aria-label="Debug mode"');
+    expect(html.indexOf('aria-label="Video model"')).toBeLessThan(
+      html.indexOf('aria-label="Back to project"'),
+    );
+    expect(html).toContain("items-center justify-end px-3 pb-3");
+    expect(html).not.toMatch(
+      /checked[^>]*aria-label="Debug mode"|aria-label="Debug mode"[^>]*checked/,
+    );
+    expect(html).toContain("Pruna $");
+    expect(html).not.toContain('id="project-story"');
+    expect(html).not.toContain(">Options<");
+    expect(html).not.toContain('aria-label="Create journey"');
+    expect(html).not.toContain('aria-label="Current project:');
+  });
+
+  it("hides Options in Agent and keeps Create journey", () => {
+    const html = renderShell({ agency: "autonomous" });
+    const project = html.slice(html.indexOf('id="project-panel"'));
+    expect(project).toContain(">Agent<");
+    expect(project).not.toContain(">Options<");
+    expect(project).not.toContain("Generate start destination");
+    expect(project).toContain('aria-label="Create journey"');
   });
 
   it("centers Plan/Shoot in the workspace toolbar grid, not as a viewport heading", () => {
@@ -111,6 +153,15 @@ describe("Shell header chrome", () => {
     expect(html).toContain("grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]");
     expect(html).toContain(">Plan<");
     expect(html).toContain(">Shoot<");
+    const toolbar = html.slice(html.indexOf("workspace-toolbar"), html.indexOf("conversation-rail-header"));
+    const logoAt = toolbar.indexOf(">TunnelVision<");
+    const planAt = toolbar.indexOf(">Plan<");
+    expect(logoAt).toBeGreaterThan(-1);
+    expect(logoAt).toBeLessThan(planAt);
+    expect(toolbar).not.toContain('aria-label="Current project:');
+    expect(toolbar).toContain("text-sm font-semibold");
+    expect(html).toContain("workspace-app-header");
+    expect(html).toContain("grid-column:1 / -1");
   });
 
   it("keeps the toolbar on Shoot without the supervising caption", () => {
@@ -122,7 +173,7 @@ describe("Shell header chrome", () => {
   });
 });
 
-describe("Filmmaking conversation rail", () => {
+describe("Director panel", () => {
   const filmmakerTurn: ConversationEntry[] = [
     {
       id: "f1",
@@ -144,14 +195,20 @@ describe("Filmmaking conversation rail", () => {
       open.indexOf('id="project-story"'),
     );
     expect(open).toContain("conversation-rail-header");
-    expect(openHeader).toContain("justify-end");
-    expect(openHeader).toContain('aria-label="Filmmaking conversation"');
-    expect(openHeader).toContain('title="Hide filmmaking conversation"');
-    expect(openToolbar).not.toContain('aria-label="Filmmaking conversation"');
+    expect(openHeader).toContain("justify-between");
+    expect(openHeader).toContain(">Director<");
+    expect(openHeader).toContain("text-[13px] font-semibold");
+    expect(openHeader).toContain('aria-label="Director"');
+    expect(openHeader).toContain('title="Hide director"');
+    expect(openToolbar).not.toContain('aria-label="Current project:');
+    expect(openToolbar).not.toContain('title="Hide director"');
+    expect(open).toContain("workspace-app-header");
+    expect(open).toContain("grid-column:1 / -1");
+    expect(open).not.toContain("grid-row:1 / span 2");
     expect(open).not.toContain("conversation-rail-reopen");
-    expect(open).toContain('aria-label="Story"');
+    expect(open).toContain('aria-label="Director"');
     expect(open).toContain('id="filmmaking-conversation"');
-    expect(open).toContain('aria-label="Resize story panel"');
+    expect(open).toContain('aria-label="Resize director panel"');
     expect(open).not.toContain("Hide Chat");
     expect(open).not.toContain("chat mode");
     const reopenAt = closed.indexOf("conversation-rail-reopen");
@@ -161,11 +218,11 @@ describe("Filmmaking conversation rail", () => {
     expect(reopen).toContain("h-5 w-5");
     expect(reopen).toContain("border-r border-[#2a2620]");
     expect(reopen).not.toContain("absolute");
-    expect(reopen).toContain('title="Show filmmaking conversation"');
-    expect(reopen).toContain('aria-label="Filmmaking conversation"');
+    expect(reopen).toContain('title="Show director"');
+    expect(reopen).toContain('aria-label="Director"');
     expect(closed).toContain("hidden");
     expect(closed).toContain('id="filmmaking-conversation"');
-    expect(closed).not.toContain('aria-label="Resize story panel"');
+    expect(closed).not.toContain('aria-label="Resize director panel"');
     expect(closed).toContain('aria-label="Storyboard"');
     expect(closed).not.toContain("Hide Chat");
   });
@@ -185,7 +242,7 @@ describe("Filmmaking conversation rail", () => {
     expect(closed).toContain("Draft that must survive collapse.");
     expect(opened).toContain("Keep this filmmaker turn.");
     expect(opened).toContain("Draft that must survive collapse.");
-    expect(opened).toContain('title="Hide filmmaking conversation"');
+    expect(opened).toContain('title="Hide director"');
     expect(opened).toContain("conversation-filmmaker");
   });
 
@@ -194,24 +251,24 @@ describe("Filmmaking conversation rail", () => {
     const shootClosed = renderShell({ view: "shoot", conversationRailOpen: false });
     const planOpen = renderShell({ view: "plan" });
     const shootOpen = renderShell({ view: "shoot" });
-    expect(planClosed).toContain('title="Show filmmaking conversation"');
-    expect(shootClosed).toContain('title="Show filmmaking conversation"');
+    expect(planClosed).toContain('title="Show director"');
+    expect(shootClosed).toContain('title="Show director"');
     expect(shootClosed).toContain("conversation-rail-reopen");
     expect(planClosed).toContain("conversation-rail-reopen");
-    expect(planClosed).not.toContain('aria-label="Resize story panel"');
-    expect(shootClosed).not.toContain('aria-label="Resize story panel"');
+    expect(planClosed).not.toContain('aria-label="Resize director panel"');
+    expect(shootClosed).not.toContain('aria-label="Resize director panel"');
     expect(planClosed).toContain('aria-label="Storyboard"');
     expect(shootClosed).not.toContain("Shoot This Shot");
-    expect(planOpen).toContain('title="Hide filmmaking conversation"');
-    expect(shootOpen).toContain('title="Hide filmmaking conversation"');
+    expect(planOpen).toContain('title="Hide director"');
+    expect(shootOpen).toContain('title="Hide director"');
     expect(shootOpen).toContain('title="Hide inspector"');
     expect(planOpen).not.toContain('title="Hide inspector"');
-    expect(planOpen).toContain('aria-label="Resize story panel"');
-    expect(shootOpen).toContain('aria-label="Resize story panel"');
+    expect(planOpen).toContain('aria-label="Resize director panel"');
+    expect(shootOpen).toContain('aria-label="Resize director panel"');
     expect(shootOpen).toContain('aria-label="Resize timeline"');
     expect(planOpen).not.toContain('aria-label="Resize timeline"');
     expect(shootOpen).not.toContain("Shoot This Shot");
-    expect(shootOpen).toContain('aria-label="Story"');
+    expect(shootOpen).toContain('aria-label="Director"');
   });
 
   it("does not let Directed or Autonomous control rail visibility", () => {
@@ -219,14 +276,14 @@ describe("Filmmaking conversation rail", () => {
     const autonomousOpen = renderShell({ agency: "autonomous" });
     const directedClosed = renderShell({ agency: "directed", conversationRailOpen: false });
     const autonomousClosed = renderShell({ agency: "autonomous", conversationRailOpen: false });
-    expect(directedOpen).toContain('title="Hide filmmaking conversation"');
-    expect(autonomousOpen).toContain('title="Hide filmmaking conversation"');
-    expect(directedOpen).toContain('aria-label="Story"');
-    expect(autonomousOpen).toContain('aria-label="Story"');
-    expect(directedClosed).toContain('title="Show filmmaking conversation"');
-    expect(autonomousClosed).toContain('title="Show filmmaking conversation"');
-    expect(directedClosed).not.toContain('aria-label="Resize story panel"');
-    expect(autonomousClosed).not.toContain('aria-label="Resize story panel"');
+    expect(directedOpen).toContain('title="Hide director"');
+    expect(autonomousOpen).toContain('title="Hide director"');
+    expect(directedOpen).toContain('aria-label="Director"');
+    expect(autonomousOpen).toContain('aria-label="Director"');
+    expect(directedClosed).toContain('title="Show director"');
+    expect(autonomousClosed).toContain('title="Show director"');
+    expect(directedClosed).not.toContain('aria-label="Resize director panel"');
+    expect(autonomousClosed).not.toContain('aria-label="Resize director panel"');
   });
 });
 

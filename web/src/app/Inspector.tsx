@@ -16,6 +16,7 @@ import { DestinationPlanFields } from "./PlanView";
 import { TechnicalPanel } from "./TechnicalPanel";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
 import { camotionRecordsForDestination, camotionRecordsForJourney, formatPlanPoint } from "../project/camotion-diagnostics";
+import { PanelHeader } from "./PanelHeader";
 
 export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
   const { inspectorOpen, setInspectorOpen } = useProject();
@@ -62,9 +63,9 @@ function InspectorShell({ children }: { children: ReactNode }) {
       className="flex h-full min-h-0 flex-col border-l border-[#2a2620] bg-[#12100d] text-sm"
       aria-label="Inspector"
     >
-      <div className="inspector-header flex h-9 shrink-0 items-center justify-start border-b border-[#2a2620] bg-[#0c0b0a] px-2">
+      <PanelHeader className="inspector-header" title="Inspector">
         <InspectorToggle />
-      </div>
+      </PanelHeader>
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-4">{children}</div>
     </aside>
   );

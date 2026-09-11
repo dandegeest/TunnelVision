@@ -184,38 +184,31 @@ export function FilmmakingFrame({
         gridTemplateRows: hasChrome ? "auto minmax(0, 1fr)" : "minmax(0, 1fr)",
       }}
     >
-      {hasChrome && conversationRailOpen ? (
-        <div className="min-w-0" style={{ gridColumn: layout.conversation, gridRow: 1 }}>
-          {brand}
+      {hasChrome ? (
+        <div
+          className="workspace-app-header min-w-0"
+          style={{ gridColumn: "1 / -1", gridRow: 1 }}
+        >
+          {workspaceHeader}
         </div>
       ) : null}
       {layout.conversationResize ? (
         <div
           role="separator"
           aria-orientation="vertical"
-          aria-label="Resize story panel"
+          aria-label="Resize director panel"
           aria-valuemin={RAIL_WIDTH_MIN}
           aria-valuemax={RAIL_WIDTH_MAX}
           aria-valuenow={conversationWidth}
           tabIndex={0}
           className="h-full cursor-col-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
-          style={{ gridColumn: layout.conversationResize, gridRow: hasChrome ? "1 / span 2" : 1 }}
+          style={{ gridColumn: layout.conversationResize, gridRow: bodyRow }}
           onPointerDown={onConversationResizePointerDown}
           onPointerMove={onConversationResizePointerMove}
           onPointerUp={onConversationResizePointerUp}
           onPointerCancel={onConversationResizePointerUp}
           onKeyDown={onConversationResizeKeyDown}
         />
-      ) : null}
-      {hasChrome ? (
-        <div className="min-w-0" style={{ gridColumn: layout.main, gridRow: 1 }}>
-          {workspaceHeader}
-        </div>
-      ) : null}
-      {hasChrome && projectRailOpen ? (
-        <div className="min-w-0" style={{ gridColumn: layout.project, gridRow: 1 }}>
-          {projectHeader}
-        </div>
       ) : null}
       {layout.projectResize ? (
         <div
@@ -227,7 +220,7 @@ export function FilmmakingFrame({
           aria-valuenow={projectWidth}
           tabIndex={0}
           className="h-full cursor-col-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
-          style={{ gridColumn: layout.projectResize, gridRow: hasChrome ? "1 / span 2" : 1 }}
+          style={{ gridColumn: layout.projectResize, gridRow: bodyRow }}
           onPointerDown={onProjectResizePointerDown}
           onPointerMove={onProjectResizePointerMove}
           onPointerUp={onProjectResizePointerUp}
@@ -238,7 +231,14 @@ export function FilmmakingFrame({
       <div
         className="h-full min-h-0 min-w-0"
         {...(conversationRailOpen ? {} : { hidden: true })}
-        style={conversationRailOpen ? { gridColumn: layout.conversation, gridRow: bodyRow } : undefined}
+        style={
+          conversationRailOpen
+            ? {
+                gridColumn: layout.conversation,
+                gridRow: bodyRow,
+              }
+            : undefined
+        }
       >
         <ConversationRail />
       </div>
@@ -259,7 +259,14 @@ export function FilmmakingFrame({
       <div
         className="h-full min-h-0 min-w-0"
         {...(projectRailOpen ? {} : { hidden: true })}
-        style={projectRailOpen ? { gridColumn: layout.project, gridRow: bodyRow } : undefined}
+        style={
+          projectRailOpen
+            ? {
+                gridColumn: layout.project,
+                gridRow: bodyRow,
+              }
+            : undefined
+        }
       >
         <ProjectRail />
       </div>

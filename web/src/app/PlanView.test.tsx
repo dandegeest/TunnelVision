@@ -118,17 +118,17 @@ describe("Plan project story", () => {
     expect(html).toContain('aria-label="Journey story"');
     expect(html).toContain("text-[11px]");
     expect(html).toContain("resize-y");
-    expect(html).toContain('aria-label="Resize story panel"');
+    expect(html).toContain('aria-label="Resize director panel"');
     expect(html).toContain('aria-label="Resize project panel"');
     expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
-    expect(html).toContain('aria-label="Direct movie"');
+    expect(html).toContain('aria-label="Create journey"');
     expect(html).toContain("relative w-full overflow-hidden rounded");
-    expect(html).toContain(">DIRECT<");
+    expect(html).toContain(">CREATE JOURNEY<");
     expect(html).not.toContain(">Technical<");
     expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
-    expect(html).not.toContain("Turn on Debug at the bottom of the Project panel");
-    expect(html).toContain('aria-label="Debug"');
+    expect(html).not.toContain("Turn on Debug mode in Project settings");
+    expect(html).toContain('aria-label="Project settings"');
     expect(html).toContain('aria-label="Agency"');
     expect(html).not.toContain('aria-label="Send"');
     expect(html).not.toContain("Send is not a filmmaking command yet");
@@ -146,7 +146,7 @@ describe("Plan project story", () => {
     const html = renderPlan(createWardrobeProject(), { debug: true });
     expect(html).not.toContain(">Technical<");
     expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
-    expect(html).toContain('aria-label="Debug"');
+    expect(html).toContain('aria-label="Project settings"');
     expect(html).not.toContain("Session store.");
     expect(html).not.toContain("Canonical A.");
   });
@@ -193,7 +193,8 @@ describe("Plan project story", () => {
     expect(html).not.toContain("Replace image");
     expect(html).not.toContain("REPLACE IMAGE");
     expect(html).not.toContain("Replace…");
-    expect(html).not.toContain("Generate");
+    const storyboard = html.slice(html.indexOf('aria-label="Storyboard"'), html.indexOf('id="project-panel"'));
+    expect(storyboard).not.toContain("Generate");
     expect(html).not.toContain("CONSTRUCT");
     expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
   });
@@ -337,9 +338,9 @@ describe("Plan storyboard FPO intent", () => {
     expect(html).not.toContain("Generate destination C");
   });
 
-  it("keeps conversation construction activity in the Story panel", () => {
+  it("keeps conversation construction activity in the Director panel", () => {
     const html = renderPlan();
-    expect(html).toContain("Story");
+    expect(html).toContain(">Director<");
     expect(html).toContain('id="project-story"');
     expect(html).not.toContain("Constructing");
     expect(html).not.toContain("Constructed B");
@@ -470,11 +471,15 @@ describe("Plan media preflight UI", () => {
 });
 
 describe("Plan storyboard chrome", () => {
-  it("removes redundant Story and Storyboard headings", () => {
+  it("keeps Director on the conversation header and no Storyboard heading", () => {
     const html = renderPlan(createForestProject());
-    expect(html).toContain('aria-label="Story"');
+    expect(html).toContain('aria-label="Director"');
     expect(html).toContain('aria-label="Storyboard"');
-    expect(html).not.toMatch(/>Story</);
+    const conversationHeader = html.slice(
+      html.indexOf("conversation-rail-header"),
+      html.indexOf('aria-label="Storyboard"'),
+    );
+    expect(conversationHeader).toContain(">Director<");
     expect(html).not.toMatch(/>Storyboard</);
   });
 
@@ -1124,7 +1129,7 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Destination A actions"');
     expect(html).not.toContain('aria-label="Generate destination A"');
     expect(html).toContain('placeholder="Describe the journey…"');
-    expect(html).toMatch(/disabled[^>]*aria-label="Direct movie"|aria-label="Direct movie"[^>]*disabled/);
+    expect(html).toMatch(/disabled[^>]*aria-label="Create journey"|aria-label="Create journey"[^>]*disabled/);
     expect(html).toContain("Enter a journey story or upload starting frame A.");
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
@@ -1143,44 +1148,31 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Destination A actions"');
     expect(html).toContain('aria-label="Generate destination A"');
     expect(html).toContain('aria-label="Story destinations"');
-    expect(html).toContain('aria-label="Video model"');
-    expect(html).toContain('value="pruna-p-video"');
+    expect(html).not.toContain('aria-label="Video model"');
     const storyAt = html.indexOf('id="project-story"');
-    const directAt = html.indexOf('aria-label="Direct movie"');
-    const debugAt = html.indexOf('aria-label="Debug"');
+    const createAt = html.indexOf('aria-label="Create journey"');
+    const settingsAt = html.indexOf('aria-label="Project settings"');
     const agencyAt = html.indexOf('aria-label="Agency"');
-    const videoAt = html.indexOf('aria-label="Video model"');
     expect(agencyAt).toBeLessThan(storyAt);
-    expect(videoAt).toBeGreaterThan(storyAt);
-    expect(videoAt).toBeLessThan(directAt);
-    expect(debugAt).toBeGreaterThan(directAt);
-    const underDirect = html.slice(directAt, debugAt);
-    expect(underDirect).toContain("DIRECT generates A from the story, then asks the Director to plan.");
-    expect(underDirect).not.toContain('aria-label="Agency"');
-    expect(underDirect).not.toContain('aria-label="Video model"');
-    expect(underDirect).not.toContain('aria-label="Debug"');
+    expect(createAt).toBeGreaterThan(storyAt);
+    expect(settingsAt).toBeGreaterThan(createAt);
+    expect(html).toContain(">Journey prompt<");
+    expect(html).toContain(">Options<");
+    expect(html).not.toContain("DIRECT generates A from the story");
     expect(html).not.toContain(">Technical<");
-    expect(html).toContain("Pruna $");
-    expect(html).toContain("Luma Ray Flash 2 720p $$");
-    expect(html).toContain("Wan 2.2 First/Last Frame $$");
-    expect(html).toContain("Seedance 2.0 Fast $$");
-    expect(html).toContain("Seedance 2.5 $$$");
     expect(html).toContain('aria-label="Increase destinations"');
     expect(html).toContain('aria-label="Decrease destinations"');
-    expect(html).toContain('aria-label="Auto generate starting destination"');
-    expect(html).toContain('aria-label="Auto generate all destinations"');
-    expect(html).toContain('aria-label="Auto blocking"');
-    expect(html).toContain('aria-label="Auto shoot"');
+    expect(html).toContain('aria-label="Generate start destination"');
+    expect(html).toContain('aria-label="Generate all destinations"');
+    expect(html).not.toContain('aria-label="Auto blocking"');
+    expect(html).toContain('aria-label="Shoot"');
     expect(html).not.toMatch(
-      /checked[^>]*aria-label="Auto generate all destinations"|aria-label="Auto generate all destinations"[^>]*checked/,
+      /checked[^>]*aria-label="Generate all destinations"|aria-label="Generate all destinations"[^>]*checked/,
     );
     expect(html).not.toMatch(
-      /checked[^>]*aria-label="Auto blocking"|aria-label="Auto blocking"[^>]*checked/,
+      /checked[^>]*aria-label="Shoot"|aria-label="Shoot"[^>]*checked/,
     );
-    expect(html).not.toMatch(
-      /checked[^>]*aria-label="Auto shoot"|aria-label="Auto shoot"[^>]*checked/,
-    );
-    expect(html).not.toMatch(/<button type="button" aria-label="Direct movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
   });
 
@@ -1190,7 +1182,7 @@ describe("new-project Plan", () => {
       story: "Travel forward through an imagined interior at night.",
       autoGenerateOpening: false,
     });
-    expect(html).toMatch(/disabled[^>]*aria-label="Direct movie"|aria-label="Direct movie"[^>]*disabled/);
+    expect(html).toMatch(/disabled[^>]*aria-label="Create journey"|aria-label="Create journey"[^>]*disabled/);
   });
 
   it("lets PLAN run when A is actual and the story is empty", () => {
@@ -1208,14 +1200,13 @@ describe("new-project Plan", () => {
       ],
     };
     const html = renderPlan(withA, { composerDraft: "" });
-    expect(html).not.toMatch(/<button type="button" aria-label="Direct movie"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
-    expect(html).toContain("Create a journey starting at A, then ask the Director to plan the shots.");
+    expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
     expect(html).toMatch(
-      /disabled[^>]*aria-label="Auto generate starting destination"|aria-label="Auto generate starting destination"[^>]*disabled/,
+      /disabled[^>]*aria-label="Generate start destination"|aria-label="Generate start destination"[^>]*disabled/,
     );
     expect(html).not.toMatch(
-      /checked[^>]*aria-label="Auto generate starting destination"|aria-label="Auto generate starting destination"[^>]*checked/,
+      /checked[^>]*aria-label="Generate start destination"|aria-label="Generate start destination"[^>]*checked/,
     );
   });
 

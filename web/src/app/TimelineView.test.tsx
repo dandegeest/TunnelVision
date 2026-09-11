@@ -689,7 +689,7 @@ describe("Shoot inspector panel", () => {
   it("prompts to turn on Debug from Technical when Debug is off", () => {
     const html = renderShoot(createForestProject(), { destinationId: "A", occurrenceIndex: 0 }, { debug: false });
     expect(html).toContain(">Technical<");
-    expect(html).toContain("Turn on Debug at the bottom of the Project panel");
+    expect(html).toContain("Turn on Debug mode in Project settings");
     expect(html).not.toContain("Session store.");
   });
 
@@ -704,6 +704,8 @@ describe("Shoot inspector panel", () => {
     expect(open).toContain('aria-label="Resize timeline"');
     expect(open).toContain("preview-monitor-pair");
     expect(open).toContain("inspector-header");
+    expect(open).toContain(">Inspector<");
+    expect(open).toContain("text-[13px] font-semibold");
     expect(closed).toContain("inspector-reopen");
     expect(closed).toContain("h-9 w-full");
     expect(closed).toContain("h-5 w-5");

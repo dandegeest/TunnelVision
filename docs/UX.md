@@ -22,14 +22,16 @@ concatenates rendered journey clips that already exist.
 deliberately no Edit workspace.
 
 **Current implementation:** Product Slice 3 Plan is a dominant
-storyboard grid between a conversation history rail and a Project
-panel. The left rail is conversation turn history only. The Project
-panel holds Directed / Autonomous at the top, then the journey story, destination count (AUTO or a
-number, typed or stepped), Video model, auto-generate-A, auto-generate-all, auto-block,
-auto-shoot, and DIRECT with helper copy directly beneath it. Debug is a
-gear at the bottom right of that panel (session UI; a later settings
-menu may grow from it). The panel can collapse to the right
-like conversation collapses to the left. Opening A can be uploaded
+storyboard grid between a Director conversation rail and a Project
+panel. A full-width app header keeps TunnelVision on the left and Plan | Shoot
+centered. The left rail is conversation turn history only. The Project
+panel holds the project selector, then Directed | Agent, Journey prompt, destination count (AUTO or a
+number, typed or stepped), and, in Directed, Options (Generate start destination,
+Generate all destinations, Shoot). Blocking is not a user automation option.
+CREATE JOURNEY is the primary action. Video and Debug mode live in Project
+settings, opened from the gear. Agent hides Options. The panel can collapse to the right
+like conversation collapses to the left. Director, Project, and Inspector
+headers put the panel name and collapse control on one row, below the app header. The project selector sits in the Project panel under that header. Opening A can be uploaded
 before a story exists. AUTO leaves later beats to the Director;
 a number adds that many FPO destinations. After the first DIRECT
 response the count is read-only and follows storyboard add/delete.
@@ -209,9 +211,9 @@ convert source media.
 Storyboard media facts appear on the selected still as a thin bottom
 strip (provenance icon, friendly aspect, dimensions, format). There is
 no Media Info toolbar toggle. Generated stills store the same facts as
-uploads once the image exists. **Debug** is a gear at the bottom right
-of the Project panel and is session UI, not project
-persistence. Debug is on by default for now. **Agency** is a Directed / Autonomous segmented control
+uploads once the image exists. **Debug** is a session
+toggle in Project settings, not project
+persistence. Debug is on by default for now. **Agency** is a Directed / Agent segmented control
 at the top of that panel, not a native OS menu and not in the workspace header. With Debug on, Technical in the Shoot
 inspector shows session disk paths for canonical stills and shooting
 frames. Camotion work dirs are kept only while Debug is on; product
@@ -249,9 +251,9 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
-can hide to the left. Directed / Autonomous, journey story, destination count, Video model, auto-generate-A,
-auto-generate-all, auto-block, auto-shoot, and DIRECT live in the Project panel,
-which can hide to the right. Helper copy sits directly under DIRECT. Debug is a gear at the bottom right of that panel. Opening A can be uploaded before a journey
+can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
+which can hide to the right. Directed Options are Generate start destination, Generate all destinations, and Shoot.
+Video and Debug mode are in Project settings. Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.
@@ -261,11 +263,11 @@ disables that toggle. When A is actual and the story is empty, DIRECT
 writes a story from A first. When auto-generate all destinations is on,
 DIRECT then generates each remaining destination in order from the
 previous actual frame. Auto blocking and Auto shoot continue that
-pipeline after destinations exist. While DIRECT or those auto stages run,
-the DIRECT button uses the generating shimmer and names the current
+pipeline after destinations exist. While CREATE JOURNEY or those auto stages run,
+the CREATE JOURNEY button uses the generating shimmer and names the current
 stage on that button only: Generating A…, Planning Destinations…,
 Planning A→B…, Generating A→B…. Do not repeat that status as helper
-copy under the button, and do not prefix it with "Director is". DIRECT appends a pending
+copy under the button, and do not prefix it with "Director is". CREATE JOURNEY appends a pending
 Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
 summary. Pending Director **Planning…**, **Blocking…**, and

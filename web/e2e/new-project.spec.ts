@@ -319,14 +319,20 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByText("Not yet planned")).toHaveCount(0);
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
   await expect(page.getByLabel("Generate destination A")).toHaveCount(0);
-  await expect(page.getByLabel("Direct movie")).toBeDisabled();
-  await expect(page.getByLabel("Debug")).toBeVisible();
+  await expect(page.getByLabel("Create journey")).toBeDisabled();
+  await expect(page.getByLabel("Project settings")).toBeVisible();
   await expect(page.getByLabel("Agency")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeDisabled();
-  await expect(page.getByLabel("Auto blocking")).not.toBeChecked();
-  await expect(page.getByLabel("Auto shoot")).not.toBeChecked();
-  await expect(page.getByLabel("Video model")).toHaveValue("pruna-p-video");
+  await expect(page.getByLabel("Auto blocking")).toHaveCount(0);
+  await expect(page.getByRole("checkbox", { name: "Shoot" })).not.toBeChecked();
+  await expect(page.getByLabel("Video model")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Agent" }).click();
+  await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
+  await expect(page.getByLabel("Create journey")).toBeVisible();
+  await page.getByRole("button", { name: "Directed" }).click();
+  await expect(page.getByLabel("Generate start destination")).toBeVisible();
 
   await page.getByLabel("Journey story").fill("Travel forward through an imagined interior at night.");
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
@@ -334,11 +340,10 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Story destinations")).toHaveValue("AUTO");
   await expect(page.getByLabel("Increase destinations")).toBeEnabled();
   await expect(page.getByLabel("Decrease destinations")).toBeDisabled();
-  await expect(page.getByLabel("Auto generate starting destination")).toBeChecked();
-  await expect(page.getByLabel("Auto generate all destinations")).not.toBeChecked();
-  await expect(page.getByLabel("Auto blocking")).not.toBeChecked();
-  await expect(page.getByLabel("Auto shoot")).not.toBeChecked();
-  await expect(page.getByLabel("Direct movie")).toBeEnabled();
+  await expect(page.getByLabel("Generate start destination")).toBeChecked();
+  await expect(page.getByLabel("Generate all destinations")).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Shoot" })).not.toBeChecked();
+  await expect(page.getByLabel("Create journey")).toBeEnabled();
 
   await page.getByLabel("Increase destinations").click();
   await expect(page.getByLabel("Story destinations")).toHaveValue("2");
@@ -365,9 +370,9 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.locator('[data-destination-card="A"] .storyboard-media-info')).toContainText("PNG");
   await expect(page.getByLabel("Uploaded frame")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toBeVisible();
-  await expect(page.getByLabel("Direct movie")).toBeEnabled();
-  await expect(page.getByLabel("Auto generate starting destination")).not.toBeChecked();
-  await expect(page.getByLabel("Auto generate starting destination")).toBeDisabled();
+  await expect(page.getByLabel("Create journey")).toBeEnabled();
+  await expect(page.getByLabel("Generate start destination")).not.toBeChecked();
+  await expect(page.getByLabel("Generate start destination")).toBeDisabled();
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeEnabled();
 
   await page.getByLabel("Destination A plan").click();
@@ -388,8 +393,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Storyboard B")).toBeVisible();
   await expect(page.getByLabel("Storyboard B")).toHaveAttribute("aria-pressed", "true");
 
-  await expect(page.getByLabel("Direct movie")).toBeEnabled();
-  await page.getByLabel("Direct movie").click();
+  await expect(page.getByLabel("Create journey")).toBeEnabled();
+  await page.getByLabel("Create journey").click();
 
   await expect(page.getByLabel("Generate destination B")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toBeVisible();
@@ -567,6 +572,10 @@ test("project video model selector defaults to Pruna and lists mid-tier and HQ o
   page,
 }) => {
   await page.goto("/");
+  await page.getByLabel("Project settings").click();
+  await expect(page.getByLabel("Back to project")).toBeVisible();
+  await expect(page.getByLabel("Debug mode")).toBeChecked();
+  await expect(page.getByLabel("Create journey")).toHaveCount(0);
   const select = page.getByLabel("Video model");
   await expect(select).toHaveValue("pruna-p-video");
   await expect(select.locator("option")).toHaveText([
@@ -580,4 +589,9 @@ test("project video model selector defaults to Pruna and lists mid-tier and HQ o
   await expect(select).toHaveValue("luma-ray-flash-2-720p");
   await select.selectOption("seedance-2.5");
   await expect(select).toHaveValue("seedance-2.5");
+  await page.getByLabel("Back to project").click();
+  await expect(page.getByLabel("Create journey")).toBeVisible();
+  await expect(page.getByLabel("Video model")).toHaveCount(0);
+  await page.getByLabel("Project settings").click();
+  await expect(page.getByLabel("Video model")).toHaveValue("seedance-2.5");
 });

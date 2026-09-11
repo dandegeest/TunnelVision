@@ -15,6 +15,7 @@ import {
   isVideoModelId,
   videoModelMenuLabel,
 } from "../../../media/src/replicate/video-models.ts";
+import { PanelHeader } from "./PanelHeader";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { projectRailOpen, setProjectRailOpen } = useProject();
@@ -201,24 +202,14 @@ function StoryDurationField({
   );
 }
 
-function DebugButton() {
-  const { debugOn, setDebugOn } = useProject();
+function SettingsButton({ onOpen }: { onOpen: () => void }) {
   return (
     <button
       type="button"
-      aria-pressed={debugOn}
-      aria-label="Debug"
-      title={
-        debugOn
-          ? "Debug is on. Camotion work dirs are kept. Asset paths are under Technical in the Shoot inspector."
-          : "Show session asset paths under Technical in the Shoot inspector and keep Camotion work dirs."
-      }
-      onClick={() => setDebugOn(!debugOn)}
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded border outline-none ${
-        debugOn
-          ? "border-[#ece7df] text-[#ece7df]"
-          : "border-[#3a342c] text-[#9a8f7e] hover:border-[#7a7266] hover:text-[#cfc6b8]"
-      }`}
+      aria-label="Project settings"
+      title="Project settings"
+      onClick={onOpen}
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#9a8f7e] outline-none hover:border-[#7a7266] hover:text-[#cfc6b8]"
     >
       <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
         <circle cx="6" cy="6" r="1.7" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -228,6 +219,60 @@ function DebugButton() {
           stroke="currentColor"
           strokeWidth="1.3"
           strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function BackButton({ onBack }: { onBack: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label="Back to project"
+      title="Back to project"
+      onClick={onBack}
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-[#3a342c] text-[#9a8f7e] outline-none hover:border-[#7a7266] hover:text-[#cfc6b8]"
+    >
+      <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+        <path
+          d="M7.5 2.5 3.5 6l4 3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function ProjectChooser() {
+  const { project } = useProject();
+  return (
+    <button
+      type="button"
+      disabled
+      aria-haspopup="listbox"
+      aria-expanded={false}
+      aria-label={`Current project: ${project.title}`}
+      title="Project switching is not available in this slice."
+      className="flex min-w-0 w-full items-baseline gap-2 text-left text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-100"
+    >
+      <span className="truncate text-lg leading-tight">{project.title}</span>
+      <svg
+        className="relative top-px h-2.5 w-2.5 shrink-0 text-[#9a8f7e]"
+        viewBox="0 0 12 8"
+        aria-hidden
+      >
+        <path
+          d="M1.5 1.75 6 6.25 10.5 1.75"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </button>
@@ -256,9 +301,39 @@ function AgencySelect() {
         className={optionClass(project.agency === "autonomous")}
         onClick={() => setAgency("autonomous")}
       >
-        Autonomous
+        Agent
       </button>
     </nav>
+  );
+}
+
+function DebugModeToggle() {
+  const { debugOn, setDebugOn } = useProject();
+  return (
+    <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+      <input
+        type="checkbox"
+        checked={debugOn}
+        aria-label="Debug mode"
+        title={
+          debugOn
+            ? "Debug is on. Camotion work dirs are kept. Asset paths are under Technical in the Shoot inspector."
+            : "Show session asset paths under Technical in the Shoot inspector and keep Camotion work dirs."
+        }
+        className="mt-0.5 accent-[#ece7df]"
+        onChange={(event) => setDebugOn(event.target.checked)}
+      />
+      Debug mode
+    </label>
+  );
+}
+
+function ProjectSettingsView({ busy }: { busy: boolean }) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
+      <VideoModelSelect disabled={busy} />
+      <DebugModeToggle />
+    </div>
   );
 }
 
@@ -314,10 +389,10 @@ export function planActionLabel(state: {
   if (state.planning) {
     return "Planning Destinations…";
   }
-  return "DIRECT";
+  return "CREATE JOURNEY";
 }
 
-export function ProjectRail() {
+export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOpen?: boolean } = {}) {
   const {
     composerDraft,
     setComposerDraft,
@@ -325,24 +400,24 @@ export function ProjectRail() {
     nudgeStoryDuration,
     setAutoGenerateOpening,
     setAutoGenerateAllDestinations,
-    setAutoBlockShots,
     setAutoShoot,
     directorStatus,
     planStartError,
     startingFrameError,
-    replacingStart,
     constructingBeatId,
     assessingJourneyIds,
     shootingJourneyIds,
     project,
     planWithDirector,
   } = useProject();
+  const [settingsOpen, setSettingsOpen] = useState(initialSettingsOpen);
   const planning = directorStatus === "planning";
   const busy =
     planning || Boolean(constructingBeatId) || assessingJourneyIds.length > 0 || shootingJourneyIds.length > 0;
   const canPlan = canPlanMovie(project) && !busy;
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
   const openingLocked = hasOpeningFrame;
+  const directed = project.agency === "directed";
   const actionLabel = planActionLabel({
     constructingBeatId,
     assessingJourneyIds,
@@ -358,138 +433,129 @@ export function ProjectRail() {
           ? "Generate starting destination A from the story, then ask the Director to plan."
           : "Ask the Director to plan unresolved directing decisions."
     : project.story.trim()
-      ? "Add starting frame A before directing, or enable auto generate starting destination."
+      ? "Add starting frame A before directing, or enable generate start destination."
       : "Enter a journey story or upload starting frame A.";
 
   return (
     <aside
       id="project-panel"
       className="project-rail flex h-full min-h-0 min-w-0 flex-col bg-[#12100d]"
-      aria-label="Project"
+      aria-label={settingsOpen ? "Project settings" : "Project"}
     >
-      <div className="project-rail-header flex h-9 shrink-0 items-center justify-start border-b border-[#2a2620] bg-[#0c0b0a] px-2">
+      <PanelHeader
+        className="project-rail-header"
+        title={settingsOpen ? "Project settings" : "Project"}
+      >
         <ProjectRailToggle />
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
-        {startingFrameError ? (
-          <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-            {startingFrameError}
-          </p>
-        ) : null}
-        {planStartError ? (
-          <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
-            {planStartError}
-          </p>
-        ) : null}
-        <AgencySelect />
-        <label className="sr-only" htmlFor="project-story">
-          Journey story
-        </label>
-        <textarea
-          id="project-story"
-          rows={8}
-          value={composerDraft}
-          placeholder="Describe the journey…"
-          aria-label="Journey story"
-          className="min-h-[10rem] w-full resize-y overflow-auto rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
-          onChange={(event) => setComposerDraft(event.target.value)}
-        />
-        <StoryDurationField
-          project={project}
-          disabled={busy}
-          onCommit={setStoryDurationInput}
-          onNudge={nudgeStoryDuration}
-        />
-        <VideoModelSelect disabled={busy} />
-        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-          <input
-            type="checkbox"
-            checked={openingLocked ? false : project.autoGenerateOpening}
-            disabled={busy || openingLocked}
-            aria-label="Auto generate starting destination"
-            title={
-              openingLocked
-                ? "Starting destination A is already actual."
-                : "Generate unresolved A from the journey story before directing."
-            }
-            className="mt-0.5 accent-[#ece7df]"
-            onChange={(event) => setAutoGenerateOpening(event.target.checked)}
-          />
-          Auto generate starting destination
-        </label>
-        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-          <input
-            type="checkbox"
-            checked={project.autoGenerateAllDestinations}
-            disabled={busy}
-            aria-label="Auto generate all destinations"
-            className="mt-0.5 accent-[#ece7df]"
-            onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
-          />
-          Auto generate all destinations
-        </label>
-        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-          <input
-            type="checkbox"
-            checked={project.autoBlockShots}
-            disabled={busy}
-            aria-label="Auto blocking"
-            className="mt-0.5 accent-[#ece7df]"
-            onChange={(event) => setAutoBlockShots(event.target.checked)}
-          />
-          Auto blocking
-        </label>
-        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-          <input
-            type="checkbox"
-            checked={project.autoShoot}
-            disabled={busy}
-            aria-label="Auto shoot"
-            className="mt-0.5 accent-[#ece7df]"
-            onChange={(event) => setAutoShoot(event.target.checked)}
-          />
-          Auto shoot
-        </label>
-        <button
-          type="button"
-          aria-label="Direct movie"
-          aria-busy={busy || undefined}
-          disabled={!canPlan}
-          title={planTitle}
-          onClick={() => {
-            void planWithDirector();
-          }}
-          className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
-            busy ? " storyboard-generating" : ""
-          }`}
-        >
-          <span className={`relative z-[1]${busy ? " storyboard-generating-label" : ""}`}>
-            {actionLabel}
-          </span>
-        </button>
-        {replacingStart || !busy ? (
-          <p className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-            {replacingStart
-              ? "Uploading…"
-              : !project.story.trim() && hasOpeningFrame
-                ? "Create a journey starting at A, then ask the Director to plan the shots."
-                : !project.story.trim()
-                  ? "Enter a journey story or upload starting frame A."
-                  : !hasOpeningFrame && project.autoGenerateOpening
-                    ? project.autoGenerateAllDestinations
-                      ? "DIRECT generates A, plans the journey, then generates each remaining destination in order."
-                      : "DIRECT generates A from the story, then asks the Director to plan."
-                    : !hasOpeningFrame
-                      ? "Upload A or generate A from the story."
-                      : project.autoGenerateAllDestinations
-                        ? "DIRECT then generates each remaining destination in order from the previous frame."
-                        : "DIRECT asks the Director to fill unspecified beats."}
-          </p>
-        ) : null}
-      </div>
-      <div className="flex shrink-0 items-center justify-end px-3 pb-3">
-        <DebugButton />
-      </div>
+      </PanelHeader>
+      {settingsOpen ? (
+        <>
+          <ProjectSettingsView busy={busy} />
+          <div className="flex shrink-0 items-center justify-end px-3 pb-3">
+            <BackButton onBack={() => setSettingsOpen(false)} />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex shrink-0 px-3 pt-3">
+            <ProjectChooser />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
+            {startingFrameError ? (
+              <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+                {startingFrameError}
+              </p>
+            ) : null}
+            {planStartError ? (
+              <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+                {planStartError}
+              </p>
+            ) : null}
+            <AgencySelect />
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Journey prompt</span>
+              <textarea
+                id="project-story"
+                rows={8}
+                value={composerDraft}
+                placeholder="Describe the journey…"
+                aria-label="Journey story"
+                className="min-h-[10rem] w-full resize-y overflow-auto rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                onChange={(event) => setComposerDraft(event.target.value)}
+              />
+            </label>
+            <StoryDurationField
+              project={project}
+              disabled={busy}
+              onCommit={setStoryDurationInput}
+              onNudge={nudgeStoryDuration}
+            />
+            {directed ? (
+              <div className="flex flex-col gap-3">
+                <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Options</span>
+                <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                  <input
+                    type="checkbox"
+                    checked={openingLocked ? false : project.autoGenerateOpening}
+                    disabled={busy || openingLocked}
+                    aria-label="Generate start destination"
+                    title={
+                      openingLocked
+                        ? "Starting destination A is already actual."
+                        : "Generate unresolved A from the journey story before directing."
+                    }
+                    className="mt-0.5 accent-[#ece7df]"
+                    onChange={(event) => setAutoGenerateOpening(event.target.checked)}
+                  />
+                  Generate start destination
+                </label>
+                <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                  <input
+                    type="checkbox"
+                    checked={project.autoGenerateAllDestinations}
+                    disabled={busy}
+                    aria-label="Generate all destinations"
+                    className="mt-0.5 accent-[#ece7df]"
+                    onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
+                  />
+                  Generate all destinations
+                </label>
+                <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                  <input
+                    type="checkbox"
+                    checked={project.autoShoot}
+                    disabled={busy}
+                    aria-label="Shoot"
+                    className="mt-0.5 accent-[#ece7df]"
+                    onChange={(event) => setAutoShoot(event.target.checked)}
+                  />
+                  Shoot
+                </label>
+              </div>
+            ) : null}
+            <button
+              type="button"
+              aria-label="Create journey"
+              aria-busy={busy || undefined}
+              disabled={!canPlan}
+              title={planTitle}
+              onClick={() => {
+                void planWithDirector();
+              }}
+              className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
+                busy ? " storyboard-generating" : ""
+              }`}
+            >
+              <span className={`relative z-[1]${busy ? " storyboard-generating-label" : ""}`}>
+                {actionLabel}
+              </span>
+            </button>
+          </div>
+          <div className="flex shrink-0 items-center justify-end px-3 pb-3">
+            <SettingsButton onOpen={() => setSettingsOpen(true)} />
+          </div>
+        </>
+      )}
     </aside>
   );
 }

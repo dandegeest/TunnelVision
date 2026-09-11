@@ -6,37 +6,11 @@ import { PlanView } from "./PlanView";
 import { ProductionBar } from "./ProductionBar";
 import { TimelineView } from "./TimelineView";
 
-function Brand() {
-  const { project } = useProject();
+function Wordmark() {
   return (
-    <div className="min-w-0">
-      <p className="text-[11px] tracking-[0.28em] text-[#9a8f7e] uppercase">TunnelVision</p>
-      <button
-        type="button"
-        disabled
-        aria-haspopup="listbox"
-        aria-expanded={false}
-        aria-label={`Current project: ${project.title}`}
-        title="Project switching is not available in this slice."
-        className="flex items-baseline gap-2 text-left text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-100"
-      >
-        <span className="truncate text-lg leading-tight">{project.title}</span>
-        <svg
-          className="relative top-px h-2.5 w-2.5 shrink-0 text-[#9a8f7e]"
-          viewBox="0 0 12 8"
-          aria-hidden
-        >
-          <path
-            d="M1.5 1.75 6 6.25 10.5 1.75"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-    </div>
+    <p className="min-w-0 truncate text-sm font-semibold tracking-[0.2em] text-[#cfc6b8] uppercase">
+      TunnelVision
+    </p>
   );
 }
 
@@ -65,10 +39,12 @@ function ViewSwitch() {
   );
 }
 
-export function WorkspaceToolbar({ leading }: { leading?: ReactNode } = {}) {
+export function WorkspaceToolbar() {
   return (
     <div className="workspace-toolbar grid min-w-0 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
-      <div className="min-w-0">{leading}</div>
+      <div className="min-w-0">
+        <Wordmark />
+      </div>
       <ViewSwitch />
       <div className="min-w-0" />
     </div>
@@ -84,29 +60,15 @@ function HeaderFrame({ children }: { children: ReactNode }) {
 }
 
 export function Shell() {
-  const { view, conversationRailOpen, projectRailOpen } = useProject();
+  const { view } = useProject();
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#0c0b0a] text-[#ece7df]">
       <FilmmakingFrame
-        brand={
-          conversationRailOpen ? (
-            <HeaderFrame>
-              <Brand />
-            </HeaderFrame>
-          ) : undefined
-        }
         workspaceHeader={
           <HeaderFrame>
-            <WorkspaceToolbar leading={conversationRailOpen ? undefined : <Brand />} />
+            <WorkspaceToolbar />
           </HeaderFrame>
-        }
-        projectHeader={
-          projectRailOpen ? (
-            <HeaderFrame>
-              <p className="text-[11px] tracking-[0.28em] text-[#9a8f7e] uppercase">Project</p>
-            </HeaderFrame>
-          ) : undefined
         }
       >
         {view === "plan" ? (
