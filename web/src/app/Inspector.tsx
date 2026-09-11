@@ -76,6 +76,7 @@ export function Inspector() {
     project,
     selection,
     cinematographerError,
+    retryMotionPlan,
     shootError,
     constructingBeatId,
     assessingJourneyIds,
@@ -192,6 +193,7 @@ export function Inspector() {
   const assessment = journey.motionPlan?.cinematographer ?? journey.cinematographer;
   const canAssess = canAssessJourney(project, journey);
   const assessing = assessingJourneyIds.includes(journey.id);
+  const motionPlanError = journey.motionPlanError ?? (canAssess && !assessment ? cinematographerError : null);
   const take = journey.take;
   const motionSource = journey.motionPlan ?? journey.take;
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
@@ -253,10 +255,23 @@ export function Inspector() {
           ) : (
             <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
           )}
-          {cinematographerError ? (
+          {motionPlanError ? (
             <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-              {cinematographerError}
+              {motionPlanError}
             </p>
+          ) : null}
+          {motionPlanError && canAssess ? (
+            <button
+              type="button"
+              className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+              disabled={assessing}
+              aria-label={`Retry ${journey.id}`}
+              onClick={() => {
+                void retryMotionPlan(journey.id);
+              }}
+            >
+              {assessing ? "Planning…" : "Retry"}
+            </button>
           ) : null}
           {motionSource ? (
             <div className="grid grid-cols-2 gap-2">
@@ -316,16 +331,16 @@ function CinematographerLegDetail({
 }: {
   assessment: CinematographerAssessment;
 }) {
-  const suitability =
-    assessment.camotionSuitability === "appropriate"
-      ? "Appropriate"
-      : assessment.camotionSuitability === "poor_fit"
-        ? "Poor fit"
-        : "Uncertain";
   return (
     <div className="space-y-2 text-[#cfc6b8]">
       <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Cinematographer</p>
       <p>{cinematographerShootabilityLabel(assessment.shootability)}</p>
+      <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+        <span>Set consistency</span>
+        <span className="tabular-nums text-[#cfc6b8]">{assessment.setConsistency}</span>
+        <span>Traversal conf.</span>
+        <span className="tabular-nums text-[#cfc6b8]">{assessment.traversalConfidence}</span>
+      </div>
       <p>{assessment.summary}</p>
       <p>
         <span className="text-[#9a8f7e]">Camera path. </span>
@@ -386,10 +401,6 @@ function CinematographerLegDetail({
               </p>
             </>
           ) : null}
-          <p>
-            <span className="text-[#9a8f7e]">Camotion. </span>
-            {suitability}
-          </p>
           {assessment.concerns.length > 0 ? (
             <div>
               <p className="text-[#9a8f7e]">Concerns</p>

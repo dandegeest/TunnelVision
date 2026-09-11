@@ -29,7 +29,6 @@ export type JourneyStatus =
  * Not CameraMotionPlan.
  */
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
-export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
 export type CinematographerTravelConfidence = "high" | "medium" | "low";
 
 export type CinematographerTravelTarget = {
@@ -49,6 +48,10 @@ export type CinematographerTravel = {
 
 export type CinematographerAssessment = {
   shootability: CinematographerShootability;
+  /** 0–100. Same continuous physical world and route, not generation quality. */
+  setConsistency: number;
+  /** 0–100. Confidence the camera can travel start→end in continuous first-person motion. */
+  traversalConfidence: number;
   summary: string;
   route: string;
   threshold: string;
@@ -58,7 +61,6 @@ export type CinematographerAssessment = {
   segmentPromptAddition: string;
   /** Apparent camera speed for this shot. Fills {pace} in the locomotion baseline. */
   pace: LocomotionPace;
-  camotionSuitability: CinematographerCamotionSuitability;
   concerns: string[];
   /**
    * Semantic travel geometry from the same CM assessment turn.
@@ -239,6 +241,8 @@ export type JourneyShot = {
    * adjacent canonical pair exists and planning has completed for that pair.
    */
   motionPlan?: SegmentMotionPlan;
+  /** Present after automatic Motion Planning fails for this pair. Cleared on retry or success. */
+  motionPlanError?: string;
   /** Latest successful or inspectable take. Absent until FOOTAGE Generate completes. */
   take?: JourneyShotTake;
   shootError?: string;

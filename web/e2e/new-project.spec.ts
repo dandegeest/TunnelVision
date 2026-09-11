@@ -48,7 +48,8 @@ const CM_ASSESSMENT = {
   transitionStrategy: "Pass through the visible opening.",
   segmentPromptAddition: "Track forward through the visible opening into the next volume.",
   pace: "fast",
-  camotionSuitability: "appropriate",
+  setConsistency: 87,
+  traversalConfidence: 74,
   concerns: [],
   travel: {
     start: {
@@ -481,6 +482,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.locator(".inspector-reopen").getByRole("button", { name: "Inspector" }).click();
   await expect(page.getByRole("heading", { name: "A-B" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Retry A-B" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Generate A-B", exact: true })).toHaveCount(1);
   const journeyInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A-B" }) });
   await expect(journeyInspector.getByText("Track forward through the connected volumes.")).toBeVisible();

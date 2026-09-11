@@ -318,7 +318,8 @@ describe("Plan conversation history", () => {
       transitionStrategy: "Pass through.",
       segmentPromptAddition: "Track forward.",
       pace: "fast" as const,
-      camotionSuitability: "appropriate" as const,
+      setConsistency: 87,
+      traversalConfidence: 74,
       concerns: [],
     };
     let entries: ConversationEntry[] = [

@@ -17,6 +17,7 @@ import {
   journeysReadyToBlock,
   motionPlanAutoKey,
   projectWithCinematographerAssessment,
+  projectWithMotionPlanError,
   requestCinematographerAssessment,
 } from "./cinematographer";
 import { directorPlanRequestFromProject } from "./director";
@@ -36,7 +37,8 @@ const shootableAB: CinematographerAssessment = {
   segmentPromptAddition:
     "Track forward along the path, pass between the near trunks, and move through the visible opening toward the darker mouth.",
   pace: "fast",
-  camotionSuitability: "appropriate",
+  setConsistency: 87,
+  traversalConfidence: 74,
   concerns: [],
 };
 
@@ -200,6 +202,14 @@ describe("Cinematographer actual-set assessment", () => {
     const next = projectWithCinematographerAssessment(first, "A-B", replacement);
     expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(replacement);
     expect(first.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(shootableAB);
+  });
+
+  it("records a Motion Plan failure on that JourneyShot only", () => {
+    const project = createForestProject();
+    const failed = projectWithMotionPlanError(project, "A-B", "Motion Plan failed");
+    expect(failed.journeys.find((journey) => journey.id === "A-B")?.motionPlanError).toBe("Motion Plan failed");
+    expect(failed.journeys.find((journey) => journey.id === "B-C")?.motionPlanError).toBeUndefined();
+    expect(projectWithMotionPlanError(failed, "A-B", undefined).journeys.find((journey) => journey.id === "A-B")?.motionPlanError).toBeUndefined();
   });
 
   it("maps inspector shootability without replacing operational status, and uses the filmmaking ladder on the tile", () => {

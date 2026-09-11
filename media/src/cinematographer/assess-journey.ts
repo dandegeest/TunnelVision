@@ -9,7 +9,6 @@ import {
 import { isLocomotionPace, type LocomotionPace } from "./shooting-prompt.ts";
 
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
-export type CinematographerCamotionSuitability = "appropriate" | "poor_fit" | "uncertain";
 export type CinematographerTravelConfidence = "high" | "medium" | "low";
 
 /**
@@ -38,6 +37,10 @@ export type CinematographerTravel = {
 
 export type CinematographerAssessment = {
   readonly shootability: CinematographerShootability;
+  /** 0–100. Same continuous physical world and route, not generation quality. */
+  readonly setConsistency: number;
+  /** 0–100. Confidence the camera can travel start→end in continuous first-person motion. */
+  readonly traversalConfidence: number;
   readonly summary: string;
   readonly route: string;
   readonly threshold: string;
@@ -46,7 +49,6 @@ export type CinematographerAssessment = {
   readonly transitionStrategy: string;
   readonly segmentPromptAddition: string;
   readonly pace: LocomotionPace;
-  readonly camotionSuitability: CinematographerCamotionSuitability;
   readonly concerns: readonly string[];
   readonly travel?: CinematographerTravel;
 };
@@ -96,11 +98,6 @@ const SHOOTABILITY = new Set<CinematographerShootability>([
   "shootable",
   "needs_review",
   "not_shootable",
-]);
-const CAMOTION = new Set<CinematographerCamotionSuitability>([
-  "appropriate",
-  "poor_fit",
-  "uncertain",
 ]);
 const TRAVEL_CONFIDENCE = new Set<CinematographerTravelConfidence>(["high", "medium", "low"]);
 
@@ -164,6 +161,13 @@ function asNonEmptyString(value: unknown, name: string): string {
 function asPace(value: unknown): LocomotionPace {
   if (!isLocomotionPace(value)) {
     throw new MediaGenerationError("generation_failed", "Cinematographer pace is invalid");
+  }
+  return value;
+}
+
+function asScore100(value: unknown, name: string): number {
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 100) {
+    throw new MediaGenerationError("generation_failed", `Cinematographer ${name} is invalid`);
   }
   return value;
 }
@@ -290,12 +294,8 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
   if (typeof record.shootability !== "string" || !SHOOTABILITY.has(record.shootability as CinematographerShootability)) {
     throw new MediaGenerationError("generation_failed", "Cinematographer shootability is invalid");
   }
-  if (
-    typeof record.camotionSuitability !== "string" ||
-    !CAMOTION.has(record.camotionSuitability as CinematographerCamotionSuitability)
-  ) {
-    throw new MediaGenerationError("generation_failed", "Cinematographer camotionSuitability is invalid");
-  }
+  const setConsistency = asScore100(record.setConsistency, "setConsistency");
+  const traversalConfidence = asScore100(record.traversalConfidence, "traversalConfidence");
   if (!Array.isArray(record.concerns)) {
     throw new MediaGenerationError("generation_failed", "Cinematographer JSON must include concerns[]");
   }
@@ -306,6 +306,8 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
   const travel = parseTravel(record.travel);
   return {
     shootability: record.shootability as CinematographerShootability,
+    setConsistency,
+    traversalConfidence,
     summary: asNonEmptyString(record.summary, "summary"),
     route: asNonEmptyString(record.route, "route"),
     threshold: asNonEmptyString(record.threshold, "threshold"),
@@ -314,7 +316,6 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     transitionStrategy: asNonEmptyString(record.transitionStrategy, "transitionStrategy"),
     segmentPromptAddition: asNonEmptyString(record.segmentPromptAddition, "segmentPromptAddition"),
     pace: asPace(record.pace),
-    camotionSuitability: record.camotionSuitability as CinematographerCamotionSuitability,
     concerns,
     ...(travel ? { travel } : {}),
   };

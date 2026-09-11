@@ -232,9 +232,16 @@ video model will succeed. A thin assessment lives in
 for one JourneyShot whenever that segment has two actual adjacent
 canonicals. CM output lives on that segment's
 Motion Plan and includes route, camera path, pace, visible geometry, transition strategy,
-and a concise `segmentPromptAddition`, plus advisory shootability /
-Camotion suitability / concerns and optional per-still travel geometry
-(semantic target, vanishing point / focus of expansion, heading, confidence).
+and a concise `segmentPromptAddition`, plus integer `setConsistency` and
+`traversalConfidence` scores (0–100), advisory shootability, concerns, and
+optional per-still travel geometry (semantic target, vanishing point /
+focus of expansion, heading, confidence). Set consistency is whether the
+adjacent stills belong to the same continuous world and route. Traversal
+confidence is whether the camera can physically travel start→end in
+continuous first-person motion. Shootability is the actionable summary
+of that diagnosis. Camotion executes when valid travel geometry can be
+bridged into CameraMotionPlan; there is no separate Camotion suitability
+score.
 Destinations stay canonical world
 state; the JourneyShot owns the Motion Plan and the footage; boundary continuity remains
 a later seam-level video concept.

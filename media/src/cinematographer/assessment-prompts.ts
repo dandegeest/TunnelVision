@@ -20,7 +20,21 @@ Director intent may provide context. Visible actual imagery is authoritative for
 
 Your primary question is: given these actual start and end sets, how should the camera move through the visible geography to make this shot?
 
-You are not predicting whether a stochastic video model will succeed. Shootability is advisory set analysis of the stills — spatial risks, not a generation oracle. Always produce camera choreography, including a segmentPromptAddition, even when shootability is needs_review or not_shootable. Do not refuse to choreograph.
+You are not predicting whether a stochastic video model will succeed. Score two independent 0–100 integers. Do not collapse them into one general quality score.
+
+setConsistency (0–100 integer): how plausibly the start and end canonicals belong to the same continuous physical world and route.
+- High: same environment/world, coherent geometry, believable spatial continuity; the destination feels reachable from the start as the next place in that world
+- Low: scene identity changes, incompatible geometry or style, teleport-like discontinuity, or an impossible/contradictory spatial relationship
+
+traversalConfidence (0–100 integer): how confidently the camera can physically travel from the supplied start canonical to the supplied end canonical in continuous first-person motion.
+- High: clear route, strong directional cues, usable vanishing/destination geometry, sufficient traversable space
+- Low: blocked or ambiguous route, destination not spatially reachable, conflicting direction, or weak/unusable motion geometry
+
+These scores answer different questions. A coherent world can still have a blocked or unclear route (high setConsistency, low traversalConfidence). Usable-looking motion geometry can appear across stills that do not belong to the same world (low setConsistency, possibly higher traversalConfidence). Score each independently from the stills.
+
+Shootability is the actionable summary of the overall assessment. It must be consistent with the two scores and your diagnosis. It is advisory set analysis — spatial risks, not a generation oracle. Always produce camera choreography, including a segmentPromptAddition, even when shootability is needs_review or not_shootable. Do not refuse to choreograph.
+
+Camotion later executes only if valid travel geometry can be bridged into CameraMotionPlan. Do not invent a Camotion suitability score.
 
 A mostly straight forward move is valid when that is what the geography supports. Do not add a turn, curve, occluder pass, or lateral move unless visible geography warrants it.
 
@@ -39,15 +53,10 @@ Pace is a per-shot macro. It replaces {pace} in the frozen baseline with a full 
 - variable: the route asks for both rush and ease — open then tight, drop then settle, accelerate then negotiate
 Do not write pace into segmentPromptAddition. Do not pick slow-motion or slow merely because the shot is interesting. Do not pick hyperspeed if it would license morphing.
 
-shootability (advisory):
-- shootable: visible geography supports a continuous physical route
-- needs_review: a plausible relationship, but an ambiguous route, weak threshold, or difficult geometry
+shootability (advisory actionable summary; keep it consistent with setConsistency, traversalConfidence, and the diagnosis):
+- shootable: the stills support a continuous physical route through a coherent world
+- needs_review: a plausible relationship, but an ambiguous route, weak threshold, difficult geometry, or a score disagreement a filmmaker should inspect
 - not_shootable: no credible forward physical route in the stills, or a major spatial discontinuity. Still produce choreography. Do not mark not_shootable merely because continuing forward through a start-frame opening would, under a reverse-angle reading, place the camera at the far end of the destination looking back.
-
-camotionSuitability (advisory; radial-forward Camotion is unchanged):
-- appropriate: forward / corridor / threshold geometry that radial-forward Camotion can condition
-- poor_fit: open void, no forward corridor, or geometry that would read as warp rather than travel
-- uncertain: mixed or insufficient evidence
 
 Return ONLY one JSON object. No markdown fences. No commentary.
 
@@ -55,6 +64,8 @@ Use this shape:
 
 {
   "shootability": "shootable",
+  "setConsistency": 87,
+  "traversalConfidence": 74,
   "summary": "<concise filmmaker-facing description of how to shoot this traversal>",
   "route": "<physical/spatial route the camera should attempt between the sets>",
   "threshold": "<connecting opening/path/corridor if visible, otherwise say none is visible>",
@@ -63,7 +74,6 @@ Use this shape:
   "transitionStrategy": "<how the shot should use available geography so the transition reads as continuous travel>",
   "segmentPromptAddition": "<concise natural-language instruction for THIS SHOT only, to append to the frozen locomotion baseline>",
   "pace": "fast",
-  "camotionSuitability": "appropriate",
   "concerns": ["<concrete spatial or shooting concern>"],
   "travel": {
     "start": {
@@ -104,7 +114,8 @@ Choose the meaningful opening, not the brightest blob:
 
 Rules:
 - shootability must be shootable, needs_review, or not_shootable
-- camotionSuitability must be appropriate, poor_fit, or uncertain
+- setConsistency and traversalConfidence must be independent integers from 0 to 100 inclusive
+- do not force the two scores equal; do not invent camotionSuitability
 - summary, route, threshold, camera, parallax, transitionStrategy, and segmentPromptAddition must be non-empty strings
 - segmentPromptAddition must not repeat the frozen locomotion baseline
 - pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable
@@ -135,6 +146,9 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Both stills are first-person POV looking in the same travel direction. Image 2 is the next forward viewpoint, not a reverse shot of Image 1.",
     "Treat them as physical sets. Intent text is context only; do not override what the stills actually show.",
     "Given these actual sets, determine how the camera should move through the visible geography to make this shot.",
+    "Score setConsistency and traversalConfidence independently as integers from 0 to 100.",
+    "Set consistency is whether these stills belong to the same continuous physical world and route.",
+    "Traversal confidence is whether the camera can physically travel from start to end in continuous first-person motion.",
     "Report travel geometry for each still when a target is visible. Do not default to image center unless that is actually where travel goes.",
     "Do not predict whether a video model will succeed.",
     "",

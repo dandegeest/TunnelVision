@@ -39,7 +39,8 @@ function validAssessmentJson(overrides: Record<string, unknown> = {}) {
     segmentPromptAddition:
       "Track forward along the path, pass between the near structures, and move through the visible opening toward the darker mouth.",
     pace: "fast",
-    camotionSuitability: "appropriate",
+    setConsistency: 87,
+    traversalConfidence: 74,
     concerns: [],
     ...overrides,
   });
@@ -76,6 +77,18 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.systemInstruction, /pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable/);
   assert.match(request.prompt, /Report travel geometry for each still/);
   assert.match(request.prompt, /Do not predict whether a video model will succeed/);
+  assert.match(request.systemInstruction, /setConsistency/);
+  assert.match(request.systemInstruction, /traversalConfidence/);
+  assert.match(request.systemInstruction, /same continuous physical world and route/);
+  assert.match(request.systemInstruction, /physically travel from the supplied start canonical/);
+  assert.match(request.systemInstruction, /Do not collapse them into one general quality score/);
+  assert.match(request.systemInstruction, /high setConsistency, low traversalConfidence/);
+  assert.match(request.systemInstruction, /low setConsistency, possibly higher traversalConfidence/);
+  assert.match(request.systemInstruction, /do not invent camotionSuitability/);
+  assert.match(request.prompt, /Score setConsistency and traversalConfidence independently/);
+  assert.match(request.prompt, /same continuous physical world and route/);
+  assert.match(request.prompt, /physically travel from start to end in continuous first-person motion/);
+  assert.doesNotMatch(request.systemInstruction, /camotionSuitability must be/);
   assert.ok(request.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE));
   assert.match(request.prompt, /\{pace\} is replaced from your pace field/);
   assert.deepEqual(request.images, [input.start.image, input.end.image]);
@@ -86,7 +99,8 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
 test("structured Cinematographer assessment JSON includes segment choreography", () => {
   const assessment = parseCinematographerAssessment(`\`\`\`json\n${validAssessmentJson()}\n\`\`\``);
   assert.equal(assessment.shootability, "shootable");
-  assert.equal(assessment.camotionSuitability, "appropriate");
+  assert.equal(assessment.setConsistency, 87);
+  assert.equal(assessment.traversalConfidence, 74);
   assert.equal(assessment.concerns.length, 0);
   assert.match(assessment.camera, /Track forward/);
   assert.match(assessment.transitionStrategy, /visible opening/);
@@ -181,6 +195,47 @@ test("visible foreground geometry can be choreographed as a pass rather than mak
   assert.match(assessment.parallax, /pass beside it rather than stopping/);
 });
 
+test("Cinematographer accepts a high set-consistency and high traversal-confidence pair", () => {
+  const assessment = parseCinematographerAssessment(
+    validAssessmentJson({
+      shootability: "shootable",
+      setConsistency: 91,
+      traversalConfidence: 88,
+    }),
+  );
+  assert.equal(assessment.setConsistency, 91);
+  assert.equal(assessment.traversalConfidence, 88);
+  assert.equal(assessment.shootability, "shootable");
+});
+
+test("Cinematographer accepts high set consistency with low traversal confidence", () => {
+  const assessment = parseCinematographerAssessment(
+    validAssessmentJson({
+      shootability: "needs_review",
+      setConsistency: 86,
+      traversalConfidence: 22,
+      summary: "Same corridor world, but the opening is blocked and the heading conflicts.",
+    }),
+  );
+  assert.equal(assessment.setConsistency, 86);
+  assert.equal(assessment.traversalConfidence, 22);
+  assert.equal(assessment.shootability, "needs_review");
+});
+
+test("Cinematographer accepts low set consistency with traversable-looking geometry", () => {
+  const assessment = parseCinematographerAssessment(
+    validAssessmentJson({
+      shootability: "not_shootable",
+      setConsistency: 18,
+      traversalConfidence: 71,
+      summary: "A forward corridor is visible, but the end still is a different world.",
+    }),
+  );
+  assert.equal(assessment.setConsistency, 18);
+  assert.equal(assessment.traversalConfidence, 71);
+  assert.equal(assessment.shootability, "not_shootable");
+});
+
 test("invalid Cinematographer assessment fails instead of inventing shootability or choreography", () => {
   assert.throws(() => parseCinematographerAssessment("not json"), MediaGenerationError);
   assert.throws(
@@ -197,9 +252,37 @@ test("invalid Cinematographer assessment fails instead of inventing shootability
   assert.throws(
     () =>
       parseCinematographerAssessment(
-        validAssessmentJson({ camotionSuitability: "0.08", concerns: [] }),
+        validAssessmentJson({ setConsistency: 101, concerns: [] }),
       ),
-    /camotionSuitability/,
+    /setConsistency/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ traversalConfidence: -1, concerns: [] }),
+      ),
+    /traversalConfidence/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ setConsistency: 87.5, concerns: [] }),
+      ),
+    /setConsistency/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ traversalConfidence: "74", concerns: [] }),
+      ),
+    /traversalConfidence/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ setConsistency: undefined, concerns: [] }),
+      ),
+    /setConsistency/,
   );
   assert.throws(
     () =>
@@ -237,8 +320,9 @@ test("Cinematographer.assessJourney uses ReasoningProvider only", async () => {
         status: "succeeded",
         text: validAssessmentJson({
           shootability: "not_shootable",
+          setConsistency: 24,
+          traversalConfidence: 17,
           summary: "No credible corridor is visible, but keep traveling toward the distant light.",
-          camotionSuitability: "poor_fit",
           concerns: ["Open field with no traversable corridor."],
         }),
         metadata: {},

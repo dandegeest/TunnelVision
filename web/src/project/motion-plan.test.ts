@@ -16,7 +16,8 @@ const assessment: CinematographerAssessment = {
   transitionStrategy: "Pass through the visible gateway.",
   segmentPromptAddition: "Track forward through the visible opening.",
   pace: "fast",
-  camotionSuitability: "appropriate",
+  setConsistency: 87,
+  traversalConfidence: 74,
   concerns: [],
 };
 

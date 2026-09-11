@@ -130,7 +130,6 @@ export type {
   CinematographerAssessmentInput,
   CinematographerAssessmentRequestPayload,
   CinematographerAssessmentResult,
-  CinematographerCamotionSuitability,
   CinematographerShootability,
   CinematographerTravel,
   CinematographerTravelConfidence,

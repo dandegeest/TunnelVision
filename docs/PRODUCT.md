@@ -400,8 +400,9 @@ Current product slice: CM inspects two actual canonical stills for
 one JourneyShot and returns structured choreography (route, camera
 path, visible geometry, transition strategy, a concise
 `segmentPromptAddition`, and a per-shot `pace` (`slow-motion` / `slow` /
-`moderate` / `fast` / `hyperspeed` / `variable`) plus advisory shootability / Camotion
-suitability / concerns and per-still semantic travel geometry (travel
+`moderate` / `fast` / `hyperspeed` / `variable`) plus independent 0–100
+`setConsistency` and `traversalConfidence` scores, advisory shootability,
+concerns, and per-still semantic travel geometry (travel
 VP / target / heading). That output is stored on the segment Motion Plan
 with CameraMotionPlan and A′/B′. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
@@ -411,7 +412,8 @@ will succeed. A JourneyShot may progress even when CM reports
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
 Inspector copy stays
-Ready / Needs review / Not shootable. CM does **not** emit CameraMotionPlan JSON
+Ready / Needs review / Not shootable, with compact SET CONSISTENCY and
+TRAVERSAL CONF. scores. CM does **not** emit CameraMotionPlan JSON
 or generate video; the same assessment turn's travel object is bridged
 deterministically into CameraMotionPlan, then Plan runs Camotion.
 

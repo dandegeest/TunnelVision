@@ -199,8 +199,11 @@ Cinematographer assessment runs automatically through `ReasoningProvider`, inclu
 geometry in that same JSON, derives CameraMotionPlan
 v1 from it (`cameraMotionPlansFromAssessment`; centered fallback only when a
 still has no usable target), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
-on that JourneyShot, including `segmentPromptAddition` and a per-shot `pace` (`slow-motion` / `slow` /
-`moderate` / `fast` / `hyperspeed` / `variable`). Changing either canonical
+on that JourneyShot, including `segmentPromptAddition`, a per-shot `pace` (`slow-motion` / `slow` /
+`moderate` / `fast` / `hyperspeed` / `variable`), and independent integer
+`setConsistency` / `traversalConfidence` scores (0–100). Shootability remains
+the advisory summary. Camotion executes from bridged travel geometry, not a
+Camotion suitability enum. Changing either canonical
 invalidates that segment's Motion Plan and recomputes it. Restaging one segment does not
 alter neighboring Motion Plans. Footage generation remains an explicit FOOTAGE
 action. While a Motion Plan is running, that MOTION band

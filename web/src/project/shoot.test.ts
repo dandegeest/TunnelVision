@@ -26,7 +26,8 @@ const assessment: CinematographerAssessment = {
   transitionStrategy: "Pass through the opening.",
   segmentPromptAddition: "Track forward through the opening.",
   pace: "fast",
-  camotionSuitability: "uncertain",
+  setConsistency: 72,
+  traversalConfidence: 48,
   concerns: ["Geometry is tight."],
 };
 

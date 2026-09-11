@@ -78,7 +78,9 @@ the same filled-band treatment in the current gold. While a Motion Plan or Gener
 same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. Green fill on FOOTAGE appears only after the clip is
 complete. MOTION and FOOTAGE bands show those labels only; MOTION is
-inspect/status for the automatically generated Motion Plan and Generate lives on FOOTAGE. After a Motion Plan exists, the gutter
+inspect/status for the automatically generated Motion Plan and Generate lives on FOOTAGE.
+If automatic Motion Planning fails, that MOTION band and the inspector offer Retry for that pair only.
+After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
 for variable. Generate lives on the FOOTAGE band.
@@ -93,7 +95,8 @@ bands. MOTION inspects that segment's automatically generated Motion Plan: when 
 inspects the actual pair, Camotion derives A′/B′ for that shot, and
 neighboring segments stay untouched. Inspector Ready / Needs
 review / Not shootable status is advisory and lives on the motion band,
-together with camera path, pace, and a concise summary. Route, transition
+together with compact SET CONSISTENCY and TRAVERSAL CONF. scores (0–100),
+camera path, pace, and a concise summary. Route, transition
 strategy, prompt addition, travel targets, and remaining shot notes sit behind a
 disclosure. Generate on FOOTAGE remains explicit and produces that one take from the
 staged frames. The preview

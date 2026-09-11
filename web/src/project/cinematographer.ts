@@ -273,6 +273,26 @@ export function projectWithCinematographerAssessment(
   };
 }
 
+export function projectWithMotionPlanError(
+  project: Project,
+  journeyId: string,
+  error: string | undefined,
+): Project {
+  if (!project.journeys.some((journey) => journey.id === journeyId)) {
+    throw new Error("Unknown journey");
+  }
+  return {
+    ...project,
+    journeys: project.journeys.map((journey) =>
+      journey.id === journeyId
+        ? error
+          ? { ...journey, motionPlanError: error }
+          : { ...journey, motionPlanError: undefined }
+        : journey,
+    ),
+  };
+}
+
 export async function requestCinematographerAssessment(
   input: CinematographerAssessmentRequest,
 ): Promise<CinematographerAssessmentResponse> {

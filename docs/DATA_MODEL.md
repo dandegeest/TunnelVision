@@ -306,9 +306,10 @@ geometry and does not emit CameraMotionPlan JSON from CM. Centered
 `productionCameraMotionPlan` is the fallback when a still has no usable
 target. `JourneyShot.motionPlan` stores that segment's CM choreography,
 CameraMotionPlan, Camotion parameters, and A′/B′. JourneyShot `take` stores
-the composed prompt, provider metadata, and the current clip. Automated
-set-consistency / traversal-confidence scores remain unspecified; product
-uses advisory `shootability` and `camotionSuitability`.
+the composed prompt, provider metadata, and the current clip. Product CM scores are integer `setConsistency` and
+`traversalConfidence` (0–100). `shootability` remains the advisory
+actionable summary. Camotion executes from bridged travel geometry /
+CameraMotionPlan, not a Camotion suitability enum.
 
 ``` json
 {

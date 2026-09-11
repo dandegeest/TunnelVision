@@ -53,7 +53,8 @@ const shootableAB: CinematographerAssessment = {
   segmentPromptAddition:
     "Track forward along the path, pass between the near trunks, and move through the visible opening toward the darker mouth.",
   pace: "fast",
-  camotionSuitability: "appropriate",
+  setConsistency: 87,
+  traversalConfidence: 74,
   concerns: [],
 };
 
@@ -130,6 +131,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("border-2");
     expect(html).toContain("Status: Film");
     expect(html).toContain(">Ready<");
+    expect(html).toContain("Set consistency");
+    expect(html).toContain("Traversal conf.");
     expect(html).toContain("Walk through the root gateway into the darker mouth. · Fast");
     expect(html).toContain("Camera path.");
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
@@ -200,15 +203,17 @@ describe("Shoot Cinematographer journey assessment", () => {
       ...shootableAB,
       shootability: "needs_review",
       summary: "The pair tends to replace C rather than enter D.",
-      camotionSuitability: "uncertain",
+      setConsistency: 61,
+      traversalConfidence: 44,
       concerns: ["Start-frame authority is weak."],
     });
     const blocked = projectWithCinematographerAssessment(review, "E-F", {
       ...shootableAB,
       shootability: "not_shootable",
       summary: "Open void with no traversable corridor.",
-      camotionSuitability: "poor_fit",
-      concerns: ["Radial-forward Camotion would read as warp."],
+      setConsistency: 38,
+      traversalConfidence: 19,
+      concerns: ["The void offers no traversable corridor."],
     });
     expect(blocked.journeys.find((journey) => journey.id === "C-D")?.status).toBe("rendered");
     expect(blocked.journeys.find((journey) => journey.id === "E-F")?.status).toBe("rendered");
@@ -249,10 +254,13 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Pace.");
     expect(html).toContain("Fast");
     expect(html).toContain("Geometry.");
-    expect(html).toContain("Camotion.");
-    expect(html).toContain("Appropriate");
+    expect(html).toContain("Set consistency");
+    expect(html).toContain("87");
+    expect(html).toContain("Traversal conf.");
+    expect(html).toContain("74");
     expect(html).toContain("Keep the previous space from disappearing too early.");
     expect(html).toContain("Advisory set analysis. Does not block this journey.");
+    expect(html).not.toContain("Camotion.");
     expect(html).not.toContain('"camotionSuitability"');
     expect(html).not.toContain("vanishing_point");
   });
@@ -403,6 +411,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Destination B"');
     expect(html).toContain('aria-label="Destination C"');
     expect(html).not.toContain('aria-label="Plan A-B"');
+    expect(html).not.toContain('aria-label="Retry A-B"');
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
     expect(html).toContain('aria-label="Generate A-B"');
     expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
@@ -418,6 +427,42 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain('aria-label="Preview canonical"');
     expect(html).not.toContain("Nothing is ready to shoot");
     expect(html).not.toContain(">Assess shot<");
+  });
+
+  it("offers Retry on MOTION after that segment's automatic Motion Plan fails", () => {
+    const base = projectWithSyncedProductionLegs({
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user",
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          destinationId: "A",
+        },
+        {
+          id: "B",
+          label: "B",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          destinationId: "B",
+        },
+      ],
+    });
+    const project = {
+      ...base,
+      journeys: base.journeys.map((journey) =>
+        journey.id === "A-B" ? { ...journey, motionPlanError: "Motion Plan failed" } : journey,
+      ),
+    };
+    const html = renderShoot(project, { journeyId: "A-B" });
+    expect(html).toContain('aria-label="Retry A-B"');
+    expect(html).toContain(">Retry<");
+    expect(html).toContain("Motion Plan failed");
+    expect(html).not.toContain('aria-label="Plan A-B"');
+    expect((html.match(/aria-label="Retry A-B"/g) ?? []).length).toBe(2);
   });
 
   it("fills a blocked hold after a Motion Plan with the same treatment as completed footage", () => {

@@ -54,7 +54,7 @@ export function JourneyItem({
   shooting?: boolean;
   onSelect: () => void;
 }) {
-  const { project, shootJourney } = useProject();
+  const { project, shootJourney, retryMotionPlan } = useProject();
   const motion = band === "motion";
   const tone = motion ? journeySegmentTone(journey) : footageBandTone(journey);
   const ring = selected
@@ -69,6 +69,12 @@ export function JourneyItem({
     event.stopPropagation();
     onSelect();
     void shootJourney(journey.id);
+  };
+
+  const onRetry = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onSelect();
+    void retryMotionPlan(journey.id);
   };
 
   return (
@@ -110,6 +116,16 @@ export function JourneyItem({
             <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] text-[#ece7df] storyboard-generating-label">
               Planning…
             </span>
+          ) : journey.motionPlanError ? (
+            <button
+              type="button"
+              className={ctaClass}
+              disabled={actionsBusy}
+              aria-label={`Retry ${journey.id}`}
+              onClick={onRetry}
+            >
+              Retry
+            </button>
           ) : null
         ) : (
           <button

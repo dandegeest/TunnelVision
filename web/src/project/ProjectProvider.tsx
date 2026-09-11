@@ -18,6 +18,7 @@ import {
   journeyMotionPlanInputKey,
   journeysReadyToBlock,
   motionPlanAutoKey,
+  projectWithMotionPlanError,
   requestCinematographerAssessment,
 } from "./cinematographer";
 import {
@@ -111,6 +112,7 @@ type ProjectContextValue = {
   planWithDirector: () => Promise<void>;
   assessingJourneyIds: readonly string[];
   cinematographerError: string | null;
+  retryMotionPlan: (journeyId: string) => Promise<void>;
   shootingJourneyIds: readonly string[];
   shootError: string | null;
   shootJourney: (journeyId: string) => Promise<void>;
@@ -513,6 +515,9 @@ export function ProjectProvider({
       inFlightMotionPlanKeys.add(inputKey);
       const entryId = nextConversationId("blocking");
       setCinematographerError(null);
+      if (journey.motionPlanError) {
+        applyProject(projectWithMotionPlanError(current, journeyId, undefined));
+      }
       setAssessingJourneyIds((ids) => withId(ids, journeyId));
       setConversation((entries) =>
         appendConversationEntry(entries, {
@@ -579,6 +584,7 @@ export function ProjectProvider({
       } catch (error) {
         const message = error instanceof Error ? error.message : "Cinematographer assessment failed";
         setCinematographerError(message);
+        applyProject(projectWithMotionPlanError(projectRef.current, journeyId, message));
         setConversation((entries) =>
           resolveBlockingEntry(entries, entryId, {
             status: "failed",
@@ -660,6 +666,19 @@ export function ProjectProvider({
       }
     },
     [assessJourneyOn],
+  );
+
+  const retryMotionPlan = useCallback(
+    async (journeyId: string) => {
+      const current = projectRef.current;
+      const journey = current.journeys.find((item) => item.id === journeyId);
+      const inputKey = journey ? journeyMotionPlanInputKey(current, journey) : null;
+      if (inputKey) {
+        inFlightMotionPlanKeys.delete(inputKey);
+      }
+      await assessJourney(journeyId);
+    },
+    [assessJourney],
   );
 
   const autoMotionKey = useMemo(() => motionPlanAutoKey(project), [project]);
@@ -870,6 +889,7 @@ export function ProjectProvider({
       planWithDirector,
       assessingJourneyIds,
       cinematographerError,
+      retryMotionPlan,
       shootingJourneyIds,
       shootError,
       shootJourney,
@@ -920,6 +940,7 @@ export function ProjectProvider({
       planWithDirector,
       assessingJourneyIds,
       cinematographerError,
+      retryMotionPlan,
       shootingJourneyIds,
       shootError,
       shootJourney,

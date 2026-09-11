@@ -133,6 +133,7 @@ export function projectWithMotionPlan(
             take: undefined,
             videoUrl: undefined,
             shootError: undefined,
+            motionPlanError: undefined,
           }
         : item,
     ),
