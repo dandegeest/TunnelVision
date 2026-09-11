@@ -134,7 +134,7 @@ updates that beat's plan. Uploaded A with a story stores opening intent from
 that story; generated A also stores the TunnelVision opening prompt as visual
 description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current prompt. If the plan changes after a still exists, that
-thumbnail shows Plan changed until Reshoot. Shoot Redo on the same canonical does the same
+thumbnail shows Plan changed until Reshoot. Shoot Reshoot on the same canonical does the same
 thing. Replacing either
 canonical still on a production leg returns that JourneyShot to not
 prepared and not shot. Add Destination
@@ -154,9 +154,9 @@ and the camera move from the source still. This viewpoint stays this
 destination; the last beat has no look-ahead. Opening A is still generated from the journey story only;
 the prompt asks for that opening instant and does not depict later destinations.
 Debug is a session toggle in Project settings, not project persistence. It is on by
-default for now so Camotion work dirs are kept. Technical
-in the Shoot inspector lists session store paths for canonical stills
-and, after a Motion Plan is staged, segment A′/B′ and Camotion work dirs. With Debug on,
+default for now so Camotion work dirs are kept. The Shoot inspector no longer lists
+Technical or Debug path panels. Destination Camotion in Inspector is filmmaker
+fields plus an optional working directory while Debug is on. With Debug on,
 Camotion keeps plan.json and shooting.png; otherwise those work dirs
 are deleted after the shooting frames are copied into the session
 store. Product shoot does not pass --depth, and Camotion does not
@@ -166,9 +166,14 @@ the current Project: actual adjacent canonicals become JourneyShots
 automatically. Each interval is two stacked bands under the destination
 rail: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated take).
 Canonicals remain clickable places above those bands. When only A is actual,
-Shoot still shows A and an FPO B that opens Plan on B. MOTION is an
+Shoot still shows A and an FPO B that opens Plan on B. A destination
+still generating in Plan shimmers on the matching Shoot slot. MOTION is an
 inspect/status surface for that segment's automatically generated Motion Plan;
 Generate lives on the FOOTAGE band and stays Generate after a clip exists.
+Shoot Inspector headers read Inspector - Destination, Inspector - Motion, or
+Inspector - Footage. Motion and footage both use the A→B heading; footage shows
+conditioned START′/END′ frames without a Take label. Footage Reshoot calls the
+same regeneration as that band. Model label is Debug-only.
 When an actual adjacent canonical pair exists, the existing Cinematographer
 path runs automatically: CM inspects the actual A/B
 canonicals, reports semantic travel geometry in the same assessment turn, a

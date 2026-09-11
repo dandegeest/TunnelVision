@@ -1,9 +1,10 @@
-import type { Destination, Selection } from "../project/types";
+import type { Destination, Selection, StoryboardFrame } from "../project/types";
 import {
   boundaryContinuityAtSeam,
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
 import type { LaidOutOccurrence } from "./geometry";
+import { occurrenceIsGenerating } from "./shoot-layout";
 import { DestinationItem } from "./DestinationItem";
 
 export function DestinationsLane({
@@ -11,12 +12,16 @@ export function DestinationsLane({
   destinations,
   selection,
   continuities,
+  constructingBeatId,
+  storyboard,
   onSelect,
 }: {
   occurrences: LaidOutOccurrence[];
   destinations: Destination[];
   selection: Selection;
   continuities: readonly BoundaryContinuity[];
+  constructingBeatId?: string | null;
+  storyboard: readonly StoryboardFrame[];
   onSelect: (occurrenceIndex: number, destinationId: string) => void;
 }) {
   return (
@@ -41,6 +46,7 @@ export function DestinationsLane({
             destination={destination}
             selected={selected}
             continuity={continuity}
+            generating={occurrenceIsGenerating(occurrence, constructingBeatId, storyboard)}
             onSelect={() => onSelect(occurrence.occurrenceIndex, occurrence.destinationId)}
           />
         );

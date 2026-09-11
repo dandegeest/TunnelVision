@@ -31,7 +31,7 @@ Generate all destinations, Shoot). Blocking is not a user automation option.
 CREATE JOURNEY is the primary action. Video and Debug mode live in Project
 settings, opened from the gear. Agent hides Options. The panel can collapse to the right
 like conversation collapses to the left. Director, Project, and Inspector
-headers put the panel name and collapse control on one row, below the app header. The project selector sits in the Project panel under that header. Opening A can be uploaded
+headers put the panel name and collapse control on one row, below the app header. Shoot Inspector titles are Inspector - Destination, Inspector - Motion, or Inspector - Footage. The project selector sits in the Project panel under that header. Opening A can be uploaded
 before a story exists. AUTO leaves later beats to the Director;
 a number adds that many FPO destinations. After the first DIRECT
 response the count is read-only and follows storyboard add/delete.
@@ -76,7 +76,8 @@ solid gold fill and border for hold, 2px solid rust for no go.
 Clear MOTION uses the same green fill as completed FOOTAGE. Hold uses
 the same filled-band treatment in the current gold. While a Motion Plan or Generate is running, the matching band uses the
 same generating shimmer as Plan FPO thumbs, and more than one shoot
-can be in progress. Green fill on FOOTAGE appears only after the clip is
+can be in progress. While a destination still is generating in Plan, the
+matching Shoot destination slot uses that same shimmer. Green fill on FOOTAGE appears only after the clip is
 complete. MOTION and FOOTAGE bands show those labels only; MOTION is
 inspect/status for the automatically generated Motion Plan and Generate lives on FOOTAGE.
 If automatic Motion Planning fails, that MOTION band and the inspector offer Retry for that pair only.
@@ -85,7 +86,7 @@ between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
 for variable. Generate lives on the FOOTAGE band.
 Generate stays Generate after a clip exists. The timeline is
-vertically resizable. The Shoot inspector can hide to a reopen strip like the
+vertically resizable. The Shoot inspector is horizontally resizable and can hide to a reopen strip like the
 conversation and Project rails; that visibility is session UI, not project
 persistence. Canonicals are places;
 MOTION is how the camera traverses between
@@ -93,12 +94,13 @@ canonicals; FOOTAGE is the generated take for that traversal.
 Canonical destinations stay clickable places on the rail above those
 bands. MOTION inspects that segment's automatically generated Motion Plan: when an actual adjacent pair exists, CM
 inspects the actual pair, Camotion derives A′/B′ for that shot, and
-neighboring segments stay untouched. Inspector Ready / Needs
-review / Not shootable status is advisory and lives on the motion band,
-together with compact SET CONSISTENCY and TRAVERSAL CONF. scores (0–100),
-camera path, pace, and a concise summary. Route, transition
-strategy, prompt addition, travel targets, and remaining shot notes sit behind a
-disclosure. Generate on FOOTAGE remains explicit and produces that one take from the
+neighboring segments stay untouched. Advisory shootability lives on the
+motion band as clear / hold / no go. Inspector Motion uses a single
+CINEMATOGRAPHER MOTION PLAN heading with compact SET CONSISTENCY and
+TRAVERSAL CONF. scores (0–100) as the same rounded pills as Plan / Shoot
+and preview tabs, filled with the MOTION clear / hold / no-go colors,
+concerns under those scores, camera path,
+pace, and a concise summary. Generate on FOOTAGE remains explicit and produces that one take from the
 staged frames. The preview
 shows the A|B stills, canonical vs conditioned frames, and Camotion overlay on MOTION, and the
 rendered clip on FOOTAGE. Selecting a destination still
@@ -217,9 +219,16 @@ no Media Info toolbar toggle. Generated stills store the same facts as
 uploads once the image exists. **Debug** is a session
 toggle in Project settings, not project
 persistence. Debug is on by default for now. **Agency** is a Directed / Agent segmented control
-at the top of that panel, not a native OS menu and not in the workspace header. With Debug on, Technical in the Shoot
-inspector shows session disk paths for canonical stills and shooting
-frames. Camotion work dirs are kept only while Debug is on; product
+at the top of that panel, not a native OS menu and not in the workspace header. The Shoot
+inspector destination view is the canonical letter, still, Intent (click to
+edit), a collapsed Generation prompt, Reshoot when allowed, and a compact Camotion
+block (direction, vanishing point, destination, protected, exposure; working
+directory only while Debug is on). Empty Camotion copy is “Awaiting next
+destination.” The footage inspector heading is the pair in arrow form (A→B), with
+clickable start/end canonicals, Take (Start′/End′), Pace, Shot direction when CM
+travel exists, a collapsed Prompt, Reshoot, and Model only while Debug is on.
+It does not show destination status, opening-destination
+copy, or Technical/Debug path panels. Camotion work dirs are kept only while Debug is on; product
 shoot does not pass a depth map. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
@@ -331,8 +340,7 @@ Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
 describes how to shoot it. Timeline tiles use Stage / Film / Export, with clear / hold / no go outlines after
 BLOCK, and a chevron pace mark in the gutter between destination stills.
-Compact inspector Ready / Needs review / Not shootable,
-camera path, and a concise summary remain on the analyzed leg;
+Motion Inspector keeps camera path and a concise summary on the analyzed leg;
 destination cards stay world-state. CM `not_shootable` does not change
 JourneyShot operational status.
 

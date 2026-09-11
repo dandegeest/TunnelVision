@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { layoutTimeline } from "../timeline/geometry";
 import {
+  camotionDirectionLabel,
+  camotionInspectorHeading,
   camotionRecordKey,
   camotionRecordsForDestination,
   camotionSourceLabel,
@@ -63,6 +65,10 @@ describe("Camotion destination diagnostics", () => {
     expect(fromB[0]?.plan.exposure.strength).toBe(0.04);
     expect(camotionSourceLabel(fromB[0]!)).toBe("A-B end′");
     expect(preferredCamotionRecord(fromA)?.role).toBe("start");
+    expect(
+      camotionInspectorHeading(fromA[0]!, shot.destinations, "A", "B"),
+    ).toBe("A′ · A→B START");
+    expect(camotionDirectionLabel(fromA[0]!)).toBe("Forward");
   });
 
   it("keeps inbound end′ and outbound start′ as separate occurrence records", () => {

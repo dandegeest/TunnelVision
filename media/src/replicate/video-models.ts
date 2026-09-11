@@ -95,6 +95,12 @@ export function videoModelMenuLabel(option: VideoModelOption): string {
   return `${option.label} ${option.cost}`;
 }
 
+/** Filmmaker-facing catalog label, or undefined when the id/slug is unknown. */
+export function videoModelDisplayLabel(model: string): string | undefined {
+  const id = parseVideoModelId(model);
+  return id ? videoModelOption(id).label : undefined;
+}
+
 /** Accept a product id or a known Replicate slug. */
 export function parseVideoModelId(value: unknown): VideoModelId | undefined {
   if (isVideoModelId(value)) {

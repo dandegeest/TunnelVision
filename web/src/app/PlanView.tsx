@@ -336,60 +336,109 @@ export function DestinationPlanFields({
   frame,
   disabled = false,
   onPlanChange,
+  alwaysShowIntent = false,
+  intentClickToEdit = false,
+  promptClickToEdit = false,
+  promptDisclosure = false,
+  promptHeading = "Prompt",
+  intentRows = 2,
 }: {
   frame: StoryboardFrame;
   disabled?: boolean;
   onPlanChange?: (next: { intent?: string; visualDescription?: string }) => void;
+  alwaysShowIntent?: boolean;
+  intentClickToEdit?: boolean;
+  promptClickToEdit?: boolean;
+  promptDisclosure?: boolean;
+  promptHeading?: string;
+  intentRows?: number;
 }) {
   const intent = frame.intent ?? "";
   const visualDescription = frame.visualDescription ?? "";
   const prompt = visualDescription || intent;
   const showSeparateIntent = Boolean(intent.trim() && visualDescription.trim() && intent.trim() !== visualDescription.trim());
+  const showIntent = alwaysShowIntent || showSeparateIntent;
   const editable = Boolean(onPlanChange);
+  const [editingIntent, setEditingIntent] = useState(false);
+  const [editingPrompt, setEditingPrompt] = useState(false);
+  const intentReadOnly = intentClickToEdit ? !editingIntent || !editable : !editable;
+  const promptReadOnly = promptClickToEdit ? !editingPrompt || !editable : !editable;
   const fieldClass =
     "destination-detail-prompt mt-2 block w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2 py-1.5 text-[10px] leading-snug text-[#ece7df] outline-none focus-visible:border-[#ece7df] read-only:border-transparent read-only:bg-transparent read-only:px-0 read-only:py-0 disabled:opacity-40";
+  const promptField = (
+    <textarea
+      aria-label={`Destination ${frame.label} prompt`}
+      rows={3}
+      value={prompt}
+      readOnly={promptReadOnly}
+      disabled={disabled}
+      className={`${fieldClass} destination-detail-visual`}
+      onChange={(event) => {
+        if (!onPlanChange) {
+          return;
+        }
+        if (frame.id === "A" && frame.visualDescription === undefined) {
+          onPlanChange({ intent: event.target.value });
+          return;
+        }
+        onPlanChange({ visualDescription: event.target.value });
+      }}
+      onFocus={() => {
+        if (promptClickToEdit && editable && !disabled) {
+          setEditingPrompt(true);
+        }
+      }}
+      onBlur={() => {
+        if (promptClickToEdit) {
+          setEditingPrompt(false);
+        }
+      }}
+      onClick={(event) => event.stopPropagation()}
+      onPointerDown={(event) => event.stopPropagation()}
+    />
+  );
 
   return (
     <>
-      {showSeparateIntent ? (
+      {showIntent ? (
         <label className="mt-2 block">
           <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
           <textarea
             aria-label={`Destination ${frame.label} intent`}
-            rows={2}
+            rows={intentRows}
             value={intent}
-            readOnly={!editable}
+            readOnly={intentReadOnly}
             disabled={disabled}
             className={fieldClass}
             onChange={(event) => onPlanChange?.({ intent: event.target.value })}
+            onFocus={() => {
+              if (intentClickToEdit && editable && !disabled) {
+                setEditingIntent(true);
+              }
+            }}
+            onBlur={() => {
+              if (intentClickToEdit) {
+                setEditingIntent(false);
+              }
+            }}
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
           />
         </label>
       ) : null}
-      <label className="mt-2 block">
-        <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Prompt</span>
-        <textarea
-          aria-label={`Destination ${frame.label} prompt`}
-          rows={3}
-          value={prompt}
-          readOnly={!editable}
-          disabled={disabled}
-          className={`${fieldClass} destination-detail-visual`}
-          onChange={(event) => {
-            if (!onPlanChange) {
-              return;
-            }
-            if (frame.id === "A" && frame.visualDescription === undefined) {
-              onPlanChange({ intent: event.target.value });
-              return;
-            }
-            onPlanChange({ visualDescription: event.target.value });
-          }}
-          onClick={(event) => event.stopPropagation()}
-          onPointerDown={(event) => event.stopPropagation()}
-        />
-      </label>
+      {promptDisclosure ? (
+        <details className="mt-2">
+          <summary className="cursor-pointer text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+            {promptHeading}
+          </summary>
+          {promptField}
+        </details>
+      ) : (
+        <label className="mt-2 block">
+          <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">{promptHeading}</span>
+          {promptField}
+        </label>
+      )}
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
 import { isProductionEndpoint, productionDestinationId } from "../project/production-legs";
 import { nextStoryboardSlot } from "../project/storyboard";
-import type { Project } from "../project/types";
+import type { Project, Selection } from "../project/types";
 import {
   BASE_PX_PER_SECOND,
   layoutTimeline,
@@ -139,6 +139,54 @@ function appendFpoOccurrences(
     contentWidth,
     trackWidth: contentWidth + layout.padPx * 2,
   };
+}
+
+/** Same destination click as the Shoot timeline: FPO opens Plan, actual selects the occurrence. */
+export function selectShootOccurrence(
+  occurrence: LaidOutOccurrence | undefined,
+  actions: {
+    select: (selection: Selection) => void;
+    openStoryboardInPlan: (frameId: string) => void;
+  },
+): void {
+  if (!occurrence) {
+    return;
+  }
+  if (occurrence.fpo) {
+    actions.openStoryboardInPlan(occurrence.destinationId);
+    return;
+  }
+  actions.select({
+    kind: "destination",
+    destinationId: occurrence.destinationId,
+    occurrenceIndex: occurrence.occurrenceIndex,
+  });
+}
+
+/** True when Plan is generating the storyboard beat this Shoot slot represents. */
+export function occurrenceIsGenerating(
+  occurrence: Pick<LaidOutOccurrence, "destinationId">,
+  constructingBeatId: string | null | undefined,
+  storyboard: Project["storyboard"],
+): boolean {
+  if (!constructingBeatId) {
+    return false;
+  }
+  if (occurrence.destinationId === constructingBeatId) {
+    return true;
+  }
+  const frame = storyboard.find((item) => item.id === constructingBeatId);
+  return Boolean(frame && productionDestinationId(frame) === occurrence.destinationId);
+}
+
+export function occurrenceForJourneyEndpoint(
+  occurrences: readonly LaidOutOccurrence[],
+  journeyId: string,
+  endpoint: "start" | "end",
+): LaidOutOccurrence | undefined {
+  return occurrences.find((item) =>
+    endpoint === "start" ? item.outboundJourneyId === journeyId : item.inboundJourneyId === journeyId,
+  );
 }
 
 /** Production legs plus unresolved storyboard beats so Shoot is populated before B is actual. */

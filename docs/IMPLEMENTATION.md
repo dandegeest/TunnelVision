@@ -207,7 +207,7 @@ Camotion suitability enum. Changing either canonical
 invalidates that segment's Motion Plan and recomputes it. Restaging one segment does not
 alter neighboring Motion Plans. Footage generation remains an explicit FOOTAGE
 action. While a Motion Plan is running, that MOTION band
-uses the same generating shimmer as Plan FPO thumbs. Shootability remains advisory and does not
+uses the same generating shimmer as Plan FPO thumbs. A destination still generating in Plan also shimmers on the matching Shoot destination slot. Shootability remains advisory and does not
 gate JourneyShot status. Generate on FOOTAGE uses the staged A′/B′ and
 composed prompt (`segmentPromptAddition` first, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.
@@ -264,8 +264,10 @@ on the selected storyboard still, including generated images, not as a
 global diagnostic banner. 16:9 tiles stay fixed;
 source stills are contained (letterboxed or pillarboxed), not
 stretched or cropped to fill. Debug is a session
-toggle in Project settings and is on by default for now; Technical in the Shoot inspector lists session asset
-paths, and Camotion work dirs are kept only while Debug is on. Destination actions live in
+toggle in Project settings and is on by default for now. Camotion work dirs are kept only while Debug is on.
+The Shoot inspector no longer mounts Technical or Debug path panels. Footage Inspector
+selection of a canonical still uses the same Shoot timeline occurrence click as the
+destination rail. Destination actions live in
 the destination menu, including Reshoot for generated stills. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
 summary. Conversation timestamps are stored on the entry. Pending
@@ -279,7 +281,7 @@ Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY
 and can hide to the right. Video and Debug mode live in Project settings. Director, Project, and Inspector
-headers put the panel name and collapse control on one row below the app header. The Shoot inspector can hide to a reopen strip. That visibility is session UI, not project persistence, and
+headers put the panel name and collapse control on one row below the app header. Shoot Inspector titles are Inspector - Destination, Inspector - Motion, or Inspector - Footage. The Shoot inspector is horizontally resizable and can hide to a reopen strip. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
 shared destinations when both Journey videos exist; classification is

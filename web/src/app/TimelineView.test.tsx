@@ -17,7 +17,7 @@ import { JourneyCanonicalPair } from "./Preview";
 function renderShoot(
   project = createForestProject(),
   selection?: { destinationId: string; occurrenceIndex: number } | { journeyId: string; band?: "motion" | "footage" },
-  options?: { inspectorOpen?: boolean; debug?: boolean },
+  options?: { inspectorOpen?: boolean; debug?: boolean; constructingBeatId?: string | null },
 ) {
   const initialSelection =
     selection && "journeyId" in selection
@@ -36,6 +36,7 @@ function renderShoot(
       initialSelection={initialSelection}
       initialInspectorOpen={options?.inspectorOpen}
       initialDebug={options?.debug}
+      initialConstructingBeatId={options?.constructingBeatId}
     >
       <TimelineView />
     </ProjectProvider>,
@@ -100,22 +101,35 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).not.toContain("boundary match");
   });
 
-  it("lets Redo regenerate a generated canonical from the destination inspector", () => {
+  it("lets Reshoot regenerate a generated canonical from the destination inspector", () => {
     const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 });
-    expect(html).toContain('aria-label="Redo destination B"');
-    expect(html).toContain(">Redo<");
+    expect(html).toContain('aria-label="Reshoot destination B"');
+    expect(html).toContain(">Reshoot<");
     expect(html).toContain('aria-label="Destination B prompt"');
+    expect(html).toContain('aria-label="Destination B intent"');
     expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
     expect(html).not.toContain("This is what the generated world actually gave us");
     expect(html).not.toContain("The Cinematographer judges how to shoot");
     const opening = renderShoot();
-    expect(opening).not.toContain('aria-label="Redo destination A"');
-    expect(opening).toContain("This is the opening destination.");
+    expect(opening).toContain(">Inspector - Destination<");
+    expect(opening).toContain("text-2xl\">A<");
+    expect(opening).toContain('aria-label="Destination A intent"');
+    expect(opening).toContain("rows=\"3\"");
+    expect(opening).toContain('aria-label="Destination A prompt"');
+    expect(opening).toContain(">Generation prompt<");
+    expect(opening).toContain("<details");
+    expect(opening).not.toMatch(/<details[^>]*\sopen/);
+    expect(opening).toMatch(/aria-label="Destination A intent"[^>]*readOnly=""/);
+    expect(opening).toMatch(/aria-label="Destination A prompt"[^>]*readOnly=""/);
+    expect(opening).not.toContain('aria-label="Reshoot destination A"');
+    expect(opening).not.toContain("This is the opening destination.");
+    expect(opening).not.toContain("Status: ready");
+    expect(opening).not.toContain("tracking-[0.22em] text-[#9a8f7e] uppercase\">Destination<");
   });
 });
 
 describe("Shoot Cinematographer journey assessment", () => {
-  it("keeps a rendered journey complete and shows inspector Ready separately", () => {
+  it("keeps a rendered journey complete without inspector Status or Ready", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
     expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     const html = renderShoot(project, { journeyId: "A-B" });
@@ -129,8 +143,11 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("bg-[#142014]");
     expect(html).toContain("border-[#3f5a3a]");
     expect(html).toContain("border-2");
-    expect(html).toContain("Status: Film");
-    expect(html).toContain(">Ready<");
+    expect(html).toContain(">Inspector - Motion<");
+    expect(html).toContain('text-2xl">A→B<');
+    expect(html).not.toContain('text-2xl">A-B<');
+    expect(html).not.toContain("Status: Film");
+    expect(html).not.toContain(">Ready<");
     expect(html).toContain("Set consistency");
     expect(html).toContain("Traversal conf.");
     expect(html).toContain("Walk through the root gateway into the darker mouth. · Fast");
@@ -138,7 +155,7 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
     expect(html).not.toContain('aria-label="Plan A-B"');
     expect(html).not.toContain(">Plan<");
-    expect(html).toContain(">Motion Plan<");
+    expect(html).toContain(">Cinematographer Motion Plan<");
     expect(html).toContain('aria-label="Generate A-B"');
     expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
@@ -170,9 +187,13 @@ describe("Shoot Cinematographer journey assessment", () => {
     const html = renderShoot(project, { journeyId: "A-B", band: "footage" });
     expect(html).toContain("Preview · Footage A-B");
     expect(html).toContain("<video");
-    expect(html).toContain(">Footage<");
-    expect(html).toContain("This take is available in the preview.");
+    expect(html).toContain(">Inspector - Footage<");
+    expect(html).toContain('text-2xl">A→B<');
+    expect(html).not.toContain('text-2xl">A-B<');
+    expect(html).not.toContain("A → B");
+    expect(html).not.toContain("This take is available in the preview.");
     expect(html).toContain('aria-label="Footage A-B"');
+    expect(html).toContain('aria-label="Reshoot A-B"');
     expect(html).toContain('aria-pressed="true"');
     expect(html).not.toContain('aria-label="Preview mode"');
     expect(html).not.toContain('aria-label="Preview video"');
@@ -224,15 +245,15 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(cd).toContain('data-pace-gutter="C-D"');
     expect(cd).toContain("border-2 border-[#d4b36a] bg-[#443922]");
     expect(cd).not.toContain("border-[#d4b36a] border-dashed");
-    expect(cd).toContain(">Needs review<");
+    expect(cd).not.toContain(">Needs review<");
     expect(ef).toContain('aria-label="Motion E-F"');
     expect(ef).toContain("border-[#c45c38]");
     expect(ef).toContain("border-2");
     expect(ef).toContain("bg-[#142014]");
-    expect(ef).toContain(">Not shootable<");
+    expect(ef).not.toContain(">Not shootable<");
   });
 
-  it("exposes structured reasoning behind a disclosure, not as raw JSON", () => {
+  it("keeps Motion Inspector scores, concerns, and path without a Shot disclosure", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "D-E", {
       ...shootableAB,
       summary: "Pass through the remaining opening toward the portal corridor.",
@@ -243,29 +264,30 @@ describe("Shoot Cinematographer journey assessment", () => {
       concerns: ["Keep the previous space from disappearing too early."],
     });
     const html = renderShoot(project, { journeyId: "D-E" });
-    expect(html).toContain("Shot");
-    expect(html).toContain("Route.");
-    expect(html).toContain("Move forward as the next space becomes visible through the threshold.");
-    expect(html).toContain("Transition.");
-    expect(html).toContain("Prompt addition.");
-    expect(html).toContain("Threshold.");
-    expect(html).toContain("The tall vertical portal remaining in the corridor.");
-    expect(html).toContain("Camera path.");
-    expect(html).toContain("Pace.");
-    expect(html).toContain("Fast");
-    expect(html).toContain("Geometry.");
     expect(html).toContain("Set consistency");
     expect(html).toContain("87");
     expect(html).toContain("Traversal conf.");
     expect(html).toContain("74");
+    expect(html).toContain("rounded-full px-2.5 py-0.5");
+    expect(html).toContain("border border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]");
+    expect(html).toContain(">Concerns<");
     expect(html).toContain("Keep the previous space from disappearing too early.");
-    expect(html).toContain("Advisory set analysis. Does not block this journey.");
+    expect(html).toContain("Camera path.");
+    expect(html).toContain("Pace.");
+    expect(html).toContain("Fast");
+    expect(html).not.toContain(">Shot<");
+    expect(html).not.toContain("Route.");
+    expect(html).not.toContain("Transition.");
+    expect(html).not.toContain("Prompt addition.");
+    expect(html).not.toContain("Threshold.");
+    expect(html).not.toContain("Geometry.");
+    expect(html).not.toContain("Advisory set analysis. Does not block this journey.");
     expect(html).not.toContain("Camotion.");
     expect(html).not.toContain('"camotionSuitability"');
     expect(html).not.toContain("vanishing_point");
   });
 
-  it("shows CM travel targets behind the same Shot disclosure", () => {
+  it("does not show CM travel targets in the Motion Inspector", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "D-E", {
       ...shootableAB,
       travel: {
@@ -284,14 +306,10 @@ describe("Shoot Cinematographer journey assessment", () => {
       },
     });
     const html = renderShoot(project, { journeyId: "D-E" });
-    expect(html).toContain("Travel.");
-    expect(html).toContain("forward through the left-of-center opening as the corridor bends right");
-    expect(html).toContain("Start target.");
-    expect(html).toContain("corridor mouth left of center (0.62, 0.41)");
-    expect(html).toContain("End target.");
-    expect(html).toContain("fantasy portal, not the surrounding wall (0.71, 0.36)");
-    expect(html).toContain("Travel confidence.");
-    expect(html).toContain("High");
+    expect(html).not.toContain("Start target.");
+    expect(html).not.toContain("End target.");
+    expect(html).not.toContain("Travel confidence.");
+    expect(html).not.toContain("corridor mouth left of center (0.62, 0.41)");
     expect(html).not.toContain("vanishing_point");
   });
 
@@ -361,6 +379,32 @@ describe("empty Shoot", () => {
     expect(html).not.toContain("Cannot read");
     expect(html).not.toContain('aria-label="Stage');
     expect(html).not.toContain('aria-label="Generate');
+    expect(html).not.toContain("aria-busy");
+    const generating = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={withStart}
+        initialView="shoot"
+        initialSelection={{ kind: "destination", destinationId: "A", occurrenceIndex: 0 }}
+        initialConstructingBeatId="B"
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(generating).toContain('aria-label="Plan destination B"');
+    expect(generating).toMatch(/aria-label="Plan destination B"[^>]*aria-busy="true"/);
+    expect(generating).not.toMatch(/aria-label="Destination A"[^>]*aria-busy/);
+    expect(generating).toContain("storyboard-generating");
+    expect(generating).toContain("storyboard-generating-label");
+  });
+});
+
+describe("Shoot destination generating", () => {
+  it("shimmers an actual destination slot while Plan is generating that beat", () => {
+    const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 }, { constructingBeatId: "B" });
+    expect(html).toMatch(/aria-label="Destination B[^"]*"[^>]*aria-busy="true"/);
+    expect(html).not.toMatch(/aria-label="Destination A[^"]*"[^>]*aria-busy/);
+    expect(html).not.toMatch(/aria-label="Destination C[^"]*"[^>]*aria-busy/);
+    expect(html).toContain("storyboard-generating");
   });
 });
 
@@ -405,7 +449,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("border-[#3a342c]");
     expect(html).toContain("bg-transparent");
     expect(html).not.toContain("bg-[#142014]");
-    expect(html).toContain("Status: Stage");
+    expect(html).not.toContain("Status: Stage");
     expect(html).toContain("Motion Plan is created automatically from this actual adjacent pair.");
     expect(html).toContain('aria-label="Destination A"');
     expect(html).toContain('aria-label="Destination B"');
@@ -495,7 +539,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Motion A-B"');
     expect(html).toContain("border-2 border-[#d4b36a] bg-[#443922]");
     expect(html).not.toContain("border-[#d4b36a] border-dashed");
-    expect(html).toContain(">Needs review<");
+    expect(html).not.toContain(">Needs review<");
     expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
   });
@@ -526,7 +570,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("Motion A-B");
     expect(html).toContain("Planning…");
     expect(html).toContain("Planning this traversal…");
-    expect(html).toContain("Status: Planning");
+    expect(html).not.toContain("Status: Planning");
     expect(html).not.toContain("animate-spin");
     expect(html).toContain('aria-label="Motion B-C"');
     expect(html).toContain('aria-label="Footage B-C"');
@@ -629,7 +673,8 @@ describe("Camotion destination diagnostic", () => {
     expect(html).toContain('aria-label="Preview canonical"');
     expect(html).toContain('aria-label="Preview A′"');
     expect(html).toContain("Canonical A");
-    expect(html).toContain("No Camotion data for this destination");
+    expect(html).toContain("Awaiting next destination");
+    expect(html).not.toContain("No Camotion data for this destination");
     expect(html).toContain('alt="Destination A"');
     expect(html).not.toContain('aria-label="Toggle overlay"');
     expect(html).not.toContain("vanishing_point");
@@ -641,6 +686,7 @@ describe("Camotion destination diagnostic", () => {
     expect(html).toContain("Preview · Motion A-B");
     expect(html).not.toContain('aria-label="Preview video"');
     expect(html).not.toContain("No Camotion data for this destination");
+    expect(html).not.toContain("Awaiting next destination");
   });
 
   it("surfaces stored CameraMotionPlan facts for the selected destination occurrence", () => {
@@ -650,14 +696,21 @@ describe("Camotion destination diagnostic", () => {
     });
     const fromA = renderShoot(shot, { destinationId: "A", occurrenceIndex: 0 });
     expect(fromA).toContain('aria-label="Camotion diagnostic"');
-    expect(fromA).toContain("A′ · A-B start′");
-    expect(fromA).toContain("Vanishing point.");
+    expect(fromA).toContain("A′ · A→B START");
+    expect(fromA).toContain(">Direction<");
+    expect(fromA).toContain("Forward");
+    expect(fromA).toContain(">Vanishing point<");
     expect(fromA).toContain("0.50, 0.50");
-    expect(fromA).toContain("Radial forward.");
+    expect(fromA).toContain(">Destination<");
+    expect(fromA).toContain(">Protected<");
     expect(fromA).toContain("0.08 · Strong");
-    expect(fromA).toContain("/a-prime.png");
-    expect(fromA).toContain("upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-    expect(fromA).toContain("CameraMotionPlan v1. Read-only Motion Plan evidence.");
+    expect(fromA).not.toContain("Radial forward.");
+    expect(fromA).not.toContain("Bounding box");
+    expect(fromA).not.toContain("Samples");
+    expect(fromA).not.toContain("Media id");
+    expect(fromA).not.toContain("CameraMotionPlan v1. Read-only Motion Plan evidence.");
+    expect(fromA).not.toContain("/a-prime.png");
+    expect(fromA).not.toContain("upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     expect(fromA).toContain("Canonical A");
     expect(fromA).toContain('alt="Destination A"');
     expect(fromA).toContain('aria-label="Toggle overlay"');
@@ -669,12 +722,12 @@ describe("Camotion destination diagnostic", () => {
     expect(fromA).not.toContain('alt="A′ · A-B start′"');
     expect(fromA).not.toContain("vanishing_point");
     expect(fromA).not.toContain("No Camotion data for this destination");
+    expect(fromA).not.toContain("Awaiting next destination");
 
     const fromB = renderShoot(shot, { destinationId: "B", occurrenceIndex: 1 });
     expect(fromB).toContain('aria-label="Preview B′"');
-    expect(fromB).toContain("A-B end′");
+    expect(fromB).toContain("B′ · A→B END");
     expect(fromB).toContain("0.04 · Medium");
-    expect(fromB).toContain("/b-prime.png");
   });
 
   it("keeps overlay layer toggles compact and omits raw plan keys", () => {
@@ -723,23 +776,58 @@ describe("Camotion destination diagnostic", () => {
   });
 });
 
-describe("Shoot inspector panel", () => {
-  it("shows Technical in the inspector, including session asset paths when Debug is on", () => {
-    const html = renderShoot();
-    expect(html).toContain(">Technical<");
-    expect(html).toMatch(/<summary[^>]*>Technical<\/summary>/);
-    expect(html).toContain("Construction: planned. Discovery is not implemented.");
-    expect(html).toContain("Session store.");
-    expect(html).toContain("Canonical A.");
-    expect(html).toContain("does not pass --depth");
-    expect(html).not.toContain("Turn on Debug at the bottom of the Project panel");
+describe("Shoot footage inspector", () => {
+  it("uses a single arrow heading, collapsed prompt, and debug-only model", () => {
+    const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", {
+      ...shootableAB,
+      travel: { direction: "Forward, veering right", confidence: "high" },
+    });
+    const shot = projectWithJourneyShotTake(assessed, "A-B", {
+      take: { ...diagnosticTake, model: "bytedance/seedance-2.0-fast", seed: 70 },
+      videoUrl: "/a-b.mp4",
+    });
+    const html = renderShoot(shot, { journeyId: "A-B", band: "footage" });
+    expect(html).toContain(">Inspector - Footage<");
+    expect(html).toContain('text-2xl">A→B<');
+    expect(html).not.toContain('text-2xl">A-B<');
+    expect(html).not.toContain("A → B");
+    expect(html).not.toContain(">Take<");
+    expect(html).toContain("Start′");
+    expect(html).toContain("End′");
+    expect(html).toContain(">Pace<");
+    expect(html).toContain("Fast");
+    expect(html).toContain(">Shot direction<");
+    expect(html).toContain("Forward, veering right");
+    expect(html).toContain("<details");
+    expect(html).toContain(">Prompt<");
+    expect(html).toContain("Track forward.");
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
+    expect(html).toContain(">Model<");
+    expect(html).toContain("Seedance 2.0 Fast");
+    expect(html).not.toContain("bytedance/seedance-2.0-fast");
+    expect(html).not.toContain("seed 70");
+    expect(html).not.toContain("Duration.");
+    expect(html).not.toContain("This take is available in the preview.");
+    expect(html).not.toContain("last-frame conditioning");
+    expect(html).toContain('aria-label="Reshoot A-B"');
+    expect(html).toContain(">Reshoot<");
+    const hidden = renderShoot(shot, { journeyId: "A-B", band: "footage" }, { debug: false });
+    expect(hidden).not.toContain(">Model<");
+    expect(hidden).not.toContain("Seedance 2.0 Fast");
   });
+});
 
-  it("prompts to turn on Debug from Technical when Debug is off", () => {
-    const html = renderShoot(createForestProject(), { destinationId: "A", occurrenceIndex: 0 }, { debug: false });
-    expect(html).toContain(">Technical<");
-    expect(html).toContain("Turn on Debug mode in Project settings");
+describe("Shoot inspector panel", () => {
+  it("does not show Technical or Debug sections in the inspector", () => {
+    const html = renderShoot();
+    expect(html).not.toContain(">Technical<");
+    expect(html).not.toMatch(/<summary[^>]*>Technical<\/summary>/);
+    expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
     expect(html).not.toContain("Session store.");
+    expect(html).not.toContain("Turn on Debug mode in Project settings");
+    const debugOff = renderShoot(createForestProject(), { destinationId: "A", occurrenceIndex: 0 }, { debug: false });
+    expect(debugOff).not.toContain(">Technical<");
+    expect(debugOff).not.toContain("Turn on Debug mode in Project settings");
   });
 
   it("hides the inspector when collapsed and keeps a control to reopen it", () => {
@@ -751,9 +839,11 @@ describe("Shoot inspector panel", () => {
     expect(open).toContain('aria-controls="shoot-inspector"');
     expect(open).not.toContain("inspector-reopen");
     expect(open).toContain('aria-label="Resize timeline"');
+    expect(open).toContain('aria-label="Resize inspector"');
+    expect(open).toContain("cursor-col-resize");
     expect(open).toContain("preview-monitor-pair");
     expect(open).toContain("inspector-header");
-    expect(open).toContain(">Inspector<");
+    expect(open).toContain(">Inspector - Motion<");
     expect(open).toContain("text-[13px] font-semibold");
     expect(closed).toContain("inspector-reopen");
     expect(closed).toContain("h-9 w-full");
@@ -768,6 +858,7 @@ describe("Shoot inspector panel", () => {
     expect(closed).toContain("hidden");
     expect(closed).toContain('id="shoot-inspector"');
     expect(closed).toContain('aria-label="Resize timeline"');
+    expect(closed).not.toContain('aria-label="Resize inspector"');
     expect(closed).toContain("preview-monitor-pair");
     expect(closed).toContain('aria-label="Motion A-B"');
     expect(closed).not.toContain("preview-reopen");

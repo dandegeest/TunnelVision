@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { boundaryContinuitiesForProject } from "../project/boundary-continuity";
 import { useProject } from "../project/ProjectProvider";
-import { layoutShootTimeline } from "./shoot-layout";
+import { layoutShootTimeline, selectShootOccurrence } from "./shoot-layout";
 import { timeToX } from "./geometry";
 import { DestinationsLane } from "./DestinationsLane";
 import { GridMarks } from "./GridMarks";
@@ -19,6 +19,7 @@ export function Timeline() {
     openStoryboardInPlan,
     assessingJourneyIds,
     shootingJourneyIds,
+    constructingBeatId,
   } = useProject();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const layout = useMemo(() => layoutShootTimeline(project, zoom), [project, zoom]);
@@ -64,13 +65,13 @@ export function Timeline() {
             destinations={project.destinations}
             selection={selection}
             continuities={continuities}
-            onSelect={(occurrenceIndex, destinationId) => {
-              const occurrence = layout.occurrences.find((item) => item.occurrenceIndex === occurrenceIndex);
-              if (occurrence?.fpo) {
-                openStoryboardInPlan(destinationId);
-                return;
-              }
-              select({ kind: "destination", destinationId, occurrenceIndex });
+            constructingBeatId={constructingBeatId}
+            storyboard={project.storyboard}
+            onSelect={(occurrenceIndex) => {
+              selectShootOccurrence(
+                layout.occurrences.find((item) => item.occurrenceIndex === occurrenceIndex),
+                { select, openStoryboardInPlan },
+              );
             }}
           />
           <JourneyPaceLane journeys={layout.journeys} projectJourneys={project.journeys} />

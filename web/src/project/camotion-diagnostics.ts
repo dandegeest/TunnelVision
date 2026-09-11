@@ -1,4 +1,4 @@
-import { destinationById, type CameraMotionPlanV1, type CamotionDebug, type Project, type ShootingFrameRef } from "./types";
+import { destinationById, type CameraMotionPlanV1, type CamotionDebug, type Destination, type Project, type ShootingFrameRef } from "./types";
 import { segmentCamotionSource } from "./motion-plan";
 
 export type DestinationCamotionRole = "start" | "end";
@@ -23,6 +23,40 @@ export function camotionRecordKey(record: DestinationCamotionRecord): string {
 
 export function camotionSourceLabel(record: DestinationCamotionRecord): string {
   return record.role === "start" ? `${record.journeyId} start′` : `${record.journeyId} end′`;
+}
+
+export function camotionInspectorHeading(
+  record: DestinationCamotionRecord,
+  destinations: readonly Destination[],
+  startDestinationId: string,
+  endDestinationId: string | null,
+): string {
+  const start = destinations.find((item) => item.id === startDestinationId)?.label ?? startDestinationId;
+  const end = endDestinationId
+    ? (destinations.find((item) => item.id === endDestinationId)?.label ?? endDestinationId)
+    : "?";
+  return `${record.primedLabel} · ${start}→${end} ${record.role === "start" ? "START" : "END"}`;
+}
+
+export function camotionDirectionLabel(
+  record: DestinationCamotionRecord,
+  travelDirection?: string,
+): string | undefined {
+  const fromTravel = travelDirection?.trim();
+  if (fromTravel) {
+    return fromTravel;
+  }
+  if (record.plan.camera.forward > 0) {
+    return "Forward";
+  }
+  return undefined;
+}
+
+export function camotionRetainedWorkDir(record: DestinationCamotionRecord): string | undefined {
+  if (!record.camotion) {
+    return undefined;
+  }
+  return record.role === "start" ? record.camotion.startWorkDir : record.camotion.endWorkDir;
 }
 
 export function preferredCamotionRecord(

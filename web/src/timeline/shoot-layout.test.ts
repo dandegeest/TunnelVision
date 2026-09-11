@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createNewProject } from "../project/new-project";
 import { projectWithDirectorPlan } from "../project/storyboard";
-import { layoutShootTimeline, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
+import { layoutShootTimeline, occurrenceForJourneyEndpoint, occurrenceIsGenerating, selectShootOccurrence, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
 
 const A_MEDIA = {
   mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -66,5 +66,54 @@ describe("shoot timeline slots", () => {
     const layout = layoutShootTimeline(forest, 1);
     expect(layout.occurrences.some((occurrence) => occurrence.destinationId === "G")).toBe(false);
     expect(layout.occurrences.some((occurrence) => occurrence.fpo)).toBe(false);
+  });
+
+  it("finds the start and end occurrences used by a Forest leg", () => {
+    const layout = layoutShootTimeline(createForestProject(), 1);
+    expect(occurrenceForJourneyEndpoint(layout.occurrences, "E-F", "start")?.destinationId).toBe("E");
+    expect(occurrenceForJourneyEndpoint(layout.occurrences, "E-F", "end")?.destinationId).toBe("F");
+    expect(occurrenceForJourneyEndpoint(layout.occurrences, "E-F", "start")?.occurrenceIndex).toBe(4);
+    expect(occurrenceForJourneyEndpoint(layout.occurrences, "E-F", "end")?.occurrenceIndex).toBe(5);
+  });
+
+  it("selects an actual occurrence the same way the timeline does", () => {
+    const layout = layoutShootTimeline(createForestProject(), 1);
+    const selected: Array<{ destinationId: string; occurrenceIndex: number }> = [];
+    selectShootOccurrence(occurrenceForJourneyEndpoint(layout.occurrences, "A-B", "start"), {
+      select: (selection) => {
+        if (selection.kind === "destination") {
+          selected.push({ destinationId: selection.destinationId, occurrenceIndex: selection.occurrenceIndex });
+        }
+      },
+      openStoryboardInPlan: () => {
+        throw new Error("actual A should not open Plan");
+      },
+    });
+    expect(selected).toEqual([{ destinationId: "A", occurrenceIndex: 0 }]);
+  });
+
+  it("matches a generating Plan beat to the corresponding Shoot slot", () => {
+    const onlyA = {
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: A_MEDIA.image,
+          mediaId: A_MEDIA.mediaId,
+          destinationId: "A",
+        },
+      ],
+    };
+    const fpo = layoutShootTimeline(onlyA, 1);
+    expect(occurrenceIsGenerating(fpo.occurrences[1]!, "B", onlyA.storyboard)).toBe(true);
+    expect(occurrenceIsGenerating(fpo.occurrences[0]!, "B", onlyA.storyboard)).toBe(false);
+    expect(occurrenceIsGenerating(fpo.occurrences[1]!, null, onlyA.storyboard)).toBe(false);
+    const forest = createForestProject();
+    const layout = layoutShootTimeline(forest, 1);
+    const b = layout.occurrences.find((occurrence) => occurrence.destinationId === "B");
+    expect(occurrenceIsGenerating(b!, "B", forest.storyboard)).toBe(true);
+    expect(occurrenceIsGenerating(b!, "C", forest.storyboard)).toBe(false);
   });
 });

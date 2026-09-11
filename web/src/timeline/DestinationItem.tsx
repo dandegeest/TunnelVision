@@ -23,12 +23,14 @@ export function DestinationItem({
   destination,
   selected,
   continuity,
+  generating = false,
   onSelect,
 }: {
   occurrence: LaidOutOccurrence;
   destination?: Destination;
   selected: boolean;
   continuity?: BoundaryContinuity;
+  generating?: boolean;
   onSelect: () => void;
 }) {
   const image = destination?.image ?? occurrence.image;
@@ -54,9 +56,14 @@ export function DestinationItem({
       style={{ left: occurrence.xCenter, width: DESTINATION_THUMB_PX }}
       onClick={onSelect}
       aria-label={ariaBits.join(", ")}
+      aria-busy={generating || undefined}
     >
       <span className="mb-1 flex h-5 items-baseline justify-center gap-1 border-b border-[#3a342c]">
-        <span className="truncate text-center text-[11px] tracking-[0.2em] text-[#ece7df]">
+        <span
+          className={`truncate text-center text-[11px] tracking-[0.2em] text-[#ece7df]${
+            generating ? " storyboard-generating-label" : ""
+          }`}
+        >
           {label}
         </span>
         {loopReturn ? (
@@ -73,6 +80,9 @@ export function DestinationItem({
             className={`media-contain aspect-video w-full rounded ${ring}`}
           />
         )}
+        {generating ? (
+          <span className="storyboard-generating pointer-events-none absolute inset-0 overflow-hidden rounded" aria-hidden />
+        ) : null}
         {continuity && matchLabel ? (
           <span
             className={`pointer-events-none absolute inset-x-0 bottom-0 rounded-b bg-[#0c0b0a]/75 px-1 py-0.5 text-center text-[8px] tracking-[0.12em] uppercase ${seamTone(continuity)}`}

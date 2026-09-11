@@ -29,6 +29,7 @@ function DebugPath({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
+/** Session Technical/Debug path panel. Not mounted in the Shoot inspector. */
 export function TechnicalPanel() {
   const { debugOn, project, selection } = useProject();
   const [open, setOpen] = useState(false);

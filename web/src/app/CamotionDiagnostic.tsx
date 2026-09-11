@@ -1,8 +1,11 @@
 import type { DestinationCamotionRecord } from "../project/camotion-diagnostics";
 import {
   NO_CAMOTION_DATA,
+  camotionDirectionLabel,
   camotionGeneratedPath,
+  camotionInspectorHeading,
   camotionRecordKey,
+  camotionRetainedWorkDir,
   camotionSourceLabel,
   camotionWorkPath,
   formatExposureStrength,
@@ -10,6 +13,7 @@ import {
   formatPlanPoint,
   formatPlanScalar,
 } from "../project/camotion-diagnostics";
+import type { Project } from "../project/types";
 
 const pillClass = (active: boolean) =>
   `rounded-full px-2.5 py-0.5 tracking-[0.14em] uppercase outline-none ${
@@ -118,6 +122,15 @@ function DiagnosticLine({ label, value }: { label: string; value: string }) {
   );
 }
 
+function InspectorCamotionField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">{label}</p>
+      <p className="break-all text-[#cfc6b8]">{value}</p>
+    </div>
+  );
+}
+
 export function CamotionRecordFields({ record }: { record: DestinationCamotionRecord }) {
   const work = camotionWorkPath(record);
   const generated = camotionGeneratedPath(record);
@@ -142,12 +155,50 @@ export function CamotionRecordFields({ record }: { record: DestinationCamotionRe
   );
 }
 
+function FilmmakerCamotionRecord({
+  record,
+  debugOn,
+  project,
+}: {
+  record: DestinationCamotionRecord;
+  debugOn: boolean;
+  project: Pick<Project, "destinations" | "journeys">;
+}) {
+  const journey = project.journeys.find((item) => item.id === record.journeyId);
+  const heading = journey
+    ? camotionInspectorHeading(record, project.destinations, journey.startDestinationId, journey.endDestinationId)
+    : `${record.primedLabel} · ${camotionSourceLabel(record)}`;
+  const travelDirection = journey?.motionPlan?.cinematographer?.travel?.direction ?? journey?.cinematographer?.travel?.direction;
+  const direction = camotionDirectionLabel(record, travelDirection);
+  const workDir = debugOn ? camotionRetainedWorkDir(record) : undefined;
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] tracking-[0.16em] text-[#cfc6b8] uppercase">{heading}</p>
+      {direction ? <InspectorCamotionField label="Direction" value={direction} /> : null}
+      <InspectorCamotionField
+        label="Vanishing point"
+        value={formatPlanPoint(record.plan.camera.vanishing_point)}
+      />
+      <InspectorCamotionField label="Destination" value={formatPlanPoint(record.plan.destination.point)} />
+      <InspectorCamotionField label="Protected" value={record.plan.destination.protect ? "Yes" : "No"} />
+      <InspectorCamotionField label="Exposure" value={formatExposureStrength(record.plan.exposure.strength)} />
+      {workDir ? <InspectorCamotionField label="Working directory" value={workDir} /> : null}
+    </div>
+  );
+}
+
 export function CamotionDiagnosticPanel({
   records,
   emptyCopy,
+  filmmaker = false,
+  debugOn = false,
+  project,
 }: {
   records: readonly DestinationCamotionRecord[];
   emptyCopy?: string;
+  filmmaker?: boolean;
+  debugOn?: boolean;
+  project?: Pick<Project, "destinations" | "journeys">;
 }) {
   return (
     <section className="border-t border-[#2a2620] pt-3 text-xs" aria-label="Camotion diagnostic">
@@ -156,9 +207,18 @@ export function CamotionDiagnosticPanel({
         <CamotionEmptyState compact copy={emptyCopy} />
       ) : (
         <div className="mt-2 space-y-3">
-          {records.map((record) => (
-            <CamotionRecordFields key={camotionRecordKey(record)} record={record} />
-          ))}
+          {records.map((record) =>
+            filmmaker && project ? (
+              <FilmmakerCamotionRecord
+                key={camotionRecordKey(record)}
+                record={record}
+                debugOn={debugOn}
+                project={project}
+              />
+            ) : (
+              <CamotionRecordFields key={camotionRecordKey(record)} record={record} />
+            ),
+          )}
         </div>
       )}
     </section>

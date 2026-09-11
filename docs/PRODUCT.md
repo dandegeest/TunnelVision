@@ -263,9 +263,9 @@ architecture.
     rather than stretched or cropped to fill. Media facts appear on the
     selected storyboard still, including generated images once their
     dimensions are known. Debug is a
-    session toggle in Project settings and is on by default for now: Technical in the Shoot inspector lists
-    session disk paths for canonical stills and shooting frames, and
-    Camotion work dirs are kept only while Debug is on. Product shoot does not pass a depth
+    session toggle in Project settings and is on by default for now.
+    Camotion work dirs are kept only while Debug is on. The Shoot inspector
+    no longer shows Technical or Debug path panels. Product shoot does not pass a depth
     map. Destination
     actions live on the destination card (Reshoot on generated stills, Replace…); Add Destination
     extends the storyboard without encoding construction strategy and
@@ -411,9 +411,9 @@ will succeed. A JourneyShot may progress even when CM reports
 `not_shootable`. Shoot tiles show Stage / Film / Export, with filled clear / hold / no go bands after Plan;
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
-Inspector copy stays
-Ready / Needs review / Not shootable, with compact SET CONSISTENCY and
-TRAVERSAL CONF. scores. CM does **not** emit CameraMotionPlan JSON
+Inspector Motion uses a CINEMATOGRAPHER MOTION PLAN heading with compact
+SET CONSISTENCY and TRAVERSAL CONF. scores. Advisory shootability stays
+on the motion band as clear / hold / no go. CM does **not** emit CameraMotionPlan JSON
 or generate video; the same assessment turn's travel object is bridged
 deterministically into CameraMotionPlan, then Plan runs Camotion.
 

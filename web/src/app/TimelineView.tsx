@@ -7,7 +7,12 @@ import { Timeline } from "../timeline/Timeline";
 const TIMELINE_HEIGHT_DEFAULT = 360;
 const TIMELINE_HEIGHT_MIN = 240;
 const PREVIEW_MIN = 180;
+const PREVIEW_WIDTH_MIN = 360;
+const INSPECTOR_WIDTH_DEFAULT = 320;
+const INSPECTOR_WIDTH_MIN = 260;
+const INSPECTOR_WIDTH_MAX = 480;
 const SEPARATOR_PX = 6;
+const INSPECTOR_COLLAPSED_PX = 32;
 
 function clampTimelineHeight(height: number, containerHeight: number) {
   const max = Math.max(
@@ -17,13 +22,24 @@ function clampTimelineHeight(height: number, containerHeight: number) {
   return Math.min(max, Math.max(TIMELINE_HEIGHT_MIN, height));
 }
 
+function clampInspectorWidth(width: number, containerWidth: number) {
+  const max = Math.max(
+    INSPECTOR_WIDTH_MIN,
+    Math.min(INSPECTOR_WIDTH_MAX, containerWidth - PREVIEW_WIDTH_MIN - SEPARATOR_PX),
+  );
+  return Math.min(max, Math.max(INSPECTOR_WIDTH_MIN, width));
+}
+
 export function TimelineView() {
   const { inspectorOpen } = useProject();
   const frameRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startY: number; startHeight: number } | null>(null);
+  const inspectorDrag = useRef<{ startX: number; startWidth: number } | null>(null);
   const [timelineHeight, setTimelineHeight] = useState(TIMELINE_HEIGHT_DEFAULT);
+  const [inspectorWidth, setInspectorWidth] = useState(INSPECTOR_WIDTH_DEFAULT);
 
   const containerHeight = () => frameRef.current?.getBoundingClientRect().height ?? 800;
+  const containerWidth = () => frameRef.current?.getBoundingClientRect().width ?? 960;
 
   const onResizePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -59,22 +75,76 @@ export function TimelineView() {
     }
   }, []);
 
+  const onInspectorResizePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    inspectorDrag.current = { startX: event.clientX, startWidth: inspectorWidth };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }, [inspectorWidth]);
+
+  const onInspectorResizePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    const current = inspectorDrag.current;
+    if (!current) {
+      return;
+    }
+    setInspectorWidth(
+      clampInspectorWidth(current.startWidth - (event.clientX - current.startX), containerWidth()),
+    );
+  }, []);
+
+  const onInspectorResizePointerUp = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    inspectorDrag.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }, []);
+
+  const onInspectorResizeKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.shiftKey ? 24 : 12;
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      setInspectorWidth((width) => clampInspectorWidth(width + step, containerWidth()));
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      setInspectorWidth((width) => clampInspectorWidth(width - step, containerWidth()));
+    }
+  }, []);
+
   return (
     <div
       ref={frameRef}
       className="grid h-full min-h-0 overflow-hidden"
       style={{
-        gridTemplateColumns: inspectorOpen ? "minmax(0,1fr) 320px" : "minmax(0,1fr) 2rem",
+        gridTemplateColumns: inspectorOpen
+          ? `minmax(0,1fr) ${SEPARATOR_PX}px ${inspectorWidth}px`
+          : `minmax(0,1fr) ${INSPECTOR_COLLAPSED_PX}px`,
         gridTemplateRows: `minmax(${PREVIEW_MIN}px, 1fr) ${SEPARATOR_PX}px ${timelineHeight}px`,
       }}
     >
       <div className="min-h-0 overflow-hidden" style={{ gridColumn: 1, gridRow: 1 }}>
         <Preview />
       </div>
+      {inspectorOpen ? (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize inspector"
+          aria-valuemin={INSPECTOR_WIDTH_MIN}
+          aria-valuemax={INSPECTOR_WIDTH_MAX}
+          aria-valuenow={inspectorWidth}
+          tabIndex={0}
+          className="h-full cursor-col-resize touch-none bg-[#2a2620] hover:bg-[#3a342c] focus:bg-[#ece7df] focus:outline-none"
+          style={{ gridColumn: 2, gridRow: 1 }}
+          onPointerDown={onInspectorResizePointerDown}
+          onPointerMove={onInspectorResizePointerMove}
+          onPointerUp={onInspectorResizePointerUp}
+          onPointerCancel={onInspectorResizePointerUp}
+          onKeyDown={onInspectorResizeKeyDown}
+        />
+      ) : null}
       <div
         className="min-h-0 overflow-hidden"
         {...(inspectorOpen ? {} : { hidden: true })}
-        style={inspectorOpen ? { gridColumn: 2, gridRow: 1 } : undefined}
+        style={inspectorOpen ? { gridColumn: 3, gridRow: 1 } : undefined}
       >
         <Inspector />
       </div>

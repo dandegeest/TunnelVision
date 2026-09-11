@@ -127,7 +127,7 @@ export function cinematographerShootabilityLabel(
   }
 }
 
-/** Compact set-language shootability for the Shoot timeline tile. Inspector keeps the longer labels. */
+/** Compact set-language shootability for the Shoot timeline tile. */
 export function cinematographerShootabilityTileLabel(
   shootability: CinematographerShootability,
 ): "clear" | "hold" | "no go" {
@@ -139,6 +139,18 @@ export function cinematographerShootabilityTileLabel(
     case "not_shootable":
       return "no go";
   }
+}
+
+/** Inspector chrome only. App pill shape with MOTION-band colors; not a shoot gate. */
+export function cinematographerScoreTone(score: number): string {
+  const chrome = "rounded-full px-2.5 py-0.5 tabular-nums tracking-[0.14em]";
+  if (score >= 70) {
+    return `${chrome} border border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]`;
+  }
+  if (score >= 40) {
+    return `${chrome} border border-[#d4b36a] bg-[#443922] text-[#e4d2a4]`;
+  }
+  return `${chrome} border border-[#c45c38] bg-[#2a1610] text-[#f0c2a8]`;
 }
 
 export function locomotionPaceLabel(

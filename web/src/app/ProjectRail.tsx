@@ -317,8 +317,8 @@ function DebugModeToggle() {
         aria-label="Debug mode"
         title={
           debugOn
-            ? "Debug is on. Camotion work dirs are kept. Asset paths are under Technical in the Shoot inspector."
-            : "Show session asset paths under Technical in the Shoot inspector and keep Camotion work dirs."
+            ? "Debug is on. Camotion work dirs are kept."
+            : "Keep Camotion work dirs after A′/B′ are copied into the session store."
         }
         className="mt-0.5 accent-[#ece7df]"
         onChange={(event) => setDebugOn(event.target.checked)}
