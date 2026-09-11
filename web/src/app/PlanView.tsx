@@ -18,6 +18,8 @@ import {
 } from "../project/starting-frame";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
 import type { StoryboardFrame } from "../project/types";
+import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
+import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
 
@@ -337,8 +339,6 @@ export function DestinationPlanFields({
   disabled = false,
   onPlanChange,
   alwaysShowIntent = false,
-  intentClickToEdit = false,
-  promptClickToEdit = false,
   promptDisclosure = false,
   promptHeading = "Prompt",
   intentRows = 2,
@@ -347,8 +347,6 @@ export function DestinationPlanFields({
   disabled?: boolean;
   onPlanChange?: (next: { intent?: string; visualDescription?: string }) => void;
   alwaysShowIntent?: boolean;
-  intentClickToEdit?: boolean;
-  promptClickToEdit?: boolean;
   promptDisclosure?: boolean;
   promptHeading?: string;
   intentRows?: number;
@@ -358,43 +356,26 @@ export function DestinationPlanFields({
   const prompt = visualDescription || intent;
   const showSeparateIntent = Boolean(intent.trim() && visualDescription.trim() && intent.trim() !== visualDescription.trim());
   const showIntent = alwaysShowIntent || showSeparateIntent;
-  const editable = Boolean(onPlanChange);
-  const [editingIntent, setEditingIntent] = useState(false);
-  const [editingPrompt, setEditingPrompt] = useState(false);
-  const intentReadOnly = intentClickToEdit ? !editingIntent || !editable : !editable;
-  const promptReadOnly = promptClickToEdit ? !editingPrompt || !editable : !editable;
   const fieldClass =
-    "destination-detail-prompt mt-2 block w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2 py-1.5 text-[10px] leading-snug text-[#ece7df] outline-none focus-visible:border-[#ece7df] read-only:border-transparent read-only:bg-transparent read-only:px-0 read-only:py-0 disabled:opacity-40";
+    "destination-detail-prompt mt-2 block w-full text-[10px] leading-snug text-[#ece7df]";
   const promptField = (
-    <textarea
+    <ClickToEditTextarea
       aria-label={`Destination ${frame.label} prompt`}
       rows={3}
       value={prompt}
-      readOnly={promptReadOnly}
       disabled={disabled}
       className={`${fieldClass} destination-detail-visual`}
-      onChange={(event) => {
-        if (!onPlanChange) {
-          return;
-        }
-        if (frame.id === "A" && frame.visualDescription === undefined) {
-          onPlanChange({ intent: event.target.value });
-          return;
-        }
-        onPlanChange({ visualDescription: event.target.value });
-      }}
-      onFocus={() => {
-        if (promptClickToEdit && editable && !disabled) {
-          setEditingPrompt(true);
-        }
-      }}
-      onBlur={() => {
-        if (promptClickToEdit) {
-          setEditingPrompt(false);
-        }
-      }}
-      onClick={(event) => event.stopPropagation()}
-      onPointerDown={(event) => event.stopPropagation()}
+      onChange={
+        onPlanChange
+          ? (next) => {
+              if (frame.id === "A" && frame.visualDescription === undefined) {
+                onPlanChange({ intent: next });
+                return;
+              }
+              onPlanChange({ visualDescription: next });
+            }
+          : undefined
+      }
     />
   );
 
@@ -403,26 +384,13 @@ export function DestinationPlanFields({
       {showIntent ? (
         <label className="mt-2 block">
           <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
-          <textarea
+          <ClickToEditTextarea
             aria-label={`Destination ${frame.label} intent`}
             rows={intentRows}
             value={intent}
-            readOnly={intentReadOnly}
             disabled={disabled}
             className={fieldClass}
-            onChange={(event) => onPlanChange?.({ intent: event.target.value })}
-            onFocus={() => {
-              if (intentClickToEdit && editable && !disabled) {
-                setEditingIntent(true);
-              }
-            }}
-            onBlur={() => {
-              if (intentClickToEdit) {
-                setEditingIntent(false);
-              }
-            }}
-            onClick={(event) => event.stopPropagation()}
-            onPointerDown={(event) => event.stopPropagation()}
+            onChange={onPlanChange ? (next) => onPlanChange({ intent: next }) : undefined}
           />
         </label>
       ) : null}
@@ -522,6 +490,9 @@ export function DestinationDetailPopover({
               aria-label={`Reshoot destination ${frame.label}`}
               disabled={reshooting}
               className="mt-2 inline-flex h-7 items-center rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.16em] text-[#ece7df] uppercase outline-none hover:border-[#7a7266] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
+              onPointerDown={() => {
+                commitActiveTextEdit();
+              }}
               onClick={(event) => {
                 event.stopPropagation();
                 onReshoot();
@@ -614,6 +585,9 @@ export function DestinationMenu({
               aria-label={`Reshoot destination ${label}`}
               disabled={reshooting || reshootDisabled}
               className="block w-full px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916] disabled:cursor-not-allowed disabled:opacity-40"
+              onPointerDown={() => {
+                commitActiveTextEdit();
+              }}
               onClick={(event) => {
                 event.stopPropagation();
                 setOpen(false);
@@ -863,6 +837,7 @@ export function PlanView() {
       if (target?.closest(`[data-destination-card="${detailFrameId}"]`)) {
         return;
       }
+      commitActiveTextEdit();
       setDetailFrameId(null);
     };
     window.addEventListener("pointerdown", onPointerDown);

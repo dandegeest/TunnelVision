@@ -625,8 +625,17 @@ describe("destination reshoot", () => {
     expect(actualB.storyboard[1]?.generatedFrom).toContain("plan:");
     expect(generatedStillNeedsReshoot(actualB, actualB.storyboard[1]!)).toBe(false);
     const stale = projectWithStoryboardBeatPlan(actualB, "B", {
-      visualDescription: "A rewritten viewpoint after the still already exists.",
+      intent: "Turn toward the open doorway.",
+      visualDescription: "A warmer corridor with an open doorway.",
     });
+    const editedRequest = destinationConstructionRequestFromProject(stale, "B");
+    expect(editedRequest.intent).toBe("Turn toward the open doorway.");
+    expect(editedRequest.visualDescription).toBe("A warmer corridor with an open doorway.");
+    const editedPrompt = destinationConstructionPrompt(editedRequest);
+    expect(editedPrompt).toContain("Turn toward the open doorway.");
+    expect(editedPrompt).toContain("A warmer corridor with an open doorway.");
+    expect(editedPrompt).not.toContain(beats.beats[0]?.intent ?? "");
+    expect(editedPrompt).not.toContain(beats.beats[0]?.visualDescription ?? "");
     expect(generatedStillNeedsReshoot(stale, stale.storyboard[1]!)).toBe(true);
     expect(generatedStillNeedsReshoot(reshots, reshots.storyboard[1]!)).toBe(false);
     const nextStale = projectWithStoryboardBeatPlan(actualB, "C", {

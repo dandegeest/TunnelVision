@@ -17,6 +17,7 @@ import { videoModelDisplayLabel } from "../../../media/src/replicate/video-model
 import { DestinationPlanFields } from "./PlanView";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
 import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
+import { commitActiveTextEdit } from "../ui/commit-text-edit";
 import { PanelHeader } from "./PanelHeader";
 
 export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -152,8 +153,6 @@ export function Inspector() {
             frame={frame}
             disabled={reshooting}
             alwaysShowIntent
-            intentClickToEdit
-            promptClickToEdit
             promptDisclosure
             promptHeading="Generation prompt"
             intentRows={3}
@@ -169,6 +168,9 @@ export function Inspector() {
               disabled={reshooting}
               aria-label={`Reshoot destination ${frame.label}`}
               title="Regenerate this destination from its current prompt."
+              onPointerDown={() => {
+                commitActiveTextEdit();
+              }}
               onClick={() => {
                 void reshootDestination(frame.id);
               }}

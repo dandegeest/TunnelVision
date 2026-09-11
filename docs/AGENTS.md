@@ -129,11 +129,12 @@ media-info strips) selects it. Clicking the already-selected still
 opens a storyboard-bounded reel: the still is contained at the largest scale that
 fits the storyboard area, with previous and next among actual stills. The
 reel does not cover the conversation or Project rails. Clicking the label
-strip opens destination details: the prompt is editable and
-updates that beat's plan. Uploaded A with a story stores opening intent from
+strip opens destination details: intent and prompt are click-to-edit
+and update that beat's plan on each keystroke. Leaving the field or
+selecting another destination commits the current text. Uploaded A with a story stores opening intent from
 that story; generated A also stores the TunnelVision opening prompt as visual
 description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
-the current prompt. If the plan changes after a still exists, that
+the current storyboard intent and visual description. If the plan changes after a still exists, that
 thumbnail shows Plan changed until Reshoot. Shoot Reshoot on the same canonical does the same
 thing. Replacing either
 canonical still on a production leg returns that JourneyShot to not

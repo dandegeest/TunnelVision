@@ -248,7 +248,10 @@ generation is running. It does not encode Provided / Generated / Derived / Disco
 Approximate duration belongs to a Journey/segment, not the destination
 thumbnail. Destination planning details (intent, visual
 description, and the generation prompt on a TunnelVision-made still) are available from the destination label strip, not as
-persistent caption text under actual stills. Uploaded A with a journey story
+persistent caption text under actual stills. Intent, prompt, and the
+Project journey story are click-to-edit: they look like copy until
+focused, commit on each keystroke, and keep that text when the
+filmmaker leaves the field or selects another destination. Uploaded A with a journey story
 stores opening intent from that story; generated A also stores the opening
 prompt. Actual A can still open details when those fields are empty. Clicking an unselected still outside the
 label, kebab, and media-info strips selects it. Clicking the selected

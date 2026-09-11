@@ -63,6 +63,7 @@ import {
 } from "./conversation";
 import { requestExportMovie, type MovieExportResult } from "./export-movie";
 import { storyboardFrameById, type Agency, type JourneyShot, type Project, type Selection, type VideoModelId } from "./types";
+import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function withId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids : [...ids, id];
@@ -217,6 +218,7 @@ export function ProjectProvider({
   }, []);
 
   const select = useCallback((next: Selection) => {
+    commitActiveTextEdit();
     setSelection(next);
     setPlaying(false);
   }, []);
@@ -225,6 +227,7 @@ export function ProjectProvider({
     if (next === "shoot" && !hasAuthoritativeStartingFrame(project)) {
       return;
     }
+    commitActiveTextEdit();
     setViewState(next);
     setSelection((current) => selectionForWorkspaceView(next, current, project));
     setPlaying(false);
@@ -409,12 +412,12 @@ export function ProjectProvider({
   const constructDestination = useCallback(
     async (beatId: string) => {
       try {
-        await constructDestinationOn(project, beatId);
+        await constructDestinationOn(projectRef.current, beatId);
       } catch {
         // Conversation already records the failure.
       }
     },
-    [constructDestinationOn, project],
+    [constructDestinationOn],
   );
 
   const generateOpeningOn = useCallback(
@@ -477,9 +480,9 @@ export function ProjectProvider({
 
   const setDestinationPlan = useCallback(
     (frameId: string, next: { intent?: string; visualDescription?: string }) => {
-      setProject((current) => projectWithStoryboardBeatPlan(current, frameId, next));
+      applyProject(projectWithStoryboardBeatPlan(projectRef.current, frameId, next));
     },
-    [],
+    [applyProject],
   );
 
   const reshootDestination = useCallback(

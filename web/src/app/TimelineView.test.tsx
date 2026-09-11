@@ -119,8 +119,9 @@ describe("Shoot boundary continuity UI", () => {
     expect(opening).toContain(">Generation prompt<");
     expect(opening).toContain("<details");
     expect(opening).not.toMatch(/<details[^>]*\sopen/);
-    expect(opening).toMatch(/aria-label="Destination A intent"[^>]*readOnly=""/);
-    expect(opening).toMatch(/aria-label="Destination A prompt"[^>]*readOnly=""/);
+    expect(opening).not.toMatch(/aria-label="Destination A intent"[^>]*readOnly=""/);
+    expect(opening).not.toMatch(/aria-label="Destination A prompt"[^>]*readOnly=""/);
+    expect(opening).toContain("focus:bg-[#161410]");
     expect(opening).not.toContain('aria-label="Reshoot destination A"');
     expect(opening).not.toContain("This is the opening destination.");
     expect(opening).not.toContain("Status: ready");

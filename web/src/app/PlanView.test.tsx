@@ -116,8 +116,10 @@ describe("Plan project story", () => {
     const html = renderPlan(undefined, { debug: false });
     expect(html).toContain('id="project-story"');
     expect(html).toContain('aria-label="Journey story"');
+    expect(html).not.toMatch(/aria-label="Journey story"[^>]*readOnly=""/);
     expect(html).toContain("text-[11px]");
     expect(html).toContain("resize-y");
+    expect(html).toContain("focus:bg-[#161410]");
     expect(html).toContain('aria-label="Resize director panel"');
     expect(html).toContain('aria-label="Resize project panel"');
     expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
@@ -815,7 +817,11 @@ describe("Plan destination details", () => {
       visualDescription: "A corridor continuing the same world.",
     });
     const html = renderToStaticMarkup(
-      <DestinationDetailPopover frame={planned.storyboard[1]!} initiallyOpen />,
+      <DestinationDetailPopover
+        frame={planned.storyboard[1]!}
+        initiallyOpen
+        onPlanChange={() => undefined}
+      />,
     );
     expect(html).toContain("destination-detail");
     expect(html).toContain('aria-label="Destination B details"');
@@ -824,6 +830,9 @@ describe("Plan destination details", () => {
     expect(html).toContain("destination-detail-visual");
     expect(html).toContain('aria-label="Destination B intent"');
     expect(html).toContain('aria-label="Destination B prompt"');
+    expect(html).not.toMatch(/aria-label="Destination B intent"[^>]*readOnly=""/);
+    expect(html).not.toMatch(/aria-label="Destination B prompt"[^>]*readOnly=""/);
+    expect(html).toContain("focus:bg-[#161410]");
     const closed = renderPlan(planned);
     expect(closed).toContain("Move forward into the next space.");
     expect(closed).not.toContain("A corridor continuing the same world.");

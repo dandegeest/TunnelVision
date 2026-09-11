@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
+import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
 import {
   canPlanMovie,
   MAX_STORYBOARD_DESTINATIONS,
@@ -474,14 +475,14 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
             <AgencySelect />
             <label className="flex flex-col gap-1.5">
               <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Journey prompt</span>
-              <textarea
+              <ClickToEditTextarea
                 id="project-story"
                 rows={8}
                 value={composerDraft}
                 placeholder="Describe the journey…"
                 aria-label="Journey story"
-                className="min-h-[10rem] w-full resize-y overflow-auto rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
-                onChange={(event) => setComposerDraft(event.target.value)}
+                className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                onChange={setComposerDraft}
               />
             </label>
             <StoryDurationField
