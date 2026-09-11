@@ -103,7 +103,9 @@ concerns under those scores, camera path,
 pace, and a concise summary. Generate on FOOTAGE remains explicit and produces that one take from the
 staged frames. The preview
 shows the A|B stills, canonical vs conditioned frames, and Camotion overlay on MOTION, and the
-rendered clip on FOOTAGE. Selecting a destination still
+rendered clip on FOOTAGE. MOTION sizes that pair to the stills'
+aspect instead of a 16:9 / 32:9 frame, and contains rather than
+stretching or cropping. Selecting a destination still
 offers a compact read-only Camotion diagnostic: canonical vs stored A′/B′
 in the preview, a thin overlay of the stored CameraMotionPlan on the
 displayed still (that segment's VP / travel direction), and Exposure

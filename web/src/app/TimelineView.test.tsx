@@ -168,6 +168,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain('alt="A-B end B"');
     expect(html).toContain("preview-leg");
     expect(html).toContain("preview-monitor-pair");
+    expect(html).toContain('data-preview-aspect="2000/558"');
+    expect(html).toContain("media-contain");
     expect(html).toContain("Preview · Motion A-B");
     expect(html).toContain('id="shoot-inspector"');
     expect(html).toContain('title="Hide inspector"');
@@ -181,6 +183,22 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain("Journey A-B, Ready<");
     expect(html).not.toContain('"shootability"');
     expect(html).not.toContain(">Assess shot<");
+  });
+
+  it("sizes the motion preview to square stills instead of forcing 16:9", () => {
+    const forest = createForestProject();
+    const square = {
+      ...forest,
+      canonicalAspectRatio: { width: 800, height: 800 },
+      storyboard: forest.storyboard.map((frame) =>
+        frame.mediaInfo ? { ...frame, mediaInfo: { ...frame.mediaInfo, width: 800, height: 800 } } : frame,
+      ),
+    };
+    const html = renderShoot(square, { journeyId: "A-B", band: "motion" });
+    expect(html).toContain("preview-monitor-pair");
+    expect(html).toContain('data-preview-aspect="1600/800"');
+    expect(html).toContain("media-contain");
+    expect(html).not.toContain('data-preview-aspect="32/9"');
   });
 
   it("opens footage for a rendered take without Video|A|B tabs", () => {

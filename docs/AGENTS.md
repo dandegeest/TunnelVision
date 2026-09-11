@@ -124,6 +124,8 @@ intent or a visual description, upload asks whether to clear them so a later
 DIRECT can describe the new still. Storyboard and
 other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
 (letterbox or pillarbox) rather than stretching or cropping them.
+The Shoot motion preview monitor follows the still aspect (two frames
+side by side) instead of forcing 16:9.
 Clicking an unselected storyboard still (outside the label, kebab, and
 media-info strips) selects it. Clicking the already-selected still
 opens a storyboard-bounded reel: the still is contained at the largest scale that

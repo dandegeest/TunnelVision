@@ -3,7 +3,7 @@ import {
   isImageAspectRatio,
 } from "../../../media/src/image-aspect-ratio.ts";
 import type { ImageAspectRatio } from "../../../media/src/types.ts";
-import type { Project, StoryboardMediaInfo } from "./types";
+import { storyboardFrameForDestination, type Project, type StoryboardMediaInfo } from "./types";
 
 export { GENERATED_OPENING_ASPECT_RATIO };
 export type { ImageAspectRatio };
@@ -12,6 +12,23 @@ export function canonicalAspectRatioFromMediaInfo(
   info: Pick<StoryboardMediaInfo, "width" | "height">,
 ): ImageAspectRatio | undefined {
   return isImageAspectRatio(info) ? { width: info.width, height: info.height } : undefined;
+}
+
+/** Measured still aspect for preview, then project canonical, then generated 16:9. */
+export function previewFrameAspectRatio(project: Project, frameId?: string): ImageAspectRatio {
+  if (frameId) {
+    const frame = storyboardFrameForDestination(project.storyboard, frameId);
+    const fromFrame = frame?.mediaInfo ? canonicalAspectRatioFromMediaInfo(frame.mediaInfo) : undefined;
+    if (fromFrame) {
+      return fromFrame;
+    }
+  }
+  return projectCanonicalAspectRatio(project) ?? GENERATED_OPENING_ASPECT_RATIO;
+}
+
+/** One still, or two stills side by side, for the Shoot preview monitor. */
+export function previewMonitorAspectRatio(frameAspect: ImageAspectRatio, pair: boolean): ImageAspectRatio {
+  return pair ? { width: frameAspect.width * 2, height: frameAspect.height } : frameAspect;
 }
 
 /** Project canonical AR, falling back to A's measured pixels or generated 16:9. */

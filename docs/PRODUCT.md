@@ -261,7 +261,9 @@ architecture.
     crop, resize, convert, or replace filmmaker-provided media. Aspect
     mismatch is marked on the affected thumbnail. 16:9 tiles stay
     fixed; source stills are contained (letterboxed or pillarboxed)
-    rather than stretched or cropped to fill. Media facts appear on the
+    rather than stretched or cropped to fill. The Shoot motion
+    preview uses the still aspect (two frames side by side) instead
+    of forcing 16:9. Media facts appear on the
     selected storyboard still, including generated images once their
     dimensions are known. Debug is a
     session toggle in Project settings and is on by default for now.

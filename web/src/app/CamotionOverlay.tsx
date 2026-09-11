@@ -414,8 +414,8 @@ export function DiagnosticStill({
 }) {
   const { imgRef, fitted } = useContainedImageRect(src);
   return (
-    <figure className="relative h-full w-full">
-      <img ref={imgRef} src={src} alt={alt} />
+    <figure className="relative h-full min-h-0 min-w-0 w-full overflow-hidden">
+      <img ref={imgRef} src={src} alt={alt} className="media-contain h-full w-full" />
       {overlay && plan ? <CamotionPlanOverlay plan={plan} layers={layers} fitted={fitted} /> : null}
       {caption ? (
         <figcaption className="pointer-events-none absolute bottom-2 left-2 z-[1] rounded bg-black/70 px-2 py-0.5 text-[11px] tracking-[0.14em] text-[#cfc6b8] uppercase">

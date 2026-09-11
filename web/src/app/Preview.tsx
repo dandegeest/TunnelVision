@@ -1,6 +1,12 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import { useProject } from "../project/ProjectProvider";
+import {
+  GENERATED_OPENING_ASPECT_RATIO,
+  previewFrameAspectRatio,
+  previewMonitorAspectRatio,
+  type ImageAspectRatio,
+} from "../project/canonical-aspect";
 import { destinationById, type CameraMotionPlanV1, type Destination } from "../project/types";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
 import {
@@ -18,10 +24,30 @@ import {
 } from "./CamotionOverlay";
 import type { OverlayLayers } from "../project/camotion-overlay";
 
-function PreviewMonitor({ children, pair = false }: { children: ReactNode; pair?: boolean }) {
+function PreviewMonitor({
+  children,
+  pair = false,
+  aspect,
+}: {
+  children: ReactNode;
+  pair?: boolean;
+  aspect?: ImageAspectRatio;
+}) {
+  const monitor = previewMonitorAspectRatio(aspect ?? GENERATED_OPENING_ASPECT_RATIO, pair);
   return (
     <div className="preview-stage">
-      <div className={pair ? "preview-monitor preview-monitor-pair" : "preview-monitor"}>{children}</div>
+      <div
+        className={pair ? "preview-monitor preview-monitor-pair" : "preview-monitor"}
+        style={
+          {
+            "--preview-ar-w": monitor.width,
+            "--preview-ar-h": monitor.height,
+          } as CSSProperties
+        }
+        data-preview-aspect={`${monitor.width}/${monitor.height}`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -40,11 +66,13 @@ function DestinationCamotionPreview({
   records,
   arrivalBlocked,
   title,
+  aspect,
 }: {
   destination: Destination;
   records: readonly DestinationCamotionRecord[];
   arrivalBlocked: boolean;
   title: string;
+  aspect?: ImageAspectRatio;
 }) {
   const [mode, setMode] = useState<"canonical" | "primed">("canonical");
   const [recordKey, setRecordKey] = useState<string | null>(null);
@@ -80,7 +108,7 @@ function DestinationCamotionPreview({
           />
         }
       />
-      <PreviewMonitor>
+      <PreviewMonitor aspect={aspect}>
         {primed && !active ? (
           <CamotionEmptyState />
         ) : (
@@ -264,6 +292,7 @@ export function Preview() {
         records={camotionRecords}
         arrivalBlocked={Boolean(occurrence?.arrivalBlocked)}
         title={title}
+        aspect={previewFrameAspectRatio(project, destination.id)}
       />
     );
   }
@@ -283,7 +312,17 @@ export function Preview() {
           ) : undefined
         }
       />
-      <PreviewMonitor pair={showStills}>
+      <PreviewMonitor
+        pair={showStills}
+        aspect={
+          showVideo
+            ? GENERATED_OPENING_ASPECT_RATIO
+            : previewFrameAspectRatio(
+                project,
+                showStills && selectedJourney ? selectedJourney.startDestinationId : destination?.id,
+              )
+        }
+      >
         {showVideo && selectedJourney?.videoUrl ? (
           <video
             ref={videoRef}

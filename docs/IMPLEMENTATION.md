@@ -263,7 +263,9 @@ Aspect warnings appear on the affected thumbnail; media facts appear
 on the selected storyboard still, including generated images, not as a
 global diagnostic banner. 16:9 tiles stay fixed;
 source stills are contained (letterboxed or pillarboxed), not
-stretched or cropped to fill. Debug is a session
+stretched or cropped to fill. The Shoot motion preview monitor
+uses the displayed still's aspect (a pair is two of those side by
+side) instead of forcing 16:9 / 32:9. Debug is a session
 toggle in Project settings and is on by default for now. Camotion work dirs are kept only while Debug is on.
 The Shoot inspector no longer mounts Technical or Debug path panels. Footage Inspector
 selection of a canonical still uses the same Shoot timeline occurrence click as the
