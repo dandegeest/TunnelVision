@@ -24,6 +24,29 @@ export class MediaGenerationError extends Error {
 
 const TOKEN_PATTERN = /r8_[A-Za-z0-9]+/g;
 
+/** Node/undici often reports only `fetch failed`; the useful reason is on `cause`. */
+export function formatErrorWithCause(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+  const parts = [error.message];
+  let current: unknown = error.cause;
+  const seen = new Set<unknown>([error]);
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    if (current instanceof Error) {
+      if (current.message && current.message !== parts[parts.length - 1]) {
+        parts.push(current.message);
+      }
+      current = current.cause;
+      continue;
+    }
+    parts.push(String(current));
+    break;
+  }
+  return parts.join(": ");
+}
+
 export function redactSecrets(value: string, extraSecrets: readonly string[] = []): string {
   let redacted = value.replace(TOKEN_PATTERN, "[redacted]");
   for (const secret of extraSecrets) {

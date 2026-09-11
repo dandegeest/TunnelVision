@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import { MediaGenerationError } from "../src/errors.ts";
-import { classifyProviderFailure } from "../src/errors.ts";
+import { classifyProviderFailure, formatErrorWithCause } from "../src/errors.ts";
 import { sha256Bytes, sha256File } from "../src/hash.ts";
 import { resolveMediaInput, toReplicateFileInput } from "../src/media-input.ts";
 import { ReplicateMediaProvider } from "../src/replicate/provider.ts";
@@ -149,6 +149,16 @@ test("provider error normalization does not infer moderation", () => {
   assert.equal(
     classifyProviderFailure({ httpStatus: 422, error: "Invalid type" }),
     "invalid_input",
+  );
+});
+
+test("provider fetch failures include the undici cause", () => {
+  const failed = new TypeError("fetch failed", {
+    cause: new Error("connect ECONNREFUSED 127.0.0.1:443"),
+  });
+  assert.equal(
+    formatErrorWithCause(failed),
+    "fetch failed: connect ECONNREFUSED 127.0.0.1:443",
   );
 });
 

@@ -19,7 +19,7 @@ export {
   nearestExplicitAspectRatio,
 } from "./image-aspect-ratio.ts";
 export type { ReasoningProvider, ReasoningRequest, ReasoningResult } from "./reasoning/types.ts";
-export { MediaGenerationError } from "./errors.ts";
+export { MediaGenerationError, formatErrorWithCause } from "./errors.ts";
 export { sha256File, sha256Bytes } from "./hash.ts";
 export { resolveMediaInput } from "./media-input.ts";
 export {

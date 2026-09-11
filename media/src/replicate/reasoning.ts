@@ -1,7 +1,7 @@
 import Replicate from "replicate";
 
 import { getOptionalEnv } from "../config/environment.ts";
-import { classifyProviderFailure, MediaGenerationError, redactSecrets, assertNoSecret } from "../errors.ts";
+import { classifyProviderFailure, formatErrorWithCause, MediaGenerationError, redactSecrets, assertNoSecret } from "../errors.ts";
 import { resolveMediaInput } from "../media-input.ts";
 import { ReasoningProvider, ReasoningRequest, ReasoningResult } from "../reasoning/types.ts";
 import { ReplicatePrediction, ReplicatePredictionClient } from "./client.ts";
@@ -136,10 +136,7 @@ function wrapClientError(error: unknown, token?: string): MediaGenerationError {
       predictionId: error.predictionId,
     });
   }
-  const message = redactSecrets(
-    error instanceof Error ? error.message : String(error),
-    secretsToRedact(token),
-  );
+  const message = redactSecrets(formatErrorWithCause(error), secretsToRedact(token));
   const httpStatus =
     error && typeof error === "object" && "response" in error
       ? Number((error as { response?: { status?: unknown } }).response?.status)
