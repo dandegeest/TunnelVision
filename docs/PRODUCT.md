@@ -154,7 +154,8 @@ Luma Ray Flash 2 720p is 5s. The Shoot timeline tiles follow the take.
 Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
 CameraMotionPlan JSON; a narrow deterministic bridge turns the same
-assessment's travel geometry into CameraMotionPlan v1. Export Movie
+assessment's travel geometry into CameraMotionPlan v1 and maps CM `pace`
+to Camotion `exposure.strength`. Export Movie
 concatenates whatever rendered journey clips currently exist, in
 storyboard order, without transitions, bridges, or repair. Incomplete
 exports report missing legs. The application starts as a

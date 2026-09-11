@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { CAMOTION_EXPOSURE_STRENGTH_BY_PACE } from "../../../media/src/cinematographer/camera-motion-plan.ts";
+import { LOCOMOTION_PACES } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { layoutTimeline } from "../timeline/geometry";
 import {
@@ -94,8 +96,17 @@ describe("Camotion destination diagnostics", () => {
   });
 
   it("labels stored exposure strengths without changing them", () => {
-    expect(formatExposureStrength(0.08)).toBe("0.08 · Strong");
-    expect(formatExposureStrength(0.04)).toBe("0.04 · Medium");
+    const labels = {
+      "slow-motion": "0.015 · Slow-motion",
+      slow: "0.025 · Slow",
+      moderate: "0.040 · Moderate",
+      fast: "0.060 · Fast",
+      hyperspeed: "0.080 · Hyperspeed",
+      variable: "0.040 · Moderate",
+    } as const;
+    for (const pace of LOCOMOTION_PACES) {
+      expect(formatExposureStrength(CAMOTION_EXPOSURE_STRENGTH_BY_PACE[pace])).toBe(labels[pace]);
+    }
     expect(formatExposureStrength(0.02)).toBe("0.02 · Light");
     expect(formatPlanPoint([0.5, 0.5])).toBe("0.50, 0.50");
   });

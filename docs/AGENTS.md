@@ -179,7 +179,8 @@ path runs automatically: CM inspects the actual A/B
 canonicals, reports semantic travel geometry in the same assessment turn, a
 deterministic CameraMotionPlan v1 bridge derives Camotion
 geometry from that travel object (centered `[0.5, 0.5]` only as a fallback
-when CM cannot determine a better target), and Camotion renders A′/B′ for that shot only. Neighboring
+when CM cannot determine a better target) and maps the existing CM `pace`
+to `exposure.strength`, and Camotion renders A′/B′ for that shot only. Neighboring
 segments are unchanged. Changing either canonical invalidates that segment's
 Motion Plan and recomputes it; unrelated UI and story edits do not. Footage
 generation remains an explicit FOOTAGE action. MOTION shows the A|B canonical stills, a canonical vs
@@ -271,7 +272,8 @@ video from the Cinematographer assessment itself. Do not expand the Integration 
 pair planner into a product package. The same CM turn reports semantic
 travel geometry (`travel.start` / `travel.end`); a deterministic
 CameraMotionPlan v1 bridge (`cameraMotionPlansFromAssessment`) pins
-`forward=1.0` and 01.8 STRONG exposure and fills vanishing_point /
+`forward=1.0` and 16 samples, maps the existing CM `pace` to
+`exposure.strength`, and fills vanishing_point /
 destination from that object. Centered `[0.5, 0.5]` is only the fallback
 when a still has no usable target. An actual adjacent canonical pair then
 automatically renders Camotion A′/B′ for that

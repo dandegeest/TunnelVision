@@ -198,7 +198,7 @@ adjacent canonical pair exists, the existing
 Cinematographer assessment runs automatically through `ReasoningProvider`, including semantic travel
 geometry in that same JSON, derives CameraMotionPlan
 v1 from it (`cameraMotionPlansFromAssessment`; centered fallback only when a
-still has no usable target), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
+still has no usable target; exposure.strength from CM `pace`), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
 on that JourneyShot, including `segmentPromptAddition`, a per-shot `pace` (`slow-motion` / `slow` /
 `moderate` / `fast` / `hyperspeed` / `variable`), and independent integer
 `setConsistency` / `traversalConfidence` scores (0–100). Shootability remains

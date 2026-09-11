@@ -4,8 +4,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { locomotionBaseline, composeShootingPrompt } from "../media/src/cinematographer/shooting-prompt.ts";
-import { productionCameraMotionPlan } from "../media/src/cinematographer/camera-motion-plan.ts";
+import { locomotionBaseline, composeShootingPrompt, LOCOMOTION_PACES } from "../media/src/cinematographer/shooting-prompt.ts";
+import {
+  CAMOTION_EXPOSURE_STRENGTH_BY_PACE,
+  productionCameraMotionPlan,
+} from "../media/src/cinematographer/camera-motion-plan.ts";
 import { shootPreparedJourney, stagePreparedMotionPlan, videoModelIdFromBody } from "./shoot-journey.ts";
 import {
   createRuntimeMediaRegistry,
@@ -29,6 +32,7 @@ describe("shootPreparedJourney", () => {
     const start = registry.register(PNG, "image/png");
     const end = registry.register(PNG, "image/png");
     const rendered: string[] = [];
+    const renderedStrengths: number[] = [];
     let videoRequest: { startPath?: string; endPath?: string; prompt?: string; duration?: number; hasEnd?: boolean } = {};
     const addition = "Track forward through the visible opening into the next volume.";
     const take = await shootPreparedJourney({
@@ -40,8 +44,9 @@ describe("shootPreparedJourney", () => {
         segmentPromptAddition: addition,
         pace: "slow",
       },
-      renderFrame: async (imagePath) => {
+      renderFrame: async (imagePath, plan) => {
         rendered.push(imagePath);
+        renderedStrengths.push(plan.exposure.strength);
         return PNG;
       },
       generateVideo: async (request) => {
@@ -74,8 +79,12 @@ describe("shootPreparedJourney", () => {
     expect(take.effectivePrompt.endsWith(locomotionBaseline("slow"))).toBe(true);
     expect(take.effectivePrompt).toMatch(/at a constant, slow speed/);
     expect(take.pace).toBe("slow");
-    expect(take.startPlan).toEqual(productionCameraMotionPlan());
-    expect(take.endPlan).toEqual(productionCameraMotionPlan());
+    expect(take.startPlan).toEqual(productionCameraMotionPlan("slow"));
+    expect(take.endPlan).toEqual(productionCameraMotionPlan("slow"));
+    expect(renderedStrengths).toEqual([
+      CAMOTION_EXPOSURE_STRENGTH_BY_PACE.slow,
+      CAMOTION_EXPOSURE_STRENGTH_BY_PACE.slow,
+    ]);
     expect(take.durationSeconds).toBe(6);
     expect(take.model).toBe("prunaai/p-video");
     expect(take.seed).toBe(70);
@@ -149,6 +158,35 @@ describe("shootPreparedJourney", () => {
     expect(staged.effectivePrompt.startsWith(addition)).toBe(true);
     expect(staged.startShootingFrame.mediaId).not.toBe(staged.endShootingFrame.mediaId);
     expect(registry.get(staged.startShootingFrame.mediaId)?.filePath).toBeDefined();
+  });
+
+  it("executes Camotion with the mapped exposure for every CM pace", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-pace-exposure-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    for (const pace of LOCOMOTION_PACES) {
+      const strength = CAMOTION_EXPOSURE_STRENGTH_BY_PACE[pace];
+      const used: number[] = [];
+      const staged = await stagePreparedMotionPlan({
+        repoRoot,
+        body: {
+          journeyId: "A-B",
+          startMediaId: start.mediaId,
+          endMediaId: end.mediaId,
+          segmentPromptAddition: "Track forward through the visible opening into the next volume.",
+          pace,
+        },
+        renderFrame: async (_imagePath, plan) => {
+          used.push(plan.exposure.strength);
+          return PNG;
+        },
+      });
+      expect(used).toEqual([strength, strength]);
+      expect(staged.startPlan.exposure.strength).toBe(strength);
+      expect(staged.endPlan.exposure.strength).toBe(strength);
+      expect(staged.pace).toBe(pace);
+    }
   });
 
   it("renders A′/B′ with the supplied per-segment CameraMotionPlans", async () => {

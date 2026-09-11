@@ -1,5 +1,6 @@
 import type { CinematographerTravelTarget } from "./assess-journey.ts";
 import { BASELINE_EXPOSURE, BASELINE_FORWARD, type CameraMotionPlanV1 } from "./plan-shot.ts";
+import { DEFAULT_LOCOMOTION_PACE, isLocomotionPace, type LocomotionPace } from "./shooting-prompt.ts";
 
 /**
  * Production CameraMotionPlan v1 for Shoot.
@@ -8,7 +9,7 @@ import { BASELINE_EXPOSURE, BASELINE_FORWARD, type CameraMotionPlanV1 } from "./
  * per-still travel geometry (VP / semantic target / heading). It does not
  * emit CameraMotionPlan JSON, `forward`, or Camotion strength. A
  * deterministic bridge (`cameraMotionPlansFromAssessment`) pins
- * `forward=1.0` and 01.8 STRONG exposure (`0.08` / 16 samples) and
+ * `forward=1.0` and 16 samples, maps CM `pace` to exposure strength, and
  * fills vanishing_point / destination from that travel object.
  *
  * `productionCameraMotionPlan` remains the centered fallback when CM
@@ -17,6 +18,14 @@ import { BASELINE_EXPOSURE, BASELINE_FORWARD, type CameraMotionPlanV1 } from "./
  */
 export const PRODUCTION_CAMOTION_FORWARD = BASELINE_FORWARD;
 export const PRODUCTION_CAMOTION_EXPOSURE = BASELINE_EXPOSURE;
+export const CAMOTION_EXPOSURE_STRENGTH_BY_PACE = {
+  "slow-motion": 0.015,
+  slow: 0.025,
+  moderate: 0.04,
+  fast: 0.06,
+  hyperspeed: 0.08,
+  variable: 0.04,
+} as const satisfies Record<LocomotionPace, number>;
 export const PRODUCTION_CAMOTION_CENTER = [0.5, 0.5] as const;
 export const PRODUCTION_CAMOTION_BBOX = [0.25, 0.2, 0.75, 0.8] as const;
 /** DATA_MODEL default protect square half-extent around destination.point. */
@@ -24,7 +33,24 @@ export const PRODUCTION_CAMOTION_BBOX_HALF_EXTENT = 0.1;
 const COINCIDENT = 1e-6;
 const VECTOR_NEAR_OFFSET = 0.12;
 
-export function productionCameraMotionPlan(): CameraMotionPlanV1 {
+/** Deterministic CM pace → Camotion exposure.strength. Samples stay 01.8. */
+export function camotionExposureStrengthFromPace(pace: LocomotionPace): number {
+  return CAMOTION_EXPOSURE_STRENGTH_BY_PACE[pace];
+}
+
+function locomotionPaceFrom(value: unknown): LocomotionPace {
+  return isLocomotionPace(value) ? value : DEFAULT_LOCOMOTION_PACE;
+}
+
+function exposureFromPace(pace: LocomotionPace) {
+  return {
+    strength: camotionExposureStrengthFromPace(pace),
+    samples: PRODUCTION_CAMOTION_EXPOSURE.samples,
+  };
+}
+
+export function productionCameraMotionPlan(pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE): CameraMotionPlanV1 {
+  const exposure = exposureFromPace(pace);
   return {
     version: 1,
     camera: {
@@ -36,10 +62,7 @@ export function productionCameraMotionPlan(): CameraMotionPlanV1 {
       protect: true,
       bbox: PRODUCTION_CAMOTION_BBOX,
     },
-    exposure: {
-      strength: PRODUCTION_CAMOTION_EXPOSURE.strength,
-      samples: PRODUCTION_CAMOTION_EXPOSURE.samples,
-    },
+    exposure,
   };
 }
 
@@ -80,9 +103,10 @@ function nearPointAlongHeading(
 
 export function cameraMotionPlanFromTravelTarget(
   target: CinematographerTravelTarget | undefined,
+  pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE,
 ): CameraMotionPlanV1 {
   if (!target) {
-    return productionCameraMotionPlan();
+    return productionCameraMotionPlan(pace);
   }
   const vanishingPoint = target.vanishingPoint ?? target.destinationPoint ?? PRODUCTION_CAMOTION_CENTER;
   let destinationPoint = target.destinationPoint ?? target.vanishingPoint ?? PRODUCTION_CAMOTION_CENTER;
@@ -104,21 +128,20 @@ export function cameraMotionPlanFromTravelTarget(
       protect: true,
       bbox: target.destinationBbox ?? protectBboxAround(destinationPoint),
     },
-    exposure: {
-      strength: PRODUCTION_CAMOTION_EXPOSURE.strength,
-      samples: PRODUCTION_CAMOTION_EXPOSURE.samples,
-    },
+    exposure: exposureFromPace(pace),
   };
 }
 
 export function cameraMotionPlansFromAssessment(assessment: {
+  readonly pace?: LocomotionPace;
   readonly travel?: {
     readonly start?: CinematographerTravelTarget;
     readonly end?: CinematographerTravelTarget;
   };
 }): { readonly start: CameraMotionPlanV1; readonly end: CameraMotionPlanV1 } {
+  const pace = locomotionPaceFrom(assessment.pace);
   return {
-    start: cameraMotionPlanFromTravelTarget(assessment.travel?.start),
-    end: cameraMotionPlanFromTravelTarget(assessment.travel?.end),
+    start: cameraMotionPlanFromTravelTarget(assessment.travel?.start, pace),
+    end: cameraMotionPlanFromTravelTarget(assessment.travel?.end, pace),
   };
 }

@@ -187,8 +187,10 @@ time, not camera speed.
 
 The JSON field remains `[0, 1]`. **Phase 1 Cinematographer vocabulary**
 is not a schema restriction: LIGHT `0.02`, MEDIUM `0.04`, STRONG
-`0.08`. Product behavior should not use arbitrary intermediate values.
-Strength is chosen per canonical / keyframe.
+`0.08`. Product Shoot maps the existing CM `pace` to strength
+(`slow-motion` `0.015`, `slow` `0.025`, `moderate`/`variable` `0.040`,
+`fast` `0.060`, `hyperspeed` `0.080`). Strength is chosen per segment
+from that pace, not by a second LLM.
 
 ### `exposure.samples`
 

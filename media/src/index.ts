@@ -114,8 +114,10 @@ export type { CameraMotionPlanV1, ShotMotionPlans } from "./cinematographer/plan
 export {
   cameraMotionPlanFromTravelTarget,
   cameraMotionPlansFromAssessment,
+  camotionExposureStrengthFromPace,
   productionCameraMotionPlan,
   protectBboxAround,
+  CAMOTION_EXPOSURE_STRENGTH_BY_PACE,
   PRODUCTION_CAMOTION_BBOX_HALF_EXTENT,
   PRODUCTION_CAMOTION_EXPOSURE,
   PRODUCTION_CAMOTION_FORWARD,

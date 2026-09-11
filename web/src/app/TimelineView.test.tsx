@@ -703,7 +703,7 @@ describe("Camotion destination diagnostic", () => {
     expect(fromA).toContain("0.50, 0.50");
     expect(fromA).toContain(">Destination<");
     expect(fromA).toContain(">Protected<");
-    expect(fromA).toContain("0.08 · Strong");
+    expect(fromA).toContain("0.080 · Hyperspeed");
     expect(fromA).not.toContain("Radial forward.");
     expect(fromA).not.toContain("Bounding box");
     expect(fromA).not.toContain("Samples");
@@ -727,7 +727,7 @@ describe("Camotion destination diagnostic", () => {
     const fromB = renderShoot(shot, { destinationId: "B", occurrenceIndex: 1 });
     expect(fromB).toContain('aria-label="Preview B′"');
     expect(fromB).toContain("B′ · A→B END");
-    expect(fromB).toContain("0.04 · Medium");
+    expect(fromB).toContain("0.040 · Moderate");
   });
 
   it("keeps overlay layer toggles compact and omits raw plan keys", () => {

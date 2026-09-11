@@ -552,7 +552,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(destInspector.getByText("A′ · A-B start′")).toBeVisible();
   await expect(destInspector.getByText("Vanishing point.")).toBeVisible();
   await expect(destInspector.getByText("0.62, 0.41").first()).toBeVisible();
-  await expect(destInspector.getByText("0.08 · Strong")).toBeVisible();
+  await expect(destInspector.getByText("0.060 · Fast")).toBeVisible();
   await page.getByLabel("Preview A′").click();
   await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByAltText("A′ · A-B start′")).toBeVisible();

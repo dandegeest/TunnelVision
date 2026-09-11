@@ -106,7 +106,8 @@ shows the A|B stills, canonical vs conditioned frames, and Camotion overlay on M
 rendered clip on FOOTAGE. Selecting a destination still
 offers a compact read-only Camotion diagnostic: canonical vs stored A′/B′
 in the preview, a thin overlay of the stored CameraMotionPlan on the
-displayed still (that segment's VP / travel direction). Overlay marks use a
+displayed still (that segment's VP / travel direction), and Exposure
+showing the mapped pace strength actually used for that segment. Overlay marks use a
 knockout halo and chipped VP/D labels so they read on both dark and bright
 stills. CameraMotionPlan facts sit in the inspector. Take evidence (effective
 prompt, pace, model) sits behind disclosure so the clip stays primary.

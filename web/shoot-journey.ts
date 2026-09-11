@@ -161,8 +161,8 @@ export async function stagePreparedMotionPlan(input: {
   if (startImage.kind !== "file" || endImage.kind !== "file") {
     throw new Error("Canonical stills must be trusted local media");
   }
-  const startPlan = cameraMotionPlanFromBody(input.body.startPlan) ?? productionCameraMotionPlan();
-  const endPlan = cameraMotionPlanFromBody(input.body.endPlan) ?? productionCameraMotionPlan();
+  const startPlan = cameraMotionPlanFromBody(input.body.startPlan) ?? productionCameraMotionPlan(pace);
+  const endPlan = cameraMotionPlanFromBody(input.body.endPlan) ?? productionCameraMotionPlan(pace);
   const [startRender, endRender] = await Promise.all([
     input.renderFrame(startImage.path, startPlan).then(asCamotionRender),
     input.renderFrame(endImage.path, endPlan).then(asCamotionRender),
@@ -282,8 +282,8 @@ function stagedMotionPlanFromShootingFrames(
     journeyId,
     startShootingFrame: { mediaId: start.mediaId, imageUrl: start.imageUrl },
     endShootingFrame: { mediaId: end.mediaId, imageUrl: end.imageUrl },
-    startPlan: cameraMotionPlanFromBody(body.startPlan) ?? productionCameraMotionPlan(),
-    endPlan: cameraMotionPlanFromBody(body.endPlan) ?? productionCameraMotionPlan(),
+    startPlan: cameraMotionPlanFromBody(body.startPlan) ?? productionCameraMotionPlan(pace),
+    endPlan: cameraMotionPlanFromBody(body.endPlan) ?? productionCameraMotionPlan(pace),
     segmentPromptAddition: segmentPromptAddition.trim(),
     effectivePrompt,
     pace,

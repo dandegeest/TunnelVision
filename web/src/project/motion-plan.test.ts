@@ -140,6 +140,30 @@ describe("per-segment Motion Plan", () => {
     expect(request.startPlan?.camera.vanishing_point).toEqual([0.62, 0.41]);
     expect(request.endPlan?.camera.vanishing_point).toEqual([0.71, 0.36]);
     expect(request.startPlan?.camera.forward).toBe(1);
-    expect(request.endPlan?.exposure.strength).toBe(0.08);
+    expect(request.endPlan?.exposure.strength).toBe(0.06);
+    expect(request.startPlan?.exposure.strength).toBe(0.06);
+    expect(request.endPlan?.exposure.samples).toBe(16);
+  });
+
+  it("maps every CM pace onto CameraMotionPlan exposure strength", () => {
+    const expected = {
+      "slow-motion": 0.015,
+      slow: 0.025,
+      moderate: 0.04,
+      fast: 0.06,
+      hyperspeed: 0.08,
+      variable: 0.04,
+    } as const;
+    for (const pace of ["slow-motion", "slow", "moderate", "fast", "hyperspeed", "variable"] as const) {
+      const strength = expected[pace];
+      const request = motionPlanStageRequestFromAssessment("A-B", "upload-a", "upload-b", {
+        ...assessment,
+        pace,
+      });
+      expect(request.pace).toBe(pace);
+      expect(request.startPlan?.exposure.strength).toBe(strength);
+      expect(request.endPlan?.exposure.strength).toBe(strength);
+      expect(request.startPlan?.exposure.samples).toBe(16);
+    }
   });
 });

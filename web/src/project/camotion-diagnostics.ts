@@ -1,3 +1,4 @@
+import { CAMOTION_EXPOSURE_STRENGTH_BY_PACE } from "../../../media/src/cinematographer/camera-motion-plan.ts";
 import { destinationById, type CameraMotionPlanV1, type CamotionDebug, type Destination, type Project, type ShootingFrameRef } from "./types";
 import { segmentCamotionSource } from "./motion-plan";
 
@@ -146,9 +147,43 @@ export function formatPlanScalar(value: number): string {
   return value.toFixed(2);
 }
 
+const PACE_EXPOSURE_LABEL = {
+  "slow-motion": "Slow-motion",
+  slow: "Slow",
+  moderate: "Moderate",
+  fast: "Fast",
+  hyperspeed: "Hyperspeed",
+  variable: "Moderate",
+} as const;
+
+function paceExposureBands(): Array<readonly [number, string]> {
+  const bands: Array<readonly [number, string]> = [];
+  const seen = new Set<number>();
+  for (const [pace, strength] of Object.entries(CAMOTION_EXPOSURE_STRENGTH_BY_PACE) as Array<
+    [keyof typeof CAMOTION_EXPOSURE_STRENGTH_BY_PACE, number]
+  >) {
+    if (seen.has(strength)) {
+      continue;
+    }
+    seen.add(strength);
+    bands.push([strength, PACE_EXPOSURE_LABEL[pace]]);
+  }
+  return bands;
+}
+
+const EXPOSURE_BANDS: ReadonlyArray<readonly [number, string]> = [...paceExposureBands(), [0.02, "Light"]];
+
+function formatExposureNumber(strength: number): string {
+  const mapped = EXPOSURE_BANDS.find(([value]) => Math.abs(strength - value) < 1e-9);
+  if (mapped && mapped[0] !== 0.02) {
+    return mapped[0].toFixed(3);
+  }
+  return formatPlanScalar(strength);
+}
+
 export function formatExposureStrength(strength: number): string {
-  const band = strength === 0.02 ? "Light" : strength === 0.04 ? "Medium" : strength === 0.08 ? "Strong" : null;
-  const shown = formatPlanScalar(strength);
+  const band = EXPOSURE_BANDS.find(([value]) => Math.abs(strength - value) < 1e-9)?.[1];
+  const shown = formatExposureNumber(strength);
   return band ? `${shown} · ${band}` : shown;
 }
 
