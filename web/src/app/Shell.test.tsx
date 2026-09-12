@@ -124,6 +124,9 @@ describe("Shell header chrome", () => {
     );
     expect(html).toContain(">Project settings<");
     expect(html).toContain('aria-label="Back to project"');
+    expect(html).toContain('aria-label="Image model"');
+    expect(html).toContain('aria-label="Image format"');
+    expect(html).not.toContain('aria-label="Image resolution"');
     expect(html).toContain('aria-label="Video model"');
     expect(html).toContain('aria-label="Debug mode"');
     expect(html.indexOf('aria-label="Video model"')).toBeLessThan(

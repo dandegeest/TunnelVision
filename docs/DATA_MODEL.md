@@ -367,7 +367,14 @@ Current video inputs: start shooting frame, optional end shooting
 frame, prompt, optional duration. Extra pristine/canonical reference
 images are not part of the current architecture. `Project.videoModel`
 chooses which catalog generator films those frames for every SHOOT in
-the current project; Pruna is the development default. Model- and
+the current project; Pruna is the development default.
+`Project.imageModel` chooses which catalog generator builds opening A
+and later B…N stills; Nano Banana 2 Lite is the development default.
+The same model text-to-images A and image-conditions later
+destinations. `Project.imageOutputFormat` (`png` default) is shown in
+settings only when that model offers more than one file format.
+`Project.imageResolution` (`1K` default) is shown only when that model
+offers more than one output size. Model- and
 provider-specific knobs stay behind the adapter.
 `Project.canonicalAspectRatio` is the aspect used for later still
 generation: 16:9 when TunnelVision generates A, otherwise A's pixel

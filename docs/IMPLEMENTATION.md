@@ -175,7 +175,9 @@ visual description on an actual still is adopted from that DIRECT; filled
 fields are not overwritten. After planning,
 Construct builds the next planned beat from the immediately preceding
 actual destination through
-`ImageEditProvider` (FLUX Kontext Pro). Generated A requests 16:9.
+`ImageEditProvider` (Nano Banana 2 Lite by default). Generated A
+requests 16:9. The same project image model generates opening A and
+later B…N stills. Flux Ultra is not a product still generator.
 Uploaded A stores its pixel aspect as `Project.canonicalAspectRatio`.
 Construct maps that ratio onto an explicit provider aspect_ratio and
 does not send match_input_image. The previous canonical remains the
@@ -188,8 +190,10 @@ explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
 Project. MOTION is an inspect/status surface for that segment's automatically
-generated Motion Plan; Generate lives on the FOOTAGE band and stays Generate
-after a clip exists. Each interval is two stacked
+generated Motion Plan; SHOOT sits under the FOOTAGE band when that
+segment is selected and becomes RESHOOT after a clip exists. The
+control is centered and sized to the label. While a take is rendering,
+FOOTAGE shows Shooting… or Reshooting… in the band. Each interval is two stacked
 bands under the destination rail: MOTION (the stored A→B Motion Plan) and
 FOOTAGE (the generated take). Canonicals remain clickable places above
 those bands. When only A is actual, Shoot still shows A and an FPO B
@@ -208,10 +212,17 @@ invalidates that segment's Motion Plan and recomputes it. Restaging one segment 
 alter neighboring Motion Plans. Footage generation remains an explicit FOOTAGE
 action. While a Motion Plan is running, that MOTION band
 uses the same generating shimmer as Plan FPO thumbs. A destination still generating in Plan also shimmers on the matching Shoot destination slot. Shootability remains advisory and does not
-gate JourneyShot status. Generate on FOOTAGE uses the staged A′/B′ and
+gate JourneyShot status. SHOOT under FOOTAGE uses the staged A′/B′ and
 composed prompt (`segmentPromptAddition` first, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.
-The current development model is `prunaai/p-video` (A′ as `image`, B′ as
+The current development still model is `google/nano-banana-2-lite`
+unless the Project settings Image control selects Nano Banana 2.
+Generated stills default to PNG; Nano Banana 2 can also emit JPG and
+1K / 2K / 4K (1K default). Lite stays 1K and does not send
+`resolution`. Gemini 3.1 Pro on Replicate accepts images up to 7MB;
+the reasoning adapter sends a JPEG vision copy at most 1024 on the
+long edge and does not rewrite stored canonicals.
+The current development video model is `prunaai/p-video` (A′ as `image`, B′ as
 `last_frame_image`) unless the Project settings Video control selects another
 catalog generator. The assessment does not emit CameraMotionPlan JSON;
 Camotion only executes the derived plan.
@@ -330,15 +341,18 @@ compatible model during development and Seedance 2.5 or another
 quality model during intentional output validation. Automated E2E
 must mock the paid media-provider boundary.
 
-The current Shoot development generator is Replicate `prunaai/p-video`,
+The current still development generator is Replicate
+`google/nano-banana-2-lite`, the Project Image default
+(`nano-banana-2-lite`, `nano-banana-2`). Flux Ultra is not in that
+catalog. The current Shoot development generator is Replicate `prunaai/p-video`,
 the Project default. The filmmaker can switch the current project's
 video model in Project settings (`pruna-p-video`,
-`luma-ray-flash-2-720p`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
+`kling-v2.5-turbo-pro`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
-Seedance models use `image`/`last_frame_image`; Luma Ray Flash 2 720p
+Seedance models use `image`/`last_frame_image`; Kling 2.5 Turbo Pro
 uses `start_image`/`end_image` and a 5s clip; Wan 2.2 I2V Fast uses
 `image`/`last_image`. The Shoot timeline follows that take's duration,
-so a Luma reshoot shortens a 6s tile to 5s. Unshot legs preview the
+so a Kling reshoot shortens a 6s tile to 5s. Unshot legs preview the
 current project's model duration.
 `TUNNELVISION_VIDEO_MODEL` remains an env fallback for
 tools that still read a slug. It does not replace Seedance 2.5 as the

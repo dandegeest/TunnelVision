@@ -17,6 +17,9 @@ import {
   destinationImageModelLabel,
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
+  imageModelIdFromBody,
+  imageOutputFormatFromBody,
+  imageResolutionFromBody,
   openingFrameGenerationPrompt,
   openingFrameGenerationRequestFromProject,
   openingFrameIntent,
@@ -24,6 +27,7 @@ import {
   precedingActualFrame,
   projectWithConstructedDestination,
   projectWithGeneratedOpeningFrame,
+  projectWithImageModel,
   requestConstructDestination,
 } from "./destination";
 
@@ -215,6 +219,9 @@ describe("construct B from current Project state", () => {
       intent: beats.beats[1]?.intent,
       visualDescription: beats.beats[1]?.visualDescription,
     });
+    expect(request.imageModel).toBe("nano-banana-2-lite");
+    expect(request.imageOutputFormat).toBe("png");
+    expect(request.imageResolution).toBeUndefined();
   });
 
   it("exposes construction only for planned B until B is actual", () => {
@@ -486,7 +493,7 @@ describe("destination construction client", () => {
               ...request,
               prompt: destinationConstructionPrompt(request),
             },
-            model: "black-forest-labs/flux-kontext-pro",
+            model: "google/nano-banana-2-lite",
             modelVersion: "test",
             predictionId: "pred-b",
             elapsedMs: 2000,
@@ -504,7 +511,7 @@ describe("destination construction client", () => {
       expect.objectContaining({ method: "POST" }),
     );
     expect(result.mediaId).toBe(generatedB.mediaId);
-    expect(result.evidence.model).toBe("black-forest-labs/flux-kontext-pro");
+    expect(result.evidence.model).toBe("google/nano-banana-2-lite");
   });
 
   it("posts B.mediaId when constructing C and does not invent C media on failure", async () => {
@@ -564,6 +571,8 @@ describe("opening frame generation", () => {
     expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({
       story: withStory.story,
       aspectRatio: { width: 16, height: 9 },
+      imageModel: "nano-banana-2-lite",
+      imageOutputFormat: "png",
     });
     expect(openingFrameIntent(withStory.story)).toBe(
       "Travel forward through an imagined interior at night.",
@@ -592,6 +601,8 @@ describe("opening frame generation", () => {
     expect(openingFrameGenerationRequestFromProject(generated)).toEqual({
       story: generated.story,
       aspectRatio: { width: 16, height: 9 },
+      imageModel: "nano-banana-2-lite",
+      imageOutputFormat: "png",
     });
     const keptIntent = projectWithGeneratedOpeningFrame(
       {
@@ -660,22 +671,61 @@ describe("destination inspector copy", () => {
     expect(destinationGeneratedPrompt(forest, forest.storyboard[0]!)).toBe(
       openingFrameGenerationPrompt(forest.story),
     );
-    expect(destinationImageModelLabel(forest.storyboard[0]!)).toBeUndefined();
+    expect(destinationImageModelLabel(forest, forest.storyboard[0]!)).toBeUndefined();
     expect(destinationGeneratedPrompt(forest, forest.storyboard[1]!)).toContain(
       "Root-tunnel mouth. The dark opening is slightly right of center.",
     );
-    expect(destinationImageModelLabel(forest.storyboard[1]!)).toBe("FLUX Kontext Pro");
+    expect(destinationImageModelLabel(forest, forest.storyboard[1]!)).toBe("Nano Banana 2 Lite");
     const story = "Travel forward through an imagined interior at night.";
     const generated = projectWithGeneratedOpeningFrame({ ...createNewProject(), story }, generatedB);
     expect(destinationGeneratedPrompt(generated, generated.storyboard[0]!)).toBe(
       openingFrameGenerationPrompt(story),
     );
-    expect(destinationImageModelLabel(generated.storyboard[0]!)).toBe("FLUX 1.1 Pro Ultra");
+    expect(destinationImageModelLabel(generated, generated.storyboard[0]!)).toBe("Nano Banana 2 Lite");
+    const hq = { ...generated, imageModel: "nano-banana-2" as const };
+    expect(destinationImageModelLabel(hq, hq.storyboard[0]!)).toBe("Nano Banana 2");
     const empty = projectWithReplacedStartImage(createNewProject(), {
       mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     });
     expect(destinationGeneratedPrompt(empty, empty.storyboard[0]!)).toBeUndefined();
-    expect(destinationImageModelLabel(empty.storyboard[0]!)).toBeUndefined();
+    expect(destinationImageModelLabel(empty, empty.storyboard[0]!)).toBeUndefined();
+  });
+
+  it("accepts a product id or known slug and rejects unknown image models", () => {
+    expect(imageModelIdFromBody(undefined)).toBe("nano-banana-2-lite");
+    expect(imageModelIdFromBody("nano-banana-2")).toBe("nano-banana-2");
+    expect(imageModelIdFromBody("google/nano-banana-2-lite")).toBe("nano-banana-2-lite");
+    expect(() => imageModelIdFromBody("black-forest-labs/flux-1.1-pro-ultra")).toThrow(
+      /Unknown image model/,
+    );
+  });
+
+  it("accepts format and resolution knobs only when the model offers a choice", () => {
+    expect(imageOutputFormatFromBody("nano-banana-2-lite", undefined)).toBe("png");
+    expect(imageOutputFormatFromBody("nano-banana-2", "jpg")).toBe("jpg");
+    expect(() => imageOutputFormatFromBody("nano-banana-2", "webp")).toThrow(
+      /Unknown image output format/,
+    );
+    expect(imageResolutionFromBody("nano-banana-2-lite", "4K")).toBeUndefined();
+    expect(imageResolutionFromBody("nano-banana-2", undefined)).toBe("1K");
+    expect(imageResolutionFromBody("nano-banana-2", "2K")).toBe("2K");
+    expect(() => imageResolutionFromBody("nano-banana-2", "8K")).toThrow(/Unknown image resolution/);
+    const story = "Travel forward through an imagined interior at night.";
+    const hq = projectWithImageModel(
+      { ...createNewProject(), story, imageOutputFormat: "jpg", imageResolution: "4K" },
+      "nano-banana-2",
+    );
+    expect(openingFrameGenerationRequestFromProject(hq)).toEqual({
+      story,
+      aspectRatio: { width: 16, height: 9 },
+      imageModel: "nano-banana-2",
+      imageOutputFormat: "jpg",
+      imageResolution: "4K",
+    });
+    const lite = projectWithImageModel(hq, "nano-banana-2-lite");
+    expect(lite.imageOutputFormat).toBe("jpg");
+    expect(lite.imageResolution).toBe("1K");
+    expect(openingFrameGenerationRequestFromProject(lite).imageResolution).toBeUndefined();
   });
 });

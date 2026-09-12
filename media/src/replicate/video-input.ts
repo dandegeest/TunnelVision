@@ -1,7 +1,7 @@
 import { MediaGenerationError } from "../errors.ts";
 import type { ResolvedMedia } from "../media-input.ts";
 import type { VideoGenerationRequest } from "../types.ts";
-import { isLumaRayFlash2720p, toLumaRayFlash2Input } from "./luma-ray-flash-2-720p.ts";
+import { isKling25TurboPro, toKling25TurboProInput } from "./kling-v2.5-turbo-pro.ts";
 import { isPVideoModel, toPVideoInput, type PVideoSettings } from "./p-video.ts";
 import { isSeedance20Fast, toSeedance20FastInput } from "./seedance-2.0-fast.ts";
 import { isWan22I2vFast, toWan22I2vFastInput } from "./wan-2.2-i2v-fast.ts";
@@ -29,8 +29,8 @@ export function toReplicateVideoInput(
       unknown
     >;
   }
-  if (isLumaRayFlash2720p(model)) {
-    return toLumaRayFlash2Input(request, resolvedStart, resolvedEnd) as unknown as Record<
+  if (isKling25TurboPro(model)) {
+    return toKling25TurboProInput(request, resolvedStart, resolvedEnd) as unknown as Record<
       string,
       unknown
     >;

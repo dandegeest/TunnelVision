@@ -772,7 +772,7 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain(">Resolution<");
     expect(html).toContain("1392×752");
     expect(html).toContain(">Model<");
-    expect(html).toContain("FLUX Kontext Pro");
+    expect(html).toContain("Nano Banana 2 Lite");
     expect(html).not.toContain('aria-label="Camotion frame"');
     expect(isDisabled(html, "Previous destination")).toBe(false);
     expect(isDisabled(html, "Next destination")).toBe(false);
@@ -1089,7 +1089,7 @@ describe("Plan destination details", () => {
     expect(html).toContain(">Inspector - Destination<");
     expect(html).toContain(story);
     expect(html).toContain("unembodied first-person POV");
-    expect(html).toContain("FLUX 1.1 Pro Ultra");
+    expect(html).toContain("Nano Banana 2 Lite");
   });
 });
 

@@ -322,7 +322,8 @@ Agent loop:
     with B attached as a reference image, or destination-construct
     edit of A with B as secondary input?
 -   Provider support for a second reference image on opening A
-    (FLUX 1.1 Pro Ultra is text-to-image today).
+    (Nano Banana accepts `image_input`; product A is still text-only
+    today).
 
 ---
 
@@ -1400,7 +1401,7 @@ No Editor agent.
 **Constraints / invariants.**
 
 -   Incomplete exports report missing legs; do not invent bridges.
--   Clip duration follows the generator (already: 6s vs Luma 5s).
+-   Clip duration follows the generator (already: 6s vs Kling 5s).
 -   Do not require every advisory CM hold to block export unless
     Agent flagged the leg.
 -   Provider concat stays ffmpeg/local; not a video-model restitch.
@@ -1496,8 +1497,9 @@ journeys; a bakeoff must include both or we will overfit forests.
 
 Candidates at time of writing (reconfirm at evaluation):
 
--   Kontext Pro (current construct edit path)
--   Nano Banana
+-   Nano Banana 2 Lite (current product still path for A and B…N)
+-   Nano Banana 2
+-   Kontext Pro (legacy experiment edit path)
 -   FLUX.2 Pro
 -   FLUX.2 Klein
 -   other strong candidates available then
@@ -1559,8 +1561,8 @@ Provider/model changes must not alter:
 -   CM behavior
 -   SegmentMotionPlan ownership
 
-Catalog + adapter + project `videoModel` (and a future image-model
-setting) are the extension points. ReasoningProvider remains
+Catalog + adapter + project `videoModel` and `imageModel`
+are the extension points. ReasoningProvider remains
 how Director/CM are routed, not a hardcoded Gemini ID in role
 code.
 

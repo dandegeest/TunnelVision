@@ -72,6 +72,16 @@ describe("runtime media registration", () => {
     expect(basename(recorded.filePath)).toBe(`${recorded.mediaId}.webp`);
   });
 
+  it("trusts magic bytes when a provider Content-Type is wrong or unknown", () => {
+    const registry = tempRegistry();
+    const jpegAsPng = registry.register(JPEG, "image/png");
+    expect(jpegAsPng.mimeType).toBe("image/jpeg");
+    expect(basename(jpegAsPng.filePath)).toBe(`${jpegAsPng.mediaId}.jpg`);
+    const pngAsJson = registry.register(PNG, "application/json");
+    expect(pngAsJson.mimeType).toBe("image/png");
+    expect(basename(pngAsJson.filePath)).toBe(`${pngAsJson.mediaId}.png`);
+  });
+
   it("rejects an unsupported type", () => {
     const registry = tempRegistry();
     expect(() => registry.register(Buffer.from("%PDF-1.4"), "application/pdf")).toThrow(

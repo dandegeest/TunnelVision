@@ -1,7 +1,12 @@
 import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import type {
+  ImageModelId,
+  ImageOutputFormat,
+  ImageResolution,
+} from "../../../media/src/replicate/image-models.ts";
 import type { VideoModelId } from "../../../media/src/replicate/video-models.ts";
 
-export type { LocomotionPace, VideoModelId };
+export type { ImageModelId, ImageOutputFormat, ImageResolution, LocomotionPace, VideoModelId };
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
 
@@ -243,7 +248,7 @@ export type JourneyShot = {
   motionPlan?: SegmentMotionPlan;
   /** Present after automatic Motion Planning fails for this pair. Cleared on retry or success. */
   motionPlanError?: string;
-  /** Latest successful or inspectable take. Absent until FOOTAGE Generate completes. */
+  /** Latest successful or inspectable take. Absent until FOOTAGE SHOOT completes. */
   take?: JourneyShotTake;
   shootError?: string;
 };
@@ -272,6 +277,16 @@ export type Project = {
    * Pruna is the development default; mid-tier and Seedance 2.5 are opt-in.
    */
   videoModel: VideoModelId;
+  /**
+   * Still generator for opening A and later B…N. Nano Banana 2 Lite is
+   * the development default; the same model text-to-images A and
+   * image-conditions later destinations.
+   */
+  imageModel: ImageModelId;
+  /** PNG is the development default. Shown only when the image model offers jpg and png. */
+  imageOutputFormat: ImageOutputFormat;
+  /** 1K is the development default. Shown only when the image model offers more than one resolution. */
+  imageResolution: ImageResolution;
   /**
    * Aspect of canonical stills used for later generation. 16:9 when TunnelVision
    * generates A; otherwise A's pixel dimensions after upload. Adapters map this

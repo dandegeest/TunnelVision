@@ -116,8 +116,8 @@ describe("SHOOT gate and JourneyShot take", () => {
       endShootingMediaId: take.endShootingFrame.mediaId,
     });
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
-    const luma = shootRequestFromProject({ ...prepared, videoModel: "luma-ray-flash-2-720p" }, "A-B");
-    expect(luma.videoModel).toBe("luma-ray-flash-2-720p");
+    const kling = shootRequestFromProject({ ...prepared, videoModel: "kling-v2.5-turbo-pro" }, "A-B");
+    expect(kling.videoModel).toBe("kling-v2.5-turbo-pro");
     const shooting = projectWithJourneyShooting(prepared, "A-B");
     expect(shooting.journeys[0]?.status).toBe("shooting");
     expect(shooting.journeys[0]?.cinematographer).toEqual(assessment);
@@ -164,10 +164,10 @@ describe("SHOOT gate and JourneyShot take", () => {
   it("resizes a rendered leg to the take's clip length", () => {
     const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
     expect(prepared.journeys[0]?.durationSeconds).toBe(6);
-    const lumaTake: JourneyShotTake = { ...take, model: "luma/ray-flash-2-720p", durationSeconds: 5 };
+    const klingTake: JourneyShotTake = { ...take, model: "kwaivgi/kling-v2.5-turbo-pro", durationSeconds: 5 };
     const rendered = projectWithJourneyShotTake(prepared, "A-B", {
-      take: lumaTake,
-      videoUrl: "https://example.test/luma.mp4",
+      take: klingTake,
+      videoUrl: "https://example.test/kling.mp4",
     });
     expect(rendered.journeys[0]?.durationSeconds).toBe(5);
     expect(rendered.journeys[0]?.take?.durationSeconds).toBe(5);
@@ -179,12 +179,12 @@ describe("SHOOT gate and JourneyShot take", () => {
 
   it("previews the new model's duration on unshot legs and keeps rendered takes", () => {
     const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
-    const luma = projectWithVideoModel(prepared, "luma-ray-flash-2-720p");
-    expect(luma.videoModel).toBe("luma-ray-flash-2-720p");
-    expect(luma.journeys[0]?.durationSeconds).toBe(5);
-    const rendered = projectWithJourneyShotTake(luma, "A-B", {
-      take: { ...take, model: "luma/ray-flash-2-720p", durationSeconds: 5 },
-      videoUrl: "https://example.test/luma.mp4",
+    const kling = projectWithVideoModel(prepared, "kling-v2.5-turbo-pro");
+    expect(kling.videoModel).toBe("kling-v2.5-turbo-pro");
+    expect(kling.journeys[0]?.durationSeconds).toBe(5);
+    const rendered = projectWithJourneyShotTake(kling, "A-B", {
+      take: { ...take, model: "kwaivgi/kling-v2.5-turbo-pro", durationSeconds: 5 },
+      videoUrl: "https://example.test/kling.mp4",
     });
     const backToPruna = projectWithVideoModel(rendered, "pruna-p-video");
     expect(backToPruna.videoModel).toBe("pruna-p-video");

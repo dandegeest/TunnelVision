@@ -18,13 +18,6 @@ export type RuntimeMediaRecord = {
   mimeType: string;
 };
 
-const KIND_BY_MIME: Record<string, RuntimeImageKind> = {
-  "image/png": "png",
-  "image/jpeg": "jpeg",
-  "image/jpg": "jpeg",
-  "image/webp": "webp",
-};
-
 const MIME_BY_KIND: Record<RuntimeImageKind, string> = {
   png: "image/png",
   jpeg: "image/jpeg",
@@ -74,14 +67,6 @@ export function detectImageKind(bytes: Buffer): RuntimeImageKind | null {
   return null;
 }
 
-function declaredKind(contentType: string | undefined): RuntimeImageKind | null | "unknown" {
-  const mime = contentType?.split(";")[0]?.trim().toLowerCase() ?? "";
-  if (!mime || mime === "application/octet-stream") {
-    return null;
-  }
-  return KIND_BY_MIME[mime] ?? "unknown";
-}
-
 export function createRuntimeMediaId(): string {
   return `upload-${randomBytes(16).toString("hex")}`;
 }
@@ -99,7 +84,7 @@ export function createRuntimeMediaRegistry(directory: string): RuntimeMediaRegis
 
   return {
     directory,
-    register(bytes, contentType) {
+    register(bytes, _contentType) {
       if (bytes.length > STARTING_FRAME_MAX_BYTES) {
         throw new RuntimeMediaError("Image is too large.", "too_large");
       }
@@ -110,13 +95,8 @@ export function createRuntimeMediaRegistry(directory: string): RuntimeMediaRegis
           "unsupported_type",
         );
       }
-      const declared = declaredKind(contentType);
-      if (declared === "unknown" || (declared && declared !== kind)) {
-        throw new RuntimeMediaError(
-          "Unsupported image type. Use PNG, JPEG, or WebP.",
-          "unsupported_type",
-        );
-      }
+      // Provider CDNs often lie about Content-Type (JPEG bytes labeled
+      // image/png, or an unknown binary type). Magic bytes are authoritative.
       const mediaId = createRuntimeMediaId();
       if (!isTrustedMediaIdShape(mediaId)) {
         throw new RuntimeMediaError("Server returned an invalid media identity.", "invalid_identity");

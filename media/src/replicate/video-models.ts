@@ -6,7 +6,7 @@
  */
 export const VIDEO_MODEL_IDS = [
   "pruna-p-video",
-  "luma-ray-flash-2-720p",
+  "kling-v2.5-turbo-pro",
   "wan-2.2-first-last-frame",
   "seedance-2.0-fast",
   "seedance-2.5",
@@ -38,9 +38,9 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     durationSeconds: 6,
   },
   {
-    id: "luma-ray-flash-2-720p",
-    slug: "luma/ray-flash-2-720p",
-    label: "Luma Ray Flash 2 720p",
+    id: "kling-v2.5-turbo-pro",
+    slug: "kwaivgi/kling-v2.5-turbo-pro",
+    label: "Kling 2.5 Turbo Pro",
     tier: "mid",
     cost: "$$",
     durationSeconds: 5,

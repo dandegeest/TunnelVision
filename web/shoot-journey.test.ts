@@ -102,8 +102,8 @@ describe("shootPreparedJourney", () => {
     });
   });
 
-  it("requests and records Luma's 5s clip length", async () => {
-    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-shoot-luma-")));
+  it("requests and records Kling's 5s clip length", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-shoot-kling-")));
     setActiveRuntimeMediaRegistry(registry);
     const start = registry.register(PNG, "image/png");
     const end = registry.register(PNG, "image/png");
@@ -114,18 +114,18 @@ describe("shootPreparedJourney", () => {
         journeyId: "A-B",
         startMediaId: start.mediaId,
         endMediaId: end.mediaId,
-        videoModel: "luma-ray-flash-2-720p",
+        videoModel: "kling-v2.5-turbo-pro",
       },
       renderFrame: async () => PNG,
       generateVideo: async (request) => {
         duration = request.durationSeconds;
         return {
           provider: "replicate",
-          model: "luma/ray-flash-2-720p",
+          model: "kwaivgi/kling-v2.5-turbo-pro",
           modelVersion: "test",
-          predictionId: "pred-luma",
+          predictionId: "pred-kling",
           status: "succeeded",
-          outputUrl: "https://example.test/luma.mp4",
+          outputUrl: "https://example.test/kling.mp4",
           metadata: {},
           startedAt: "2026-09-09T00:00:00.000Z",
           completedAt: "2026-09-09T00:00:05.000Z",
@@ -135,7 +135,7 @@ describe("shootPreparedJourney", () => {
     });
     expect(duration).toBe(5);
     expect(take.durationSeconds).toBe(5);
-    expect(take.model).toBe("luma/ray-flash-2-720p");
+    expect(take.model).toBe("kwaivgi/kling-v2.5-turbo-pro");
   });
 
   it("stages A′/B′ without generating video", async () => {
@@ -279,7 +279,7 @@ describe("shootPreparedJourney", () => {
   it("accepts a catalog video model id or Replicate slug", () => {
     expect(videoModelIdFromBody(undefined)).toBe("pruna-p-video");
     expect(videoModelIdFromBody("seedance-2.0-fast")).toBe("seedance-2.0-fast");
-    expect(videoModelIdFromBody("luma/ray-flash-2-720p")).toBe("luma-ray-flash-2-720p");
+    expect(videoModelIdFromBody("kwaivgi/kling-v2.5-turbo-pro")).toBe("kling-v2.5-turbo-pro");
     expect(() => videoModelIdFromBody("someone/unknown")).toThrow(/Unknown video model/);
   });
 });

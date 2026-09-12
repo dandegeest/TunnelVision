@@ -12,6 +12,10 @@ import { ReplicateMediaProvider } from "../src/replicate/provider.ts";
 import { toSeedance25Input } from "../src/replicate/seedance-2.5.ts";
 import { toFlux11ProUltraInput } from "../src/replicate/flux-1.1-pro-ultra.ts";
 import { toFluxKontextProInput } from "../src/replicate/flux-kontext-pro.ts";
+import {
+  toNanoBananaEditInput,
+  toNanoBananaGenerateInput,
+} from "../src/replicate/nano-banana.ts";
 import type { ReplicatePredictionClient } from "../src/replicate/client.ts";
 
 test("missing REPLICATE_API_TOKEN fails with configuration error", async () => {
@@ -284,7 +288,30 @@ test("Replicate 422 validation errors map to invalid_input", async () => {
   );
 });
 
-test("generic image request maps onto FLUX 1.1 Pro Ultra without a reference image", () => {
+test("generic image request maps onto Nano Banana without a reference image", () => {
+  const input = toNanoBananaGenerateInput({
+    prompt: "First-person cinematic POV inside a cozy attic bedroom",
+    aspectRatio: { width: 16, height: 9 },
+  });
+  assert.deepEqual(input, {
+    prompt: "First-person cinematic POV inside a cozy attic bedroom",
+    aspect_ratio: "16:9",
+    output_format: "png",
+  });
+  assert.equal("image_input" in input, false);
+  assert.equal("resolution" in input, false);
+  const hq = toNanoBananaGenerateInput(
+    {
+      prompt: "First-person cinematic POV inside a cozy attic bedroom",
+      aspectRatio: { width: 16, height: 9 },
+    },
+    { outputFormat: "jpg", resolution: "2K" },
+  );
+  assert.equal(hq.output_format, "jpg");
+  assert.equal(hq.resolution, "2K");
+});
+
+test("legacy FLUX 1.1 Pro Ultra adapter still maps a text-only request", () => {
   const input = toFlux11ProUltraInput(
     {
       prompt: "First-person cinematic POV inside a cozy attic bedroom",
@@ -313,42 +340,80 @@ test("generic image request maps onto FLUX 1.1 Pro Ultra without a reference ima
 test("successful image prediction returns structured GeneratedImage without secrets", async () => {
   const client: ReplicatePredictionClient = {
     async create(options) {
-      assert.equal(options.model, "black-forest-labs/flux-1.1-pro-ultra");
-      assert.equal("image_prompt" in options.input, false);
+      assert.equal(options.model, "google/nano-banana-2-lite");
+      assert.equal("image_input" in options.input, false);
       assert.equal("input_image" in options.input, false);
+      assert.equal("resolution" in options.input, false);
       return {
         id: "pred_img",
         status: "starting",
-        model: "black-forest-labs/flux-1.1-pro-ultra",
-        version: "flux-version",
+        model: "google/nano-banana-2-lite",
+        version: "nano-version",
       };
     },
     async wait() {
       return {
         id: "pred_img",
         status: "succeeded",
-        model: "black-forest-labs/flux-1.1-pro-ultra",
-        version: "flux-version",
+        model: "google/nano-banana-2-lite",
+        version: "nano-version",
         output: "https://replicate.delivery/example.png",
       };
     },
   };
   const provider = new ReplicateMediaProvider({
     token: "r8_testtokenvalue",
+    nanoBanana: { resolution: "4K" },
     client,
   });
   const result = await provider.generateImage({
     prompt: "attic bedroom",
-    seed: 10101,
     aspectRatio: { width: 16, height: 9 },
   });
   assert.equal(result.provider, "replicate");
   assert.equal(result.predictionId, "pred_img");
   assert.equal(result.outputUrl, "https://replicate.delivery/example.png");
   assert.equal(JSON.stringify(result).includes("r8_testtokenvalue"), false);
-  const flux = result.metadata.flux as Record<string, unknown>;
-  assert.equal(flux.seed, 10101);
-  assert.equal(flux.aspect_ratio, "16:9");
+  const nanoBanana = result.metadata.nanoBanana as Record<string, unknown>;
+  assert.equal(nanoBanana.aspect_ratio, "16:9");
+  assert.equal(nanoBanana.output_format, "png");
+  assert.equal("resolution" in nanoBanana, false);
+});
+
+test("Nano Banana 2 generate sends resolution when the project chose one", async () => {
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      assert.equal(options.model, "google/nano-banana-2");
+      assert.equal(options.input.output_format, "jpg");
+      assert.equal(options.input.resolution, "2K");
+      return {
+        id: "pred_img_hq",
+        status: "starting",
+        model: "google/nano-banana-2",
+      };
+    },
+    async wait() {
+      return {
+        id: "pred_img_hq",
+        status: "succeeded",
+        model: "google/nano-banana-2",
+        output: "https://replicate.delivery/example-2k.jpg",
+      };
+    },
+  };
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    imageModel: "google/nano-banana-2",
+    nanoBanana: { outputFormat: "jpg", resolution: "2K" },
+    client,
+  });
+  const result = await provider.generateImage({
+    prompt: "attic bedroom",
+    aspectRatio: { width: 16, height: 9 },
+  });
+  const nanoBanana = result.metadata.nanoBanana as Record<string, unknown>;
+  assert.equal(nanoBanana.output_format, "jpg");
+  assert.equal(nanoBanana.resolution, "2K");
 });
 
 test("image edit requires a source image and a prompt", () => {
@@ -356,7 +421,7 @@ test("image edit requires a source image and a prompt", () => {
   const resolved = { kind: "url" as const, url: "https://example.com/a.jpg" };
   assert.throws(
     () =>
-      toFluxKontextProInput(
+      toNanoBananaEditInput(
         { sourceImage: source, prompt: "   " },
         resolved,
       ),
@@ -369,7 +434,7 @@ test("image edit requires a source image and a prompt", () => {
   );
   assert.throws(
     () =>
-      toFluxKontextProInput(
+      toNanoBananaEditInput(
         { prompt: "move forward", sourceImage: undefined as never },
         resolved,
       ),
@@ -382,7 +447,26 @@ test("image edit requires a source image and a prompt", () => {
   );
 });
 
-test("image-conditioned edit maps onto FLUX Kontext Pro with input_image", () => {
+test("image-conditioned edit maps onto Nano Banana with image_input", () => {
+  const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
+  const input = toNanoBananaEditInput(
+    {
+      sourceImage: source,
+      prompt: "Move the camera through the open wardrobe.",
+      aspectRatio: { width: 1000, height: 558 },
+    },
+    { kind: "url", url: source.url },
+  );
+  assert.deepEqual(input, {
+    prompt: "Move the camera through the open wardrobe.",
+    aspect_ratio: "16:9",
+    output_format: "png",
+    image_input: ["https://example.com/a.jpg"],
+  });
+  assert.equal("input_image" in input, false);
+});
+
+test("legacy FLUX Kontext Pro adapter still maps input_image", () => {
   const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
   const input = toFluxKontextProInput(
     {
@@ -423,23 +507,23 @@ test("image-conditioned edit uses an explicit aspect ratio instead of match_inpu
 test("successful image edit returns structured GeneratedImage without secrets", async () => {
   const client: ReplicatePredictionClient = {
     async create(options) {
-      assert.equal(options.model, "black-forest-labs/flux-kontext-pro");
+      assert.equal(options.model, "google/nano-banana-2-lite");
       assert.equal(options.input.prompt, "Move the camera through the open wardrobe.");
-      assert.equal(options.input.input_image, "https://example.com/a.jpg");
-      assert.equal("image_prompt" in options.input, false);
+      assert.deepEqual(options.input.image_input, ["https://example.com/a.jpg"]);
+      assert.equal("input_image" in options.input, false);
       return {
         id: "pred_edit",
         status: "starting",
-        model: "black-forest-labs/flux-kontext-pro",
-        version: "kontext-version",
+        model: "google/nano-banana-2-lite",
+        version: "nano-version",
       };
     },
     async wait() {
       return {
         id: "pred_edit",
         status: "succeeded",
-        model: "black-forest-labs/flux-kontext-pro",
-        version: "kontext-version",
+        model: "google/nano-banana-2-lite",
+        version: "nano-version",
         output: "https://replicate.delivery/edited.png",
       };
     },
@@ -451,35 +535,33 @@ test("successful image edit returns structured GeneratedImage without secrets", 
   const result = await provider.editImage({
     sourceImage: { kind: "url", url: "https://example.com/a.jpg" },
     prompt: "Move the camera through the open wardrobe.",
-    seed: 42,
   });
   assert.equal(result.predictionId, "pred_edit");
   assert.equal(result.outputUrl, "https://replicate.delivery/edited.png");
-  assert.equal(result.model, "black-forest-labs/flux-kontext-pro");
+  assert.equal(result.model, "google/nano-banana-2-lite");
   assert.equal(JSON.stringify(result).includes("r8_testtokenvalue"), false);
-  const kontext = result.metadata.kontext as Record<string, unknown>;
-  assert.equal(kontext.prompt, "Move the camera through the open wardrobe.");
-  assert.equal(kontext.input_image, "https://example.com/a.jpg");
-  assert.equal(kontext.seed, 42);
+  const nanoBanana = result.metadata.nanoBanana as Record<string, unknown>;
+  assert.equal(nanoBanana.prompt, "Move the camera through the open wardrobe.");
+  assert.deepEqual(nanoBanana.image_input, ["https://example.com/a.jpg"]);
 });
 
-test("image edit with a project aspect ratio sends an explicit Kontext aspect_ratio", async () => {
+test("image edit with a project aspect ratio sends an explicit Nano Banana aspect_ratio", async () => {
   const client: ReplicatePredictionClient = {
     async create(options) {
       assert.equal(options.input.aspect_ratio, "16:9");
       assert.notEqual(options.input.aspect_ratio, "match_input_image");
-      assert.equal(options.input.input_image, "https://example.com/a.jpg");
+      assert.deepEqual(options.input.image_input, ["https://example.com/a.jpg"]);
       return {
         id: "pred_edit_ar",
         status: "starting",
-        model: "black-forest-labs/flux-kontext-pro",
+        model: "google/nano-banana-2-lite",
       };
     },
     async wait() {
       return {
         id: "pred_edit_ar",
         status: "succeeded",
-        model: "black-forest-labs/flux-kontext-pro",
+        model: "google/nano-banana-2-lite",
         output: "https://replicate.delivery/edited-ar.png",
       };
     },
@@ -487,15 +569,14 @@ test("image edit with a project aspect ratio sends an explicit Kontext aspect_ra
   const provider = new ReplicateMediaProvider({
     token: "r8_testtokenvalue",
     client,
-    kontext: { aspectRatio: "match_input_image" },
   });
   const result = await provider.editImage({
     sourceImage: { kind: "url", url: "https://example.com/a.jpg" },
     prompt: "Move the camera through the open wardrobe.",
     aspectRatio: { width: 1000, height: 558 },
   });
-  const kontext = result.metadata.kontext as Record<string, unknown>;
-  assert.equal(kontext.aspect_ratio, "16:9");
+  const nanoBanana = result.metadata.nanoBanana as Record<string, unknown>;
+  assert.equal(nanoBanana.aspect_ratio, "16:9");
 });
 
 test("image edit local MediaInput is uploaded as file bytes", async () => {
@@ -506,19 +587,19 @@ test("image edit local MediaInput is uploaded as file bytes", async () => {
   let captured: unknown;
   const client: ReplicatePredictionClient = {
     async create(options) {
-      captured = options.input.input_image;
-      assert.equal(options.model, "black-forest-labs/flux-kontext-pro");
+      captured = options.input.image_input;
+      assert.equal(options.model, "google/nano-banana-2-lite");
       return {
         id: "pred_file",
         status: "starting",
-        model: "black-forest-labs/flux-kontext-pro",
+        model: "google/nano-banana-2-lite",
       };
     },
     async wait() {
       return {
         id: "pred_file",
         status: "succeeded",
-        model: "black-forest-labs/flux-kontext-pro",
+        model: "google/nano-banana-2-lite",
         output: "https://replicate.delivery/file-edit.png",
       };
     },
@@ -531,8 +612,9 @@ test("image edit local MediaInput is uploaded as file bytes", async () => {
     sourceImage: { kind: "file", path },
     prompt: "Move the camera forward.",
   });
-  assert.ok(Buffer.isBuffer(captured));
-  assert.equal(Buffer.compare(captured as Buffer, bytes), 0);
+  assert.ok(Array.isArray(captured));
+  assert.ok(Buffer.isBuffer((captured as unknown[])[0]));
+  assert.equal(Buffer.compare((captured as Buffer[])[0]!, bytes), 0);
 });
 
 test("image edit provider errors surface as MediaGenerationError", async () => {

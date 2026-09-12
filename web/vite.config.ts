@@ -31,7 +31,7 @@ export default defineConfig({
     },
   },
   ssr: {
-    external: ["replicate"],
+    external: ["replicate", "sharp"],
   },
   test: {
     environment: "node",

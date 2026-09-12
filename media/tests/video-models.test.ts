@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { ReplicateMediaProvider } from "../src/replicate/provider.ts";
-import { lumaRayFlash2Duration, LUMA_RAY_FLASH_2_720P_MODEL, toLumaRayFlash2Input } from "../src/replicate/luma-ray-flash-2-720p.ts";
+import { kling25TurboProDuration, KLING_25_TURBO_PRO_MODEL, toKling25TurboProInput } from "../src/replicate/kling-v2.5-turbo-pro.ts";
 import { toWan22I2vFastInput, WAN_22_I2V_FAST_MODEL, wan22FrameCount } from "../src/replicate/wan-2.2-i2v-fast.ts";
 import { SEEDANCE_20_FAST_MODEL, toSeedance20FastInput } from "../src/replicate/seedance-2.0-fast.ts";
 import { P_VIDEO_MODEL } from "../src/replicate/p-video.ts";
@@ -30,12 +30,12 @@ const end = { kind: "url" as const, url: "https://example.com/b-prime.png" };
 test("catalog keeps Pruna as the development default and labels cost tiers", () => {
   assert.equal(DEFAULT_VIDEO_MODEL_ID, "pruna-p-video");
   assert.equal(videoModelSlug("pruna-p-video"), P_VIDEO_MODEL);
-  assert.equal(videoModelSlug("luma-ray-flash-2-720p"), LUMA_RAY_FLASH_2_720P_MODEL);
+  assert.equal(videoModelSlug("kling-v2.5-turbo-pro"), KLING_25_TURBO_PRO_MODEL);
   assert.equal(videoModelSlug("wan-2.2-first-last-frame"), WAN_22_I2V_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.0-fast"), SEEDANCE_20_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.5"), SEEDANCE_25_MODEL);
   assert.equal(videoModelDurationSeconds("pruna-p-video"), 6);
-  assert.equal(videoModelDurationSeconds("luma-ray-flash-2-720p"), 5);
+  assert.equal(videoModelDurationSeconds("kling-v2.5-turbo-pro"), 5);
   assert.equal(parseVideoModelId("bytedance/seedance-2.5"), "seedance-2.5");
   assert.equal(videoModelMenuLabel(VIDEO_MODELS[0]!), "Pruna $");
   assert.deepEqual(
@@ -44,15 +44,15 @@ test("catalog keeps Pruna as the development default and labels cost tiers", () 
   );
 });
 
-test("Luma Ray Flash 2 maps A′/B′ onto start_image and end_image", () => {
-  const input = toLumaRayFlash2Input(request, start, end);
+test("Kling 2.5 Turbo Pro maps A′/B′ onto start_image and end_image", () => {
+  const input = toKling25TurboProInput(request, start, end);
   assert.equal(input.start_image, "https://example.com/a-prime.png");
   assert.equal(input.end_image, "https://example.com/b-prime.png");
   assert.equal(input.duration, 5);
-  assert.equal(input.aspect_ratio, "16:9");
-  assert.equal(input.loop, false);
-  assert.equal(lumaRayFlash2Duration(6), 5);
-  assert.equal(lumaRayFlash2Duration(9), 9);
+  assert.equal("aspect_ratio" in input, false);
+  assert.equal("image" in input, false);
+  assert.equal(kling25TurboProDuration(6), 5);
+  assert.equal(kling25TurboProDuration(10), 10);
 });
 
 test("Wan 2.2 I2V Fast maps A′/B′ onto image and last_image", () => {
@@ -77,31 +77,32 @@ test("Seedance 2.0 Fast maps A′/B′ onto image and last_frame_image without a
   assert.equal("watermark" in input, false);
 });
 
-test("provider Luma path forwards start_image and end_image", async () => {
+test("provider Kling path forwards start_image and end_image", async () => {
   let captured: Record<string, unknown> | undefined;
   const client: ReplicatePredictionClient = {
     async create(options) {
       captured = options.input;
-      return { id: "pred_luma", status: "starting", model: "luma/ray-flash-2-720p" };
+      return { id: "pred_kling", status: "starting", model: "kwaivgi/kling-v2.5-turbo-pro" };
     },
     async wait() {
       return {
-        id: "pred_luma",
+        id: "pred_kling",
         status: "succeeded",
-        model: "luma/ray-flash-2-720p",
-        output: "https://replicate.delivery/luma.mp4",
+        model: "kwaivgi/kling-v2.5-turbo-pro",
+        output: "https://replicate.delivery/kling.mp4",
       };
     },
   };
   const provider = new ReplicateMediaProvider({
     token: "r8_testtokenvalue",
-    model: "luma/ray-flash-2-720p",
+    model: "kwaivgi/kling-v2.5-turbo-pro",
     client,
   });
   await provider.generateVideo(request);
   assert.equal(captured?.start_image, "https://example.com/a-prime.png");
   assert.equal(captured?.end_image, "https://example.com/b-prime.png");
-  assert.equal(captured?.loop, false);
+  assert.equal(captured?.duration, 5);
+  assert.equal("aspect_ratio" in (captured ?? {}), false);
 });
 
 test("provider Wan path forwards image and last_image", async () => {

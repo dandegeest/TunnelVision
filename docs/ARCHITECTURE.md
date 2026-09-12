@@ -131,7 +131,7 @@ locomotion baseline. Shootability remains advisory; it does not
 gate JourneyShot status. Shoot is a production view of the current
 Project: consecutive actual adjacent storyboard canonicals become
 Destinations and JourneyShots on that same Project. There is no
-cloned Shoot model. Generate on FOOTAGE uses the staged Motion Plan's
+cloned Shoot model. SHOOT under FOOTAGE uses the staged Motion Plan's
 A′/B′, composes the frozen locomotion prompt, and generates a development clip. The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
 A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
@@ -469,10 +469,13 @@ map it onto an explicit provider aspect_ratio and must not send
 `match_input_image`. Text-to-image (`generateImage`) and image-conditioned
 editing (`editImage`) are distinct. Model- and provider-specific
 capabilities stay behind `ReplicateMediaProvider` (Seedance 2.5,
-`prunaai/p-video`, FLUX 1.1 Pro Ultra, and FLUX Kontext Pro). Extra
+`prunaai/p-video`, and Nano Banana 2 Lite). Extra
 pristine/canonical reference images are not part of the current
-text-to-image contract. A `ReasoningProvider` with vision inputs also lives in
-`media/` (Gemini 3.1 Pro adapter).
+text-to-image contract; later destinations pass the previous still as
+`image_input`. A `ReasoningProvider` with vision inputs also lives in
+`media/` (Gemini 3.1 Pro adapter). That adapter sends Gemini a JPEG
+vision copy at most 1024 on the long edge; stored canonicals are
+unchanged.
 
 Draft vs production image/video models are **MediaProvider
 configuration**, not a product mode and not a special architecture

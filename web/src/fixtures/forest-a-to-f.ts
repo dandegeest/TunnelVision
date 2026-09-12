@@ -96,6 +96,9 @@ export function createForestProject(): Project {
     autoBlockShots: false,
     autoShoot: false,
     videoModel: "pruna-p-video",
+    imageModel: "nano-banana-2-lite",
+    imageOutputFormat: "png",
+    imageResolution: "1K",
     storyDurationLocked: true,
     canonicalAspectRatio: { width: MEDIA_A.width, height: MEDIA_A.height },
     storyboard: [

@@ -21,6 +21,23 @@ export const FLUX_11_PRO_ULTRA_ASPECT_RATIOS = [
   "9:21",
 ] as const;
 
+export const NANO_BANANA_ASPECT_RATIOS = [
+  "1:1",
+  "1:4",
+  "1:8",
+  "2:3",
+  "3:2",
+  "3:4",
+  "4:1",
+  "4:3",
+  "4:5",
+  "5:4",
+  "8:1",
+  "9:16",
+  "16:9",
+  "21:9",
+] as const;
+
 export const FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS = [
   "1:1",
   "16:9",

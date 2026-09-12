@@ -2,37 +2,35 @@ import { MediaGenerationError } from "../errors.ts";
 import { toReplicateFileInput, type ResolvedMedia } from "../media-input.ts";
 import type { VideoGenerationRequest } from "../types.ts";
 
-export const LUMA_RAY_FLASH_2_720P_MODEL = "luma/ray-flash-2-720p";
+export const KLING_25_TURBO_PRO_MODEL = "kwaivgi/kling-v2.5-turbo-pro";
 
-export function isLumaRayFlash2720p(model: string): boolean {
-  return model === LUMA_RAY_FLASH_2_720P_MODEL || model.endsWith("/ray-flash-2-720p");
+export function isKling25TurboPro(model: string): boolean {
+  return model === KLING_25_TURBO_PRO_MODEL || model.endsWith("/kling-v2.5-turbo-pro");
 }
 
 /**
- * Ray Flash 2 720p only advertises 5s and 9s. Product shots for this
- * model are 5s. A 6s request still maps to 5s. Do not loop.
+ * Kling 2.5 Turbo Pro advertises 5s and 10s. Product shots for this
+ * model are 5s. A 6s request still maps to 5s.
  */
-export function lumaRayFlash2Duration(seconds?: number): 5 | 9 {
+export function kling25TurboProDuration(seconds?: number): 5 | 10 {
   if (seconds !== undefined && seconds > 6) {
-    return 9;
+    return 10;
   }
   return 5;
 }
 
-export type LumaRayFlash2Input = {
+export type Kling25TurboProInput = {
   readonly prompt: string;
   readonly start_image: string | Buffer;
   readonly end_image?: string | Buffer;
-  readonly duration: 5 | 9;
-  readonly aspect_ratio: "16:9";
-  readonly loop: false;
+  readonly duration: 5 | 10;
 };
 
-export function toLumaRayFlash2Input(
+export function toKling25TurboProInput(
   request: VideoGenerationRequest,
   resolvedStart: ResolvedMedia,
   resolvedEnd?: ResolvedMedia,
-): LumaRayFlash2Input {
+): Kling25TurboProInput {
   if (!request.prompt.trim()) {
     throw new MediaGenerationError("invalid_input", "prompt is required");
   }
@@ -40,8 +38,6 @@ export function toLumaRayFlash2Input(
     prompt: request.prompt,
     start_image: toReplicateFileInput(resolvedStart),
     ...(resolvedEnd ? { end_image: toReplicateFileInput(resolvedEnd) } : {}),
-    duration: lumaRayFlash2Duration(request.durationSeconds),
-    aspect_ratio: "16:9",
-    loop: false,
+    duration: kling25TurboProDuration(request.durationSeconds),
   };
 }

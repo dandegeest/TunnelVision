@@ -2,6 +2,19 @@ import {
   UNEMBODIED_FIRST_PERSON_POV,
   WORLD_SUBJECTS_MAY_APPEAR,
 } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import {
+  DEFAULT_IMAGE_MODEL_ID,
+  DEFAULT_IMAGE_OUTPUT_FORMAT,
+  DEFAULT_IMAGE_RESOLUTION,
+  imageModelDisplayLabel,
+  imageModelHasResolutionChoice,
+  parseImageModelId,
+  resolveImageOutputFormat,
+  resolveImageResolution,
+  type ImageModelId,
+  type ImageOutputFormat,
+  type ImageResolution,
+} from "../../../media/src/replicate/image-models.ts";
 import type { ImageAspectRatio } from "../../../media/src/types.ts";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
@@ -26,6 +39,10 @@ export type DestinationConstructionRequest = {
   nextDestination?: DestinationLookAhead;
   /** Project canonical aspect. Adapters map this onto an explicit provider AR. */
   aspectRatio?: ImageAspectRatio;
+  /** Product still generator for this construct / reshoot. */
+  imageModel: ImageModelId;
+  imageOutputFormat: ImageOutputFormat;
+  imageResolution?: ImageResolution;
 };
 
 export type DestinationConstructionResult = {
@@ -223,11 +240,47 @@ export function destinationGeneratedPrompt(project: Project, frame: StoryboardFr
 }
 
 /** Product image model for a generated still. Uploads have no model. */
-export function destinationImageModelLabel(frame: StoryboardFrame): string | undefined {
+export function destinationImageModelLabel(
+  project: Project,
+  frame: StoryboardFrame,
+): string | undefined {
   if (frame.imageOrigin !== "generated") {
     return undefined;
   }
-  return frame.id === "A" ? "FLUX 1.1 Pro Ultra" : "FLUX Kontext Pro";
+  return imageModelDisplayLabel(project.imageModel);
+}
+
+/** Switch the still generator. Existing stills keep their pixels until reshoot. */
+export function projectWithImageModel(project: Project, imageModel: ImageModelId): Project {
+  const imageOutputFormat = resolveImageOutputFormat(imageModel, project.imageOutputFormat);
+  const imageResolution = resolveImageResolution(imageModel, project.imageResolution);
+  if (
+    project.imageModel === imageModel &&
+    project.imageOutputFormat === imageOutputFormat &&
+    project.imageResolution === imageResolution
+  ) {
+    return project;
+  }
+  return { ...project, imageModel, imageOutputFormat, imageResolution };
+}
+
+export function projectWithImageOutputFormat(
+  project: Project,
+  imageOutputFormat: ImageOutputFormat,
+): Project {
+  const next = resolveImageOutputFormat(project.imageModel, imageOutputFormat);
+  if (project.imageOutputFormat === next) {
+    return project;
+  }
+  return { ...project, imageOutputFormat: next };
+}
+
+export function projectWithImageResolution(project: Project, imageResolution: ImageResolution): Project {
+  const next = resolveImageResolution(project.imageModel, imageResolution);
+  if (project.imageResolution === next) {
+    return project;
+  }
+  return { ...project, imageResolution: next };
 }
 
 export function generatedStillNeedsReshoot(project: Project, frame: StoryboardFrame): boolean {
@@ -333,6 +386,9 @@ export function canGenerateOpeningFrame(project: Project): boolean {
 export type OpeningFrameGenerationRequest = {
   story: string;
   aspectRatio: ImageAspectRatio;
+  imageModel: ImageModelId;
+  imageOutputFormat: ImageOutputFormat;
+  imageResolution?: ImageResolution;
 };
 
 export function openingFrameGenerationRequestFromProject(
@@ -341,7 +397,11 @@ export function openingFrameGenerationRequestFromProject(
   if (!canGenerateOpeningFrame(project) && !canReshootOpeningFrame(project)) {
     throw new Error("Opening frame is not ready to generate");
   }
-  return { story: project.story, aspectRatio: GENERATED_OPENING_ASPECT_RATIO };
+  return {
+    story: project.story,
+    aspectRatio: GENERATED_OPENING_ASPECT_RATIO,
+    ...imageGenerationKnobsFromProject(project),
+  };
 }
 
 function frameWithConstructedStill(
@@ -414,7 +474,64 @@ export function destinationConstructionRequestFromProject(
     visualDescription: plan.visualDescription,
     ...(nextDestination ? { nextDestination } : {}),
     ...(aspectRatio ? { aspectRatio } : {}),
+    ...imageGenerationKnobsFromProject(project),
   };
+}
+
+function imageGenerationKnobsFromProject(project: Project): {
+  imageModel: ImageModelId;
+  imageOutputFormat: ImageOutputFormat;
+  imageResolution?: ImageResolution;
+} {
+  return {
+    imageModel: project.imageModel,
+    imageOutputFormat: resolveImageOutputFormat(project.imageModel, project.imageOutputFormat),
+    ...(imageModelHasResolutionChoice(project.imageModel)
+      ? { imageResolution: resolveImageResolution(project.imageModel, project.imageResolution) }
+      : {}),
+  };
+}
+
+export function imageModelIdFromBody(value: unknown): ImageModelId {
+  if (value === undefined || value === null || value === "") {
+    return DEFAULT_IMAGE_MODEL_ID;
+  }
+  const parsed = parseImageModelId(value);
+  if (!parsed) {
+    throw new Error("Unknown image model");
+  }
+  return parsed;
+}
+
+export function imageOutputFormatFromBody(
+  imageModel: ImageModelId,
+  value: unknown,
+): ImageOutputFormat {
+  if (value === undefined || value === null || value === "") {
+    return resolveImageOutputFormat(imageModel, DEFAULT_IMAGE_OUTPUT_FORMAT);
+  }
+  const next = resolveImageOutputFormat(imageModel, value);
+  if (typeof value === "string" && value.trim() && next !== value) {
+    throw new Error("Unknown image output format");
+  }
+  return next;
+}
+
+export function imageResolutionFromBody(
+  imageModel: ImageModelId,
+  value: unknown,
+): ImageResolution | undefined {
+  if (!imageModelHasResolutionChoice(imageModel)) {
+    return undefined;
+  }
+  if (value === undefined || value === null || value === "") {
+    return DEFAULT_IMAGE_RESOLUTION;
+  }
+  const next = resolveImageResolution(imageModel, value);
+  if (typeof value === "string" && value.trim() && next !== value) {
+    throw new Error("Unknown image resolution");
+  }
+  return next;
 }
 
 export function parseDestinationConstructionResult(body: unknown): DestinationConstructionResult {

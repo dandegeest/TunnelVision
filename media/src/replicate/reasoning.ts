@@ -8,6 +8,7 @@ import { ReplicatePrediction, ReplicatePredictionClient } from "./client.ts";
 import {
   GEMINI_31_PRO_MODEL,
   Gemini31ProSettings,
+  prepareGemini31ProMedia,
   toGemini31ProInput,
 } from "./gemini-3.1-pro.ts";
 import { extractOutputText } from "./output.ts";
@@ -42,7 +43,7 @@ export class ReplicateReasoningProvider implements ReasoningProvider {
     const startedAt = new Date();
     const resolvedImages = [];
     for (const image of request.images ?? []) {
-      resolvedImages.push(await resolveMediaInput(image));
+      resolvedImages.push(await prepareGemini31ProMedia(await resolveMediaInput(image)));
     }
     const input = toGemini31ProInput(request, resolvedImages, this.gemini);
 

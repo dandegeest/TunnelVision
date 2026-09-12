@@ -46,6 +46,9 @@ import {
   destinationConstructionRequestFromProject,
   openingFrameGenerationRequestFromProject,
   projectWithGeneratedOpeningFrame,
+  projectWithImageModel,
+  projectWithImageOutputFormat,
+  projectWithImageResolution,
   requestGenerateOpeningFrame,
   canGenerateOpeningFrame,
   canReshootDestinationFrame,
@@ -62,7 +65,7 @@ import {
   type ConversationEntry,
 } from "./conversation";
 import { requestExportMovie, type MovieExportResult } from "./export-movie";
-import { storyboardFrameById, type Agency, type JourneyShot, type Project, type Selection, type VideoModelId } from "./types";
+import { storyboardFrameById, type Agency, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type Project, type Selection, type VideoModelId } from "./types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function withId(ids: string[], id: string): string[] {
@@ -99,6 +102,9 @@ type ProjectContextValue = {
   setStoryboardReelId: (frameId: string | null) => void;
   setAgency: (agency: Agency) => void;
   setVideoModel: (videoModel: VideoModelId) => void;
+  setImageModel: (imageModel: ImageModelId) => void;
+  setImageOutputFormat: (imageOutputFormat: ImageOutputFormat) => void;
+  setImageResolution: (imageResolution: ImageResolution) => void;
   syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
@@ -249,6 +255,18 @@ export function ProjectProvider({
 
   const setVideoModel = useCallback((videoModel: VideoModelId) => {
     setProject((current) => projectWithVideoModel(current, videoModel));
+  }, []);
+
+  const setImageModel = useCallback((imageModel: ImageModelId) => {
+    setProject((current) => projectWithImageModel(current, imageModel));
+  }, []);
+
+  const setImageOutputFormat = useCallback((imageOutputFormat: ImageOutputFormat) => {
+    setProject((current) => projectWithImageOutputFormat(current, imageOutputFormat));
+  }, []);
+
+  const setImageResolution = useCallback((imageResolution: ImageResolution) => {
+    setProject((current) => projectWithImageResolution(current, imageResolution));
   }, []);
 
   const syncJourneyClipDuration = useCallback((journeyId: string, durationSeconds: number) => {
@@ -884,6 +902,9 @@ export function ProjectProvider({
       setStoryboardReelId,
       setAgency,
       setVideoModel,
+      setImageModel,
+      setImageOutputFormat,
+      setImageResolution,
       syncJourneyClipDuration,
       composerDraft,
       setComposerDraft,
@@ -937,6 +958,9 @@ export function ProjectProvider({
       storyboardReelId,
       setAgency,
       setVideoModel,
+      setImageModel,
+      setImageOutputFormat,
+      setImageResolution,
       syncJourneyClipDuration,
       composerDraft,
       setStoryDurationInput,

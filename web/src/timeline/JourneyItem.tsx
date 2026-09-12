@@ -1,6 +1,5 @@
 import type { MouseEvent } from "react";
 import { locomotionPaceLabel, motionBandAriaLabel, footageBandAriaLabel } from "../project/cinematographer";
-import { canShootJourney } from "../project/shoot";
 import { useProject } from "../project/ProjectProvider";
 import type { JourneyBand, JourneyShot, Selection } from "../project/types";
 import type { LaidOutJourney } from "./geometry";
@@ -37,6 +36,35 @@ function footageBandTone(journey: JourneyShot): string {
 const ctaClass =
   "relative z-[2] shrink-0 rounded border border-[#3a342c] px-1.5 py-0 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
 
+export function journeyHasFootage(journey: JourneyShot): boolean {
+  return journey.status === "rendered" || Boolean(journey.take) || Boolean(journey.videoUrl);
+}
+
+export function journeySegmentIsActive(selection: Selection, journey: JourneyShot): boolean {
+  if (selection.kind === "journey") {
+    return selection.journeyId === journey.id;
+  }
+  if (selection.kind === "destination") {
+    return (
+      selection.destinationId === journey.startDestinationId ||
+      selection.destinationId === journey.endDestinationId
+    );
+  }
+  return false;
+}
+
+export function shootActionLabel(journey: JourneyShot): string {
+  return journeyHasFootage(journey) ? "RESHOOT" : "SHOOT";
+}
+
+export function shootBusyLabel(journey: JourneyShot): string {
+  return journeyHasFootage(journey) ? "Reshooting…" : "Shooting…";
+}
+
+export function shootActionAriaLabel(journey: JourneyShot): string {
+  return `${journeyHasFootage(journey) ? "Reshoot" : "Shoot"} ${journey.id}`;
+}
+
 export function JourneyItem({
   laid,
   journey,
@@ -54,7 +82,7 @@ export function JourneyItem({
   shooting?: boolean;
   onSelect: () => void;
 }) {
-  const { project, shootJourney, retryMotionPlan } = useProject();
+  const { retryMotionPlan } = useProject();
   const motion = band === "motion";
   const tone = motion ? journeySegmentTone(journey) : footageBandTone(journey);
   const ring = selected
@@ -64,12 +92,6 @@ export function JourneyItem({
   const busy = motion ? preparing : shooting;
   const actionsBusy = preparing || shooting;
   const label = motion ? "MOTION" : "FOOTAGE";
-
-  const onGenerate = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    onSelect();
-    void shootJourney(journey.id);
-  };
 
   const onRetry = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -127,17 +149,11 @@ export function JourneyItem({
               Retry
             </button>
           ) : null
-        ) : (
-          <button
-            type="button"
-            className={ctaClass}
-            disabled={!canShootJourney(project, journey) || actionsBusy}
-            aria-label={`Generate ${journey.id}`}
-            onClick={onGenerate}
-          >
-            {shooting ? "Generating…" : "Generate"}
-          </button>
-        )}
+        ) : shooting ? (
+          <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] text-[#ece7df] storyboard-generating-label">
+            {shootBusyLabel(journey)}
+          </span>
+        ) : null}
       </div>
     </div>
   );

@@ -129,7 +129,7 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain('aria-label="Destination B facts"');
     expect(html).toContain("~1.85:1");
     expect(html).toContain("1392×752");
-    expect(html).toContain("FLUX Kontext Pro");
+    expect(html).toContain("Nano Banana 2 Lite");
     expect(html).not.toContain("This is what the generated world actually gave us");
     expect(html).not.toContain("The Cinematographer judges how to shoot");
     const opening = renderShoot();
@@ -145,7 +145,7 @@ describe("Shoot boundary continuity UI", () => {
     expect(opening).not.toMatch(/aria-label="Destination A story"[^>]*readOnly=""/);
     expect(opening).toContain("~16:9");
     expect(opening).toContain("1000×558");
-    expect(opening).not.toContain("FLUX 1.1 Pro Ultra");
+    expect(opening).not.toContain("Nano Banana 2 Lite");
     expect(opening).toContain("focus:bg-[#161410]");
     expect(opening).not.toContain('aria-label="Reshoot destination A"');
     expect(opening).not.toContain("This is the opening destination.");
@@ -182,12 +182,13 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain('aria-label="Plan A-B"');
     expect(html).not.toContain(">Plan<");
     expect(html).toContain(">Cinematographer Motion Plan<");
-    expect(html).toContain('aria-label="Generate A-B"');
-    expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
+    expect(html).toContain('aria-label="Reshoot A-B"');
+    expect((html.match(/aria-label="Reshoot A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
-    expect(html).toContain(">Generate<");
+    expect(html).toContain(">RESHOOT<");
     expect(html).not.toContain('aria-label="Shoot A-B"');
-    expect(html).not.toContain('aria-label="Reshoot A-B"');
+    expect(html).not.toContain('aria-label="Generate A-B"');
+    expect(html).not.toContain('aria-label="Reshoot B-C"');
     expect(html).not.toContain('aria-label="Block A-B"');
     expect(html).toContain('alt="A-B start A"');
     expect(html).toContain('alt="A-B end B"');
@@ -238,12 +239,14 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain("This take is available in the preview.");
     expect(html).toContain('aria-label="Footage A-B"');
     expect(html).toContain('aria-label="Reshoot A-B"');
+    expect((html.match(/aria-label="Reshoot A-B"/g) ?? []).length).toBe(2);
     expect(html).toContain('aria-pressed="true"');
     expect(html).not.toContain('aria-label="Preview mode"');
     expect(html).not.toContain('aria-label="Preview video"');
     expect(html).not.toContain('aria-label="Preview A|B"');
     expect(html).not.toContain('aria-label="Plan A-B"');
-    expect(html).toContain('aria-label="Generate A-B"');
+    expect(html).not.toContain('aria-label="Generate A-B"');
+    expect(html).toContain(">RESHOOT<");
     expect(html).not.toContain("preview-leg");
     expect(html).not.toContain("Status: Film");
     expect(html).not.toContain("Status: Export");
@@ -368,9 +371,10 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Cinematographer needs two actual destinations.");
     expect(html).not.toContain("Motion Plan is created automatically from this actual adjacent pair.");
     expect(html).not.toContain('aria-label="Plan A-B"');
-    expect(html).toContain('aria-label="Generate A-B"');
+    expect(html).toContain('aria-label="Reshoot A-B"');
+    expect(html).toContain(">RESHOOT<");
+    expect(html).not.toContain('aria-label="Generate A-B"');
     expect(html).not.toContain('aria-label="Shoot A-B"');
-    expect(html).not.toContain('aria-label="Reshoot A-B"');
     expect(html).not.toContain(">Assess shot<");
   });
 });
@@ -501,10 +505,12 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain('aria-label="Plan A-B"');
     expect(html).not.toContain('aria-label="Retry A-B"');
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
-    expect(html).toContain('aria-label="Generate A-B"');
-    expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
+    expect(html).toContain('aria-label="Shoot A-B"');
+    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(1);
     expect(html).not.toContain('aria-label="Plan B-C"');
-    expect(html).toContain('aria-label="Generate B-C"');
+    expect(html).not.toContain('aria-label="Shoot B-C"');
+    expect(html).not.toContain('aria-label="Generate A-B"');
+    expect(html).not.toContain('aria-label="Generate B-C"');
     expect(html).not.toContain("This journey is not a finished movie clip.");
     expect(html).toContain('aria-label="Resize timeline"');
     expect(html).toContain("cursor-row-resize");
@@ -515,6 +521,48 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain('aria-label="Preview source"');
     expect(html).not.toContain("Nothing is ready to shoot");
     expect(html).not.toContain(">Assess shot<");
+  });
+
+  it("shows SHOOT under FOOTAGE only when that segment is selected", () => {
+    const project = projectWithSyncedProductionLegs({
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user",
+          image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          destinationId: "A",
+        },
+        {
+          id: "B",
+          label: "B",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          destinationId: "B",
+        },
+        {
+          id: "C",
+          label: "C",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-cccccccccccccccccccccccccccccccc",
+          mediaId: "upload-cccccccccccccccccccccccccccccccc",
+          destinationId: "C",
+        },
+      ],
+    });
+    const atA = renderShoot(project, { destinationId: "A", occurrenceIndex: 0 });
+    expect(atA).toContain('aria-label="Shoot A-B"');
+    expect(atA).toContain(">SHOOT<");
+    expect(atA).not.toContain('aria-label="Shoot B-C"');
+    const atB = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 });
+    expect(atB).toContain('aria-label="Shoot A-B"');
+    expect(atB).toContain('aria-label="Shoot B-C"');
+    const atC = renderShoot(project, { destinationId: "C", occurrenceIndex: 2 });
+    expect(atC).not.toContain('aria-label="Shoot A-B"');
+    expect(atC).toContain('aria-label="Shoot B-C"');
   });
 
   it("offers Retry on MOTION after that segment's automatic Motion Plan fails", () => {
@@ -584,7 +632,8 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("border-2 border-[#d4b36a] bg-[#443922]");
     expect(html).not.toContain("border-[#d4b36a] border-dashed");
     expect(html).not.toContain(">Needs review<");
-    expect((html.match(/aria-label="Generate A-B"/g) ?? []).length).toBe(1);
+    expect((html.match(/aria-label="Shoot A-B"/g) ?? []).length).toBe(1);
+    expect(html).toContain(">SHOOT<");
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
   });
 
@@ -647,7 +696,10 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Motion B-C"');
     expect(html).toContain('aria-label="Footage A-B"');
     expect(html).toContain('aria-label="Footage B-C"');
-    expect(html).toContain("Generating…");
+    expect((html.match(/>Reshooting…</g) ?? []).length).toBe(2);
+    expect(html).not.toContain(">RESHOOT<");
+    expect(html).not.toContain(">SHOOT<");
+    expect(html).not.toContain("Generating…");
     const spinningTiles = html.match(/animate-spin/g) ?? [];
     expect(spinningTiles).toHaveLength(0);
   });

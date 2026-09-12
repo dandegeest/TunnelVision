@@ -98,9 +98,15 @@ export function DestinationPlanFields({
   );
 }
 
-function DestinationMediaFacts({ frame }: { frame: StoryboardFrame }) {
+function DestinationMediaFacts({
+  frame,
+  project,
+}: {
+  frame: StoryboardFrame;
+  project: Project;
+}) {
   const info = frame.mediaInfo;
-  const model = destinationImageModelLabel(frame);
+  const model = destinationImageModelLabel(project, frame);
   if (!info && !model) {
     return null;
   }
@@ -290,7 +296,7 @@ export function DestinationInspectorFields({
           </button>
         </div>
       ) : null}
-      <DestinationMediaFacts frame={frame} />
+      <DestinationMediaFacts frame={frame} project={project} />
       {afterFields}
       {footer}
     </>

@@ -81,13 +81,18 @@ same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. While a destination still is generating in Plan, the
 matching Shoot destination slot uses that same shimmer. Green fill on FOOTAGE appears only after the clip is
 complete. MOTION and FOOTAGE bands show those labels only; MOTION is
-inspect/status for the automatically generated Motion Plan and Generate lives on FOOTAGE.
+inspect/status for the automatically generated Motion Plan. SHOOT /
+RESHOOT is a compact centered control under FOOTAGE when that segment
+is selected. While a take is rendering, FOOTAGE shows Shooting… or
+Reshooting… in the band, the same way MOTION shows Planning….
 If automatic Motion Planning fails, that MOTION band and the inspector offer Retry for that pair only.
 After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. Generate lives on the FOOTAGE band.
-Generate stays Generate after a clip exists. The timeline is
+for variable. SHOOT sits under the FOOTAGE band when MOTION, FOOTAGE,
+or either endpoint of that segment is selected, and becomes RESHOOT
+after a clip exists. It is centered on that interval and sized to the
+label, not the full bar width. The timeline is
 vertically resizable. The Shoot inspector is horizontally resizable and can hide to a reopen strip like the
 conversation and Project rails; that visibility is session UI, not project
 persistence. Canonicals are places;
@@ -349,7 +354,7 @@ Timeline has two locked lanes on one time axis:
 - **Journeys** — shots between those occurrences. Destination frame
   **centers** sit on journey **boundaries**. Tile width follows the
   actual clip duration. Unshot legs preview the current video model's
-  length. After SHOOT, the take and the file win, so a 5s Luma reshoot
+  length. After SHOOT, the take and the file win, so a 5s Kling reshoot
   is shorter than a 6s Pruna take.
 
 Preview sits above the timeline. A contextual inspector sits beside
@@ -464,8 +469,8 @@ ignore an unshootable journey.
 ## Expensive-generation boundary
 
 Approve still exploration before expensive video rendering. The
-current primary action names are **Plan** and **Generate**
-on the MOTION and FOOTAGE bands, and
+current primary action names are **SHOOT** / **RESHOOT**
+under the FOOTAGE band, and
 **Export Movie**. Destination Keep / Redo happens before those actions. In the
 current slice those production actions are labeled and disabled.
 Intended later Cinematographer review of actual canonicals (PASS /

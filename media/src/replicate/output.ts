@@ -2,11 +2,14 @@ export function extractOutputUrl(output: unknown): string | null {
   if (typeof output === "string" && /^https?:\/\//i.test(output)) {
     return output;
   }
-  if (Array.isArray(output) && typeof output[0] === "string") {
-    const first = output[0];
-    if (/^https?:\/\//i.test(first)) {
-      return first;
+  if (Array.isArray(output)) {
+    for (const item of output) {
+      const url = extractOutputUrl(item);
+      if (url) {
+        return url;
+      }
     }
+    return null;
   }
   if (output && typeof output === "object" && "href" in output) {
     const href = (output as { href?: unknown }).href;

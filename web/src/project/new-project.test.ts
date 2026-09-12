@@ -21,6 +21,9 @@ describe("new product project", () => {
     expect(project.autoBlockShots).toBe(false);
     expect(project.autoShoot).toBe(false);
     expect(project.videoModel).toBe("pruna-p-video");
+    expect(project.imageModel).toBe("nano-banana-2-lite");
+    expect(project.imageOutputFormat).toBe("png");
+    expect(project.imageResolution).toBe("1K");
     expect(project.storyDurationLocked).toBe(false);
     expect(canProvideStartingFrame(project.storyboard[0]!)).toBe(true);
     expect(hasAuthoritativeStartingFrame(project)).toBe(false);

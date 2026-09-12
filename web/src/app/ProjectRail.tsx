@@ -12,6 +12,17 @@ import {
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import type { Project } from "../project/types";
 import {
+  IMAGE_MODELS,
+  imageModelHasFormatChoice,
+  imageModelHasResolutionChoice,
+  imageModelMenuLabel,
+  imageModelOutputFormats,
+  imageModelResolutions,
+  isImageModelId,
+  isImageOutputFormat,
+  isImageResolution,
+} from "../../../media/src/replicate/image-models.ts";
+import {
   VIDEO_MODELS,
   isVideoModelId,
   videoModelMenuLabel,
@@ -332,8 +343,91 @@ function DebugModeToggle() {
 function ProjectSettingsView({ busy }: { busy: boolean }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
+      <ImageModelSelect disabled={busy} />
       <VideoModelSelect disabled={busy} />
       <DebugModeToggle />
+    </div>
+  );
+}
+
+function ImageModelSelect({ disabled }: { disabled: boolean }) {
+  const { project, setImageModel, setImageOutputFormat, setImageResolution } = useProject();
+  const fieldClass =
+    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]";
+  const showFormat = imageModelHasFormatChoice(project.imageModel);
+  const showResolution = imageModelHasResolutionChoice(project.imageModel);
+  return (
+    <div className="flex flex-col gap-3">
+      <label className="flex flex-col gap-1.5">
+        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Image</span>
+        <select
+          aria-label="Image model"
+          title="Used for opening A and every later still in this project. Nano Banana 2 Lite is the development default."
+          disabled={disabled}
+          className={fieldClass}
+          value={project.imageModel}
+          onChange={(event) => {
+            const next = event.target.value;
+            if (isImageModelId(next)) {
+              setImageModel(next);
+            }
+          }}
+        >
+          {IMAGE_MODELS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {imageModelMenuLabel(option)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {showFormat ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Format</span>
+          <select
+            aria-label="Image format"
+            title="Output file format for generated stills. PNG is the development default."
+            disabled={disabled}
+            className={fieldClass}
+            value={project.imageOutputFormat}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (isImageOutputFormat(next)) {
+                setImageOutputFormat(next);
+              }
+            }}
+          >
+            {imageModelOutputFormats(project.imageModel).map((format) => (
+              <option key={format} value={format}>
+                {format.toUpperCase()}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      {showResolution ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Resolution</span>
+          <select
+            aria-label="Image resolution"
+            title="Output resolution for generated stills. 1K is the development default."
+            disabled={disabled}
+            className={fieldClass}
+            value={project.imageResolution}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (isImageResolution(next)) {
+                setImageResolution(next);
+              }
+            }}
+          >
+            {imageModelResolutions(project.imageModel).map((resolution) => (
+              <option key={resolution} value={resolution}>
+                {resolution}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </div>
   );
 }

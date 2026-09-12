@@ -24,6 +24,15 @@ import {
   Flux11ProUltraSettings,
   toFlux11ProUltraInput,
 } from "./flux-1.1-pro-ultra.ts";
+import {
+  NANO_BANANA_2_LITE_MODEL,
+  describeNanoBananaInput,
+  isNanoBanana2,
+  isNanoBananaModel,
+  toNanoBananaEditInput,
+  toNanoBananaGenerateInput,
+  type NanoBananaSettings,
+} from "./nano-banana.ts";
 import { extractOutputUrl } from "./output.ts";
 import type { PVideoSettings } from "./p-video.ts";
 import {
@@ -41,6 +50,7 @@ export type ReplicateMediaProviderOptions = {
   readonly imageEditModel?: string;
   readonly seedance?: Seedance25Settings;
   readonly pVideo?: PVideoSettings;
+  readonly nanoBanana?: NanoBananaSettings;
   readonly flux?: Flux11ProUltraSettings;
   readonly kontext?: FluxKontextProSettings;
   readonly client?: ReplicatePredictionClient;
@@ -53,6 +63,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
   private readonly imageEditModel: string;
   private readonly seedance: Seedance25Settings | undefined;
   private readonly pVideo: PVideoSettings | undefined;
+  private readonly nanoBanana: NanoBananaSettings | undefined;
   private readonly flux: Flux11ProUltraSettings | undefined;
   private readonly kontext: FluxKontextProSettings | undefined;
   private readonly client: ReplicatePredictionClient;
@@ -60,10 +71,11 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
   constructor(options: ReplicateMediaProviderOptions = {}) {
     this.token = options.token ?? getOptionalEnv("REPLICATE_API_TOKEN");
     this.model = options.model ?? SEEDANCE_25_MODEL;
-    this.imageModel = options.imageModel ?? FLUX_11_PRO_ULTRA_MODEL;
-    this.imageEditModel = options.imageEditModel ?? FLUX_KONTEXT_PRO_MODEL;
+    this.imageModel = options.imageModel ?? NANO_BANANA_2_LITE_MODEL;
+    this.imageEditModel = options.imageEditModel ?? options.imageModel ?? NANO_BANANA_2_LITE_MODEL;
     this.seedance = options.seedance;
     this.pVideo = options.pVideo;
+    this.nanoBanana = options.nanoBanana;
     this.flux = options.flux;
     this.kontext = options.kontext;
     this.client = options.client ?? createOfficialClient(this.token);
@@ -84,21 +96,40 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
 
   async generateImage(request: ImageGenerationRequest): Promise<GeneratedImage> {
     this.assertConfigured();
-    const input = toFlux11ProUltraInput(request, this.flux);
+    if (isFlux11ProUltra(this.imageModel)) {
+      const input = toFlux11ProUltraInput(request, this.flux);
+      const result = await this.runFilePrediction(
+        this.imageModel,
+        input as unknown as Record<string, unknown>,
+      );
+      const submitted = toFlux11ProUltraInput(request, this.flux);
+      const withFlux = {
+        ...result,
+        metadata: {
+          ...result.metadata,
+          flux: submitted,
+        },
+      };
+      assertNoSecret(withFlux, this.token);
+      return withFlux;
+    }
+    if (!isNanoBananaModel(this.imageModel)) {
+      throw new MediaGenerationError("invalid_input", `Unsupported image model ${this.imageModel}`);
+    }
+    const input = toNanoBananaGenerateInput(request, nanoBananaSettingsForModel(this.imageModel, this.nanoBanana));
     const result = await this.runFilePrediction(
       this.imageModel,
       input as unknown as Record<string, unknown>,
     );
-    const submitted = toFlux11ProUltraInput(request, this.flux);
-    const withFlux = {
+    const withNanoBanana = {
       ...result,
       metadata: {
         ...result.metadata,
-        flux: submitted,
+        nanoBanana: describeNanoBananaInput(input),
       },
     };
-    assertNoSecret(withFlux, this.token);
-    return withFlux;
+    assertNoSecret(withNanoBanana, this.token);
+    return withNanoBanana;
   }
 
   async editImage(request: ImageEditRequest): Promise<GeneratedImage> {
@@ -107,20 +138,46 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
       throw new MediaGenerationError("invalid_input", "sourceImage is required");
     }
     const resolvedSource = await resolveMediaInput(request.sourceImage);
-    const input = toFluxKontextProInput(request, resolvedSource, this.kontext);
+    if (isFluxKontextPro(this.imageEditModel)) {
+      const input = toFluxKontextProInput(request, resolvedSource, this.kontext);
+      const result = await this.runFilePrediction(
+        this.imageEditModel,
+        input as unknown as Record<string, unknown>,
+      );
+      const withKontext = {
+        ...result,
+        metadata: {
+          ...result.metadata,
+          kontext: describeFluxKontextProInput(request, resolvedSource, this.kontext),
+        },
+      };
+      assertNoSecret(withKontext, this.token);
+      return withKontext;
+    }
+    if (!isNanoBananaModel(this.imageEditModel)) {
+      throw new MediaGenerationError(
+        "invalid_input",
+        `Unsupported image edit model ${this.imageEditModel}`,
+      );
+    }
+    const input = toNanoBananaEditInput(
+      request,
+      resolvedSource,
+      nanoBananaSettingsForModel(this.imageEditModel, this.nanoBanana),
+    );
     const result = await this.runFilePrediction(
       this.imageEditModel,
       input as unknown as Record<string, unknown>,
     );
-    const withKontext = {
+    const withNanoBanana = {
       ...result,
       metadata: {
         ...result.metadata,
-        kontext: describeFluxKontextProInput(request, resolvedSource, this.kontext),
+        nanoBanana: describeNanoBananaInput(input),
       },
     };
-    assertNoSecret(withKontext, this.token);
-    return withKontext;
+    assertNoSecret(withNanoBanana, this.token);
+    return withNanoBanana;
   }
 
   private assertConfigured(): void {
@@ -248,6 +305,31 @@ function wrapClientError(error: unknown, token?: string): MediaGenerationError {
     message,
     { providerMessage: message },
   );
+}
+
+function nanoBananaSettingsForModel(
+  model: string,
+  settings?: NanoBananaSettings,
+): NanoBananaSettings | undefined {
+  if (!settings) {
+    return undefined;
+  }
+  if (isNanoBanana2(model)) {
+    return settings;
+  }
+  if (settings.resolution === undefined) {
+    return settings;
+  }
+  const { resolution: _resolution, ...withoutResolution } = settings;
+  return withoutResolution;
+}
+
+function isFlux11ProUltra(model: string): boolean {
+  return model === FLUX_11_PRO_ULTRA_MODEL || model.endsWith("/flux-1.1-pro-ultra");
+}
+
+function isFluxKontextPro(model: string): boolean {
+  return model === FLUX_KONTEXT_PRO_MODEL || model.endsWith("/flux-kontext-pro");
 }
 
 function secretsToRedact(token: string | undefined): string[] {

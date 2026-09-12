@@ -11,6 +11,7 @@ export type ConstructDestinationBody = {
   visualDescription?: unknown;
   nextDestination?: unknown;
   aspectRatio?: unknown;
+  imageModel?: unknown;
 };
 
 export async function fetchGeneratedOutputBytes(url: string): Promise<{
@@ -108,7 +109,7 @@ export async function constructDestinationImage(input: {
 }
 
 export async function generateOpeningFrameImage(input: {
-  body: { story?: unknown; aspectRatio?: unknown };
+  body: { story?: unknown; aspectRatio?: unknown; imageModel?: unknown };
   generateImage: (request: ImageGenerationRequest) => Promise<GeneratedImage>;
   fetchOutput?: (url: string) => Promise<{ bytes: Buffer; contentType?: string }>;
 }): Promise<{

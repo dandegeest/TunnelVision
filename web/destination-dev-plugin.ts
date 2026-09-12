@@ -3,8 +3,14 @@ import type { Plugin } from "vite";
 
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
+import { imageModelSlug } from "../media/src/replicate/image-models.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
 import { constructDestinationImage, generateOpeningFrameImage } from "./destination-construct.ts";
+import {
+  imageModelIdFromBody,
+  imageOutputFormatFromBody,
+  imageResolutionFromBody,
+} from "./src/project/destination.ts";
 import { UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
@@ -74,16 +80,27 @@ export function destinationDevPlugin(repoRoot: string): Plugin {
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
+          const imageModelId = imageModelIdFromBody(body.imageModel);
+          const imageModel = imageModelSlug(imageModelId);
+          const imageResolution = imageResolutionFromBody(imageModelId, body.imageResolution);
+          const provider = new ReplicateMediaProvider({
+            imageModel,
+            imageEditModel: imageModel,
+            nanoBanana: {
+              outputFormat: imageOutputFormatFromBody(imageModelId, body.imageOutputFormat),
+              ...(imageResolution ? { resolution: imageResolution } : {}),
+            },
+          });
           const constructed =
             url === "/api/destination/generate-opening"
               ? await generateOpeningFrameImage({
                   body,
-                  generateImage: (request) => new ReplicateMediaProvider().generateImage(request),
+                  generateImage: (request) => provider.generateImage(request),
                 })
               : await constructDestinationImage({
                   repoRoot,
                   body,
-                  editImage: (request) => new ReplicateMediaProvider().editImage(request),
+                  editImage: (request) => provider.editImage(request),
                 });
           sendJson(res, 200, constructed);
         } catch (error) {

@@ -12,6 +12,7 @@ export type {
 } from "./types.ts";
 export {
   GENERATED_OPENING_ASPECT_RATIO,
+  NANO_BANANA_ASPECT_RATIOS,
   FLUX_11_PRO_ULTRA_ASPECT_RATIOS,
   FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS,
   isImageAspectRatio,
@@ -41,11 +42,11 @@ export {
 } from "./replicate/p-video.ts";
 export type { PVideoSettings, PVideoInput } from "./replicate/p-video.ts";
 export {
-  LUMA_RAY_FLASH_2_720P_MODEL,
-  isLumaRayFlash2720p,
-  lumaRayFlash2Duration,
-  toLumaRayFlash2Input,
-} from "./replicate/luma-ray-flash-2-720p.ts";
+  KLING_25_TURBO_PRO_MODEL,
+  isKling25TurboPro,
+  kling25TurboProDuration,
+  toKling25TurboProInput,
+} from "./replicate/kling-v2.5-turbo-pro.ts";
 export {
   WAN_22_I2V_FAST_MODEL,
   isWan22I2vFast,
@@ -82,6 +83,50 @@ export {
 } from "./replicate/video-models.ts";
 export type { VideoModelId, VideoModelOption, VideoModelCost, VideoModelTier } from "./replicate/video-models.ts";
 export {
+  IMAGE_MODEL_IDS,
+  IMAGE_MODELS,
+  IMAGE_OUTPUT_FORMATS,
+  IMAGE_RESOLUTIONS,
+  DEFAULT_IMAGE_MODEL_ID,
+  DEFAULT_IMAGE_OUTPUT_FORMAT,
+  DEFAULT_IMAGE_RESOLUTION,
+  isImageModelId,
+  isImageOutputFormat,
+  isImageResolution,
+  parseImageModelId,
+  resolveImageModelId,
+  resolveImageOutputFormat,
+  resolveImageResolution,
+  imageModelSlug,
+  imageModelOption,
+  imageModelMenuLabel,
+  imageModelDisplayLabel,
+  imageModelOutputFormats,
+  imageModelResolutions,
+  imageModelHasFormatChoice,
+  imageModelHasResolutionChoice,
+} from "./replicate/image-models.ts";
+export type {
+  ImageModelId,
+  ImageModelOption,
+  ImageModelCost,
+  ImageModelTier,
+  ImageOutputFormat,
+  ImageResolution,
+} from "./replicate/image-models.ts";
+export {
+  NANO_BANANA_2_LITE_MODEL,
+  NANO_BANANA_2_MODEL,
+  DEFAULT_NANO_BANANA_SETTINGS,
+  isNanoBananaModel,
+  isNanoBanana2,
+  toNanoBananaGenerateInput,
+  toNanoBananaEditInput,
+  describeNanoBananaInput,
+  mergeNanoBananaSettings,
+} from "./replicate/nano-banana.ts";
+export type { NanoBananaSettings, NanoBananaInput } from "./replicate/nano-banana.ts";
+export {
   FLUX_11_PRO_ULTRA_MODEL,
   DEFAULT_FLUX_11_PRO_ULTRA_SETTINGS,
   toFlux11ProUltraInput,
@@ -99,9 +144,14 @@ export {
 export type { FluxKontextProSettings, FluxKontextProInput } from "./replicate/flux-kontext-pro.ts";
 export {
   GEMINI_31_PRO_MODEL,
+  GEMINI_31_PRO_IMAGE_BYTE_BUDGET,
+  GEMINI_31_PRO_MAX_IMAGE_EDGE,
   DEFAULT_GEMINI_31_PRO_SETTINGS,
   toGemini31ProInput,
+  toGemini31ProFileInput,
   mergeGemini31ProSettings,
+  prepareGemini31ProMedia,
+  fitGemini31ProImageBytes,
 } from "./replicate/gemini-3.1-pro.ts";
 export {
   extractShotMotionPlans,

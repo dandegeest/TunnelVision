@@ -4,6 +4,7 @@ import {
   FLUX_11_PRO_ULTRA_ASPECT_RATIOS,
   FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS,
   GENERATED_OPENING_ASPECT_RATIO,
+  NANO_BANANA_ASPECT_RATIOS,
   nearestExplicitAspectRatio,
   parseImageAspectRatio,
 } from "../src/image-aspect-ratio.ts";
@@ -16,6 +17,10 @@ test("generated opening aspect is explicit 16:9", () => {
   );
   assert.equal(
     nearestExplicitAspectRatio(GENERATED_OPENING_ASPECT_RATIO, FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS),
+    "16:9",
+  );
+  assert.equal(
+    nearestExplicitAspectRatio(GENERATED_OPENING_ASPECT_RATIO, NANO_BANANA_ASPECT_RATIOS),
     "16:9",
   );
 });
@@ -39,6 +44,14 @@ test("uploaded pixel dimensions snap to the closest explicit provider ratio", ()
   );
   assert.equal(
     nearestExplicitAspectRatio({ width: 1392, height: 752 }, FLUX_KONTEXT_PRO_EXPLICIT_ASPECT_RATIOS),
+    "16:9",
+  );
+  assert.equal(
+    nearestExplicitAspectRatio({ width: 1000, height: 558 }, NANO_BANANA_ASPECT_RATIOS),
+    "16:9",
+  );
+  assert.equal(
+    nearestExplicitAspectRatio({ width: 1392, height: 752 }, NANO_BANANA_ASPECT_RATIOS),
     "16:9",
   );
 });

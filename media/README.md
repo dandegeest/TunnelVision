@@ -82,12 +82,12 @@ MediaProvider.generateImage
     |
 ReplicateMediaProvider
     |
-FLUX 1.1 Pro Ultra adapter
+Nano Banana 2 Lite adapter
 ```
 
-Image-conditioned editing is a distinct capability. It is not
-text-to-image and does not use FLUX 1.1 Pro Ultra or Redux
-`image_prompt`:
+Image-conditioned editing uses the same Nano Banana adapter. Opening
+A omits `image_input`; later destinations pass the previous still as
+`image_input`. Flux Ultra is not a product still generator.
 
 ``` text
 application
@@ -96,12 +96,14 @@ ImageEditProvider.editImage
     |
 ReplicateMediaProvider
     |
-FLUX Kontext Pro adapter
+Nano Banana 2 Lite adapter
 ```
 
 Cinematographer camera-motion planning uses a separate
 `ReasoningProvider` with vision image inputs. The first adapter is
-Gemini 3.1 Pro on Replicate. CameraMotionPlan v1 fields are extracted
+Gemini 3.1 Pro on Replicate. Each image input is documented at 7MB
+max; the adapter sends a JPEG vision copy at most 1024 on the long
+edge and leaves stored stills unchanged. CameraMotionPlan v1 fields are extracted
 and validated; 01.8 exposure (`0.08` / `16`) and `forward` `1.0` stay
 pinned to the current directed-traversal baseline.
 

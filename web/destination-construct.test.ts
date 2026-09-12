@@ -45,7 +45,7 @@ describe("destination construction server path", () => {
         };
         return {
           provider: "replicate",
-          model: "black-forest-labs/flux-kontext-pro",
+          model: "google/nano-banana-2-lite",
           modelVersion: "test",
           predictionId: "pred-b",
           status: "succeeded",
@@ -100,7 +100,7 @@ describe("destination construction server path", () => {
         prompt = request.prompt;
         return {
           provider: "replicate",
-          model: "black-forest-labs/flux-kontext-pro",
+          model: "google/nano-banana-2-lite",
           modelVersion: "test",
           predictionId: "pred-next",
           status: "succeeded",
@@ -143,7 +143,7 @@ describe("destination construction server path", () => {
         source = request.sourceImage;
         return {
           provider: "replicate",
-          model: "black-forest-labs/flux-kontext-pro",
+          model: "google/nano-banana-2-lite",
           modelVersion: "test",
           predictionId: "pred-wardrobe-b",
           status: "succeeded",
@@ -229,7 +229,7 @@ describe("destination construction server path", () => {
         };
         return {
           provider: "replicate",
-          model: "black-forest-labs/flux-kontext-pro",
+          model: "google/nano-banana-2-lite",
           modelVersion: "test",
           predictionId: "pred-c",
           status: "succeeded",
@@ -297,7 +297,7 @@ describe("opening frame generation server path", () => {
         aspectRatio = request.aspectRatio;
         return {
           provider: "replicate",
-          model: "black-forest-labs/flux-1.1-pro-ultra",
+          model: "google/nano-banana-2-lite",
           modelVersion: "test",
           predictionId: "pred-a",
           status: "succeeded",

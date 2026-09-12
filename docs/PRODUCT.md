@@ -122,8 +122,9 @@ DIRECT then generates each remaining destination in order. Director activity app
 pending **Planning…**, **Blocking…**, **Shooting…**, and construction turns show a progress spinner.
 Empty Plan FPO thumbnails overlay Director intent as readable text until
 an image exists. After planning, Construct builds a planned beat from the immediately
-preceding actual destination through image-conditioned edit
-(`ImageEditProvider` / FLUX Kontext Pro). Generated A requests 16:9.
+preceding actual destination through image-conditioned generation
+(`ImageEditProvider` / Nano Banana 2 Lite by default). Generated A
+requests 16:9.
 Uploaded A stores its pixel aspect as the project canonical aspect ratio.
 Later constructed destinations pass that ratio as an explicit provider
 aspect_ratio; they do not use match_input_image. The previous canonical
@@ -137,7 +138,10 @@ the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 DIRECT is not a prerequisite for shooting actual adjacent canonicals.
 MOTION is an inspect/status surface for the automatically generated Motion Plan;
-Generate lives on the FOOTAGE band and stays Generate after a clip exists. Each Shoot interval is two
+SHOOT sits under the FOOTAGE band when that segment is selected and
+becomes RESHOOT after a clip exists. The control is centered and sized
+to the label. While a take is rendering, FOOTAGE shows Shooting… or
+Reshooting… in the band like MOTION shows Planning…. Each Shoot interval is two
 stacked bands: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated
 take). Canonicals remain clickable places above those bands. When only A is
 actual, Shoot still shows A and an FPO B that opens Plan on B. Band labels are MOTION and FOOTAGE only. Selecting a destination
@@ -146,15 +150,22 @@ toggle, a CameraMotionPlan overlay on the still, and inspector facts. When an ac
 runs against those stills automatically, renders Camotion A′/B′ for that pair, and stores the
 Motion Plan on that JourneyShot. Changing either canonical invalidates and
 recomputes that segment's Motion Plan. Footage generation remains explicit.
-Generate on FOOTAGE uses those staged frames, composes `segmentPromptAddition`
+SHOOT under FOOTAGE uses those staged frames, composes `segmentPromptAddition`
 ahead of the frozen locomotion baseline, and generates a development
-clip. The Project panel Video control chooses the generator for every
+clip. The Project panel Image control chooses the still generator for
+opening A and later B…N. Nano Banana 2 Lite is the development
+default; Nano Banana 2 is opt-in. The same model text-to-images A and
+image-conditions later destinations. Format (PNG default) appears when
+the model can emit jpg or png. Resolution (1K default) appears only
+when the model offers more than one size; Lite is 1K-only and hides
+that control, while Nano Banana 2 offers 1K / 2K / 4K. The Project panel Video control
+chooses the generator for every
 SHOOT in the current project. Pruna (`prunaai/p-video`) is the development
-default; mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last Frame, and
+default; mid-tier Kling 2.5 Turbo Pro, Wan 2.2 First/Last Frame, and
 Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in. Each adapter maps
 A′/B′ onto that model's start and last-frame fields. Clip duration
 follows the generator: Pruna, Wan, and Seedance product shots are 6s;
-Luma Ray Flash 2 720p is 5s. The Shoot timeline tiles follow the take.
+Kling 2.5 Turbo Pro is 5s. The Shoot timeline tiles follow the take.
 Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
 CameraMotionPlan JSON; a narrow deterministic bridge turns the same
@@ -360,7 +371,7 @@ strategies:
     way.
 -   **Derived** — image-conditioned construction from an actual
     previous destination. Current Plan Construct is this path
-    (FLUX Kontext Pro). First hop:
+    (Nano Banana 2 Lite by default, same model as generated A). First hop:
     [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
     Sequential chain frozen as forest A–F canonicals in
     `camotion/integration/forest-a-to-f/`.
@@ -627,7 +638,7 @@ or profile so Director, Cinematographer, and Evaluator may use
 different models.
 
 The MediaProvider contract in `media/` now covers **video and image
-generation** (Seedance 2.5 and FLUX 1.1 Pro Ultra adapters). Director
+generation** (Seedance 2.5 and Nano Banana 2 Lite adapters). Director
 code must depend on that contract, not on a raw Replicate client. Do
 not implement Runway or Krea adapters in this slice. A thin
 Cinematographer pair planner also exists in `media/` for Integration
@@ -644,9 +655,9 @@ During Shoot development, optimize video generation for iteration
 cost and speed rather than final output quality; do not hardcode a
 development model into Shoot. Provider/model selection remains
 configurable (cheap/fast during development, Seedance 2.5 or another
-quality model for intentional output validation). The Project panel Video
-control is that selection for the current project; Pruna remains the
-default. Automated E2E mocks
+quality model for intentional output validation). The Project panel Image
+and Video controls are that selection for the current project; Nano
+Banana 2 Lite and Pruna remain the defaults. Automated E2E mocks
 the paid media-provider boundary. A user-facing Draft vs Final toggle remains backlog only. Current
 draft candidates and renderer notes live in
 [IMPLEMENTATION.md](IMPLEMENTATION.md).

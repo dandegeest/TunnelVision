@@ -182,7 +182,10 @@ Canonicals remain clickable places above those bands. When only A is actual,
 Shoot still shows A and an FPO B that opens Plan on B. A destination
 still generating in Plan shimmers on the matching Shoot slot. MOTION is an
 inspect/status surface for that segment's automatically generated Motion Plan;
-Generate lives on the FOOTAGE band and stays Generate after a clip exists.
+SHOOT sits under the FOOTAGE band when that segment is selected and
+becomes RESHOOT after a clip exists. The control is centered and sized
+to the label. While a take is rendering, FOOTAGE shows Shooting… or
+Reshooting… in the band.
 Shoot Inspector headers read Inspector - Destination, Inspector - Motion, or
 Inspector - Footage. Motion and footage both use the A→B heading; footage shows
 conditioned START′/END′ frames without a Take label. Footage Reshoot calls the
@@ -209,15 +212,25 @@ The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels. The Shoot inspector can hide to a
 reopen strip like the conversation and Project rails; that visibility is
 session UI, not project persistence.
-While a Motion Plan or Generate runs, that band uses the same generating
-shimmer as Plan FPO thumbs. The app
+While a Motion Plan or take is running, that band uses the same generating
+shimmer as Plan FPO thumbs. MOTION shows Planning… in the band; FOOTAGE
+shows Shooting… or Reshooting… there and hides the compact SHOOT /
+RESHOOT control until the take finishes. The app
 can track more than one blocking or shooting operation at a time.
+Opening A and later B…N stills use the image model chosen in Project
+settings. Nano Banana 2 Lite is the development default; Nano Banana 2
+is opt-in. The same model generates A and image-conditions later
+destinations. Format and resolution follow the selected model: PNG is
+the default when jpg/png are both available; 1K is the default when
+the model offers 1K / 2K / 4K. Leave resolution out of settings when
+the model has only one size (Lite). Flux Ultra is not a product still
+generator.
 SHOOT on a staged leg uses the Motion Plan's A′/B′ and a configurable
 video model chosen in Project settings. Pruna (`prunaai/p-video`) is the
-development default. Mid-tier Luma Ray Flash 2 720p, Wan 2.2 First/Last
+development default. Mid-tier Kling 2.5 Turbo Pro, Wan 2.2 First/Last
 Frame, and Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in for the
 same A′/B′ pipeline. Clip duration follows the generator (Pruna 6s,
-Luma Ray Flash 2 720p 5s); the Shoot timeline follows the take.
+Kling 2.5 Turbo Pro 5s); the Shoot timeline follows the take.
 After replacement, that destination
 keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).
@@ -316,9 +329,11 @@ storyboard images exist. Agent reasons. CV observes / measures.
 Camotion renders. Video model films.
 
 Video currently receives shooting frames A′ and B′ plus the composed
-locomotion prompt. The Project settings Video control chooses the generator
+locomotion prompt. The Project settings Image control chooses the still
+generator for A and B…N, plus format and resolution when that model
+offers a choice. The Video control chooses the generator
 for every SHOOT in the current project. Pruna maps those frames to
-`image` and `last_frame_image`; Luma uses `start_image`/`end_image`;
+`image` and `last_frame_image`; Kling 2.5 Turbo Pro uses `start_image`/`end_image`;
 Wan 2.2 I2V Fast uses `image`/`last_image`; Seedance 2.0 Fast and 2.5
 use `image`/`last_frame_image`. Canonical frames stay
 Shoot world-state authority; they are not currently video inputs. Plan
