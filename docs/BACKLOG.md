@@ -72,7 +72,9 @@ autonomous loop.
 6.  Deterministic bridge writes CameraMotionPlan; Camotion
     conditions A′/B′.
 7.  Repair / reshoot when CM (and later Director critique) requires
-    it. See [Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
+    it, including regenerating a weak canonical while using the
+    opposite endpoint as a visual reference. See
+    [Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
     and [Revise vs reshoot](#revise-vs-reshoot).
 8.  Generate traversal footage from both conditioned frames plus
     the composed shooting prompt.
@@ -112,7 +114,9 @@ when to continue, and when to export.
     part of its own loop; that is not hidden Directed autonomy.
 -   CM runs on actual adjacent canonical images only.
 -   Motion Plans belong to segments. Changing either canonical
-    invalidates and recomputes that segment only.
+    invalidates and recomputes only affected adjacent segments
+    (if B changes: A→B and B→C when C exists). Do not recompute
+    unrelated legs.
 -   Shared canonical B may have different inbound B′ and outbound
     B′.
 -   Camotion stays deterministic. Centered VP is fallback only.
@@ -162,58 +166,137 @@ when to continue, and when to export.
 **Status:** BACKLOG
 
 **Goal.** Let AGENT recover when the Cinematographer finds an
-actual adjacent pair difficult or impossible to shoot continuously.
+actual adjacent pair difficult or impossible to shoot continuously,
+including by regenerating a weak canonical while passing the
+opposite endpoint as a visual image reference.
 
 **Why it matters.** CM already inspects actual sets. Without a
-repair loop, AGENT stops or ships unshootable legs. Repair must
-change only the requested canonical(s) and re-evaluate the same
-pair.
+repair loop, AGENT stops or ships unshootable legs. Video prompts
+cannot invent missing physical geography. Repair must change only
+the requested canonical(s), use the opposite still as a visual
+reference when that is the smallest fix, and re-evaluate the
+affected pair(s).
+
+**Core principle.** Fix the set before shooting the scene. Do not
+compensate for fundamentally poor canonical geometry with
+increasingly elaborate video prompts.
+
+This is pair-endpoint repair, not construct-time look-ahead.
+Look-ahead uses a *following* actual (C) as a secondary future
+reference while generating B. Pair repair uses the *opposite*
+endpoint of the pair CM just judged (B while regenerating A, or A
+while regenerating B). See
+[Canonical look-ahead / continuity tuning](#canonical-look-ahead--continuity-tuning).
 
 **Intended behavior / design.**
 
 CM recommendation vocabulary (new; not a Camotion suitability
-enum):
+enum). Prefer the smallest repair:
 
 | Recommendation | Meaning |
 | --- | --- |
 | **SHOOT** | Pair is acceptable; proceed to Motion Plan / footage. |
-| **RESHOOT START** | Start canonical is the problem; regenerate only that still. |
-| **RESHOOT END** | End canonical is the problem; regenerate only that still. |
-| **RESHOOT BOTH** | Both stills must change. |
+| **RESHOOT_START** | Start canonical is the problem; regenerate only that still. Use END as visual reference. |
+| **RESHOOT_END** | End canonical is the problem; regenerate only that still. Use START as visual reference. |
+| **RESHOOT_BOTH** | Neither frame can reasonably anchor a continuous traversal; regenerate the pair. |
 
-CM also emits **concise repair guidance**: what must change so the
-segment becomes physically shootable (route, threshold, camera
-orientation, traversable volume — not provider knobs).
+CM also emits, on the same assessment turn when possible:
 
-Agent loop:
+-   **concise diagnosis** — why the pair is weak (missing route,
+    impossible orientation, invented geography, and so on)
+-   **concise repair instruction** — what the regenerated still
+    must establish so the segment becomes physically shootable
+-   **whether the opposite endpoint should be used as a visual
+    reference** (yes for START/END; coordinated pair for BOTH)
 
-1.  Evaluate actual adjacent canonicals (existing CM assessment
-    plus the new recommendation).
-2.  If SHOOT, continue (Motion Plan → Camotion → video).
-3.  If repair, regenerate only the requested canonical(s), using
-    CM guidance (and later, Director critique / Revise vs Reshoot).
-4.  Re-run CM automatically on the new actual pair.
-5.  Retry at most **1–2** times.
-6.  If still weak: shoot anyway **or** flag the segment for review.
-    Do not loop forever.
+Distinguish **canonical repair** from **prompt repair**:
+
+| Problem | Action |
+| --- | --- |
+| Route is visible in the stills; video needs clearer choreography | Improve `segmentPromptAddition` / shoot. Do not replace canonicals. |
+| Route is not actually represented by the canonical images | Canonical RESHOOT. Do not solve missing geography with text. |
 
 Shootability scores (`setConsistency`, `traversalConfidence`)
 remain advisory evidence. The recommendation is the Agent action.
 Do not invent a second CM LLM call if the existing assessment turn
 can carry the recommendation; prefer extending that JSON.
 
+**RESHOOT_START** on A→B:
+
+-   Preserve A’s semantic intent and its role in the journey.
+-   Keep actual B authoritative and unchanged.
+-   Pass actual B as an **image reference** while regenerating A.
+-   The new A must still be that opening place, but its
+    composition / viewpoint must provide a plausible continuous
+    route toward B.
+-   Do not make A resemble B. Make A and B belong to a shootable
+    continuous space.
+
+Example: A is a broad street; B is a narrow alley that is
+completely invisible in A. CM reports low traversal confidence
+because the video model would have to invent the alley entrance.
+Desired recommendation: `RESHOOT_START`. Regenerate A so the alley
+entrance or a spatially plausible approach is visible or implied,
+then re-run CM on the new A→B pair.
+
+**RESHOOT_END** on A→B:
+
+-   Preserve B’s semantic intent.
+-   Keep actual A unchanged.
+-   Pass actual A as an **image reference** while regenerating B.
+-   The new B must remain the intended arrival, with geography
+    that is plausibly reachable from A.
+
+**RESHOOT_BOTH:**
+
+-   Use only when CM determines that neither frame can reasonably
+    anchor a continuous traversal.
+-   Preserve both Director intents.
+-   Generate them as a coordinated pair.
+-   Maintain larger-journey continuity with neighboring
+    canonicals.
+-   Never choose BOTH when changing only one endpoint can solve
+    the problem.
+
+Agent loop:
+
+1.  Resolve / generate the actual adjacent canonical pair.
+2.  CM evaluates those actual images (existing assessment plus
+    the recommendation fields above).
+3.  If SHOOT, continue (Motion Plan → Camotion → video).
+4.  If canonical geometry is the problem, choose START / END /
+    BOTH (smallest repair) and regenerate the requested
+    canonical(s), passing the opposite still as an image
+    reference where appropriate. See
+    [Revise vs reshoot](#revise-vs-reshoot): missing alley
+    entrance, impossible orientation, or severe spatial
+    discontinuity is generally RESHOOT, not REVISE.
+5.  Re-run CM on the affected pair.
+6.  Retry at most **1–2** times (existing Agent repair limit).
+7.  If acceptable → Camotion → video generation.
+8.  If still weak: shoot anyway **or** flag the segment for
+    review, according to the existing fallback policy. Do not
+    loop forever.
+
 **Constraints / invariants.**
 
--   Do not silently alter unrelated canonicals or neighboring
-    Motion Plans.
--   Regenerating a shared B invalidates inbound and outbound
-    segments that use that still; recompute those Motion Plans.
+-   Existing canonical images are authoritative until AGENT
+    explicitly enters a repair operation.
+-   A repair replaces only the endpoint CM identified as
+    problematic. Never silently replace both when one is enough.
+-   Preserve Director intent for the regenerated canonical.
+    Preserve unrelated canonicals.
+-   After repair, invalidate / recompute only affected adjacent
+    SegmentMotionPlans and footage. If B is regenerated,
+    reevaluate A→B and B→C when C exists. Do not recompute
+    unrelated segments.
 -   Opening A cannot be deleted; it can be regenerated if CM asks
-    RESHOOT START on A→B and A is generated (uploaded A stays
+    RESHOOT_START on A→B and A is generated (uploaded A stays
     Replace, not silent overwrite).
 -   No Camotion suitability enum. CM does not emit CameraMotionPlan
     JSON.
--   Repair guidance is for construction/reshoot prompts, not for
+-   Repair guidance and the opposite-still reference are for
+    construction / reshoot of the **canonical**, not for
     video-model prompt rewriting by a second LLM.
 
 **Likely implementation areas.**
@@ -223,7 +306,8 @@ can carry the recommendation; prefer extending that JSON.
 -   `web/src/project/types.ts` `CinematographerAssessment`
 -   Agent runner (not Directed auto-block)
 -   `destinationConstructionRequestFromProject` /
-    `reshootDestination` / opening generation
+    `reshootDestination` / opening generation, extended to accept
+    the opposite actual still as an image reference
 -   Existing Motion Plan invalidation when canonical media identity
     changes (`motionPlanAutoKey`, `hasCurrentMotionPlan`)
 
@@ -234,6 +318,11 @@ can carry the recommendation; prefer extending that JSON.
 -   Flag-for-review surface in AGENT with no extra options: likely
     a conversation/timeline mark, not a settings pane.
 -   Uploaded canonicals: skip silent reshoot; flag instead.
+-   Does START repair of generated A use opening-frame generation
+    with B attached as a reference image, or destination-construct
+    edit of A with B as secondary input?
+-   Provider support for a second reference image on opening A
+    (FLUX 1.1 Pro Ultra is text-to-image today).
 
 ---
 
@@ -333,7 +422,12 @@ instructions say what to change.
 location, composition, viewpoint, route, or overall concept is
 fundamentally wrong. Use the preceding actual still (and plan /
 repair guidance) the way Construct does today, not a light edit of
-the failed frame.
+the failed frame. For CM pair-geometry failures, also pass the
+**opposite** actual canonical as a visual image reference so the
+new still can establish compatible geography. A missing alley
+entrance, impossible orientation, or severe spatial discontinuity
+is generally RESHOOT rather than REVISE. See
+[Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop).
 
 After either operation:
 
@@ -861,6 +955,13 @@ secondary visual reference alongside A. Actual C should inform
 future world continuity, spatial orientation, visual / style
 continuity, and where B should appear to lead next — not what B
 *is*.
+
+Do not conflate this with Agent pair repair. Look-ahead is
+construct-time future context (C while making B). AGENT CM repair
+may regenerate A using actual B, or B using actual A, because the
+*current pair* is not traversable. That opposite-endpoint
+reference is specified in
+[Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop).
 
 Priority (highest first):
 
