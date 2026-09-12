@@ -387,12 +387,13 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeEnabled();
 
   await page.getByLabel("Destination A plan").click();
-  await expect(page.getByRole("dialog", { name: "Destination A details" })).toBeVisible();
-  await expect(page.getByLabel("Destination A prompt")).toHaveValue(
+  await expect(page.getByRole("dialog", { name: "Storyboard reel, destination A" })).toBeVisible();
+  await expect(page.getByLabel("Inspector - Destination")).toBeVisible();
+  await expect(page.getByLabel("Destination A story")).toHaveValue(
     "Travel forward through an imagined interior at night.",
   );
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog", { name: "Destination A details" })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Storyboard reel, destination A" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Shoot", exact: true }).click();
   await expect(page.getByRole("button", { name: "Destination A", exact: true })).toBeVisible();
@@ -446,7 +447,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Close storyboard reel").click();
   await expect(page.getByRole("dialog", { name: "Storyboard reel, destination A" })).toHaveCount(0);
   await page.getByLabel("Destination B plan").click();
-  await page.getByLabel("Destination B prompt").fill("A warmer corridor with an open doorway.");
+  await page.getByLabel("Destination B source").fill("A warmer corridor with an open doorway.");
   await expect(page.getByLabel("Storyboard B, plan changed")).toBeVisible();
 
   await page.getByLabel("Generate destination C").click();
@@ -528,8 +529,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.locator(".preview-leg")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Destination A", exact: true }).click();
-  await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByLabel("Preview source").first()).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Preview motion").first()).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByLabel("Preview video")).toHaveCount(0);
   await expect(page.getByText("Canonical A", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Toggle overlay")).toHaveAttribute("aria-pressed", "true");
@@ -553,15 +554,15 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(destInspector.getByText("Vanishing point.")).toBeVisible();
   await expect(destInspector.getByText("0.62, 0.41").first()).toBeVisible();
   await expect(destInspector.getByText("0.060 · Fast")).toBeVisible();
-  await page.getByLabel("Preview A′").click();
-  await expect(page.getByLabel("Preview A′")).toHaveAttribute("aria-pressed", "true");
+  await page.getByLabel("Preview motion").first().click();
+  await expect(page.getByLabel("Preview motion").first()).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByAltText("A′ · A-B start′")).toBeVisible();
   await expect(page.locator(".preview-monitor img")).toHaveAttribute("src", SHOOTING_A_PRIME.imageUrl);
 
   await expect(page.getByRole("button", { name: "Generate B-C", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Destination C", exact: true }).click();
-  await expect(page.getByLabel("Preview canonical")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByLabel("Preview C′")).toBeVisible();
+  await expect(page.getByLabel("Preview source").first()).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Preview motion").first()).toBeVisible();
   await expect(page.getByText("Canonical C", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Toggle overlay")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".camotion-overlay")).toBeVisible();
@@ -569,8 +570,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   const destCInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "C", exact: true }) });
   await expect(destCInspector.getByLabel("Camotion diagnostic")).toBeVisible();
   await expect(destCInspector.getByText("C′ · B-C end′")).toBeVisible();
-  await page.getByLabel("Preview C′").click();
-  await expect(page.getByLabel("Preview C′")).toHaveAttribute("aria-pressed", "true");
+  await page.getByLabel("Preview motion").first().click();
+  await expect(page.getByLabel("Preview motion").first()).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByAltText("C′ · B-C end′")).toBeVisible();
   await expect(page.locator(".preview-monitor img")).toHaveAttribute("src", SHOOTING_B_PRIME.imageUrl);
 

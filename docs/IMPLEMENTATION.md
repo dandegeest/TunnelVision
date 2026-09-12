@@ -276,7 +276,14 @@ summary. Conversation timestamps are stored on the entry. Pending
 Director **Planning…**, Cinematographer **Blocking…**, **Shooting…**,
 and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
-intent as readable text until an image exists. A full-width app header keeps
+intent as readable text until an image exists. The Plan storyboard reel
+docks the same Inspector - Destination panel used on Shoot to the
+right of the still (intent, story/source, collapsed Prompt, Reshoot,
+media facts, and SOURCE | MOTION when Camotion exists). The reel includes
+planned FPO destinations and offers Shoot there. Plan and Shoot close that
+reel. Plan no longer opens an
+intent/prompt popup
+under the tile. A full-width app header keeps
 TunnelVision on the left and Plan | Shoot centered. The project selector lives
 in the Project panel under the Project header. The
 Director conversation rail is history-only and can be hidden to the

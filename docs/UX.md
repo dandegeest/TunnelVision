@@ -57,8 +57,10 @@ look-ahead is part of that Construct algorithm, not a Project-panel
 toggle; later beats stay
 planned until the filmmaker generates them. Empty FPO thumbnails overlay
 Director intent as readable text until an image exists; intent and visual
-description for actual cards stay on-demand from the label strip, with an
-editable prompt and Reshoot for generated stills on the kebab and in details. A generated still whose
+description for actual cards stay on-demand in the lightbox Inspector -
+Destination panel, with an
+editable prompt and Reshoot for generated stills on the kebab and in that
+inspector. A generated still whose
 plan later changes, including a following destination used as look-ahead,
 shows Plan changed until Reshoot. Construct is sequential **Derived**
 construction, not
@@ -223,8 +225,10 @@ uploads once the image exists. **Debug** is a session
 toggle in Project settings, not project
 persistence. Debug is on by default for now. **Agency** is a Directed / Agent segmented control
 at the top of that panel, not a native OS menu and not in the workspace header. The Shoot
-inspector destination view is the canonical letter, still, Intent (click to
-edit), a collapsed Generation prompt, Reshoot when allowed, and a compact Camotion
+inspector destination view is the canonical letter, still, Intent and Story
+(on A) or Source (later beats), a collapsed Prompt, Reshoot when allowed,
+aspect / resolution / model facts, SOURCE | MOTION when a Camotion-conditioned
+still exists, and a compact Camotion
 block (direction, vanishing point, destination, protected, exposure; working
 directory only while Debug is on). Empty Camotion copy is “Awaiting next
 destination.” The footage inspector heading is the pair in arrow form (A→B), with
@@ -248,17 +252,24 @@ unresolved slot, is not itself a destination, does not invoke the
 Director, and is disabled while DIRECT or sequential destination
 generation is running. It does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
-thumbnail. Destination planning details (intent, visual
-description, and the generation prompt on a TunnelVision-made still) are available from the destination label strip, not as
-persistent caption text under actual stills. Intent, prompt, and the
-Project journey story are click-to-edit: they look like copy until
-focused, commit on each keystroke, and keep that text when the
-filmmaker leaves the field or selects another destination. Uploaded A with a journey story
+thumbnail. Destination planning details (intent, story on A or source visual
+description on later beats, a collapsed Prompt, and media facts) live
+in the same Inspector - Destination panel used on Shoot, docked to the
+right of the storyboard reel — not as a popup under the tile
+or persistent caption text. Intent and story/source are click-to-edit: they keep a
+dimmed border at rest, look like an editor when focused, commit on each
+keystroke, and keep that text when the filmmaker leaves the field or closes the
+reel. Prompt is read-only and stays collapsed, with Reshoot directly under it. A′ appears as a toggle on the still when
+Camotion has conditioned that destination. Uploaded A with a journey story
 stores opening intent from that story; generated A also stores the opening
-prompt. Actual A can still open details when those fields are empty. Clicking an unselected still outside the
+prompt. Actual A can still open the reel inspector when those fields are empty. Clicking an unselected still outside the
 label, kebab, and media-info strips selects it. Clicking the selected
-still opens a lightbox-style reel in the
-storyboard area, with previous and next among actual stills. The image is
+still or the label strip opens that storyboard reel in the
+storyboard area, with previous and next among stills and planned FPO
+destinations. Plan and Shoot
+close the reel. A Plan changed badge does not add a special tile border and does not
+block opening that reel. Ungenerated reel stills use the start frame's
+aspect. The image is
 contained at the largest scale that fits that area and does not cover the
 conversation or Project rails. Empty FPO thumbnails
 overlay Director intent as readable text until an image exists. Storyboard

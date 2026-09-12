@@ -39,22 +39,22 @@ export function CamotionFrameSwitch({
       <button
         type="button"
         aria-pressed={mode === "canonical"}
-        aria-label="Preview canonical"
-        title={`Canonical ${destinationLabel}`}
+        aria-label="Preview source"
+        title={`Source ${destinationLabel}`}
         className={pillClass(mode === "canonical")}
         onClick={() => onChange("canonical")}
       >
-        Canonical
+        Source
       </button>
       <button
         type="button"
         aria-pressed={mode === "primed"}
-        aria-label={`Preview ${primedLabel}`}
-        title={`${primedLabel} Camotion-conditioned frame`}
+        aria-label="Preview motion"
+        title={`Motion ${primedLabel}`}
         className={pillClass(mode === "primed")}
         onClick={() => onChange("primed")}
       >
-        {primedLabel}
+        Motion
       </button>
     </nav>
   );

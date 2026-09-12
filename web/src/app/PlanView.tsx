@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useProject } from "../project/ProjectProvider";
 import { canConstructDestinationFrame, canGenerateOpeningFrame, canReshootDestinationFrame, generatedStillNeedsReshoot } from "../project/destination";
 import {
@@ -17,9 +17,15 @@ import {
   shouldClearStoryboardPlanOnUpload,
 } from "../project/starting-frame";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
-import type { StoryboardFrame } from "../project/types";
-import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
+import { previewFrameAspectRatio } from "../project/canonical-aspect";
+import type { Project, StoryboardFrame } from "../project/types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
+import {
+  camotionRecordKey,
+  camotionRecordsForCanonical,
+  preferredCamotionRecord,
+} from "../project/camotion-diagnostics";
+import { destinationDisplayedStillUrl, DestinationInspectorPanel } from "./DestinationInspector";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
 
@@ -154,11 +160,7 @@ export function StoryboardFrameMedia({
   onOpenDetails?: () => void;
   detailOpen?: boolean;
 }) {
-  const frameBorder = selected
-    ? "border-2 border-[#ece7df]"
-    : planChanged
-      ? "border-2 border-dashed border-[#d4b36a]"
-      : "border-2 border-[#3a342c]";
+  const frameBorder = selected ? "border-2 border-[#ece7df]" : "border-2 border-[#3a342c]";
   const provenance = displayProvenanceForFrame(frame);
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
   const fpoIntent = frame.intent?.trim() || undefined;
@@ -198,7 +200,6 @@ export function StoryboardFrameMedia({
           ) : (
             still
           )}
-          {showPlanChanged ? <span className="storyboard-plan-changed-veil" aria-hidden /> : null}
           {onOpenDetails ? (
             <button
               type="button"
@@ -219,13 +220,7 @@ export function StoryboardFrameMedia({
             </span>
           )}
           {showPlanChanged ? (
-            <span
-              className={`storyboard-plan-changed-flag pointer-events-none ${
-                showMediaInfo && frame.mediaInfo ? "bottom-8" : "bottom-1.5"
-              }`}
-            >
-              Plan changed
-            </span>
+            <span className="storyboard-plan-changed-flag pointer-events-none">Plan changed</span>
           ) : null}
           {showMediaInfo && frame.mediaInfo ? (
             <span
@@ -246,7 +241,13 @@ export function StoryboardFrameMedia({
           <button
             type="button"
             className="storyboard-fpo-copy outline-none"
-            onClick={onSelect}
+            onClick={() => {
+              if (selected && onOpenReel && destinationDetailContent(frame)) {
+                onOpenReel();
+                return;
+              }
+              onSelect?.();
+            }}
             aria-label={`Storyboard ${frame.label}`}
             aria-pressed={selected}
             aria-expanded={detailOpen || undefined}
@@ -332,179 +333,6 @@ export function destinationDetailContent(frame: StoryboardFrame): {
     return { label: frame.label, visualDescription };
   }
   return { label: frame.label, intent };
-}
-
-export function DestinationPlanFields({
-  frame,
-  disabled = false,
-  onPlanChange,
-  alwaysShowIntent = false,
-  promptDisclosure = false,
-  promptHeading = "Prompt",
-  intentRows = 2,
-}: {
-  frame: StoryboardFrame;
-  disabled?: boolean;
-  onPlanChange?: (next: { intent?: string; visualDescription?: string }) => void;
-  alwaysShowIntent?: boolean;
-  promptDisclosure?: boolean;
-  promptHeading?: string;
-  intentRows?: number;
-}) {
-  const intent = frame.intent ?? "";
-  const visualDescription = frame.visualDescription ?? "";
-  const prompt = visualDescription || intent;
-  const showSeparateIntent = Boolean(intent.trim() && visualDescription.trim() && intent.trim() !== visualDescription.trim());
-  const showIntent = alwaysShowIntent || showSeparateIntent;
-  const fieldClass =
-    "destination-detail-prompt mt-2 block w-full text-[10px] leading-snug text-[#ece7df]";
-  const promptField = (
-    <ClickToEditTextarea
-      aria-label={`Destination ${frame.label} prompt`}
-      rows={3}
-      value={prompt}
-      disabled={disabled}
-      className={`${fieldClass} destination-detail-visual`}
-      onChange={
-        onPlanChange
-          ? (next) => {
-              if (frame.id === "A" && frame.visualDescription === undefined) {
-                onPlanChange({ intent: next });
-                return;
-              }
-              onPlanChange({ visualDescription: next });
-            }
-          : undefined
-      }
-    />
-  );
-
-  return (
-    <>
-      {showIntent ? (
-        <label className="mt-2 block">
-          <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
-          <ClickToEditTextarea
-            aria-label={`Destination ${frame.label} intent`}
-            rows={intentRows}
-            value={intent}
-            disabled={disabled}
-            className={fieldClass}
-            onChange={onPlanChange ? (next) => onPlanChange({ intent: next }) : undefined}
-          />
-        </label>
-      ) : null}
-      {promptDisclosure ? (
-        <details className="mt-2">
-          <summary className="cursor-pointer text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-            {promptHeading}
-          </summary>
-          {promptField}
-        </details>
-      ) : (
-        <label className="mt-2 block">
-          <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">{promptHeading}</span>
-          {promptField}
-        </label>
-      )}
-    </>
-  );
-}
-
-export function DestinationDetailPopover({
-  frame,
-  initiallyOpen = false,
-  open: openProp,
-  onClose,
-  onPlanChange,
-  onReshoot,
-  canReshoot = false,
-  reshooting = false,
-}: {
-  frame: StoryboardFrame;
-  initiallyOpen?: boolean;
-  open?: boolean;
-  onClose?: () => void;
-  onPlanChange?: (next: { intent?: string; visualDescription?: string }) => void;
-  onReshoot?: () => void;
-  canReshoot?: boolean;
-  reshooting?: boolean;
-}) {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(initiallyOpen);
-  const open = openProp ?? uncontrolledOpen;
-  const rootRef = useRef<HTMLSpanElement>(null);
-  const content = destinationDetailContent(frame);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    const close = () => {
-      if (openProp === undefined) {
-        setUncontrolledOpen(false);
-      }
-      onClose?.();
-    };
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        close();
-      }
-    };
-    const onPointerDown =
-      openProp === undefined
-        ? (event: globalThis.PointerEvent) => {
-            if (!rootRef.current?.contains(event.target as Node)) {
-              close();
-            }
-          }
-        : undefined;
-    window.addEventListener("keydown", onKeyDown);
-    if (onPointerDown) {
-      window.addEventListener("pointerdown", onPointerDown);
-    }
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      if (onPointerDown) {
-        window.removeEventListener("pointerdown", onPointerDown);
-      }
-    };
-  }, [open, openProp, onClose]);
-
-  if (!content) {
-    return null;
-  }
-
-  return (
-    <span ref={rootRef} className="destination-detail absolute inset-x-0 top-full z-20 mt-1">
-      {open ? (
-        <span
-          role="dialog"
-          aria-label={`Destination ${content.label} details`}
-          className="block rounded border border-[#3a342c] bg-[#12100d] px-2.5 py-2 text-left shadow-lg"
-        >
-          <span className="block text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">{content.label}</span>
-          <DestinationPlanFields frame={frame} disabled={reshooting} onPlanChange={onPlanChange} />
-          {canReshoot && onReshoot ? (
-            <button
-              type="button"
-              aria-label={`Reshoot destination ${frame.label}`}
-              disabled={reshooting}
-              className="mt-2 inline-flex h-7 items-center rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.16em] text-[#ece7df] uppercase outline-none hover:border-[#7a7266] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:opacity-40"
-              onPointerDown={() => {
-                commitActiveTextEdit();
-              }}
-              onClick={(event) => {
-                event.stopPropagation();
-                onReshoot();
-              }}
-            >
-              {reshooting ? "Reshooting…" : "Reshoot"}
-            </button>
-          ) : null}
-        </span>
-      ) : null}
-    </span>
-  );
 }
 
 export function DestinationMenu({
@@ -682,25 +510,67 @@ function ReelChevron({ direction }: { direction: "prev" | "next" }) {
 }
 
 export function storyboardReelFrames(frames: readonly StoryboardFrame[]): StoryboardFrame[] {
-  return frames.filter((frame) => Boolean(frame.image));
+  return frames.filter((frame) => destinationDetailContent(frame) !== null);
+}
+
+function neighboringReelFrame(
+  frames: readonly StoryboardFrame[],
+  currentId: string,
+  direction: -1 | 1,
+): StoryboardFrame | undefined {
+  const currentIndex = frames.findIndex((frame) => frame.id === currentId);
+  if (currentIndex < 0) {
+    return undefined;
+  }
+  for (let index = currentIndex + direction; index >= 0 && index < frames.length; index += direction) {
+    const frame = frames[index];
+    if (frame && destinationDetailContent(frame)) {
+      return frame;
+    }
+  }
+  return undefined;
 }
 
 export function StoryboardReel({
   frames,
   currentId,
+  project,
   onClose,
   onSelect,
+  onPlanChange,
+  onStoryChange,
+  onReshoot,
+  onShoot,
+  reshooting = false,
 }: {
   frames: readonly StoryboardFrame[];
   currentId: string;
+  project: Project;
   onClose: () => void;
   onSelect: (frameId: string) => void;
+  onPlanChange?: (frameId: string, next: { intent?: string; visualDescription?: string }) => void;
+  onStoryChange?: (story: string) => void;
+  onReshoot?: (frameId: string) => void;
+  onShoot?: (frameId: string) => void;
+  reshooting?: boolean;
 }) {
-  const reel = storyboardReelFrames(frames);
-  const index = reel.findIndex((frame) => frame.id === currentId);
-  const current = index >= 0 ? reel[index] : undefined;
-  const prev = index > 0 ? reel[index - 1] : undefined;
-  const next = index >= 0 && index < reel.length - 1 ? reel[index + 1] : undefined;
+  const current = frames.find((frame) => frame.id === currentId);
+  const prev = neighboringReelFrame(frames, currentId, -1);
+  const next = neighboringReelFrame(frames, currentId, 1);
+  const [stillMode, setStillMode] = useState<"canonical" | "primed">("canonical");
+  const [camotionKey, setCamotionKey] = useState<string | undefined>();
+  const destinationId = current?.destinationId ?? current?.id;
+  const camotionRecords = destinationId ? camotionRecordsForCanonical(project, destinationId) : [];
+  const activeCamotion =
+    camotionRecords.find((record) => camotionRecordKey(record) === camotionKey) ??
+    preferredCamotionRecord(camotionRecords);
+  const reelImage = destinationDisplayedStillUrl(current?.image, stillMode, activeCamotion);
+  const startAspect = previewFrameAspectRatio(project);
+
+  useEffect(() => {
+    setStillMode("canonical");
+    setCamotionKey(undefined);
+  }, [currentId]);
 
   useEffect(() => {
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
@@ -723,7 +593,7 @@ export function StoryboardReel({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, onSelect, prev?.id, next?.id]);
 
-  if (!current?.image) {
+  if (!current) {
     return null;
   }
 
@@ -734,60 +604,98 @@ export function StoryboardReel({
       aria-label={`Storyboard reel, destination ${current.label}`}
       onClick={onClose}
     >
-      <button
-        type="button"
-        aria-label="Close storyboard reel"
-        className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
-        onClick={(event) => {
-          event.stopPropagation();
-          onClose();
-        }}
-      >
-        <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden>
-          <path d="M3 3l6 6M9 3 3 9" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
-      </button>
-      <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.22em] text-[#ece7df] uppercase">
-        {current.label}
-      </span>
-      <button
-        type="button"
-        aria-label="Previous destination"
-        disabled={!prev}
-        className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
-        onClick={(event) => {
-          event.stopPropagation();
-          if (prev) {
-            onSelect(prev.id);
-          }
-        }}
-      >
-        <ReelChevron direction="prev" />
-      </button>
-      <div
-        className="flex h-full min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden px-1 py-10"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <img
-          src={current.image}
-          alt={`Destination ${current.label}`}
-          className="media-contain max-h-full max-w-full"
-        />
+      <div className="relative flex min-h-0 min-w-0 flex-1">
+        <button
+          type="button"
+          aria-label="Close storyboard reel"
+          className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+        >
+          <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden>
+            <path d="M3 3l6 6M9 3 3 9" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
+        <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.22em] text-[#ece7df] uppercase">
+          {current.label}
+        </span>
+        <button
+          type="button"
+          aria-label="Previous destination"
+          disabled={!prev}
+          className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
+          onClick={(event) => {
+            event.stopPropagation();
+            if (prev) {
+              onSelect(prev.id);
+            }
+          }}
+        >
+          <ReelChevron direction="prev" />
+        </button>
+        <div
+          className="preview-stage h-full min-h-0 min-w-0 flex-1 bg-transparent px-1 py-10"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {reelImage ? (
+            <img
+              src={reelImage}
+              alt={
+                stillMode === "primed" && activeCamotion
+                  ? `Destination ${current.label}′`
+                  : `Destination ${current.label}`
+              }
+              className="media-contain max-h-full max-w-full"
+            />
+          ) : (
+            <span
+              className="storyboard-fpo storyboard-fpo-planned preview-monitor"
+              style={
+                {
+                  "--preview-ar-w": startAspect.width,
+                  "--preview-ar-h": startAspect.height,
+                } as CSSProperties
+              }
+            >
+              <span className="storyboard-fpo-copy">
+                <span className="storyboard-fpo-label">{current.label}</span>
+                {current.intent?.trim() ? (
+                  <span className="storyboard-fpo-intent">{formatFpoIntentField(current.intent)}</span>
+                ) : null}
+              </span>
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          aria-label="Next destination"
+          disabled={!next}
+          className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
+          onClick={(event) => {
+            event.stopPropagation();
+            if (next) {
+              onSelect(next.id);
+            }
+          }}
+        >
+          <ReelChevron direction="next" />
+        </button>
       </div>
-      <button
-        type="button"
-        aria-label="Next destination"
-        disabled={!next}
-        className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
-        onClick={(event) => {
-          event.stopPropagation();
-          if (next) {
-            onSelect(next.id);
-          }
-        }}
-      >
-        <ReelChevron direction="next" />
-      </button>
+      <DestinationInspectorPanel
+        frame={current}
+        project={project}
+        reshooting={reshooting}
+        onPlanChange={onPlanChange ? (next) => onPlanChange(current.id, next) : undefined}
+        onStoryChange={onStoryChange}
+        onReshoot={onReshoot ? () => onReshoot(current.id) : undefined}
+        onShoot={onShoot ? () => onShoot(current.id) : undefined}
+        stillMode={stillMode}
+        onStillModeChange={setStillMode}
+        camotionKey={camotionKey}
+        onCamotionKeyChange={setCamotionKey}
+      />
     </div>
   );
 }
@@ -805,7 +713,10 @@ export function PlanView() {
     constructDestination,
     generateOpeningFrame,
     setDestinationPlan,
+    setComposerDraft,
     reshootDestination,
+    storyboardReelId,
+    setStoryboardReelId,
     assessingJourneyIds,
     shootingJourneyIds,
   } = useProject();
@@ -825,34 +736,14 @@ export function PlanView() {
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
-  const [detailFrameId, setDetailFrameId] = useState<string | null>(null);
-  const [reelFrameId, setReelFrameId] = useState<string | null>(null);
-
   useEffect(() => {
-    if (!detailFrameId) {
+    if (!storyboardReelId) {
       return;
     }
-    const onPointerDown = (event: globalThis.PointerEvent) => {
-      const target = event.target as Element | null;
-      if (target?.closest(`[data-destination-card="${detailFrameId}"]`)) {
-        return;
-      }
-      commitActiveTextEdit();
-      setDetailFrameId(null);
-    };
-    window.addEventListener("pointerdown", onPointerDown);
-    return () => window.removeEventListener("pointerdown", onPointerDown);
-  }, [detailFrameId]);
-
-  useEffect(() => {
-    if (!reelFrameId) {
-      return;
+    if (!project.storyboard.some((item) => item.id === storyboardReelId)) {
+      setStoryboardReelId(null);
     }
-    const frame = project.storyboard.find((item) => item.id === reelFrameId);
-    if (!frame?.image) {
-      setReelFrameId(null);
-    }
-  }, [project.storyboard, reelFrameId]);
+  }, [project.storyboard, setStoryboardReelId, storyboardReelId]);
 
   return (
     <section
@@ -906,22 +797,20 @@ export function PlanView() {
               }
               select({ kind: "storyboard", frameId: frame.id });
             };
-            const openDetails = () => {
-              selectFrame();
-              setReelFrameId(null);
-              if (destinationDetailContent(frame)) {
-                setDetailFrameId((current) => (current === frame.id ? null : frame.id));
-              }
-            };
             const selectStill = () => {
               selectFrame();
-              setDetailFrameId(null);
-              setReelFrameId(null);
+              setStoryboardReelId(null);
             };
             const openReel = () => {
               selectFrame();
-              setDetailFrameId(null);
-              setReelFrameId(frame.id);
+              setStoryboardReelId(frame.id);
+            };
+            const selectOrOpenReel = () => {
+              if (selectedCard && destinationDetailContent(frame)) {
+                openReel();
+                return;
+              }
+              selectStill();
             };
             const frameMedia = (
               <StoryboardFrameMedia
@@ -931,10 +820,10 @@ export function PlanView() {
                 showMediaInfo={selectedCard}
                 hasWarning={warnings.length > 0}
                 planChanged={planChanged}
-                onSelect={frame.image ? selectStill : openDetails}
-                onOpenReel={frame.image ? openReel : undefined}
-                onOpenDetails={frame.image ? openDetails : undefined}
-                detailOpen={detailFrameId === frame.id}
+                onSelect={frame.image ? selectStill : selectOrOpenReel}
+                onOpenReel={openReel}
+                onOpenDetails={openReel}
+                detailOpen={storyboardReelId === frame.id}
               />
             );
             const generate = (
@@ -959,19 +848,6 @@ export function PlanView() {
                   }}
                 />
               </div>
-            );
-            const details = (
-              <DestinationDetailPopover
-                frame={frame}
-                open={detailFrameId === frame.id}
-                onClose={() => setDetailFrameId(null)}
-                onPlanChange={(next) => setDestinationPlan(frame.id, next)}
-                canReshoot={canReshootDestinationFrame(project, frame)}
-                reshooting={constructing}
-                onReshoot={() => {
-                  void reshootDestination(frame.id);
-                }}
-              />
             );
             return (
               <li key={frame.id} className="min-w-0">
@@ -1003,15 +879,13 @@ export function PlanView() {
                       onDelete={
                         canRemoveStoryboardDestination(project, frame.id)
                           ? () => {
-                              setDetailFrameId((current) => (current === frame.id ? null : current));
-                              setReelFrameId((current) => (current === frame.id ? null : current));
+                              setStoryboardReelId(storyboardReelId === frame.id ? null : storyboardReelId);
                               removeDestination(frame.id);
                             }
                           : undefined
                       }
                     />
                     ) : null}
-                    {details}
                   </div>
                 ) : (
                   <div
@@ -1037,8 +911,7 @@ export function PlanView() {
                         onDelete={
                           canRemoveStoryboardDestination(project, frame.id)
                             ? () => {
-                                setDetailFrameId((current) => (current === frame.id ? null : current));
-                                setReelFrameId((current) => (current === frame.id ? null : current));
+                                setStoryboardReelId(storyboardReelId === frame.id ? null : storyboardReelId);
                                 removeDestination(frame.id);
                               }
                             : undefined
@@ -1046,7 +919,6 @@ export function PlanView() {
                       />
                     ) : null}
                     {storyboardLive && (canConstruct || canGenerateOpening) && !constructing ? generate : null}
-                    {details}
                   </div>
                 )}
               </li>
@@ -1062,15 +934,33 @@ export function PlanView() {
           ) : null}
         </ol>
       </div>
-      {reelFrameId ? (
+      {storyboardReelId ? (
         <StoryboardReel
           frames={project.storyboard}
-          currentId={reelFrameId}
-          onClose={() => setReelFrameId(null)}
+          currentId={storyboardReelId}
+          project={project}
+          onClose={() => {
+            commitActiveTextEdit();
+            setStoryboardReelId(null);
+          }}
           onSelect={(frameId) => {
-            setReelFrameId(frameId);
+            commitActiveTextEdit();
+            setStoryboardReelId(frameId);
             select({ kind: "storyboard", frameId });
           }}
+          onPlanChange={(frameId, next) => setDestinationPlan(frameId, next)}
+          onStoryChange={setComposerDraft}
+          onReshoot={(frameId) => {
+            void reshootDestination(frameId);
+          }}
+          onShoot={(frameId) => {
+            if (frameId === "A") {
+              void generateOpeningFrame();
+              return;
+            }
+            void constructDestination(frameId);
+          }}
+          reshooting={constructingBeatId === storyboardReelId}
         />
       ) : null}
     </section>

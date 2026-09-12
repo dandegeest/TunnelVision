@@ -14,10 +14,9 @@ import { useProject } from "../project/ProjectProvider";
 import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake, type ShootingFrameRef } from "../project/types";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
 import { videoModelDisplayLabel } from "../../../media/src/replicate/video-models.ts";
-import { DestinationPlanFields } from "./PlanView";
+import { DestinationInspectorFields } from "./DestinationInspector";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
 import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
-import { commitActiveTextEdit } from "../ui/commit-text-edit";
 import { PanelHeader } from "./PanelHeader";
 
 export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -86,6 +85,7 @@ export function Inspector() {
     shootingJourneyIds,
     debugOn,
     setDestinationPlan,
+    setComposerDraft,
     reshootDestination,
   } = useProject();
   const layout = useMemo(() => layoutShootTimeline(project, 1), [project]);
@@ -138,54 +138,47 @@ export function Inspector() {
 
     return (
       <InspectorShell title="Inspector - Destination">
-        <h2 className="text-2xl">{destination?.label ?? selection.destinationId}</h2>
-        {destination ? (
-          <img src={destination.image} alt="" className="media-contain aspect-video w-full rounded" />
-        ) : null}
-        {blockedArrival ? (
-          <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-            {ARRIVAL_BLOCKED_COPY} The problem is the inbound journey
-            {inbound ? ` ${inbound.id}` : ""}, not destination {destination?.label} itself.
-          </p>
-        ) : null}
         {frame ? (
-          <DestinationPlanFields
+          <DestinationInspectorFields
             frame={frame}
-            disabled={reshooting}
-            alwaysShowIntent
-            promptDisclosure
-            promptHeading="Generation prompt"
-            intentRows={3}
+            project={project}
+            image={destination?.image}
+            label={destination?.label ?? selection.destinationId}
+            banner={
+              blockedArrival ? (
+                <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+                  {ARRIVAL_BLOCKED_COPY} The problem is the inbound journey
+                  {inbound ? ` ${inbound.id}` : ""}, not destination {destination?.label} itself.
+                </p>
+              ) : null
+            }
+            afterFields={continuity ? <BoundaryContinuityDetail continuity={continuity} /> : null}
+            footer={
+              <CamotionDiagnosticPanel
+                records={camotionRecords}
+                emptyCopy="Awaiting next destination"
+                filmmaker
+                debugOn={debugOn}
+                project={project}
+              />
+            }
             onPlanChange={(next) => setDestinationPlan(frame.id, next)}
+            onStoryChange={setComposerDraft}
+            camotionRecords={camotionRecords}
+            canReshoot={canReshoot}
+            reshooting={reshooting}
+            onReshoot={() => {
+              void reshootDestination(frame.id);
+            }}
           />
-        ) : null}
-        {continuity ? <BoundaryContinuityDetail continuity={continuity} /> : null}
-        {canReshoot && frame ? (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-              disabled={reshooting}
-              aria-label={`Reshoot destination ${frame.label}`}
-              title="Regenerate this destination from its current prompt."
-              onPointerDown={() => {
-                commitActiveTextEdit();
-              }}
-              onClick={() => {
-                void reshootDestination(frame.id);
-              }}
-            >
-              {reshooting ? "Reshooting…" : "Reshoot"}
-            </button>
-          </div>
-        ) : null}
-        <CamotionDiagnosticPanel
-          records={camotionRecords}
-          emptyCopy="Awaiting next destination"
-          filmmaker
-          debugOn={debugOn}
-          project={project}
-        />
+        ) : (
+          <>
+            <h2 className="text-2xl">{destination?.label ?? selection.destinationId}</h2>
+            {destination ? (
+              <img src={destination.image} alt="" className="media-contain aspect-video w-full rounded" />
+            ) : null}
+          </>
+        )}
       </InspectorShell>
     );
   }

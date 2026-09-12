@@ -6,7 +6,7 @@ import { createNewProject } from "../project/new-project";
 import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
 import { FilmmakingFrame } from "./FilmmakingFrame";
-import { DestinationDetailPopover, DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, StoryboardReel, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField, storyboardReelFrames } from "./PlanView";
+import { DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, StoryboardReel, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField, storyboardReelFrames } from "./PlanView";
 import {
   canConstructDestinationFrame,
   generatedStillNeedsReshoot,
@@ -18,8 +18,10 @@ import type { DirectorEvidence } from "../project/director";
 import { ProjectProvider } from "../project/ProjectProvider";
 import { STARTING_FRAME_ACCEPT, projectWithReplacedStartImage } from "../project/starting-frame";
 import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "../project/storyboard";
+import { projectWithJourneyShotTake } from "../project/shoot";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
-import type { Selection } from "../project/types";
+import type { JourneyShotTake, Selection } from "../project/types";
+import { destinationDisplayedStillUrl } from "./DestinationInspector";
 
 const AT = "2026-09-07T22:03:00.000Z";
 const AT2 = "2026-09-07T22:04:00.000Z";
@@ -75,6 +77,7 @@ function renderPlan(
     shootingJourneyIds?: readonly string[];
     directorStatus?: "idle" | "planning" | "ready" | "error";
     debug?: boolean;
+    storyboardReelId?: string | null;
   },
 ) {
   return renderToStaticMarkup(
@@ -88,6 +91,7 @@ function renderPlan(
       initialAssessingJourneyIds={options?.assessingJourneyIds}
       initialShootingJourneyIds={options?.shootingJourneyIds}
       initialDirectorStatus={options?.directorStatus}
+      initialStoryboardReelId={options?.storyboardReelId}
     >
       <FilmmakingFrame>
         <PlanView />
@@ -119,6 +123,7 @@ describe("Plan project story", () => {
     expect(html).not.toMatch(/aria-label="Journey story"[^>]*readOnly=""/);
     expect(html).toContain("text-[11px]");
     expect(html).toContain("resize-y");
+    expect(html).toContain("border-[#3a342c]/50");
     expect(html).toContain("focus:bg-[#161410]");
     expect(html).toContain('aria-label="Resize director panel"');
     expect(html).toContain('aria-label="Resize project panel"');
@@ -722,6 +727,7 @@ describe("Plan storyboard reel", () => {
     expect(html.slice(sectionOpen, storyboard)).toContain("overflow-hidden");
     expect(html).not.toContain("storyboard-reel");
     expect(html).toContain('aria-label="Destination A plan"');
+    expect(renderPlan(createForestProject(), { storyboardReelId: "A" })).toContain("storyboard-reel");
     expect(html).toContain('title="View still"');
   });
 
@@ -739,6 +745,7 @@ describe("Plan storyboard reel", () => {
       <StoryboardReel
         frames={forest.storyboard}
         currentId="B"
+        project={forest}
         onClose={() => undefined}
         onSelect={() => undefined}
       />,
@@ -754,6 +761,19 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain('aria-label="Previous destination"');
     expect(html).toContain('aria-label="Next destination"');
     expect(html).toContain('aria-label="Close storyboard reel"');
+    expect(html).toContain('aria-label="Inspector - Destination"');
+    expect(html).toContain(">Inspector - Destination<");
+    expect(html).toContain('aria-label="Destination B intent"');
+    expect(html).toContain('aria-label="Destination B source"');
+    expect(html).toContain(">Prompt<");
+    expect(html).toContain('aria-label="Destination B facts"');
+    expect(html).toContain(">Aspect ratio<");
+    expect(html).toContain("~1.85:1");
+    expect(html).toContain(">Resolution<");
+    expect(html).toContain("1392×752");
+    expect(html).toContain(">Model<");
+    expect(html).toContain("FLUX Kontext Pro");
+    expect(html).not.toContain('aria-label="Camotion frame"');
     expect(isDisabled(html, "Previous destination")).toBe(false);
     expect(isDisabled(html, "Next destination")).toBe(false);
   });
@@ -764,6 +784,7 @@ describe("Plan storyboard reel", () => {
       <StoryboardReel
         frames={forest.storyboard}
         currentId="A"
+        project={forest}
         onClose={() => undefined}
         onSelect={() => undefined}
       />,
@@ -772,6 +793,7 @@ describe("Plan storyboard reel", () => {
       <StoryboardReel
         frames={forest.storyboard}
         currentId="F"
+        project={forest}
         onClose={() => undefined}
         onSelect={() => undefined}
       />,
@@ -782,18 +804,113 @@ describe("Plan storyboard reel", () => {
     expect(isDisabled(last, "Previous destination")).toBe(false);
   });
 
-  it("skips unresolved FPO slots in the reel", () => {
+  it("includes unresolved FPO destinations in the reel", () => {
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
-    expect(storyboardReelFrames(planned.storyboard).map((frame) => frame.id)).toEqual(["A"]);
+    expect(storyboardReelFrames(planned.storyboard).map((frame) => frame.id)).toEqual(["A", "B", "C", "D"]);
     const html = renderToStaticMarkup(
       <StoryboardReel
         frames={planned.storyboard}
         currentId="A"
+        project={planned}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onShoot={() => undefined}
+      />,
+    );
+    expect(isDisabled(html, "Next destination")).toBe(false);
+    const plannedB = renderToStaticMarkup(
+      <StoryboardReel
+        frames={planned.storyboard}
+        currentId="B"
+        project={planned}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onShoot={() => undefined}
+      />,
+    );
+    expect(plannedB).toContain('aria-label="Storyboard reel, destination B"');
+    expect(plannedB).toContain("storyboard-fpo-planned");
+    expect(plannedB).toContain("preview-monitor");
+    expect(plannedB).toContain("--preview-ar-w:16");
+    expect(plannedB).toContain("--preview-ar-h:9");
+    expect(plannedB).not.toContain("aspect-video w-full max-w-full");
+    expect(plannedB).toContain('aria-label="Shoot destination B"');
+    expect(plannedB).toContain(">Shoot<");
+    expect(plannedB).not.toContain('aria-label="Reshoot destination B"');
+    const forest = createForestProject();
+    const forestFpo = {
+      ...forest,
+      storyboard: forest.storyboard.map((frame) =>
+        frame.id === "B"
+          ? { ...frame, image: undefined, imageOrigin: "none" as const, mediaId: undefined, mediaInfo: undefined }
+          : frame,
+      ),
+    };
+    const forestB = renderToStaticMarkup(
+      <StoryboardReel
+        frames={forestFpo.storyboard}
+        currentId="B"
+        project={forestFpo}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onShoot={() => undefined}
+      />,
+    );
+    expect(forestB).toContain("--preview-ar-w:1000");
+    expect(forestB).toContain("--preview-ar-h:558");
+  });
+
+  it("offers A / A′ on the reel when Camotion exists", () => {
+    const take: JourneyShotTake = {
+      startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "/a-prime.png" },
+      endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b-prime.png" },
+      startPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+        destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+        exposure: { strength: 0.08, samples: 16 },
+      },
+      endPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.4, 0.6], forward: 1 },
+        destination: { point: [0.4, 0.6], protect: false, bbox: [0.1, 0.1, 0.9, 0.9] },
+        exposure: { strength: 0.04, samples: 16 },
+      },
+      segmentPromptAddition: "Track forward.",
+      effectivePrompt: "Track forward.",
+      pace: "fast",
+      provider: "replicate",
+      model: "prunaai/p-video",
+      modelVersion: "test",
+      durationSeconds: 6,
+      videoInputs: { startShootingFrame: true, endShootingFrame: true },
+    };
+    const shot = projectWithJourneyShotTake(createForestProject(), "A-B", { take, videoUrl: "/a-b.mp4" });
+    const html = renderToStaticMarkup(
+      <StoryboardReel
+        frames={shot.storyboard}
+        currentId="A"
+        project={shot}
         onClose={() => undefined}
         onSelect={() => undefined}
       />,
     );
-    expect(isDisabled(html, "Next destination")).toBe(true);
+    expect(html).toContain('aria-label="Camotion frame"');
+    expect(html).toContain('aria-label="Preview source"');
+    expect(html).toContain('aria-label="Preview motion"');
+    expect(html).toContain(">Source<");
+    expect(html).toContain(">Motion<");
+    expect(html).toContain('alt="Destination A"');
+    expect(html).not.toContain('alt="Destination A′"');
+    expect(destinationDisplayedStillUrl(shot.storyboard[0]?.image, "primed", {
+      destinationId: "A",
+      destinationLabel: "A",
+      primedLabel: "A′",
+      journeyId: "A-B",
+      role: "start",
+      shootingFrame: take.startShootingFrame,
+      plan: take.startPlan,
+    })).toBe("/a-prime.png");
   });
 });
 
@@ -817,22 +934,29 @@ describe("Plan destination details", () => {
       visualDescription: "A corridor continuing the same world.",
     });
     const html = renderToStaticMarkup(
-      <DestinationDetailPopover
-        frame={planned.storyboard[1]!}
-        initiallyOpen
+      <StoryboardReel
+        frames={planned.storyboard}
+        currentId="B"
+        project={planned}
+        onClose={() => undefined}
+        onSelect={() => undefined}
         onPlanChange={() => undefined}
       />,
     );
-    expect(html).toContain("destination-detail");
-    expect(html).toContain('aria-label="Destination B details"');
+    expect(html).toContain('aria-label="Inspector - Destination"');
+    expect(html).toContain(">Inspector - Destination<");
+    expect(html).toContain("text-2xl\">B<");
     expect(html).toContain("Move forward into the next space.");
     expect(html).toContain("A corridor continuing the same world.");
     expect(html).toContain("destination-detail-visual");
     expect(html).toContain('aria-label="Destination B intent"');
-    expect(html).toContain('aria-label="Destination B prompt"');
+    expect(html).toContain('aria-label="Destination B source"');
+    expect(html).toContain(">Prompt<");
     expect(html).not.toMatch(/aria-label="Destination B intent"[^>]*readOnly=""/);
-    expect(html).not.toMatch(/aria-label="Destination B prompt"[^>]*readOnly=""/);
+    expect(html).not.toMatch(/aria-label="Destination B source"[^>]*readOnly=""/);
     expect(html).toContain("focus:bg-[#161410]");
+    expect(html).not.toContain('aria-label="Destination B details"');
+    expect(html).not.toContain("destination-detail absolute");
     const closed = renderPlan(planned);
     expect(closed).toContain("Move forward into the next space.");
     expect(closed).not.toContain("A corridor continuing the same world.");
@@ -855,17 +979,21 @@ describe("Plan destination details", () => {
       visualDescription: "A corridor continuing the same world.",
     });
     const html = renderToStaticMarkup(
-      <DestinationDetailPopover
-        frame={constructedB.storyboard[1]!}
-        initiallyOpen
-        canReshoot
+      <StoryboardReel
+        frames={constructedB.storyboard}
+        currentId="B"
+        project={constructedB}
+        onClose={() => undefined}
+        onSelect={() => undefined}
         onReshoot={() => undefined}
       />,
     );
     expect(html).toContain("Move forward into the next space.");
     expect(html).toContain("A corridor continuing the same world.");
+    expect(html).toContain('aria-label="Inspector - Destination"');
     expect(html).toContain('aria-label="Reshoot destination B"');
     expect(html).toContain(">Reshoot<");
+    expect(html.indexOf(">Prompt<")).toBeLessThan(html.indexOf('aria-label="Reshoot destination B"'));
   });
 
   it("marks a generated still when the plan changes before reshoot", () => {
@@ -883,7 +1011,15 @@ describe("Plan destination details", () => {
     const html = renderPlan(stale);
     expect(html).toContain("Plan changed");
     expect(html).toContain("storyboard-plan-changed-flag");
+    const flag = html.slice(html.indexOf("storyboard-plan-changed-flag"), html.indexOf("storyboard-plan-changed-flag") + 80);
+    expect(flag).not.toContain("bottom-1.5");
+    expect(flag).not.toContain("bottom-8");
+    expect(html).not.toContain("storyboard-plan-changed-veil");
+    expect(html).not.toContain("border-dashed border-[#d4b36a]");
     expect(html).toContain('aria-label="Storyboard B, plan changed"');
+    const selectedStale = renderPlan(stale, { selection: { kind: "storyboard", frameId: "B" } });
+    expect(selectedStale).toContain('title="The plan changed after this still was generated. Reshoot to update it."');
+    expect(selectedStale).toContain('aria-label="Storyboard B, plan changed"');
     expect(renderPlan(constructedB)).not.toContain("Plan changed");
     const nextStale = projectWithStoryboardBeatPlan(constructedB, "C", {
       visualDescription: "A rewritten following destination after B already exists.",
@@ -897,6 +1033,8 @@ describe("Plan destination details", () => {
     expect(destinationDetailContent(added.storyboard[6]!)).toBeNull();
     const html = renderPlan(createForestProject());
     expect(html).toContain("storyboard-add-destination");
+    expect(html).not.toContain("storyboard-reel");
+    expect(html).not.toContain("Inspector - Destination");
     expect(html).not.toContain("Destination G details");
   });
 
@@ -907,10 +1045,18 @@ describe("Plan destination details", () => {
     });
     expect(destinationDetailContent(uploaded.storyboard[0]!)).toEqual({ label: "A" });
     const html = renderToStaticMarkup(
-      <DestinationDetailPopover frame={uploaded.storyboard[0]!} initiallyOpen />,
+      <StoryboardReel
+        frames={uploaded.storyboard}
+        currentId="A"
+        project={uploaded}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
     );
-    expect(html).toContain('aria-label="Destination A details"');
-    expect(html).toContain('aria-label="Destination A prompt"');
+    expect(html).toContain('aria-label="Inspector - Destination"');
+    expect(html).toContain('aria-label="Destination A intent"');
+    expect(html).toContain('aria-label="Destination A story"');
+    expect(html).not.toContain(">Prompt<");
   });
 
   it("stores generated A's opening intent and TunnelVision prompt in destination details", () => {
@@ -929,12 +1075,21 @@ describe("Plan destination details", () => {
       visualDescription: prompt,
     });
     const html = renderToStaticMarkup(
-      <DestinationDetailPopover frame={generated.storyboard[0]!} initiallyOpen />,
+      <StoryboardReel
+        frames={generated.storyboard}
+        currentId="A"
+        project={generated}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
     );
     expect(html).toContain('aria-label="Destination A intent"');
-    expect(html).toContain('aria-label="Destination A prompt"');
+    expect(html).toContain('aria-label="Destination A story"');
+    expect(html).toContain(">Prompt<");
+    expect(html).toContain(">Inspector - Destination<");
     expect(html).toContain(story);
     expect(html).toContain("unembodied first-person POV");
+    expect(html).toContain("FLUX 1.1 Pro Ultra");
   });
 });
 

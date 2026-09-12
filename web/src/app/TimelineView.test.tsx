@@ -105,9 +105,17 @@ describe("Shoot boundary continuity UI", () => {
     const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 });
     expect(html).toContain('aria-label="Reshoot destination B"');
     expect(html).toContain(">Reshoot<");
-    expect(html).toContain('aria-label="Destination B prompt"');
+    expect(html.indexOf(">Prompt<")).toBeLessThan(html.indexOf('aria-label="Reshoot destination B"'));
+    expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(
+      html.indexOf('aria-label="Destination B facts"'),
+    );
+    expect(html).toContain('aria-label="Destination B source"');
     expect(html).toContain('aria-label="Destination B intent"');
     expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
+    expect(html).toContain('aria-label="Destination B facts"');
+    expect(html).toContain("~1.85:1");
+    expect(html).toContain("1392×752");
+    expect(html).toContain("FLUX Kontext Pro");
     expect(html).not.toContain("This is what the generated world actually gave us");
     expect(html).not.toContain("The Cinematographer judges how to shoot");
     const opening = renderShoot();
@@ -115,12 +123,15 @@ describe("Shoot boundary continuity UI", () => {
     expect(opening).toContain("text-2xl\">A<");
     expect(opening).toContain('aria-label="Destination A intent"');
     expect(opening).toContain("rows=\"3\"");
-    expect(opening).toContain('aria-label="Destination A prompt"');
-    expect(opening).toContain(">Generation prompt<");
+    expect(opening).toContain('aria-label="Destination A story"');
+    expect(opening).toContain(">Prompt<");
     expect(opening).toContain("<details");
     expect(opening).not.toMatch(/<details[^>]*\sopen/);
     expect(opening).not.toMatch(/aria-label="Destination A intent"[^>]*readOnly=""/);
-    expect(opening).not.toMatch(/aria-label="Destination A prompt"[^>]*readOnly=""/);
+    expect(opening).not.toMatch(/aria-label="Destination A story"[^>]*readOnly=""/);
+    expect(opening).toContain("~16:9");
+    expect(opening).toContain("1000×558");
+    expect(opening).not.toContain("FLUX 1.1 Pro Ultra");
     expect(opening).toContain("focus:bg-[#161410]");
     expect(opening).not.toContain('aria-label="Reshoot destination A"');
     expect(opening).not.toContain("This is the opening destination.");
@@ -364,7 +375,7 @@ describe("empty Shoot", () => {
     expect(html).not.toContain('aria-label="Stage');
     expect(html).not.toContain('aria-label="Generate');
     expect(html).not.toContain('aria-label="Destination A"');
-    expect(html).not.toContain('aria-label="Preview canonical"');
+    expect(html).not.toContain('aria-label="Preview source"');
     expect(html).not.toContain("No Camotion data for this destination");
   });
 
@@ -487,7 +498,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain("preview-leg");
     expect(html).not.toContain('aria-label="Preview video"');
     expect(html).not.toContain('aria-label="Preview mode"');
-    expect(html).not.toContain('aria-label="Preview canonical"');
+    expect(html).not.toContain('aria-label="Preview source"');
     expect(html).not.toContain("Nothing is ready to shoot");
     expect(html).not.toContain(">Assess shot<");
   });
@@ -683,14 +694,16 @@ describe("Camotion destination diagnostic", () => {
       />,
     );
     expect(html).toContain('aria-label="Camotion frame"');
-    expect(html).toContain('aria-pressed="true" aria-label="Preview canonical"');
-    expect(html).toContain('aria-pressed="false" aria-label="Preview A′"');
+    expect(html).toContain('aria-pressed="true" aria-label="Preview source"');
+    expect(html).toContain('aria-pressed="false" aria-label="Preview motion"');
+    expect(html).toContain(">Source<");
+    expect(html).toContain(">Motion<");
   });
 
   it("offers a read-only Camotion switch on Forest destination A before any take", () => {
     const html = renderShoot();
-    expect(html).toContain('aria-label="Preview canonical"');
-    expect(html).toContain('aria-label="Preview A′"');
+    expect(html).toContain('aria-label="Preview source"');
+    expect(html).toContain('aria-label="Preview motion"');
     expect(html).toContain("Canonical A");
     expect(html).toContain("Awaiting next destination");
     expect(html).not.toContain("No Camotion data for this destination");
@@ -714,6 +727,7 @@ describe("Camotion destination diagnostic", () => {
       videoUrl: "/a-b.mp4",
     });
     const fromA = renderShoot(shot, { destinationId: "A", occurrenceIndex: 0 });
+    expect(fromA.match(/aria-label="Preview motion"/g)).toHaveLength(2);
     expect(fromA).toContain('aria-label="Camotion diagnostic"');
     expect(fromA).toContain("A′ · A→B START");
     expect(fromA).toContain(">Direction<");
@@ -744,7 +758,7 @@ describe("Camotion destination diagnostic", () => {
     expect(fromA).not.toContain("Awaiting next destination");
 
     const fromB = renderShoot(shot, { destinationId: "B", occurrenceIndex: 1 });
-    expect(fromB).toContain('aria-label="Preview B′"');
+    expect(fromB).toContain('aria-label="Preview motion"');
     expect(fromB).toContain("B′ · A→B END");
     expect(fromB).toContain("0.040 · Moderate");
   });

@@ -14,6 +14,7 @@ function renderShell(options?: {
   agency?: "directed" | "autonomous";
   conversation?: ConversationEntry[];
   composerDraft?: string;
+  storyboardReelId?: string | null;
 }) {
   const project = {
     ...createForestProject(),
@@ -28,6 +29,7 @@ function renderShell(options?: {
       initialProjectRailOpen={options?.projectRailOpen}
       initialConversation={options?.conversation}
       initialComposerDraft={options?.composerDraft}
+      initialStoryboardReelId={options?.storyboardReelId}
     >
       <Shell />
     </ProjectProvider>,
@@ -170,6 +172,15 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Agency"');
     expect(html).not.toContain("You are supervising");
     expect(html).not.toContain("Live production monitor");
+  });
+
+  it("opens the storyboard reel on Plan and leaves it off Shoot", () => {
+    const plan = renderShell({ storyboardReelId: "A" });
+    expect(plan).toContain('aria-label="Storyboard reel, destination A"');
+    const shoot = renderShell({ view: "shoot", storyboardReelId: "A" });
+    expect(shoot).not.toContain("storyboard-reel");
+    expect(shoot).toContain(">Plan<");
+    expect(shoot).toContain(">Shoot<");
   });
 });
 

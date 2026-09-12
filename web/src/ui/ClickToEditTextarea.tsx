@@ -1,7 +1,7 @@
 import { useEffect, useRef, type TextareaHTMLAttributes } from "react";
 
 const CLICK_TO_EDIT_CLASS =
-  "resize-y rounded border border-transparent bg-transparent px-0 py-0 outline-none focus:border-[#3a342c] focus:bg-[#161410] focus:px-2.5 focus:py-2 focus-visible:border-[#ece7df] disabled:cursor-default disabled:opacity-40";
+  "resize-y rounded border border-[#3a342c]/50 bg-transparent px-2.5 py-2 outline-none focus:border-[#3a342c] focus:bg-[#161410] focus-visible:border-[#ece7df] disabled:cursor-default disabled:opacity-40";
 
 /**
  * Looks like static copy until focused. Keystrokes commit through onChange.

@@ -202,6 +202,30 @@ export function storyboardGenerationSignature(project: Project, frame: Storyboar
   return `plan:${plan.intent}\n${plan.visualDescription}\nnext:${next.intent}\n${next.visualDescription}`;
 }
 
+/** Prompt TunnelVision would send to generate or reshoot this still right now. */
+export function destinationGeneratedPrompt(project: Project, frame: StoryboardFrame): string | undefined {
+  if (frame.id === "A") {
+    const story = project.story.trim();
+    return story ? openingFrameGenerationPrompt(story) : undefined;
+  }
+  const plan = destinationConstructionPlan(frame);
+  if (!plan) {
+    return undefined;
+  }
+  return destinationConstructionPrompt({
+    ...plan,
+    nextDestination: followingDestinationPlan(project, frame),
+  });
+}
+
+/** Product image model for a generated still. Uploads have no model. */
+export function destinationImageModelLabel(frame: StoryboardFrame): string | undefined {
+  if (frame.imageOrigin !== "generated") {
+    return undefined;
+  }
+  return frame.id === "A" ? "FLUX 1.1 Pro Ultra" : "FLUX Kontext Pro";
+}
+
 export function generatedStillNeedsReshoot(project: Project, frame: StoryboardFrame): boolean {
   if (frame.imageOrigin !== "generated" || !frame.image || !frame.generatedFrom) {
     return false;

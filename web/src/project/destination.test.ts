@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "./storyboard";
 import { projectWithReplacedStartImage } from "./starting-frame";
@@ -12,6 +13,8 @@ import {
   generatedStillNeedsReshoot,
   nextConstructableDestinationId,
   destinationConstructionPrompt,
+  destinationGeneratedPrompt,
+  destinationImageModelLabel,
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
   openingFrameGenerationPrompt,
@@ -642,5 +645,31 @@ describe("destination reshoot", () => {
       visualDescription: "A rewritten following destination after B already exists.",
     });
     expect(generatedStillNeedsReshoot(nextStale, nextStale.storyboard[1]!)).toBe(true);
+  });
+});
+
+describe("destination inspector copy", () => {
+  it("computes generated prompts and image model labels from the still's origin", () => {
+    const forest = createForestProject();
+    expect(destinationGeneratedPrompt(forest, forest.storyboard[0]!)).toBe(
+      openingFrameGenerationPrompt(forest.story),
+    );
+    expect(destinationImageModelLabel(forest.storyboard[0]!)).toBeUndefined();
+    expect(destinationGeneratedPrompt(forest, forest.storyboard[1]!)).toContain(
+      "Root-tunnel mouth. The dark opening is slightly right of center.",
+    );
+    expect(destinationImageModelLabel(forest.storyboard[1]!)).toBe("FLUX Kontext Pro");
+    const story = "Travel forward through an imagined interior at night.";
+    const generated = projectWithGeneratedOpeningFrame({ ...createNewProject(), story }, generatedB);
+    expect(destinationGeneratedPrompt(generated, generated.storyboard[0]!)).toBe(
+      openingFrameGenerationPrompt(story),
+    );
+    expect(destinationImageModelLabel(generated.storyboard[0]!)).toBe("FLUX 1.1 Pro Ultra");
+    const empty = projectWithReplacedStartImage(createNewProject(), {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    expect(destinationGeneratedPrompt(empty, empty.storyboard[0]!)).toBeUndefined();
+    expect(destinationImageModelLabel(empty.storyboard[0]!)).toBeUndefined();
   });
 });

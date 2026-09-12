@@ -95,6 +95,8 @@ type ProjectContextValue = {
   setProjectRailOpen: (open: boolean) => void;
   inspectorOpen: boolean;
   setInspectorOpen: (open: boolean) => void;
+  storyboardReelId: string | null;
+  setStoryboardReelId: (frameId: string | null) => void;
   setAgency: (agency: Agency) => void;
   setVideoModel: (videoModel: VideoModelId) => void;
   syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
@@ -150,6 +152,7 @@ export function ProjectProvider({
   initialConversationRailOpen = true,
   initialProjectRailOpen = true,
   initialInspectorOpen = true,
+  initialStoryboardReelId = null,
   initialAssessingJourneyIds = [],
   initialShootingJourneyIds = [],
   initialConstructingBeatId = null,
@@ -165,6 +168,7 @@ export function ProjectProvider({
   initialConversationRailOpen?: boolean;
   initialProjectRailOpen?: boolean;
   initialInspectorOpen?: boolean;
+  initialStoryboardReelId?: string | null;
   initialAssessingJourneyIds?: readonly string[];
   initialShootingJourneyIds?: readonly string[];
   initialConstructingBeatId?: string | null;
@@ -204,6 +208,7 @@ export function ProjectProvider({
   const [conversationRailOpen, setConversationRailOpen] = useState(initialConversationRailOpen);
   const [projectRailOpen, setProjectRailOpen] = useState(initialProjectRailOpen);
   const [inspectorOpen, setInspectorOpen] = useState(initialInspectorOpen);
+  const [storyboardReelId, setStoryboardReelId] = useState<string | null>(initialStoryboardReelId);
   const [composerDraft, setComposerDraftState] = useState(
     () => initialComposerDraft ?? initialProject?.story ?? "",
   );
@@ -228,6 +233,7 @@ export function ProjectProvider({
       return;
     }
     commitActiveTextEdit();
+    setStoryboardReelId(null);
     setViewState(next);
     setSelection((current) => selectionForWorkspaceView(next, current, project));
     setPlaying(false);
@@ -874,6 +880,8 @@ export function ProjectProvider({
       setProjectRailOpen,
       inspectorOpen,
       setInspectorOpen,
+      storyboardReelId,
+      setStoryboardReelId,
       setAgency,
       setVideoModel,
       syncJourneyClipDuration,
@@ -926,6 +934,7 @@ export function ProjectProvider({
       conversationRailOpen,
       projectRailOpen,
       inspectorOpen,
+      storyboardReelId,
       setAgency,
       setVideoModel,
       syncJourneyClipDuration,

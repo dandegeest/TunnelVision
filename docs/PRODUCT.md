@@ -110,8 +110,11 @@ uploaded before a story is entered. Uploading A when a story already exists fill
 empty opening intent from that story and leaves visual description empty (there is
 no TunnelVision prompt). Generating A stores opening intent from the story and the
 generation prompt as visual description. That prompt asks for the
-opening instant only and does not depict later destinations. Destination details stay available on an
-actual opening even when those fields are still empty so the filmmaker can type them.
+opening instant only and does not depict later destinations. The Plan storyboard reel shows the same Inspector - Destination
+panel as Shoot on the right — intent, story/source, a collapsed Prompt,
+Reshoot, aspect / resolution / model, and A / A′ when Camotion exists —
+including on an actual opening whose
+intent and story are still empty so the filmmaker can type them.
 When auto-generate starting destination is on, DIRECT can generate A
 before Director planning. When auto-generate all destinations is on,
 DIRECT then generates each remaining destination in order. Director activity appears in conversation when DIRECT runs;

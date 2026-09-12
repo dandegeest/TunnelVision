@@ -116,6 +116,31 @@ export function camotionRecordsForDestination(
   return records;
 }
 
+/** Every stored Camotion frame for this destination, across journeys. */
+export function camotionRecordsForCanonical(
+  project: Pick<Project, "destinations" | "journeys">,
+  destinationId: string,
+): DestinationCamotionRecord[] {
+  const records: DestinationCamotionRecord[] = [];
+  const seen = new Set<string>();
+  for (const journey of project.journeys) {
+    const inbound = journey.endDestinationId === destinationId ? journey.id : null;
+    const outbound = journey.startDestinationId === destinationId ? journey.id : null;
+    if (!inbound && !outbound) {
+      continue;
+    }
+    for (const record of camotionRecordsForDestination(project, destinationId, inbound, outbound)) {
+      const key = camotionRecordKey(record);
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      records.push(record);
+    }
+  }
+  return records;
+}
+
 export function camotionRecordsForJourney(
   project: Pick<Project, "destinations" | "journeys">,
   journeyId: string,

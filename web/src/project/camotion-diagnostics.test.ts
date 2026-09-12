@@ -7,6 +7,7 @@ import {
   camotionDirectionLabel,
   camotionInspectorHeading,
   camotionRecordKey,
+  camotionRecordsForCanonical,
   camotionRecordsForDestination,
   camotionSourceLabel,
   formatExposureStrength,
@@ -53,6 +54,9 @@ describe("Camotion destination diagnostics", () => {
     const laid = layoutTimeline(shot.destinations, shot.journeys, 1);
     const a = laid.occurrences[0]!;
     const b = laid.occurrences[1]!;
+    expect(camotionRecordsForCanonical(shot, "A").map((record) => camotionRecordKey(record))).toEqual([
+      "A-B:start",
+    ]);
     const fromA = camotionRecordsForDestination(shot, "A", a.inboundJourneyId, a.outboundJourneyId);
     expect(fromA).toHaveLength(1);
     expect(fromA[0]).toMatchObject({

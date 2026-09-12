@@ -127,13 +127,22 @@ other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
 The Shoot motion preview monitor follows the still aspect (two frames
 side by side) instead of forcing 16:9.
 Clicking an unselected storyboard still (outside the label, kebab, and
-media-info strips) selects it. Clicking the already-selected still
-opens a storyboard-bounded reel: the still is contained at the largest scale that
-fits the storyboard area, with previous and next among actual stills. The
-reel does not cover the conversation or Project rails. Clicking the label
-strip opens destination details: intent and prompt are click-to-edit
-and update that beat's plan on each keystroke. Leaving the field or
-selecting another destination commits the current text. Uploaded A with a story stores opening intent from
+media-info strips) selects it. Clicking the already-selected still or
+the label strip opens a storyboard-bounded reel: the still is contained
+at the largest scale that fits the storyboard area, with previous and
+next among actual stills. The same Inspector - Destination panel from
+Shoot sits on the right of that reel. The reel does not cover the
+conversation or Project rails. Intent and story (A) or source (later beats)
+are click-to-edit and update the journey story or that beat's plan on each
+keystroke. Click-to-edit fields keep a dimmed border at rest. Prompt stays
+collapsed and is read-only, with Reshoot under it. Media facts
+show aspect, resolution, and the product image model on generated stills.
+When Camotion A′ (or B′) exists, SOURCE | MOTION toggles the still between the
+canonical and the conditioned frame, including the reel image. The storyboard
+reel also opens planned FPO destinations; that inspector action is Shoot, not
+Reshoot. Plan changed does not block opening the reel. Leaving
+the field or closing the reel commits the current text. Plan and Shoot in the
+workspace header close the storyboard reel. Uploaded A with a story stores opening intent from
 that story; generated A also stores the TunnelVision opening prompt as visual
 description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current storyboard intent and visual description. If the plan changes after a still exists, that
