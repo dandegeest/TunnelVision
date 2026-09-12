@@ -115,6 +115,7 @@ panel as Shoot on the right — intent, story/source, a collapsed Prompt,
 Reshoot, aspect / resolution / model, and A / A′ when Camotion exists —
 including on an actual opening whose
 intent and story are still empty so the filmmaker can type them.
+On Shoot, a second click on a selected timeline still opens that same reel.
 When auto-generate starting destination is on, DIRECT can generate A
 before Director planning. When auto-generate all destinations is on,
 DIRECT then generates each remaining destination in order. Director activity appears in conversation when DIRECT runs;
@@ -398,14 +399,16 @@ canonical exists. **Cinematographer inspects actual adjacent sets and
 determines how the camera should move through their visible
 geography.** Both stills are first-person POV along the same forward
 travel; the end still is the next forward viewpoint, not a reverse
-angle. The POV is unembodied: the viewer/camera operator must never be
-visible, while people, animals, vehicles, objects, and other subjects
-may appear naturally as part of the world.
+angle. The POV is unembodied: never show the viewer/camera operator,
+their body, shadow, reflection, or FPS-style objects. Still generation
+may still allow people, animals, vehicles, and other subjects as part
+of the world. Video subject persistence is shot-specific CM guidance.
 
 Current product slice: CM inspects two actual canonical stills for
 one JourneyShot and returns structured choreography (route, camera
 path, visible geometry, transition strategy, a concise
-`segmentPromptAddition`, and a per-shot `pace` (`slow-motion` / `slow` /
+`segmentPromptAddition` that names the visible physical route,
+and a per-shot `pace` (`slow-motion` / `slow` /
 `moderate` / `fast` / `hyperspeed` / `variable`) plus independent 0–100
 `setConsistency` and `traversalConfidence` scores, advisory shootability,
 concerns, and per-still semantic travel geometry (travel
@@ -437,10 +440,12 @@ stable locomotion baseline ({pace} filled from BLOCK)
 ```
 
 Do not have an LLM rewrite or merge those two pieces. Terran Boylan's
-original TunnelVision continuous-locomotion / environment-negotiation
-prompting is the foundation of the stable baseline. The production
-baseline follows the available route in the supplied world and does
-not instruct the model to invent openings, tunnels, or thresholds. Adaptive
+original TunnelVision continuous-locomotion prompting is the
+foundation of the stable baseline. The production baseline enforces
+continuous physical travel and forbids invented intermediate
+structures or passageways. Route-specific spatial language (an
+existing doorway, a visible roadway, open water, open air) belongs in
+`segmentPromptAddition`, not in the global baseline. Adaptive
 per-segment choreography is current TunnelVision product work, not
 Terran's agent design.
 

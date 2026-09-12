@@ -26,6 +26,7 @@ import {
   preferredCamotionRecord,
 } from "../project/camotion-diagnostics";
 import { destinationDisplayedStillUrl, DestinationInspectorPanel } from "./DestinationInspector";
+import { layoutShootTimeline } from "../timeline/shoot-layout";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
 
@@ -700,6 +701,91 @@ export function StoryboardReel({
   );
 }
 
+export function StoryboardReelHost() {
+  const {
+    project,
+    view,
+    selection,
+    select,
+    storyboardReelId,
+    setStoryboardReelId,
+    setDestinationPlan,
+    setComposerDraft,
+    reshootDestination,
+    generateOpeningFrame,
+    constructDestination,
+    constructingBeatId,
+  } = useProject();
+
+  useEffect(() => {
+    if (!storyboardReelId) {
+      return;
+    }
+    if (!project.storyboard.some((item) => item.id === storyboardReelId)) {
+      setStoryboardReelId(null);
+    }
+  }, [project.storyboard, setStoryboardReelId, storyboardReelId]);
+
+  if (!storyboardReelId) {
+    return null;
+  }
+
+  return (
+    <StoryboardReel
+      frames={project.storyboard}
+      currentId={storyboardReelId}
+      project={project}
+      onClose={() => {
+        commitActiveTextEdit();
+        setStoryboardReelId(null);
+      }}
+      onSelect={(frameId) => {
+        commitActiveTextEdit();
+        setStoryboardReelId(frameId);
+        if (view === "plan") {
+          select({ kind: "storyboard", frameId });
+          return;
+        }
+        const frame = project.storyboard.find((item) => item.id === frameId);
+        const destinationId = frame?.destinationId ?? frameId;
+        const preferred =
+          selection.kind === "destination" && selection.destinationId === destinationId
+            ? selection.occurrenceIndex
+            : undefined;
+        const occurrences = layoutShootTimeline(project, 1).occurrences;
+        const match =
+          occurrences.find(
+            (occurrence) =>
+              occurrence.destinationId === destinationId &&
+              !occurrence.fpo &&
+              occurrence.occurrenceIndex === preferred,
+          ) ??
+          occurrences.find((occurrence) => occurrence.destinationId === destinationId && !occurrence.fpo);
+        if (match) {
+          select({
+            kind: "destination",
+            destinationId,
+            occurrenceIndex: match.occurrenceIndex,
+          });
+        }
+      }}
+      onPlanChange={(frameId, next) => setDestinationPlan(frameId, next)}
+      onStoryChange={setComposerDraft}
+      onReshoot={(frameId) => {
+        void reshootDestination(frameId);
+      }}
+      onShoot={(frameId) => {
+        if (frameId === "A") {
+          void generateOpeningFrame();
+          return;
+        }
+        void constructDestination(frameId);
+      }}
+      reshooting={constructingBeatId === storyboardReelId}
+    />
+  );
+}
+
 export function PlanView() {
   const {
     project,
@@ -712,8 +798,6 @@ export function PlanView() {
     constructingBeatId,
     constructDestination,
     generateOpeningFrame,
-    setDestinationPlan,
-    setComposerDraft,
     reshootDestination,
     storyboardReelId,
     setStoryboardReelId,
@@ -736,14 +820,6 @@ export function PlanView() {
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
-  useEffect(() => {
-    if (!storyboardReelId) {
-      return;
-    }
-    if (!project.storyboard.some((item) => item.id === storyboardReelId)) {
-      setStoryboardReelId(null);
-    }
-  }, [project.storyboard, setStoryboardReelId, storyboardReelId]);
 
   return (
     <section
@@ -934,35 +1010,7 @@ export function PlanView() {
           ) : null}
         </ol>
       </div>
-      {storyboardReelId ? (
-        <StoryboardReel
-          frames={project.storyboard}
-          currentId={storyboardReelId}
-          project={project}
-          onClose={() => {
-            commitActiveTextEdit();
-            setStoryboardReelId(null);
-          }}
-          onSelect={(frameId) => {
-            commitActiveTextEdit();
-            setStoryboardReelId(frameId);
-            select({ kind: "storyboard", frameId });
-          }}
-          onPlanChange={(frameId, next) => setDestinationPlan(frameId, next)}
-          onStoryChange={setComposerDraft}
-          onReshoot={(frameId) => {
-            void reshootDestination(frameId);
-          }}
-          onShoot={(frameId) => {
-            if (frameId === "A") {
-              void generateOpeningFrame();
-              return;
-            }
-            void constructDestination(frameId);
-          }}
-          reshooting={constructingBeatId === storyboardReelId}
-        />
-      ) : null}
+      <StoryboardReelHost />
     </section>
   );
 }

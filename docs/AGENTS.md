@@ -142,7 +142,8 @@ canonical and the conditioned frame, including the reel image. The storyboard
 reel also opens planned FPO destinations; that inspector action is Shoot, not
 Reshoot. Plan changed does not block opening the reel. Leaving
 the field or closing the reel commits the current text. Plan and Shoot in the
-workspace header close the storyboard reel. Uploaded A with a story stores opening intent from
+workspace header close the storyboard reel. On Shoot, a second click on a
+selected timeline still opens that same reel. Uploaded A with a story stores opening intent from
 that story; generated A also stores the TunnelVision opening prompt as visual
 description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current storyboard intent and visual description. If the plan changes after a still exists, that
@@ -250,7 +251,8 @@ video model will succeed. A thin assessment lives in
 for one JourneyShot whenever that segment has two actual adjacent
 canonicals. CM output lives on that segment's
 Motion Plan and includes route, camera path, pace, visible geometry, transition strategy,
-and a concise `segmentPromptAddition`, plus integer `setConsistency` and
+and a concise `segmentPromptAddition` that names the visible physical
+route for that pair, plus integer `setConsistency` and
 `traversalConfidence` scores (0–100), advisory shootability, concerns, and
 optional per-still travel geometry (semantic target, vanishing point /
 focus of expansion, heading, confidence). Set consistency is whether the
@@ -273,11 +275,12 @@ not automatic refusals; CM should say how the camera might negotiate
 visible geometry. Both stills are first-person POV along the same
 forward travel direction; the end still is the next forward viewpoint,
 not a reverse angle. TunnelVision uses an unembodied first-person POV:
-the camera has a position and trajectory, but the viewer/camera
-operator must never be visible. People, animals, vehicles, objects, and
-other subjects may appear naturally as part of the world. Product still
-and video prompts add that constraint; filmmaker and Director story
-text should not.
+never show the viewer/camera operator, their body, shadow, reflection,
+or FPS-style objects. Do not enumerate weapons, phones, or camera
+equipment. Product still prompts still allow people, animals, vehicles,
+and other subjects as part of the world. Video subject persistence is
+shot-specific CM guidance in `segmentPromptAddition`. Filmmaker and
+Director story text should not add the POV clause.
 
 Do **not** generate CameraMotionPlan JSON, Camotion shooting frames, or
 video from the Cinematographer assessment itself. Do not expand the Integration Test 01
@@ -491,9 +494,12 @@ feature. See `camotion/integration/forest-a-to-f/`.
 
 Generated motion prioritizes uninterrupted physical travel: camera
 continuously advances; foreground objects pass beside/behind it; strong
-parallax reveals new space ahead; the camera follows the available
-route in the supplied world, crossing openings, thresholds, tunnels,
-paths, or open space only when they naturally exist.
+parallax reveals new space ahead. The Cinematographer's
+`segmentPromptAddition` names the specific physical route visible in
+that adjacent pair and, when relevant, subject persistence. The frozen
+locomotion baseline only enforces continuous travel, unembodied POV,
+and cinematic-cheat / invented-passageway prohibitions. It does not
+enumerate tunnels, thresholds, openings, paths, or FPS-style objects.
 
 The frozen locomotion baseline now lives in
 `media/src/cinematographer/shooting-prompt.ts` as
@@ -504,6 +510,7 @@ SHOOT fills the template with the matching speed phrase and concatenates `segmen
 `composeShootingPrompt`. Clip duration stays fixed; pace is apparent
 camera speed, not runtime. Do not LLM-merge the baseline and addition.
 Preserve Terran
-Boylan / original TunnelVision provenance for the baseline. Do not
+Boylan / original TunnelVision provenance for the baseline's
+continuous-travel grammar. Do not
 treat that text as model-independent or as a Camotion input. The
 genesis copy is also recorded in [IMPLEMENTATION.md](IMPLEMENTATION.md).

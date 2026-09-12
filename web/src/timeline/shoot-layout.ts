@@ -141,12 +141,14 @@ function appendFpoOccurrences(
   };
 }
 
-/** Same destination click as the Shoot timeline: FPO opens Plan, actual selects the occurrence. */
+/** Same destination click as the Shoot timeline: FPO opens Plan; a selected actual opens the reel. */
 export function selectShootOccurrence(
   occurrence: LaidOutOccurrence | undefined,
   actions: {
     select: (selection: Selection) => void;
     openStoryboardInPlan: (frameId: string) => void;
+    openStoryboardReel?: (frameId: string) => void;
+    selected?: boolean;
   },
 ): void {
   if (!occurrence) {
@@ -154,6 +156,10 @@ export function selectShootOccurrence(
   }
   if (occurrence.fpo) {
     actions.openStoryboardInPlan(occurrence.destinationId);
+    return;
+  }
+  if (actions.selected && actions.openStoryboardReel) {
+    actions.openStoryboardReel(occurrence.destinationId);
     return;
   }
   actions.select({

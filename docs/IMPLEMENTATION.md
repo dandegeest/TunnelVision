@@ -1294,9 +1294,10 @@ production locomotion baseline now lives in
 `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is filled from
 the segment's BLOCK pace (`fast` by default; also `slow-motion`,
 `slow`, `moderate`, `hyperspeed`, `variable`). The filled baseline
-includes `UNEMBODIED_FIRST_PERSON_POV`. The baseline follows the
-available route in the supplied world and does not instruct the model
-to invent openings, tunnels, or thresholds. Audio is not constrained by the
+includes `UNEMBODIED_FIRST_PERSON_POV`. The baseline enforces
+continuous physical travel and forbids invented intermediate
+structures or passageways. Route-specific spatial language and
+relevant subject persistence live in CM `segmentPromptAddition`. Audio is not constrained by the
 baseline. The later video prompt should concatenate the CM
 `segmentPromptAddition` first, then that baseline, without an LLM rewrite. Do not treat this as
 a Camotion input.

@@ -17,6 +17,7 @@ export function Timeline() {
     selection,
     select,
     openStoryboardInPlan,
+    setStoryboardReelId,
     assessingJourneyIds,
     shootingJourneyIds,
     constructingBeatId,
@@ -68,10 +69,15 @@ export function Timeline() {
             constructingBeatId={constructingBeatId}
             storyboard={project.storyboard}
             onSelect={(occurrenceIndex) => {
-              selectShootOccurrence(
-                layout.occurrences.find((item) => item.occurrenceIndex === occurrenceIndex),
-                { select, openStoryboardInPlan },
-              );
+              const occurrence = layout.occurrences.find((item) => item.occurrenceIndex === occurrenceIndex);
+              selectShootOccurrence(occurrence, {
+                select,
+                openStoryboardInPlan,
+                openStoryboardReel: setStoryboardReelId,
+                selected:
+                  selection.kind === "destination" &&
+                  selection.occurrenceIndex === occurrenceIndex,
+              });
             }}
           />
           <JourneyPaceLane journeys={layout.journeys} projectJourneys={project.journeys} />

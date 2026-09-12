@@ -1,4 +1,7 @@
-import { UNEMBODIED_FIRST_PERSON_POV } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import {
+  UNEMBODIED_FIRST_PERSON_POV,
+  WORLD_SUBJECTS_MAY_APPEAR,
+} from "../../../media/src/cinematographer/shooting-prompt.ts";
 import type { ImageAspectRatio } from "../../../media/src/types.ts";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
@@ -141,6 +144,7 @@ export function destinationConstructionPrompt(input: {
     "",
     ...(next ? [farFieldContinuity(next), ""] : []),
     UNEMBODIED_FIRST_PERSON_POV,
+    WORLD_SUBJECTS_MAY_APPEAR,
   ].join("\n");
 }
 
@@ -290,7 +294,7 @@ export function openingFrameGenerationPrompt(story: string): string {
   return [
     "Generate a still photograph of the opening viewpoint of this first-person POV journey. Use the Journey to determine the specific physical viewpoint, orientation, environment, and situation at the instant the journey begins. Show only that opening moment; do not anticipate, combine, or depict later destinations or events from the Journey.",
     "",
-    `The camera is already in the world, oriented along the journey's intended direction of travel. ${UNEMBODIED_FIRST_PERSON_POV} Do not show text.`,
+    `The camera is already in the world, oriented along the journey's intended direction of travel. ${UNEMBODIED_FIRST_PERSON_POV} ${WORLD_SUBJECTS_MAY_APPEAR} Do not show text.`,
     "",
     `Journey: ${trimmed}`,
   ].join("\n");

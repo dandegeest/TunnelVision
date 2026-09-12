@@ -17,7 +17,12 @@ import { JourneyCanonicalPair } from "./Preview";
 function renderShoot(
   project = createForestProject(),
   selection?: { destinationId: string; occurrenceIndex: number } | { journeyId: string; band?: "motion" | "footage" },
-  options?: { inspectorOpen?: boolean; debug?: boolean; constructingBeatId?: string | null },
+  options?: {
+    inspectorOpen?: boolean;
+    debug?: boolean;
+    constructingBeatId?: string | null;
+    storyboardReelId?: string | null;
+  },
 ) {
   const initialSelection =
     selection && "journeyId" in selection
@@ -37,6 +42,7 @@ function renderShoot(
       initialInspectorOpen={options?.inspectorOpen}
       initialDebug={options?.debug}
       initialConstructingBeatId={options?.constructingBeatId}
+      initialStoryboardReelId={options?.storyboardReelId}
     >
       <TimelineView />
     </ProjectProvider>,
@@ -71,6 +77,14 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).not.toContain("Destination A, boundary match");
     expect(html).not.toContain("Destination F, boundary match");
     expect(html).toContain("Strong · raster");
+  });
+
+  it("shows the Plan storyboard reel over Shoot when a selected still is opened", () => {
+    const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 }, { storyboardReelId: "B" });
+    expect(html).toContain("storyboard-reel");
+    expect(html).toContain('aria-label="Storyboard reel, destination B"');
+    expect(html).toContain('aria-label="Close storyboard reel"');
+    expect(html).toContain(">Inspector - Destination<");
   });
 
   it("keeps destination tiles 16:9 and contains source stills without stretching", () => {
@@ -674,7 +688,7 @@ const diagnosticTake: JourneyShotTake = {
     exposure: { strength: 0.04, samples: 16 },
   },
   segmentPromptAddition: "Track forward.",
-  effectivePrompt: "Track forward.",
+  effectivePrompt: "Track forward.\nFirst person POV camera continuously moving forward.",
   pace: "fast",
   provider: "replicate",
   model: "prunaai/p-video",
@@ -834,6 +848,10 @@ describe("Shoot footage inspector", () => {
     expect(html).toContain("<details");
     expect(html).toContain(">Prompt<");
     expect(html).toContain("Track forward.");
+    expect(html).toContain('data-prompt-role="cm"');
+    expect(html).toContain('data-prompt-role="baseline"');
+    expect(html).toContain("text-[#e6c36a]");
+    expect(html).toContain("First person POV camera continuously moving forward.");
     expect(html).not.toMatch(/<details[^>]*\sopen/);
     expect(html).toContain(">Model<");
     expect(html).toContain("Seedance 2.0 Fast");
@@ -847,6 +865,19 @@ describe("Shoot footage inspector", () => {
     const hidden = renderShoot(shot, { journeyId: "A-B", band: "footage" }, { debug: false });
     expect(hidden).not.toContain(">Model<");
     expect(hidden).not.toContain("Seedance 2.0 Fast");
+  });
+
+  it("colors CM prompt addition in the Motion Inspector", () => {
+    const shot = projectWithJourneyShotTake(createForestProject(), "A-B", {
+      take: diagnosticTake,
+      videoUrl: "/a-b.mp4",
+    });
+    const html = renderShoot(shot, { journeyId: "A-B", band: "motion" });
+    expect(html).toContain(">Inspector - Motion<");
+    expect(html).toContain(">Prompt<");
+    expect(html).toContain('data-prompt-role="cm"');
+    expect(html).toContain('data-prompt-role="baseline"');
+    expect(html).toContain("text-[#e6c36a]");
   });
 });
 

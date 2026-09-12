@@ -4,6 +4,7 @@ import type { DirectorEvidence } from "../project/director";
 import { useProject } from "../project/ProjectProvider";
 import { ProgressSpinner } from "../ui/ProgressSpinner";
 import { PanelHeader } from "./PanelHeader";
+import { ShootingPromptText } from "./ShootingPromptText";
 
 export function ConversationRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { conversationRailOpen, setConversationRailOpen } = useProject();
@@ -167,7 +168,10 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
                 <p>{entry.assessment.camera}</p>
                 <p>{entry.assessment.pace}</p>
                 <p>{entry.assessment.route}</p>
-                <p>{entry.assessment.segmentPromptAddition}</p>
+                <ShootingPromptText
+                  effectivePrompt={entry.assessment.segmentPromptAddition}
+                  segmentPromptAddition={entry.assessment.segmentPromptAddition}
+                />
                 {entry.assessment.concerns.length > 0 ? (
                   <div>
                     {entry.assessment.concerns.map((concern) => (
@@ -216,7 +220,10 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
                     className="media-contain aspect-video w-full rounded"
                   />
                 </div>
-                <p>{entry.take.effectivePrompt}</p>
+                <ShootingPromptText
+                  effectivePrompt={entry.take.effectivePrompt}
+                  segmentPromptAddition={entry.take.segmentPromptAddition}
+                />
                 <p>
                   {entry.take.provider} · {entry.take.model}
                   {entry.take.modelVersion ? ` · ${entry.take.modelVersion}` : ""}

@@ -3,6 +3,7 @@ import { useProject } from "../project/ProjectProvider";
 import { Inspector, InspectorToggle } from "./Inspector";
 import { Preview } from "./Preview";
 import { Timeline } from "../timeline/Timeline";
+import { StoryboardReelHost } from "./PlanView";
 
 const TIMELINE_HEIGHT_DEFAULT = 360;
 const TIMELINE_HEIGHT_MIN = 240;
@@ -112,7 +113,7 @@ export function TimelineView() {
   return (
     <div
       ref={frameRef}
-      className="grid h-full min-h-0 overflow-hidden"
+      className="relative grid h-full min-h-0 overflow-hidden"
       style={{
         gridTemplateColumns: inspectorOpen
           ? `minmax(0,1fr) ${SEPARATOR_PX}px ${inspectorWidth}px`
@@ -183,6 +184,7 @@ export function TimelineView() {
       >
         <Timeline />
       </div>
+      <StoryboardReelHost />
     </div>
   );
 }

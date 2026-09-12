@@ -42,9 +42,25 @@ If you see foreground geometry such as a structure, root, doorway, tunnel wall, 
 
 Camera-path language may include approach, continue forward, drift left/right, veer left/right, curve, turn, pass left/right of an object, pass between objects, pass beneath/through an opening, cross a threshold, enter a corridor/tunnel, allow foreground geometry to sweep beside and behind camera, ascend/descend, recenter/reacquire a forward path, or another physically understandable move supported by the images. This list is descriptive, not a requirement to use every action.
 
-The video model will later receive a frozen locomotion baseline plus your segmentPromptAddition, concatenated without rewriting. The baseline already requires continuous first-person locomotion, continued progress, spatial continuity, foreground parallax, and geometry passing beside/behind the camera. Your addition must describe THIS SHOT only. Do not repeat the baseline.
+The video model will later receive your segmentPromptAddition first, then a frozen locomotion baseline, concatenated without rewriting. The baseline only enforces continuous first-person travel and forbids cinematic cheats (dissolve, morph, cut, teleport, invented passageways). It does not name this shot's route. Your addition must describe THIS SHOT's visible physical route only. Do not repeat the baseline.
 
-Pace is a per-shot macro. It replaces {pace} in the frozen baseline with a full speed phrase before the addition is appended. Clip duration is fixed; pace is apparent camera speed, not runtime. Always choose one:
+segmentPromptAddition owns the specific route between the supplied start and end images. Describe that route positively and concretely: where the camera travels and where it arrives. Name only surfaces and spaces that are actually visible — open water, a visible roadway, an existing doorway, open air, a corridor that is in the stills. Include turns, bends, ramps, or stairs only when they are visible.
+
+Reinforce spatial boundaries positively when useful: remain on the roadway, continue through the open water, follow the visible corridor, remain in the open pool.
+
+Do not enumerate absent structures or hypothetical alternatives. Do not write "do not invent" a tunnel, cave, door, opening, or passage that is not in the images. Naming those absences can prime the video model to generate them. The frozen baseline already says not to invent intermediate structures or passageways; leave that generic constraint there.
+
+Use a specific negative spatial constraint only when the actual images contain a genuine ambiguity that cannot be expressed clearly with positive route guidance.
+
+Use concrete geometry from the images, for example:
+- Pool → waterfall: "Push steadily forward low over the surface of the teal pool, traveling directly across the open water toward the misty base of the waterfall. Remain entirely within the open pool and arrive directly at the base of the falls."
+- Road: "Continue forward along the visible roadway, remaining between the lane boundaries as the road curves left toward the destination."
+- Doorway: "Advance across the room and pass directly through the existing open doorway into the visible room beyond."
+- Open sky: "Continue forward through open air toward the distant structure."
+
+When people, animals, vehicles, or other subjects are visually or narratively relevant to this pair or the journey, you may add concise subject guidance: how they persist or behave during the traversal. Examples: pedestrians and traffic continue naturally through the street; an existing animal remains visible as the camera passes; figures visible in the destination become clearer during the approach. Preserve subjects that are already relevant. Describe their behavior only when useful to the traversal. Do not invent people, animals, vehicles, or other subjects merely to populate an otherwise empty scene. Omit subject guidance entirely when none is needed.
+
+Pace is a per-shot macro. It replaces {pace} in the frozen baseline with a full speed phrase before your addition is placed ahead of that baseline. Clip duration is fixed; pace is apparent camera speed, not runtime. Always choose one:
 - slow-motion: time feels stretched; close geometry, particles, or a threshold linger while travel continues
 - slow: deliberate travel through a tight or intricate route, or a large spatial change that would feel rushed faster
 - moderate: the camera must negotiate a threshold, turn, or close geometry while still covering the route in one shot
@@ -72,7 +88,7 @@ Use this shape:
   "camera": "<camera choreography / path for this shot>",
   "parallax": "<important visible geometry the camera should negotiate, or none>",
   "transitionStrategy": "<how the shot should use available geography so the transition reads as continuous travel>",
-  "segmentPromptAddition": "<concise natural-language instruction for THIS SHOT only, to append to the frozen locomotion baseline>",
+  "segmentPromptAddition": "<concise natural-language instruction naming THIS SHOT's visible route and, when relevant, subject persistence; it precedes the frozen locomotion baseline>",
   "pace": "fast",
   "concerns": ["<concrete spatial or shooting concern>"],
   "travel": {
@@ -117,7 +133,7 @@ Rules:
 - setConsistency and traversalConfidence must be independent integers from 0 to 100 inclusive
 - do not force the two scores equal; do not invent camotionSuitability
 - summary, route, threshold, camera, parallax, transitionStrategy, and segmentPromptAddition must be non-empty strings
-- segmentPromptAddition must not repeat the frozen locomotion baseline
+- segmentPromptAddition must name the visible physical route for this pair and must not repeat the frozen locomotion baseline
 - pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable
 - concerns must be an array of strings; use [] when there are no concerns
 - travel.start and travel.end should be included when a target is visible
@@ -146,6 +162,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Both stills are first-person POV looking in the same travel direction. Image 2 is the next forward viewpoint, not a reverse shot of Image 1.",
     "Treat them as physical sets. Intent text is context only; do not override what the stills actually show.",
     "Given these actual sets, determine how the camera should move through the visible geography to make this shot.",
+    "Name the concrete visible route in segmentPromptAddition. Describe it positively. Include concise subject guidance only when subjects are already relevant to the stills or journey. Do not enumerate structures that are not in the stills.",
     "Score setConsistency and traversalConfidence independently as integers from 0 to 100.",
     "Set consistency is whether these stills belong to the same continuous physical world and route.",
     "Traversal confidence is whether the camera can physically travel from start to end in continuous first-person motion.",

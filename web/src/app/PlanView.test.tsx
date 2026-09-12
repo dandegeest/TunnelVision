@@ -1282,6 +1282,8 @@ describe("Plan Director conversation UI", () => {
     expect(html).toContain("<summary");
     expect(html).toContain("Cinematographer");
     expect(html).toContain("Take");
+    expect(html).toContain('data-prompt-role="cm"');
+    expect(html).toContain("text-[#e6c36a]");
   });
 });
 

@@ -266,7 +266,9 @@ prompt. Actual A can still open the reel inspector when those fields are empty. 
 label, kebab, and media-info strips selects it. Clicking the selected
 still or the label strip opens that storyboard reel in the
 storyboard area, with previous and next among stills and planned FPO
-destinations. Plan and Shoot
+destinations. On Shoot, clicking an unselected timeline still selects
+it; clicking that selected still again opens the same storyboard reel
+over the timeline. Plan and Shoot
 close the reel. A Plan changed badge does not add a special tile border and does not
 block opening that reel. Ungenerated reel stills use the start frame's
 aspect. The image is

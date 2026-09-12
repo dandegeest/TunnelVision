@@ -92,6 +92,28 @@ describe("shoot timeline slots", () => {
     expect(selected).toEqual([{ destinationId: "A", occurrenceIndex: 0 }]);
   });
 
+  it("opens the storyboard reel when the selected actual is clicked again", () => {
+    const layout = layoutShootTimeline(createForestProject(), 1);
+    const opened: string[] = [];
+    const selected: Array<{ destinationId: string; occurrenceIndex: number }> = [];
+    selectShootOccurrence(occurrenceForJourneyEndpoint(layout.occurrences, "A-B", "start"), {
+      select: (selection) => {
+        if (selection.kind === "destination") {
+          selected.push({ destinationId: selection.destinationId, occurrenceIndex: selection.occurrenceIndex });
+        }
+      },
+      openStoryboardInPlan: () => {
+        throw new Error("actual A should not open Plan");
+      },
+      openStoryboardReel: (frameId) => {
+        opened.push(frameId);
+      },
+      selected: true,
+    });
+    expect(opened).toEqual(["A"]);
+    expect(selected).toEqual([]);
+  });
+
   it("matches a generating Plan beat to the corresponding Shoot slot", () => {
     const onlyA = {
       ...createNewProject(),

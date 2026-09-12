@@ -15,6 +15,7 @@ import { destinationById, storyboardFrameForDestination, type CinematographerAss
 import { layoutShootTimeline } from "../timeline/shoot-layout";
 import { videoModelDisplayLabel } from "../../../media/src/replicate/video-models.ts";
 import { DestinationInspectorFields } from "./DestinationInspector";
+import { ShootingPromptText } from "./ShootingPromptText";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
 import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
 import { PanelHeader } from "./PanelHeader";
@@ -202,6 +203,9 @@ export function Inspector() {
   const motion = selection.band === "motion";
   const motionRecords = camotionRecordsForJourney(project, journey.id);
   const segmentHeading = `${startDestination?.label ?? journey.startDestinationId}→${endDestination?.label ?? journey.endDestinationId ?? "?"}`;
+  const effectivePrompt = take?.effectivePrompt ?? motionSource?.effectivePrompt;
+  const segmentPromptAddition =
+    take?.segmentPromptAddition ?? motionSource?.segmentPromptAddition ?? assessment?.segmentPromptAddition;
   return (
     <InspectorShell title={motion ? "Inspector - Motion" : "Inspector - Footage"}>
       <h2 className="text-2xl">{segmentHeading}</h2>
@@ -293,6 +297,16 @@ export function Inspector() {
               </figure>
             </div>
           ) : null}
+          {effectivePrompt ? (
+            <details>
+              <summary className="cursor-pointer text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prompt</summary>
+              <ShootingPromptText
+                className="mt-2"
+                effectivePrompt={effectivePrompt}
+                segmentPromptAddition={segmentPromptAddition}
+              />
+            </details>
+          ) : null}
           <CamotionDiagnosticPanel records={motionRecords} emptyCopy="No Camotion data for this traversal." />
         </>
       ) : (
@@ -301,7 +315,8 @@ export function Inspector() {
           take={take}
           shootingFrames={motionSource}
           assessment={assessment}
-          effectivePrompt={take?.effectivePrompt ?? motionSource?.effectivePrompt}
+          effectivePrompt={effectivePrompt}
+          segmentPromptAddition={segmentPromptAddition}
           pace={take?.pace ?? assessment?.pace}
           shootError={shootError ?? journey.shootError}
           canShoot={canShootJourney(project, journey)}
@@ -370,6 +385,7 @@ function FootageInspector({
   shootingFrames,
   assessment,
   effectivePrompt,
+  segmentPromptAddition,
   pace,
   shootError,
   canShoot,
@@ -383,6 +399,7 @@ function FootageInspector({
   shootingFrames?: { startShootingFrame: ShootingFrameRef; endShootingFrame: ShootingFrameRef };
   assessment?: CinematographerAssessment;
   effectivePrompt?: string;
+  segmentPromptAddition?: string;
   pace?: CinematographerAssessment["pace"];
   shootError?: string | null;
   canShoot: boolean;
@@ -427,7 +444,11 @@ function FootageInspector({
       {effectivePrompt ? (
         <details>
           <summary className="cursor-pointer text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prompt</summary>
-          <p className="mt-2 whitespace-pre-wrap text-[#cfc6b8]">{effectivePrompt}</p>
+          <ShootingPromptText
+            className="mt-2"
+            effectivePrompt={effectivePrompt}
+            segmentPromptAddition={segmentPromptAddition}
+          />
         </details>
       ) : null}
       {debugOn && modelLabel ? <InspectorMeta label="Model" value={modelLabel} /> : null}

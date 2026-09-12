@@ -143,6 +143,7 @@ export {
 } from "./cinematographer/assessment-prompts.ts";
 export {
   UNEMBODIED_FIRST_PERSON_POV,
+  WORLD_SUBJECTS_MAY_APPEAR,
   LOCOMOTION_PACE_MACRO,
   LOCOMOTION_PACES,
   LOCOMOTION_PACE_PHRASES,
@@ -153,6 +154,7 @@ export {
   locomotionPaceList,
   locomotionBaseline,
   composeShootingPrompt,
+  splitShootingPrompt,
 } from "./cinematographer/shooting-prompt.ts";
 export type { LocomotionPace } from "./cinematographer/shooting-prompt.ts";
 export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";

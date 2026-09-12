@@ -174,11 +174,12 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain("Live production monitor");
   });
 
-  it("opens the storyboard reel on Plan and leaves it off Shoot", () => {
+  it("opens the storyboard reel on Plan and Shoot", () => {
     const plan = renderShell({ storyboardReelId: "A" });
     expect(plan).toContain('aria-label="Storyboard reel, destination A"');
     const shoot = renderShell({ view: "shoot", storyboardReelId: "A" });
-    expect(shoot).not.toContain("storyboard-reel");
+    expect(shoot).toContain("storyboard-reel");
+    expect(shoot).toContain('aria-label="Storyboard reel, destination A"');
     expect(shoot).toContain(">Plan<");
     expect(shoot).toContain(">Shoot<");
   });

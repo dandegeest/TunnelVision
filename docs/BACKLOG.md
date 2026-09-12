@@ -1686,7 +1686,8 @@ product behavior (see product docs / recent commits):
 -   CM Set Consistency / Traversal Confidence scoring
 -   Pace → Camotion exposure mapping
 -   Current segment-specific video prompt architecture
-    (`segmentPromptAddition` then locomotion baseline)
+    (`segmentPromptAddition` names the visible route, then the
+    locomotion baseline enforces continuous travel)
 -   Removal of forced tunnel / threshold behavior
 -   Current generic A-generation opening-instant prompt
 -   Shoot Inspector Destination / Motion / Footage presentation

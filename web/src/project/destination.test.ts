@@ -99,6 +99,8 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/spatial continuation/i);
     expect(prompt).toMatch(/camera position must change/i);
     expect(prompt).toMatch(/unembodied first-person POV/);
+    expect(prompt).toMatch(/Never show the viewer\/camera operator, their body, shadow, reflection, or FPS-style objects/);
+    expect(prompt).not.toMatch(/weapons, phones, or camera equipment/);
     expect(prompt).toMatch(/People, animals, vehicles, objects, and other subjects may appear naturally/);
     expect(prompt).not.toMatch(/Do not show a person/);
     expect(prompt).not.toMatch(/vanishing point/i);
@@ -546,6 +548,10 @@ describe("opening frame generation", () => {
       /do not anticipate, combine, or depict later destinations or events from the Journey/,
     );
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/unembodied first-person POV/);
+    expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
+      /Never show the viewer\/camera operator, their body, shadow, reflection, or FPS-style objects/,
+    );
+    expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/weapons, phones, or camera equipment/);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
       /People, animals, vehicles, objects, and other subjects may appear naturally/,
     );

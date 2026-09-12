@@ -73,6 +73,28 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.prompt, /Image 1 is the START canonical set/);
   assert.match(request.prompt, /same travel direction/);
   assert.match(request.prompt, /not a reverse shot/i);
+  assert.match(request.systemInstruction, /segmentPromptAddition first, then a frozen locomotion baseline/);
+  assert.match(request.systemInstruction, /owns the specific route between the supplied start and end images/);
+  assert.match(request.systemInstruction, /existing open doorway into the visible room beyond/);
+  assert.match(request.systemInstruction, /Continue forward through open air toward the distant structure/);
+  assert.match(request.systemInstruction, /Remain entirely within the open pool and arrive directly at the base of the falls/);
+  assert.match(request.systemInstruction, /Reinforce spatial boundaries positively when useful/);
+  assert.match(request.systemInstruction, /Do not enumerate absent structures or hypothetical alternatives/);
+  assert.match(request.systemInstruction, /genuine ambiguity that cannot be expressed clearly with positive route guidance/);
+  assert.doesNotMatch(
+    request.systemInstruction,
+    /do not enter or invent an opening behind the waterfall/,
+  );
+  assert.match(request.systemInstruction, /must name the visible physical route for this pair/);
+  assert.match(request.prompt, /Name the concrete visible route in segmentPromptAddition/);
+  assert.match(request.prompt, /Describe it positively/);
+  assert.match(request.prompt, /Include concise subject guidance only when subjects are already relevant/);
+  assert.match(request.prompt, /Do not enumerate structures that are not in the stills/);
+  assert.match(request.systemInstruction, /pedestrians and traffic continue naturally through the street/);
+  assert.match(request.systemInstruction, /an existing animal remains visible as the camera passes/);
+  assert.match(request.systemInstruction, /figures visible in the destination become clearer during the approach/);
+  assert.match(request.systemInstruction, /Do not invent people, animals, vehicles, or other subjects merely to populate/);
+  assert.match(request.systemInstruction, /Omit subject guidance entirely when none is needed/);
   assert.match(request.systemInstruction, /Pace is a per-shot macro/);
   assert.match(request.systemInstruction, /pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable/);
   assert.match(request.prompt, /Report travel geometry for each still/);
@@ -160,6 +182,41 @@ test("Cinematographer pace accepts slow-motion, hyperspeed, and variable", () =>
   assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "slow-motion" })).pace, "slow-motion");
   assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "hyperspeed" })).pace, "hyperspeed");
   assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "variable" })).pace, "variable");
+});
+
+test("CM segment prompt can name a visible doorway, open traversal, or positive boundary", () => {
+  const doorway = parseCinematographerAssessment(
+    validAssessmentJson({
+      segmentPromptAddition:
+        "Advance across the room and pass directly through the existing open doorway into the visible room beyond.",
+    }),
+  );
+  assert.match(doorway.segmentPromptAddition, /existing open doorway/);
+
+  const openAir = parseCinematographerAssessment(
+    validAssessmentJson({
+      segmentPromptAddition: "Continue forward through open air toward the distant structure.",
+    }),
+  );
+  assert.match(openAir.segmentPromptAddition, /through open air/);
+  assert.doesNotMatch(openAir.segmentPromptAddition, /tunnel|doorway|threshold/i);
+
+  const pool = parseCinematographerAssessment(
+    validAssessmentJson({
+      segmentPromptAddition:
+        "Push steadily forward low over the surface of the teal pool, traveling directly across the open water toward the misty base of the waterfall. Remain entirely within the open pool and arrive directly at the base of the falls.",
+    }),
+  );
+  assert.match(pool.segmentPromptAddition, /Remain entirely within the open pool/);
+  assert.doesNotMatch(pool.segmentPromptAddition, /do not invent|tunnel|cave|opening/i);
+
+  const subjects = parseCinematographerAssessment(
+    validAssessmentJson({
+      segmentPromptAddition:
+        "Continue forward along the visible roadway. Pedestrians and traffic continue naturally through the street.",
+    }),
+  );
+  assert.match(subjects.segmentPromptAddition, /Pedestrians and traffic continue naturally/);
 });
 
 test("a straight route is valid choreography and does not require a turn", () => {
