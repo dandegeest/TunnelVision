@@ -632,6 +632,9 @@ JOURNEY, get a new opening that rhymes with the guide.
 
 **Status:** BACKLOG
 
+Event-day implementation plan:
+[HACKATHON.md](HACKATHON.md).
+
 **Goal.** At the hackathon, integrate appropriate Runway
 APIs/models into the existing TunnelVision provider architecture
 while treating the current core as a pre-existing library.
