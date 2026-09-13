@@ -91,7 +91,8 @@ between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
 for variable. SHOOT sits under the FOOTAGE band when MOTION, FOOTAGE,
 or either endpoint of that segment is selected, and becomes RESHOOT
-after a clip exists. It is centered on that interval and sized to the
+after a clip exists. Clicking it starts or restages the take without
+changing the current selection. It is centered on that interval and sized to the
 label, not the full bar width. The timeline is
 vertically resizable. The Shoot inspector is horizontally resizable and can hide to a reopen strip like the
 conversation and Project rails; that visibility is session UI, not project
@@ -249,7 +250,11 @@ normal filmmaker UI. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
 stills expose Replace…, which swaps that
-destination's canonical still in place. Generated stills also expose
+destination's canonical still in place. Dropping a PNG, JPEG, or WebP
+from the desktop onto a destination thumb uses that same upload /
+replace path. When every destination already has a still, dropping on
+the storyboard appends a new destination and places that image. Add
+Destination remains a click-to-append empty slot. Generated stills also expose
 Reshoot, which regenerates that canonical from the current prompt.
 If the slot already has intent or a
 visual description, that action asks whether to clear them so the next DIRECT can
@@ -259,7 +264,9 @@ invoke the Director or relabel remaining beats. An Add Destination affordance
 follows the last configured destination once A is actual; it appends an
 unresolved slot, is not itself a destination, does not invoke the
 Director, and is disabled while DIRECT or sequential destination
-generation is running. It does not encode Provided / Generated / Derived / Discovered.
+generation is running. Motion Planning and footage generation on an
+earlier pair do not lock the storyboard: drop, Add Destination, and
+Generate may continue. It does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
 thumbnail. Destination planning details (intent, story on A or source visual
 description on later beats, a collapsed Prompt, and media facts) live

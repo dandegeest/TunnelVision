@@ -192,7 +192,8 @@ adjacent canonicals become Destinations and JourneyShots on that same
 Project. MOTION is an inspect/status surface for that segment's automatically
 generated Motion Plan; SHOOT sits under the FOOTAGE band when that
 segment is selected and becomes RESHOOT after a clip exists. The
-control is centered and sized to the label. While a take is rendering,
+control starts the take without changing selection. It is
+centered and sized to the label. While a take is rendering,
 FOOTAGE shows Shooting… or Reshooting… in the band. Each interval is two stacked
 bands under the destination rail: MOTION (the stored A→B Motion Plan) and
 FOOTAGE (the generated take). Canonicals remain clickable places above
@@ -247,6 +248,8 @@ is empty, DIRECT first derives a journey story from that still. Auto
 block shots and Auto shoot then block and shoot actual adjacent legs.
 DIRECT in that panel invokes the Director.
 The filmmaker can replace a destination's canonical still in place; replacement does not add or reorder Destinations.
+Dropping an image from the desktop onto a storyboard thumb uses the same upload or Replace… path as the kebab.
+When every destination already has a still, dropping on the storyboard appends a new destination and places that image.
 Delete removes a later storyboard beat without planning or relabeling; opening A cannot be deleted.
 Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
 Uploaded media is session/dev-runtime trusted media, not durable project

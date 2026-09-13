@@ -43,7 +43,6 @@ export function JourneyLane({
         const showShoot = journeySegmentIsActive(selection, journey) && !shooting;
         const onShoot = (event: MouseEvent<HTMLButtonElement>) => {
           event.stopPropagation();
-          onSelect(laid.journeyId, "footage");
           void shootJourney(journey.id);
         };
         return (

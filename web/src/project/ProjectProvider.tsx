@@ -38,7 +38,7 @@ import {
   shootRequestFromProject,
 } from "./shoot";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
-import { hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
+import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoGenerateOpening, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
   requestConstructDestination,
@@ -128,6 +128,7 @@ type ProjectContextValue = {
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File, options?: { clearPlan?: boolean }) => Promise<void>;
+  appendDestinationWithImage: (file: File) => Promise<void>;
   addDestination: () => void;
   openStoryboardInPlan: (frameId: string) => void;
   removeDestination: (frameId: string) => void;
@@ -338,14 +339,32 @@ export function ProjectProvider({
     }
   }, []);
 
+  const appendDestinationWithImage = useCallback(async (file: File) => {
+    const current = projectRef.current;
+    if (
+      directorStatus === "planning" ||
+      constructingBeatId ||
+      !canDropAppendStoryboardDestination(current)
+    ) {
+      return;
+    }
+    const added = projectWithAddedDestination(current);
+    const frame = added.storyboard[added.storyboard.length - 1];
+    if (!frame || current.storyboard.some((item) => item.id === frame.id)) {
+      return;
+    }
+    applyProject(added);
+    await replaceDestinationImage(frame.id, file);
+  }, [applyProject, constructingBeatId, directorStatus, replaceDestinationImage]);
+
   const addDestination = useCallback(() => {
     setProject((current) => {
-      if (directorStatus === "planning" || constructingBeatId || assessingJourneyIds.length > 0 || shootingJourneyIds.length > 0) {
+      if (directorStatus === "planning" || constructingBeatId) {
         return current;
       }
       return projectWithAddedDestination(current);
     });
-  }, [assessingJourneyIds.length, constructingBeatId, directorStatus, shootingJourneyIds.length]);
+  }, [constructingBeatId, directorStatus]);
 
   const openStoryboardInPlan = useCallback((frameId: string) => {
     setProject((current) => {
@@ -652,11 +671,6 @@ export function ProjectProvider({
         const result = await requestShootJourney({ ...request, debug: debugOnRef.current });
         const next = projectWithJourneyShotTake(projectRef.current, journeyId, result);
         applyProject(next);
-        setSelection((current) =>
-          current.kind === "journey" && current.journeyId === journeyId
-            ? { kind: "journey", journeyId, band: "footage" }
-            : current,
-        );
         setConversation((entries) =>
           resolveShootingEntry(entries, entryId, {
             status: "shot",
@@ -928,6 +942,7 @@ export function ProjectProvider({
       startingFrameError,
       replacingStart,
       replaceDestinationImage,
+      appendDestinationWithImage,
       addDestination,
       openStoryboardInPlan,
       removeDestination,
@@ -983,6 +998,7 @@ export function ProjectProvider({
       startingFrameError,
       replacingStart,
       replaceDestinationImage,
+      appendDestinationWithImage,
       addDestination,
       openStoryboardInPlan,
       removeDestination,

@@ -2,6 +2,7 @@ import { storyboardFrameWithOpeningPlan } from "./destination";
 import { canonicalAspectRatioFromMediaInfo } from "./canonical-aspect";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { projectWithSyncedProductionLegs } from "./production-legs";
+import { nextStoryboardSlot } from "./storyboard";
 import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 import {
   RUNTIME_MEDIA_URL_PREFIX,
@@ -28,6 +29,35 @@ export function canProvideStartingFrame(frame: Pick<StoryboardFrame, "id" | "ima
 /** Unresolved destination slot that can receive a filmmaker still. */
 export function canUploadStoryboardFrame(frame: Pick<StoryboardFrame, "image" | "imageOrigin">): boolean {
   return frame.imageOrigin === "none" && !frame.image;
+}
+
+/** Same slots the kebab offers Upload image or Replace… */
+export function canReplaceStoryboardFrameImage(
+  frame: Pick<StoryboardFrame, "image" | "imageOrigin">,
+): boolean {
+  return Boolean(frame.image) || canUploadStoryboardFrame(frame);
+}
+
+/** First desktop file the kebab upload path would accept. */
+export function imageFileFromDataTransfer(
+  dataTransfer: { files?: ArrayLike<File> | null } | null,
+): File | null {
+  const files = dataTransfer?.files ? Array.from(dataTransfer.files) : [];
+  return files.find((file) => startingFrameFileError(file) === null) ?? null;
+}
+
+/** Unresolved FPO slots that can still receive a filmmaker still. */
+export function hasOpenStoryboardDestination(project: Pick<Project, "storyboard">): boolean {
+  return project.storyboard.some((frame) => canUploadStoryboardFrame(frame));
+}
+
+/** Drop on the storyboard (not a thumb) appends a destination when every slot is already filled. */
+export function canDropAppendStoryboardDestination(project: Project): boolean {
+  return (
+    hasAuthoritativeStartingFrame(project) &&
+    Boolean(nextStoryboardSlot(project.storyboard)) &&
+    !hasOpenStoryboardDestination(project)
+  );
 }
 
 export function hasAuthoritativeStartingFrame(project: Project): boolean {

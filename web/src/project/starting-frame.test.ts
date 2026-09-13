@@ -3,11 +3,15 @@ import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, STORYBOARD_INTENTS } from "../fixtures/wardrobe-loop";
 import { createNewProject } from "./new-project";
 import { directorPlanRequestFromProject } from "./director";
-import { projectWithDirectorPlan } from "./storyboard";
+import { projectWithAddedDestination, projectWithDirectorPlan } from "./storyboard";
 import {
+  canDropAppendStoryboardDestination,
   canProvideStartingFrame,
+  canReplaceStoryboardFrameImage,
   canUploadStoryboardFrame,
+  hasOpenStoryboardDestination,
   hasAuthoritativeStartingFrame,
+  imageFileFromDataTransfer,
   parseStartingFrameUpload,
   projectWithReplacedFrameImage,
   projectWithReplacedStartImage,
@@ -48,6 +52,66 @@ describe("starting-frame file checks", () => {
     expect(
       startingFrameFileError({ size: STARTING_FRAME_MAX_BYTES + 1, type: "image/png" }),
     ).toMatch(/too large/i);
+  });
+});
+
+describe("storyboard image drop", () => {
+  it("accepts the same slots as kebab upload or replace", () => {
+    expect(canReplaceStoryboardFrameImage({ imageOrigin: "none" })).toBe(true);
+    expect(
+      canReplaceStoryboardFrameImage({
+        imageOrigin: "user",
+        image: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      }),
+    ).toBe(true);
+    expect(canReplaceStoryboardFrameImage({ imageOrigin: "generated" })).toBe(false);
+  });
+
+  it("takes the first kebab-acceptable file from a desktop drop", () => {
+    const pdf = new File([PNG], "notes.pdf", { type: "application/pdf" });
+    const png = new File([PNG], "start.png", { type: "image/png" });
+    expect(imageFileFromDataTransfer({ files: [pdf, png] })).toBe(png);
+    expect(imageFileFromDataTransfer({ files: [pdf] })).toBeNull();
+    expect(imageFileFromDataTransfer(null)).toBeNull();
+  });
+
+  it("appends a destination only when every existing slot already has a still", () => {
+    const empty = createNewProject();
+    expect(hasOpenStoryboardDestination(empty)).toBe(true);
+    expect(canDropAppendStoryboardDestination(empty)).toBe(false);
+
+    const uploadedA = projectWithReplacedStartImage(createNewProject(), {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    expect(hasOpenStoryboardDestination(uploadedA)).toBe(false);
+    expect(canDropAppendStoryboardDestination(uploadedA)).toBe(true);
+
+    const wardrobe = createWardrobeProject();
+    expect(hasOpenStoryboardDestination(wardrobe)).toBe(false);
+    expect(canDropAppendStoryboardDestination(wardrobe)).toBe(true);
+    const added = projectWithAddedDestination(wardrobe);
+    const placed = projectWithReplacedFrameImage(added, "B", {
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      imageUrl: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    expect(placed.storyboard.map((frame) => frame.id)).toEqual(["A", "B"]);
+    expect(placed.storyboard[1]).toMatchObject({
+      id: "B",
+      imageOrigin: "user",
+      image: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+
+    const planned = projectWithDirectorPlan(wardrobe, {
+      summary: "Leave through the wardrobe.",
+      beats: [{ id: "B", intent: "Enter the wardrobe.", visualDescription: "Coats." }],
+    });
+    expect(hasOpenStoryboardDestination(planned)).toBe(true);
+    expect(canDropAppendStoryboardDestination(planned)).toBe(false);
+
+    const forest = createForestProject();
+    expect(hasOpenStoryboardDestination(forest)).toBe(false);
+    expect(canDropAppendStoryboardDestination(forest)).toBe(true);
   });
 });
 

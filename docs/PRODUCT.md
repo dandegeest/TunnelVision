@@ -148,7 +148,8 @@ JourneyShots automatically. There is no separate send-to-Shoot step.
 CREATE JOURNEY is not a prerequisite for shooting actual adjacent canonicals.
 MOTION is an inspect/status surface for the automatically generated Motion Plan;
 SHOOT sits under the FOOTAGE band when that segment is selected and
-becomes RESHOOT after a clip exists. The control is centered and sized
+becomes RESHOOT after a clip exists. The control starts the take
+without changing selection. It is centered and sized
 to the label. While a take is rendering, FOOTAGE shows Shooting… or
 Reshooting… in the band like MOTION shows Planning…. Each Shoot interval is two
 stacked bands: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated
@@ -298,7 +299,11 @@ architecture.
     Camotion work dirs are kept only while Debug is on. The Shoot inspector
     no longer shows Technical or Debug path panels. Product shoot does not pass a depth
     map. Destination
-    actions live on the destination card (Reshoot on generated stills, Replace…); Add Destination
+    actions live on the destination card (Reshoot on generated stills, Replace…).
+    Dropping a desktop image onto a thumb is the same upload or replace as the kebab.
+    When every destination already has a still, dropping on the storyboard
+    appends a new destination and places that image.
+    Add Destination
     extends the storyboard without encoding construction strategy and
     does not invoke the Director. Conversation remains session UI:
     DIRECT appends a Director entry that goes from

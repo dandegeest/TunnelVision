@@ -354,6 +354,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
 
   await page.getByLabel("Journey story").fill("Travel forward through an imagined interior at night.");
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
+  await expect(page.locator('[data-destination-drop="A"]')).toBeVisible();
   await expect(page.getByLabel("Generate destination A")).toBeVisible();
   await expect(page.getByLabel("Story destinations")).toHaveValue("AUTO");
   await expect(page.getByLabel("Increase destinations")).toBeEnabled();
@@ -366,6 +367,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Increase destinations").click();
   await expect(page.getByLabel("Story destinations")).toHaveValue("2");
   await expect(page.getByLabel("Storyboard B")).toBeVisible();
+  await expect(page.locator('[data-destination-drop="B"]')).toBeVisible();
   await expect(page.getByLabel("Decrease destinations")).toBeEnabled();
 
   await page.getByLabel("Story destinations").fill("3");
@@ -509,9 +511,12 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Motion A-B").click();
 
   await page.getByRole("button", { name: "Shoot A-B", exact: true }).click();
+  await expect(page.getByLabel("Motion A-B")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Footage A-B")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(1);
+  await page.getByLabel("Footage A-B").click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
   await expect(page.getByLabel("Footage A-B")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByLabel("Motion A-B")).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(2);
   await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(0);
   await journeyInspector.locator("summary", { hasText: "Take" }).click();
@@ -641,4 +646,37 @@ test("project image and video model selectors default to Nano Banana Lite and Pr
   await expect(page.getByLabel("Image format")).toHaveValue("jpg");
   await expect(page.getByLabel("Image resolution")).toHaveValue("2K");
   await expect(page.getByLabel("Video model")).toHaveValue("seedance-2.5");
+});
+
+test("dropping a desktop image on a storyboard thumb uploads like the kebab", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Journey story").fill("Travel forward through an imagined interior at night.");
+  const thumb = page.locator('[data-destination-drop="A"]');
+  await expect(thumb).toBeVisible();
+  await thumb.evaluate((element, b64) => {
+    const binary = atob(b64);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const file = new File([bytes], "start.png", { type: "image/png" });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    element.dispatchEvent(
+      new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer }),
+    );
+  }, STARTING_FRAME_PNG.toString("base64"));
+  await expect(page.locator('[data-destination-card="A"] img[src^="/api/runtime-media/upload-"]')).toBeVisible();
+  await expect(page.getByLabel("Uploaded frame")).toBeVisible();
+  await expect(page.getByLabel("Add Destination")).toBeVisible();
+  await expect(page.locator('[data-destination-drop="append"]')).toBeVisible();
+  await page.locator('[data-destination-drop="append"]').evaluate((element, b64) => {
+    const binary = atob(b64);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const file = new File([bytes], "next.png", { type: "image/png" });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    element.dispatchEvent(
+      new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer }),
+    );
+  }, STARTING_FRAME_PNG.toString("base64"));
+  await expect(page.locator('[data-destination-card="B"] img[src^="/api/runtime-media/upload-"]')).toBeVisible();
+  await expect(page.getByLabel("Storyboard B")).toBeVisible();
 });

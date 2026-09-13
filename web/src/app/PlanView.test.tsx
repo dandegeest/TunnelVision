@@ -142,6 +142,9 @@ describe("Plan project story", () => {
     expect(html).toContain("Add Destination");
     expect(html).toContain('id="replace-destination-image"');
     expect(html).toContain(`accept="${STARTING_FRAME_ACCEPT}"`);
+    expect(html).toContain('data-destination-drop="A"');
+    expect(html).toContain('data-destination-drop="append"');
+    expect(html).not.toContain("data-destination-drop=\"Add");
     expect(html).not.toContain("Replace image");
     expect(html).not.toContain("REPLACE IMAGE");
     expect(html).not.toContain("You ·");
@@ -265,6 +268,15 @@ describe("Plan storyboard FPO intent", () => {
     expect(c).not.toContain("Generate");
     expect(c).toContain("Continue through the corridor.");
     expect(c).not.toContain("Deeper volume ahead.");
+  });
+
+  it("keeps Generate available while an earlier pair is in Motion Planning", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    const html = renderPlan(planned, { assessingJourneyIds: ["A-B"] });
+    expect(html).toContain('aria-label="Generate destination B"');
+    expect(html).not.toMatch(
+      /<button[^>]*aria-label="Generate destination B"[^>]*\sdisabled(?:="[^"]*")?[\s>]|<button[^>]*\sdisabled(?:="[^"]*")?[^>]*aria-label="Generate destination B"/,
+    );
   });
 
   it("keeps the generating FPO overlay without a persistent scene caption", () => {
@@ -621,6 +633,7 @@ describe("Plan destination affordance and menu", () => {
     const forest = createForestProject();
     const html = renderPlan(forest);
     expect(html).toContain("storyboard-add-destination");
+    expect(html).toContain('data-destination-drop="append"');
     expect(html).toContain('aria-label="Add Destination"');
     expect(html.indexOf('aria-label="Storyboard F"')).toBeLessThan(html.indexOf("Add Destination"));
     expect(forest.storyboard.map((frame) => frame.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
@@ -1304,6 +1317,7 @@ describe("new-project Plan", () => {
     expect(html).not.toContain("Travel forward through this night forest");
     expect(html).not.toContain('aria-label="Generate destination B"');
     expect(html).not.toContain("Add Destination");
+    expect(html).not.toContain('data-destination-drop="append"');
     expect(html).not.toContain('src="/api/runtime-media/');
   });
 
@@ -1395,6 +1409,8 @@ describe("new-project Plan", () => {
       ],
     };
     expect(renderPlan(withA)).toContain('aria-label="Add Destination"');
+    expect(renderPlan(withA)).toContain('data-destination-drop="append"');
+    expect(renderPlan(withA)).toContain("min-h-full");
     expect(withA.storyboard.map((frame) => frame.id)).toEqual(["A"]);
     expect(withA.destinations).toEqual([]);
     expect(withA.journeys).toEqual([]);
@@ -1402,6 +1418,7 @@ describe("new-project Plan", () => {
     const planned = projectWithDirectorPlan(withA, plannedBeats);
     expect(planned.storyboard[1]?.imageOrigin).toBe("none");
     expect(renderPlan(planned)).toContain('aria-label="Add Destination"');
+    expect(renderPlan(planned)).not.toContain('data-destination-drop="append"');
     expect(renderPlan(planned)).not.toMatch(
       /<button[^>]*aria-label="Add Destination"[^>]*\sdisabled(?:="[^"]*")?[\s>]/,
     );
@@ -1453,9 +1470,14 @@ describe("new-project Plan", () => {
     const blocking = renderPlan(withA, { assessingJourneyIds: ["A-B"] });
     expect(blocking).toContain("Planning A→B…");
     expect(blocking).not.toContain("Blocking…");
+    expect(blocking).toContain('data-destination-drop="append"');
+    expect(blocking).not.toMatch(
+      /<button[^>]*aria-label="Add Destination"[^>]*\sdisabled(?:="[^"]*")?[\s>]|<button[^>]*\sdisabled(?:="[^"]*")?[^>]*aria-label="Add Destination"/,
+    );
     const shooting = renderPlan(withA, { shootingJourneyIds: ["A-B"] });
     expect(shooting).toContain("Generating A→B…");
     expect(shooting).not.toContain("Shooting…");
+    expect(shooting).toContain('data-destination-drop="append"');
   });
 
   it("exposes Upload image on unresolved destinations added after A", () => {
@@ -1479,6 +1501,10 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Destination B actions"');
     expect(html).toContain('aria-label="Destination C actions"');
     expect(html).toContain('aria-label="Destination D actions"');
+    expect(html).toContain('data-destination-drop="A"');
+    expect(html).toContain('data-destination-drop="B"');
+    expect(html).not.toContain('data-destination-drop="append"');
+    expect(html).not.toContain("data-destination-drop=\"Add");
     const openB = renderToStaticMarkup(
       <DestinationMenu
         frameId="B"

@@ -115,7 +115,9 @@ during CREATE JOURNEY is that same operation. Auto shoot then generates
 each staged leg, including those with CM hold or no-go warnings.
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while DIRECT or sequential destination
-generation is running. Delete removes a later storyboard beat without
+generation is running. Motion Planning or footage generation on an
+earlier pair does not lock Add Destination, Generate, or storyboard image drops.
+Delete removes a later storyboard beat without
 relabeling remaining ids or calling the Director; opening A cannot be
 deleted. The filmmaker can replace a destination's
 canonical still in place from the destination menu, or Reshoot a generated
@@ -186,7 +188,8 @@ Shoot still shows A and an FPO B that opens Plan on B. A destination
 still generating in Plan shimmers on the matching Shoot slot. MOTION is an
 inspect/status surface for that segment's automatically generated Motion Plan;
 SHOOT sits under the FOOTAGE band when that segment is selected and
-becomes RESHOOT after a clip exists. The control is centered and sized
+becomes RESHOOT after a clip exists. The control starts the take
+without changing selection. It is centered and sized
 to the label. While a take is rendering, FOOTAGE shows Shooting… or
 Reshooting… in the band.
 Shoot Inspector headers read Inspector - Destination, Inspector - Motion, or

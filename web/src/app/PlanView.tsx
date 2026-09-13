@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useProject } from "../project/ProjectProvider";
 import { canConstructDestinationFrame, canGenerateOpeningFrame, canReshootDestinationFrame, generatedStillNeedsReshoot } from "../project/destination";
 import {
@@ -12,8 +12,11 @@ import {
 } from "../project/media-preflight";
 import {
   STARTING_FRAME_ACCEPT,
+  canDropAppendStoryboardDestination,
+  canReplaceStoryboardFrameImage,
   canUploadStoryboardFrame,
   hasAuthoritativeStartingFrame,
+  imageFileFromDataTransfer,
   shouldClearStoryboardPlanOnUpload,
 } from "../project/starting-frame";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
@@ -462,6 +465,98 @@ export function DestinationMenu({
   );
 }
 
+function filesDrag(transfer: DataTransfer | null): boolean {
+  return Boolean(transfer && [...transfer.types].includes("Files"));
+}
+
+function preventBrowserFileOpen(event: { preventDefault(): void; dataTransfer: DataTransfer | null }) {
+  if (!filesDrag(event.dataTransfer)) {
+    return false;
+  }
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "copy";
+  }
+  return true;
+}
+
+export function StoryboardDestinationDrop({
+  frameId,
+  enabled,
+  onDropFile,
+  children,
+  className,
+}: {
+  frameId: string;
+  enabled: boolean;
+  onDropFile: (file: File) => void;
+  children: ReactNode;
+  className?: string;
+}) {
+  const [active, setActive] = useState(false);
+  const depth = useRef(0);
+
+  const reset = () => {
+    depth.current = 0;
+    setActive(false);
+  };
+
+  const canHighlight = (transfer: DataTransfer | null) => {
+    if (!enabled || !filesDrag(transfer)) {
+      return false;
+    }
+    if (transfer && transfer.files.length > 0) {
+      return Boolean(imageFileFromDataTransfer(transfer));
+    }
+    return true;
+  };
+
+  return (
+    <div
+      data-destination-drop={enabled ? frameId : undefined}
+      data-drop-active={active ? "true" : undefined}
+      className={[
+        className,
+        active ? "rounded-sm ring-2 ring-[#ece7df] ring-offset-2 ring-offset-[#0c0b0a]" : undefined,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      onDragEnter={(event) => {
+        preventBrowserFileOpen(event);
+        if (!canHighlight(event.dataTransfer)) {
+          return;
+        }
+        event.stopPropagation();
+        depth.current += 1;
+        setActive(true);
+      }}
+      onDragOver={(event) => {
+        preventBrowserFileOpen(event);
+        if (canHighlight(event.dataTransfer)) {
+          event.stopPropagation();
+        }
+      }}
+      onDragLeave={() => {
+        depth.current = Math.max(0, depth.current - 1);
+        if (depth.current === 0) {
+          setActive(false);
+        }
+      }}
+      onDrop={(event) => {
+        preventBrowserFileOpen(event);
+        event.stopPropagation();
+        const file = imageFileFromDataTransfer(event.dataTransfer);
+        reset();
+        if (enabled && file) {
+          onDropFile(file);
+        }
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function AddDestinationCard({
   onAdd,
   disabled = false,
@@ -793,6 +888,7 @@ export function PlanView() {
     select,
     directorStatus,
     replaceDestinationImage,
+    appendDestinationWithImage,
     addDestination,
     removeDestination,
     constructingBeatId,
@@ -801,16 +897,10 @@ export function PlanView() {
     reshootDestination,
     storyboardReelId,
     setStoryboardReelId,
-    assessingJourneyIds,
-    shootingJourneyIds,
   } = useProject();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
-  const pipelineBusy =
-    planning ||
-    Boolean(constructingBeatId) ||
-    assessingJourneyIds.length > 0 ||
-    shootingJourneyIds.length > 0;
+  const storyboardLocked = planning || Boolean(constructingBeatId);
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
   const storyboardLive = Boolean(project.story.trim()) || hasOpeningFrame;
   const openingUploadReady = project.storyboard.some(
@@ -821,12 +911,43 @@ export function PlanView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
 
+  const applyDestinationImageFile = (frameId: string, file: File) => {
+    const frame = project.storyboard.find((item) => item.id === frameId);
+    const clearPlan = frame
+      ? shouldClearStoryboardPlanOnUpload(frame, (message) => window.confirm(message))
+      : false;
+    void replaceDestinationImage(frameId, file, { clearPlan });
+  };
+
+  const canAppendDrop =
+    boardInteractive && !storyboardLocked && canDropAppendStoryboardDestination(project);
+
+  useEffect(() => {
+    const blockBrowserFileOpen = (event: DragEvent) => {
+      preventBrowserFileOpen(event);
+    };
+    window.addEventListener("dragover", blockBrowserFileOpen);
+    window.addEventListener("drop", blockBrowserFileOpen);
+    return () => {
+      window.removeEventListener("dragover", blockBrowserFileOpen);
+      window.removeEventListener("drop", blockBrowserFileOpen);
+    };
+  }, []);
+
   return (
     <section
       className="relative h-full min-h-0 min-w-0 overflow-hidden"
       aria-label="Storyboard"
     >
       <div className="h-full min-h-0 overflow-auto px-6 py-5">
+        <StoryboardDestinationDrop
+          frameId="append"
+          enabled={canAppendDrop}
+          className="min-h-full"
+          onDropFile={(file) => {
+            void appendDestinationWithImage(file);
+          }}
+        >
         <input
           ref={fileInputRef}
           id="replace-destination-image"
@@ -841,11 +962,7 @@ export function PlanView() {
             event.target.value = "";
             replacingFrameId.current = null;
             if (file && frameId) {
-              const frame = project.storyboard.find((item) => item.id === frameId);
-              const clearPlan = frame
-                ? shouldClearStoryboardPlanOnUpload(frame, (message) => window.confirm(message))
-                : false;
-              void replaceDestinationImage(frameId, file, { clearPlan });
+              applyDestinationImageFile(frameId, file);
             }
           }}
         />
@@ -908,7 +1025,7 @@ export function PlanView() {
                   frameId={frame.id}
                   constructing={constructing}
                   canConstruct={canGenerateOpening || canConstruct}
-                  disabled={pipelineBusy}
+                  disabled={storyboardLocked}
                   title={
                     canGenerateOpening
                       ? "Generate this opening frame from the journey story."
@@ -927,6 +1044,16 @@ export function PlanView() {
             );
             return (
               <li key={frame.id} className="min-w-0">
+                <StoryboardDestinationDrop
+                  frameId={frame.id}
+                  enabled={boardInteractive && canReplaceStoryboardFrameImage(frame)}
+                  onDropFile={(file) => {
+                    if (!frame.image) {
+                      select({ kind: "storyboard", frameId: frame.id });
+                    }
+                    applyDestinationImageFile(frame.id, file);
+                  }}
+                >
                 {frame.image ? (
                   <div
                     className={`relative ${selectedCard ? "" : "opacity-90"}`}
@@ -947,7 +1074,7 @@ export function PlanView() {
                           : undefined
                       }
                       reshooting={constructing}
-                      reshootDisabled={pipelineBusy}
+                      reshootDisabled={storyboardLocked}
                       onReplace={() => {
                         replacingFrameId.current = frame.id;
                         fileInputRef.current?.click();
@@ -997,6 +1124,7 @@ export function PlanView() {
                     {storyboardLive && (canConstruct || canGenerateOpening) && !constructing ? generate : null}
                   </div>
                 )}
+                </StoryboardDestinationDrop>
               </li>
             );
           })}
@@ -1004,11 +1132,12 @@ export function PlanView() {
             <li className="min-w-0">
               <AddDestinationCard
                 onAdd={addDestination}
-                disabled={pipelineBusy}
+                disabled={storyboardLocked}
               />
             </li>
           ) : null}
         </ol>
+        </StoryboardDestinationDrop>
       </div>
       <StoryboardReelHost />
     </section>
