@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Product Slice 8 — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION RESEARCH</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <a href="01-origin-and-exploration.html">Origin & Exploration</a>
+  <a href="02-motion-experiments.html">Motion Experiments</a>
+  <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+  <a href="04-camotion-research.html">Camotion Research</a>
+  <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+  <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+  <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+  <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+  <a href="09-shootability-intermediate-volume.html">Shootability</a>
+  <a href="10-product-slice-1.html">Product Slice 1</a>
+  <a href="11-product-slice-2.html">Product Slice 2</a>
+  <a href="12-product-slice-3.html">Product Slice 3</a>
+  <a href="13-destination-construction.html">Destination Construction</a>
+  <a href="14-forest-a-to-f.html">Forest A→F</a>
+  <a href="15-product-slice-4.html">Product Slice 4</a>
+  <a href="16-product-slice-5.html">Product Slice 5</a>
+  <a href="17-product-slice-6.html">Product Slice 6</a>
+  <a href="18-product-slice-7.html">Product Slice 7</a>
+  <a href="19-product-slice-8.html" class="active">Product Slice 8</a>
+</nav>
+<main>
+<section class="ready-code" id="product-slice-8">
+<div class="eyebrow">PRODUCT SLICE 8 · SEPTEMBER 13, 2026</div>
+<h2>Product Slice 8 — Directing Continuous First-Person Journeys</h2>
+<p>TunnelVision is an AI filmmaking system for directing continuous first-person journeys through imagined worlds. The filmmaker defines the journey. The Director structures the destinations. The Cinematographer figures out how to physically shoot each traversal. Camotion prepares motion-conditioned endpoint frames. The video model films the traversal. The result is a continuous journey assembled from canonical destinations.</p>
+<p>This is not a prompt wrapper around a video model. The current movies work because several layers reinforce each other. Exploratory research has been absorbed into the product architecture; these two journeys show the pieces working as a system.</p>
+
+<div class="finding">
+<strong>The filmmaker stays on story. Downstream layers own mechanics.</strong>
+<p>JOURNEY PROMPT is story intent and journey beats. The filmmaker is not asked to write camera mechanics, locomotion prompting, route geometry, model-specific negatives, or video-generation syntax. CREATE JOURNEY is the product-facing Director action. Agency is DIRECTED or AGENT.</p>
+</div>
+
+<div class="flow">
+  <span>SPECIFY</span><b>→</b>
+  <span>DIRECT</span><b>→</b>
+  <span>CONSTRUCT</span><b>→</b>
+  <span>SHOOT</span>
+</div>
+
+<div class="results-grid">
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-plan.png" alt="Plan workspace: Gravity City storyboard A through E, JOURNEY PROMPT and CREATE JOURNEY in the Project panel, DIRECTED agency"/>
+<figcaption>PLAN — Canonical storyboard, JOURNEY PROMPT, destination count, and CREATE JOURNEY. A is the opening viewpoint. Later letters are destinations the Director planned and constructed.</figcaption>
+</figure>
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-shoot.jpg" alt="Shoot workspace: A–B motion preview with Camotion overlay, MOTION and FOOTAGE bands, RESHOOT under the selected segment"/>
+<figcaption>SHOOT — MOTION holds the stored Segment Motion Plan. FOOTAGE is the take. SHOOT / RESHOOT sits under the selected interval. The preview shows the pair and the read-only CameraMotionPlan overlay.</figcaption>
+</figure>
+</div>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Canonical journey model</h3><span class="result-pill pass">A → B → C → D</span></div>
+<p>A, B, C, and later letters are pristine canonical destinations. A→B is the traversal between actual adjacent canonicals. A′ and B′ are Camotion-conditioned shooting frames derived from those stills. Do not collapse destination, traversal, and shooting frame into one object. Changing a canonical invalidates that segment's Motion Plan and recomputes it.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>SPECIFY · DIRECT · CONSTRUCT</h3><span class="result-pill info">CREATE JOURNEY</span></div>
+<p><strong>SPECIFY.</strong> The filmmaker writes a JOURNEY PROMPT. Story first. Camera language stays out of that prompt.</p>
+<p><strong>DIRECT.</strong> CREATE JOURNEY turns the prompt and the current storyboard into a sequence of destinations. Filmmaker-supplied stills stay authoritative. The Director resolves unspecified decisions; it does not overwrite specified ones.</p>
+<p><strong>CONSTRUCT.</strong> Canonicals are generated or supplied. Nano Banana 2 at 2K is the current strong still configuration — not a permanent hard dependency. Higher-quality 2K endpoints are also improving downstream video across providers. Canonical continuity is now a major strength of the pipeline.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>SHOOT · Cinematographer + split prompt</h3><span class="result-pill info">THIS SHOT THEN BASELINE</span></div>
+<p>For each actual adjacent pair, CM inspects the real images and writes a Segment Motion Plan: route, shot direction, pace, subject continuity when useful, Set Consistency, Traversal Confidence, semantic travel geometry (VP and D), and segment-specific video guidance.</p>
+<p>The shooting prompt is intentionally split. CM describes <em>this</em> shot's visible physical route first. The global baseline then enforces continuous first-person locomotion and POV invariants. CM names the route that exists — follow the trail, pass between landmarks, emerge onto a shoreline, cross water toward a waterfall — rather than listing hypothetical tunnels or caves the model should not invent. The baseline no longer carries generic route vocabulary.</p>
+<p>The baseline principle: continuous forward physical travel; no dissolves, morphs, crossfades, cuts, teleporting, or reversing; spatially contiguous progression; strong natural parallax; unembodied first-person POV; never show the viewer, body, shadow, reflection, or FPS-style objects.</p>
+</article>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>Camotion</h3><span class="result-pill pass">DETERMINISTIC CONDITIONING</span></div>
+<p>Camotion sits between CM planning and video generation. It is not an agent. Pace still sets base exposure. Adaptive weighting then scales that exposure per pixel:</p>
+<p><code>motion strength ≈ CM pace × depth weighting × destination protection × VP protection</code></p>
+<p>Nearby geometry receives stronger motion. Distant scenery and the arrival / perspective center stay comparatively stable, which helps keep 2K canonical detail. Debug work dirs can show the depth map, destination mask, VP mask, combined weight, and final A′/B′. Destination-aware curved / non-radial VP→D fields are still backlog, not this product path.</p>
+</article>
+
+<div class="results-grid">
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-depth.png" alt="Normalized Camotion near-weight depth map of a greenhouse interior, white near and gray far"/>
+<figcaption>Depth — 0 far, 1 near. Reused for an unchanged canonical across inbound and outbound legs.</figcaption>
+</figure>
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-destination-protection.png" alt="Soft rectangular destination-protection weight, dark at the protected arrival region"/>
+<figcaption>Destination protection — the arrival region receives less motion treatment.</figcaption>
+</figure>
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-vp-protection.png" alt="Weaker soft disk of vanishing-point protection at the perspective center"/>
+<figcaption>VP protection — weaker than destination protection; overlap just multiplies.</figcaption>
+</figure>
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-motion-weight.png" alt="Combined Camotion motion-weight map: dark rectangle at the destination, soft oval at the vanishing point"/>
+<figcaption>Combined weight — pace × depth × dest × VP. Darker is more protected.</figcaption>
+</figure>
+<figure class="image-card">
+<img src="../assets/product/product-slice-08-camotion-shooting.jpg" alt="Camotion-conditioned greenhouse shooting frame with stronger foreground radial motion and a sharper central destination"/>
+<figcaption>A′ — foreground foliage smears; the doorway / destination stays readable.</figcaption>
+</figure>
+</div>
+
+<div class="finding">
+<strong>The successful output is not one model doing everything.</strong>
+<p>It comes from (1) strong canonical continuity, (2) Director journey structure, (3) CM spatial reasoning, (4) segment-specific shot guidance, (5) Camotion endpoint conditioning, (6) capable start/end video generation, and (7) repeated canonical handoffs.</p>
+</div>
+
+<div class="finding">
+<strong>Greenhouse — complex but spatially plausible continuity</strong>
+<p>Greenhouse / forest → water → enormous roots → subterranean bioluminescent world. The movie reads as a directed continuous journey rather than stitched AI transitions.</p>
+</div>
+<div class="movie-player">
+<video controls playsinline preload="metadata" src="../assets/product/product-slice-08-greenhouse.mp4">
+Sorry, your browser cannot play this MP4.
+</video>
+</div>
+
+<div class="finding">
+<strong>Gravity City — deliberately near-unshootable continuity</strong>
+<p>Ordinary city → gravity breaks down → streets and buildings fold vertically → floating blocks → inverted city overhead → intersecting impossible architecture → suspended park. TunnelVision can keep journey progression even when the world itself becomes geometrically impossible. This is not a claim of perfect physical realism. The useful point is that the system directs the impossibility into a coherent traversal.</p>
+</div>
+<div class="movie-player">
+<video controls playsinline preload="metadata" src="../assets/product/product-slice-08-gravity-city.mp4">
+Sorry, your browser cannot play this MP4.
+</video>
+</div>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>Next: AGENT</h3><span class="result-pill info">NOT THE CURRENT LOOP</span></div>
+<p>AGENT should eventually run unattended: journey → canonicals → CM → repair or reshoot when needed → Camotion → footage → evaluate → continue → assembled journey. Planned repair language is SHOOT, RESHOOT_START, RESHOOT_END, RESHOOT_BOTH. When the set is the problem, repair the canonical before trying to solve impossible geography with video prompting. The opposite endpoint may be a visual reference. Traversal Confidence is evidence, not absolute truth — low-confidence pairs can still produce convincing footage. A later policy may shoot high-confidence pairs, shoot medium-confidence first and repair only if footage fails, and repair very low-confidence pairs before shooting. Those thresholds are not final.</p>
+<p>Other future work, not this slice: footage evaluator, CM-selected shot duration, filmmaker-adjustable D, destination-aware Camotion, visual look-ahead from future actual canonicals, re-direct around supplied future stills, final journey export, provider bakeoff.</p>
+</article>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Product Slice 8. Current Plan | Shoot product, adaptive Camotion, greenhouse and Gravity City journeys. Not a destination-aware field claim.</span>
+</footer>
+<nav class="chapter-nav"><a href="18-product-slice-7.html" class="prev-link">← Product Slice 7</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

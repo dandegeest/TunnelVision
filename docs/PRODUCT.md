@@ -17,9 +17,17 @@ loop becomes self-directing.
 
 > **Preserve the world's rules while changing the viewer's question.**
 
-TunnelVision is not primarily a video generator. It is a system for
-**directing an ongoing journey through an imagined space**. A finished
-film is one traversal through that world.
+TunnelVision is not a prompt wrapper around a video model. It is an
+AI filmmaking system for **directing continuous first-person journeys
+through imagined worlds**. The filmmaker defines the journey. The
+Director structures the destinations. The Cinematographer figures out
+how to physically shoot each traversal. Camotion prepares
+motion-conditioned endpoint frames. The video model films the
+traversal. A finished film is one journey assembled from canonical
+destinations.
+
+Current product overview:
+[genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 
 ## Origin and naming
 
@@ -65,22 +73,23 @@ disconnected workflows:
     what the generated world actually gave us.
 -   Production evidence can send the filmmaker back to Plan.
 
-**Current implementation:** Product Slice 3 adds a thin Director that
-turns the filmmaker story plus the complete ordered storyboard into
+**Current implementation:** Product Slice 8 is the current product
+overview. CREATE JOURNEY is the product-facing Director action; it
+turns the JOURNEY PROMPT plus the complete ordered storyboard into
 planned storyboard beats via `ReasoningProvider` (Gemini 3.1 Pro on
 Replicate). A TunnelVision project is a **partially specified movie**:
 the filmmaker may supply as much or as little of the storyboard as they
 want before asking the Director to plan. AUTO lets the Director choose
 how many destinations; a number, typed or stepped, adds that many FPO
-storyboard slots. After the first DIRECT response the count is read-only and follows
+storyboard slots. After the first CREATE JOURNEY response the count is read-only and follows
 storyboard add/delete. Starting frame A must be an actual image before
-Add Destination or Shoot, and before DIRECT unless auto-generate starting
-destination is on. When that toggle is on, DIRECT generates unresolved A
+Add Destination or Shoot, and before CREATE JOURNEY unless auto-generate starting
+destination is on. When that toggle is on, CREATE JOURNEY generates unresolved A
 from the story and then runs Director planning. If A is already actual
-and the story is empty, DIRECT first asks the Director to write a
+and the story is empty, CREATE JOURNEY first asks the Director to write a
 journey story from that image, then continues with the existing plan.
 Auto-generate all
-destinations is independent and off by default; after a successful DIRECT
+destinations is independent and off by default; after a successful CREATE JOURNEY
 it constructs B…N in travel order from each preceding actual frame.
 Construction is sequential because each later beat is derived from the
 previous one. If a later construct fails, generation stops and the
@@ -98,12 +107,12 @@ only UI action that invokes Director planning. The Director treats
 actual filmmaker-specified canonicals as authoritative: it resolves
 unspecified directing decisions and does not overwrite specified
 filmmaking decisions or generate images. When an uploaded or other actual still
-has no intent or visual description, DIRECT describes that still from the attached
-image and adopts the text. Later DIRECTs leave filled fields alone. Uploading or
-replacing a still asks whether to clear existing plan text so the next DIRECT can
-describe the new image. Agency (Directed vs Agent) is orthogonal and is not a
+has no intent or visual description, CREATE JOURNEY describes that still from the attached
+image and adopts the text. Later CREATE JOURNEY runs leave filled fields alone. Uploading or
+replacing a still asks whether to clear existing plan text so the next CREATE JOURNEY can
+describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
 stand-in for Discovery. Conversation is turn history; the Project panel
-holds the journey prompt, destination count, Directed Options
+holds the JOURNEY PROMPT, destination count, Directed Options
 (generate start destination, generate all destinations, shoot), and CREATE JOURNEY.
 Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
@@ -116,9 +125,9 @@ Reshoot, aspect / resolution / model, and A / A′ when Camotion exists —
 including on an actual opening whose
 intent and story are still empty so the filmmaker can type them.
 On Shoot, a second click on a selected timeline still opens that same reel.
-When auto-generate starting destination is on, DIRECT can generate A
+When auto-generate starting destination is on, CREATE JOURNEY can generate A
 before Director planning. When auto-generate all destinations is on,
-DIRECT then generates each remaining destination in order. Director activity appears in conversation when DIRECT runs;
+CREATE JOURNEY then generates each remaining destination in order. Director activity appears in conversation when CREATE JOURNEY runs;
 pending **Planning…**, **Blocking…**, **Shooting…**, and construction turns show a progress spinner.
 Empty Plan FPO thumbnails overlay Director intent as readable text until
 an image exists. After planning, Construct builds a planned beat from the immediately
@@ -136,7 +145,7 @@ no look-ahead. Later planned beats stay
 planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
-DIRECT is not a prerequisite for shooting actual adjacent canonicals.
+CREATE JOURNEY is not a prerequisite for shooting actual adjacent canonicals.
 MOTION is an inspect/status surface for the automatically generated Motion Plan;
 SHOOT sits under the FOOTAGE band when that segment is selected and
 becomes RESHOOT after a clip exists. The control is centered and sized
@@ -181,9 +190,9 @@ frame A, and no destinations, journeys, assessments, or media. Forest
 A→F and Wardrobe Loop remain research evidence and explicit test
 fixtures; they do not initialize the running product. The filmmaker
 provides starting frame A, may add unresolved destination slots,
-describes the movie, asks the Director with DIRECT, and constructs unresolved beats through the existing Generate
+describes the movie, asks the Director with CREATE JOURNEY, and constructs unresolved beats through the existing Generate
 flow. Plan can replan
-around existing destinations; specified stills survive. DIRECT adopts intent and
+around existing destinations; specified stills survive. CREATE JOURNEY adopts intent and
 visual description onto an actual still only when those fields are empty.
 The Director runtime resolves
 that identity from Project state; it does not independently substitute
@@ -207,6 +216,8 @@ Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
+Product Slice 8 current product:
+[genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 
 ## Plan is a conversational storyboard
 
@@ -382,7 +393,7 @@ strategies:
 
 These are construction strategies, **not** four global movie modes.
 Destination provenance belongs to the frame. Destination construction
-strategy belongs to the segment. Directed vs Autonomous remains an
+strategy belongs to the segment. DIRECTED vs AGENT remains an
 orthogonal question of agency. Do **not** encode all four in the
 product schema yet.
 
@@ -692,8 +703,8 @@ determines how to shoot between them, and the user later presses
 wired in this slice. Approximate duration and destination pointing
 are later collaborative controls.
 
-**Current implementation:** Product Slice 3 is the current Plan | Shoot
-shell. Plan is an explicit CREATE JOURNEY action over the current storyboard;
+**Current implementation:** Product Slice 8 is the current Plan | Shoot
+product. Plan is an explicit CREATE JOURNEY action over the current storyboard;
 the Director rail is history. Journey prompt and CREATE JOURNEY live in the
 Project panel. After planning, Construct builds the next
 planned beat from the preceding actual destination, with following-beat
@@ -733,6 +744,8 @@ Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
+Product Slice 8 current product:
+[genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

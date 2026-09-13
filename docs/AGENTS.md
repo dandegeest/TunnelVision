@@ -249,6 +249,8 @@ Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
+Product Slice 8 current product:
+[genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

@@ -150,6 +150,8 @@ Product Slice 6 destination look-ahead:
 [genesis/research/17-product-slice-6.html](../genesis/research/17-product-slice-6.html).
 Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
+Product Slice 8 current product:
+[genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 
 ### Plan — conversational storyboard
 
@@ -360,7 +362,7 @@ Timeline has two locked lanes on one time axis:
   is shorter than a 6s Pruna take.
 
 Preview sits above the timeline. A contextual inspector sits beside
-it. Directed vs Autonomous is one project policy flag, not two UIs.
+it. DIRECTED vs AGENT is one project policy flag, not two UIs.
 
 Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
@@ -460,13 +462,13 @@ should create off-axis route evidence first. See
 
 Use one project and one UI. `agency` is a policy flag:
 
-- directed --- pause for human approval at meaningful gates;
-- autonomous --- the same actions auto-advance unless blocked.
+- DIRECTED --- pause for human approval at meaningful gates;
+- AGENT --- the same actions auto-advance unless blocked.
 
 Human changes are preference signals. PreferenceState schema is an
 **open question** --- do not design it for Camotion v1.
 
-Blocked shootability always surfaces. Autonomous mode cannot silently
+Blocked shootability always surfaces. AGENT cannot silently
 ignore an unshootable journey.
 
 ## Expensive-generation boundary

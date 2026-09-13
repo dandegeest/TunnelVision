@@ -1,8 +1,8 @@
 # TunnelVision
 
-**An agentic filmmaking experiment for directing continuous journeys through AI-imagined worlds.**
+**An AI filmmaking system for directing continuous first-person journeys through imagined worlds.**
 
-TunnelVision explores whether generative image and video models can be orchestrated into a system that doesn't simply create individual shots, but **directs an evolving journey through a continuous imagined world**.
+TunnelVision orchestrates image models, Cinematographer planning, Camotion, and video generation so the filmmaker can specify a journey and the system can film traversals between canonical destinations. It is a directing pipeline, not a prompt wrapper around a video model. Current product overview: [`genesis/research/19-product-slice-8.html`](genesis/research/19-product-slice-8.html).
 
 The goal is a system that can decide where to go next, learn from human creative choices, maintain the visual and spatial logic of the world, and generate convincing continuous camera movement between selected viewpoints.
 
@@ -36,7 +36,11 @@ TunnelVision maintains a sequence of canonical viewpoints:
 
 Each selected frame becomes both part of the visual history of the journey and the starting point for deciding where to go next.
 
-The emerging loop is:
+The current product loop is:
+
+`SPECIFY → DIRECT → CONSTRUCT → SHOOT`
+
+AGENT is the next major target: an unattended observe / repair / reshoot loop over that same pipeline. The earlier research loop remains:
 
 `OBSERVE → PROPOSE → GENERATE → EVALUATE → SELECT → MOVE`
 
@@ -250,9 +254,9 @@ durable project persistence. Forest A→F and Wardrobe remain research
 evidence and explicit test fixtures; they do not initialize the
 running product. After Plan Movie, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
-edit. Later beats stay planned until explicitly constructed. Video
-remains unwired in the product. Shoot
-remains Destinations / Journey. Visual checkpoint:
+edit. Later beats stay planned until explicitly constructed. Shoot is a
+production view of Destinations / Journey: MOTION, FOOTAGE, and
+SHOOT / RESHOOT. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
 Director observation:
 [`genesis/research/12-product-slice-3.html`](genesis/research/12-product-slice-3.html).
@@ -268,6 +272,8 @@ Product Slice 6 destination look-ahead:
 [`genesis/research/17-product-slice-6.html`](genesis/research/17-product-slice-6.html).
 Product Slice 7 Plan | Shoot UI:
 [`genesis/research/18-product-slice-7.html`](genesis/research/18-product-slice-7.html).
+Product Slice 8 current product:
+[`genesis/research/19-product-slice-8.html`](genesis/research/19-product-slice-8.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
