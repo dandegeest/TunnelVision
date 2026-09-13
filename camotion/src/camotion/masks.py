@@ -68,7 +68,7 @@ def feather_width(bbox: tuple[float, float, float, float]) -> float:
     return width
 
 
-def _normalized_grid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
+def normalized_grid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
     xs = (
         np.array([0.0], dtype=np.float64)
         if width == 1
@@ -82,7 +82,7 @@ def _normalized_grid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
     return np.meshgrid(xs, ys, indexing="xy")
 
 
-def _distance_outside_bbox(
+def distance_outside_bbox(
     xs: np.ndarray,
     ys: np.ndarray,
     bbox: tuple[float, float, float, float],
@@ -110,8 +110,8 @@ def destination_protection_mask(
 
     bbox = effective_destination_bbox(destination)
     width_feather = feather_width(bbox)
-    xs, ys = _normalized_grid(width, height)
-    distance = _distance_outside_bbox(xs, ys, bbox)
+    xs, ys = normalized_grid(width, height)
+    distance = distance_outside_bbox(xs, ys, bbox)
     mask = np.clip(1.0 - distance / width_feather, 0.0, 1.0)
     return mask
 

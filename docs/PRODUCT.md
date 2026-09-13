@@ -170,7 +170,9 @@ Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
 CameraMotionPlan JSON; a narrow deterministic bridge turns the same
 assessment's travel geometry into CameraMotionPlan v1 and maps CM `pace`
-to Camotion `exposure.strength`. Export Movie
+to Camotion `exposure.strength`. Adaptive Camotion then scales that
+exposure per pixel by depth, destination protection, and vanishing-point
+protection. Export Movie
 concatenates whatever rendered journey clips currently exist, in
 storyboard order, without transitions, bridges, or repair. Incomplete
 exports report missing legs. The application starts as a

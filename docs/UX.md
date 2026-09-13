@@ -241,7 +241,9 @@ clickable start/end canonicals, Take (Start′/End′), Pace, Shot direction whe
 travel exists, a collapsed Prompt, Reshoot, and Model only while Debug is on.
 It does not show destination status, opening-destination
 copy, or Technical/Debug path panels. Camotion work dirs are kept only while Debug is on; product
-shoot does not pass a depth map. Frame labels occupy a
+shoot may estimate a reusable canonical depth map for adaptive
+weighting; Debug keeps those previews in the Camotion work dir, not in
+normal filmmaker UI. Frame labels occupy a
 full-width top strip. Destination-specific actions live in a quiet
 kebab on that strip. Unresolved slots expose Upload image. Actual
 stills expose Replace…, which swaps that
@@ -427,7 +429,8 @@ manipulates a destination, not a vanishing point.
 preview.
 
 Depth maps, masks and confidence values belong under Inspect/Advanced.
-Camotion does not estimate depth. Optional near-weight maps are a
+Camotion's renderer does not estimate depth. Product shoot may supply
+a cached sidecar near-weight map. Optional near-weight maps are a
 sidecar input beside CameraMotionPlan, not a plan field.
 
 ## Destination interaction
@@ -438,9 +441,9 @@ bottom-right. See [DATA_MODEL.md](DATA_MODEL.md).
 The user manipulates a **destination**. Vanishing point / focus of
 expansion is derived later (human, experiment, or Cinematographer).
 How that derivation works, including any use of depth, is an **open
-question**. Camotion does not estimate depth or infer vanishing
+question**. Camotion does not infer vanishing
 point; the plan supplies the vanishing point. Depth estimation and CV
-scene analysis stay outside Camotion.
+scene analysis stay outside the renderer and CameraMotionPlan.
 
 For straight-ahead travel, destination and focus of expansion may
 nearly coincide. They may also be offset. An off-center supplied

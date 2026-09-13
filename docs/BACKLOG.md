@@ -1147,7 +1147,9 @@ followed VP):
 
 ### Adaptive Camotion
 
-**Status:** BACKLOG
+**Status:** STARTED — product shoot now applies spatial weights
+(pace × depth × dest protect × VP protect) on the frozen radial field.
+Destination-Aware / non-radial VP→D fields remain backlog.
 
 **Goal.** Move beyond the current deterministic pace → exposure
 heuristic toward **image-aware** motion conditioning that still
@@ -1211,8 +1213,10 @@ canonical as the product path; that was Wardrobe evidence.
 
 ### Camotion depth / Z
 
-**Status:** BACKLOG (experiment workstream; overlaps Adaptive
-Camotion)
+**Status:** STARTED — product estimates a reusable near-weight map
+per unchanged canonical (0=far, 1=near) and multiplies it into
+adaptive exposure. Missing depth falls back; Destination-Aware
+fields are still separate.
 
 **Goal.** Revisit the AI depth-model experiment so Camotion knows
 WHERE and HOW MUCH different regions should receive motion

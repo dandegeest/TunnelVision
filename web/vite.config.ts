@@ -43,6 +43,7 @@ export default defineConfig({
       "destination-construct.test.ts",
       "shoot-journey.test.ts",
       "camotion-cli.test.ts",
+      "camotion-depth.test.ts",
       "export-movie.test.ts",
     ],
   },

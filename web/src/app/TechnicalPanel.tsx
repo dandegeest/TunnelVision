@@ -163,14 +163,21 @@ export function TechnicalPanel() {
                 <DebugPath
                   label="Depth map"
                   value={
-                    selectedJourney.motionPlan || selectedJourney.take
-                      ? "Not created. Product shoot does not pass --depth."
-                      : undefined
+                    (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.depthSupplied
+                      ? (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.startDepthPath ??
+                        (selectedJourney.motionPlan?.camotion ?? selectedJourney.take?.camotion)?.depthPath ??
+                        "Estimated and reused for this canonical."
+                      : selectedJourney.motionPlan || selectedJourney.take
+                        ? "Unavailable. Camotion used destination/VP weights only."
+                        : undefined
                   }
                 />
               </>
             ) : null}
-            <p>{snapshot?.camotion.depth ?? "Product shoot does not pass --depth."}</p>
+            <p>
+              {snapshot?.camotion.depth ??
+                "Product shoot estimates a reusable near-weight depth map per unchanged canonical."}
+            </p>
             <p>
               {snapshot?.camotion.cleanup ??
                 "Without Debug, Camotion work dirs are deleted after A′/B′ are copied into the session store."}

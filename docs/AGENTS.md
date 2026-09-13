@@ -172,8 +172,11 @@ Technical or Debug path panels. Destination Camotion in Inspector is filmmaker
 fields plus an optional working directory while Debug is on. With Debug on,
 Camotion keeps plan.json and shooting.png; otherwise those work dirs
 are deleted after the shooting frames are copied into the session
-store. Product shoot does not pass --depth, and Camotion does not
-estimate depth maps.
+store. Product shoot estimates a reusable near-weight depth map per
+unchanged canonical (0.0 = far, 1.0 = near) and passes it to Camotion
+with destination and vanishing-point protection weights. Missing depth
+falls back to dest/VP weights only; it does not block Camotion. Debug
+keeps those weight previews in the Camotion work dir.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically. Each interval is two stacked bands under the destination
@@ -196,7 +199,9 @@ canonicals, reports semantic travel geometry in the same assessment turn, a
 deterministic CameraMotionPlan v1 bridge derives Camotion
 geometry from that travel object (centered `[0.5, 0.5]` only as a fallback
 when CM cannot determine a better target) and maps the existing CM `pace`
-to `exposure.strength`, and Camotion renders A′/B′ for that shot only. Neighboring
+to `exposure.strength`. Camotion then weights that exposure spatially
+(depth × destination protection × VP protection) and renders A′/B′ for
+that shot only. Neighboring
 segments are unchanged. Changing either canonical invalidates that segment's
 Motion Plan and recomputes it; unrelated UI and story edits do not. Footage
 generation remains an explicit FOOTAGE action. MOTION shows the A|B canonical stills, a canonical vs
@@ -472,7 +477,8 @@ implement that decision now.
 The frozen v1 **plan** contract is `image + CameraMotionPlan JSON` and
 emits one shooting-frame still. See [DATA_MODEL.md](DATA_MODEL.md).
 An optional near-weight image may be supplied beside that contract.
-Camotion does not estimate depth, run CV, or call generators.
+The renderer does not estimate depth. Product shoot may run a separate
+depth estimator and pass that map in. Camotion does not call generators.
 
 Camotion v1 is a **radial-exposure experiment** (forward radial motion
 field around a supplied focus of expansion, scaled by `camera.forward`,

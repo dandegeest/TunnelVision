@@ -144,6 +144,7 @@ export async function stagePreparedMotionPlan(input: {
   renderFrame: (
     imagePath: string,
     plan: CameraMotionPlanV1,
+    mediaId: string,
   ) => Promise<Buffer | CamotionRenderResult>;
 }): Promise<StagedMotionPlanResult> {
   const journeyId = requiredId(input.body.journeyId, "journeyId");
@@ -164,8 +165,8 @@ export async function stagePreparedMotionPlan(input: {
   const startPlan = cameraMotionPlanFromBody(input.body.startPlan) ?? productionCameraMotionPlan(pace);
   const endPlan = cameraMotionPlanFromBody(input.body.endPlan) ?? productionCameraMotionPlan(pace);
   const [startRender, endRender] = await Promise.all([
-    input.renderFrame(startImage.path, startPlan).then(asCamotionRender),
-    input.renderFrame(endImage.path, endPlan).then(asCamotionRender),
+    input.renderFrame(startImage.path, startPlan, startMediaId).then(asCamotionRender),
+    input.renderFrame(endImage.path, endPlan, endMediaId).then(asCamotionRender),
   ]);
   const registry = getActiveRuntimeMediaRegistry();
   if (!registry) {
@@ -199,8 +200,10 @@ export async function stagePreparedMotionPlan(input: {
       ...(endRender.workDir
         ? { endWorkDir: endRender.workDir, endOutput: endRender.outputPath }
         : {}),
-      depthSupplied: false,
-      depthPath: null,
+      depthSupplied: Boolean(startRender.depthSupplied || endRender.depthSupplied),
+      depthPath: startRender.depthPath ?? endRender.depthPath ?? null,
+      startDepthPath: startRender.depthPath ?? null,
+      endDepthPath: endRender.depthPath ?? null,
       workDirRetained: retainWorkDir && Boolean(startRender.workDir || endRender.workDir),
     },
   };
@@ -215,6 +218,7 @@ export async function shootPreparedJourney(input: {
   renderFrame: (
     imagePath: string,
     plan: CameraMotionPlanV1,
+    mediaId: string,
   ) => Promise<Buffer | CamotionRenderResult>;
   generateVideo: (request: VideoGenerationRequest) => Promise<GeneratedVideo>;
 }): Promise<JourneyShotTakeResult> {
@@ -290,6 +294,8 @@ function stagedMotionPlanFromShootingFrames(
     camotion: {
       depthSupplied: false,
       depthPath: null,
+      startDepthPath: null,
+      endDepthPath: null,
       workDirRetained: false,
     },
   };

@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import type { CameraMotionPlanV1 } from "../media/src/cinematographer/plan-shot.ts";
 
-const CAMOTION_TIMEOUT_MS = 60_000;
+const CAMOTION_TIMEOUT_MS = 90_000;
 
 export function camotionPythonBin(repoRoot: string): string {
   return join(repoRoot, "camotion/.venv/bin/python");
@@ -21,28 +21,35 @@ export type CamotionSpawn = (
   options: { cwd?: string; env?: NodeJS.ProcessEnv },
 ) => ReturnType<typeof spawn>;
 
+export type CamotionDepthLookup = {
+  resolve(mediaId: string, imagePath: string): Promise<string | null>;
+};
+
 export type CamotionRenderResult = {
   bytes: Buffer;
   workDir: string;
   planPath: string;
   outputPath: string;
-  depthPath: null;
-  depthSupplied: false;
+  depthPath: string | null;
+  depthSupplied: boolean;
   workDirRetained: boolean;
 };
 
 /**
- * Frozen Camotion v1 CLI. Does not change the operator, strength vocabulary,
- * or plan schema. Python owns rendering. Product shoot does not pass --depth.
- * Work dirs are deleted after the shooting PNG is read unless retainWorkDir.
+ * Product Camotion CLI. Radial operator, samples, and pace strength stay
+ * frozen. ``--adaptive`` applies depth / destination / VP weights.
+ * Missing depth is non-fatal: dest/VP weights still run.
  */
 export async function renderCamotionShootingFrame(input: {
   repoRoot: string;
   imagePath: string;
   plan: CameraMotionPlanV1;
+  mediaId?: string;
   pythonBin?: string;
   spawnImpl?: CamotionSpawn;
   retainWorkDir?: boolean;
+  adaptive?: boolean;
+  depthCache?: CamotionDepthLookup;
 }): Promise<CamotionRenderResult> {
   const pythonBin = input.pythonBin ?? camotionPythonBin(input.repoRoot);
   try {
@@ -54,8 +61,27 @@ export async function renderCamotionShootingFrame(input: {
   const planPath = join(work, "plan.json");
   const outputPath = join(work, "shooting.png");
   await writeFile(planPath, `${JSON.stringify(input.plan, null, 2)}\n`, "utf8");
+  const adaptive = input.adaptive !== false;
+  let depthPath: string | null = null;
+  if (input.mediaId && input.depthCache) {
+    try {
+      depthPath = await input.depthCache.resolve(input.mediaId, input.imagePath);
+    } catch {
+      depthPath = null;
+    }
+  }
+  const args = ["-m", "camotion", "--image", input.imagePath, "--plan", planPath, "--output", outputPath];
+  if (adaptive) {
+    args.push("--adaptive");
+  }
+  if (depthPath) {
+    args.push("--depth", depthPath);
+  }
+  if (input.retainWorkDir) {
+    args.push("--debug-dir", work);
+  }
   const spawnImpl = input.spawnImpl ?? spawn;
-  const child = spawnImpl(pythonBin, ["-m", "camotion", "--image", input.imagePath, "--plan", planPath, "--output", outputPath], {
+  const child = spawnImpl(pythonBin, args, {
     cwd: join(input.repoRoot, "camotion"),
     env: {
       ...process.env,
@@ -95,8 +121,8 @@ export async function renderCamotionShootingFrame(input: {
       workDir: work,
       planPath,
       outputPath,
-      depthPath: null,
-      depthSupplied: false,
+      depthPath,
+      depthSupplied: Boolean(depthPath),
       workDirRetained: retain,
     };
   } catch (error) {

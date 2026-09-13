@@ -6,6 +6,7 @@ import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
 import { videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { renderCamotionShootingFrame } from "./camotion-cli.ts";
+import { createCanonicalDepthCache } from "./camotion-depth.ts";
 import { shootPreparedJourney, stagePreparedMotionPlan, videoModelIdFromBody } from "./shoot-journey.ts";
 import { UntrustedMediaError } from "./trusted-media.ts";
 
@@ -68,6 +69,7 @@ export function shootDevPlugin(repoRoot: string): Plugin {
     name: "tunnelvision-shoot-dev",
     configureServer(server) {
       loadDotEnvLocal(repoRoot);
+      const depthCache = createCanonicalDepthCache({ repoRoot });
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
         if (url !== "/api/journey/shoot" && url !== "/api/journey/motion-plan") {
@@ -80,11 +82,17 @@ export function shootDevPlugin(repoRoot: string): Plugin {
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
-          const renderFrame = (imagePath: string, plan: Parameters<typeof renderCamotionShootingFrame>[0]["plan"]) =>
+          const renderFrame = (
+            imagePath: string,
+            plan: Parameters<typeof renderCamotionShootingFrame>[0]["plan"],
+            mediaId: string,
+          ) =>
             renderCamotionShootingFrame({
               repoRoot,
               imagePath,
               plan,
+              mediaId,
+              depthCache,
               retainWorkDir: body.debug === true,
             });
           if (url === "/api/journey/motion-plan") {

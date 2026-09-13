@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 
+from camotion.adaptive import combined_motion_weight, write_adaptive_debug_maps
 from camotion.depth import apply_near_weight
 from camotion.exposure import apply_multisample_exposure
 from camotion.flow import forward_radial_motion_field
@@ -16,15 +19,20 @@ def render(
     plan: CameraMotionPlan,
     *,
     near_weight: np.ndarray | None = None,
+    adaptive: bool = False,
+    debug_dir: Path | str | None = None,
 ) -> np.ndarray:
     """Return a motion-conditioned image from ``image`` and a validated plan.
 
-    Pipeline: forward radial field → optional near-weight scaling →
-    outgoing multisample exposure → destination protection mask →
-    blend pristine destination over the exposed image. Absent destination
-    or ``protect=false`` yields a zero mask, so the result is the fully
-    exposed image. ``near_weight=None`` skips scaling and preserves
-    current no-depth behavior.
+    Pipeline: forward radial field → optional near-weight or adaptive
+    spatial weighting → outgoing multisample exposure → destination
+    protection mask → blend pristine destination over the exposed image.
+
+    ``adaptive=False`` (default) is the frozen v1 path: ``near_weight``
+    scales the field when supplied, otherwise the field is unchanged.
+    ``adaptive=True`` multiplies pace exposure by depth, destination,
+    and vanishing-point weights without changing radial geometry.
+    Missing depth then uses dest/VP weights only.
     """
     array = np.asarray(image)
     if array.ndim not in (2, 3):
@@ -38,7 +46,12 @@ def render(
         plan.camera.vanishing_point,
         plan.camera.forward,
     )
-    if near_weight is not None:
+    if adaptive:
+        weights = combined_motion_weight(width, height, plan, near_weight)
+        field = apply_near_weight(field, weights["combined"])
+        if debug_dir is not None:
+            write_adaptive_debug_maps(debug_dir, weights)
+    elif near_weight is not None:
         weight = np.asarray(near_weight)
         if weight.ndim != 2 or weight.shape != (height, width):
             raise ValueError(

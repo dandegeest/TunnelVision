@@ -8,7 +8,13 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from camotion.depth import apply_near_weight, load_near_weight, near_weight_from_image
+from camotion.depth import (
+    apply_near_weight,
+    load_near_weight,
+    near_weight_from_image,
+    normalize_relative_depth,
+    resize_near_weight,
+)
 from camotion.flow import forward_radial_motion_field
 from camotion.plan import CameraMotionPlan
 from camotion.render import render
@@ -23,6 +29,14 @@ def _plan(*, destination: dict | None = None) -> CameraMotionPlan:
     if destination is not None:
         data["destination"] = destination
     return CameraMotionPlan.model_validate(data)
+
+
+def test_near_weight_convention_is_far_zero_near_one() -> None:
+    raw = np.array([[2.0, 4.0, 8.0]], dtype=np.float64)
+    near = normalize_relative_depth(raw)
+    assert near[0, 0] == pytest.approx(0.0)
+    assert near[0, 2] == pytest.approx(1.0)
+    assert resize_near_weight(near, 6, 3).shape == (3, 6)
 
 
 def test_apply_near_weight_scales_vectors_per_pixel() -> None:

@@ -429,8 +429,11 @@ Credit for motion-conditioned keyframes, depth-aware blur, destination
 protection, and the generic continuous-motion prompting strategy remains
 with Terran Boylan and original TunnelVision. Camotion architecture, interpretation,
 and the compositor hypothesis below are ours, not Terran's claims.
-Optional near-weight scaling lives **outside** CameraMotionPlan;
-Camotion still does not estimate depth.
+Optional near-weight scaling lives **outside** CameraMotionPlan.
+The renderer does not estimate depth. Product shoot may run a separate
+Depth Anything V2 Small estimator, cache that map on the pristine
+canonical, and pass ``--depth`` plus ``--adaptive``. Missing depth is
+non-fatal. Destination-Aware / non-radial VP→D fields are still backlog.
 
 ## Current code --- Camotion v1
 
@@ -441,6 +444,7 @@ Camotion still does not estimate depth.
 image + CameraMotionPlan
   → forward radial motion field around supplied focus of expansion
   → optional near-weight multiplication (if --depth supplied)
+  → optional adaptive weights (depth × dest protection × VP protection)
   → multisample exposure
   → protected destination
   → shooting-frame image
@@ -453,12 +457,13 @@ CLI:
 
 ``` bash
 python -m camotion --image input.png --plan camera-motion.json --output output.png
-python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --output output.png
+python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --adaptive --output output.png
 ```
 
 `--plan` is a **CameraMotionPlan** JSON file, not a `ShotPlan`.
-`--depth` is optional. CameraMotionPlan v1 stays frozen: no depth
-field.
+`--depth` is optional. `--adaptive` applies spatial motion weights
+without changing radial geometry, samples, or pace strength.
+CameraMotionPlan v1 stays frozen: no depth field.
 
 Contract: [DATA_MODEL.md](DATA_MODEL.md). Implementation language:
 Python / Pydantic. No TypeScript, Node, LLM, or media-provider
@@ -486,13 +491,17 @@ camotion/
 ```
 
 `depth.py` scales the existing radial field by a supplied near-weight
-map. It does not estimate depth. Experimental map generation (Depth
-Anything V2 Small, relative per-image near-weight) lives outside the
-engine, currently as a `tuning/` utility.
+map. It does not estimate depth. `adaptive.py` turns that map plus
+destination/VP geometry into a spatial exposure weight.
+`camotion.estimate_depth` is the optional product estimator (Depth
+Anything V2 Small). The older `tuning/generate_depth.py` utility keeps
+the same 0=far / 1=near convention.
 
-Do **not** add to Camotion: depth estimation, LLM calls, media APIs,
-UI, 6-DOF, segmentation, GPU rendering, video, `ShotPlan`, `B_in` /
-`B_out`, lateral translation / strafing, or turning / yaw.
+Do **not** add to Camotion: LLM calls, media APIs, UI, 6-DOF,
+segmentation, GPU rendering, video, `ShotPlan`, `B_in` /
+`B_out`, lateral translation / strafing, or turning / yaw. Depth
+estimation stays in `camotion.estimate_depth`, not in the plan JSON
+and not in default `render()`.
 
 ## Later phases (not current work)
 

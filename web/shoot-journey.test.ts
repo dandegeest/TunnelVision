@@ -98,8 +98,44 @@ describe("shootPreparedJourney", () => {
     expect(take.camotion).toEqual({
       depthSupplied: false,
       depthPath: null,
+      startDepthPath: null,
+      endDepthPath: null,
       workDirRetained: false,
     });
+  });
+
+  it("records reusable canonical depth while keeping A′/B′ segment-specific", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-shoot-depth-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const mediaIds: string[] = [];
+    const staged = await stagePreparedMotionPlan({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+      },
+      renderFrame: async (_imagePath, _plan, mediaId) => {
+        mediaIds.push(mediaId);
+        return {
+          bytes: PNG,
+          workDir: "/tmp/start",
+          planPath: "/tmp/plan.json",
+          outputPath: "/tmp/shooting.png",
+          depthPath: `/tmp/depth-${mediaId}.png`,
+          depthSupplied: true,
+          workDirRetained: false,
+        };
+      },
+    });
+    expect(mediaIds).toEqual([start.mediaId, end.mediaId]);
+    expect(staged.startPlan.exposure.strength).toBe(staged.endPlan.exposure.strength);
+    expect(staged.camotion.depthSupplied).toBe(true);
+    expect(staged.camotion.startDepthPath).toBe(`/tmp/depth-${start.mediaId}.png`);
+    expect(staged.camotion.endDepthPath).toBe(`/tmp/depth-${end.mediaId}.png`);
+    expect(staged.startShootingFrame.mediaId).not.toBe(staged.endShootingFrame.mediaId);
   });
 
   it("requests and records Kling's 5s clip length", async () => {

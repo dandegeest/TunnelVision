@@ -37,6 +37,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional near-weight / depth image (white=near/full motion, black=far/none)",
     )
+    parser.add_argument(
+        "--adaptive",
+        action="store_true",
+        help="Apply depth, destination, and vanishing-point motion weights on the radial field",
+    )
+    parser.add_argument(
+        "--debug-dir",
+        type=Path,
+        default=None,
+        help="Write adaptive weight previews (depth, dest, VP, combined) into this directory",
+    )
     return parser
 
 
@@ -122,7 +133,13 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
     try:
-        output = render(image, plan, near_weight=near_weight)
+        output = render(
+            image,
+            plan,
+            near_weight=near_weight,
+            adaptive=bool(args.adaptive),
+            debug_dir=args.debug_dir,
+        )
         _save_image(args.output, output)
     except OSError as exc:
         print(f"error: cannot write output: {exc}", file=sys.stderr)

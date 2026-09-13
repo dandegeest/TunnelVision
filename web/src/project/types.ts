@@ -107,9 +107,11 @@ export type CamotionDebug = {
   endWorkDir?: string;
   startOutput?: string;
   endOutput?: string;
-  /** Product shoot does not pass --depth and Camotion does not estimate depth. */
-  depthSupplied: false;
-  depthPath: null;
+  /** True when at least one canonical supplied a reusable near-weight map. */
+  depthSupplied: boolean;
+  depthPath?: string | null;
+  startDepthPath?: string | null;
+  endDepthPath?: string | null;
   workDirRetained: boolean;
 };
 

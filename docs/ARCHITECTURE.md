@@ -40,7 +40,7 @@ web/          Vite + React + TypeScript Plan | Shoot shell
 
 ``` bash
 python -m camotion --image input.png --plan camera-motion.json --output output.png
-python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --output output.png
+python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --adaptive --output output.png
 ```
 
 -   **Exists now:** planning docs; genesis experiment record; Camotion
@@ -132,7 +132,8 @@ gate JourneyShot status. Shoot is a production view of the current
 Project: consecutive actual adjacent storyboard canonicals become
 Destinations and JourneyShots on that same Project. There is no
 cloned Shoot model. SHOOT under FOOTAGE uses the staged Motion Plan's
-A′/B′, composes the frozen locomotion prompt, and generates a development clip. The current
+A′/B′ (radial Camotion with adaptive depth / destination / VP weights),
+composes the frozen locomotion prompt, and generates a development clip. The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
 A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
 is not this path. Discovery, and

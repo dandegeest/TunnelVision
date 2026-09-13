@@ -45,6 +45,8 @@ describe("Camotion CLI adapter", () => {
     expect(args).toContain(imagePath);
     expect(args).toContain("--plan");
     expect(args).toContain("--output");
+    expect(args).toContain("--adaptive");
+    expect(args).not.toContain("--depth");
     expect(result.bytes.equals(PNG)).toBe(true);
     expect(result.depthSupplied).toBe(false);
     expect(result.workDirRetained).toBe(false);
@@ -80,6 +82,71 @@ describe("Camotion CLI adapter", () => {
     expect(existsSync(result.outputPath)).toBe(true);
     expect(existsSync(result.planPath)).toBe(true);
     expect(result.depthPath).toBeNull();
+  });
+
+  it("passes a cached canonical depth map and keeps A′/B′ segment-specific", async () => {
+    const work = mkdtempSync(join(tmpdir(), "tv-camotion-depth-"));
+    const imagePath = join(work, "B.png");
+    const depthPath = join(work, "B-depth.png");
+    writeFileSync(imagePath, PNG);
+    writeFileSync(depthPath, PNG);
+    const pythonBin = join(work, "python");
+    writeFileSync(pythonBin, "");
+    let resolveCount = 0;
+    const calls: string[][] = [];
+    const depthCache = {
+      async resolve(mediaId: string, path: string) {
+        resolveCount += 1;
+        expect(mediaId).toBe("canonical-b");
+        expect(path).toBe(imagePath);
+        return depthPath;
+      },
+    };
+    const spawnImpl = (_command: string, spawnArgs: readonly string[]) => {
+      calls.push([...spawnArgs]);
+      const output = spawnArgs[spawnArgs.indexOf("--output") + 1];
+      if (output) {
+        writeFileSync(output, PNG);
+      }
+      const child = new EventEmitter() as ReturnType<typeof import("node:child_process").spawn>;
+      child.stderr = new EventEmitter() as NodeJS.ReadableStream;
+      child.kill = () => true;
+      queueMicrotask(() => child.emit("close", 0));
+      return child;
+    };
+    const endPrime = await renderCamotionShootingFrame({
+      repoRoot: work,
+      imagePath,
+      mediaId: "canonical-b",
+      plan: {
+        ...productionCameraMotionPlan(),
+        destination: { point: [0.7, 0.4], protect: true, bbox: [0.6, 0.3, 0.8, 0.5] },
+      },
+      pythonBin,
+      depthCache,
+      spawnImpl,
+    });
+    const startPrime = await renderCamotionShootingFrame({
+      repoRoot: work,
+      imagePath,
+      mediaId: "canonical-b",
+      plan: {
+        ...productionCameraMotionPlan(),
+        destination: { point: [0.2, 0.6], protect: true, bbox: [0.1, 0.5, 0.3, 0.7] },
+      },
+      pythonBin,
+      depthCache,
+      spawnImpl,
+    });
+    expect(resolveCount).toBe(2);
+    expect(endPrime.depthSupplied).toBe(true);
+    expect(startPrime.depthSupplied).toBe(true);
+    expect(endPrime.depthPath).toBe(depthPath);
+    expect(startPrime.depthPath).toBe(depthPath);
+    expect(calls[0]).toContain("--depth");
+    expect(calls[0]).toContain(depthPath);
+    expect(calls[0]).toContain("--adaptive");
+    expect(JSON.stringify(endPrime)).not.toBe(JSON.stringify(startPrime));
   });
 
   it("runs the frozen Camotion CLI when the venv is present", async () => {

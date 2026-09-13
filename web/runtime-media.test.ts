@@ -184,7 +184,7 @@ describe("runtime media HTTP", () => {
     expect(body.records).toEqual([
       expect.objectContaining({ mediaId: recorded.mediaId, filePath: recorded.filePath }),
     ]);
-    expect(body.camotion.depth).toMatch(/does not pass --depth/i);
+    expect(body.camotion.depth).toMatch(/reusable near-weight depth map/i);
   });
 });
 

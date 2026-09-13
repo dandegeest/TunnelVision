@@ -16,6 +16,43 @@ from PIL import Image
 _LUMA = (0.299, 0.587, 0.114)
 
 
+def normalize_relative_depth(depth: np.ndarray, *, invert: bool = False) -> np.ndarray:
+    """Normalize a relative depth array to Camotion near-weight.
+
+    Convention: ``0.0`` = far, ``1.0`` = near. Depth Anything V2 Small
+    on this project emits larger values for nearer pixels, so the
+    default is min-max normalize without inversion. Set ``invert=True``
+    only when a provider is farther-is-larger.
+    """
+    array = np.asarray(depth, dtype=np.float64)
+    if array.ndim != 2 or array.shape[0] < 1 or array.shape[1] < 1:
+        raise ValueError("depth must have shape H x W")
+    if np.any(~np.isfinite(array)):
+        raise ValueError("depth values must be finite")
+    depth_min = float(np.min(array))
+    depth_max = float(np.max(array))
+    if depth_max <= depth_min:
+        return np.zeros_like(array, dtype=np.float64)
+    normalized = (array - depth_min) / (depth_max - depth_min)
+    if invert:
+        normalized = 1.0 - normalized
+    return np.clip(normalized, 0.0, 1.0)
+
+
+def resize_near_weight(near_weight: np.ndarray, width: int, height: int) -> np.ndarray:
+    """Bilinear-map a working-resolution near-weight onto canonical size."""
+    array = np.clip(np.asarray(near_weight, dtype=np.float64), 0.0, 1.0)
+    if array.ndim != 2:
+        raise ValueError("near_weight must have shape H x W")
+    if width < 1 or height < 1:
+        raise ValueError("canonical size must be >= 1")
+    if array.shape == (height, width):
+        return array
+    gray = (array * 255.0).round().astype(np.uint8)
+    resized = Image.fromarray(gray, mode="L").resize((width, height), Image.Resampling.BILINEAR)
+    return np.asarray(resized, dtype=np.float64) / 255.0
+
+
 def near_weight_from_image(image: np.ndarray) -> np.ndarray:
     """Convert a depth/near-weight image to an ``H x W`` float64 map in ``[0, 1]``.
 

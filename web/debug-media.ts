@@ -17,10 +17,10 @@ export type DebugMediaSnapshot = {
 };
 
 export const CAMOTION_DEPTH_DEBUG =
-  "Product shoot does not pass --depth. Camotion does not estimate or write depth maps, so none are deleted.";
+  "Product shoot estimates a reusable near-weight depth map per unchanged canonical and passes it to Camotion. Missing depth falls back to destination/VP weights only. Debug keeps depth.png, destination-protection.png, vp-protection.png, motion-weight.png, plan.json, and shooting.png.";
 
 export const CAMOTION_CLEANUP_DEBUG =
-  "Without Debug, Camotion work dirs are deleted after A′/B′ are copied into the session store. Debug keeps plan.json and shooting.png.";
+  "Without Debug, Camotion work dirs are deleted after A′/B′ are copied into the session store. Debug keeps plan.json, shooting.png, and adaptive weight previews.";
 
 export function debugMediaSnapshot(): DebugMediaSnapshot {
   const registry = getActiveRuntimeMediaRegistry();
