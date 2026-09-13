@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Product Slice 9 — TunnelVision Research</title>
+<link rel="stylesheet" href="../assets/css/research.css"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <div class="sidebar-title">TUNNELVISION</div>
+  <a href="../index.html" class="nav-home">Home</a>
+  <div class="nav-group">
+    <div class="nav-group-label">Research</div>
+    <a href="01-origin-and-exploration.html">Origin &amp; Exploration</a>
+    <a href="02-motion-experiments.html">Motion Experiments</a>
+    <a href="03-pre-code-checkpoint.html">Pre-Code Checkpoint</a>
+    <a href="04-camotion-research.html">Camotion Research</a>
+    <a href="05-depth-banded-camotion.html">Depth-Banded Camotion</a>
+    <a href="06-wardrobe-loop.html">The Wardrobe Loop</a>
+    <a href="07-camotion-prompt-2x2.html">Camotion + Prompt 2×2</a>
+    <a href="08-scene-aware-camotion-strength.html">Scene-Aware Strength</a>
+    <a href="09-shootability-intermediate-volume.html">Shootability</a>
+    <a href="13-destination-construction.html">Destination Construction</a>
+    <a href="14-forest-a-to-f.html">Forest A→F</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Product</div>
+    <a href="10-product-slice-1.html">Product Slice 1</a>
+    <a href="11-product-slice-2.html">Product Slice 2</a>
+    <a href="12-product-slice-3.html">Product Slice 3</a>
+    <a href="15-product-slice-4.html">Product Slice 4</a>
+    <a href="16-product-slice-5.html">Product Slice 5</a>
+    <a href="17-product-slice-6.html">Product Slice 6</a>
+    <a href="18-product-slice-7.html">Product Slice 7</a>
+    <a href="19-product-slice-8.html">Product Slice 8</a>
+    <a href="20-product-slice-9.html" class="active">Product Slice 9</a>
+  </div>
+</nav>
+<main>
+<section class="ready-code" id="product-slice-9">
+<div class="eyebrow">PRODUCT SLICE 9 · SEPTEMBER 13, 2026</div>
+<h2>Product Slice 9 — Camotion from a Real Photograph</h2>
+<p>Earlier product slices start from generated canonicals. This slice tests the same pipeline when A is a real photograph: a first-person still on a long causeway over water, a car ahead, rails, and a clear vanishing point. The still is filmmaker-supplied and authoritative. It is not a generated destination.</p>
+<p>The product path is the existing storyboard drop / replace. A photographic opening frame is a first-class canonical. Camotion then has to condition real geometry — measured depth, a hard horizon, painted road marks, and a subject that already occupies the far center — instead of a still the image model invented.</p>
+
+<div class="finding">
+<strong>Photographic A is a first-class Camotion input.</strong>
+<p>The opening still has real depth, a strong vanishing point, nearby pavement and rails, distant water and treeline, and a car already sitting in the protected far field. Adaptive Camotion (pace × depth × destination protection × VP protection) is exactly the operator this geometry asks for. This slice does not retune Phase 1. It asks whether that frozen operator still reads when A was photographed rather than generated.</p>
+</div>
+
+<div class="results-grid">
+<figure class="image-card">
+<img src="../assets/product/product-slice-09-start.jpg" alt="First-person photograph on a concrete causeway over water: empty lanes, yellow dashes, rails, a dark car ahead, blue sky"/>
+<figcaption>A — Photographer still. First-person on the causeway. The car, rails, and horizon are in the photograph, not constructed.</figcaption>
+</figure>
+</div>
+
+<article class="motion-test pass">
+<div class="motion-head"><h3>What this tests</h3><span class="result-pill pass">REAL PHOTO → CAMOTION</span></div>
+<p>Generated A can accidentally cooperate with Camotion: the image model already drew a clean tunnel, a doorway, or a forest mouth. A photograph does not. This still is a flat roadway receding to a point, with a vehicle already on that point. If Camotion over-protects the center, the car never approaches. If it over-exposes the far field, the car and horizon smear. If it ignores nearby pavement, the shot loses the sense of forward travel.</p>
+<p>The filmmaker does not have to reconstruct A. Drop or replace the storyboard opening with the photograph. Later destinations may still be constructed. A stays the photographed world-state.</p>
+</article>
+
+<article class="motion-test info">
+<div class="motion-head"><h3>The take</h3><span class="result-pill info">~15s FORWARD TRAVEL</span></div>
+<p>The movie is about fifteen seconds of continuous first-person travel along the same causeway. The car remains ahead. Weather is the world change: clear sky, then a building cloud, then a storm cell, lightning, and a wet road. The geometry of the bridge stays the route. This is not a claim about a specific Director beat list or a destination-aware field. It is evidence that the current pipeline can leave a real photograph and keep shooting forward while the world around that photograph changes.</p>
+</article>
+
+<div class="movie-player">
+<video controls playsinline preload="metadata" src="../assets/product/product-slice-09-saylorville.mp4">
+Sorry, your browser cannot play this MP4.
+</video>
+</div>
+
+<div class="finding">
+<strong>Do not treat this as a new Camotion operator.</strong>
+<p>Camotion Phase 1 stays frozen. Destination-aware / non-radial VP→D fields remain backlog. Slice 8 remains the current product overview. This chapter is a photographic-A evidence spike: same directing loop, same adaptive weights, a real still at A.</p>
+</div>
+
+</section>
+<footer>
+<strong>TunnelVision prototype log</strong>
+<span>Product Slice 9. Camotion from a filmmaker-supplied photograph. Not a Camotion 01.13 claim.</span>
+</footer>
+<nav class="chapter-nav"><a href="19-product-slice-8.html" class="prev-link">← Product Slice 8</a></nav>
+</main>
+<script src="../assets/js/research.js"></script>
+</body>
+</html>

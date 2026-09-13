@@ -219,6 +219,8 @@ Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
 Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
+Product Slice 9 photographic-A Camotion:
+[genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 
 ## Plan is a conversational storyboard
 
@@ -751,6 +753,8 @@ Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
 Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
+Product Slice 9 photographic-A Camotion:
+[genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

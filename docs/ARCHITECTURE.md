@@ -187,6 +187,8 @@ Product Slice 7 Plan | Shoot UI:
 [genesis/research/18-product-slice-7.html](../genesis/research/18-product-slice-7.html).
 Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
+Product Slice 9 photographic-A Camotion:
+[genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and
