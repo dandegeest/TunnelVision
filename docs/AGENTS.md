@@ -170,7 +170,12 @@ aspect_ratio, not match_input_image, while still using the previous
 canonical as the reference image.
 When a following beat already has a plan, Construct injects that plan's
 visual description as demoted far-field continuity after this destination
-and the camera move from the source still. This viewpoint stays this
+and the camera move from the source still. Spatial progression from the
+source viewpoint is the primary construction requirement: the next
+canonical must show a physically advanced camera, not the source
+composition with new content. Same-environment journeys still require
+that displacement. Changing activity, subjects, weather, lighting, or
+style is not enough. This viewpoint stays this
 destination; the last beat has no look-ahead. Opening A is still generated from the journey story only;
 the prompt asks for that opening instant and does not depict later destinations.
 Debug is a session toggle in Project settings, not project persistence. It is on by
@@ -261,6 +266,8 @@ Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
+Product Slice 10 canonical spatial progression:
+[genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

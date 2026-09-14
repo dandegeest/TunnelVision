@@ -138,6 +138,10 @@ function farFieldContinuity(next: DestinationLookAhead): string {
  * Order: this destination (highest priority), camera move from the source
  * image, subordinate far-field continuity, unembodied POV. Look-ahead is
  * distant environment only; this viewpoint stays this destination.
+ * Spatial progression from the source viewpoint is the primary construction
+ * requirement: the camera must physically advance. Same-environment journeys
+ * still require viewpoint displacement. Activity, weather, lighting, and
+ * style changes are secondary.
  */
 export function destinationConstructionPrompt(input: {
   intent: string;
@@ -154,10 +158,16 @@ export function destinationConstructionPrompt(input: {
     "Create this destination viewpoint:",
     visualDescription,
     "",
-    "Preserve the same physical world, materials, lighting character, and visual identity of the source image.",
+    "SPATIAL PROGRESSION IS PRIMARY.",
+    "Render this canonical from a substantially progressed camera viewpoint. Do not render it from the source camera position. Nearby foreground geometry from the source must have passed behind the camera or be substantially repositioned. Reveal new terrain and environment ahead as a consequence of that movement.",
+    "The destination may be the same kind of place as the source — deeper in the same forest, farther along the same track, farther down the same hill. Do not invent a new type of location to prove progress. The required change is camera viewpoint displacement, not a change of world.",
+    "Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene. Preserve world and style continuity, but do not preserve the source composition.",
+    "Environmental activity, subject motion, and stylistic changes are secondary to viewpoint displacement. Include them when called for by the Journey, but only with clear physical advancement of the camera.",
+    "",
+    "Preserve the same physical world, materials, lighting character, and visual identity of the source image. Do not keep the source framing.",
     "Move the camera from the source viewpoint:",
     intent,
-    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera position must change.",
+    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically advance. Keeping the source composition and substituting new content is a failure.",
     "",
     ...(next ? [farFieldContinuity(next), ""] : []),
     UNEMBODIED_FIRST_PERSON_POV,

@@ -140,7 +140,10 @@ aspect_ratio; they do not use match_input_image. The previous canonical
 remains the reference image. If a following beat already
 has a Director plan, that plan's visual description is demoted far-field
 continuity after this destination and the camera move from the source
-still; this viewpoint stays this destination. The last beat has
+still; spatial progression from the source viewpoint is primary — the
+next canonical must show a physically advanced camera, not the source
+composition with new content — and
+this viewpoint stays this destination. The last beat has
 no look-ahead. Later planned beats stay
 planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
@@ -221,6 +224,8 @@ Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
+Product Slice 10 canonical spatial progression:
+[genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 
 ## Plan is a conversational storyboard
 
@@ -755,6 +760,8 @@ Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
+Product Slice 10 canonical spatial progression:
+[genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

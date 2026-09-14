@@ -189,6 +189,8 @@ Product Slice 8 current product:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
 Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
+Product Slice 10 canonical spatial progression:
+[genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and

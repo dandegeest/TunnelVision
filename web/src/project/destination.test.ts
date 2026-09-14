@@ -101,7 +101,19 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/Move forward into the cleft/);
     expect(prompt).toMatch(/narrow stone corridor with orange light/);
     expect(prompt).toMatch(/spatial continuation/i);
-    expect(prompt).toMatch(/camera position must change/i);
+    expect(prompt).toMatch(/camera viewpoint must physically advance/i);
+    expect(prompt).toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
+    expect(prompt).toMatch(/substantially progressed camera viewpoint/);
+    expect(prompt).toMatch(/Do not render it from the source camera position/);
+    expect(prompt).toMatch(/passed behind the camera or be substantially repositioned/);
+    expect(prompt).toMatch(/Reveal new terrain and environment ahead/);
+    expect(prompt).toMatch(/same kind of place as the source/);
+    expect(prompt).toMatch(/Do not invent a new type of location to prove progress/);
+    expect(prompt).toMatch(/do not preserve the source composition/);
+    expect(prompt).toMatch(/Keeping the source composition and substituting new content is a failure/);
+    expect(prompt).toMatch(/Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene/);
+    expect(prompt).toMatch(/secondary to viewpoint displacement/);
+    expect(prompt).not.toMatch(/camera position must change/i);
     expect(prompt).toMatch(/unembodied first-person POV/);
     expect(prompt).toMatch(/Never show the viewer\/camera operator, their body, shadow, reflection, or FPS-style objects/);
     expect(prompt).not.toMatch(/weapons, phones, or camera equipment/);
@@ -114,6 +126,9 @@ describe("destination construction prompt", () => {
     expect(prompt).not.toMatch(/far field/);
     expect(prompt).not.toMatch(/following destination/i);
     expect(prompt.indexOf("Create this destination viewpoint:")).toBeLessThan(
+      prompt.indexOf("SPATIAL PROGRESSION IS PRIMARY."),
+    );
+    expect(prompt.indexOf("SPATIAL PROGRESSION IS PRIMARY.")).toBeLessThan(
       prompt.indexOf("Move the camera from the source viewpoint:"),
     );
     expect(prompt.indexOf("A narrow stone corridor with orange light.")).toBeLessThan(
@@ -143,11 +158,13 @@ describe("destination construction prompt", () => {
     expect(prompt).not.toMatch(/The next viewpoint should look like this:/);
     expect(prompt).not.toContain("Cross the threshold into the desert.");
     const visualAt = prompt.indexOf(visual);
+    const spatialAt = prompt.indexOf("SPATIAL PROGRESSION IS PRIMARY.");
     const intentAt = prompt.indexOf("Track forward through the lantern alley.");
     const lookAt = prompt.indexOf("Far-field continuity:");
     const povAt = prompt.indexOf("unembodied first-person POV");
     expect(visualAt).toBeGreaterThan(-1);
-    expect(visualAt).toBeLessThan(intentAt);
+    expect(visualAt).toBeLessThan(spatialAt);
+    expect(spatialAt).toBeLessThan(intentAt);
     expect(intentAt).toBeLessThan(lookAt);
     expect(lookAt).toBeLessThan(povAt);
   });
