@@ -7,7 +7,7 @@ export type ReasoningRequest = {
 };
 
 export type ReasoningResult = {
-  readonly provider: "replicate";
+  readonly provider: string;
   readonly model: string;
   readonly modelVersion: string | null;
   readonly predictionId: string;

@@ -22,18 +22,23 @@ Public Runway Dev documentation (source of truth for the API;
 reopen on event day):
 
 -   [API Documentation](https://docs.dev.runwayml.com/)
+-   [Agent primer / `ai-context.md`](https://docs.dev.runwayml.com/ai-context.md) — read this first on event day
+-   [`llms.txt` index](https://docs.dev.runwayml.com/llms.txt) — [`llms-full.txt`](https://docs.dev.runwayml.com/llms-full.txt), [OpenAPI](https://docs.dev.runwayml.com/openapi.json)
 -   [Using the API](https://docs.dev.runwayml.com/guides/using-the-api/)
 -   [Available models](https://docs.dev.runwayml.com/guides/models/)
 -   [API reference](https://docs.dev.runwayml.com/api) ([machine-readable](https://docs.dev.runwayml.com/api.md))
 -   [SDKs](https://docs.dev.runwayml.com/api-details/sdks/) — Node [`@runwayml/sdk`](https://www.npmjs.com/package/@runwayml/sdk)
+-   [Task failures](https://docs.dev.runwayml.com/errors/task-failures/) / [HTTP errors](https://docs.dev.runwayml.com/errors/errors/)
 -   [Model Routers](https://docs.dev.runwayml.com/model-routers/)
 -   [Configuring a Model Router](https://docs.dev.runwayml.com/model-routers/configuration/)
 -   [Generating through a Model Router](https://docs.dev.runwayml.com/model-routers/generating/)
 -   [Inputs](https://docs.dev.runwayml.com/assets/inputs/)
 -   [Outputs](https://docs.dev.runwayml.com/assets/outputs/) — result URLs expire in 24–48 hours; download them
--   [Reference media guidelines](https://docs.dev.runwayml.com/recipes/reference-media/)
+-   [Reference media guidelines](https://docs.dev.runwayml.com/recipes/reference-media/) — Recipe/product-ad guidance; not Camotion
 -   [Multi-Shot Video recipe](https://docs.dev.runwayml.com/recipes/multi-shot-video/) — **not**
     TunnelVision traversal; see §14
+-   [Connect Dev MCP](https://docs.dev.runwayml.com/guides/mcp/) — [`https://dev.runwayml.com/mcp`](https://dev.runwayml.com/mcp)
+-   [Agent setup paste](https://dev.runwayml.com/agents)
 -   [API changelog](https://docs.dev.runwayml.com/api-details/api_changelog/)
 
 Do **not** begin DISCOVER, Camotion redesign, a Plan | Shoot
@@ -738,6 +743,146 @@ evaluate whether the still actually advanced.
 
 ## 14. Runway integration
 
+### 14.0 Pre-hack Runway reconnaissance (14 September 2026)
+
+Public docs + API spec reviewed again before the event. **Runway Dev
+MCP config is present but OAuth is not complete**, so this session
+still has no `runway` tools in the catalog. Gitignored project
+`.cursor/mcp.json` matches
+[Connect Dev MCP](https://docs.dev.runwayml.com/guides/mcp/)
+(URL `https://dev.runwayml.com/mcp` + public OAuth `CLIENT_ID`; no
+API key). Cursor registered it as streamable HTTP
+(`project-0-tunnelvision-Runway Dev`) and stopped at Connect /
+browser login. Unauthenticated `initialize` returns 401;
+`WWW-Authenticate` scopes are `openid profile email mcp:read
+mcp:write`; IdP is `https://identity.runwayml.com/`. There is **no**
+Cursor marketplace plugin named Runway Dev. After a Developer Portal
+account exists: Settings → MCP → Connect, finish OAuth in a normal
+browser, then `whoami`. Then re-read
+[`ai-context.md`](https://docs.dev.runwayml.com/ai-context.md)
+and [`api.md`](https://docs.dev.runwayml.com/api.md) — do not invent
+fields from memory.
+
+This pass does **not** build `media/src/runway/` or the hackathon
+app. It freezes verified capabilities vs event-day assumptions.
+
+**Agent guidance (verified).**
+[dev.runwayml.com/agents](https://dev.runwayml.com/agents) tells
+coding agents: use a **recipe** when one covers the job; a **model
+router** when the right model is unclear or the job varies; a
+**single model** only when control is required at every step. For
+TV: Router for construct/shoot; **direct model** when START+END
+(or another specialized capability) must not be left to a wide
+pool. Recipes (Multi-Shot, product ads) do **not** cover continuous
+A′→B′ travel.
+
+**Two MCPs (do not confuse).**
+
+| Server | URL | Role for TV |
+| --- | --- | --- |
+| **Runway Dev MCP** | `https://dev.runwayml.com/mcp` | Inspect docs, tasks, router configs from Cursor. **OAuth. No API key in `mcp.json`.** |
+| Generation MCP | `mcp.runwayml.com` | Chat-side media toys. **Not** the product shoot path |
+
+Cursor setup: gitignored `.cursor/mcp.json` (preferred for this
+repo) or `~/.cursor/mcp.json`. After Connect, ask the agent to call
+`whoami`. Then: re-read specs, list/create routers, `dryRun` HTTP,
+`GET /v1/tasks/:id` / MCP `get_task` on failures (`failure` +
+`failureCode`). **Not verified live here** — no Dev account on this
+Mac, so routers/tasks were not listed or created through MCP.
+
+**Task lifecycle (verified).** Create → `{ id }` → poll
+`GET /v1/tasks/{id}` until `PENDING` | `THROTTLED` | `RUNNING` |
+`SUCCEEDED` | `FAILED` | `CANCELLED`. Only `SUCCEEDED` has
+`output[]`. SDK: chain `.waitForTaskOutput()` on the **unawaited**
+`create()`. `THROTTLED` is queued, not an error. Moderated tasks
+are `FAILED` with `SAFETY.*` (credits not refunded for
+`SAFETY.INPUT.*`). Output URLs expire 24–48h. Direct-model bodies
+are **per-model discriminated unions** — never copy `ratio` /
+`duration` across models. Router uses model-agnostic `aspectRatio`.
+
+**Image / canonical candidates (API + Models page).** Google Nano
+Banana names on Runway: `gemini_2.5_flash` = Nano Banana,
+`gemini_image3_pro` = Nano Banana Pro, `gemini_image3.1_flash` =
+Nano Banana 2. All take `referenceImages`. NB2 / NB Pro accept up
+to **14** refs and include **`2752:1536`** (TV’s 16:9 workstation
+size) among direct `ratio` values. Router image `resolution` is
+`1k` | `2k` | `4k` (eligibility filter), not pixel pairs.
+
+| Direct model | TV fit (docs, not a bakeoff) |
+| --- | --- |
+| `gemini_image3.1_flash` (NB2) | Primary construct/opening candidate: refs + high-res including 2752:1536. **Assumption:** viewpoint displacement still needs TV evaluation |
+| `gemini_image3_pro` (NB Pro) | Quality escalation / 4K-class direct ratios |
+| `gemini_2.5_flash` (NB) | Cheaper/faster; only 3 refs; smaller ratio set |
+| `gen4_image` / `gen4_image_turbo` | Runway-native refs (max 3); turbo requires image+text |
+| `grok_imagine_image_2` | Documented `edit: true` with exactly one reference = edit the still rather than a loose style ref. **Direct-model** if we need that flag (Router image input has no `edit` field) |
+| Seedream / GPT Image | Extra Router pool members; not TV’s first choice |
+
+There is **no** documented “pull the camera forward” image API.
+Construct remains `ImageEditProvider` mapped onto
+`referenceImages` + the existing spatial-progression prompt.
+Router cannot score same-environment failures.
+
+**Video / START+END (verified on `POST /v1/image_to_video`).**
+Router video `referenceImages[].role` = `first` | `last` |
+`reference` (at most one first and one last). Sending `last`
+filters to models that support an end frame.
+
+| Direct model | Start+end? | Notes |
+| --- | --- | --- |
+| `seedance2_5` | **first+last** keyframe mode | 4–30s; 480p/720p/**1080p**. Cannot mix keyframe positions with unpositioned refs |
+| `seedance2` / `_fast` / `_mini` | **first+last** | Fast/Mini: 480p–720p only; 2.0 has 4K ratios |
+| `veo3.1` / `veo3.1_fast` | **first + optional last** | Not last-only. Duration **4 / 6 / 8** only. 1080p ratios |
+| `hailuo3` | **first+last** keyframe or refs (not mixed) | MiniMax H3 |
+| `h3_max` | **first + optional last** | 480p / 768p; last requires first |
+| `wan3` / `wan3_prime` | **first+last** keyframe or refs (not mixed) | Keyframe I2V must use `auto_480p` / `auto_720p` / `auto_1080p` |
+| `gemini_omni_flash_1.1` | **first + optional last** | In **API spec**; not listed on the Models HTML table — confirm org access |
+| `gen4.5` / `gen4_turbo` | **first only** | Do not use as TV traversal when B′ exists |
+| `gemini_omni_flash` | **first only** | Distinct from `_1.1` |
+| `grok_imagine_1_5` / `happyhorse_1_0` | **first only** | |
+| `act_two` | Character performance | Not traversal |
+| `aleph2` | Video-to-video | Not A′/B′ I2V |
+
+**Router vs direct for S/E.** Passing `first`+`last` on
+`/v1/generate/video` is the right default: ineligible first-only
+models drop out. That does **not** guarantee physical travel or
+endpoint lock. If a latency router still picks a weak S/E model,
+**allow-list** `tv-final` (and optionally a `tv-se` config) to
+Seedance / Veo / Wan / Hailuo / H3 Max, or call a named model
+(`seedance2_5` or `veo3.1`) directly. Do not invent a Router
+“endpoint adherence” knob.
+
+**Repair + Router (architecture).** TV Agent/CM/Evaluator decide
+what failed, why, whether to repair canonical vs footage, which
+endpoint (START / END / BOTH / footage), and which **policy**
+(draft vs quality). Adapter maps policy → `configId`. Router
+picks the eligible model. If S/E is mandatory and the routed
+choice is wrong, skip Router for that retry.
+
+**Provider readiness (this pass).**
+`GeneratedVideo.provider` / `GeneratedImage.provider` /
+`ReasoningResult.provider` are now `string` so a Runway adapter
+can emit `"runway"` without a domain rewrite. Replicate adapters
+still write `"replicate"`. Do **not** add `@runwayml/sdk` or
+`media/src/runway/` until hack day (or a dedicated integration
+PR). Keep Director/CM/Camotion free of `configId`. Map Runway
+task `id` onto today’s `predictionId`. Persist `routing.model`,
+`optimizeFor`, and credits in `metadata` only.
+
+**Docs caveats / corrections vs earlier plan language.**
+
+-   The Models HTML table is not the complete API: `wan3_prime` and
+    `gemini_omni_flash_1.1` appear in [`api.md`](https://docs.dev.runwayml.com/api.md).
+-   [`ai-context.md`](https://docs.dev.runwayml.com/ai-context.md)
+    currently mentions `POST /v1/generate/video` under Router
+    generate; **image and audio generate endpoints also exist**.
+-   Router video `promptText` max in the spec is **6000**
+    characters (earlier notes said 20000 in one dump — always
+    re-read `api.md` before coding).
+-   Recipe “reference media” guidance is for product/brand recipes,
+    not Camotion A′/B′. High-res, uncluttered refs still apply.
+-   No Runway LLM / reasoning endpoint in the catalog. Keep Gemini
+    3.1 Pro on Replicate for Director and CM.
+
 ### 14.1 Verified public API (14 September 2026)
 
 The public [Runway Dev API](https://docs.dev.runwayml.com/) is now
@@ -757,9 +902,9 @@ event.
 | Direct image | `POST /v1/text_to_image` — named `model` + `ratio` + optional `referenceImages` |
 | Direct video | `POST /v1/image_to_video` (and `text_to_video`) — named `model` + model-specific `ratio` |
 | Model Router | Saved configs; `POST /v1/generate/image`, `/v1/generate/video`, `/v1/generate/audio` with `configId` + model-agnostic `input` |
-| Image models | Includes `gemini_image3.1_flash` (Nano Banana 2), `gemini_image3_pro`, `gemini_2.5_flash`, `gen4_image` / `gen4_image_turbo`, Seedream, GPT Image, Grok Imagine Image, others — all take text and optional reference images |
-| Video models | Includes Seedance 2 / 2 Fast / 2 Mini / 2.5, Gen-4.5, Gen-4 Turbo, Veo 3.1 / Fast, Hailuo 3, Grok Imagine 1.5, others |
-| Start + end frames | **Not universal.** Router `input.referenceImages[].role` may be `first`, `last`, or `reference` (at most one `first` and one `last`). Direct Seedance and Veo 3.1 accept `promptImage` positions `first`/`last`. Direct Gen-4.5 and Gen-4 Turbo accept **`first` only**. Sending `last` excludes models that cannot do an end frame |
+| Image models | Nano Banana family (`gemini_image3.1_flash` = NB2, `gemini_image3_pro`, `gemini_2.5_flash`), `gen4_image` / `gen4_image_turbo`, Seedream, GPT Image, Grok Imagine Image — text + optional `referenceImages` |
+| Video models | Seedance 2 / Fast / Mini / 2.5, Wan 3 / Prime, Veo 3.1 / Fast, Hailuo 3, H3 Max, Gen-4.5, Gen-4 Turbo, Grok Imagine 1.5, Gemini Omni Flash / 1.1, others |
+| Start + end frames | **Not universal.** Router `input.referenceImages[].role`: `first` \| `last` \| `reference` (at most one `first` and one `last`). Direct **first+last**: Seedance family, Veo 3.1 / Fast, Hailuo 3, H3 Max, Wan 3 / Prime, Gemini Omni Flash **1.1**. Direct **first only**: Gen-4.5, Gen-4 Turbo, Gemini Omni Flash (no suffix), Grok Imagine 1.5, HappyHorse. Sending `last` excludes first-only models |
 | Image resolution (router) | `input.resolution`: `1k`, `2k`, `4k` — models that cannot meet the tier are excluded |
 | Video resolution (router) | `input.resolution`: `480p`, `720p`, `1080p`, `4k` — same exclusion rule |
 | Aspect | Router uses model-agnostic `aspectRatio` (`16:9`, …). Direct-model endpoints use model-specific `ratio` (`1280:720`, …). **Not interchangeable** |
@@ -782,7 +927,7 @@ already does for generated media.
 | Router configs, `configId`, `optimizeFor`, eligibility, `routing.model` / cost | This hackathon org can create routers and has credit for live generate |
 | `first` + `last` on routed video **requires** models that support those roles | The chosen start+end model will *physically travel* A′→B′ rather than restyle the stills — TV must still evaluate footage |
 | Image `referenceImages` guide generation | A given image model will honor the source still *and* pull the viewpoint forward — TV must still evaluate canonicals |
-| Seedance family and Veo 3.1 support first+last on direct `image_to_video`; Gen-4.5 / Gen-4 Turbo are first-only | Event catalog / allowlists will include at least one strong start+end model |
+| Seedance family, Veo 3.1 / Fast, Hailuo 3, H3 Max, Wan 3 / Prime, Omni Flash 1.1 support first+last on direct `image_to_video`; Gen-4.5 / Gen-4 Turbo / Omni Flash / Grok 1.5 / HappyHorse are first-only | Event catalog / allowlists will include at least one strong start+end model; Omni Flash 1.1 and Wan Prime may or may not be enabled on the hackathon org |
 | No Runway LLM in the current catalog | The event will not require putting Director/CM on Runway |
 
 **Not the traversal path:** the
@@ -884,10 +1029,11 @@ receive `1080p` on a quality retry.
     `role: "last"` when both exist. That is the TV preference for
     robust START+END conditioning.
 -   Router then **excludes** models that cannot satisfy those roles
-    (direct API: Gen-4.5 / Gen-4 Turbo are first-only). Remaining
-    eligible models (documented start+end: Seedance family, Veo 3.1
-    / Fast, and any later model that advertises last-frame) compete
-    on the config’s `optimizeFor`.
+    (direct API first-only: Gen-4.5 / Gen-4 Turbo / Omni Flash
+    without `_1.1` / Grok 1.5 / HappyHorse). Remaining eligible
+    models (Seedance family, Veo 3.1 / Fast, Hailuo 3, H3 Max,
+    Wan 3 / Prime, Omni Flash 1.1 if enabled) compete on the
+    config’s `optimizeFor`.
 -   **Integration risk (do not invent a Router flag to fix it):**
     there is no “force strong endpoint adherence” setting. A wide
     latency/cost pool can still pick a start+end-capable model that
@@ -966,10 +1112,11 @@ storyboard, or `JourneyShot` domain types. Storing the **selected**
 `routing.model` on generated media (alongside today’s
 `GeneratedVideo.model`) is fine.
 
-First integration step: stop typing
-`GeneratedVideo.provider` / `GeneratedImage.provider` /
-`ReasoningResult.provider` as the literal `"replicate"`. Widen to a
-string (or `"replicate" | "runway"`) at the adapter boundary only.
+First integration step (done in types; adapters still emit
+`"replicate"`): `GeneratedVideo.provider` /
+`GeneratedImage.provider` / `ReasoningResult.provider` are `string`.
+A Runway adapter may write `"runway"` without touching Director, CM,
+or Camotion.
 
 Do **not** put Runway-specific fields into:
 
@@ -1002,6 +1149,8 @@ re-derive “which APIs exist” from scratch.
 4.  credentials (`RUNWAYML_API_SECRET`), rate limits, credit budget
 5.  models enabled on *this* account vs the public catalog
 6.  any hackathon-only model, world-model, or LLM endpoint
+7.  Cursor **Runway Dev MCP** connected (`whoami` works); re-read
+    `api.md` for anything newer than §14.0
 
 Then confirm, with one `dryRun` each:
 
@@ -1451,8 +1600,9 @@ At the beginning of hackathon implementation:
     `media/src/types.ts`).
 6.  Reopen the public Runway Dev docs linked at the top of this
     file, plus anything in the event packet. The public API is
-    already summarized in §14; look for credentials, Router access,
-    newly announced models, and hackathon-only endpoints.
+    already summarized in §14.0–14.1; look for credentials, Router
+    access, newly announced models, hackathon-only endpoints, and
+    whether Cursor Runway Dev MCP (`whoami`) is connected.
 7.  Identify any assumptions in this document invalidated by new
     information.
 8.  Report **only** those discrepancies and proposed changes.

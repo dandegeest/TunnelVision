@@ -39,7 +39,7 @@ export type ImageEditRequest = {
 };
 
 export type GeneratedVideo = {
-  readonly provider: "replicate";
+  readonly provider: string;
   readonly model: string;
   readonly modelVersion: string | null;
   readonly predictionId: string;
@@ -52,7 +52,7 @@ export type GeneratedVideo = {
 };
 
 export type GeneratedImage = {
-  readonly provider: "replicate";
+  readonly provider: string;
   readonly model: string;
   readonly modelVersion: string | null;
   readonly predictionId: string;

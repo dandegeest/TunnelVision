@@ -88,10 +88,16 @@ Director, destination construct, CM, Camotion, shoot, runtime media,
 and export on demand. Session stills live under a temp directory, not
 git.
 
-There is **no** Runway MCP (or any project MCP) in this repo. Current
-product generation is Replicate. Hackathon Runway adapters are not
-implemented yet; when they are, add `RUNWAYML_API_SECRET` to
-`.env.local` (names are reserved in `.env.example`).
+Project Runway Dev MCP config is **gitignored**
+(`.cursor/mcp.json`): URL `https://dev.runwayml.com/mcp` plus the
+public OAuth `CLIENT_ID` from
+[Connect Dev MCP](https://docs.dev.runwayml.com/guides/mcp/). It is
+not an API key. Recreate that file from `docs/HACKATHON.md` §14.0
+if missing. Cursor still needs a Runway Dev account and Settings →
+MCP → Connect (browser OAuth). Current product generation is
+Replicate. Hackathon Runway adapters are not implemented yet; when
+they are, add `RUNWAYML_API_SECRET` to `.env.local` (names are
+reserved in `.env.example`).
 
 ## Test
 
@@ -136,11 +142,18 @@ etc.). They are the editor, not TunnelVision.
 
 `docs/AGENTS.md` is filmmaking-role guidance and is already in git.
 
+On hack day: if `.cursor/mcp.json` is missing, paste the snippet
+from [docs/HACKATHON.md](docs/HACKATHON.md) §14.0, then Settings →
+MCP → Connect and finish OAuth in a normal browser. Call `whoami`.
+Not required to run the current Replicate product. Do **not** put
+`RUNWAYML_API_SECRET` in `mcp.json`.
+
 ## Gitignored local state (do not commit)
 
 | Path | Recreate? |
 | --- | --- |
 | `.env.local` | Copy token from a password manager |
+| `.cursor/mcp.json` | Paste Runway Dev OAuth snippet from §14.0; Connect in Cursor |
 | `camotion/.venv/` | Recreate with setup above |
 | `node_modules/` | `npm ci` |
 | `~/.cache/huggingface/` | Re-downloads on first depth run |
@@ -159,7 +172,8 @@ project, not those journeys; they are tests and Debug fixtures.
    `google/nano-banana-2-lite` / `google/nano-banana-2`, and the
    Project video models (`prunaai/p-video`, Kling, Wan, Seedance).
 3. GitHub access to this repo.
-4. Later: Runway `RUNWAYML_API_SECRET` and Model Router config IDs
+4. Later: Runway Dev **account** (MCP OAuth) plus
+   `RUNWAYML_API_SECRET` and Model Router config IDs
    (`docs/HACKATHON.md`). Not required to run the current app.
 5. Optional: Hugging Face token only if you hit gated-model errors
    (the current depth model is public).
