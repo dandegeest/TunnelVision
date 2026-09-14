@@ -18,6 +18,14 @@ dependencies = [
 dev = [
     "pytest>=8.0",
 ]
+# Product Camotion still runs without this extra. Missing depth is
+# non-fatal (dest/VP weights only). First estimate downloads
+# depth-anything/Depth-Anything-V2-Small-hf into the Hugging Face cache.
+depth = [
+    "torch>=2.2",
+    "transformers>=4.40",
+    "huggingface_hub>=0.24",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

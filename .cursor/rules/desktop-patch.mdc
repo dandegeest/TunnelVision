@@ -1,0 +1,20 @@
+---
+description: After each work iteration, write a Desktop patch of the full working tree
+alwaysApply: true
+---
+
+# Desktop working-tree patch
+
+After each completed iteration of implementation, tests, or review fixes, write a patch that captures the **entire current working tree** (tracked modifications and untracked files). Do not wait to be asked.
+
+- Path: `~/Desktop/tunnelvision-pr-N.N.patch`
+- During one commit/merge cycle, **overwrite** the same patch file. Do not create a new numbered patch for follow-up corrections.
+- After a commit/merge, start the next cycle at the next unused `tunnelvision-pr-*.patch` number.
+
+Include untracked files. `git diff HEAD` alone is not enough. Stage, write the cached diff, then unstage so the working tree stays uncommitted:
+
+```bash
+git add -A && git diff --cached > "$HOME/Desktop/tunnelvision-pr-N.N.patch" && git reset
+```
+
+Do not commit unless the user asked. Do not `git add` and leave files staged.

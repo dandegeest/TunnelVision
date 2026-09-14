@@ -28,7 +28,8 @@ platform.
 | CI / deployment | environment or secret-manager injection |
 | Tracked template | repo-root `.env.example` (names only) |
 
-Current variable: `REPLICATE_API_TOKEN`
+Current variable: `REPLICATE_API_TOKEN`. Full machine bootstrap:
+[FRESH_MACHINE_SETUP.md](../FRESH_MACHINE_SETUP.md).
 
 Shell and deployment environment win. `.env.local` only fills keys that
 are not already set. Provider classes do not parse env files.

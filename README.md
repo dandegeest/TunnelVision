@@ -6,6 +6,8 @@ TunnelVision orchestrates image models, Cinematographer planning, Camotion, and 
 
 The goal is a system that can decide where to go next, learn from human creative choices, maintain the visual and spatial logic of the world, and generate convincing continuous camera movement between selected viewpoints.
 
+**New Mac / clean clone:** [FRESH_MACHINE_SETUP.md](FRESH_MACHINE_SETUP.md).
+
 ## Origin
 
 **TunnelVision** originated with filmmaker **Terran Boylan**. He developed the concept and manual generative filmmaking technique through work for his own YouTube channel and video content, before the Peter Gabriel *Digging in the Dirt* project. The technique was later adapted for that film, where we used the playful name **TunnelTV** — an homage to MTV.

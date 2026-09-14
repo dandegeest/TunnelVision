@@ -165,7 +165,8 @@ Planning docs in `docs/` describe current architecture.
 package (image + video), ReasoningProvider, and a thin cinematographer
 pair planner used by Integration Test 01. Credentials are environment
 variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
-`.env.local` and injected by the deployment platform in CI. See
+`.env.local` and injected by the deployment platform in CI. New-machine
+bootstrap: [`FRESH_MACHINE_SETUP.md`](../FRESH_MACHINE_SETUP.md). See
 `media/README.md`. [`web/`](../web/) exists as the Product Slice 3
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
 storyboard beats through `ReasoningProvider`. The project is a
