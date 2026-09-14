@@ -1,8 +1,11 @@
 import type { MouseEvent } from "react";
 import { locomotionPaceLabel, motionBandAriaLabel, footageBandAriaLabel } from "../project/cinematographer";
+import { journeyHasTakes } from "../project/takes";
 import { useProject } from "../project/ProjectProvider";
 import type { JourneyBand, JourneyShot, Selection } from "../project/types";
 import type { LaidOutJourney } from "./geometry";
+
+export { journeySegmentIsActive } from "./takes-layout";
 
 export function journeySegmentTone(journey: JourneyShot): string {
   const planned = Boolean(journey.cinematographer) || journey.status === "rendered";
@@ -24,7 +27,7 @@ export function journeySegmentTone(journey: JourneyShot): string {
 }
 
 function footageBandTone(journey: JourneyShot): string {
-  if (journey.status === "rendered") {
+  if (journey.status === "rendered" || journeyHasTakes(journey)) {
     return "border border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
   }
   if (journey.status === "failed") {
@@ -36,33 +39,16 @@ function footageBandTone(journey: JourneyShot): string {
 const ctaClass =
   "relative z-[2] shrink-0 rounded border border-[#3a342c] px-1.5 py-0 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
 
-export function journeyHasFootage(journey: JourneyShot): boolean {
-  return journey.status === "rendered" || Boolean(journey.take) || Boolean(journey.videoUrl);
+export function newTakeActionLabel(): string {
+  return "+ NEW TAKE";
 }
 
-export function journeySegmentIsActive(selection: Selection, journey: JourneyShot): boolean {
-  if (selection.kind === "journey") {
-    return selection.journeyId === journey.id;
-  }
-  if (selection.kind === "destination") {
-    return (
-      selection.destinationId === journey.startDestinationId ||
-      selection.destinationId === journey.endDestinationId
-    );
-  }
-  return false;
+export function newTakeBusyLabel(): string {
+  return "Generating…";
 }
 
-export function shootActionLabel(journey: JourneyShot): string {
-  return journeyHasFootage(journey) ? "RESHOOT" : "SHOOT";
-}
-
-export function shootBusyLabel(journey: JourneyShot): string {
-  return journeyHasFootage(journey) ? "Reshooting…" : "Shooting…";
-}
-
-export function shootActionAriaLabel(journey: JourneyShot): string {
-  return `${journeyHasFootage(journey) ? "Reshoot" : "Shoot"} ${journey.id}`;
+export function newTakeActionAriaLabel(journey: JourneyShot): string {
+  return `New take ${journey.id}`;
 }
 
 export function JourneyItem({
@@ -151,7 +137,7 @@ export function JourneyItem({
           ) : null
         ) : shooting ? (
           <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] text-[#ece7df] storyboard-generating-label">
-            {shootBusyLabel(journey)}
+            {newTakeBusyLabel()}
           </span>
         ) : null}
       </div>

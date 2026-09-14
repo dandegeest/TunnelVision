@@ -6,6 +6,7 @@ import {
   hasCurrentMotionPlan,
   hasStagedMotionPlan,
 } from "./cinematographer";
+import { selectedTake } from "./takes";
 import type { CinematographerAssessment, JourneyShot, Project, SegmentMotionPlan } from "./types";
 
 export { hasStagedMotionPlan };
@@ -45,8 +46,9 @@ export function segmentCamotionSource(
   if (hasStagedMotionPlan(journey) && journey.motionPlan) {
     return journey.motionPlan;
   }
-  if (journey.take?.startShootingFrame && journey.take.endShootingFrame) {
-    return journey.take;
+  const take = selectedTake(journey);
+  if (take?.startShootingFrame.imageUrl && take.endShootingFrame.imageUrl) {
+    return take;
   }
   return undefined;
 }
@@ -131,6 +133,8 @@ export function projectWithMotionPlan(
             status: item.status === "shooting" ? "shooting" : "ready",
             durationSeconds,
             take: undefined,
+            takes: undefined,
+            selectedTakeId: undefined,
             videoUrl: undefined,
             shootError: undefined,
             motionPlanError: undefined,

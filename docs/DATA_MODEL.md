@@ -276,7 +276,7 @@ of Director intent; they are **not** canonicals. Once a storyboard beat
 has an actual trusted still, that still is the canonical endpoint Shoot
 uses. Destinations and JourneyShots are the same Project, not a cloned
 Shoot model. Changing either canonical still on a production leg
-returns that JourneyShot to `ready` without cinematographer, Motion Plan, take, or
+returns that JourneyShot to `ready` without cinematographer, Motion Plan, takes, or
 clip. A **shooting frame**
 is a Camotion derivative produced from an image plus a
 `CameraMotionPlan` (and optional near-weight). TunnelVision currently
@@ -307,8 +307,16 @@ v1 for Camotion from the same CM assessment's semantic `travel` object
 geometry and does not emit CameraMotionPlan JSON from CM. Centered
 `productionCameraMotionPlan` is the fallback when a still has no usable
 target. `JourneyShot.motionPlan` stores that segment's CM choreography,
-CameraMotionPlan, Camotion parameters, and A′/B′. JourneyShot `take` stores
-the composed prompt, provider metadata, and the current clip. Product CM scores are integer `setConsistency` and
+CameraMotionPlan, Camotion parameters, and A′/B′. `JourneyShot.takes` stores
+each generated traversal (Take 1, Take 2, …) with the composed prompt,
+provider metadata, clip URL, and the start/end **canonical media IDs**
+that Take was generated from. Compatibility is that stamped pair, not
+the segment letters. `selectedTakeId` is the Take FOOTAGE,
+preview, and Export Movie use. Legacy `take` / `videoUrl` load as Take 1
+without inventing a pair. Future non-destructive canonical RESHOOT
+(B1 vs B2 continuities) is backlog; current RESHOOT still replaces
+the letter in place.
+Product CM scores are integer `setConsistency` and
 `traversalConfidence` (0–100). `shootability` remains the advisory
 actionable summary. Camotion executes from bridged travel geometry /
 CameraMotionPlan, not a Camotion suitability enum.
@@ -350,7 +358,7 @@ Product `Project.storyboard` may contain unresolved destination slots.
 That is the current partially specified movie interaction model, not a
 CameraMotionPlan field. Director planning receives the complete ordered
 storyboard; actual stills stay authoritative. Export Movie concatenates
-existing JourneyShot clips and is not an editing schema.
+the selected Take for each JourneyShot and is not an editing schema.
 
 Phase 1 produced bounded shootability evidence (Wardrobe E→A
 independently judged NEEDS_INTERMEDIATE; actual generated X rejected

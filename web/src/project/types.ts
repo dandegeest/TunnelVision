@@ -136,11 +136,32 @@ export type SegmentMotionPlan = {
 };
 
 /**
- * One current take for a JourneyShot. Not a parallel clip model.
+ * One generated traversal of a JourneyShot. Segments keep 0..N Takes;
+ * one is selected for FOOTAGE, preview, playback, and export.
  * Session/in-memory; provider URLs are allowed until Node persistence exists.
  * A′/B′ on the take are the shooting frames that were sent to video.
+ * Compatibility is the stamped canonical media pair, not the segment letter
+ * (`A-B`). Happy path: one pair per letter. Future: a RESHOOT of B creates
+ * B2; older Takes stay bound to B1. See BACKLOG non-destructive canonical reshoots.
  */
 export type JourneyShotTake = {
+  /** Stable id (`A-B:take:1`). Selection identity in the current slot, not a revision id. */
+  id?: string;
+  /** 1-based TAKE N. */
+  number?: number;
+  /** Clip URL for this take. Preferred over JourneyShot.videoUrl. */
+  videoUrl?: string;
+  /**
+   * Trusted media id of the start canonical this take was generated from.
+   * Absent on legacy footage that only stored `take` / `videoUrl`.
+   */
+  startCanonicalMediaId?: string;
+  /**
+   * Trusted media id of the end canonical this take was generated from.
+   * A later A→B Take and B→C Take are compatible only when this end id
+   * equals the next take's start id.
+   */
+  endCanonicalMediaId?: string;
   startShootingFrame: ShootingFrameRef;
   endShootingFrame: ShootingFrameRef;
   startPlan: CameraMotionPlanV1;
@@ -250,7 +271,19 @@ export type JourneyShot = {
   motionPlan?: SegmentMotionPlan;
   /** Present after automatic Motion Planning fails for this pair. Cleared on retry or success. */
   motionPlanError?: string;
-  /** Latest successful or inspectable take. Absent until FOOTAGE SHOOT completes. */
+  /**
+   * Generated traversals for this leg. Never overwritten on NEW TAKE.
+   * Absent or empty until the first take exists. Legacy `take` / `videoUrl`
+   * load as Take 1 via journeyTakes().
+   */
+  takes?: JourneyShotTake[];
+  /** Which take FOOTAGE / preview / export use. Defaults to the newest. */
+  selectedTakeId?: string;
+  /**
+   * Mirror of the selected take for older readers. Prefer journeyTakes() /
+   * selectedTake(). Absent until FOOTAGE NEW TAKE completes, except legacy
+   * videoUrl-only fixtures. `videoUrl` on the journey is the selected clip.
+   */
   take?: JourneyShotTake;
   shootError?: string;
 };

@@ -73,6 +73,8 @@ describe("shootPreparedJourney", () => {
     });
     expect(rendered).toEqual([start.filePath, end.filePath]);
     expect(take.journeyId).toBe("A-B");
+    expect(take.startCanonicalMediaId).toBe(start.mediaId);
+    expect(take.endCanonicalMediaId).toBe(end.mediaId);
     expect(take.videoInputs).toEqual({ startShootingFrame: true, endShootingFrame: true });
     expect(take.effectivePrompt).toBe(composeShootingPrompt(locomotionBaseline("slow"), addition));
     expect(take.effectivePrompt.startsWith(addition)).toBe(true);

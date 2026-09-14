@@ -190,20 +190,27 @@ keeps those weight previews in the Camotion work dir.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
 automatically. Each interval is two stacked bands under the destination
-rail: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated take).
+rail: MOTION (the stored A→B Motion Plan) and FOOTAGE (the selected Take),
+with TAKES stacked under FOOTAGE.
 Canonicals remain clickable places above those bands. When only A is actual,
 Shoot still shows A and an FPO B that opens Plan on B. A destination
 still generating in Plan shimmers on the matching Shoot slot. MOTION is an
-inspect/status surface for that segment's automatically generated Motion Plan;
-SHOOT sits under the FOOTAGE band when that segment is selected and
-becomes RESHOOT after a clip exists. The control starts the take
+inspect/status surface for that segment's automatically generated Motion Plan.
+**NEW TAKE** sits in the TAKES stack when that segment is selected and
+appends another traversal without overwriting earlier Takes. The newest Take
+is selected after generate. The control starts generation
 without changing selection. It is centered and sized
-to the label. While a take is rendering, FOOTAGE shows Shooting… or
-Reshooting… in the band.
+to the label. While a take is rendering, FOOTAGE shows Generating…
+in the band.
 Shoot Inspector headers read Inspector - Destination, Inspector - Motion, or
-Inspector - Footage. Motion and footage both use the A→B heading; footage shows
-conditioned START′/END′ frames without a Take label. Footage Reshoot calls the
-same regeneration as that band. Model label is Debug-only.
+Inspector - Footage. Motion and footage both use the A→B heading; footage
+identifies the selected Take (`A→B · TAKE 2`) and shows that Take's
+conditioned START′/END′ frames. Footage **NEW TAKE** appends another Take.
+Canonical destination Reshoot stays a destination action. New Takes
+stamp the start/end canonical media IDs they were generated from;
+segment letters alone do not define Take compatibility. Non-destructive
+canonical revision (keep B1 continuity after reshooting B) is backlog.
+Model label is Debug-only.
 When an actual adjacent canonical pair exists, the existing Cinematographer
 path runs automatically: CM inspects the actual A/B
 canonicals, reports semantic travel geometry in the same assessment turn, a
@@ -230,8 +237,8 @@ reopen strip like the conversation and Project rails; that visibility is
 session UI, not project persistence.
 While a Motion Plan or take is running, that band uses the same generating
 shimmer as Plan FPO thumbs. MOTION shows Planning… in the band; FOOTAGE
-shows Shooting… or Reshooting… there and hides the compact SHOOT /
-RESHOOT control until the take finishes. The app
+shows Generating… there and hides the compact **NEW TAKE**
+control until generation finishes. The app
 can track more than one blocking or shooting operation at a time.
 Opening A and later B…N stills use the image model chosen in Project
 settings. Nano Banana 2 Lite is the development default; Nano Banana 2
@@ -266,6 +273,8 @@ Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

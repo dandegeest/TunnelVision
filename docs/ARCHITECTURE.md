@@ -131,9 +131,11 @@ locomotion baseline. Shootability remains advisory; it does not
 gate JourneyShot status. Shoot is a production view of the current
 Project: consecutive actual adjacent storyboard canonicals become
 Destinations and JourneyShots on that same Project. There is no
-cloned Shoot model. SHOOT under FOOTAGE uses the staged Motion Plan's
+cloned Shoot model. NEW TAKE uses the staged Motion Plan's
 A′/B′ (radial Camotion with adaptive depth / destination / VP weights),
-composes the frozen locomotion prompt, and generates a development clip. The current
+composes the frozen locomotion prompt, and generates a development clip.
+Each Take records the start/end canonical media IDs it was shot against;
+segment letters are not a permanent compatibility key. The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
 A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
 is not this path. Discovery, and
@@ -191,6 +193,8 @@ Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and
@@ -257,6 +261,27 @@ Agent reasons  →  CV observes / measures  →  Camotion renders  →  video mo
 Depth estimation and CV scene analysis belong outside Camotion.
 Camotion may consume a supplied near-weight map and deterministically
 weight its motion field with it.
+
+### Project persistence architecture requirement
+
+TunnelVision must have **one project model and one canonical serialized
+project format shared by every filmmaking surface**. The full Plan |
+Shoot workstation and the conversational JourneyAgent application
+must read and write the same format. JourneyAgent operates on the
+same `Project` / domain model; it must not create a hackathon-specific
+project or session format, emit an isolated movie artifact, or require
+translation/import before workstation use.
+
+An Agent-created project must open normally in the workstation and
+remain a live, continuable project. Persistence must retain the
+filmmaking state needed to inspect and continue the session, including
+semantic destinations and Director state, canonical images and
+provenance, segment Motion Plans and CM assessments, Camotion
+conditioned assets or deterministic reproduction inputs, every Take
+and the selected Take per segment, provider/model metadata, useful
+Agent activity, and export references. All generated Take alternatives
+must remain available so a filmmaker can select another Take, create
+new Takes, and produce a different cut.
 
 Camotion v1 models **forward translation only** (radial expansion
 around a supplied focus of expansion). It is not Terran Boylan's

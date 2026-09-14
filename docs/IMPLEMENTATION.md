@@ -194,13 +194,14 @@ explicitly constructed. Video remains unwired in the product.
 Shoot is a production view of the current Project: consecutive actual
 adjacent canonicals become Destinations and JourneyShots on that same
 Project. MOTION is an inspect/status surface for that segment's automatically
-generated Motion Plan; SHOOT sits under the FOOTAGE band when that
-segment is selected and becomes RESHOOT after a clip exists. The
-control starts the take without changing selection. It is
+generated Motion Plan. Each segment keeps 0..N Takes; **NEW TAKE** sits
+in the TAKES stack when that
+segment is selected and appends another traversal. The
+control starts generation without changing selection. It is
 centered and sized to the label. While a take is rendering,
-FOOTAGE shows Shooting… or Reshooting… in the band. Each interval is two stacked
-bands under the destination rail: MOTION (the stored A→B Motion Plan) and
-FOOTAGE (the generated take). Canonicals remain clickable places above
+FOOTAGE shows Generating… in the band. Each interval stacks
+MOTION, FOOTAGE (the selected Take), and TAKES under the destination rail.
+Canonicals remain clickable places above
 those bands. When only A is actual, Shoot still shows A and an FPO B
 that opens Plan on B. Band labels are MOTION and FOOTAGE only. When an actual
 adjacent canonical pair exists, the existing
@@ -217,9 +218,12 @@ invalidates that segment's Motion Plan and recomputes it. Restaging one segment 
 alter neighboring Motion Plans. Footage generation remains an explicit FOOTAGE
 action. While a Motion Plan is running, that MOTION band
 uses the same generating shimmer as Plan FPO thumbs. A destination still generating in Plan also shimmers on the matching Shoot destination slot. Shootability remains advisory and does not
-gate JourneyShot status. SHOOT under FOOTAGE uses the staged A′/B′ and
+gate JourneyShot status. NEW TAKE uses the staged A′/B′ and
 composed prompt (`segmentPromptAddition` first, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.
+Each appended Take stores `startCanonicalMediaId` / `endCanonicalMediaId`
+from the Motion Plan or current storyboard pair. That is a stamp for
+future handoff compatibility, not a revision UI.
 The current development still model is `google/nano-banana-2-lite`
 unless the Project settings Image control selects Nano Banana 2.
 Generated stills default to PNG; Nano Banana 2 can also emit JPG and
@@ -281,6 +285,8 @@ Product Slice 9 photographic-A Camotion:
 [`genesis/research/20-product-slice-9.html`](../genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [`genesis/research/21-product-slice-10.html`](../genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[`genesis/research/22-product-slice-11.html`](../genesis/research/22-product-slice-11.html).
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; media facts appear

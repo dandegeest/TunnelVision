@@ -71,8 +71,8 @@ a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
 production view of the current Project: consecutive actual adjacent
 canonicals appear as Destinations / JourneyShots automatically. Each
-interval is two stacked bands under the destination rail: MOTION
-(the stored A→B Motion Plan) and FOOTAGE (the generated take).
+interval stacks MOTION, FOOTAGE (the selected Take), and TAKES
+under the destination rail.
 When only A is actual, Shoot still shows A and an FPO B; clicking that
 FPO opens Plan with B selected. MOTION/FOOTAGE appear once adjacent
 canonicals exist. Unrendered motion stays outlined. After a Motion Plan exists, the
@@ -84,24 +84,28 @@ same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. While a destination still is generating in Plan, the
 matching Shoot destination slot uses that same shimmer. Green fill on FOOTAGE appears only after the clip is
 complete. MOTION and FOOTAGE bands show those labels only; MOTION is
-inspect/status for the automatically generated Motion Plan. SHOOT /
-RESHOOT is a compact centered control under FOOTAGE when that segment
-is selected. While a take is rendering, FOOTAGE shows Shooting… or
-Reshooting… in the band, the same way MOTION shows Planning….
+inspect/status for the automatically generated Motion Plan. **NEW TAKE**
+is a compact centered control under the TAKES stack when that segment
+is selected. While a take is rendering, FOOTAGE shows Generating…
+in the band, the same way MOTION shows Planning….
 If automatic Motion Planning fails, that MOTION band and the inspector offer Retry for that pair only.
 After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. SHOOT sits under the FOOTAGE band when MOTION, FOOTAGE,
-or either endpoint of that segment is selected, and becomes RESHOOT
-after a clip exists. Clicking it starts or restages the take without
-changing the current selection. It is centered on that interval and sized to the
-label, not the full bar width. The timeline is
+for variable. **NEW TAKE** sits in the TAKES stack under FOOTAGE when MOTION, FOOTAGE,
+or either endpoint of that segment is selected. Clicking it appends another
+Take without changing the current selection or deleting earlier Takes.
+Takes stack vertically; the timeline already resizes and scrolls
+vertically. The selected Take is outlined. Clicking a Take selects it
+for FOOTAGE, preview, and export. Canonical destination **Reshoot** is a
+different action. Do not show revision/continuity pickers yet; Takes
+already stamp the canonical media pair for a later non-destructive
+RESHOOT. The timeline is
 vertically resizable. The Shoot inspector is horizontally resizable and can hide to a reopen strip like the
 conversation and Project rails; that visibility is session UI, not project
 persistence. Canonicals are places;
 MOTION is how the camera traverses between
-canonicals; FOOTAGE is the generated take for that traversal.
+canonicals; FOOTAGE is the selected Take for that traversal.
 Canonical destinations stay clickable places on the rail above those
 bands. MOTION inspects that segment's automatically generated Motion Plan: when an actual adjacent pair exists, CM
 inspects the actual pair, Camotion derives A′/B′ for that shot, and
@@ -160,6 +164,8 @@ Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
 
 ### Plan — conversational storyboard
 
@@ -491,9 +497,9 @@ ignore an unshootable journey.
 ## Expensive-generation boundary
 
 Approve still exploration before expensive video rendering. The
-current primary action names are **SHOOT** / **RESHOOT**
-under the FOOTAGE band, and
-**Export Movie**. Destination Keep / Redo happens before those actions. In the
+current primary action names are **NEW TAKE**
+under the FOOTAGE / TAKES stack, and
+**Export Movie**. Destination Keep / Redo / Reshoot happens before those actions. In the
 current slice those production actions are labeled and disabled.
 Intended later Cinematographer review of actual canonicals (PASS /
 REGEN / REPAIR) is recorded in

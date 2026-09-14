@@ -128,6 +128,8 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(rendered.journeys[0]?.status).toBe("rendered");
     expect(rendered.journeys[0]?.cinematographer?.shootability).toBe("needs_review");
     expect(rendered.journeys[0]?.videoUrl).toBe("https://example.test/a-b.mp4");
+    expect(rendered.journeys[0]?.takes).toHaveLength(1);
+    expect(rendered.journeys[0]?.selectedTakeId).toBe("A-B:take:1");
     expect(rendered.journeys[0]?.take?.videoInputs.endShootingFrame).toBe(true);
     const failed = projectWithJourneyShotFailed(prepared, "A-B", "provider down");
     expect(failed.journeys[0]?.status).toBe("failed");
@@ -145,6 +147,27 @@ describe("SHOOT gate and JourneyShot take", () => {
       videoUrl: "https://example.test/a-b.mp4",
     });
     expect(journeysReadyToAutoShoot(rendered)).toEqual([]);
+  });
+
+  it("appends a second take without replacing the first", () => {
+    const prepared = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
+    const first = projectWithJourneyShotTake(prepared, "A-B", {
+      take,
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    const second = projectWithJourneyShotTake(first, "A-B", {
+      take: { ...take, durationSeconds: 5, seed: 11 },
+      videoUrl: "https://example.test/a-b-2.mp4",
+    });
+    expect(second.journeys[0]?.takes).toHaveLength(2);
+    expect(second.journeys[0]?.takes?.[0]?.videoUrl).toBe("https://example.test/a-b.mp4");
+    expect(second.journeys[0]?.takes?.[1]?.videoUrl).toBe("https://example.test/a-b-2.mp4");
+    expect(second.journeys[0]?.selectedTakeId).toBe("A-B:take:2");
+    expect(second.journeys[0]?.videoUrl).toBe("https://example.test/a-b-2.mp4");
+    const failedSecond = projectWithJourneyShotFailed(projectWithJourneyShooting(first, "A-B"), "A-B", "timeout");
+    expect(failedSecond.journeys[0]?.status).toBe("rendered");
+    expect(failedSecond.journeys[0]?.takes).toHaveLength(1);
+    expect(failedSecond.journeys[0]?.videoUrl).toBe("https://example.test/a-b.mp4");
   });
 
   it("does not generate footage from a Motion Plan for a previous canonical pair", () => {

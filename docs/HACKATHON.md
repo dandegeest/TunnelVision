@@ -107,6 +107,15 @@ Agent itself in 5–6 hours. On event day, the new application
 
 The hackathon app is a radically simplified agentic client.
 
+It must still create and update a real TunnelVision `Project` while
+it works. The conversational surface is another filmmaking surface,
+not a separate movie/session format: its project output must open
+directly in the full Plan | Shoot workstation. It must preserve the
+complete generated journey state, including every Take alternative
+and the selected Take for each segment, so the filmmaker can inspect
+alternatives, continue production, create new Takes, and export a
+different cut from the workstation.
+
 ---
 
 ## Repository map (as of 14 September 2026)
@@ -182,7 +191,7 @@ genesis/      Research site (not the hackathon app)
 | Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
-| Durable project persistence | **Does not exist.** Session/dev-runtime media only. |
+| Durable project persistence | **Does not exist.** Session/dev-runtime media only. When implemented, it must use one canonical TunnelVision project format shared by the workstation and JourneyAgent; the hackathon app may not create a separate project/session format or isolated movie artifact. |
 
 Directed Options (generate all, auto-shoot) are
 **not** AGENT. They automate filmmaker clicks inside Directed.

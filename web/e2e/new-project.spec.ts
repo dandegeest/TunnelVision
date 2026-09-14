@@ -492,32 +492,32 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByRole("heading", { name: "A-B" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Retry A-B" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New take A-B" })).toHaveCount(1);
   const journeyInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A-B" }) });
   await expect(journeyInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
   await expect(page.getByLabel("Motion A-B")).toBeVisible();
   await expect(page.getByText("Motion Plan", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New take A-B" })).toHaveCount(1);
   await journeyInspector.locator("summary", { hasText: "Shot" }).click();
   await expect(journeyInspector.getByText("Advance from the current volume into the next.")).toBeVisible();
   await expect(journeyInspector.getByText("Track forward through the visible opening into the next volume.")).toBeVisible();
   await expect(journeyInspector.getByText("corridor mouth left of center (0.62, 0.41)")).toBeVisible();
   await expect(journeyInspector.getByText("forward through the left-of-center opening as the corridor bends right")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "New take A-B" })).toBeEnabled();
   await page.getByRole("button", { name: "Destination A", exact: true }).click();
   await expect(page.locator(".camotion-overlay")).toBeVisible();
   await expect(page.locator('[data-vanishing-point="0.62,0.41"]')).toBeVisible();
   await page.getByLabel("Motion A-B").click();
 
-  await page.getByRole("button", { name: "Shoot A-B", exact: true }).click();
+  await page.getByRole("button", { name: "New take A-B" }).click();
   await expect(page.getByLabel("Motion A-B")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Footage A-B")).toHaveAttribute("aria-pressed", "false");
-  await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New take A-B" })).toHaveCount(1);
   await page.getByLabel("Footage A-B").click();
   await expect(page.locator("video")).toHaveAttribute("src", MOCK_VIDEO_URL);
   await expect(page.getByLabel("Footage A-B")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Shoot A-B", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "New take A-B" })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Take 1 A-B" })).toHaveCount(1);
   await journeyInspector.locator("summary", { hasText: "Take" }).click();
   await expect(journeyInspector.getByAltText("A-B start shooting frame")).toBeVisible();
   await expect(journeyInspector.getByAltText("A-B end shooting frame")).toBeVisible();
@@ -534,7 +534,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByAltText("A-B start A")).toHaveCount(2);
   await expect(page.getByAltText("A-B end B")).toHaveCount(2);
   await expect(page.getByRole("button", { name: "Plan A-B" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New take A-B" })).toHaveCount(1);
   await page.getByLabel("Footage A-B").click();
   await expect(page.locator("video")).toBeVisible();
   await expect(page.locator(".preview-leg")).toHaveCount(0);
@@ -570,8 +570,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByAltText("A′ · A-B start′")).toBeVisible();
   await expect(page.locator(".preview-monitor img")).toHaveAttribute("src", SHOOTING_A_PRIME.imageUrl);
 
-  await expect(page.getByRole("button", { name: "Reshoot A-B" })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Shoot B-C", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "New take A-B" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New take B-C" })).toHaveCount(0);
   await page.getByRole("button", { name: "Destination C", exact: true }).click();
   await expect(page.getByLabel("Preview source").first()).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Preview motion").first()).toBeVisible();
@@ -592,8 +592,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   const nextInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "B-C" }) });
   await expect(nextInspector.getByText("Track forward through the connected volumes.")).toBeVisible();
   await expect(page.getByText("Motion Plan", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Shoot B-C", exact: true })).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Shoot B-C", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "New take B-C" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New take B-C" })).toBeEnabled();
 });
 
 test("project image and video model selectors default to Nano Banana Lite and Pruna", async ({

@@ -1,4 +1,5 @@
 import { journeyIsPlayable } from "./policy";
+import { selectedTakeVideoUrl } from "./takes";
 import type { Project } from "./types";
 
 export type MovieExportClip = {
@@ -36,14 +37,17 @@ export function movieExportPlan(project: Project): MovieExportPlan {
     if (!endDestinationId) {
       continue;
     }
-    if (journeyIsPlayable(journey) && journey.videoUrl) {
-      included.push({
-        journeyId: journey.id,
-        startDestinationId: journey.startDestinationId,
-        endDestinationId,
-        videoUrl: journey.videoUrl,
-      });
-      continue;
+    if (journeyIsPlayable(journey)) {
+      const videoUrl = selectedTakeVideoUrl(journey);
+      if (videoUrl) {
+        included.push({
+          journeyId: journey.id,
+          startDestinationId: journey.startDestinationId,
+          endDestinationId,
+          videoUrl,
+        });
+        continue;
+      }
     }
     missing.push({
       journeyId: journey.id,

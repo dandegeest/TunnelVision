@@ -8,6 +8,7 @@ import { GridMarks } from "./GridMarks";
 import { JourneyLane } from "./JourneyLane";
 import { JourneyPaceLane } from "./JourneyPaceLane";
 import { Playhead } from "./Playhead";
+import { journeyLaneHeight, shootTrackMinHeight } from "./takes-layout";
 
 export function Timeline() {
   const {
@@ -25,6 +26,8 @@ export function Timeline() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const layout = useMemo(() => layoutShootTimeline(project, zoom), [project, zoom]);
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
+  const laneHeight = journeyLaneHeight(project.journeys, selection, shootingJourneyIds);
+  const trackMinHeight = shootTrackMinHeight(laneHeight);
   const playheadX = timeToX(playheadTime, zoom);
 
   useEffect(() => {
@@ -47,8 +50,8 @@ export function Timeline() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#10100c]">
-      <div ref={scrollerRef} className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
-        <div className="relative h-full" style={{ width: layout.trackWidth }}>
+      <div ref={scrollerRef} className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+        <div className="relative h-full" style={{ width: layout.trackWidth, minHeight: trackMinHeight }}>
           <GridMarks layout={layout} zoom={zoom} />
           <div className="absolute inset-x-0 top-0 z-[1] h-7 border-b border-[#2a2620] text-[10px] tracking-[0.14em] text-[#7d7466]">
             {layout.occurrences.map((occurrence) => (

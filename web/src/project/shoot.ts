@@ -1,5 +1,11 @@
 import { actualFrameForDestination, canAssessJourney, hasCurrentMotionPlan } from "./cinematographer";
 import { videoModelDurationSeconds, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import {
+  journeyTakes,
+  patchSelectedTake,
+  projectWithAppendedTake,
+  selectedTake,
+} from "./takes";
 import type { CameraMotionPlanV1, JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
 
 export type ShootJourneyRequest = {
@@ -35,7 +41,7 @@ export function canShootJourney(project: Project, journey: JourneyShot): boolean
 
 export function journeysReadyToAutoShoot(project: Project): JourneyShot[] {
   return project.journeys.filter((journey) => {
-    if (journey.status === "rendered" || journey.status === "shooting") {
+    if (journey.status === "shooting" || journeyTakes(journey).length > 0) {
       return false;
     }
     return canShootJourney(project, journey);
@@ -52,7 +58,7 @@ export function projectWithVideoModel(project: Project, videoModel: VideoModelId
     ...project,
     videoModel,
     journeys: project.journeys.map((journey) =>
-      journey.status === "rendered" && journey.take
+      journeyTakes(journey).length > 0
         ? journey
         : { ...journey, durationSeconds },
     ),
@@ -109,24 +115,7 @@ export function projectWithJourneyShotTake(
   journeyId: string,
   next: { take: JourneyShotTake; videoUrl: string },
 ): Project {
-  if (!project.journeys.some((journey) => journey.id === journeyId)) {
-    throw new Error("Unknown journey");
-  }
-  return {
-    ...project,
-    journeys: project.journeys.map((journey) =>
-      journey.id === journeyId
-        ? {
-            ...journey,
-            status: "rendered",
-            videoUrl: next.videoUrl,
-            take: next.take,
-            durationSeconds: next.take.durationSeconds,
-            shootError: undefined,
-          }
-        : journey,
-    ),
-  };
+  return projectWithAppendedTake(project, journeyId, next);
 }
 
 /** Timeline follows the actual clip. Ignore empty or non-finite probes. */
@@ -143,18 +132,18 @@ export function projectWithJourneyClipDuration(
   if (!journey) {
     throw new Error("Unknown journey");
   }
-  if (journey.durationSeconds === seconds && journey.take?.durationSeconds === seconds) {
+  const current = selectedTake(journey);
+  if (journey.durationSeconds === seconds && current?.durationSeconds === seconds) {
     return project;
   }
   return {
     ...project,
     journeys: project.journeys.map((item) =>
       item.id === journeyId
-        ? {
-            ...item,
-            durationSeconds: seconds,
-            take: item.take ? { ...item.take, durationSeconds: seconds } : item.take,
-          }
+        ? patchSelectedTake(
+            { ...item, durationSeconds: seconds },
+            { durationSeconds: seconds },
+          )
         : item,
     ),
   };
@@ -170,9 +159,15 @@ export function projectWithJourneyShotFailed(
   }
   return {
     ...project,
-    journeys: project.journeys.map((journey) =>
-      journey.id === journeyId ? { ...journey, status: "failed", shootError: error } : journey,
-    ),
+    journeys: project.journeys.map((journey) => {
+      if (journey.id !== journeyId) {
+        return journey;
+      }
+      if (journeyTakes(journey).length > 0) {
+        return { ...journey, status: "rendered", shootError: error };
+      }
+      return { ...journey, status: "failed", shootError: error };
+    }),
   };
 }
 

@@ -104,6 +104,8 @@ describe("per-segment Motion Plan", () => {
     expect(withBC.journeys.find((journey) => journey.id === "B-C")?.videoUrl).toBeUndefined();
     const restaged = projectWithMotionPlan(withBC, "A-B", planFor("A-B"));
     expect(restaged.journeys.find((journey) => journey.id === "A-B")?.take).toBeUndefined();
+    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.takes).toBeUndefined();
+    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.selectedTakeId).toBeUndefined();
     expect(restaged.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBeUndefined();
     expect(restaged.journeys.find((journey) => journey.id === "A-B")?.status).toBe("ready");
     expect(restaged.journeys.find((journey) => journey.id === "B-C")?.motionPlan?.cinematographer.summary).toBe(

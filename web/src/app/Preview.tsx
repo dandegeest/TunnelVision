@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
+import { selectedTake, selectedTakeVideoUrl, takeDisplayLabel, takeHasShootingFrames } from "../project/takes";
 import { useProject } from "../project/ProjectProvider";
 import {
   GENERATED_OPENING_ASPECT_RATIO,
@@ -233,7 +234,9 @@ export function Preview() {
   const canShowStills = Boolean(selectedJourney && startDestination && endDestination);
   const showMotion = Boolean(selectedJourney && journeyBand === "motion");
   const showFootage = Boolean(selectedJourney && journeyBand === "footage");
-  const showVideo = showFootage && playable && Boolean(selectedJourney?.videoUrl);
+  const currentTake = selectedJourney ? selectedTake(selectedJourney) : undefined;
+  const videoUrl = selectedJourney ? selectedTakeVideoUrl(selectedJourney) : undefined;
+  const showVideo = showFootage && playable && Boolean(videoUrl);
   const showStills = showMotion && canShowStills;
   const destination = startDestination;
   const shootEmpty = layout.occurrences.length === 0;
@@ -250,8 +253,8 @@ export function Preview() {
     project.journeys.length > 0 && selection.kind === "destination" && Boolean(destination);
   const destinationKey =
     selection.kind === "destination" ? `${selection.destinationId}:${selection.occurrenceIndex}` : "";
-  const take = selectedJourney?.take;
-  const motionSource = selectedJourney?.motionPlan ?? take;
+  const take = currentTake;
+  const motionSource = selectedJourney?.motionPlan ?? (takeHasShootingFrames(take) ? take : undefined);
   const showMotionOverlay = showMotion && Boolean(motionSource);
 
   useEffect(() => {
@@ -265,14 +268,14 @@ export function Preview() {
     } else {
       video.pause();
     }
-  }, [playing, showVideo, selectedJourney?.id]);
+  }, [playing, showVideo, selectedJourney?.id, videoUrl]);
 
   const title = shootEmpty
     ? "Preview"
     : showMotion && selectedJourney
       ? `Preview · Motion ${selectedJourney.id}`
       : showFootage && selectedJourney
-        ? `Preview · Footage ${selectedJourney.id}`
+        ? `Preview · Footage ${selectedJourney.id}${currentTake ? ` · ${takeDisplayLabel(currentTake)}` : ""}`
         : destination
           ? `Preview · Destination ${destination.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`
           : "Preview";
@@ -323,12 +326,12 @@ export function Preview() {
               )
         }
       >
-        {showVideo && selectedJourney?.videoUrl ? (
+        {showVideo && videoUrl && selectedJourney ? (
           <video
             ref={videoRef}
-            key={selectedJourney.id}
+            key={`${selectedJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}`}
             className="rounded bg-black"
-            src={selectedJourney.videoUrl}
+            src={videoUrl}
             poster={destinationById(project.destinations, selectedJourney.startDestinationId)?.image}
             controls
             preload="metadata"

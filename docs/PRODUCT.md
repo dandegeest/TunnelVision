@@ -148,21 +148,26 @@ planned until the filmmaker constructs them. Shoot is a production view of
 the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 CREATE JOURNEY is not a prerequisite for shooting actual adjacent canonicals.
-MOTION is an inspect/status surface for the automatically generated Motion Plan;
-SHOOT sits under the FOOTAGE band when that segment is selected and
-becomes RESHOOT after a clip exists. The control starts the take
-without changing selection. It is centered and sized
-to the label. While a take is rendering, FOOTAGE shows Shooting… or
-Reshooting… in the band like MOTION shows Planning…. Each Shoot interval is two
-stacked bands: MOTION (the stored A→B Motion Plan) and FOOTAGE (the generated
-take). Canonicals remain clickable places above those bands. When only A is
+MOTION is an inspect/status surface for the automatically generated Motion Plan.
+Each segment keeps 0..N Takes under FOOTAGE. Existing footage loads as Take 1.
+**NEW TAKE** (timeline `+ NEW TAKE`, inspector **NEW TAKE**) appends another
+traversal and never overwrites a previous Take. One Take is selected; FOOTAGE,
+preview, playback, and Export Movie use that Take. Newest Take is selected
+after generate. Each new Take records the start/end canonical media
+IDs it was shot against so later alternate continuities can tell B1
+Takes from B2 Takes. Canonical **RESHOOT** still means regenerate a
+destination, not another footage Take; making that RESHOOT
+non-destructive (keep B1 and its Takes) is backlog. While a take is rendering, FOOTAGE shows Generating…
+in the band like MOTION shows Planning…. Each Shoot interval stacks MOTION,
+FOOTAGE (the selected Take), then TAKES (TAKE 1…N and + NEW TAKE). Canonicals
+remain clickable places above those bands. When only A is
 actual, Shoot still shows A and an FPO B that opens Plan on B. Band labels are MOTION and FOOTAGE only. Selecting a destination
 exposes stored Camotion A′/B′ for that occurrence as a read-only preview
 toggle, a CameraMotionPlan overlay on the still, and inspector facts. When an actual adjacent pair exists, the existing Cinematographer
 runs against those stills automatically, renders Camotion A′/B′ for that pair, and stores the
 Motion Plan on that JourneyShot. Changing either canonical invalidates and
 recomputes that segment's Motion Plan. Footage generation remains explicit.
-SHOOT under FOOTAGE uses those staged frames, composes `segmentPromptAddition`
+NEW TAKE uses those staged frames, composes `segmentPromptAddition`
 ahead of the frozen locomotion baseline, and generates a development
 clip. The Project panel Image control chooses the still generator for
 opening A and later B…N. Nano Banana 2 Lite is the development
@@ -225,6 +230,8 @@ Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
 
 ## Plan is a conversational storyboard
 
@@ -764,6 +771,8 @@ Product Slice 9 photographic-A Camotion:
 [genesis/research/20-product-slice-9.html](../genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

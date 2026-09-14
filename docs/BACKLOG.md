@@ -477,6 +477,84 @@ new option in v1 AGENT.
 -   Max revise-then-reshoot combinations inside the 1–2 retry
     budget.
 
+Today a filmmaker/Agent RESHOOT still replaces the letter in place
+and invalidates adjacent Motion Plans. That is the current
+implementation. Non-destructive alternate continuity is
+[Non-destructive canonical reshoots](#non-destructive-canonical-reshoots).
+
+---
+
+### Non-destructive canonical reshoots
+
+**Status:** BACKLOG — do not implement UI, locking, warnings, or
+migration in the current Takes slice.
+
+**Goal.** A canonical RESHOOT after footage exists must create
+**alternate continuity**, not destroy previously shot continuity.
+Takes stay bound to the exact canonical revisions they were shot
+against.
+
+**Why it matters.** Happy path is fixed canonicals A, B, C… with
+multiple Takes per segment. Real filmmaking reshoots a destination
+after footage exists. Example: `A → B1 → C` has `A→B1` Take 1 and
+`B1→C` Take 1. Reshooting B should yield `A → B2 → C` with new
+compatible Takes `A→B2` Take 2 and `B2→C` Take 2, while B1 and its
+Takes remain recoverable. The filmmaker must be able to switch back
+to the complete B1 continuity and reselect its compatible Takes.
+
+**Intended behavior / design.**
+
+-   Happy path stays as implemented: one current canonical per
+    letter; 0..N Takes per segment; filmmaker selects the current
+    cut Take.
+-   A Take belongs to the **exact canonical media pair** used to
+    generate it, not merely to the segment index / letters (`A-B`).
+-   Compatibility invariant: a selected `A→B` Take and selected
+    `B→C` Take must share the same exact B canonical revision at
+    the handoff.
+-   Canonical RESHOOT eventually versions the destination (B1 /
+    B2) and keeps both inbound and outbound Takes that were shot
+    against each revision.
+-   NEW TAKE on the current pair still appends; it does not
+    overwrite older Takes or older revisions.
+-   Current workstation already stamps
+    `startCanonicalMediaId` / `endCanonicalMediaId` on each new
+    Take (`takesShareHandoffCanonical`). Do not invent a large
+    revision system until this item is taken.
+
+**Constraints / invariants.**
+
+-   Do not implement revision UI, alternate-continuity pickers,
+    locking, warnings, or migration in the current Takes work.
+-   Do not assume segment position alone permanently defines Take
+    compatibility.
+-   Legacy Takes without stamped media IDs stay loadable; treat
+    missing pair as unknown, not as “current letters.”
+-   Destination RESHOOT remains a different operation from footage
+    NEW TAKE.
+-   Footage Evaluator / Agent take selection / automatic retry
+    stay out of this item.
+
+**Likely implementation areas.**
+
+-   `JourneyShotTake.startCanonicalMediaId` /
+    `endCanonicalMediaId` (already stamped on NEW TAKE)
+-   `web/src/project/takes.ts` (`takeCanonicalPair`,
+    `takesShareHandoffCanonical`)
+-   Later: destination revision identity; keep replaced stills;
+    restore a complete continuity; filter or group Takes by pair
+-   Current in-place replace:
+    `projectWithReplacedFrameImage`, Motion Plan restage wipe
+
+**Open questions.**
+
+-   Is a revision a first-class Destination object, or a history
+    list on the letter?
+-   When the filmmaker switches back to B1, do inbound and
+    outbound selected Takes restore as a set, or independently
+    with a handoff warning?
+-   Do Motion Plans also version per canonical pair, or only Takes?
+
 ---
 
 ### Discover canonical strategy
@@ -1580,30 +1658,61 @@ storage. Conversation, Debug, and panel chrome are session UI.
 A real project cannot be handed to another machine or resumed
 tomorrow.
 
+**Architecture requirement: one project model, multiple filmmaking
+surfaces.** The full Plan | Shoot filmmaker workstation and the
+conversational JourneyAgent application must read and write the exact
+same TunnelVision project format. The Agent application must not
+invent a hackathon-specific project or session format, emit only an
+isolated movie artifact, or require a later translation/import step.
+JourneyAgent operates on the same `Project` / domain model as the
+workstation. A project created autonomously in the Agent surface must
+open normally in the full workstation, where the filmmaker can inspect
+and continue it.
+
 **Intended behavior / design.**
 
 Persist enough to restore the actual workspace:
 
 -   journey prompt / story
+-   Director plan / semantic destinations
 -   canonical storyboard order and letters
 -   canonical images (bytes or durable blob refs)
--   canonical intents / visual descriptions
--   Director plan / specified-vs-unspecified state
--   SegmentMotionPlans (CM assessment, CameraMotionPlans, A′/B′,
-    pace, prompts)
--   rendered traversal footage and take metadata
--   provider/model metadata needed for reproducibility
+-   canonical provenance, generation metadata, intents, and visual
+    descriptions
+-   SegmentMotionPlans, including CM assessments, CameraMotionPlans,
+    A′/B′ conditioned assets or sufficient information to reproduce
+    them, pace, and prompts
+-   every rendered traversal Take for every segment, not only the
+    Agent's preferred or selected Take
+-   selected Take per segment
+-   per-Take start/end canonical media IDs (the pair the Take was
+    shot against)
+-   provider/model/generation metadata needed for inspection and
+    reproducibility
+-   Agent activity and results where useful for provenance/debugging
+-   final assembled movie/export references where appropriate
 -   relevant project settings (agency, video model, aspect,
     Directed options if still used)
 
-Do **not** persist redundant derived UI: selection, zoom,
-conversation-open, inspector width, playhead, conversation
-history (unless later promoted). Reconstruct layout from
-destinations + journeys.
+When opened in the workstation, the filmmaker must be able to review
+all Agent-generated Take alternatives, select a different Take,
+create new Takes, and produce a different cut. Selection is project
+state; transient selection UI such as zoom, conversation-open,
+inspector width, and playhead is not. Conversation history is not
+required unless later promoted to project provenance. Reconstruct
+layout from destinations, journeys, Takes, and other persisted domain
+state.
 
 **Constraints / invariants.**
 
 -   Session UI ≠ project persistence (already documented).
+-   The workstation and JourneyAgent use one canonical serialized
+    project format; no surface-specific project/session schema.
+-   An Agent-created project must be directly openable and
+    continuable in the full workstation.
+-   Persist every generated Take, including non-selected alternatives.
+-   Takes remain reviewable and selectable after reopen; a different
+    selection must support a different export.
 -   Trusted media IDs must remain valid after reopen or be
     remapped explicitly.
 -   Do not persist secrets.

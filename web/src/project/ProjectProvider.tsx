@@ -37,6 +37,7 @@ import {
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
+import { projectWithSelectedTake } from "./takes";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
@@ -124,6 +125,7 @@ type ProjectContextValue = {
   shootingJourneyIds: readonly string[];
   shootError: string | null;
   shootJourney: (journeyId: string) => Promise<void>;
+  selectTake: (journeyId: string, takeId: string) => void;
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File, options?: { clearPlan?: boolean }) => Promise<void>;
@@ -736,6 +738,13 @@ export function ProjectProvider({
     [shootJourneyOn],
   );
 
+  const selectTake = useCallback(
+    (journeyId: string, takeId: string) => {
+      applyProject(projectWithSelectedTake(projectRef.current, journeyId, takeId));
+    },
+    [applyProject],
+  );
+
   const planWithDirector = useCallback(async () => {
     if (!canPlanMovie(project)) {
       setPlanStartError(
@@ -933,6 +942,7 @@ export function ProjectProvider({
       shootingJourneyIds,
       shootError,
       shootJourney,
+      selectTake,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,
@@ -988,6 +998,7 @@ export function ProjectProvider({
       shootingJourneyIds,
       shootError,
       shootJourney,
+      selectTake,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,

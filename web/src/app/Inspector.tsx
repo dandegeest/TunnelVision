@@ -10,6 +10,7 @@ import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import { canAssessJourney, cinematographerScoreTone, locomotionPaceLabel } from "../project/cinematographer";
 import { canReshootDestinationFrame } from "../project/destination";
 import { canShootJourney } from "../project/shoot";
+import { selectedTake, takeDisplayLabel, takeHasShootingFrames } from "../project/takes";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake, type ShootingFrameRef } from "../project/types";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
@@ -194,8 +195,8 @@ export function Inspector() {
   const canAssess = canAssessJourney(project, journey);
   const assessing = assessingJourneyIds.includes(journey.id);
   const motionPlanError = journey.motionPlanError ?? (canAssess && !assessment ? cinematographerError : null);
-  const take = journey.take;
-  const motionSource = journey.motionPlan ?? journey.take;
+  const take = selectedTake(journey);
+  const motionSource = journey.motionPlan ?? (takeHasShootingFrames(take) ? take : undefined);
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
   const endDestination = journey.endDestinationId
     ? destinationById(project.destinations, journey.endDestinationId)
@@ -203,12 +204,13 @@ export function Inspector() {
   const motion = selection.band === "motion";
   const motionRecords = camotionRecordsForJourney(project, journey.id);
   const segmentHeading = `${startDestination?.label ?? journey.startDestinationId}→${endDestination?.label ?? journey.endDestinationId ?? "?"}`;
+  const footageHeading = take ? `${segmentHeading} · ${takeDisplayLabel(take)}` : segmentHeading;
   const effectivePrompt = take?.effectivePrompt ?? motionSource?.effectivePrompt;
   const segmentPromptAddition =
     take?.segmentPromptAddition ?? motionSource?.segmentPromptAddition ?? assessment?.segmentPromptAddition;
   return (
     <InspectorShell title={motion ? "Inspector - Motion" : "Inspector - Footage"}>
-      <h2 className="text-2xl">{segmentHeading}</h2>
+      <h2 className="text-2xl">{motion ? segmentHeading : footageHeading}</h2>
       {motion && (startDestination || endDestination) ? (
         <div className="grid grid-cols-2 gap-1">
           {startDestination ? (
@@ -313,7 +315,7 @@ export function Inspector() {
         <FootageInspector
           journeyId={journey.id}
           take={take}
-          shootingFrames={motionSource}
+          shootingFrames={takeHasShootingFrames(take) ? take : !take && journey.motionPlan ? journey.motionPlan : undefined}
           assessment={assessment}
           effectivePrompt={effectivePrompt}
           segmentPromptAddition={segmentPromptAddition}
@@ -323,7 +325,7 @@ export function Inspector() {
           shooting={shootingJourneyIds.includes(journey.id)}
           debugOn={debugOn}
           playable={playable}
-          onReshoot={() => {
+          onNewTake={() => {
             void shootJourney(journey.id);
           }}
         />
@@ -392,7 +394,7 @@ function FootageInspector({
   shooting,
   debugOn,
   playable,
-  onReshoot,
+  onNewTake,
 }: {
   journeyId: string;
   take?: JourneyShotTake;
@@ -406,7 +408,7 @@ function FootageInspector({
   shooting: boolean;
   debugOn: boolean;
   playable: boolean;
-  onReshoot: () => void;
+  onNewTake: () => void;
 }) {
   const direction = assessment?.travel?.direction?.trim();
   const modelLabel = take ? videoModelDisplayLabel(take.model) : undefined;
@@ -457,10 +459,10 @@ function FootageInspector({
         type="button"
         className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
         disabled={!canShoot || shooting}
-        aria-label={`Reshoot ${journeyId}`}
-        onClick={onReshoot}
+        aria-label={`New take ${journeyId}`}
+        onClick={onNewTake}
       >
-        {shooting ? "Reshooting…" : "Reshoot"}
+        {shooting ? "Generating…" : "NEW TAKE"}
       </button>
     </>
   );

@@ -54,6 +54,8 @@ export type StagedMotionPlanResult = {
 
 export type JourneyShotTakeResult = {
   journeyId: string;
+  startCanonicalMediaId?: string;
+  endCanonicalMediaId?: string;
   startShootingFrame: { mediaId: string; imageUrl: string };
   endShootingFrame: { mediaId: string; imageUrl: string };
   startPlan: CameraMotionPlanV1;
@@ -235,6 +237,10 @@ export async function shootPreparedJourney(input: {
   const durationSeconds = videoModelDurationSeconds(videoModelId);
   const startPath = shootingFrameFromRegistry(staged.startShootingFrame.mediaId).filePath;
   const endPath = shootingFrameFromRegistry(staged.endShootingFrame.mediaId).filePath;
+  const startCanonicalMediaId =
+    typeof input.body.startMediaId === "string" ? input.body.startMediaId.trim() : "";
+  const endCanonicalMediaId =
+    typeof input.body.endMediaId === "string" ? input.body.endMediaId.trim() : "";
   const generated = await input.generateVideo({
     startImage: { kind: "file", path: startPath },
     endImage: { kind: "file", path: endPath },
@@ -244,6 +250,8 @@ export async function shootPreparedJourney(input: {
   });
   return {
     journeyId: staged.journeyId,
+    ...(startCanonicalMediaId ? { startCanonicalMediaId } : {}),
+    ...(endCanonicalMediaId ? { endCanonicalMediaId } : {}),
     startShootingFrame: staged.startShootingFrame,
     endShootingFrame: staged.endShootingFrame,
     startPlan: staged.startPlan,

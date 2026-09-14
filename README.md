@@ -257,8 +257,8 @@ evidence and explicit test fixtures; they do not initialize the
 running product. After Plan Movie, Construct builds the next planned
 beat from the preceding actual destination through image-conditioned
 edit. Later beats stay planned until explicitly constructed. Shoot is a
-production view of Destinations / Journey: MOTION, FOOTAGE, and
-SHOOT / RESHOOT. Visual checkpoint:
+production view of Destinations / Journey: MOTION, FOOTAGE, TAKES, and
+NEW TAKE. Visual checkpoint:
 [`genesis/research/11-product-slice-2.html`](genesis/research/11-product-slice-2.html).
 Director observation:
 [`genesis/research/12-product-slice-3.html`](genesis/research/12-product-slice-3.html).
@@ -280,6 +280,8 @@ Product Slice 9 photographic-A Camotion:
 [`genesis/research/20-product-slice-9.html`](genesis/research/20-product-slice-9.html).
 Product Slice 10 canonical spatial progression:
 [`genesis/research/21-product-slice-10.html`](genesis/research/21-product-slice-10.html).
+Product Slice 11 Takes:
+[`genesis/research/22-product-slice-11.html`](genesis/research/22-product-slice-11.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
