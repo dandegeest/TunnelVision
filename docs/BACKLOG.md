@@ -635,13 +635,16 @@ JOURNEY, get a new opening that rhymes with the guide.
 Event-day implementation plan:
 [HACKATHON.md](HACKATHON.md).
 
-**Goal.** At the hackathon, integrate appropriate Runway
-APIs/models into the existing TunnelVision provider architecture
-while treating the current core as a pre-existing library.
+**Goal.** At the hackathon, integrate Runway **Model Router** (with
+direct-model fallback) into the existing TunnelVision provider
+architecture while treating the current core as a pre-existing
+library. TV decides the filmmaking task; Router chooses the
+eligible model. See [HACKATHON.md](HACKATHON.md) §14.
 
 **Why it matters.** Hackathon time is for a fresh Agent-facing
-product surface and new providers, not a rewrite of Plan | Shoot,
-CM, or Camotion.
+product surface and adaptive Runway generation, not a rewrite of
+Plan | Shoot, CM, or Camotion, and not a one-for-one swap of
+Replicate model IDs.
 
 **Intended behavior / design.**
 
@@ -649,8 +652,10 @@ Hackathon-day focus:
 
 -   Fresh **minimal** UI (stripped timeline that builds as the
     Agent works)
--   Agent layer ([Agent mode](#agent-mode))
--   Runway integration behind adapters
+-   Agent layer ([Agent mode](#agent-mode)) — **reused**, not
+    implemented on event day
+-   Runway **Model Router** behind adapters (`tv-draft` /
+    `tv-final`); named models only as fallback
 -   [DISCOVER](#discover-canonical-strategy) if time
 -   Fully unattended journeys: prompt → CREATE JOURNEY → Agent
     directs, constructs, shoots, evaluates, repairs, continues
@@ -663,27 +668,32 @@ JOURNEY, watch a thin timeline grow. No extra Agent options.
 -   Do not rebuild stable core (Director schema, CM assessment,
     CameraMotionPlan bridge, Camotion operator, segment prompt
     compose, Directed Inspector) unless a blocker is proven.
+-   Do not move Director / CM / Camotion / evaluation / retry
+    orchestration into Runway.
 -   Runway is a provider. Canonical semantics, storyboard
     semantics, Director behavior, CM behavior, and
     SegmentMotionPlan ownership must not change because the
     adapter is Runway.
 -   Video still prefers first + last conditioned frames when the
-    API supports them.
+    API supports them (router `referenceImages` roles `first` /
+    `last`).
 -   Secrets stay out of the repo; same env/token pattern as
     Replicate.
 
 **Likely implementation areas.**
 
--   New `media/src` Runway adapters + catalog entries (image
-    and/or video)
+-   New `media/src/runway/` adapters (`generate.image` /
+    `generate.video` + optional named-model fallback)
 -   `web/src/project` video model id parsing / duration
 -   Thin Agent UI shell; existing project state underneath
 -   [Provider / model abstraction](#provider--model-abstraction)
 
 **Open questions.**
 
--   Which Runway models are available that day, and which map to
-    still construct vs video vs DISCOVER extract.
+-   Event-day credentials, Router availability, enabled models,
+    and any newly announced capability — not “does Runway have
+    image/video APIs?” (public Dev API is already documented in
+    [HACKATHON.md](HACKATHON.md) §14–15).
 -   Whether hackathon UI hides Directed entirely or keeps a
     developer escape hatch (Debug).
 

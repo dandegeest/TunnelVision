@@ -18,6 +18,24 @@ Related current-code docs (do not treat them as optional):
 -   [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md) — GWM Worlds 2 notes;
     hypothesis only
 
+Public Runway Dev documentation (source of truth for the API;
+reopen on event day):
+
+-   [API Documentation](https://docs.dev.runwayml.com/)
+-   [Using the API](https://docs.dev.runwayml.com/guides/using-the-api/)
+-   [Available models](https://docs.dev.runwayml.com/guides/models/)
+-   [API reference](https://docs.dev.runwayml.com/api) ([machine-readable](https://docs.dev.runwayml.com/api.md))
+-   [SDKs](https://docs.dev.runwayml.com/api-details/sdks/) — Node [`@runwayml/sdk`](https://www.npmjs.com/package/@runwayml/sdk)
+-   [Model Routers](https://docs.dev.runwayml.com/model-routers/)
+-   [Configuring a Model Router](https://docs.dev.runwayml.com/model-routers/configuration/)
+-   [Generating through a Model Router](https://docs.dev.runwayml.com/model-routers/generating/)
+-   [Inputs](https://docs.dev.runwayml.com/assets/inputs/)
+-   [Outputs](https://docs.dev.runwayml.com/assets/outputs/) — result URLs expire in 24–48 hours; download them
+-   [Reference media guidelines](https://docs.dev.runwayml.com/recipes/reference-media/)
+-   [Multi-Shot Video recipe](https://docs.dev.runwayml.com/recipes/multi-shot-video/) — **not**
+    TunnelVision traversal; see §14
+-   [API changelog](https://docs.dev.runwayml.com/api-details/api_changelog/)
+
 Do **not** begin DISCOVER, Camotion redesign, a Plan | Shoot
 rewrite, or a new JourneyAgent from this file on event day.
 JourneyAgent is pre-hackathon product work.
@@ -41,6 +59,21 @@ The existing TunnelVision application and filmmaking engine are the
 research, experimentation, and reusable technology developed before
 the hackathon.
 
+Hackathon narrative:
+
+> TunnelVision already had an autonomous filmmaking agent. At the
+> Runway hackathon, we made that filmmaker adaptive: instead of
+> hard-coding generation models, TunnelVision uses Runway's
+> model-routing infrastructure to choose the right model for each
+> filmmaking task and escalate quality when a shot or destination
+> needs repair.
+
+TV already decides **what** filmmaking task needs to happen
+(construct this destination, shoot this A→B, retry with higher
+quality). Runway Model Router decides **which eligible model**
+should perform that task. That is a stronger integration story than
+replacing Replicate endpoints with named Runway models.
+
 Hackathon-day work creates a **new application in this same
 repository** that uses that technology as a filmmaking library.
 
@@ -49,6 +82,8 @@ Core principle:
 ``` text
 TWO APPS.
 ONE FILMMAKING ENGINE.
+RUNWAY MODEL ROUTER AUGMENTS THAT ENGINE.
+IT DOES NOT REPLACE DIRECTOR, CM, CAMOTION, OR JOURNEYAGENT.
 ```
 
 The existing Plan | Shoot filmmaker workstation remains intact.
@@ -69,7 +104,7 @@ The hackathon app is a radically simplified agentic client.
 
 ---
 
-## Repository map (as of 13 September 2026)
+## Repository map (as of 14 September 2026)
 
 Do not assume a clean `apps/` + `shared/` monorepo. The actual tree
 is:
@@ -104,7 +139,7 @@ genesis/      Research site (not the hackathon app)
 | Trusted media | `web/runtime-media.ts`, `web/runtime-media-plugin.ts` |
 | Image / video contracts | `media/src/types.ts` — `MediaProvider`, `ImageEditProvider` |
 | Reasoning contract | `media/src/reasoning/types.ts` — `ReasoningProvider` |
-| Current adapters | `media/src/replicate/*` only. **No Runway package exists.** |
+| Current adapters | `media/src/replicate/*` only. **No Runway package exists.** Event-day work adds `media/src/runway/` behind the same contracts, with **Model Router as the primary generation path** and direct model calls as fallback. |
 | Image catalog | `media/src/replicate/image-models.ts` — Nano Banana 2 Lite default; Nano Banana 2 opt-in |
 | Video catalog | `media/src/replicate/video-models.ts` — Pruna default; Kling / Wan / Seedance opt-in |
 
@@ -139,7 +174,7 @@ genesis/      Research site (not the hackathon app)
 | Opposite-canonical visual reference on repair | **Does not exist.** Construct uses the *preceding* still; look-ahead is *following* intent text only. Same: pre-hackathon JourneyAgent, not hackathon-day. |
 | Footage Evaluator | **Does not exist** as product. Experimental Shot Evaluator is isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. If a product evaluator exists by event day, JourneyAgent should already use it. |
 | Movie-evaluation preprocessor | **Does not exist** as product. |
-| Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. |
+| Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
 | Durable project persistence | **Does not exist.** Session/dev-runtime media only. |
@@ -167,7 +202,8 @@ No PLAN | SHOOT workstation.
 
 No Inspector (`web/src/app/Inspector.tsx`, `DestinationInspector.tsx`).
 
-No Project settings / provider chooser.
+No Project settings / provider chooser. Router configs live in the
+Runway Developer Portal (and env vars), not in hackathon UI.
 
 No manual canonical editing, storyboard kebab, drop-to-replace.
 
@@ -672,53 +708,263 @@ Reuse the current construct architecture:
     actual as `sourceImage`, semantic look-ahead for the following
     beat)
 
-Current **workstation** strong still path is Nano Banana 2 / 2K.
-That is evidence, not a hackathon requirement.
+Current **workstation** strong still path is Nano Banana 2 / 2K
+(`gemini_image3.1_flash` on Runway Dev). That is product evidence,
+not a reason to hard-code that model ID into JourneyAgent.
 
 ``` text
 THE HACKATHON APPLICATION SHOULD USE RUNWAY GENERATION APIS.
+PRIMARY PATH: MODEL ROUTER.
+FALLBACK: NAMED DIRECT-MODEL CALLS.
 ```
 
-Do not hard-code Nano Banana into `JourneyAgent` or hackathon UI.
-
-Runway becomes the configured hackathon image (and video) provider
-through the existing catalogs / adapters.
+Do not hard-code Nano Banana, Seedance, or Gen-4.5 into
+`JourneyAgent` or hackathon UI.
 
 Preserve provider abstraction. Agent code talks to
 `destinationConstructionRequestFromProject` and opening generation,
-not to a vendor SDK.
+not to a vendor SDK and not to a `configId`.
+
+TV-specific construct requirement (product, not a Router API
+feature): the next canonical must honor the reference still **and**
+show genuine forward viewpoint displacement. Same-environment
+progression is the hard case — the model must not keep the source
+composition and only change lighting, activity, or style. See
+[Product Slice 10](../genesis/research/21-product-slice-10.html).
+Router chooses among eligible models; JourneyAgent / CM still
+evaluate whether the still actually advanced.
 
 ---
 
 ## 14. Runway integration
 
-Route generation through Runway wherever the event APIs reasonably
-support it.
+### 14.1 Verified public API (14 September 2026)
+
+The public [Runway Dev API](https://docs.dev.runwayml.com/) is now
+understood. Do **not** spend event morning “discovering whether
+Runway has image and video APIs.” It does. Event-day reconnaissance
+is credentials, account access, newly announced models, Router
+availability in *this* hackathon’s org, and anything unique to the
+event.
+
+**Verified (public docs):**
+
+| Surface | What exists |
+| --- | --- |
+| Auth / version | Bearer `RUNWAYML_API_SECRET`; header `X-Runway-Version: 2024-11-06` |
+| SDK | Node `@runwayml/sdk` (`generate.video.create`, `generate.image.create`, `imageToVideo.create`, `textToImage.create`, `waitForTaskOutput`); Python `runwayml` |
+| Tasks | Async tasks; poll `GET /v1/tasks/:id`; `TaskFailedError` |
+| Direct image | `POST /v1/text_to_image` — named `model` + `ratio` + optional `referenceImages` |
+| Direct video | `POST /v1/image_to_video` (and `text_to_video`) — named `model` + model-specific `ratio` |
+| Model Router | Saved configs; `POST /v1/generate/image`, `/v1/generate/video`, `/v1/generate/audio` with `configId` + model-agnostic `input` |
+| Image models | Includes `gemini_image3.1_flash` (Nano Banana 2), `gemini_image3_pro`, `gemini_2.5_flash`, `gen4_image` / `gen4_image_turbo`, Seedream, GPT Image, Grok Imagine Image, others — all take text and optional reference images |
+| Video models | Includes Seedance 2 / 2 Fast / 2 Mini / 2.5, Gen-4.5, Gen-4 Turbo, Veo 3.1 / Fast, Hailuo 3, Grok Imagine 1.5, others |
+| Start + end frames | **Not universal.** Router `input.referenceImages[].role` may be `first`, `last`, or `reference` (at most one `first` and one `last`). Direct Seedance and Veo 3.1 accept `promptImage` positions `first`/`last`. Direct Gen-4.5 and Gen-4 Turbo accept **`first` only**. Sending `last` excludes models that cannot do an end frame |
+| Image resolution (router) | `input.resolution`: `1k`, `2k`, `4k` — models that cannot meet the tier are excluded |
+| Video resolution (router) | `input.resolution`: `480p`, `720p`, `1080p`, `4k` — same exclusion rule |
+| Aspect | Router uses model-agnostic `aspectRatio` (`16:9`, …). Direct-model endpoints use model-specific `ratio` (`1280:720`, …). **Not interchangeable** |
+| LLM / reasoning | **No public Runway LLM endpoint** in the current model catalog. Keep `ReplicateReasoningProvider` / Gemini 3.1 Pro for Director and CM unless the event adds one |
+
+**Do not invent.** Router optimization is exactly one of `cost`,
+`latency`, or `quality`. There is no documented Router knob for
+“spatial pull-forward,” “Camotion compatibility,” or custom scoring.
+Those remain TV evaluation criteria. Eligibility filtering is how
+the request *shape* (first+last frames, resolution, duration, price
+cap) narrows the pool. `dryRun: true` is HTTP today; SDK dry-run
+support is documented as coming soon. Video `duration` is 2–30
+seconds. Output URLs expire in 24–48 hours — persist locally as TV
+already does for generated media.
+
+**Verified vs assumption**
+
+| Verified in public docs | Hackathon-day assumption (do not treat as API fact) |
+| --- | --- |
+| Router configs, `configId`, `optimizeFor`, eligibility, `routing.model` / cost | This hackathon org can create routers and has credit for live generate |
+| `first` + `last` on routed video **requires** models that support those roles | The chosen start+end model will *physically travel* A′→B′ rather than restyle the stills — TV must still evaluate footage |
+| Image `referenceImages` guide generation | A given image model will honor the source still *and* pull the viewpoint forward — TV must still evaluate canonicals |
+| Seedance family and Veo 3.1 support first+last on direct `image_to_video`; Gen-4.5 / Gen-4 Turbo are first-only | Event catalog / allowlists will include at least one strong start+end model |
+| No Runway LLM in the current catalog | The event will not require putting Director/CM on Runway |
+
+**Not the traversal path:** the
+[Multi-Shot Video recipe](https://docs.dev.runwayml.com/recipes/multi-shot-video/)
+assembles 3–5 *cuts between scenes*. TunnelVision shoots continuous
+first-person travel from A′ to B′. Do not replace `shootJourney`
+with Multi-Shot.
+
+**Not a world model for journeys:** `gwm1_avatars` is a real-time
+conversational avatar. Do not treat it as GWM Worlds 2 or as
+canonical/traversal generation.
+
+### 14.2 Model Router is the primary generation strategy
+
+Hack-day Runway integration should **strongly prefer Model Router**
+for image and video generation. Named direct-model calls are the
+fallback when a router config is missing, a request has no eligible
+model, or a use case must pin one model.
+
+Runway’s own docs: instead of integrating around a single model,
+create a router and let the platform pick based on configured
+preferences. As new models launch, routing keeps pace without
+changing integration code. A creative app might run a **Draft**
+router tuned for latency and a **Final Export** router tuned for
+quality, each called by its own ID.
+
+Verified Router concepts to use:
+
+-   reusable configs with a **stable, immutable `configId`** slug
+    (example: `preview-fast`)
+-   optimize for **cost**, **latency**, or **quality** (one
+    dimension per config)
+-   **multiple routers per use case**
+-   one config can serve image / video / audio; modality is the
+    endpoint (`/v1/generate/image` vs `/v1/generate/video`)
+-   eligibility = enabled models (allow list or deny list) ∩
+    capabilities required by this request ∩ per-modality credit
+    ceiling
+-   new models become eligible automatically unless the config is
+    an allow list
+-   every response reports **which model ran**, **cost**,
+    `configId`, and `optimizeFor`
+-   `dryRun: true` inspects `routing.model` / `estimatedCost` /
+    `resolvedSettings` without generating or billing
+-   routed requests send `configId` + model-agnostic `input`;
+    **do not** send `model`
+
+``` text
+JourneyAgent / CM     decide WHAT task and WHICH POLICY
+                      (construct B, shoot A→B, retry quality)
+Runway Model Router   chooses WHICH eligible MODEL
+                      under that policy
+```
+
+Do **not** move Director, CM, Camotion, evaluation, or retry
+orchestration into Runway. Router augments TV’s filmmaking
+intelligence; it does not replace it.
+
+### 14.3 TV tasks → router policies
+
+Map filmmaking tasks onto **config IDs**, not model IDs. Create
+these configs in the Developer Portal (or `POST /v1/routers`) once;
+the adapter only passes `configId` + `input`.
+
+Suggested configs (names are ours; settings are documented):
+
+| TV policy | Router config (example ID) | Verified settings | Use |
+| --- | --- | --- | --- |
+| DRAFT / FAST | `tv-draft` | `optimizeFor: latency` (or `cost`); optional lower video `720p` / image `1k`; tighter credit ceiling | Previews, early construct/shoot, first attempt before evaluation |
+| FINAL / QUALITY | `tv-final` | `optimizeFor: quality`; video `1080p` and image `2k` when the request needs them | Accepted canonicals, accepted footage, quality retries |
+| (optional) CHEAP | `tv-cheap` | `optimizeFor: cost` + credit ceiling | Only if latency-optimized draft is still too expensive |
+
+Do not claim a “low-res vs high-res router type.” Resolution is an
+**`input` field** that also filters eligibility. The same `tv-draft`
+config can receive `720p` on a first shoot and `tv-final` can
+receive `1080p` on a quality retry.
+
+**Canonical / image**
+
+-   Opening A: `POST /v1/generate/image` with `promptText` (no
+    reference).
+-   Construct B…N: same endpoint with `referenceImages` = preceding
+    actual. That is the documented reference-image path, not a
+    separate “edit” API. Adapter maps `ImageEditProvider.sourceImage`
+    onto router `referenceImages`.
+-   Prefer models that honor a reference **and** displace viewpoint.
+    Router cannot score that. Configure a quality image router with
+    a sensible allow/deny list if event-day tests show some models
+    only restyle the source. JourneyAgent still rejects a still that
+    kept the source composition (existing construct prompt + any
+    pre-hackathon evaluator).
+-   Escalate: first construct on `tv-draft`; if the still fails
+    spatial progression / reference adherence, retry the **same
+    construct operation** with `tv-final`.
+
+**Video / traversal**
+
+-   Always pass Camotion A′ as `role: "first"` and B′ as
+    `role: "last"` when both exist. That is the TV preference for
+    robust START+END conditioning.
+-   Router then **excludes** models that cannot satisfy those roles
+    (direct API: Gen-4.5 / Gen-4 Turbo are first-only). Remaining
+    eligible models (documented start+end: Seedance family, Veo 3.1
+    / Fast, and any later model that advertises last-frame) compete
+    on the config’s `optimizeFor`.
+-   **Integration risk (do not invent a Router flag to fix it):**
+    there is no “force strong endpoint adherence” setting. A wide
+    latency/cost pool can still pick a start+end-capable model that
+    treats last-frame loosely. Mitigate with a documented **allow
+    list** on `tv-final` (and optionally a dedicated traversal
+    config) of models known to honor first+last, or fall back to a
+    named direct model.
+-   If no eligible model remains, **fallback**: either drop `last`
+    and shoot first-frame-only (worse; log it), or call a named
+    start+end model directly. Do not silently switch to Multi-Shot.
+-   The selected model must travel from supplied start to supplied
+    end, not treat them as loose style references. That judgment is
+    Footage Evaluator / pragmatic fallback — not a Router setting.
+-   Escalate: first shoot on `tv-draft`; on `RETRY` / failed
+    evaluation, reshoot through `tv-final` (same A′/B′, quality
+    policy).
+
+**CM / Agent repair loop**
+
+Repair operations themselves remain pre-hackathon product work
+(§9). Router does not become a second Agent.
+
+When JourneyAgent already retries:
+
+-   CM/Agent diagnose **why** a generation failed and **what** retry
+    is needed (RESHOOT_END, construct retry, footage retry).
+-   JourneyAgent chooses the **task and quality policy** (first
+    attempt vs escalate). It does **not** pass a `configId` or
+    model name.
+-   The Runway adapter maps first attempt → `RUNWAY_ROUTER_DRAFT`
+    and quality retry → `RUNWAY_ROUTER_FINAL`.
+-   Example: a fast/draft A→B fails evaluation → Agent requests
+    another shoot of the same Camotion-conditioned pair; the adapter
+    calls the quality-oriented router. Canonical repair may
+    similarly escalate from a fast image generation to a stronger
+    reference-adherent / high-quality route.
+-   Log `routing.model` and credits on the take for debugging; do
+    not show them in the hackathon UI.
+
+If no repair/evaluator loop exists by event day, do **not** invent
+one so Router has something to escalate. **Assumption:** call
+`tv-final` for the demo movie so accepted stills and footage are
+quality-oriented; keep `tv-draft` wired for when retries exist or
+for dry-run / smoke tests.
+
+### 14.4 Adapter implementation
 
 Desired hackathon configuration:
 
 | Role | Preference |
 | --- | --- |
-| LLM / reasoning | Runway **if** a suitable API exists; otherwise keep `ReplicateReasoningProvider` / Gemini 3.1 Pro |
-| Image generation / edit | Runway |
-| Video generation | Runway |
+| LLM / reasoning | Keep Gemini 3.1 Pro unless the event adds a Runway LLM |
+| Image generation / edit | Runway **Model Router** (`/v1/generate/image`); direct `text_to_image` fallback |
+| Video generation | Runway **Model Router** (`/v1/generate/video` with first+last); direct `image_to_video` fallback |
 
 Do not compromise Agent architecture merely to claim every call uses
-Runway. Director and CM are reasoning jobs. An unsuitable “LLM”
-endpoint is worse than keeping Gemini.
+Runway. Director and CM are reasoning jobs.
 
 Implement Runway as adapters:
 
 ``` text
-media/src/runway/          NEW
-media/src/runway/provider.ts
+media/src/runway/                 NEW
+media/src/runway/provider.ts      MediaProvider / ImageEditProvider
+media/src/runway/router.ts        configId + generate.image/video
 ```
 
-Plus catalog entries beside (not inside) role code:
+Env (same pattern as `media/src/config/environment.ts`):
 
--   `media/src/replicate/image-models.ts` **or** a sibling
-    provider-neutral catalog if adding Runway IDs there is dishonest
--   `media/src/replicate/video-models.ts` — same rule
+-   `RUNWAYML_API_SECRET`
+-   `RUNWAY_ROUTER_DRAFT` — default `tv-draft`
+-   `RUNWAY_ROUTER_FINAL` — default `tv-final`
+
+Plus catalog entries beside (not inside) role code if a fallback
+named model is required. Do not put `configId` on `Project`,
+storyboard, or `JourneyShot` domain types. Storing the **selected**
+`routing.model` on generated media (alongside today’s
+`GeneratedVideo.model`) is fine.
 
 First integration step: stop typing
 `GeneratedVideo.provider` / `GeneratedImage.provider` /
@@ -729,41 +975,44 @@ Do **not** put Runway-specific fields into:
 
 -   Director (`media/src/director/*`)
 -   Cinematographer (`media/src/cinematographer/*`)
--   Agent (`web/src/agent/*`)
+-   Agent (`web/src/agent/*` or JourneyAgent)
 -   Camotion
 -   `Project` / storyboard / `JourneyShot` domain types
 
-Video must still prefer first + last Camotion frames when the Runway
-API supports start/end. Map A′/B′ in the adapter the way
-`media/src/replicate/video-input.ts` already maps Replicate models.
+Secrets stay in env / `.env.local`. Never commit tokens.
 
-Secrets stay in env / `.env.local`, same pattern as
-`media/src/config/environment.ts`. Never commit tokens.
+Smoke-test with `dryRun` before live generate. If the pool is empty,
+widen the config or fall back to a named model — do not retune
+Camotion.
 
 ---
 
-## 15. Event-day API discovery
+## 15. Event-day reconnaissance
 
-**Before implementation on hackathon day**, read the Runway materials
-handed out at the event.
+The public Runway Dev API is already reviewed in §14. **Do not**
+re-derive “which APIs exist” from scratch.
 
-Determine:
+**Before coding**, read:
 
-1.  available image models
-2.  available video models
-3.  start / end-frame capabilities
-4.  continuation capabilities
-5.  image-reference / edit capabilities
-6.  LLM / reasoning capabilities, if any
-7.  APIs or models announced specifically for the hackathon
-8.  duration / resolution constraints
-9.  latency
-10. rate limits
-11. hackathon-specific submission rules
+1.  event packet / submission rules
+2.  [docs.dev.runwayml.com](https://docs.dev.runwayml.com/) changelog
+    for anything newer than this file
+3.  Developer Portal: can this hackathon org create Model Router
+    configs? Note the actual `configId` slugs
+4.  credentials (`RUNWAYML_API_SECRET`), rate limits, credit budget
+5.  models enabled on *this* account vs the public catalog
+6.  any hackathon-only model, world-model, or LLM endpoint
+
+Then confirm, with one `dryRun` each:
+
+-   image generate through `tv-draft` / `tv-final`
+-   image generate with a reference still (construct B)
+-   video generate with `first` + `last` (A′/B′)
+-   what the router picks, and whether the pool is empty
 
 Only modify this plan where a new capability **materially** changes
-an assumption (for example: no start/end frames; no image-to-image
-edit; a world-model API that can replace one stage).
+an assumption (no Router access; no start/end models enabled; a
+world-model API that can replace one stage; a Runway LLM).
 
 Do not redesign working Director / CM / Camotion merely because a
 new API exists.
@@ -795,7 +1044,13 @@ stack.
 
 TunnelVision remains the filmmaking intelligence layer: Director
 decides where to go, CM decides how to shoot actual adjacent
-canonicals, Camotion conditions, the generator films.
+canonicals, Camotion conditions, JourneyAgent chooses the task
+and retry policy, Runway Model Router chooses the eligible model,
+the generator films.
+
+Do not confuse `gwm1_avatars` (real-time conversational avatars
+on the current catalog) with GWM Worlds 2. Avatars are not
+canonical or traversal generation.
 
 ---
 
@@ -942,8 +1197,9 @@ expression of that already-working JourneyAgent.
 
 Concentrate that day on:
 
-1.  inspect / adapt to event-day Runway APIs
-2.  Runway provider integration
+1.  credentials, org access, newly announced models, and Router
+    availability / config IDs (public API is already in §14)
+2.  Runway **Model Router** adapters (direct-model fallback)
 3.  new full-screen conversational Agent application
 4.  presentation of JourneyAgent execution / activity
 5.  final movie presentation
@@ -965,27 +1221,40 @@ implementing JourneyAgent during this window.
 
 ### 0:00–0:30 — Event / API reconnaissance
 
-Read hackathon requirements.
+Read hackathon requirements and the event packet.
 
-Inspect Runway APIs / models announced or provided.
+Reopen [docs.dev.runwayml.com](https://docs.dev.runwayml.com/) only
+for changelog / newly announced models. Do **not** rediscover the
+public API from scratch.
 
-Determine whether anything materially changes this plan.
+Confirm:
 
-Select image provider/model, video provider/model, reasoning
-provider, resolution / duration.
+-   `RUNWAYML_API_SECRET` and credit / rate limits
+-   Model Router access; create or note `tv-draft` / `tv-final`
+    (`optimizeFor: latency` vs `quality`)
+-   which models this org actually enables
+-   anything unique to the hackathon (new model, LLM, world-model)
 
-Do not code speculative features.
+Keep Gemini for Director/CM unless a Runway LLM appears.
+
+Do not code speculative features. Do not spend this block picking
+a single image model and a single video model as the integration
+strategy.
 
 ### 0:30–1:30 — Runway integration
 
 Implement / configure Runway adapters behind `MediaProvider` /
-`ImageEditProvider`.
+`ImageEditProvider`. Primary path: `client.generate.image.create`
+/ `client.generate.video.create` with `configId`. Fallback: named
+`textToImage` / `imageToVideo`.
 
-Verify independently:
+Verify independently (prefer `dryRun` HTTP first, then one live
+call each):
 
--   canonical generation (A text-to-image)
--   canonical edit (B from A)
--   video with start/end if supported
+-   image through the draft and final routers
+-   image with a reference still (construct B)
+-   video with `first` + `last` (A′/B′)
+-   that `routing.model` is populated and the pool is not empty
 
 One minimal smoke test. Then stop.
 
@@ -1060,11 +1329,14 @@ The hackathon product is **DONE** when:
     hackathon-day orchestrator).
 6.  Director creates a journey.
 7.  Storyboard visibly populates.
-8.  Canonicals are generated through Runway.
+8.  Canonicals are generated through Runway **Model Router**
+    (named direct-model fallback only if a router is unavailable
+    or has no eligible model).
 9.  CM plans actual adjacent canonical pairs (existing automatic
     Motion Planning).
 10. Camotion conditions shots (existing product path).
-11. Runway generates traversals.
+11. Runway **Model Router** generates traversals with start+end
+    frames when both A′ and B′ exist.
 12. JourneyAgent handles repair / retry / evaluation using the
     pre-hackathon product path (evaluator if available; otherwise
     the pragmatic footage fallback in §10–11).
@@ -1085,7 +1357,12 @@ Do **not** spend hackathon time on:
 -   redesigning Plan | Shoot
 -   rewriting Camotion
 -   tuning CM prompts without a demonstrated failure
--   provider bakeoffs
+-   in-app model bakeoffs (configure routers in the Developer
+    Portal instead; do not hard-code a winner into JourneyAgent)
+-   moving Director / CM / Camotion / evaluation / retry
+    orchestration into Runway
+-   creating a parallel hack-app Agent
+-   replacing `shootJourney` with Multi-Shot Video
 -   manual filmmaking controls
 -   Inspector improvements
 -   project-management UI
@@ -1148,6 +1425,8 @@ Preserve these regardless of hackathon shortcuts:
 -   Traversability does not imply tunnels / thresholds.
 -   Continuous forward travel may include turns and curved routes.
 -   Providers remain behind adapters.
+-   Runway Model Router chooses eligible models; JourneyAgent
+    chooses filmmaking tasks and retry policy.
 -   Agent orchestrates existing typed operations rather than
     duplicating them.
 -   Footage evaluation is distinct from pre-shoot CM evaluation.
@@ -1170,7 +1449,10 @@ At the beginning of hackathon implementation:
     the hackathon app.
 5.  Inspect current provider adapters (`media/src/replicate/`,
     `media/src/types.ts`).
-6.  Inspect current Runway documentation supplied for the event.
+6.  Reopen the public Runway Dev docs linked at the top of this
+    file, plus anything in the event packet. The public API is
+    already summarized in §14; look for credentials, Router access,
+    newly announced models, and hackathon-only endpoints.
 7.  Identify any assumptions in this document invalidated by new
     information.
 8.  Report **only** those discrepancies and proposed changes.
@@ -1226,7 +1508,9 @@ Then explain:
 >
 > Camotion conditioned those shots for movement.
 >
-> Runway generated the imagery and footage.
+> Runway’s Model Router chose the generation model for each
+> filmmaking task — and could escalate from a fast route to a
+> quality route when a destination or shot needed to land.
 >
 > The Agent evaluated the results, repaired weak shots when it
 > could, and assembled the movie.
@@ -1284,7 +1568,8 @@ Drop in this order (hackathon UI / event work only):
 3.  DISCOVER
 4.  polish
 
-Never drop: Runway image + video, CREATE JOURNEY → existing
+Never drop: Runway **Model Router** image + video (direct-model
+fallback only if Router is unavailable), CREATE JOURNEY → existing
 JourneyAgent, visible storyboard / activity, assembled movie in
 the conversation.
 
