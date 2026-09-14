@@ -266,7 +266,7 @@ export type Project = {
   construction: Construction;
   /** AUTO, or an exact destination count. After the first Director plan this follows the storyboard. */
   storyDuration: StoryDuration;
-  /** When true, DIRECT generates unresolved A from the story before Director planning. */
+  /** Persistence only. CREATE JOURNEY always generates unresolved A unless A is already actual. */
   autoGenerateOpening: boolean;
   /** When true, DIRECT then generates B…N in travel order from each preceding actual frame. */
   autoGenerateAllDestinations: boolean;

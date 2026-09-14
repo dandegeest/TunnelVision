@@ -1425,7 +1425,6 @@ describe("new-project Plan", () => {
     expect(html).not.toContain(">Technical<");
     expect(html).toContain('aria-label="Increase destinations"');
     expect(html).toContain('aria-label="Decrease destinations"');
-    expect(html).toContain('aria-label="Generate start destination"');
     expect(html).toContain('aria-label="Generate all destinations"');
     expect(html).not.toContain('aria-label="Auto blocking"');
     expect(html).toContain('aria-label="Shoot"');
@@ -1439,13 +1438,13 @@ describe("new-project Plan", () => {
     expect(html).not.toContain("Add Destination");
   });
 
-  it("keeps PLAN disabled until A exists when auto generate opening is off", () => {
+  it("lets PLAN run from a story even when the legacy autoGenerateOpening flag is off", () => {
     const html = renderPlan({
       ...createNewProject(),
       story: "Travel forward through an imagined interior at night.",
       autoGenerateOpening: false,
     });
-    expect(html).toMatch(/disabled[^>]*aria-label="Create journey"|aria-label="Create journey"[^>]*disabled/);
+    expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
   });
 
   it("lets PLAN run when A is actual and the story is empty", () => {
@@ -1465,12 +1464,7 @@ describe("new-project Plan", () => {
     const html = renderPlan(withA, { composerDraft: "" });
     expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
-    expect(html).toMatch(
-      /disabled[^>]*aria-label="Generate start destination"|aria-label="Generate start destination"[^>]*disabled/,
-    );
-    expect(html).not.toMatch(
-      /checked[^>]*aria-label="Generate start destination"|aria-label="Generate start destination"[^>]*checked/,
-    );
+    expect(html).not.toContain("Generate start destination");
   });
 
   it("shows Add Destination as soon as actual A exists", () => {

@@ -101,7 +101,7 @@ describe("Shell header chrome", () => {
     expect(project).toContain(">Journey prompt<");
     expect(project).toContain(">Destinations<");
     expect(project).toContain(">Options<");
-    expect(project).toContain("Generate start destination");
+    expect(project).not.toContain("Generate start destination");
     expect(project).toContain("Generate all destinations");
     expect(project).not.toContain("Auto generate");
     expect(project).not.toContain("Auto blocking");

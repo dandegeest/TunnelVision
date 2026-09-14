@@ -230,9 +230,7 @@ export function canPlanMovie(project: Project): boolean {
   if (!project.story.trim()) {
     return false;
   }
-  return Boolean(
-    project.autoGenerateOpening && start && start.imageOrigin === "none" && !start.image,
-  );
+  return Boolean(start && start.imageOrigin === "none" && !start.image);
 }
 
 export function parseStoryDurationInput(raw: string): { ok: true; duration: StoryDuration } | { ok: false } {

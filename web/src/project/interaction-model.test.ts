@@ -71,14 +71,14 @@ describe("partially specified movie interaction model", () => {
     expect(canAddStoryboardDestination(ready)).toBe(true);
   });
 
-  it("lets PLAN run without A when auto generate opening is enabled", () => {
+  it("lets PLAN run without A when a journey story exists", () => {
     const untitled = {
       ...createNewProject(),
       story: "Travel forward through connected volumes.",
     };
     expect(canPlanMovie(untitled)).toBe(true);
     expect(canAddStoryboardDestination(untitled)).toBe(false);
-    expect(canPlanMovie({ ...untitled, autoGenerateOpening: false })).toBe(false);
+    expect(canPlanMovie({ ...untitled, autoGenerateOpening: false })).toBe(true);
   });
 
   it("plans from a generated opening frame A without requiring an upload", () => {

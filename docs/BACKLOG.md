@@ -99,7 +99,7 @@ toggle. AGENT should not grow a settings panel, repair-policy UI,
 or DERIVE/DISCOVER control until those strategies exist as real
 behavior.
 
-Directed Options (generate start, generate all, auto-block,
+Directed Options (generate all, auto-block,
 auto-shoot) are **not** AGENT. They automate filmmaker clicks
 inside Directed. AGENT owns the loop, including when to repair,
 when to continue, and when to export.
@@ -763,6 +763,136 @@ a new planner and not a Camotion heading solver.
     sharp turns (CM may SHOOT with concerns; Camotion may still
     smear poorly). That is Camotion/quality, not a CM false
     refusal.
+
+---
+
+### Observational beats / look-pause choreography
+
+**Status:** DEFERRED — Agent work remains the priority. Do not
+change CM, Camotion, prompts, or locomotion until this item is
+intentionally taken on. The frozen locomotion baseline stays in
+force.
+
+**Goal.** Treat a stationary observational beat as valid
+filmmaking. Continuous spatial/physical coherence (no teleport)
+must not require continuous forward translation on every leg.
+
+**Why it matters.** A 14 September 2026 Directed test asked for
+advance along a forest trail, arrive beneath a huge tree,
+temporarily stop, look upward at butterflies in the canopy, then
+resume travel onward. Canonicals:
+
+| Beat | Observed still |
+| --- | --- |
+| A | Forest trail approach |
+| B | Stopped / look-up viewpoint into the canopy |
+| C | Onward ground-level forest path |
+
+CM was **not wrong** under current rules. It correctly exposed the
+limitation of the frozen “never stop advancing” locomotion
+baseline ([IMPLEMENTATION.md](IMPLEMENTATION.md) Test 08 grammar;
+[CM curved-route reasoning](#cm-curved-route-reasoning) is about
+yaw while still translating, not pause/look).
+
+| Leg | Set consistency | Traversal confidence | CM concern |
+| --- | --- | --- | --- |
+| A→B | 90 | 65 | ~90° shift from horizontal to vertical travel needs a steep upward curve and conflicts with continuous-forward-motion. |
+| B→C | 85 | 20 | B implies vertical travel toward the canopy; C implies horizontal ground travel; connecting them needs ~90° downward pitch and violates one-axis forward motion. |
+
+Shoot Inspector evidence:
+
+![A→B look-up motion](backlog-assets/look-pause-a-b-motion.png)
+
+![B→C look-up motion](backlog-assets/look-pause-b-c-motion.png)
+
+B’s destination still (intent: approach the tree and look up at
+glowing butterflies) is an observational pose, not a new ground
+location:
+
+![Destination B look-up pose](backlog-assets/look-pause-destination-b.png)
+
+**Video.** Kling take `~/Downloads/TreeBugger.mp4` (14 Sep 2026,
+16:23). Spatially coherent, but the model treated the upward look
+as continued locomotion: the camera tilted up and then climbed /
+traveled up the tree instead of stopping in place to observe.
+That reinforces the diagnosis: “never stops advancing” turns an
+intended tilt into physical ascent.
+
+Source screenshots (if assets are missing): Desktop
+`Screenshot 2026-09-14 at 4.14.46 PM.png` (A→B),
+`4.14.52 PM.png` (B→C), `4.26.29 PM.png` (destination B).
+
+**Intended behavior / design.**
+
+Current frozen invariant:
+
+> continuous forward translation
+
+Eventual invariant:
+
+> continuous spatial / physical coherence without teleportation
+
+A look/pause beat is valid. B is not necessarily a normal
+traversal destination at a new physical location; it can be an
+observational pose at approximately the same place with a changed
+orientation.
+
+Future CM / choreography vocabulary (brainstorming labels, not a
+schema):
+
+-   ADVANCE
+-   DECELERATE
+-   PAUSE
+-   LOOK / LOOK_UP / LOOK_DOWN
+-   TURN
+-   RESUME
+-   ASCEND / DESCEND where actual travel is intended
+
+This sequence, conceptually:
+
+-   A→B: ADVANCE → DECELERATE → PAUSE → LOOK_UP
+-   B→C: LOOK_DOWN → RESUME → ADVANCE
+
+Related, do not duplicate:
+
+-   [CM curved-route reasoning](#cm-curved-route-reasoning) —
+    heading change while still traveling.
+-   [RESEARCH_BACKLOG.md — Spatial vs temporal continuity](RESEARCH_BACKLOG.md#spatial-vs-temporal-continuity)
+    — B as ease/stop vs position sample. This test shows some
+    filmmaker-intended B’s *are* observational stops.
+-   Product line “canonical frames are position samples, not stop
+    points” remains current shoot law; this item is how that law
+    should later grow a look/pause exception.
+-   [Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
+    — do not treat this CM result as a false no-go to “fix” with
+    repair prompts. Under today’s baseline, CM is correctly
+    flagging a locomotion mismatch.
+
+**Constraints / invariants.**
+
+-   Do not implement this now. Agent is first.
+-   Do not change CM prompts, Camotion, or the locomotion
+    baseline to paper over look/pause until this item is taken
+    on.
+-   ASCEND / DESCEND are for actual travel, not for a look that
+    should stay in place.
+-   No teleport. Spatial continuity still applies.
+
+**Likely implementation areas.** (when taken on)
+
+-   CM assessment prompts / shootability for pause vs travel
+-   Director beat semantics (pose vs location)
+-   Segment shooting direction / locomotion compose
+-   Possibly CameraMotionPlan fields for look without translation
+
+**Open questions.**
+
+-   Does a look-up beat share A’s location id, or remain a
+    distinct canonical with a “same place” relation?
+-   How CM scores a legitimate PAUSE / LOOK vs an accidental
+    dead-end.
+-   Whether video models can hold a look without climbing when
+    the prompt and end frame ask for it.
 
 ---
 

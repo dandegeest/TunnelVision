@@ -39,7 +39,7 @@ import {
 } from "./shoot";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
-import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoGenerateOpening, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
   requestConstructDestination,
   projectWithConstructedDestination,
@@ -110,7 +110,6 @@ type ProjectContextValue = {
   setComposerDraft: (draft: string) => void;
   setStoryDurationInput: (raw: string) => void;
   nudgeStoryDuration: (delta: 1 | -1) => void;
-  setAutoGenerateOpening: (enabled: boolean) => void;
   setAutoGenerateAllDestinations: (enabled: boolean) => void;
   setAutoBlockShots: (enabled: boolean) => void;
   setAutoShoot: (enabled: boolean) => void;
@@ -295,10 +294,6 @@ export function ProjectProvider({
     projectRef.current = next;
     setProject(next);
     return next;
-  }, []);
-
-  const setAutoGenerateOpening = useCallback((enabled: boolean) => {
-    setProject((current) => projectWithAutoGenerateOpening(current, enabled));
   }, []);
 
   const setAutoGenerateAllDestinations = useCallback((enabled: boolean) => {
@@ -754,7 +749,7 @@ export function ProjectProvider({
     setDirectorStatus("planning");
     let current = project;
     try {
-      if (current.autoGenerateOpening && canGenerateOpeningFrame(current)) {
+      if (canGenerateOpeningFrame(current)) {
         current = await generateOpeningOn(current);
       }
 
@@ -924,7 +919,6 @@ export function ProjectProvider({
       setComposerDraft,
       setStoryDurationInput,
       nudgeStoryDuration,
-      setAutoGenerateOpening,
       setAutoGenerateAllDestinations,
       setAutoBlockShots,
       setAutoShoot,
@@ -980,7 +974,6 @@ export function ProjectProvider({
       composerDraft,
       setStoryDurationInput,
       nudgeStoryDuration,
-      setAutoGenerateOpening,
       setAutoGenerateAllDestinations,
       setAutoBlockShots,
       setAutoShoot,

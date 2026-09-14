@@ -347,10 +347,11 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Video model")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Agent" }).click();
-  await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
+  await expect(page.getByLabel("Generate all destinations")).toHaveCount(0);
   await expect(page.getByLabel("Create journey")).toBeVisible();
   await page.getByRole("button", { name: "Directed" }).click();
-  await expect(page.getByLabel("Generate start destination")).toBeVisible();
+  await expect(page.getByLabel("Generate all destinations")).toBeVisible();
+  await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
 
   await page.getByLabel("Journey story").fill("Travel forward through an imagined interior at night.");
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
@@ -359,7 +360,6 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Story destinations")).toHaveValue("AUTO");
   await expect(page.getByLabel("Increase destinations")).toBeEnabled();
   await expect(page.getByLabel("Decrease destinations")).toBeDisabled();
-  await expect(page.getByLabel("Generate start destination")).toBeChecked();
   await expect(page.getByLabel("Generate all destinations")).not.toBeChecked();
   await expect(page.getByRole("checkbox", { name: "Shoot" })).not.toBeChecked();
   await expect(page.getByLabel("Create journey")).toBeEnabled();
@@ -391,8 +391,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Uploaded frame")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toBeVisible();
   await expect(page.getByLabel("Create journey")).toBeEnabled();
-  await expect(page.getByLabel("Generate start destination")).not.toBeChecked();
-  await expect(page.getByLabel("Generate start destination")).toBeDisabled();
+  await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeEnabled();
 
   await page.getByLabel("Destination A plan").click();

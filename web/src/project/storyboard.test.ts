@@ -781,12 +781,12 @@ describe("story duration", () => {
     expect(projectWithNudgedStoryDuration(locked, 1)).toEqual(locked);
   });
 
-  it("lets PLAN run from a story alone when auto generate opening is on", () => {
+  it("lets PLAN run from a story alone", () => {
     const untitled = createNewProject();
     expect(canPlanMovie(untitled)).toBe(false);
     const withStory = { ...untitled, story: "Travel forward through connected volumes." };
     expect(canPlanMovie(withStory)).toBe(true);
-    expect(canPlanMovie({ ...withStory, autoGenerateOpening: false })).toBe(false);
+    expect(canPlanMovie({ ...withStory, autoGenerateOpening: false })).toBe(true);
   });
 
   it("lets PLAN run from actual A without a story", () => {

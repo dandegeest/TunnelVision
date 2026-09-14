@@ -671,6 +671,9 @@ Evaluate separately:
     ending frame, or ease/decelerate/stop at B?
 
 Canonical frames should behave as position samples, not stop points.
+A later observational look/pause exception is recorded in
+[BACKLOG.md — Observational beats / look-pause choreography](BACKLOG.md#observational-beats--look-pause-choreography);
+do not change CM or locomotion from this research note.
 No schema.
 
 ## Endpoint / edit-boundary fidelity instrumentation

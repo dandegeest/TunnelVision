@@ -241,8 +241,8 @@ The Director architecture
 accepts story plus the complete ordered storyboard and `MediaInput` for
 actual destination stills. The Project panel edits `Project.story`
 without planning; destination count (AUTO or a number, typed or stepped) sizes the
-storyboard before DIRECT; auto-generate starting destination lets DIRECT
-create unresolved A from the story; that prompt asks for the opening
+storyboard before DIRECT; CREATE JOURNEY generates unresolved A from the story
+unless A is already actual; that prompt asks for the opening
 instant only and does not depict later destinations; auto-generate all destinations then
 constructs B…N in travel order after DIRECT. Generated A stores opening intent
 from the story and the generation prompt as visual description. Uploaded A

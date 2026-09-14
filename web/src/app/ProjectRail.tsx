@@ -493,7 +493,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     setComposerDraft,
     setStoryDurationInput,
     nudgeStoryDuration,
-    setAutoGenerateOpening,
     setAutoGenerateAllDestinations,
     setAutoShoot,
     directorStatus,
@@ -511,7 +510,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     planning || Boolean(constructingBeatId) || assessingJourneyIds.length > 0 || shootingJourneyIds.length > 0;
   const canPlan = canPlanMovie(project) && !busy;
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
-  const openingLocked = hasOpeningFrame;
   const directed = project.agency === "directed";
   const actionLabel = planActionLabel({
     constructingBeatId,
@@ -524,12 +522,10 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
       ? "Write a journey story from starting frame A, then ask the Director to plan."
       : project.autoGenerateAllDestinations
         ? "Ask the Director to plan, then generate each remaining destination in order."
-        : project.autoGenerateOpening && !hasOpeningFrame
+        : !hasOpeningFrame
           ? "Generate starting destination A from the story, then ask the Director to plan."
           : "Ask the Director to plan unresolved directing decisions."
-    : project.story.trim()
-      ? "Add starting frame A before directing, or enable generate start destination."
-      : "Enter a journey story or upload starting frame A.";
+    : "Enter a journey story or upload starting frame A.";
 
   return (
     <aside
@@ -588,22 +584,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
             {directed ? (
               <div className="flex flex-col gap-3">
                 <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Options</span>
-                <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                  <input
-                    type="checkbox"
-                    checked={openingLocked ? false : project.autoGenerateOpening}
-                    disabled={busy || openingLocked}
-                    aria-label="Generate start destination"
-                    title={
-                      openingLocked
-                        ? "Starting destination A is already actual."
-                        : "Generate unresolved A from the journey story before directing."
-                    }
-                    className="mt-0.5 accent-[#ece7df]"
-                    onChange={(event) => setAutoGenerateOpening(event.target.checked)}
-                  />
-                  Generate start destination
-                </label>
                 <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
                   <input
                     type="checkbox"

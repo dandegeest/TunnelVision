@@ -83,9 +83,8 @@ want before asking the Director to plan. AUTO lets the Director choose
 how many destinations; a number, typed or stepped, adds that many FPO
 storyboard slots. After the first CREATE JOURNEY response the count is read-only and follows
 storyboard add/delete. Starting frame A must be an actual image before
-Add Destination or Shoot, and before CREATE JOURNEY unless auto-generate starting
-destination is on. When that toggle is on, CREATE JOURNEY generates unresolved A
-from the story and then runs Director planning. If A is already actual
+Add Destination or Shoot. CREATE JOURNEY generates unresolved A from the
+story unless the filmmaker already supplied A. If A is already actual
 and the story is empty, CREATE JOURNEY first asks the Director to write a
 journey story from that image, then continues with the existing plan.
 Auto-generate all
@@ -113,7 +112,7 @@ replacing a still asks whether to clear existing plan text so the next CREATE JO
 describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
 stand-in for Discovery. Conversation is turn history; the Project panel
 holds the JOURNEY PROMPT, destination count, Directed Options
-(generate start destination, generate all destinations, shoot), and CREATE JOURNEY.
+(generate all destinations, shoot), and CREATE JOURNEY.
 Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is
@@ -125,7 +124,7 @@ Reshoot, aspect / resolution / model, and A / A′ when Camotion exists —
 including on an actual opening whose
 intent and story are still empty so the filmmaker can type them.
 On Shoot, a second click on a selected timeline still opens that same reel.
-When auto-generate starting destination is on, CREATE JOURNEY can generate A
+When A is unresolved, CREATE JOURNEY generates A
 before Director planning. When auto-generate all destinations is on,
 CREATE JOURNEY then generates each remaining destination in order. Director activity appears in conversation when CREATE JOURNEY runs;
 pending **Planning…**, **Blocking…**, **Shooting…**, and construction turns show a progress spinner.
@@ -633,7 +632,10 @@ or AI upscaling of adjacent clips is not Phase 1. See
     successful shots, not an AI NLE.
 -   **Canonical frames are position samples, not stop points.** Forward
     motion is not the same as velocity continuing through a shot
-    boundary.
+    boundary. A later observational look/pause vocabulary may treat
+    some beats as poses at approximately the same location; that is
+    [backlog](BACKLOG.md#observational-beats--look-pause-choreography),
+    not current CM / Camotion / shoot behavior.
 -   **Directed A→B preserves authored endpoints.** For a directed
     traversal, A and B are authoritative shot endpoints. The generated
     video's first and last frames should match the supplied start and

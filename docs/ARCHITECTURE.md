@@ -154,8 +154,8 @@ intent and leaves visual description empty so DIRECT can still describe the
 look of the still.
 Story edits update `Project.story`
 without planning. Destination count (AUTO or a number, typed or stepped) sizes the
-storyboard before DIRECT. When auto-generate starting destination is on,
-DIRECT generates unresolved A from the story, then the Director plans.
+storyboard before DIRECT. CREATE JOURNEY generates unresolved A from the story
+unless A is already actual, then the Director plans.
 When A is already actual and the story is empty, DIRECT first derives a
 journey story from that opening still. When auto-generate all destinations is on, DIRECT then constructs B…N in
 travel order from each preceding actual frame; later beats cannot run

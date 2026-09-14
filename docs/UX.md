@@ -29,8 +29,8 @@ storyboard grid between a Director conversation rail and a Project
 panel. A full-width app header keeps TunnelVision on the left and Plan | Shoot
 centered. The left rail is conversation turn history only. The Project
 panel holds the project selector, then Directed | Agent, Journey prompt, destination count (AUTO or a
-number, typed or stepped), and, in Directed, Options (Generate start destination,
-Generate all destinations, Shoot). Blocking is not a user automation option.
+number, typed or stepped), and, in Directed, Options (Generate all destinations,
+Shoot). Blocking is not a user automation option.
 CREATE JOURNEY is the primary action. Video and Debug mode live in Project
 settings, opened from the gear. Agent hides Options. The panel can collapse to the right
 like conversation collapses to the left. Director, Project, and Inspector
@@ -38,7 +38,7 @@ headers put the panel name and collapse control on one row, below the app header
 before a story exists. AUTO leaves later beats to the Director;
 a number adds that many FPO destinations. After the first DIRECT
 response the count is read-only and follows storyboard add/delete.
-When auto-generate starting destination is on, DIRECT generates A from
+When A is unresolved, CREATE JOURNEY generates A from
 the story then runs Director planning. That generated still stores opening
 intent from the story and the TunnelVision prompt as visual description. The
 prompt asks for the opening instant only and does not depict later
@@ -309,14 +309,14 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
-which can hide to the right. Directed Options are Generate start destination, Generate all destinations, and Shoot.
+which can hide to the right. Directed Options are Generate all destinations and Shoot.
 Video and Debug mode are in Project settings. Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.
-When auto-generate starting destination is on, DIRECT generates A then
-runs Director planning. Uploading A before the first plan unchecks and
-disables that toggle. When A is actual and the story is empty, DIRECT
+When A is unresolved, CREATE JOURNEY generates A then
+runs Director planning. Uploading A before the first plan supplies that
+opening still instead of generating it. When A is actual and the story is empty, DIRECT
 writes a story from A first. When auto-generate all destinations is on,
 DIRECT then generates each remaining destination in order from the
 previous actual frame. Auto blocking and Auto shoot continue that
@@ -507,8 +507,8 @@ partially specified: unresolved opening frame A, empty story, no
 fabricated destinations or journeys. The storyboard stays disabled
 until a story is entered. Then the filmmaker provides or generates A, may set
 destination count, asks the Director with DIRECT, and generates
-unresolved destinations. If auto-generate starting destination is on,
-DIRECT can create A from the story. Export Movie concatenates rendered takes that
+unresolved destinations. CREATE JOURNEY generates unresolved A from the story
+unless the filmmaker already supplied A. Export Movie concatenates rendered takes that
 exist.
 Forest A→F remains available so Plan preflight, Shoot boundary
 continuity, and CM tests can be exercised against a controlled

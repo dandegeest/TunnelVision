@@ -99,10 +99,8 @@ intent; CREATE JOURNEY in the Project panel is the only Director invocation.
 AUTO destination count lets the Director choose N; a number, typed or
 stepped, adds that
 many FPO slots. After the first DIRECT response the count is read-only
-and follows storyboard add/delete. When auto-generate starting
-destination is on, DIRECT generates unresolved A from the story before
-Director planning. Uploading A before the first plan turns that toggle
-off and disables it. When the opening still is already actual and the
+and follows storyboard add/delete. CREATE JOURNEY generates unresolved A from the story before
+Director planning unless A is already actual. When the opening still is already actual and the
 story is empty, DIRECT first asks the Director to write a journey story
 from that image, then continues with the existing plan. When auto-generate all destinations is on, DIRECT then
 constructs B…N in travel order from each preceding actual frame. Later

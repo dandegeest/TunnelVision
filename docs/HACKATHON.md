@@ -167,7 +167,7 @@ genesis/      Research site (not the hackathon app)
 | --- | --- |
 | Director CREATE JOURNEY | **Exists.** `planWithDirector` in `ProjectProvider`. |
 | Sequential construct B…N | **Exists** as Directed Option `autoGenerateAllDestinations` (default **off**). |
-| Generate opening A from story | **Exists** as `autoGenerateOpening` (default **on**). |
+| Generate opening A from story | **Exists.** CREATE JOURNEY always generates unresolved A unless A is already actual. |
 | Automatic Motion Planning | **Exists.** Adjacent actuals trigger CM + Camotion A′/B′. |
 | Explicit FOOTAGE shoot | **Exists.** `shootJourney` / `web/shoot-journey.ts`. |
 | Directed auto-shoot | **Exists** as Option `autoShoot` (default **off**). Shoots including CM hold / no-go. |
@@ -184,7 +184,7 @@ genesis/      Research site (not the hackathon app)
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
 | Durable project persistence | **Does not exist.** Session/dev-runtime media only. |
 
-Directed Options (generate start, generate all, auto-shoot) are
+Directed Options (generate all, auto-shoot) are
 **not** AGENT. They automate filmmaker clicks inside Directed.
 [BACKLOG.md](BACKLOG.md) is explicit: AGENT owns the loop, including
 when to repair, when to continue, and when to export.
@@ -345,7 +345,7 @@ Directed Options and not to a new event-day orchestrator.**
 
 Existing CREATE JOURNEY (`planWithDirector`) already:
 
-1.  optionally generates unresolved A (`autoGenerateOpening`)
+1.  generates unresolved A unless A is already actual
 2.  optionally derives a story from actual A if `story` is empty
     (`requestDirectorStory` / `directorStoryRequestFromProject`)
 3.  runs Director (`requestDirectorPlan` /
