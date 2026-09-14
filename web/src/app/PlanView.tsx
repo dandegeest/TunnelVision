@@ -246,7 +246,7 @@ export function StoryboardFrameMedia({
             type="button"
             className="storyboard-fpo-copy outline-none"
             onClick={() => {
-              if (selected && onOpenReel && destinationDetailContent(frame)) {
+              if (selected && onOpenReel) {
                 onOpenReel();
                 return;
               }
@@ -606,7 +606,7 @@ function ReelChevron({ direction }: { direction: "prev" | "next" }) {
 }
 
 export function storyboardReelFrames(frames: readonly StoryboardFrame[]): StoryboardFrame[] {
-  return frames.filter((frame) => destinationDetailContent(frame) !== null);
+  return [...frames];
 }
 
 function neighboringReelFrame(
@@ -618,13 +618,7 @@ function neighboringReelFrame(
   if (currentIndex < 0) {
     return undefined;
   }
-  for (let index = currentIndex + direction; index >= 0 && index < frames.length; index += direction) {
-    const frame = frames[index];
-    if (frame && destinationDetailContent(frame)) {
-      return frame;
-    }
-  }
-  return undefined;
+  return frames[currentIndex + direction];
 }
 
 export function StoryboardReel({
@@ -637,6 +631,7 @@ export function StoryboardReel({
   onStoryChange,
   onReshoot,
   onShoot,
+  onDropFile,
   reshooting = false,
 }: {
   frames: readonly StoryboardFrame[];
@@ -648,6 +643,7 @@ export function StoryboardReel({
   onStoryChange?: (story: string) => void;
   onReshoot?: (frameId: string) => void;
   onShoot?: (frameId: string) => void;
+  onDropFile?: (file: File) => void;
   reshooting?: boolean;
 }) {
   const current = frames.find((frame) => frame.id === currentId);
@@ -735,6 +731,14 @@ export function StoryboardReel({
           className="preview-stage h-full min-h-0 min-w-0 flex-1 bg-transparent px-1 py-10"
           onClick={(event) => event.stopPropagation()}
         >
+          <StoryboardDestinationDrop
+            frameId={current.id}
+            enabled={Boolean(onDropFile) && canReplaceStoryboardFrameImage(current)}
+            className="flex h-full min-h-0 min-w-0 items-center justify-center"
+            onDropFile={(file) => {
+              onDropFile?.(file);
+            }}
+          >
           {reelImage ? (
             <img
               src={reelImage}
@@ -763,6 +767,7 @@ export function StoryboardReel({
               </span>
             </span>
           )}
+          </StoryboardDestinationDrop>
         </div>
         <button
           type="button"
@@ -810,6 +815,7 @@ export function StoryboardReelHost() {
     generateOpeningFrame,
     constructDestination,
     constructingBeatId,
+    replaceDestinationImage,
   } = useProject();
 
   useEffect(() => {
@@ -875,6 +881,13 @@ export function StoryboardReelHost() {
           return;
         }
         void constructDestination(frameId);
+      }}
+      onDropFile={(file) => {
+        const frame = project.storyboard.find((item) => item.id === storyboardReelId);
+        const clearPlan = frame
+          ? shouldClearStoryboardPlanOnUpload(frame, (message) => window.confirm(message))
+          : false;
+        void replaceDestinationImage(storyboardReelId, file, { clearPlan });
       }}
       reshooting={constructingBeatId === storyboardReelId}
     />
@@ -999,7 +1012,7 @@ export function PlanView() {
               setStoryboardReelId(frame.id);
             };
             const selectOrOpenReel = () => {
-              if (selectedCard && destinationDetailContent(frame)) {
+              if (selectedCard) {
                 openReel();
                 return;
               }

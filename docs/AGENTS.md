@@ -132,12 +132,17 @@ Clicking an unselected storyboard still (outside the label, kebab, and
 media-info strips) selects it. Clicking the already-selected still or
 the label strip opens a storyboard-bounded reel: the still is contained
 at the largest scale that fits the storyboard area, with previous and
-next among actual stills. The same Inspector - Destination panel from
+next among every storyboard destination, including empty FPO slots
+and beats that only have a prompt. Dropping a PNG/JPEG/WebP on the reel
+image replaces or uploads that destination the same way as the tile
+drop. The same Inspector - Destination panel from
 Shoot sits on the right of that reel. The reel does not cover the
-conversation or Project rails. Intent and story (A) or source (later beats)
+conversation or Project rails. Intent and story (A) or beat (later destinations)
 are click-to-edit and update the journey story or that beat's plan on each
 keystroke. Click-to-edit fields keep a dimmed border at rest. Prompt stays
-collapsed and is read-only, with Reshoot under it. Media facts
+collapsed and is read-only, with Reshoot under it. The reel inspector keeps
+Shoot visible on FPO destinations and disables it until intent and beat
+are set (and the previous destination is actual). Media facts
 show aspect, resolution, and the product image model on generated stills.
 When Camotion A′ (or B′) exists, SOURCE | MOTION toggles the still between the
 canonical and the conditioned frame, including the reel image. The storyboard

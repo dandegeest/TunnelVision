@@ -120,7 +120,7 @@ empty opening intent from that story and leaves visual description empty (there 
 no TunnelVision prompt). Generating A stores opening intent from the story and the
 generation prompt as visual description. That prompt asks for the
 opening instant only and does not depict later destinations. The Plan storyboard reel shows the same Inspector - Destination
-panel as Shoot on the right — intent, story/source, a collapsed Prompt,
+panel as Shoot on the right — intent, story/beat, a collapsed Prompt,
 Reshoot, aspect / resolution / model, and A / A′ when Camotion exists —
 including on an actual opening whose
 intent and story are still empty so the filmmaker can type them.

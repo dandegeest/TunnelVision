@@ -11,7 +11,9 @@ import {
   canReshootDestinationFrame,
   destinationGeneratedPrompt,
   destinationImageModelLabel,
+  precedingActualFrame,
 } from "../project/destination";
+import { canUploadStoryboardFrame } from "../project/starting-frame";
 import { formatFriendlyAspectRatio } from "../project/media-preflight";
 import type { Project, StoryboardFrame } from "../project/types";
 import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
@@ -64,10 +66,10 @@ export function DestinationPlanFields({
       </label>
       <label className="mt-2 block">
         <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-          {opening ? "Story" : "Source"}
+          {opening ? "Story" : "Beat"}
         </span>
         <ClickToEditTextarea
-          aria-label={opening ? `Destination ${frame.label} story` : `Destination ${frame.label} source`}
+          aria-label={opening ? `Destination ${frame.label} story` : `Destination ${frame.label} beat`}
           rows={3}
           value={source}
           disabled={disabled}
@@ -196,6 +198,26 @@ function DestinationStillPreview({
   );
 }
 
+function destinationShootHint(
+  project: Project,
+  frame: StoryboardFrame,
+  canShoot: boolean,
+): string {
+  if (canShoot) {
+    return "Generate this destination from its current prompt.";
+  }
+  if (frame.id === "A") {
+    return "Enter a journey story before shooting this destination.";
+  }
+  if (!frame.intent?.trim() || !frame.visualDescription?.trim()) {
+    return "Set intent and beat before shooting this destination.";
+  }
+  if (!precedingActualFrame(project, frame)) {
+    return "Generate the previous destination first.";
+  }
+  return "This destination cannot be shot yet.";
+}
+
 export function DestinationInspectorFields({
   frame,
   project,
@@ -238,6 +260,7 @@ export function DestinationInspectorFields({
   onCamotionKeyChange?: (key: string) => void;
 }) {
   const records = camotionRecords ?? camotionRecordsForCanonical(project, frame.destinationId ?? frame.id);
+  const showShoot = canShoot || canUploadStoryboardFrame(frame);
   return (
     <>
       <h2 className="text-2xl">{label}</h2>
@@ -258,19 +281,21 @@ export function DestinationInspectorFields({
         onPlanChange={onPlanChange}
         onStoryChange={onStoryChange}
       />
-      {canShoot && onShoot ? (
+      {showShoot ? (
         <div className="flex gap-2">
           <button
             type="button"
             className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-            disabled={reshooting}
+            disabled={!canShoot || reshooting || !onShoot}
             aria-label={`Shoot destination ${frame.label}`}
-            title="Generate this destination from its current prompt."
+            title={destinationShootHint(project, frame, canShoot)}
             onPointerDown={() => {
               commitActiveTextEdit();
             }}
             onClick={() => {
-              onShoot();
+              if (canShoot) {
+                onShoot?.();
+              }
             }}
           >
             {reshooting ? "Shooting…" : "Shoot"}

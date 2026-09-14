@@ -777,7 +777,8 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain('aria-label="Inspector - Destination"');
     expect(html).toContain(">Inspector - Destination<");
     expect(html).toContain('aria-label="Destination B intent"');
-    expect(html).toContain('aria-label="Destination B source"');
+    expect(html).toContain('aria-label="Destination B beat"');
+    expect(html).toContain(">Beat<");
     expect(html).toContain(">Prompt<");
     expect(html).toContain('aria-label="Destination B facts"');
     expect(html).toContain(">Aspect ratio<");
@@ -787,6 +788,7 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain(">Model<");
     expect(html).toContain("Nano Banana 2 Lite");
     expect(html).not.toContain('aria-label="Camotion frame"');
+    expect(html).not.toContain('aria-label="Shoot destination B"');
     expect(isDisabled(html, "Previous destination")).toBe(false);
     expect(isDisabled(html, "Next destination")).toBe(false);
   });
@@ -839,6 +841,7 @@ describe("Plan storyboard reel", () => {
         onClose={() => undefined}
         onSelect={() => undefined}
         onShoot={() => undefined}
+        onDropFile={() => undefined}
       />,
     );
     expect(plannedB).toContain('aria-label="Storyboard reel, destination B"');
@@ -849,7 +852,22 @@ describe("Plan storyboard reel", () => {
     expect(plannedB).not.toContain("aspect-video w-full max-w-full");
     expect(plannedB).toContain('aria-label="Shoot destination B"');
     expect(plannedB).toContain(">Shoot<");
+    expect(isDisabled(plannedB, "Shoot destination B")).toBe(false);
     expect(plannedB).not.toContain('aria-label="Reshoot destination B"');
+    const plannedC = renderToStaticMarkup(
+      <StoryboardReel
+        frames={planned.storyboard}
+        currentId="C"
+        project={planned}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onShoot={() => undefined}
+      />,
+    );
+    expect(plannedC).toContain('aria-label="Shoot destination C"');
+    expect(isDisabled(plannedC, "Shoot destination C")).toBe(true);
+    expect(plannedC).toContain("Generate the previous destination first.");
+    expect(plannedB).toContain('data-destination-drop="B"');
     const forest = createForestProject();
     const forestFpo = {
       ...forest,
@@ -871,6 +889,69 @@ describe("Plan storyboard reel", () => {
     );
     expect(forestB).toContain("--preview-ar-w:1000");
     expect(forestB).toContain("--preview-ar-h:558");
+  });
+
+  it("lets the reel visit empty FPO destinations that have no prompt", () => {
+    const added = projectWithAddedDestination(createForestProject());
+    expect(storyboardReelFrames(added.storyboard).map((frame) => frame.id)).toEqual([
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+    ]);
+    expect(destinationDetailContent(added.storyboard[6]!)).toBeNull();
+    const fromF = renderToStaticMarkup(
+      <StoryboardReel
+        frames={added.storyboard}
+        currentId="F"
+        project={added}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onDropFile={() => undefined}
+      />,
+    );
+    expect(isDisabled(fromF, "Next destination")).toBe(false);
+    const emptyG = renderToStaticMarkup(
+      <StoryboardReel
+        frames={added.storyboard}
+        currentId="G"
+        project={added}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onDropFile={() => undefined}
+      />,
+    );
+    expect(emptyG).toContain('aria-label="Storyboard reel, destination G"');
+    expect(emptyG).toContain("storyboard-fpo-planned");
+    expect(emptyG).toContain('data-destination-drop="G"');
+    expect(emptyG).toContain('aria-label="Shoot destination G"');
+    expect(isDisabled(emptyG, "Shoot destination G")).toBe(true);
+    expect(emptyG).toContain("Set intent and beat before shooting this destination.");
+    expect(isDisabled(emptyG, "Next destination")).toBe(true);
+    expect(isDisabled(emptyG, "Previous destination")).toBe(false);
+    const hostedG = renderPlan(added, { storyboardReelId: "G" });
+    expect(hostedG).toContain('aria-label="Storyboard reel, destination G"');
+    expect(hostedG).toContain('aria-label="Shoot destination G"');
+    expect(isDisabled(hostedG, "Shoot destination G")).toBe(true);
+  });
+
+  it("accepts an image drop on the reel still", () => {
+    const forest = createForestProject();
+    const html = renderToStaticMarkup(
+      <StoryboardReel
+        frames={forest.storyboard}
+        currentId="B"
+        project={forest}
+        onClose={() => undefined}
+        onSelect={() => undefined}
+        onDropFile={() => undefined}
+      />,
+    );
+    expect(html).toContain('data-destination-drop="B"');
+    expect(renderPlan(forest, { storyboardReelId: "B" })).toContain('data-destination-drop="B"');
   });
 
   it("offers A / A′ on the reel when Camotion exists", () => {
@@ -963,10 +1044,11 @@ describe("Plan destination details", () => {
     expect(html).toContain("A corridor continuing the same world.");
     expect(html).toContain("destination-detail-visual");
     expect(html).toContain('aria-label="Destination B intent"');
-    expect(html).toContain('aria-label="Destination B source"');
+    expect(html).toContain('aria-label="Destination B beat"');
+    expect(html).toContain(">Beat<");
     expect(html).toContain(">Prompt<");
     expect(html).not.toMatch(/aria-label="Destination B intent"[^>]*readOnly=""/);
-    expect(html).not.toMatch(/aria-label="Destination B source"[^>]*readOnly=""/);
+    expect(html).not.toMatch(/aria-label="Destination B beat"[^>]*readOnly=""/);
     expect(html).toContain("focus:bg-[#161410]");
     expect(html).not.toContain('aria-label="Destination B details"');
     expect(html).not.toContain("destination-detail absolute");

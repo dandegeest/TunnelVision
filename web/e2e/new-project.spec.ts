@@ -456,7 +456,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Close storyboard reel").click();
   await expect(page.getByRole("dialog", { name: "Storyboard reel, destination A" })).toHaveCount(0);
   await page.getByLabel("Destination B plan").click();
-  await page.getByLabel("Destination B source").fill("A warmer corridor with an open doorway.");
+  await page.getByLabel("Destination B beat").fill("A warmer corridor with an open doorway.");
   await expect(page.getByLabel("Storyboard B, plan changed")).toBeVisible();
 
   await page.getByLabel("Generate destination C").click();

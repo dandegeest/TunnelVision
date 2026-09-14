@@ -236,7 +236,7 @@ toggle in Project settings, not project
 persistence. Debug is on by default for now. **Agency** is a Directed / Agent segmented control
 at the top of that panel, not a native OS menu and not in the workspace header. The Shoot
 inspector destination view is the canonical letter, still, Intent and Story
-(on A) or Source (later beats), a collapsed Prompt, Reshoot when allowed,
+(on A) or Beat (later destinations), a collapsed Prompt, Reshoot when allowed,
 aspect / resolution / model facts, SOURCE | MOTION when a Camotion-conditioned
 still exists, and a compact Camotion
 block (direction, vanishing point, destination, protected, exposure; working
@@ -270,11 +270,11 @@ generation is running. Motion Planning and footage generation on an
 earlier pair do not lock the storyboard: drop, Add Destination, and
 Generate may continue. It does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
-thumbnail. Destination planning details (intent, story on A or source visual
-description on later beats, a collapsed Prompt, and media facts) live
+thumbnail. Destination planning details (intent, story on A or beat visual
+description on later destinations, a collapsed Prompt, and media facts) live
 in the same Inspector - Destination panel used on Shoot, docked to the
 right of the storyboard reel — not as a popup under the tile
-or persistent caption text. Intent and story/source are click-to-edit: they keep a
+or persistent caption text. Intent and story/beat are click-to-edit: they keep a
 dimmed border at rest, look like an editor when focused, commit on each
 keystroke, and keep that text when the filmmaker leaves the field or closes the
 reel. Prompt is read-only and stays collapsed, with Reshoot directly under it. A′ appears as a toggle on the still when
@@ -283,8 +283,11 @@ stores opening intent from that story; generated A also stores the opening
 prompt. Actual A can still open the reel inspector when those fields are empty. Clicking an unselected still outside the
 label, kebab, and media-info strips selects it. Clicking the selected
 still or the label strip opens that storyboard reel in the
-storyboard area, with previous and next among stills and planned FPO
-destinations. On Shoot, clicking an unselected timeline still selects
+storyboard area, with previous and next among every storyboard
+destination, including empty FPO slots. The inspector keeps Shoot visible
+on those FPO destinations and disables it until intent and beat are set.
+A desktop still can drop onto
+the reel image the same way it drops onto a tile. On Shoot, clicking an unselected timeline still selects
 it; clicking that selected still again opens the same storyboard reel
 over the timeline. Plan and Shoot
 close the reel. A Plan changed badge does not add a special tile border and does not

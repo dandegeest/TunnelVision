@@ -296,9 +296,11 @@ and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
 intent as readable text until an image exists. The Plan storyboard reel
 docks the same Inspector - Destination panel used on Shoot to the
-right of the still (intent, story/source, collapsed Prompt, Reshoot,
+right of the still (intent, story/beat, collapsed Prompt, Reshoot,
 media facts, and SOURCE | MOTION when Camotion exists). The reel includes
-planned FPO destinations and offers Shoot there. Plan and Shoot close that
+planned FPO destinations, including empty slots with no prompt, and
+shows Shoot there, disabled until intent and beat are set. A desktop still can drop onto the reel image.
+Plan and Shoot close that
 reel. Plan no longer opens an
 intent/prompt popup
 under the tile. A full-width app header keeps

@@ -123,7 +123,7 @@ describe("Shoot boundary continuity UI", () => {
     expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(
       html.indexOf('aria-label="Destination B facts"'),
     );
-    expect(html).toContain('aria-label="Destination B source"');
+    expect(html).toContain('aria-label="Destination B beat"');
     expect(html).toContain('aria-label="Destination B intent"');
     expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
     expect(html).toContain('aria-label="Destination B facts"');
