@@ -138,7 +138,10 @@ Each Take records the start/end canonical media IDs it was shot against;
 segment letters are not a permanent compatibility key. AGENT CREATE
 JOURNEY runs JourneyAgent on this same Project and those same
 operations (opening, Director, construct, automatic Motion Plan, NEW
-TAKE, Export Movie). It is not a second cinematic stack. The current
+TAKE, Export Movie). It is not a second cinematic stack. LOOP
+(close on exact canonical A) is backlog, not this orchestrator.
+See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
+The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
 A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
 is not this path. Discovery, and

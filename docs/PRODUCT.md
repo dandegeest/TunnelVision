@@ -117,7 +117,12 @@ automatic Motion Plan, NEW TAKE for legs with no Take, then Export
 Movie assembly. Existing actual canonicals and selected Takes are
 preserved. A required failure stops the Agent and keeps partial work.
 Directed Options (generate all, shoot) remain Directed-only click
-automation, not Agent. Conversation is turn history; the Project panel
+automation, not Agent. LOOP (append exact opening A as the final
+canonical so the last segment is N→A) is backlog, not current
+JourneyAgent. It is an explicit Agent/project option, not inferred
+from the Journey Prompt. See
+[BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
+Conversation is turn history; the Project panel
 holds the JOURNEY PROMPT, destination count, Directed Options
 (generate all destinations, shoot), and CREATE JOURNEY.
 Video and Debug mode live in Project settings. Opening A can be

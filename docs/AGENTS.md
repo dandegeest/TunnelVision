@@ -51,7 +51,10 @@ attractive Destinations: where the camera is, where it is going, what
 lies between, how thresholds are crossed, whether destination worlds
 become visible before source worlds disappear, camera orientation,
 loop closure, choreography, and intermediate spatial positions when
-genuinely needed.
+genuinely needed. Product **LOOP** (reuse exact canonical A as the
+final destination so the movie can return spatially) is backlog,
+not current Director/Agent behavior. See
+[BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 
 A semantic/spatial plan is **not** proof that generated sets will be
 physically shootable. Destination construction (Provided / Generated /
@@ -116,6 +119,10 @@ JourneyAgent, which reuses the same opening / Director / construct /
 Motion Plan / NEW TAKE / Export Movie operations and always executes
 the unattended loop. It does not regenerate actual canonicals or
 replace existing selected Takes. Repair / reshoot remains backlog.
+LOOP (close on the exact opening A asset so N→A is a normal
+segment) is also backlog; do not infer it from the Journey Prompt
+and do not implement it in the current happy path. See
+[BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while DIRECT or sequential destination
 generation is running. Motion Planning or footage generation on an

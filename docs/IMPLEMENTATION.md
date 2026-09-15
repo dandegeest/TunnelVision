@@ -324,7 +324,9 @@ Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY
 and can hide to the right. In Agent, CREATE JOURNEY runs JourneyAgent
-on the same Project instead of Directed Options. Video and Debug mode live in Project settings. Director, Project, and Inspector
+on the same Project instead of Directed Options. LOOP is backlog
+([BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option));
+Agent has no extra journey options yet. Video and Debug mode live in Project settings. Director, Project, and Inspector
 headers put the panel name and collapse control on one row below the app header. Shoot Inspector titles are Inspector - Destination, Inspector - Motion, or Inspector - Footage. The Shoot inspector is horizontally resizable and can hide to a reopen strip. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at

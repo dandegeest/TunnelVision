@@ -51,6 +51,9 @@ blocking is not a checkbox; Motion Planning runs automatically on
 actual adjacent pairs. Auto shoot is a Directed Option. In Agent,
 CREATE JOURNEY runs that whole loop unattended via JourneyAgent,
 including missing NEW TAKEs and movie assembly. Agent hides Options.
+LOOP (close on exact opening A) is backlog, not a current Agent
+control. See
+[BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 DIRECT asks the Director to plan unspecified
 beats around the complete ordered storyboard; supplied stills remain
 authoritative. Planned beats start as FPO. Generate is centered beneath the

@@ -50,7 +50,7 @@ Items below are **BACKLOG** unless a later edit changes the status.
 ### Agent mode
 
 **Status:** First happy-path pass is in product. Repair / reshoot /
-Footage Evaluator / Agent take selection remain BACKLOG.
+Footage Evaluator / Agent take selection / LOOP remain BACKLOG.
 
 **Goal.** Implement fully autonomous journey execution. AGENT
 executes the journey. It does not merely press the existing
@@ -102,11 +102,14 @@ cinematic stack.
 | Video provider | Traversal footage. Adapter-mapped start/end frames. |
 | Canonicals | Authoritative journey state. Never silently replaced. |
 
-Initially AGENT has **no additional user-facing options**. Agency
-(Directed vs Agent) already exists as an orthogonal control-mode
-toggle. AGENT should not grow a settings panel, repair-policy UI,
-or DERIVE/DISCOVER control until those strategies exist as real
-behavior.
+The first Agent pass has **no additional user-facing options**
+beyond agency. Agency (Directed vs Agent) already exists as an
+orthogonal control-mode toggle. **LOOP** is accepted later work:
+an explicit project/Agent option, not inferred from the Journey
+Prompt, and not part of the current happy path. See
+[Agent LOOP option](#agent-loop-option). AGENT should not grow a
+settings panel, repair-policy UI, or DERIVE/DISCOVER control until
+those strategies exist as real behavior.
 
 Directed Options (generate all, auto-block,
 auto-shoot) are **not** AGENT. They automate filmmaker clicks
@@ -167,6 +170,130 @@ when to continue, and when to export.
     destination concept is no longer the intended movie.
 -   How much of Directed conversation UX does AGENT reuse vs a
     minimal “building journey…” surface?
+
+---
+
+### Agent LOOP option
+
+**Status:** BACKLOG — do not implement during the current
+JourneyAgent happy-path work. Happy-path completion stays the
+immediate priority.
+
+**Goal.** Let AGENT close a generated journey on the **exact
+opening canonical A** so the assembled movie can loop
+continuously in space and story, not merely by repeating the
+finished file in a player.
+
+**Why it matters.** A continuous first-person journey that ends
+where it began is a distinct product shape: A → B → C → D → A,
+with the final A the same asset as the opening A. Inferring that
+from the Journey Prompt is unreliable. Recreating A as a new
+still is the wrong close: the last traversal would arrive at an
+approximation, so playback loop would hitch. Integration Test 01
+Wardrobe Loop is research evidence of a five-shot return, not
+this option and not exact-asset reuse.
+
+**Intended behavior / design.**
+
+LOOP is an **explicit project/Agent option**. Off by default.
+The filmmaker does not have to write “return to the beginning”
+into the Journey Prompt. Do not rewrite `project.story` merely
+to express this implementation detail.
+
+When LOOP is enabled:
+
+1.  Canonical A remains the authoritative opening frame.
+2.  JourneyAgent establishes A if needed, then DIRECTs as today.
+3.  Give Director enough extra semantic instruction (Agent-side,
+    not a Journey Prompt rewrite) that the planned preceding
+    destination(s) make a natural return to the opening viewpoint
+    possible. Director must know the journey ultimately returns
+    to its starting viewpoint.
+4.  After Director resolves the journey, Agent **appends A
+    itself** as the final canonical destination. Director’s
+    destination count does not include that closing slot; Agent
+    adds it.
+5.  Do **not** generate an approximation or recreation of A for
+    the close. Reuse the exact opening A media. The closing slot
+    is a distinct storyboard destination in travel order whose
+    canonical still is that same media ID.
+6.  The final segment is therefore **N→A**. Plan and shoot it
+    through the normal CM → Camotion → Take pipeline, same as
+    any other adjacent pair.
+7.  The final A participates as the actual endpoint canonical, so
+    the last traversal arrives at the exact frame the movie
+    begins on.
+8.  N→A can have multiple Takes like any other segment. Newest
+    Take selection and Export Movie concat are unchanged.
+
+Target result:
+
+> A → B → C → D → A
+
+Opening A and closing A are the same canonical asset. Outbound
+A′ on A→B and inbound A′ on N→A may differ; that is the existing
+shared-canonical inbound/outbound rule, applied to A.
+
+LOOP is **not** player-loop of the finished MP4. It is spatial /
+narrative return to exact canonical A. Concatenation then
+happens to be continuously loopable because the last arrival is
+the first departure.
+
+**Constraints / invariants.**
+
+-   Do not infer LOOP from Journey Prompt text.
+-   Do not invent a second A still.
+-   Do not require the filmmaker to add a return beat by hand.
+-   Preserve the filmmaker’s Journey Prompt.
+-   Opening A stays undeletable. Closing A is reuse of that
+    asset, not a generated replacement.
+-   Do not treat this as Directed click-automation. It is an
+    Agent/project option that JourneyAgent honors.
+-   Do not change locomotion, CM, Camotion, or canonical
+    Construct prompts to special-case the close. N→A is a normal
+    adjacent pair once the last still is exact A.
+-   First-pass JourneyAgent COMPLETE / FAILED rules stay as they
+    are; LOOP is additional topology, not a reason to skip
+    assembly.
+
+**Likely implementation areas.**
+
+-   Project flag (explicit option, default off)
+-   Agent Project-panel control (not Directed Options)
+-   Director request: extra return-to-A instruction when LOOP is
+    on; do not mutate `project.story`
+-   `web/src/project/journey-agent.ts` — after DIRECT, append a
+    destination whose still is opening A’s media, then continue
+    construct of *other* unresolved beats, Motion Plan, NEW TAKE
+    (including N→A), assemble
+-   Storyboard / destination identity: last slot shares A’s
+    media ID; Takes already stamp start/end media IDs
+-   Look-ahead: the last *generated* destination N may need
+    opening A as far-field so N is shootable toward A. Today the
+    last beat has no look-ahead, and look-ahead is following
+    *text*, not the actual still. See
+    [Canonical look-ahead / continuity tuning](#canonical-look-ahead--continuity-tuning).
+
+**Open questions.**
+
+-   Storyboard lettering: visible A, B, C, D, A vs a distinct
+    last letter that still uses A’s media?
+-   AUTO destination count: does N mean destinations before the
+    close (Agent appends A) or including it?
+-   Does construct of N image-condition toward actual A, or only
+    receive Director text that a return is coming?
+-   If the filmmaker already supplied a last still, does LOOP
+    refuse, replace that slot with exact A, or append after it?
+-   Directed LOOP later, or Agent-only forever?
+
+Related, do not duplicate:
+
+-   [Agent mode](#agent-mode) — first happy path; no LOOP yet
+-   [Takes](PRODUCT.md) / Product Slice 11 — N→A Takes
+-   [Final journey export](#final-journey-export) — concat of
+    selected Takes, including N→A
+-   Integration Test 01 Wardrobe Loop — research return journey,
+    not exact-A reuse
 
 ---
 
@@ -748,7 +875,9 @@ Hackathon-day focus:
     directs, constructs, shoots, evaluates, repairs, continues
 
 User-facing hackathon loop: starting journey prompt, press CREATE
-JOURNEY, watch a thin timeline grow. No extra Agent options.
+JOURNEY, watch a thin timeline grow. No extra Agent options on
+event day. Product [Agent LOOP option](#agent-loop-option) is
+backlog, not hackathon UI.
 
 **Constraints / invariants.**
 
@@ -1326,7 +1455,10 @@ if physically appropriate; do not arrive there, replace B with C,
 or adopt C’s overall lighting or style as the new destination.
 
 This item is **tuning of DERIVE/Construct**, not DISCOVER and not
-a new construction strategy. Last beat has no look-ahead.
+a new construction strategy. Last beat has no look-ahead unless
+[Agent LOOP option](#agent-loop-option) is on: then the last
+*generated* destination N may look ahead to exact opening A so
+N→A is shootable. That is LOOP work, not this item.
 
 **Constraints / invariants.**
 
@@ -1744,6 +1876,9 @@ Directed already has Export Movie concat of whatever clips exist,
 reporting missing legs. AGENT should call that completion path
 automatically when the loop finishes. Directed may expose the
 same action as **EXPORT JOURNEY**.
+[Agent LOOP option](#agent-loop-option) would add an N→A Take
+on exact opening A before that concat; it does not change the
+concat itself.
 
 No Editor agent.
 

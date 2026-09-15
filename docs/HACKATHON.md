@@ -183,6 +183,7 @@ genesis/      Research site (not the hackathon app)
 | Export Movie concat | **Exists.** Deterministic ffmpeg concat of rendered takes. |
 | Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Options. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
 | `JourneyAgent` orchestrator | **Exists (first happy path).** Shared module: establish A, DIRECT, construct unresolved destinations, automatic Motion Plan, NEW TAKE if missing, Export Movie. No CM repair loop yet. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
+| LOOP (close on exact canonical A) | **Does not exist.** BACKLOG. Explicit Agent/project option; not inferred from the Journey Prompt. Reuse opening A’s media as the final destination so N→A is a normal CM / Camotion / Take. Not event-day. See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option). |
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
 | CM `SHOOT` / `RESHOOT_START` / `RESHOOT_END` / `RESHOOT_BOTH` | **Does not exist.** Today: `shootability` = `shootable` \| `needs_review` \| `not_shootable`, plus `traversalConfidence` 0–100. Pre-hackathon JourneyAgent work if repair is required; not event-day scope. |
 | Opposite-canonical visual reference on repair | **Does not exist.** Construct uses the *preceding* still; look-ahead is *following* intent text only. Same: pre-hackathon JourneyAgent, not hackathon-day. |
@@ -1716,6 +1717,9 @@ happy path on event day.
 
 Do not call Camotion or `composeShootingPrompt` from Agent.
 `web/shoot-journey.ts` already does.
+
+LOOP (exact-A close) is **not** on this checklist. It is backlog:
+[BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 
 ---
 
