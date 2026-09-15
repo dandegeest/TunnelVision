@@ -642,7 +642,11 @@ or AI upscaling of adjacent clips is not Phase 1. See
     boundary. A later observational look/pause vocabulary may treat
     some beats as poses at approximately the same location; that is
     [backlog](BACKLOG.md#observational-beats--look-pause-choreography),
-    not current CM / Camotion / shoot behavior.
+    not current CM / Camotion / shoot behavior. A separate
+    [directional steering experiment](BACKLOG.md#directional-steering-experiment)
+    found LEFT / RIGHT / UP / DOWN can steer continuing forward
+    travel; that is also backlog evidence, not a locomotion-baseline
+    or Camotion change. It does not solve look-without-translation.
 -   **Directed A→B preserves authored endpoints.** For a directed
     traversal, A and B are authoritative shot endpoints. The generated
     video's first and last frames should match the supplied start and

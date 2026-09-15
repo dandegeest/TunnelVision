@@ -561,3 +561,11 @@ Boylan / original TunnelVision provenance for the baseline's
 continuous-travel grammar. Do not
 treat that text as model-independent or as a Camotion input. The
 genesis copy is also recorded in [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
+Do not add LEFT / RIGHT / UP / DOWN, STOP, or LOOK to that frozen
+baseline from the 15 September 2026 Journey Prompt steering test.
+That finding is backlog evidence
+([BACKLOG.md — Directional steering experiment](BACKLOG.md#directional-steering-experiment);
+[Observational beats](BACKLOG.md#observational-beats--look-pause-choreography)).
+FORWARD remains the current locomotion invariant. Agent mode is
+the next implementation priority.

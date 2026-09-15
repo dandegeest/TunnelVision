@@ -676,6 +676,25 @@ A later observational look/pause exception is recorded in
 do not change CM or locomotion from this research note.
 No schema.
 
+## Directional steering (Journey Prompt)
+
+Unvalidated product-adjacent evidence, 15 September 2026. Not a
+schema. Not a locomotion-baseline change.
+
+Explicit FORWARD / UP / DOWN / LEFT / RIGHT in the Journey Prompt,
+tested across video models including Pruna and Wan. LEFT and RIGHT
+behaved as turns of continuing forward travel, not strafing. UP
+and DOWN redirected that forward trajectory vertically, not as a
+camera-only look. Forward locomotion stayed the invariant.
+
+Authoritative write-up:
+[BACKLOG.md — Directional steering experiment](BACKLOG.md#directional-steering-experiment).
+Related failure mode (look up → climb the tree):
+[Observational beats](BACKLOG.md#observational-beats--look-pause-choreography).
+
+Do not productize from this. Do not tune Camotion. Do not implement
+STOP / LOOK now. Agent remains first.
+
 ## Endpoint / edit-boundary fidelity instrumentation
 
 Unvalidated research instrumentation. Do not invent a score formula

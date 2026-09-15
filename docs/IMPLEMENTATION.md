@@ -1375,6 +1375,15 @@ moving; spatially contiguous environment; foreground objects pass
 beside/behind the camera; new terrain revealed ahead; incidental
 particles; no soundtrack.
 
+A 15 September 2026 Journey Prompt test found LEFT / RIGHT / UP /
+DOWN can steer that continuing forward travel (turns, not
+strafe; vertical redirect, not a stationary look). Recorded as
+backlog evidence only
+([BACKLOG.md — Directional steering experiment](BACKLOG.md#directional-steering-experiment)).
+Do not fold those words into this baseline. Do not tune Camotion
+from that test. STOP / LOOK with zero translation remains a
+separate unsolved choreography problem.
+
 Scene-specific (not universal): "earthen ravine", roots, banks,
 vegetation.
 

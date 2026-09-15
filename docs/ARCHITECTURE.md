@@ -621,7 +621,11 @@ starts them.
     application after the end-to-end pipeline exists (product now
     stores route / camera path / transition strategy /
     `segmentPromptAddition`; Experiment 04 is evidence, not proof
-    that adaptive choreography is solved)
+    that adaptive choreography is solved). A later Journey Prompt
+    directional-steering test is backlog evidence that LEFT /
+    RIGHT / UP / DOWN can steer continuing forward travel; do not
+    change CM or the frozen baseline from it
+    ([BACKLOG.md](BACKLOG.md#directional-steering-experiment))
 -   whether / how Camotion should be applied to an actual set,
     including open-void / non-corridor geometry
 -   start-frame authority vs endpoint attraction in directed video

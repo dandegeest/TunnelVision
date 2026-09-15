@@ -842,6 +842,114 @@ a new planner and not a Camotion heading solver.
     smear poorly). That is Camotion/quality, not a CM false
     refusal.
 
+Related, do not duplicate:
+
+-   [Directional steering experiment](#directional-steering-experiment)
+    — video-model evidence that LEFT / RIGHT / UP / DOWN can
+    steer continuing forward travel. This CM item is about
+    accepting curved routes in assessment, not about emitting
+    those words yet.
+
+---
+
+### Directional steering experiment
+
+**Status:** EXPERIMENT / DEFERRED — Agent work remains the
+priority. Evidence only. Do not change CM, Camotion, prompts, or
+the frozen locomotion baseline from this finding.
+
+**Goal.** Record that explicit directional vocabulary in the
+Journey Prompt is a cheap, relatively model-portable steering
+signal for **continuing forward travel**. Keep it available for a
+later richer CM choreography vocabulary. Do not treat it as a
+stationary look/pause solution.
+
+**Why it matters.** A 15 September 2026 Directed test put
+directional words in the Journey Prompt and generated across
+multiple video models, including Pruna and Wan. The intended
+sequence was:
+
+> FORWARD → UP → DOWN → LEFT → RIGHT → UP
+
+Observed:
+
+-   Explicit LEFT, RIGHT, UP, and DOWN received high priority.
+-   Models kept the existing continuous-forward behavior while
+    responding to those commands.
+-   LEFT and RIGHT behaved as turns / steering of the forward
+    trajectory, not lateral strafing.
+-   UP and DOWN redirected the forward trajectory vertically
+    rather than merely changing camera orientation.
+-   Forward locomotion stayed effectively invariant through those
+    changes.
+
+**Interpretation.**
+
+FORWARD is the locomotion invariant. LEFT / RIGHT / UP / DOWN can
+act as steering modifiers on that continuing travel:
+
+| Concept | Meaning |
+| --- | --- |
+| FORWARD + LEFT | continue traveling while turning left |
+| FORWARD + RIGHT | continue traveling while turning right |
+| FORWARD + UP | redirect forward travel upward |
+| FORWARD + DOWN | redirect forward travel downward |
+
+This also explains the forest / tree look-up take in
+[Observational beats / look-pause choreography](#observational-beats--look-pause-choreography).
+A requested “look upward” was interpreted as redirecting the
+continuing forward trajectory upward, so the camera climbed the
+tree instead of stopping in place to look.
+
+**Intended later use (not now).** When A/B geometry actually
+supports it, CM may eventually emit these directional concepts as
+steering of continuous locomotion. That is complementary to
+[CM curved-route reasoning](#cm-curved-route-reasoning) (accept
+yaw / pitch while still translating). It does **not** replace a
+look/pause vocabulary.
+
+This does **not** solve stationary observational camera behavior.
+The remaining distinct problem is choreography such as:
+
+> ADVANCE → DECELERATE → STOP → LOOK UP → LOOK DOWN → RESUME
+
+where orientation changes while translation is intentionally
+zero. Keep that on the look/pause item.
+
+**Constraints / invariants.**
+
+-   Do not implement this now. Agent is first.
+-   Do not modify the frozen continuous-forward baseline.
+-   Do not tune Camotion around this experiment.
+-   Do not implement STOP / LOOK behavior from this finding.
+-   Do not add LEFT / RIGHT / UP / DOWN to the global locomotion
+    template. If they are used later, they belong in per-segment
+    choreography supported by the actual pair, not in the frozen
+    baseline.
+-   Do not treat Journey Prompt directional words as a filmmaker
+    API. User-facing prompts should still describe the movie;
+    CM would emit steering language later.
+
+**Likely implementation areas.** (when taken on)
+
+-   CM `segmentPromptAddition` / shoot compose, only when the
+    actual A/B geometry supports the turn or vertical redirect
+-   Tests across more than one video model before treating the
+    vocabulary as portable
+-   Product copy: distinguish steering-while-traveling from
+    look-without-translation
+
+**Open questions.**
+
+-   How reliably this holds beyond Pruna and Wan, and beyond one
+    Journey Prompt sequence.
+-   Whether CM should name the steer from geometry (visible road
+    curve, stairs, canopy) rather than copying Journey Prompt
+    words.
+-   How strongly UP/DOWN climb vs pitch when the end still is a
+    look, not a new altitude. That failure mode is the look/pause
+    item.
+
 ---
 
 ### Observational beats / look-pause choreography
@@ -894,7 +1002,10 @@ location:
 as continued locomotion: the camera tilted up and then climbed /
 traveled up the tree instead of stopping in place to observe.
 That reinforces the diagnosis: “never stops advancing” turns an
-intended tilt into physical ascent.
+intended tilt into physical ascent. The later
+[directional steering experiment](#directional-steering-experiment)
+makes the same mechanism explicit: UP redirects continuing
+forward travel upward; it is not a stationary look.
 
 Source screenshots (if assets are missing): Desktop
 `Screenshot 2026-09-14 at 4.14.46 PM.png` (A→B),
@@ -935,6 +1046,10 @@ Related, do not duplicate:
 
 -   [CM curved-route reasoning](#cm-curved-route-reasoning) —
     heading change while still traveling.
+-   [Directional steering experiment](#directional-steering-experiment)
+    — LEFT / RIGHT / UP / DOWN as steering of **continuing**
+    forward travel. Useful later for CM travel legs. It does not
+    express STOP / LOOK with zero translation.
 -   [RESEARCH_BACKLOG.md — Spatial vs temporal continuity](RESEARCH_BACKLOG.md#spatial-vs-temporal-continuity)
     — B as ease/stop vs position sample. This test shows some
     filmmaker-intended B’s *are* observational stops.
