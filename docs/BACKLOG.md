@@ -606,9 +606,10 @@ Agent loop:
 
 **Experimental Pass 2 (current).** JourneyAgent constructs the journey
 **one canonical at a time.** After each new END is generated, CM
-evaluates that inbound pair. Either **Set Consistency < 60** or
-**Traversal Confidence < 30** triggers repair of that new END only.
-The established START is never rewritten. CM supplies a concise
+evaluates that inbound pair. **Traversal Confidence < 30** triggers
+repair of that new END only. Low Set Consistency alone does not.
+Set Consistency remains a CM diagnostic. The established START is
+never rewritten. CM supplies a concise
 spatial instruction for regenerating END from the established START.
 Max **2** attempts per END; after the budget, Agent accepts the
 current still and continues if technically shootable. Only

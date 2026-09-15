@@ -4,7 +4,6 @@ import type { CinematographerAssessment, JourneyShot, Project, StoryboardFrame }
 
 /** Experimental Pass 2 gates. Not a permanent filmmaking policy. */
 export const JOURNEY_AGENT_REPAIR_THRESHOLDS = {
-  setConsistencyBelow: 60,
   traversalConfidenceBelow: 30,
   maxAttemptsPerSegment: 2,
 } as const;
@@ -29,10 +28,7 @@ export function canonicalPairNeedsRepair(
   assessment: Pick<CinematographerAssessment, "setConsistency" | "traversalConfidence">,
   thresholds = JOURNEY_AGENT_REPAIR_THRESHOLDS,
 ): boolean {
-  return (
-    assessment.setConsistency < thresholds.setConsistencyBelow ||
-    assessment.traversalConfidence < thresholds.traversalConfidenceBelow
-  );
+  return assessment.traversalConfidence < thresholds.traversalConfidenceBelow;
 }
 
 export function humanRepairRecommendation(recommendation: CanonicalRepairRecommendation): string {

@@ -77,10 +77,10 @@ function generatedPair() {
 }
 
 describe("JourneyAgent repair thresholds", () => {
-  it("treats Set Consistency below 60 as a repair candidate", () => {
-    expect(JOURNEY_AGENT_REPAIR_THRESHOLDS.setConsistencyBelow).toBe(60);
-    expect(canonicalPairNeedsRepair({ setConsistency: 59, traversalConfidence: 80 })).toBe(true);
-    expect(canonicalPairNeedsRepair({ setConsistency: 60, traversalConfidence: 80 })).toBe(false);
+  it("does not repair for low Set Consistency when Traversal Confidence is at least 30", () => {
+    expect(canonicalPairNeedsRepair({ setConsistency: 15, traversalConfidence: 85 })).toBe(false);
+    expect(canonicalPairNeedsRepair({ setConsistency: 0, traversalConfidence: 30 })).toBe(false);
+    expect(canonicalPairNeedsRepair({ setConsistency: 59, traversalConfidence: 80 })).toBe(false);
   });
 
   it("treats Traversal Confidence below 30 as a repair candidate", () => {
@@ -102,6 +102,7 @@ describe("CM repair target", () => {
       canonicalRepairPlanFromAssessment(project, journey, {
         ...assessment,
         setConsistency: 25,
+        traversalConfidence: 10,
         repairRecommendation: "RESHOOT_START",
         repairInstruction: "Start does not establish a plausible route toward end.",
       })?.destinationIds,
@@ -110,6 +111,7 @@ describe("CM repair target", () => {
       canonicalRepairPlanFromAssessment(project, journey, {
         ...assessment,
         setConsistency: 25,
+        traversalConfidence: 10,
         repairRecommendation: "RESHOOT_END",
         repairInstruction: "End contradicts the visible space established by start.",
       })?.destinationIds,
@@ -129,6 +131,7 @@ describe("CM repair target", () => {
     const plan = canonicalRepairPlanFromAssessment(project, project.journeys[0]!, {
       ...assessment,
       setConsistency: 25,
+      traversalConfidence: 10,
       repairRecommendation: "SHOOT",
     });
     expect(plan?.recommendation).toBe("RESHOOT_END");

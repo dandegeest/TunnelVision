@@ -211,7 +211,10 @@ v1 from it (`cameraMotionPlansFromAssessment`; centered fallback only when a
 still has no usable target; exposure.strength from CM `pace`), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
 on that JourneyShot, including `segmentPromptAddition`, a per-shot `pace` (`slow-motion` / `slow` /
 `moderate` / `fast` / `hyperspeed` / `variable`), and independent integer
-`setConsistency` / `traversalConfidence` scores (0–100). Shootability remains
+`setConsistency` / `traversalConfidence` scores (0–100). Set
+consistency is world match; traversal confidence is whether the pair
+can be filmed as one continuous shot, including across a surreal
+threshold. The two must not be collapsed. Shootability remains
 the advisory summary. Camotion executes from bridged travel geometry, not a
 Camotion suitability enum. Changing either canonical
 invalidates that segment's Motion Plan and recomputes it. Restaging one segment does not
@@ -327,8 +330,9 @@ and can hide to the right. In Agent, CREATE JOURNEY runs JourneyAgent
 on the same Project instead of Directed Options. LOOP is backlog
 ([BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option));
 Agent has no extra journey options yet. JourneyAgent may repair
-Agent-generated canonicals before footage when experimental CM
-score gates trip
+Agent-generated canonicals before footage when Traversal Confidence
+is below 30. Set Consistency remains a diagnostic and does not
+trigger repair
 ([BACKLOG.md — Agent CM repair / reshoot loop](BACKLOG.md#agent-cm-repair--reshoot-loop)).
 JourneyAgent launches NEW TAKE
 as each inbound pair is established; provider-aware concurrent

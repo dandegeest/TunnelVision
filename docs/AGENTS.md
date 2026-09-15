@@ -119,8 +119,9 @@ JourneyAgent, which reuses the same opening / Director / construct /
 Motion Plan / NEW TAKE / Export Movie operations and always executes
 the unattended loop. After each constructed destination, it inspects
 that inbound pair's CM scores and may enter `REPAIRING_CANONICALS`
-for the new Agent-generated END (experimental Set < 60 or Traversal
-< 30). The established START is not rewritten. It does not overwrite
+for the new Agent-generated END (experimental Traversal Confidence
+< 30). Set Consistency stays a diagnostic and does not trigger
+repair. The established START is not rewritten. It does not overwrite
 filmmaker-supplied canonicals or stills with dependent Takes. The
 next destination is generated from the **accepted** previous
 canonical. LOOP (close on the exact opening A asset so N→A is a normal
@@ -323,10 +324,15 @@ and a concise `segmentPromptAddition` that names the visible physical
 route for that pair, plus integer `setConsistency` and
 `traversalConfidence` scores (0–100), advisory shootability, concerns, and
 optional per-still travel geometry (semantic target, vanishing point /
-focus of expansion, heading, confidence). Set consistency is whether the
-adjacent stills belong to the same continuous world and route. Traversal
-confidence is whether the camera can physically travel start→end in
-continuous first-person motion. Shootability is the actionable summary
+focus of expansion, heading, confidence). Set consistency is how
+strongly the stills belong to the same visually/spatially consistent
+environment. A low score is a diagnostic, not an automatic filming
+failure, and must not force traversal confidence down. Traversal
+confidence is whether a video model can depict continuous physical
+camera travel start→end in the available shot duration without a
+cut, dissolve, teleport, or scene replacement — including through a
+closed but actionable door, or a threshold into a surreal world.
+Shootability is the actionable summary
 of that diagnosis. Camotion executes when valid travel geometry can be
 bridged into CameraMotionPlan; there is no separate Camotion suitability
 score.

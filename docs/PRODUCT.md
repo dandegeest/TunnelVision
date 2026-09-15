@@ -113,8 +113,9 @@ describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
 stand-in for Discovery. In AGENT mode, CREATE JOURNEY runs
 JourneyAgent (`web/src/project/journey-agent.ts`) on the same Project:
 establish A if needed, DIRECT, then generate each destination,
-CM-evaluate that inbound pair, repair the new END if experimental
-score gates trip (Agent-generated stills only, before footage),
+CM-evaluate that inbound pair, repair the new END if Traversal
+Confidence is below 30 (Agent-generated stills only, before footage;
+Set Consistency remains diagnostic and does not trigger repair),
 Motion Plan after the canonical pass, NEW TAKE for legs with no Take, then Export Movie assembly. Existing
 actual canonicals and selected Takes are preserved. A required
 failure stops the Agent and keeps partial work.
@@ -475,7 +476,8 @@ path, visible geometry, transition strategy, a concise
 `segmentPromptAddition` that names the visible physical route,
 and a per-shot `pace` (`slow-motion` / `slow` /
 `moderate` / `fast` / `hyperspeed` / `variable`) plus independent 0–100
-`setConsistency` and `traversalConfidence` scores, advisory shootability,
+`setConsistency` (same environment) and `traversalConfidence`
+(can this pair be filmed as one continuous shot) scores, advisory shootability,
 concerns, and per-still semantic travel geometry (travel
 VP / target / heading). That output is stored on the segment Motion Plan
 with CameraMotionPlan and A′/B′. Shootability is a property of the leg A→B,

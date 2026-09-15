@@ -42,9 +42,9 @@ export type CinematographerTravel = {
 
 export type CinematographerAssessment = {
   readonly shootability: CinematographerShootability;
-  /** 0–100. Same continuous physical world and route, not generation quality. */
+  /** 0–100. Same visually/spatially consistent environment. Independent of traversalConfidence. */
   readonly setConsistency: number;
-  /** 0–100. Confidence the camera can travel start→end in continuous first-person motion. */
+  /** 0–100. Plausible continuous camera travel as one shot, even across a surreal threshold. */
   readonly traversalConfidence: number;
   readonly summary: string;
   readonly route: string;

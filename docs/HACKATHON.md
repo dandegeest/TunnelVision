@@ -186,7 +186,7 @@ genesis/      Research site (not the hackathon app)
 | LOOP (close on exact canonical A) | **Does not exist.** BACKLOG. Explicit Agent/project option; not inferred from the Journey Prompt. Reuse opening A’s media as the final destination so N→A is a normal CM / Camotion / Take. Not event-day. See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option). |
 | Parallel segment filming | **Partial.** JourneyAgent launches NEW TAKE as soon as a segment is established and awaits all Takes before concat in storyboard order. Provider-aware concurrent filming (Runway THROTTLED/PENDING is wait, not fail; other adapters may bound locally) remains BACKLOG. JourneyAgent must not assume a universal 2/3 cap. Not event-day. See [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming). |
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
-| CM `SHOOT` / `RESHOOT_END` | **Exists (experimental).** CM assessment JSON returns a repair recommendation plus `repairInstruction` for the new END. JourneyAgent uses experimental score gates (Set < 60 or Traversal < 30), reshoots only that END (max 2), then continues. Established START is not rewritten. Dial-back of thresholds is still open. Not event-day work. |
+| CM `SHOOT` / `RESHOOT_END` | **Exists (experimental).** CM assessment JSON returns a repair recommendation plus `repairInstruction` for the new END. JourneyAgent repairs when Traversal Confidence < 30, reshoots only that END (max 2), then continues. Low Set Consistency alone does not trigger repair; it remains a diagnostic. Established START is not rewritten. Dial-back of thresholds is still open. Not event-day work. |
 | Opposite-canonical visual reference on repair | **Exists (experimental).** Agent END repair uses the established START still as the image/spatial source (and extra Nano Banana `image_input` when that still is not already the source). Flux ignores extra refs. Not event-day. |
 | Footage Evaluator | **Does not exist** as product. Experimental Shot Evaluator is isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. If a product evaluator exists by event day, JourneyAgent should already use it. |
 | Movie-evaluation preprocessor | **Does not exist** as product. |
@@ -577,8 +577,9 @@ Current JourneyAgent policy:
 
 -   Generate the next END from the accepted previous canonical.
 -   CM-evaluate that inbound pair in the same assessment turn.
--   If experimental gates trip, reshoot only that END (max 2) using
-    the established START as spatial reference.
+-   If Traversal Confidence is below 30, reshoot only that END (max 2) using
+    the established START as spatial reference. Low Set Consistency
+    alone does not trigger repair.
 -   Preserve Director intent for that letter.
 -   **Never silently overwrite a filmmaker-supplied actual**
     (`imageOrigin: "user"`). Fail through existing Agent activity.

@@ -474,15 +474,20 @@ describe("JourneyAgent", () => {
 });
 
 describe("JourneyAgent canonical repair", () => {
+  const lowSetHighTraversal = assessmentWith({
+    setConsistency: 15,
+    traversalConfidence: 85,
+    repairRecommendation: "SHOOT",
+  });
   const weakEnd = assessmentWith({
     setConsistency: 25,
-    traversalConfidence: 45,
+    traversalConfidence: 22,
     repairRecommendation: "RESHOOT_END",
     repairInstruction: "The space beyond A contradicts the immediate environment established by B.",
   });
   const weakStart = assessmentWith({
     setConsistency: 25,
-    traversalConfidence: 45,
+    traversalConfidence: 22,
     repairRecommendation: "RESHOOT_START",
     repairInstruction: "Start does not establish a plausible route toward end.",
   });
@@ -513,7 +518,22 @@ describe("JourneyAgent canonical repair", () => {
     expect(result.snapshot.phase).toBe("COMPLETE");
   });
 
-  it("repairs when Set Consistency is below 60, reevaluates, and continues to NEW TAKE", async () => {
+  it("proceeds directly to shooting when Traversal Confidence is at least 30, even if Set Consistency is low", async () => {
+    const { ops, calls } = recordingOps(
+      {
+        planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
+      },
+      { assessments: [lowSetHighTraversal] },
+    );
+    const result = await runJourneyAgent(promptedProject(), ops);
+    expect(calls.filter((call) => call.startsWith("repair:"))).toEqual([]);
+    expect(result.snapshot.events.some((event) => event.phase === "REPAIRING_CANONICALS")).toBe(false);
+    expect(calls).toContain("createTake:A-B");
+    expect(result.snapshot.phase).toBe("COMPLETE");
+    expect(result.project.storyboard.find((frame) => frame.id === "B")?.mediaId).toBe(MEDIA.B.mediaId);
+  });
+
+  it("repairs when Traversal Confidence is below 30, reevaluates, and continues to NEW TAKE", async () => {
     const { ops, calls } = recordingOps(
       {
         planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
@@ -532,7 +552,7 @@ describe("JourneyAgent canonical repair", () => {
     expect(result.snapshot.events.some((event) => event.kind === "canonical-repair")).toBe(true);
     const complete = result.snapshot.events.find((event) => event.kind === "canonical-repair-complete");
     expect(complete?.activity).toMatch(/Set Consistency 25 → 72/);
-    expect(complete?.activity).toMatch(/Traversal Confidence 45 → 68/);
+    expect(complete?.activity).toMatch(/Traversal Confidence 22 → 68/);
     expect(complete?.setConsistency).toBe(25);
     expect(complete?.afterSetConsistency).toBe(72);
     expect(calls).toContain("createTake:A-B");
@@ -567,7 +587,7 @@ describe("JourneyAgent canonical repair", () => {
   it("stops after two repair attempts and shoots the current pair", async () => {
     const stubborn = assessmentWith({
       setConsistency: 25,
-      traversalConfidence: 45,
+      traversalConfidence: 22,
       repairRecommendation: "RESHOOT_END",
       repairInstruction: "The pair still lacks a continuous route.",
     });

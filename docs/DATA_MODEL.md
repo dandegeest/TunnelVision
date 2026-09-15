@@ -317,7 +317,9 @@ without inventing a pair. Future non-destructive canonical RESHOOT
 (B1 vs B2 continuities) is backlog; current RESHOOT still replaces
 the letter in place.
 Product CM scores are integer `setConsistency` and
-`traversalConfidence` (0–100). `shootability` remains the advisory
+`traversalConfidence` (0–100). Set consistency is same-environment
+match; traversal confidence is independent continuous-shot
+filmability. `shootability` remains the advisory
 actionable summary. Camotion executes from bridged travel geometry /
 CameraMotionPlan, not a Camotion suitability enum.
 
