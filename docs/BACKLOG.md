@@ -50,7 +50,8 @@ Items below are **BACKLOG** unless a later edit changes the status.
 ### Agent mode
 
 **Status:** First happy-path pass is in product. Repair / reshoot /
-Footage Evaluator / Agent take selection / LOOP remain BACKLOG.
+Footage Evaluator / Agent take selection / LOOP / concurrent filming
+remain BACKLOG.
 
 **Goal.** Implement fully autonomous journey execution. AGENT
 executes the journey. It does not merely press the existing
@@ -297,6 +298,161 @@ Related, do not duplicate:
 
 ---
 
+### Parallel segment filming
+
+**Status:** BACKLOG — do not implement yet. Current serial filming
+is correct and working. Implement **provider-aware concurrent
+filming** only after the Agent repair / evaluation loop is
+established. See
+[Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
+and [Agent cinematic-quality critique](#agent-cinematic-quality-critique).
+
+**Goal.** Once every required canonical and its Motion Plan /
+Camotion A′/B′ are ready, submit independent segment footage
+generations concurrently. Let the **provider / adapter** decide
+how those jobs run. Assemble selected Takes in canonical
+storyboard order.
+
+**Why it matters.** First-pass JourneyAgent films serially:
+A→B TAKE 1, then B→C TAKE 1, then C→D TAKE 1. Video generation
+dominates wall time. Those takes do not depend on each other’s
+footage once the stills and Motion Plans exist, so serial waiting
+is leftover sequencing, not a filmmaking constraint. Concurrent
+submission cuts end-to-end Agent latency, which matters most for
+hackathon / demo waits. Movie order must stay deterministic
+regardless of which provider call finishes first.
+
+Do **not** assume TunnelVision must own a fixed bounded-concurrency
+queue (2, 3, or similar). That was the earlier sketch. Runway
+already manages organization-level generation concurrency.
+
+**Intended behavior / design.**
+
+Keep construct sequential. DERIVE still needs the preceding
+actual still. Do not parallelize destination generation.
+
+Potential later filming flow:
+
+1.  Construct all unresolved canonicals (still serial).
+2.  Complete / await Motion Plan + Camotion for every required
+    adjacent segment.
+3.  Submit all independent ready-segment footage generations
+    concurrently.
+4.  The provider manages / queues work according to its
+    capabilities.
+5.  Await all required Takes.
+6.  Assemble selected Takes in canonical order
+    (A→B, B→C, C→D, …), never in completion order.
+
+**Provider-aware scheduling.** JourneyAgent does not pick a
+universal in-flight number. Split the decision:
+
+| Layer | Responsibility |
+| --- | --- |
+| JourneyAgent | These N independent shots are ready. |
+| Provider / adapter | Submit concurrently, queue remotely, or bound locally according to that provider’s API. |
+
+**Runway-specific finding.** Runway’s API already provides
+organization-level generation concurrency management:
+
+-   Video generations share an organization concurrency pool.
+-   Jobs beyond the current allowance may still be submitted.
+-   Excess jobs enter **THROTTLED** and are queued by Runway.
+    TunnelVision does not need to serialize them itself.
+-   THROTTLED is a normal waiting state, similar to PENDING, not
+    a generation failure. HACKATHON.md already records
+    `THROTTLED` as queued, not an error.
+-   The hackathon Agent should generally submit **all** ready
+    segment generations and let Runway manage execution
+    concurrency.
+-   Runway task completion order must never determine movie
+    order. Storyboard / canonical order stays authoritative.
+-   Respect provider / API retry guidance. Distinguish retryable
+    transport / API failures from normal queued / throttled
+    tasks.
+
+For other providers, the adapter may impose bounded concurrency
+or serialization if that API / rate limit requires it. That is
+adapter policy, not a JourneyAgent constant.
+
+Current serial SHOOTING in
+`web/src/project/journey-agent.ts` remains the correct v1
+behavior. This item does not change COMPLETE: every required
+adjacent segment still needs a valid selected Take, the movie
+must be exportable, and assembly must succeed.
+
+**Constraints / invariants.**
+
+-   Each Take stays associated with its segment / canonical pair
+    (`startCanonicalMediaId` / `endCanonicalMediaId`). Segment
+    letters are not the compatibility key.
+-   A failed segment stays identifiable (which journey, which
+    Take attempt, why). Do not collapse concurrent errors into a
+    generic “shooting failed.”
+-   Asynchronous completion must not reorder the assembled movie.
+    Export Movie concat stays storyboard / travel order.
+-   Preserve partial successful Takes if another segment fails.
+    First-pass FAILED already keeps work already on the Project;
+    concurrent filming must not discard finished Takes on a
+    sibling leg.
+-   Agent activity UI may show multiple shots generating or
+    waiting (PENDING / THROTTLED) at once. That does not imply
+    movie order.
+-   Do not invent a second shoot pipeline. Reuse `createTake` /
+    `shootJourney` / NEW TAKE.
+-   Directed click-automation (auto-shoot) is out of scope unless
+    a later pass shares the same provider-aware runner.
+-   Repair / evaluation stays pair-local and prior. Do not
+    concurrent-film in order to skip repair.
+
+**Likely implementation areas.**
+
+-   `web/src/project/journey-agent.ts` SHOOTING phase — today a
+    serial `await createTake` per journey
+-   `ProjectProvider` `shootJourneyOn` / in-flight maps —
+    concurrent Project updates and Take appends on different
+    journeys
+-   Video adapter (`media/src/runway/` on hackathon day; other
+    MediaProvider adapters as needed) — submit vs local bound vs
+    treat THROTTLED / PENDING as wait, not fail
+-   Activity events: several “creating A→B TAKE 1” /
+    waiting-throttled states at once without implying concat
+    order
+-   Tests: completion order ≠ concat order; one leg fails, others
+    keep Takes; THROTTLED is not FAILED; COMPLETE concatenates
+    in travel order
+
+`inFlightMotionPlans` already coalesces concurrent Motion Plan
+callers for the **same** pair. That is not concurrent filming and
+does not authorize this item.
+
+**Open questions.**
+
+-   After a repair invalidates B, inbound A→B and outbound B→C
+    must not stay in flight on stale A′/B′.
+-   LOOP N→A is just another independent ready segment once
+    Motion Plan exists.
+-   Should Motion Plan / Camotion also run concurrently after all
+    canonicals exist, or only NEW TAKE?
+-   How the adapter reports THROTTLED vs retryable HTTP failure
+    into JourneyAgent activity without treating queue wait as
+    FAILED.
+
+Related, do not duplicate:
+
+-   [Agent mode](#agent-mode) — serial first pass is shipped
+-   [Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
+    — do this before concurrent filming
+-   [Agent cinematic-quality critique](#agent-cinematic-quality-critique)
+-   [Final journey export](#final-journey-export) — concat order
+    is canonical, not finish order
+-   [Runway hackathon integration](#runway-hackathon-integration)
+    — latency win for demos; not event-day implementation
+-   HACKATHON.md task lifecycle — `THROTTLED` is queued, not an
+    error
+
+---
+
 ### Agent CM repair / reshoot loop
 
 **Status:** BACKLOG
@@ -460,6 +616,12 @@ Agent loop:
 -   Provider support for a second reference image on opening A
     (Nano Banana accepts `image_input`; product A is still text-only
     today).
+
+Related, do not duplicate:
+
+-   [Parallel segment filming](#parallel-segment-filming) —
+    latency work **after** this repair loop works. Serial filming
+    stays correct until then.
 
 ---
 
@@ -1879,6 +2041,8 @@ same action as **EXPORT JOURNEY**.
 [Agent LOOP option](#agent-loop-option) would add an N→A Take
 on exact opening A before that concat; it does not change the
 concat itself.
+[Parallel segment filming](#parallel-segment-filming) must not
+let generation completion order change this concat order.
 
 No Editor agent.
 

@@ -122,6 +122,12 @@ canonical so the last segment is N→A) is backlog, not current
 JourneyAgent. It is an explicit Agent/project option, not inferred
 from the Journey Prompt. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
+Agent filming is currently serial. Provider-aware concurrent NEW
+TAKE submission after all canonicals and Motion Plans are ready
+is backlog, not current JourneyAgent. JourneyAgent must not assume
+a universal concurrency cap; the adapter / Runway queue decides.
+See
+[BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 Conversation is turn history; the Project panel
 holds the JOURNEY PROMPT, destination count, Directed Options
 (generate all destinations, shoot), and CREATE JOURNEY.

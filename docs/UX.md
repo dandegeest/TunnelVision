@@ -54,6 +54,10 @@ including missing NEW TAKEs and movie assembly. Agent hides Options.
 LOOP (close on exact opening A) is backlog, not a current Agent
 control. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
+Agent films Takes one segment after another. Provider-aware
+concurrent filming (Runway-managed queue, not a TV concurrency
+cap) is backlog. See
+[BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 DIRECT asks the Director to plan unspecified
 beats around the complete ordered storyboard; supplied stills remain
 authoritative. Planned beats start as FPO. Generate is centered beneath the

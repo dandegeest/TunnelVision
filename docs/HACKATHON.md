@@ -184,6 +184,7 @@ genesis/      Research site (not the hackathon app)
 | Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Options. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
 | `JourneyAgent` orchestrator | **Exists (first happy path).** Shared module: establish A, DIRECT, construct unresolved destinations, automatic Motion Plan, NEW TAKE if missing, Export Movie. No CM repair loop yet. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
 | LOOP (close on exact canonical A) | **Does not exist.** BACKLOG. Explicit Agent/project option; not inferred from the Journey Prompt. Reuse opening A’s media as the final destination so N→A is a normal CM / Camotion / Take. Not event-day. See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option). |
+| Parallel segment filming | **Does not exist.** BACKLOG. JourneyAgent NEW TAKE is serial and correct. Later: submit all ready Takes concurrently; Runway THROTTLED/PENDING is wait, not fail; other adapters may bound locally. JourneyAgent must not assume a universal 2/3 cap. Concat stays canonical order. After repair / evaluation; not event-day. See [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming). |
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
 | CM `SHOOT` / `RESHOOT_START` / `RESHOOT_END` / `RESHOOT_BOTH` | **Does not exist.** Today: `shootability` = `shootable` \| `needs_review` \| `not_shootable`, plus `traversalConfidence` 0–100. Pre-hackathon JourneyAgent work if repair is required; not event-day scope. |
 | Opposite-canonical visual reference on repair | **Does not exist.** Construct uses the *preceding* still; look-ahead is *following* intent text only. Same: pre-hackathon JourneyAgent, not hackathon-day. |
@@ -809,6 +810,10 @@ are `FAILED` with `SAFETY.*` (credits not refunded for
 `SAFETY.INPUT.*`). Output URLs expire 24–48h. Direct-model bodies
 are **per-model discriminated unions** — never copy `ratio` /
 `duration` across models. Router uses model-agnostic `aspectRatio`.
+Video jobs share an **organization concurrency pool**; excess
+submits enter THROTTLED rather than requiring TunnelVision to
+serialize Takes. That is backlog for JourneyAgent filming, not
+current serial Agent: [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 
 **Image / canonical candidates (API + Models page).** Google Nano
 Banana names on Runway: `gemini_2.5_flash` = Nano Banana,
@@ -1720,6 +1725,11 @@ Do not call Camotion or `composeShootingPrompt` from Agent.
 
 LOOP (exact-A close) is **not** on this checklist. It is backlog:
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
+
+Parallel NEW TAKE filming is **not** on this checklist. Serial
+filming is the current happy path. Later concurrent submit is
+provider-aware (Runway THROTTLED queue, not a TV cap):
+[BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 
 ---
 

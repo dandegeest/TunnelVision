@@ -123,6 +123,10 @@ LOOP (close on the exact opening A asset so N→A is a normal
 segment) is also backlog; do not infer it from the Journey Prompt
 and do not implement it in the current happy path. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
+NEW TAKE filming is serial (A→B, then B→C, …). Provider-aware
+concurrent filming (Runway THROTTLED/PENDING queue; other adapters
+may bound locally) is backlog after repair / evaluation. See
+[BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while DIRECT or sequential destination
 generation is running. Motion Planning or footage generation on an
