@@ -182,6 +182,7 @@ export type {
   CinematographerAssessmentInput,
   CinematographerAssessmentRequestPayload,
   CinematographerAssessmentResult,
+  CinematographerRepairRecommendation,
   CinematographerShootability,
   CinematographerTravel,
   CinematographerTravelConfidence,

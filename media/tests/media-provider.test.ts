@@ -466,6 +466,22 @@ test("image-conditioned edit maps onto Nano Banana with image_input", () => {
   assert.equal("input_image" in input, false);
 });
 
+test("Nano Banana edit includes extra reference stills after the source", () => {
+  const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
+  const opposite = { kind: "url" as const, url: "https://example.com/b.jpg" };
+  const input = toNanoBananaEditInput(
+    {
+      sourceImage: source,
+      prompt: "Regenerate start so it leads toward the opposite canonical.",
+      referenceImages: [opposite],
+    },
+    { kind: "url", url: source.url },
+    undefined,
+    [{ kind: "url", url: opposite.url }],
+  );
+  assert.deepEqual(input.image_input, ["https://example.com/a.jpg", "https://example.com/b.jpg"]);
+});
+
 test("legacy FLUX Kontext Pro adapter still maps input_image", () => {
   const source = { kind: "url" as const, url: "https://example.com/a.jpg" };
   const input = toFluxKontextProInput(

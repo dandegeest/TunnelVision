@@ -1,6 +1,6 @@
 import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
 import { GENERATED_OPENING_ASPECT_RATIO, parseImageAspectRatio } from "../media/src/image-aspect-ratio.ts";
-import { destinationConstructionPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead } from "./src/project/destination.ts";
+import { destinationConstructionPrompt, canonicalRepairPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead } from "./src/project/destination.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
 
@@ -12,6 +12,9 @@ export type ConstructDestinationBody = {
   nextDestination?: unknown;
   aspectRatio?: unknown;
   imageModel?: unknown;
+  referenceMediaId?: unknown;
+  repairInstruction?: unknown;
+  repairRole?: unknown;
 };
 
 export async function fetchGeneratedOutputBytes(url: string): Promise<{
@@ -71,12 +74,30 @@ export async function constructDestinationImage(input: {
     typeof input.body.visualDescription === "string" ? input.body.visualDescription.trim() : "";
   const nextDestination = optionalDestinationLookAhead(input.body.nextDestination);
   const aspectRatio = parseImageAspectRatio(input.body.aspectRatio);
-  const prompt = destinationConstructionPrompt({ intent, visualDescription, nextDestination });
+  const repairInstruction =
+    typeof input.body.repairInstruction === "string" ? input.body.repairInstruction.trim() : "";
+  const repairRole = input.body.repairRole === "start" || input.body.repairRole === "end" ? input.body.repairRole : undefined;
+  const prompt =
+    repairInstruction && repairRole
+      ? canonicalRepairPrompt({
+          role: repairRole,
+          intent,
+          visualDescription,
+          instruction: repairInstruction,
+        })
+      : destinationConstructionPrompt({ intent, visualDescription, nextDestination });
   const sourceImage = resolveTrustedMedia(input.repoRoot, sourceMediaId);
+  const extraRefId =
+    typeof input.body.referenceMediaId === "string" ? input.body.referenceMediaId.trim() : "";
+  const referenceImages =
+    extraRefId && extraRefId !== sourceMediaId
+      ? [resolveTrustedMedia(input.repoRoot, extraRefId)]
+      : undefined;
   const generated = await input.editImage({
     sourceImage,
     prompt,
     ...(aspectRatio ? { aspectRatio } : {}),
+    ...(referenceImages ? { referenceImages } : {}),
   });
   const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;
   const output = await fetchOutput(generated.outputUrl);

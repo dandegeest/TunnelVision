@@ -81,6 +81,7 @@ export function toNanoBananaEditInput(
   request: ImageEditRequest,
   resolvedSource: ResolvedMedia,
   settings?: NanoBananaSettings,
+  resolvedReferences: readonly ResolvedMedia[] = [],
 ): NanoBananaInput {
   if (!request.prompt.trim()) {
     throw new MediaGenerationError("invalid_input", "prompt is required");
@@ -94,7 +95,10 @@ export function toNanoBananaEditInput(
     aspect_ratio: explicitAspectRatio(request.aspectRatio, settings),
     output_format: merged.outputFormat,
     ...(merged.resolution ? { resolution: merged.resolution } : {}),
-    image_input: [toReplicateFileInput(resolvedSource)],
+    image_input: [
+      toReplicateFileInput(resolvedSource),
+      ...resolvedReferences.map((item) => toReplicateFileInput(item)),
+    ],
   };
 }
 

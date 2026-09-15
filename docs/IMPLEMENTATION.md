@@ -326,7 +326,11 @@ Directed Options, and CREATE JOURNEY
 and can hide to the right. In Agent, CREATE JOURNEY runs JourneyAgent
 on the same Project instead of Directed Options. LOOP is backlog
 ([BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option));
-Agent has no extra journey options yet. JourneyAgent films
+Agent has no extra journey options yet. JourneyAgent may repair
+Agent-generated canonicals before footage when experimental CM
+score gates trip
+([BACKLOG.md — Agent CM repair / reshoot loop](BACKLOG.md#agent-cm-repair--reshoot-loop)).
+JourneyAgent films
 segments serially; provider-aware concurrent NEW TAKE is backlog
 ([BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming)). Video and Debug mode live in Project settings. Director, Project, and Inspector
 headers put the panel name and collapse control on one row below the app header. Shoot Inspector titles are Inspector - Destination, Inspector - Motion, or Inspector - Footage. The Shoot inspector is horizontally resizable and can hide to a reopen strip. That visibility is session UI, not project persistence, and

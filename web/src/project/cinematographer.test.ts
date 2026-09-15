@@ -7,6 +7,7 @@ import {
   cinematographerScoreTone,
   cinematographerShootabilityLabel,
   cinematographerShootabilityTileLabel,
+  cinematographerAssessmentIsCurrent,
   locomotionPaceLabel,
   hasCurrentMotionPlan,
   journeyLegStatusLabel,
@@ -182,6 +183,18 @@ describe("Cinematographer actual-set assessment", () => {
     expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(
       shootableAB,
     );
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographerStartMediaId).toBe(
+      TRUSTED_MEDIA_IDS.forestAtoFA,
+    );
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographerEndMediaId).toBe(
+      TRUSTED_MEDIA_IDS.forestAtoFB,
+    );
+    expect(
+      cinematographerAssessmentIsCurrent(
+        next,
+        next.journeys.find((journey) => journey.id === "A-B")!,
+      ),
+    ).toBe(true);
     expect(next.destinations).toEqual(destinations);
     expect(next.storyboard).toEqual(storyboard);
     expect(next.journeys.find((journey) => journey.id === "B-C")?.cinematographer).toBeUndefined();
@@ -203,6 +216,16 @@ describe("Cinematographer actual-set assessment", () => {
     const next = projectWithCinematographerAssessment(first, "A-B", replacement);
     expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(replacement);
     expect(first.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toEqual(shootableAB);
+  });
+
+  it("treats a CM assessment as stale when the pair's media IDs changed", () => {
+    const project = createForestProject();
+    const stamped = projectWithCinematographerAssessment(project, "A-B", shootableAB, {
+      startCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+      endCanonicalMediaId: "upload-oldbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    const journey = stamped.journeys.find((item) => item.id === "A-B")!;
+    expect(cinematographerAssessmentIsCurrent(stamped, journey)).toBe(false);
   });
 
   it("records a Motion Plan failure on that JourneyShot only", () => {

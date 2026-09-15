@@ -17,6 +17,8 @@ import {
   destinationImageModelLabel,
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
+  destinationRepairRequestFromProject,
+  canonicalRepairPrompt,
   imageModelIdFromBody,
   imageOutputFormatFromBody,
   imageResolutionFromBody,
@@ -744,5 +746,67 @@ describe("destination inspector copy", () => {
     expect(lite.imageOutputFormat).toBe("jpg");
     expect(lite.imageResolution).toBe("1K");
     expect(openingFrameGenerationRequestFromProject(lite).imageResolution).toBeUndefined();
+  });
+});
+
+describe("canonical repair request", () => {
+  it("edits the current END still's preceding source and keeps the destination beat", () => {
+    const actualB = withActualB();
+    const request = destinationRepairRequestFromProject(actualB, "B", {
+      role: "end",
+      instruction: "The corridor beyond A does not connect to B's doorway.",
+      referenceMediaId: actualB.storyboard[0]?.mediaId,
+    });
+    expect(request.beatId).toBe("B");
+    expect(request.repairRole).toBe("end");
+    expect(request.repairInstruction).toMatch(/does not connect/);
+    expect(request.sourceMediaId).toBe(actualB.storyboard[0]?.mediaId);
+    expect(request.intent).toBe(beats.beats[0]?.intent);
+    expect(request.referenceMediaId).toBeUndefined();
+  });
+
+  it("uses the opposite canonical as an extra reference when repairing START", () => {
+    const actualB = withActualB();
+    const generated = projectWithGeneratedOpeningFrame(
+      { ...createNewProject(), story: "Leave the attic. Cross into the forest." },
+      generatedC,
+    );
+    const planned = projectWithDirectorPlan(generated, {
+      summary: "One move.",
+      beats: [{ id: "B", intent: beats.beats[0]!.intent, visualDescription: beats.beats[0]!.visualDescription }],
+    });
+    const withB = projectWithConstructedDestination(planned, { beatId: "B", ...generatedB });
+    const request = destinationRepairRequestFromProject(withB, "A", {
+      role: "start",
+      instruction: "A does not establish a plausible route toward B.",
+      referenceMediaId: generatedB.mediaId,
+    });
+    expect(request.beatId).toBe("A");
+    expect(request.repairRole).toBe("start");
+    expect(request.sourceMediaId).toBe(generatedC.mediaId);
+    expect(request.referenceMediaId).toBe(generatedB.mediaId);
+    expect(request.intent).toBeTruthy();
+  });
+
+  it("refuses filmmaker-supplied canonicals", () => {
+    expect(() =>
+      destinationRepairRequestFromProject(plannedFrom(), "A", {
+        role: "start",
+        instruction: "Make A lead toward B.",
+      }),
+    ).toThrow(/not ready to construct/i);
+  });
+
+  it("writes a spatial repair prompt, not a restyle brief", () => {
+    const prompt = canonicalRepairPrompt({
+      role: "end",
+      intent: "Enter the next volume.",
+      visualDescription: "A continuing corridor.",
+      instruction: "The space beyond C contradicts the immediate environment established by D.",
+    });
+    expect(prompt).toMatch(/continuously shootable physical space/);
+    expect(prompt).toMatch(/Do not make the two images look alike/);
+    expect(prompt).toMatch(/contradicts the immediate environment/);
+    expect(prompt).not.toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
   });
 });

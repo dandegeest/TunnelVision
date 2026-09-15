@@ -3,6 +3,8 @@ import {
   type DirectorEvidence,
   type DirectorPlanRequest,
 } from "./director";
+import type { CanonicalRepairRecommendation } from "./journey-agent-repair";
+import type { JourneyAgentEvent } from "./journey-agent";
 import type { CinematographerAssessment, JourneyShotTake, Project } from "./types";
 
 export type ConversationEntryBase = {
@@ -57,13 +59,28 @@ export type AssemblyConversationEntry = ConversationEntryBase & {
   complete: boolean;
 };
 
+export type AgentConversationEntry = ConversationEntryBase & {
+  kind: "agent";
+  status: "evaluating" | "reevaluating" | "evaluated" | "reevaluated" | "repairing" | "repaired";
+  destinationIds: string[];
+  journeyId: string;
+  journeyIds?: string[];
+  recommendation?: CanonicalRepairRecommendation;
+  instruction?: string;
+  setConsistency?: number;
+  traversalConfidence?: number;
+  afterSetConsistency?: number;
+  afterTraversalConfidence?: number;
+};
+
 export type ConversationEntry =
   | FilmmakerConversationEntry
   | DirectorConversationEntry
   | ConstructionConversationEntry
   | BlockingConversationEntry
   | ShootingConversationEntry
-  | AssemblyConversationEntry;
+  | AssemblyConversationEntry
+  | AgentConversationEntry;
 
 export type PlanSubmission =
   | { ok: true; submitted: string; request: DirectorPlanRequest }
@@ -220,4 +237,118 @@ export function resolveShootingEntry(
       videoUrl: undefined,
     };
   });
+}
+
+export function resolveAgentEvaluationEntry(
+  entries: ConversationEntry[],
+  journeyId: string,
+  next: {
+    status: "evaluated" | "reevaluated";
+    setConsistency?: number;
+    traversalConfidence?: number;
+  },
+): ConversationEntry[] {
+  let lastIndex = -1;
+  for (let index = entries.length - 1; index >= 0; index -= 1) {
+    const entry = entries[index];
+    if (
+      entry?.kind === "agent" &&
+      entry.journeyId === journeyId &&
+      (entry.status === "evaluating" || entry.status === "reevaluating")
+    ) {
+      lastIndex = index;
+      break;
+    }
+  }
+  if (lastIndex < 0) {
+    return entries;
+  }
+  return entries.map((entry, index) => {
+    if (index !== lastIndex || entry.kind !== "agent") {
+      return entry;
+    }
+    return {
+      ...entry,
+      status: next.status,
+      ...(next.setConsistency != null ? { setConsistency: next.setConsistency } : {}),
+      ...(next.traversalConfidence != null ? { traversalConfidence: next.traversalConfidence } : {}),
+    };
+  });
+}
+
+export function agentConversationEntryFromEvent(
+  id: string,
+  createdAt: string,
+  event: JourneyAgentEvent,
+): AgentConversationEntry | undefined {
+  if (
+    event.kind === "cinematographer-evaluation" ||
+    event.kind === "cinematographer-reevaluation"
+  ) {
+    const journeyIds = event.journeyIds ?? (event.journeyId ? [event.journeyId] : []);
+    if (journeyIds.length === 0) {
+      return undefined;
+    }
+    return {
+      id,
+      createdAt,
+      kind: "agent",
+      status: event.kind === "cinematographer-reevaluation" ? "reevaluating" : "evaluating",
+      destinationIds: event.destinationIds ?? [],
+      journeyId: journeyIds[0]!,
+      journeyIds,
+    };
+  }
+  if (
+    event.kind !== "canonical-repair" &&
+    event.kind !== "canonical-repair-complete"
+  ) {
+    return undefined;
+  }
+  const destinationIds = event.destinationIds ?? (event.destinationId ? [event.destinationId] : []);
+  const journeyId = event.journeyId;
+  const recommendation = event.recommendation;
+  if (!journeyId || !recommendation || destinationIds.length === 0) {
+    return undefined;
+  }
+  if (event.kind === "canonical-repair") {
+    if (event.setConsistency == null || event.traversalConfidence == null) {
+      return undefined;
+    }
+    return {
+      id,
+      createdAt,
+      kind: "agent",
+      status: "repairing",
+      destinationIds,
+      journeyId,
+      ...(event.journeyIds ? { journeyIds: event.journeyIds } : {}),
+      recommendation,
+      ...(event.instruction ? { instruction: event.instruction } : {}),
+      setConsistency: event.setConsistency,
+      traversalConfidence: event.traversalConfidence,
+    };
+  }
+  if (
+    event.setConsistency == null ||
+    event.traversalConfidence == null ||
+    event.afterSetConsistency == null ||
+    event.afterTraversalConfidence == null
+  ) {
+    return undefined;
+  }
+  return {
+    id,
+    createdAt,
+    kind: "agent",
+    status: "repaired",
+    destinationIds,
+    journeyId,
+    ...(event.journeyIds ? { journeyIds: event.journeyIds } : {}),
+    recommendation,
+    setConsistency: event.setConsistency,
+    traversalConfidence: event.traversalConfidence,
+    afterSetConsistency: event.afterSetConsistency,
+    afterTraversalConfidence: event.afterTraversalConfidence,
+  };
 }

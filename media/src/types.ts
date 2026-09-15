@@ -36,6 +36,12 @@ export type ImageEditRequest = {
   readonly seed?: number;
   /** Explicit output aspect. Adapters must not substitute match_input_image when this is set. */
   readonly aspectRatio?: ImageAspectRatio;
+  /**
+   * Extra stills after the source. Adapters that accept multiple image
+   * inputs (Nano Banana `image_input`) include them; single-image editors
+   * may ignore them.
+   */
+  readonly referenceImages?: readonly MediaInput[];
 };
 
 export type GeneratedVideo = {

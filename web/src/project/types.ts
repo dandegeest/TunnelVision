@@ -72,6 +72,14 @@ export type CinematographerAssessment = {
    * A deterministic bridge turns this into CameraMotionPlan v1.
    */
   travel?: CinematographerTravel;
+  /**
+   * Canonical repair action for this actual pair. Agent uses score
+   * thresholds as the candidate gate, then this field to choose START /
+   * END / BOTH.
+   */
+  repairRecommendation?: "SHOOT" | "RESHOOT_START" | "RESHOOT_END" | "RESHOOT_BOTH";
+  /** Concise spatial repair instruction. Present when not SHOOT. */
+  repairInstruction?: string;
 };
 
 /** CameraMotionPlan v1 JSON stored on the segment Motion Plan. Frozen Camotion contract. */
@@ -263,6 +271,12 @@ export type JourneyShot = {
    * Also stored on `motionPlan.cinematographer` once Camotion A′/B′ exist.
    */
   cinematographer?: CinematographerAssessment;
+  /**
+   * Canonical asset IDs the current `cinematographer` assessment inspected.
+   * Repair must ignore the assessment when these no longer match the pair.
+   */
+  cinematographerStartMediaId?: string;
+  cinematographerEndMediaId?: string;
   /**
    * Staged A→B Motion Plan: CM choreography plus this shot's CameraMotionPlan,
    * Camotion parameters, and conditioned S/E frames. Present once an actual

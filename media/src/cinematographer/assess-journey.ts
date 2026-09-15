@@ -10,6 +10,11 @@ import { isLocomotionPace, type LocomotionPace } from "./shooting-prompt.ts";
 
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
 export type CinematographerTravelConfidence = "high" | "medium" | "low";
+export type CinematographerRepairRecommendation =
+  | "SHOOT"
+  | "RESHOOT_START"
+  | "RESHOOT_END"
+  | "RESHOOT_BOTH";
 
 /**
  * Semantic travel target in one still. Normalized image coords: (0,0)
@@ -51,6 +56,14 @@ export type CinematographerAssessment = {
   readonly pace: LocomotionPace;
   readonly concerns: readonly string[];
   readonly travel?: CinematographerTravel;
+  /**
+   * Canonical repair action for this actual pair. Optional for older
+   * assessments. Agent uses scores as the candidate gate, then this field
+   * to choose START / END / BOTH.
+   */
+  readonly repairRecommendation?: CinematographerRepairRecommendation;
+  /** Concise spatial repair instruction. Present when not SHOOT. */
+  readonly repairInstruction?: string;
 };
 
 export type CinematographerAssessmentInput = {
@@ -100,6 +113,12 @@ const SHOOTABILITY = new Set<CinematographerShootability>([
   "not_shootable",
 ]);
 const TRAVEL_CONFIDENCE = new Set<CinematographerTravelConfidence>(["high", "medium", "low"]);
+const REPAIR_RECOMMENDATION = new Set<CinematographerRepairRecommendation>([
+  "SHOOT",
+  "RESHOOT_START",
+  "RESHOOT_END",
+  "RESHOOT_BOTH",
+]);
 
 export function buildCinematographerAssessmentRequest(
   input: CinematographerAssessmentInput,
@@ -304,6 +323,7 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
   }
   const concerns = record.concerns.map((item, index) => asNonEmptyString(item, `concerns[${index}]`));
   const travel = parseTravel(record.travel);
+  const repair = parseRepairRecommendation(record);
   return {
     shootability: record.shootability as CinematographerShootability,
     setConsistency,
@@ -318,6 +338,29 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     pace: asPace(record.pace),
     concerns,
     ...(travel ? { travel } : {}),
+    ...repair,
+  };
+}
+
+function parseRepairRecommendation(
+  record: Record<string, unknown>,
+): Pick<CinematographerAssessment, "repairRecommendation" | "repairInstruction"> {
+  if (record.repairRecommendation == null && record.repairInstruction == null) {
+    return {};
+  }
+  if (
+    typeof record.repairRecommendation !== "string" ||
+    !REPAIR_RECOMMENDATION.has(record.repairRecommendation as CinematographerRepairRecommendation)
+  ) {
+    throw new MediaGenerationError("generation_failed", "Cinematographer repairRecommendation is invalid");
+  }
+  const repairRecommendation = record.repairRecommendation as CinematographerRepairRecommendation;
+  if (repairRecommendation === "SHOOT") {
+    return { repairRecommendation };
+  }
+  return {
+    repairRecommendation,
+    repairInstruction: asNonEmptyString(record.repairInstruction, "repairInstruction"),
   };
 }
 

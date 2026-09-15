@@ -59,6 +59,45 @@ export function hasStagedMotionPlan(journey: JourneyShot): boolean {
   return Boolean(journey.motionPlan?.startShootingFrame && journey.motionPlan.endShootingFrame);
 }
 
+/** Actual adjacent media IDs CM must have inspected for this pair. */
+export function cinematographerPairMediaIds(
+  project: Project,
+  journey: JourneyShot,
+): { startMediaId: string; endMediaId: string } | undefined {
+  if (!journey.endDestinationId) {
+    return undefined;
+  }
+  const start = actualFrameForDestination(project, journey.startDestinationId);
+  const end = actualFrameForDestination(project, journey.endDestinationId);
+  if (!start || !end) {
+    return undefined;
+  }
+  return { startMediaId: start.mediaId, endMediaId: end.mediaId };
+}
+
+/**
+ * True when this leg's CM assessment belongs to the project's current
+ * canonical pair. Unstamped assessments are not current for Agent repair.
+ */
+export function cinematographerAssessmentIsCurrent(
+  project: Project,
+  journey: JourneyShot,
+): boolean {
+  if (!journey.cinematographer) {
+    return false;
+  }
+  const pair = cinematographerPairMediaIds(project, journey);
+  if (!pair) {
+    return false;
+  }
+  const stampedStart = journey.cinematographerStartMediaId;
+  const stampedEnd = journey.cinematographerEndMediaId;
+  if (stampedStart && stampedEnd) {
+    return stampedStart === pair.startMediaId && stampedEnd === pair.endMediaId;
+  }
+  return hasCurrentMotionPlan(project, journey);
+}
+
 /** True when staged A′/B′ exist and were computed from this segment's current canonical pair. */
 export function hasCurrentMotionPlan(project: Project, journey: JourneyShot): boolean {
   if (!hasStagedMotionPlan(journey) || !journey.motionPlan || !journey.endDestinationId) {
@@ -273,15 +312,48 @@ export function projectWithCinematographerAssessment(
   project: Project,
   journeyId: string,
   assessment: CinematographerAssessment,
+  evaluatedPair?: { startCanonicalMediaId: string; endCanonicalMediaId: string },
 ): Project {
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  if (!journey) {
+    throw new Error("Unknown journey");
+  }
+  const pair = cinematographerPairMediaIds(project, journey);
+  const startCanonicalMediaId =
+    evaluatedPair?.startCanonicalMediaId ?? pair?.startMediaId ?? journey.cinematographerStartMediaId;
+  const endCanonicalMediaId =
+    evaluatedPair?.endCanonicalMediaId ?? pair?.endMediaId ?? journey.cinematographerEndMediaId;
+  return {
+    ...project,
+    journeys: project.journeys.map((item) =>
+      item.id === journeyId
+        ? {
+            ...item,
+            cinematographer: assessment,
+            ...(startCanonicalMediaId ? { cinematographerStartMediaId: startCanonicalMediaId } : {}),
+            ...(endCanonicalMediaId ? { cinematographerEndMediaId: endCanonicalMediaId } : {}),
+          }
+        : item,
+    ),
+  };
+}
+
+export function projectWithoutCinematographerAssessment(project: Project, journeyId: string): Project {
   if (!project.journeys.some((journey) => journey.id === journeyId)) {
     throw new Error("Unknown journey");
   }
   return {
     ...project,
-    journeys: project.journeys.map((journey) =>
-      journey.id === journeyId ? { ...journey, cinematographer: assessment } : journey,
-    ),
+    journeys: project.journeys.map((journey) => {
+      if (journey.id !== journeyId) {
+        return journey;
+      }
+      const next = { ...journey };
+      delete next.cinematographer;
+      delete next.cinematographerStartMediaId;
+      delete next.cinematographerEndMediaId;
+      return next;
+    }),
   };
 }
 

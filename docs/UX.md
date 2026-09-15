@@ -50,7 +50,8 @@ parallel because each is derived from the previous actual frame. Auto
 blocking is not a checkbox; Motion Planning runs automatically on
 actual adjacent pairs. Auto shoot is a Directed Option. In Agent,
 CREATE JOURNEY runs that whole loop unattended via JourneyAgent,
-including missing NEW TAKEs and movie assembly. Agent hides Options.
+including missing NEW TAKEs, experimental canonical repair, and movie
+assembly. Agent hides Options.
 LOOP (close on exact opening A) is backlog, not a current Agent
 control. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).

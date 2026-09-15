@@ -471,6 +471,50 @@ describe("Plan conversation thread", () => {
     expect(html).not.toContain("Constructing B");
     expect(html.indexOf("Constructed B")).toBeLessThan(html.indexOf("Destination construction failed."));
   });
+
+  it("renders Agent canonical reshoot cards separately from footage NEW TAKE", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        {
+          id: "r1",
+          createdAt: AT,
+          kind: "agent",
+          status: "repairing",
+          destinationIds: ["D"],
+          journeyId: "C-D",
+          recommendation: "RESHOOT_END",
+          instruction:
+            "The space beyond C contradicts the immediate environment established by D. Reshooting D to preserve the destination while creating a more continuous route.",
+          setConsistency: 25,
+          traversalConfidence: 45,
+        },
+        {
+          id: "r2",
+          createdAt: AT2,
+          kind: "agent",
+          status: "repaired",
+          destinationIds: ["D"],
+          journeyId: "C-D",
+          recommendation: "RESHOOT_END",
+          setConsistency: 25,
+          traversalConfidence: 45,
+          afterSetConsistency: 72,
+          afterTraversalConfidence: 68,
+        },
+      ],
+    });
+    expect(html).toContain("Reshoot · D");
+    expect(html).toContain("C→D needs a stronger spatial connection.");
+    expect(html).toContain("Set Consistency 25 · Traversal Confidence 45");
+    expect(html).toContain("RESHOOT END");
+    expect(html).toContain("Brief reason:");
+    expect(html).toContain("Reshoot complete · D");
+    expect(html).toContain("Set Consistency 25 → 72");
+    expect(html).toContain("Traversal Confidence 45 → 68");
+    expect(html).toContain("conversation-agent");
+    expect(html).not.toContain("creating C→D TAKE");
+  });
 });
 
 describe("Plan media preflight UI", () => {

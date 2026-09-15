@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { formatConversationClock, type ConversationEntry } from "../project/conversation";
 import type { DirectorEvidence } from "../project/director";
+import { humanRepairRecommendation } from "../project/journey-agent-repair";
 import { useProject } from "../project/ProjectProvider";
 import { ProgressSpinner } from "../ui/ProgressSpinner";
 import { PanelHeader } from "./PanelHeader";
@@ -256,6 +257,73 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
             Download
           </a>
         </div>
+      </article>
+    );
+  }
+  if (entry.kind === "agent") {
+    const letters = entry.destinationIds.join(" & ");
+    const segments = (entry.journeyIds ?? [entry.journeyId]).map((id) => id.replaceAll("-", "→"));
+    const segment = segments.join(" · ");
+    return (
+      <article className="conversation-agent">
+        <ConversationStamp role="Agent" createdAt={entry.createdAt} />
+        {entry.status === "evaluating" || entry.status === "reevaluating" ? (
+          <ConversationBusyStatus className="mt-3 text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            {entry.status === "reevaluating"
+              ? `Cinematographer reevaluation · ${segment}`
+              : `Cinematographer evaluation · ${segment}`}
+          </ConversationBusyStatus>
+        ) : null}
+        {entry.status === "evaluated" || entry.status === "reevaluated" ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+              {entry.status === "reevaluated"
+                ? `Cinematographer reevaluation · ${segment}`
+                : `Cinematographer evaluation · ${segment}`}
+            </p>
+            {entry.setConsistency != null && entry.traversalConfidence != null ? (
+              <p className="text-[13px] leading-relaxed text-[#cfc6b8]">
+                Set Consistency {entry.setConsistency} · Traversal Confidence {entry.traversalConfidence}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {entry.status === "repairing" ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-[13px] tracking-[0.14em] text-[#ece7df] uppercase">
+              Reshoot · {letters}
+            </p>
+            <p className="text-[13px] leading-relaxed text-[#cfc6b8]">
+              {segment} needs a stronger spatial connection.
+            </p>
+            <p className="text-[13px] leading-relaxed text-[#cfc6b8]">
+              Set Consistency {entry.setConsistency} · Traversal Confidence {entry.traversalConfidence}
+            </p>
+            {entry.recommendation ? (
+              <p className="text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+                {humanRepairRecommendation(entry.recommendation)}
+              </p>
+            ) : null}
+            {entry.instruction ? (
+              <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">
+                Brief reason: {entry.instruction}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {entry.status === "repaired" ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-[13px] tracking-[0.14em] text-[#ece7df] uppercase">
+              Reshoot complete · {letters}
+            </p>
+            <p className="text-[13px] leading-relaxed text-[#cfc6b8]">
+              Set Consistency {entry.setConsistency} → {entry.afterSetConsistency}
+            </p>
+            <p className="text-[13px] leading-relaxed text-[#cfc6b8]">
+              Traversal Confidence {entry.traversalConfidence} → {entry.afterTraversalConfidence}
+            </p>
+          </div>
+        ) : null}
       </article>
     );
   }

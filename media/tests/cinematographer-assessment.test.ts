@@ -66,6 +66,9 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.prompt, /Journey A-B/);
   assert.match(request.prompt, /night forest/);
   assert.match(request.systemInstruction, /next viewpoint along that same travel direction/i);
+  assert.match(request.systemInstruction, /repairRecommendation/);
+  assert.match(request.systemInstruction, /RESHOOT_END/);
+  assert.match(request.systemInstruction, /established START/);
   assert.match(request.systemInstruction, /not a reverse angle/i);
   assert.match(request.systemInstruction, /camera is unembodied/i);
   assert.match(request.systemInstruction, /People, animals, vehicles, objects, and other subjects in the stills are part of the world/);
@@ -396,4 +399,63 @@ test("Cinematographer.assessJourney uses ReasoningProvider only", async () => {
   assert.equal(result.assessment.pace, "fast");
   assert.ok(result.assessment.segmentPromptAddition.length > 0);
   assert.equal(result.predictionId, "pred-cm-1");
+});
+
+test("Cinematographer repairRecommendation is optional on older assessments", () => {
+  const assessment = parseCinematographerAssessment(validAssessmentJson());
+  assert.equal(assessment.repairRecommendation, undefined);
+  assert.equal(assessment.repairInstruction, undefined);
+});
+
+test("Cinematographer parses SHOOT and END repair recommendations, and still accepts START/BOTH", () => {
+  const shoot = parseCinematographerAssessment(
+    validAssessmentJson({ repairRecommendation: "SHOOT", repairInstruction: "" }),
+  );
+  assert.equal(shoot.repairRecommendation, "SHOOT");
+  assert.equal(shoot.repairInstruction, undefined);
+
+  const end = parseCinematographerAssessment(
+    validAssessmentJson({
+      repairRecommendation: "RESHOOT_END",
+      repairInstruction: "The end still contradicts the space established by the start.",
+    }),
+  );
+  assert.equal(end.repairRecommendation, "RESHOOT_END");
+  assert.match(end.repairInstruction ?? "", /contradicts the space/);
+
+  const start = parseCinematographerAssessment(
+    validAssessmentJson({
+      repairRecommendation: "RESHOOT_START",
+      repairInstruction: "Start does not establish a plausible route toward end.",
+    }),
+  );
+  assert.equal(start.repairRecommendation, "RESHOOT_START");
+
+  const both = parseCinematographerAssessment(
+    validAssessmentJson({
+      repairRecommendation: "RESHOOT_BOTH",
+      repairInstruction: "Neither endpoint can anchor a continuous traversal.",
+    }),
+  );
+  assert.equal(both.repairRecommendation, "RESHOOT_BOTH");
+});
+
+test("Cinematographer rejects an invalid repairRecommendation", () => {
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({ repairRecommendation: "RESTYLE", concerns: [] }),
+      ),
+    /repairRecommendation/,
+  );
+  assert.throws(
+    () =>
+      parseCinematographerAssessment(
+        validAssessmentJson({
+          repairRecommendation: "RESHOOT_END",
+          repairInstruction: "   ",
+        }),
+      ),
+    /repairInstruction/,
+  );
 });

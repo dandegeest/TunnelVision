@@ -164,6 +164,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
       request,
       resolvedSource,
       nanoBananaSettingsForModel(this.imageEditModel, this.nanoBanana),
+      await Promise.all((request.referenceImages ?? []).map((image) => resolveMediaInput(image))),
     );
     const result = await this.runFilePrediction(
       this.imageEditModel,

@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { constructDestinationImage, generateOpeningFrameImage } from "./destination-construct.ts";
-import { destinationConstructionPrompt, openingFrameGenerationPrompt } from "./src/project/destination.ts";
+import { canonicalRepairPrompt, destinationConstructionPrompt, openingFrameGenerationPrompt } from "./src/project/destination.ts";
 import {
   createRuntimeMediaRegistry,
   setActiveRuntimeMediaRegistry,
@@ -124,6 +124,54 @@ describe("destination construction server path", () => {
       }),
     );
     expect(prompt).toMatch(/iron gates/);
+  });
+
+  it("uses the canonical repair prompt and opposite still as an extra image input", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-repair-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    let edited: { prompt?: string; referenceCount?: number } = {};
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: start.mediaId,
+        beatId: "B",
+        intent: "Enter the next volume.",
+        visualDescription: "A continuing corridor.",
+        repairRole: "end",
+        repairInstruction: "The corridor beyond A does not connect to B.",
+        referenceMediaId: end.mediaId,
+      },
+      editImage: async (request) => {
+        edited = {
+          prompt: request.prompt,
+          referenceCount: request.referenceImages?.length ?? 0,
+        };
+        return {
+          provider: "replicate",
+          model: "google/nano-banana-2-lite",
+          modelVersion: "test",
+          predictionId: "pred-repair",
+          status: "succeeded",
+          outputUrl: "https://example.test/b-repair.png",
+          metadata: {},
+          startedAt: "2026-09-07T00:00:00.000Z",
+          completedAt: "2026-09-07T00:00:02.000Z",
+          elapsedMs: 2000,
+        };
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(edited.prompt).toBe(
+      canonicalRepairPrompt({
+        role: "end",
+        intent: "Enter the next volume.",
+        visualDescription: "A continuing corridor.",
+        instruction: "The corridor beyond A does not connect to B.",
+      }),
+    );
+    expect(edited.referenceCount).toBe(1);
   });
 
   it("resolves catalog A, not a Wardrobe filesystem path sent by the browser", async () => {

@@ -112,10 +112,12 @@ replacing a still asks whether to clear existing plan text so the next CREATE JO
 describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
 stand-in for Discovery. In AGENT mode, CREATE JOURNEY runs
 JourneyAgent (`web/src/project/journey-agent.ts`) on the same Project:
-establish A if needed, DIRECT, construct unresolved destinations,
-automatic Motion Plan, NEW TAKE for legs with no Take, then Export
-Movie assembly. Existing actual canonicals and selected Takes are
-preserved. A required failure stops the Agent and keeps partial work.
+establish A if needed, DIRECT, then generate each destination,
+CM-evaluate that inbound pair, repair the new END if experimental
+score gates trip (Agent-generated stills only, before footage),
+Motion Plan after the canonical pass, NEW TAKE for legs with no Take, then Export Movie assembly. Existing
+actual canonicals and selected Takes are preserved. A required
+failure stops the Agent and keeps partial work.
 Directed Options (generate all, shoot) remain Directed-only click
 automation, not Agent. LOOP (append exact opening A as the final
 canonical so the last segment is N→A) is backlog, not current

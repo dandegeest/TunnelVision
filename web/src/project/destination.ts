@@ -43,6 +43,11 @@ export type DestinationConstructionRequest = {
   imageModel: ImageModelId;
   imageOutputFormat: ImageOutputFormat;
   imageResolution?: ImageResolution;
+  /** Opposite / established START canonical for Agent spatial repair. Nano Banana includes it as extra image_input. */
+  referenceMediaId?: string;
+  /** CM spatial repair instruction. Directed construct leaves this unset. */
+  repairInstruction?: string;
+  repairRole?: "start" | "end";
 };
 
 export type DestinationConstructionResult = {
@@ -170,6 +175,42 @@ export function destinationConstructionPrompt(input: {
     "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically advance. Keeping the source composition and substituting new content is a failure.",
     "",
     ...(next ? [farFieldContinuity(next), ""] : []),
+    UNEMBODIED_FIRST_PERSON_POV,
+    WORLD_SUBJECTS_MAY_APPEAR,
+  ].join("\n");
+}
+
+/** Agent canonical repair. Preserve the destination beat; fix shootable space. */
+export function canonicalRepairPrompt(input: {
+  role: "start" | "end";
+  intent: string;
+  visualDescription: string;
+  instruction: string;
+}): string {
+  const intent = input.intent.trim();
+  const visualDescription = input.visualDescription.trim();
+  const instruction = input.instruction.trim();
+  if (!intent || !visualDescription || !instruction) {
+    throw new Error("Canonical repair requires intent, visual description, and a repair instruction");
+  }
+  const roleLine =
+    input.role === "start"
+      ? "Regenerate this START destination so it still depicts the same intended place, while establishing a plausible continuous route toward the opposite canonical."
+      : "Regenerate this END destination so it still depicts the same intended arrival, while creating a stronger continuously shootable route from the established START.";
+  const referenceLine =
+    "The established START still, when supplied, is a spatial/geographic reference for the route, not a style match.";
+  return [
+    roleLine,
+    "Preserve this destination's semantic intent and story beat.",
+    visualDescription,
+    "",
+    "Camera / spatial intent:",
+    intent,
+    "",
+    "The stills must belong to one continuously shootable physical space. Do not make the two images look alike. Do not replace this destination with the opposite place. Do not repair merely to improve aesthetics.",
+    `CM spatial repair: ${instruction}`,
+    referenceLine,
+    "",
     UNEMBODIED_FIRST_PERSON_POV,
     WORLD_SUBJECTS_MAY_APPEAR,
   ].join("\n");
@@ -488,6 +529,60 @@ export function destinationConstructionRequestFromProject(
   };
 }
 
+export function destinationRepairRequestFromProject(
+  project: Project,
+  beatId: string,
+  input: {
+    role: "start" | "end";
+    instruction: string;
+    referenceMediaId?: string;
+  },
+): DestinationConstructionRequest {
+  const beat = project.storyboard.find((frame) => frame.id === beatId);
+  if (!beat || beat.imageOrigin !== "generated" || !isTrustedMediaIdShape(beat.mediaId)) {
+    throw new Error("Destination is not ready to construct");
+  }
+  const plan =
+    destinationConstructionPlan(beat) ??
+    (beat.id === "A" && project.story.trim()
+      ? {
+          intent: openingFrameIntent(project.story) ?? project.story.trim(),
+          visualDescription: openingFrameGenerationPrompt(project.story),
+        }
+      : null);
+  if (!plan) {
+    throw new Error("Destination is not ready to construct");
+  }
+  if (!input.instruction.trim()) {
+    throw new Error("Canonical repair requires a repair instruction");
+  }
+  const previous = precedingActualFrame(project, beat);
+  const sourceMediaId = input.role === "end" && previous ? previous.mediaId : beat.mediaId;
+  if (!isTrustedMediaIdShape(sourceMediaId)) {
+    throw new Error("Starting frame has no trusted media identity");
+  }
+  const nextDestination = followingDestinationPlan(project, beat);
+  const aspectRatio = projectCanonicalAspectRatio(project);
+  const referenceMediaId =
+    input.referenceMediaId &&
+    input.referenceMediaId !== sourceMediaId &&
+    isTrustedMediaIdShape(input.referenceMediaId)
+      ? input.referenceMediaId
+      : undefined;
+  return {
+    sourceMediaId,
+    beatId: beat.id,
+    intent: plan.intent,
+    visualDescription: plan.visualDescription,
+    ...(nextDestination && input.role === "end" ? { nextDestination } : {}),
+    ...(aspectRatio ? { aspectRatio } : {}),
+    ...imageGenerationKnobsFromProject(project),
+    repairInstruction: input.instruction,
+    repairRole: input.role,
+    ...(referenceMediaId ? { referenceMediaId } : {}),
+  };
+}
+
 function imageGenerationKnobsFromProject(project: Project): {
   imageModel: ImageModelId;
   imageOutputFormat: ImageOutputFormat;
@@ -589,6 +684,17 @@ export function projectWithConstructedDestination(
         : frame,
     ),
   });
+}
+
+/** Apply an Agent canonical repair. Opening A uses the generated-opening write path. */
+export function projectWithRepairedCanonical(
+  project: Project,
+  next: DestinationConstructionResult & { beatId: string; mediaInfo?: StoryboardMediaInfo },
+): Project {
+  if (next.beatId === "A") {
+    return projectWithGeneratedOpeningFrame(project, next);
+  }
+  return projectWithConstructedDestination(project, next);
 }
 
 export async function requestConstructDestination(

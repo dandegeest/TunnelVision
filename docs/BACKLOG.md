@@ -455,7 +455,9 @@ Related, do not duplicate:
 
 ### Agent CM repair / reshoot loop
 
-**Status:** BACKLOG
+**Status:** EXPERIMENTAL PASS — implemented in JourneyAgent. Thresholds
+are intentionally aggressive so the loop can be proven; they are not
+permanent filmmaking policy.
 
 **Goal.** Let AGENT recover when the Cinematographer finds an
 actual adjacent pair difficult or impossible to shoot continuously,
@@ -596,12 +598,35 @@ Agent loop:
 -   `media/src/cinematographer/assess-journey.ts` parser/schema
 -   `media/src/cinematographer/assessment-prompts.ts`
 -   `web/src/project/types.ts` `CinematographerAssessment`
--   Agent runner (not Directed auto-block)
--   `destinationConstructionRequestFromProject` /
-    `reshootDestination` / opening generation, extended to accept
-    the opposite actual still as an image reference
+-   `web/src/project/journey-agent.ts` / `journey-agent-repair.ts`
+-   `destinationRepairRequestFromProject` / Nano Banana extra
+    `image_input` reference stills
 -   Existing Motion Plan invalidation when canonical media identity
     changes (`motionPlanAutoKey`, `hasCurrentMotionPlan`)
+
+**Experimental Pass 2 (current).** JourneyAgent constructs the journey
+**one canonical at a time.** After each new END is generated, CM
+evaluates that inbound pair. Either **Set Consistency < 60** or
+**Traversal Confidence < 30** triggers repair of that new END only.
+The established START is never rewritten. CM supplies a concise
+spatial instruction for regenerating END from the established START.
+Max **2** attempts per END; after the budget, Agent accepts the
+current still and continues if technically shootable. Only
+Agent-generated canonicals with no dependent Takes may be
+overwritten. Filmmaker-supplied or Take-dependent canonicals fail
+through existing Agent FAILED/activity. Agent conversation cards
+show RESHOOT vs RESHOOT COMPLETE with before/after scores.
+Thresholds live in `JOURNEY_AGENT_REPAIR_THRESHOLDS`. Canonical
+revisioning, Footage Evaluator, and automatic footage retakes remain
+backlog.
+
+Sequence: generate B → CM A→B → repair B if needed → accept B →
+generate C from the **final** B → CM B→C → repair C if needed →
+advance. Camotion / NEW TAKE / assembly run only after the sequential
+canonical pass. CM results are stamped to the exact start/end media
+IDs; a result is discarded if either canonical changed while the
+evaluation was in flight. Automatic Directed Motion Planning does
+not run while JourneyAgent is busy.
 
 **Open questions.**
 

@@ -74,6 +74,14 @@ shootability (advisory actionable summary; keep it consistent with setConsistenc
 - needs_review: a plausible relationship, but an ambiguous route, weak threshold, difficult geometry, or a score disagreement a filmmaker should inspect
 - not_shootable: no credible forward physical route in the stills, or a major spatial discontinuity. Still produce choreography. Do not mark not_shootable merely because continuing forward through a start-frame opening would, under a reverse-angle reading, place the camera at the far end of the destination looking back.
 
+Also choose a canonical repairRecommendation. The START still is already established and will not be rewritten. This is diagnosis of the actual pair, not aesthetics and not a prediction of video-model success.
+- SHOOT: the pair already belongs to a continuously shootable physical space
+- RESHOOT_END: regenerate the END still so it remains the same intended destination/story beat while creating a stronger continuously shootable route from the established START. Use the start still as the spatial reference. Do not make the images merely resemble each other.
+
+Do not recommend rewriting START. If the pair is not yet a continuously shootable physical space, the repair is always the new END.
+
+When the recommendation is not SHOOT, repairInstruction is a concise spatial instruction for regenerating END: what geometric/spatial problem to correct so a continuous route exists from the established START (missing route toward the end, end contradicts the start's visible space, doorway/path/terrain does not connect). Preserve END's semantic/story intent. One or two sentences. Not CameraMotionPlan. Not a style brief.
+
 Return ONLY one JSON object. No markdown fences. No commentary.
 
 Use this shape:
@@ -91,6 +99,8 @@ Use this shape:
   "segmentPromptAddition": "<concise natural-language instruction naming THIS SHOT's visible route and, when relevant, subject persistence; it precedes the frozen locomotion baseline>",
   "pace": "fast",
   "concerns": ["<concrete spatial or shooting concern>"],
+  "repairRecommendation": "SHOOT",
+  "repairInstruction": "<omit or empty when SHOOT; otherwise a concise spatial repair instruction>",
   "travel": {
     "start": {
       "vanishingPoint": [0.58, 0.44],
@@ -137,6 +147,8 @@ Rules:
 - pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable
 - concerns must be an array of strings; use [] when there are no concerns
 - travel.start and travel.end should be included when a target is visible
+- repairRecommendation must be SHOOT or RESHOOT_END
+- repairInstruction is required when repairRecommendation is not SHOOT; omit or empty when SHOOT
 - do not add provider, model, CameraMotionPlan, or image-path fields
 `;
 
@@ -166,6 +178,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Score setConsistency and traversalConfidence independently as integers from 0 to 100.",
     "Set consistency is whether these stills belong to the same continuous physical world and route.",
     "Traversal confidence is whether the camera can physically travel from start to end in continuous first-person motion.",
+    "Choose repairRecommendation. START is established and must not be rewritten. If the pair needs repair, recommend RESHOOT_END with a concise instruction for regenerating the END from the established START. Do not repair for aesthetics. Do not make the images merely resemble each other.",
     "Report travel geometry for each still when a target is visible. Do not default to image center unless that is actually where travel goes.",
     "Do not predict whether a video model will succeed.",
     "",

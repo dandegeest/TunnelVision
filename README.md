@@ -42,7 +42,7 @@ The current product loop is:
 
 `SPECIFY → DIRECT → CONSTRUCT → SHOOT`
 
-AGENT first pass: CREATE JOURNEY in Agent mode runs JourneyAgent over that same pipeline (no CM repair loop yet). The earlier research loop remains:
+AGENT first pass: CREATE JOURNEY in Agent mode runs JourneyAgent over that same pipeline, including experimental sequential canonical construction (generate → CM → repair the new END → establish → advance) before Motion Plan and NEW TAKE. The earlier research loop remains:
 
 `OBSERVE → PROPOSE → GENERATE → EVALUATE → SELECT → MOVE`
 

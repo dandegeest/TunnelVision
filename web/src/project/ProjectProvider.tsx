@@ -14,10 +14,13 @@ import { directorStoryRequestFromProject, requestDirectorPlan, requestDirectorSt
 import {
   cinematographerRequestFromProject,
   canAssessJourney,
+  cinematographerAssessmentIsCurrent,
+  cinematographerPairMediaIds,
   hasCurrentMotionPlan,
   journeyMotionPlanInputKey,
   journeysReadyToBlock,
   motionPlanAutoKey,
+  projectWithCinematographerAssessment,
   projectWithMotionPlanError,
   requestCinematographerAssessment,
 } from "./cinematographer";
@@ -45,8 +48,10 @@ import {
   requestConstructDestination,
   projectWithConstructedDestination,
   destinationConstructionRequestFromProject,
+  destinationRepairRequestFromProject,
   openingFrameGenerationRequestFromProject,
   projectWithGeneratedOpeningFrame,
+  projectWithRepairedCanonical,
   projectWithImageModel,
   projectWithImageOutputFormat,
   projectWithImageResolution,
@@ -57,8 +62,10 @@ import {
 } from "./destination";
 import {
   appendConversationEntry,
+  agentConversationEntryFromEvent,
   conversationTimestamp,
   prepareDirectorPlan,
+  resolveAgentEvaluationEntry,
   resolveBlockingEntry,
   resolveConstructionEntry,
   resolveDirectorEntry,
@@ -232,6 +239,7 @@ export function ProjectProvider({
     () => initialConversation ?? [],
   );
   const conversationId = useRef(0);
+  const agentConversationCursor = useRef(0);
 
   const nextConversationId = useCallback((prefix: string) => {
     conversationId.current += 1;
@@ -469,6 +477,32 @@ export function ProjectProvider({
     [constructDestinationOn],
   );
 
+  const repairCanonicalOn = useCallback(
+    async (
+      current: Project,
+      beatId: string,
+      input: {
+        role: "start" | "end";
+        instruction: string;
+        referenceMediaId?: string;
+      },
+    ): Promise<Project> => {
+      const request = destinationRepairRequestFromProject(current, beatId, input);
+      const result = await requestConstructDestination(request);
+      const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
+      const next = projectWithRepairedCanonical(current, {
+        beatId: request.beatId,
+        mediaId: result.mediaId,
+        imageUrl: result.imageUrl,
+        ...(mediaInfo ? { mediaInfo } : {}),
+      });
+      applyProject(next);
+      setSelection({ kind: "storyboard", frameId: beatId });
+      return next;
+    },
+    [applyProject],
+  );
+
   const generateOpeningOn = useCallback(
     async (current: Project): Promise<Project> => {
       const entryId = nextConversationId("construction");
@@ -554,6 +588,39 @@ export function ProjectProvider({
     [constructDestinationOn, generateOpeningOn],
   );
 
+  const assessCinematographerOn = useCallback(
+    async (current: Project, journeyId: string): Promise<Project> => {
+      const journey = current.journeys.find((item) => item.id === journeyId);
+      if (!journey || !canAssessJourney(current, journey) || cinematographerAssessmentIsCurrent(current, journey)) {
+        return current;
+      }
+      setAssessingJourneyIds((ids) => withId(ids, journeyId));
+      try {
+        const request = cinematographerRequestFromProject(current, journeyId);
+        const result = await requestCinematographerAssessment(request);
+        const latest = projectRef.current;
+        const latestJourney = latest.journeys.find((item) => item.id === journeyId);
+        const latestPair = latestJourney ? cinematographerPairMediaIds(latest, latestJourney) : undefined;
+        if (
+          !latestPair ||
+          latestPair.startMediaId !== request.startMediaId ||
+          latestPair.endMediaId !== request.endMediaId
+        ) {
+          return latest;
+        }
+        const next = projectWithCinematographerAssessment(latest, journeyId, result.assessment, {
+          startCanonicalMediaId: request.startMediaId,
+          endCanonicalMediaId: request.endMediaId,
+        });
+        applyProject(next);
+        return next;
+      } finally {
+        setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
+      }
+    },
+    [applyProject],
+  );
+
   const assessJourneyOn = useCallback(
     async (current: Project, journeyId: string): Promise<Project> => {
       const journey = current.journeys.find((item) => item.id === journeyId);
@@ -586,13 +653,18 @@ export function ProjectProvider({
       );
       try {
         const request = cinematographerRequestFromProject(current, journeyId);
-        const result = await requestCinematographerAssessment(request);
+        const reuseAssessment =
+          cinematographerAssessmentIsCurrent(current, journey) && journey.cinematographer
+            ? journey.cinematographer
+            : undefined;
+        const assessment =
+          reuseAssessment ?? (await requestCinematographerAssessment(request)).assessment;
         const staged = await requestMotionPlan(
           motionPlanStageRequestFromAssessment(
             journeyId,
             request.startMediaId,
             request.endMediaId,
-            result.assessment,
+            assessment,
             debugOnRef.current,
           ),
         );
@@ -611,13 +683,13 @@ export function ProjectProvider({
           setConversation((entries) =>
             resolveBlockingEntry(entries, entryId, {
               status: "blocked",
-              assessment: result.assessment,
+              assessment,
             }),
           );
           return latest;
         }
         const next = projectWithMotionPlan(latest, journeyId, {
-          cinematographer: result.assessment,
+          cinematographer: assessment,
           startCanonicalMediaId: request.startMediaId,
           endCanonicalMediaId: request.endMediaId,
           startShootingFrame: staged.startShootingFrame,
@@ -633,7 +705,7 @@ export function ProjectProvider({
         setConversation((entries) =>
           resolveBlockingEntry(entries, entryId, {
             status: "blocked",
-            assessment: result.assessment,
+            assessment,
           }),
         );
         return next;
@@ -737,11 +809,14 @@ export function ProjectProvider({
 
   const autoMotionKey = useMemo(() => motionPlanAutoKey(project), [project]);
   useEffect(() => {
+    if (journeyAgentIsBusy(journeyAgent)) {
+      return;
+    }
     const current = projectRef.current;
     for (const journey of journeysReadyToBlock(current)) {
       void assessJourney(journey.id);
     }
-  }, [assessJourney, autoMotionKey]);
+  }, [assessJourney, autoMotionKey, journeyAgent]);
 
   const shootJourney = useCallback(
     async (journeyId: string) => {
@@ -840,6 +915,7 @@ export function ProjectProvider({
   );
 
   const runAutonomousJourney = useCallback(async () => {
+    agentConversationCursor.current = 0;
     const result = await runJourneyAgent(
       projectRef.current,
       {
@@ -847,6 +923,8 @@ export function ProjectProvider({
         writeStoryFromOpening: writeStoryFromOpeningOn,
         planJourney: planDirectorOn,
         constructDestination: constructDestinationOn,
+        assessCinematographer: assessCinematographerOn,
+        repairCanonical: repairCanonicalOn,
         planMotion: assessJourneyOn,
         createTake: shootJourneyOn,
         assembleMovie: async (current) => {
@@ -876,17 +954,60 @@ export function ProjectProvider({
           }
         },
       },
-      setJourneyAgent,
+      (snapshot) => {
+        setJourneyAgent(snapshot);
+        const fresh = snapshot.events.slice(agentConversationCursor.current);
+        agentConversationCursor.current = snapshot.events.length;
+        if (fresh.length === 0) {
+          return;
+        }
+        setConversation((entries) =>
+          fresh.reduce((current, event) => {
+            if (
+              event.kind === "cinematographer-evaluated" ||
+              event.kind === "cinematographer-reevaluated"
+            ) {
+              const journeyId = event.journeyId ?? event.journeyIds?.[0];
+              if (!journeyId) {
+                return current;
+              }
+              return resolveAgentEvaluationEntry(current, journeyId, {
+                status: event.kind === "cinematographer-reevaluated" ? "reevaluated" : "evaluated",
+                ...(event.setConsistency != null ? { setConsistency: event.setConsistency } : {}),
+                ...(event.traversalConfidence != null
+                  ? { traversalConfidence: event.traversalConfidence }
+                  : {}),
+              });
+            }
+            if (
+              event.kind !== "canonical-repair" &&
+              event.kind !== "canonical-repair-complete" &&
+              event.kind !== "cinematographer-evaluation" &&
+              event.kind !== "cinematographer-reevaluation"
+            ) {
+              return current;
+            }
+            const entry = agentConversationEntryFromEvent(
+              nextConversationId("agent"),
+              conversationTimestamp(),
+              event,
+            );
+            return entry ? appendConversationEntry(current, entry) : current;
+          }, entries),
+        );
+      },
     );
     if (result.snapshot.phase !== "FAILED") {
       setJourneyAgent(result.snapshot);
     }
   }, [
+    assessCinematographerOn,
     assessJourneyOn,
     constructDestinationOn,
     generateOpeningOn,
     nextConversationId,
     planDirectorOn,
+    repairCanonicalOn,
     shootJourneyOn,
     writeStoryFromOpeningOn,
   ]);

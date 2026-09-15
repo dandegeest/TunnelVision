@@ -129,6 +129,8 @@ export function projectWithMotionPlan(
         ? {
             ...item,
             cinematographer: stamped.cinematographer,
+            cinematographerStartMediaId: stamped.startCanonicalMediaId,
+            cinematographerEndMediaId: stamped.endCanonicalMediaId,
             motionPlan: stamped,
             status: item.status === "shooting" ? "shooting" : "ready",
             durationSeconds,

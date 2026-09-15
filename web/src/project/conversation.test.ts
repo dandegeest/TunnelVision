@@ -11,6 +11,8 @@ import {
   resolveDirectorEntry,
   resolveBlockingEntry,
   resolveShootingEntry,
+  agentConversationEntryFromEvent,
+  resolveAgentEvaluationEntry,
   type ConversationEntry,
   type DirectorConversationEntry,
 } from "./conversation";
@@ -342,6 +344,77 @@ describe("Plan conversation history", () => {
       kind: "shooting",
       status: "failed",
       error: "Shoot failed",
+    });
+  });
+
+  it("maps Agent canonical repair events into conversation cards", () => {
+    const repairing = agentConversationEntryFromEvent("agent-1", AT, {
+      phase: "REPAIRING_CANONICALS",
+      activity: "RESHOOT · D",
+      kind: "canonical-repair",
+      destinationIds: ["D"],
+      journeyId: "C-D",
+      recommendation: "RESHOOT_END",
+      instruction: "The space beyond C contradicts the immediate environment established by D.",
+      setConsistency: 25,
+      traversalConfidence: 45,
+    });
+    expect(repairing).toMatchObject({
+      kind: "agent",
+      status: "repairing",
+      destinationIds: ["D"],
+      journeyId: "C-D",
+      recommendation: "RESHOOT_END",
+      setConsistency: 25,
+      traversalConfidence: 45,
+    });
+    const repaired = agentConversationEntryFromEvent("agent-2", AT2, {
+      phase: "REPAIRING_CANONICALS",
+      activity: "RESHOOT COMPLETE · D Set Consistency 25 → 72 Traversal Confidence 45 → 68",
+      kind: "canonical-repair-complete",
+      destinationIds: ["D"],
+      journeyId: "C-D",
+      recommendation: "RESHOOT_END",
+      setConsistency: 25,
+      traversalConfidence: 45,
+      afterSetConsistency: 72,
+      afterTraversalConfidence: 68,
+    });
+    expect(repaired).toMatchObject({
+      kind: "agent",
+      status: "repaired",
+      afterSetConsistency: 72,
+      afterTraversalConfidence: 68,
+    });
+    expect(
+      agentConversationEntryFromEvent("agent-3", AT, {
+        phase: "SHOOTING",
+        activity: "creating C→D TAKE 1",
+        journeyId: "C-D",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("settles Agent cinematographer evaluation cards so they stop spinning", () => {
+    const evaluating = agentConversationEntryFromEvent("agent-eval", AT, {
+      phase: "PLANNING_MOTION",
+      activity: "evaluating A→B",
+      kind: "cinematographer-evaluation",
+      journeyId: "A-B",
+      journeyIds: ["A-B"],
+    });
+    expect(evaluating?.status).toBe("evaluating");
+    const settled = resolveAgentEvaluationEntry(evaluating ? [evaluating] : [], "A-B", {
+      status: "evaluated",
+      setConsistency: 90,
+      traversalConfidence: 80,
+    });
+    expect(settled[0]).toMatchObject({
+      kind: "agent",
+      status: "evaluated",
+      journeyId: "A-B",
+      setConsistency: 90,
+      traversalConfidence: 80,
     });
   });
 });

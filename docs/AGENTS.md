@@ -117,9 +117,13 @@ each staged leg, including those with CM hold or no-go warnings.
 AGENT CREATE JOURNEY is not those Directed Options. It runs
 JourneyAgent, which reuses the same opening / Director / construct /
 Motion Plan / NEW TAKE / Export Movie operations and always executes
-the unattended loop. It does not regenerate actual canonicals or
-replace existing selected Takes. Repair / reshoot remains backlog.
-LOOP (close on the exact opening A asset so N→A is a normal
+the unattended loop. After each constructed destination, it inspects
+that inbound pair's CM scores and may enter `REPAIRING_CANONICALS`
+for the new Agent-generated END (experimental Set < 60 or Traversal
+< 30). The established START is not rewritten. It does not overwrite
+filmmaker-supplied canonicals or stills with dependent Takes. The
+next destination is generated from the **accepted** previous
+canonical. LOOP (close on the exact opening A asset so N→A is a normal
 segment) is also backlog; do not infer it from the Journey Prompt
 and do not implement it in the current happy path. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).

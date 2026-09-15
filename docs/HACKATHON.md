@@ -182,12 +182,12 @@ genesis/      Research site (not the hackathon app)
 | Directed auto-shoot | **Exists** as Option `autoShoot` (default **off**). Shoots including CM hold / no-go. |
 | Export Movie concat | **Exists.** Deterministic ffmpeg concat of rendered takes. |
 | Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Options. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
-| `JourneyAgent` orchestrator | **Exists (first happy path).** Shared module: establish A, DIRECT, construct unresolved destinations, automatic Motion Plan, NEW TAKE if missing, Export Movie. No CM repair loop yet. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
+| `JourneyAgent` orchestrator | **Exists (happy path + experimental sequential canonical repair).** Shared module: establish A, DIRECT, then GENERATE → CM → REPAIR END → ESTABLISH → ADVANCE per destination, then Motion Plan, NEW TAKE if missing, Export Movie. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
 | LOOP (close on exact canonical A) | **Does not exist.** BACKLOG. Explicit Agent/project option; not inferred from the Journey Prompt. Reuse opening A’s media as the final destination so N→A is a normal CM / Camotion / Take. Not event-day. See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option). |
 | Parallel segment filming | **Does not exist.** BACKLOG. JourneyAgent NEW TAKE is serial and correct. Later: submit all ready Takes concurrently; Runway THROTTLED/PENDING is wait, not fail; other adapters may bound locally. JourneyAgent must not assume a universal 2/3 cap. Concat stays canonical order. After repair / evaluation; not event-day. See [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming). |
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
-| CM `SHOOT` / `RESHOOT_START` / `RESHOOT_END` / `RESHOOT_BOTH` | **Does not exist.** Today: `shootability` = `shootable` \| `needs_review` \| `not_shootable`, plus `traversalConfidence` 0–100. Pre-hackathon JourneyAgent work if repair is required; not event-day scope. |
-| Opposite-canonical visual reference on repair | **Does not exist.** Construct uses the *preceding* still; look-ahead is *following* intent text only. Same: pre-hackathon JourneyAgent, not hackathon-day. |
+| CM `SHOOT` / `RESHOOT_END` | **Exists (experimental).** CM assessment JSON returns a repair recommendation plus `repairInstruction` for the new END. JourneyAgent uses experimental score gates (Set < 60 or Traversal < 30), reshoots only that END (max 2), then continues. Established START is not rewritten. Dial-back of thresholds is still open. Not event-day work. |
+| Opposite-canonical visual reference on repair | **Exists (experimental).** Agent END repair uses the established START still as the image/spatial source (and extra Nano Banana `image_input` when that still is not already the source). Flux ignores extra refs. Not event-day. |
 | Footage Evaluator | **Does not exist** as product. Experimental Shot Evaluator is isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. If a product evaluator exists by event day, JourneyAgent should already use it. |
 | Movie-evaluation preprocessor | **Does not exist** as product. |
 | Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
@@ -421,13 +421,13 @@ Conceptual pipeline:
 ``` text
 JOURNEY
   → DIRECTOR
-  → CANONICAL GENERATION
-  → CM
+  → GENERATE NEXT CANONICAL
+  → CM EVALUATE INBOUND PAIR
+  → REPAIR END IF NECESSARY
+  → ESTABLISH / ADVANCE
+  → (repeat until the journey is complete)
   → CAMOTION
   → VIDEO GENERATION
-  → FOOTAGE EVALUATION / RETRY WHEN AVAILABLE
-  → REPAIR / RESHOOT IF NECESSARY
-  → NEXT SEGMENT
   → ASSEMBLY
   → COMPLETE
 ```
@@ -569,49 +569,29 @@ Desired conceptual outcomes (from [BACKLOG.md — Agent CM repair](BACKLOG.md#ag
 | Recommendation | Meaning |
 | --- | --- |
 | `SHOOT` | Pair is acceptable; proceed. |
-| `RESHOOT_START` | Regenerate only start. Use END as visual reference. |
-| `RESHOOT_END` | Regenerate only end. Use START as visual reference. |
-| `RESHOOT_BOTH` | Last resort; coordinated pair. |
+| `RESHOOT_END` | Regenerate only the new END. Use the established START as spatial reference. |
 
-**These fields are not on `CinematographerAssessment` today.**
+JourneyAgent sequential construction never rewrites an established START. `RESHOOT_START` / `RESHOOT_BOTH` may still parse from CM JSON, but Agent repair always targets the new END.
 
-Pre-hackathon JourneyAgent policy if they are still missing:
+Current JourneyAgent policy:
 
-1.  Do **not** invent a second CM LLM call or a parallel schema.
-2.  Use existing advisory evidence:
-    -   `shootability`
-    -   `traversalConfidence` (0–100)
-    -   `concerns` / `summary`
-3.  Default: **shoot anyway** after at most one construct retry on
-    hard provider failure.
-4.  If a demonstrated unshootable pair requires it, extend the
-    existing assessment JSON (same turn) with a recommendation
-    enum. That is the [BACKLOG](BACKLOG.md) path. Do this in
-    pre-hackathon AGENT-mode work, not during the 5–6 hour event.
-
-If recommendation fields **are** present by event day, follow
-BACKLOG:
-
--   Fix the set before blaming the video model.
--   Smallest repair only.
--   Pass the opposite actual still as an image reference when
-    regenerating one endpoint.
+-   Generate the next END from the accepted previous canonical.
+-   CM-evaluate that inbound pair in the same assessment turn.
+-   If experimental gates trip, reshoot only that END (max 2) using
+    the established START as spatial reference.
 -   Preserve Director intent for that letter.
 -   **Never silently overwrite a filmmaker-supplied actual**
-    (`imageOrigin: "user"`). Flag it in conversation instead.
+    (`imageOrigin: "user"`). Fail through existing Agent activity.
 -   After a generated canonical changes, existing Motion Plan
-    invalidation (`motionPlanAutoKey`, `hasCurrentMotionPlan`)
-    already recomputes affected legs. Do not recompute unrelated
-    segments.
--   Opening A cannot be deleted; generated A may be repaired;
-    uploaded A is Replace-only.
+    invalidation already recomputes affected legs.
+-   Opening A is established START and is not autonomously rewritten.
 
 Distinguish canonical repair (missing geography in the stills) from
 prompt repair (route is visible; `segmentPromptAddition` needs to
 name it). Do not solve missing geography with a longer video prompt.
 
-Retry budget: **1–2** repairs, then shoot or mark the leg and
-continue. Do not loop forever.
+Retry budget: **1–2** repairs of the new END, then accept it and
+continue if technically shootable. Do not loop forever.
 
 ---
 
