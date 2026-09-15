@@ -45,30 +45,64 @@ Items below are **BACKLOG** unless a later edit changes the status.
 
 ---
 
+## Pre-hackathon focus
+
+The core filmmaking Agent is proven. Freeze that pipeline. Next
+workstation work, in order:
+
+1.  Timeline / Takes UX polish
+2.  Project persistence / shared Project format (workstation and
+    hackathon Agent UI)
+3.  Basic robustness and regression testing
+4.  Fresh-machine / config / secrets readiness
+5.  Freeze the core filmmaking pipeline before the event
+
+Hackathon-day work remains Runway Model Router integration and
+the simplified Agent/chat presentation surface. See
+[HACKATHON.md](HACKATHON.md).
+
+Do **not** spend pre-hackathon time inventing a Footage Evaluator,
+Agent take-selection, Draft/Final project modes, or a second
+movie representation.
+
+---
+
 ## 1. Hackathon / Agent priorities
 
 ### Agent mode
 
-**Status:** First happy-path pass is in product. Repair / reshoot /
-Footage Evaluator / Agent take selection / LOOP / concurrent filming
-remain BACKLOG.
+**Status:** Happy path, sequential canonical construction, Traversal
+Confidence repair, overlapping NEW TAKE, and assembly are in
+product. LOOP, provider-aware concurrent filming, and durable
+persistence remain BACKLOG. Footage Evaluator / Agent take
+selection are **retired explorations**, not planned Agent stages.
 
 **Goal.** Implement fully autonomous journey execution. AGENT
 executes the journey. It does not merely press the existing
 Directed UI buttons in sequence.
 
-**Shipped (first pass).** CREATE JOURNEY in AGENT mode runs
+**Shipped.** CREATE JOURNEY in AGENT mode runs
 `web/src/project/journey-agent.ts` on the same `Project` as
-Directed. It reuses opening generation, Director, sequential
-construct, automatic Motion Plan / CM / Camotion, NEW TAKE for
-legs with no Take, and Export Movie assembly. Failures stop the
-Agent (`FAILED`), keep partial work, and record a reason. It does
-**not** yet repair canonicals, retry, or pick alternate Takes.
+Directed. Proven pipeline:
+
+Director
+→ sequential canonical construction
+→ CM evaluation of each inbound pair
+→ bounded canonical repair when Traversal Confidence is below 30
+→ Camotion
+→ asynchronous NEW TAKE as established segments become available
+→ selected Takes
+→ assembly / export
+
+The Agent does **not** judge artistic footage quality or replace
+Takes. The filmmaker remains the authority over footage quality
+and final Take selection. Failures stop the Agent (`FAILED`), keep
+partial work, and record a reason.
 
 **Why it matters.** Directed mode is a filmmaker-in-the-loop
-workspace. AGENT is the unattended movie: prompt in, finished
-journey out. This is the hackathon product and the long-term
-autonomous loop.
+workspace. AGENT is the unattended first cut: prompt in, assembled
+journey out. Quality iteration is NEW TAKE, not a second Agent
+stage or a Draft/Final project mode.
 
 **Intended behavior / design.** Target loop:
 
@@ -78,22 +112,24 @@ autonomous loop.
 4.  Generate the next canonical (currently DERIVE from the
     preceding actual still plus Director plan).
 5.  Cinematographer evaluates the actual adjacent pair (HOW it can
-    be shot).
-6.  Deterministic bridge writes CameraMotionPlan; Camotion
+    be shot). Set Consistency is a diagnostic; Traversal Confidence
+    is the filmability gate.
+6.  If Traversal Confidence is below 30, repair only the new END
+    (max 2). Low Set Consistency alone does not trigger repair.
+    Surreal thresholds (door, arch, tunnel, cave, airlock, portal,
+    darkness) and actionable obstacles (a closed door that can
+    open in the shot) can keep Traversal Confidence high.
+7.  Deterministic bridge writes CameraMotionPlan; Camotion
     conditions A′/B′.
-7.  Repair / reshoot when CM (and later Director critique) requires
-    it, including regenerating a weak canonical while using the
-    opposite endpoint as a visual reference. See
-    [Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
-    and [Revise vs reshoot](#revise-vs-reshoot).
-8.  Generate traversal footage from both conditioned frames plus
-    the composed shooting prompt.
+8.  Launch NEW TAKE as soon as the inbound pair is established.
+    Canonical work continues sequentially; footage may overlap.
 9.  Advance through remaining canonicals.
-10. Assemble / export the finished journey. See
-    [Final journey export](#final-journey-export).
+10. Await in-flight Takes. Assemble selected Takes in storyboard
+    order. See [Final journey export](#final-journey-export).
 
 Preserve the existing architecture. Do not invent a second
-cinematic stack.
+cinematic stack. There is no separate Final movie state. The
+currently selected Take on each segment **is** the cut.
 
 | Role | Decision |
 | --- | --- |
@@ -102,20 +138,21 @@ cinematic stack.
 | Camotion | Deterministic execution of CameraMotionPlan. No LLM. |
 | Video provider | Traversal footage. Adapter-mapped start/end frames. |
 | Canonicals | Authoritative journey state. Never silently replaced. |
+| Filmmaker | Footage quality and which Take is the cut. |
 
 The first Agent pass has **no additional user-facing options**
 beyond agency. Agency (Directed vs Agent) already exists as an
 orthogonal control-mode toggle. **LOOP** is accepted later work:
 an explicit project/Agent option, not inferred from the Journey
 Prompt, and not part of the current happy path. See
-[Agent LOOP option](#agent-loop-option). AGENT should not grow a
-settings panel, repair-policy UI, or DERIVE/DISCOVER control until
-those strategies exist as real behavior.
+[Agent LOOP option](#agent-loop-option).
 
 Directed Options (generate all, auto-block,
 auto-shoot) are **not** AGENT. They automate filmmaker clicks
-inside Directed. AGENT owns the loop, including when to repair,
-when to continue, and when to export.
+inside Directed. AGENT owns the unattended construct / CM / repair /
+NEW TAKE / export loop. The filmmaker still selects Takes. AGENT
+does not grow a settings panel, repair-policy UI, or DERIVE/DISCOVER
+control until those strategies exist as real behavior.
 
 **Constraints / invariants.**
 
@@ -618,8 +655,8 @@ overwritten. Filmmaker-supplied or Take-dependent canonicals fail
 through existing Agent FAILED/activity. Agent conversation cards
 show RESHOOT vs RESHOOT COMPLETE with before/after scores.
 Thresholds live in `JOURNEY_AGENT_REPAIR_THRESHOLDS`. Canonical
-revisioning, Footage Evaluator, and automatic footage retakes remain
-backlog.
+revisioning remain BACKLOG. Footage Evaluator and automatic footage
+retakes are retired explorations, not planned Agent stages.
 
 Sequence: generate B → CM A→B → repair B if needed → accept B →
 generate C from the **final** B → CM B→C → repair C if needed →
@@ -653,15 +690,17 @@ Related, do not duplicate:
 
 ### Agent cinematic-quality critique
 
-**Status:** BACKLOG
+**Status:** DEFERRED — canonical / journey-intent critique only.
+Not a Footage Evaluator. Not Agent take selection.
 
 **Goal.** Add Director/Agent-level evaluation of whether generated
-canonicals make a good movie, separate from CM shootability.
+**canonicals** make a good movie, separate from CM shootability.
 
 **Why it matters.** A still can be beautiful and fully shootable
 and still fail the movie: no escalation, no payoff, two beats that
 look like the same place, or a finale that ignores the journey
-prompt. CM cannot be the only critic.
+prompt. CM cannot be the only critic of *destinations*. The
+filmmaker remains the critic of *generated footage*.
 
 **Intended behavior / design.**
 
@@ -669,8 +708,16 @@ Two questions stay distinct:
 
 | Role | Question |
 | --- | --- |
-| Cinematographer | Can I physically shoot this pair? |
-| Director / Agent critique | Is this the shot / movie we want? |
+| Cinematographer | Can this canonical pair be filmed as one continuous shot? |
+| Director / Agent critique | Do these canonicals serve the movie we want? |
+| Filmmaker | Is the generated Take artistically good? Which Take is the cut? |
+
+This item is the middle row only. Do **not** turn it into automatic
+clip judging, alternate-Take generation, or Agent-chosen finals.
+
+The experimental Shot Evaluator in
+`media/experiments/forest-a-to-f/` is a retired research probe, not
+this product path and not a planned Agent stage.
 
 Evaluate **concrete qualities**, not one vague quality score:
 
@@ -688,9 +735,6 @@ Critique runs on **actual** generated (or uploaded) canonicals in
 journey context, after or beside CM. It may recommend Revise or
 Reshoot with specific directing instructions. See
 [Revise vs reshoot](#revise-vs-reshoot).
-
-The experimental Shot Evaluator in research is **not** this
-product path. Do not promote it into a top-level filmmaking role.
 
 **Constraints / invariants.**
 
@@ -856,8 +900,8 @@ to the complete B1 continuity and reselect its compatible Takes.
     missing pair as unknown, not as “current letters.”
 -   Destination RESHOOT remains a different operation from footage
     NEW TAKE.
--   Footage Evaluator / Agent take selection / automatic retry
-    stay out of this item.
+-   The filmmaker selects Takes. Do not add Agent take selection
+    or automatic footage retry here.
 
 **Likely implementation areas.**
 
@@ -1059,8 +1103,10 @@ Hackathon-day focus:
 -   Runway **Model Router** behind adapters (`tv-draft` /
     `tv-final`); named models only as fallback
 -   [DISCOVER](#discover-canonical-strategy) if time
--   Fully unattended journeys: prompt → CREATE JOURNEY → Agent
-    directs, constructs, shoots, evaluates, repairs, continues
+-   Fully unattended first cut: prompt → CREATE JOURNEY → Agent
+    directs, constructs, CM-repairs unshootable pairs, films
+    Takes, and assembles. The filmmaker reviews footage and
+    selects Takes.
 
 User-facing hackathon loop: starting journey prompt, press CREATE
 JOURNEY, watch a thin timeline grow. No extra Agent options on
@@ -2045,14 +2091,16 @@ Preserve:
 
 ### Final journey export
 
-**Status:** BACKLOG
+**Status:** DONE as Export Movie concat of selected Takes in
+storyboard order. Agent calls that path on COMPLETE.
 
-**Goal.** A single finished MP4 from all successfully rendered
-journey segments. AGENT completion should naturally produce
-A→B + B→C + C→D + … → final file.
+**Goal.** A single finished MP4 from the currently selected Take
+on each successfully rendered journey segment.
 
 **Why it matters.** Without this, AGENT is a folder of clips.
-Canonical handoffs exist so assembly can stay mechanical.
+Canonical handoffs exist so assembly can stay mechanical. There is
+no separate Final movie representation: the selected Takes **are**
+the cut.
 
 **Intended behavior / design.**
 
@@ -2390,7 +2438,9 @@ product behavior (see product docs / recent commits):
 
 -   Automatic Motion Planning when actual adjacent canonicals
     change
--   CM Set Consistency / Traversal Confidence scoring
+-   CM Set Consistency / Traversal Confidence scoring, including
+    independent scores and Traversal-only Agent repair
+-   Overlapping Agent NEW TAKE once a segment is established
 -   Pace → Camotion exposure mapping
 -   Current segment-specific video prompt architecture
     (`segmentPromptAddition` names the visible route, then the

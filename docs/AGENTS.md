@@ -3,7 +3,7 @@
 Use real filmmaking responsibilities rather than implementation-oriented
 agent names. Do not hardcode provider or model IDs into a role.
 Routing belongs on a configurable reasoning-provider profile so
-Director, Cinematographer, and Evaluator may use different models.
+Director and Cinematographer may use different models.
 
 ## Screenwriter --- what is the journey? (unvalidated)
 
@@ -36,10 +36,10 @@ duration, preference state and optional user destination. Plan
 conversation is an interaction mechanism, not the Director's durable
 state. The durable result is structured movie intent.
 
-Later, the Director should review generated takes and decide what to
-do with them. That review loop is **not implemented**. The
-experimental Shot Evaluator remains isolated research, not production
-Director review and not a separate top-level filmmaking role.
+The filmmaker reviews generated Takes and chooses the cut. The Agent
+does not automatically judge artistic footage quality. The
+experimental Shot Evaluator remains isolated research, not a planned
+Agent stage and not production Director review.
 
 Responsibilities: understand the world, propose meaningful next camera
 positions, preserve continuity, create discovery, avoid same-composition
@@ -130,7 +130,9 @@ and do not implement it in the current happy path. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 NEW TAKE launches as soon as each inbound pair is established and
 may overlap later sequential canonical work. Assembly stays
-storyboard order. Provider-aware concurrent filming (Runway
+storyboard order of the **currently selected Takes**. The filmmaker
+remains the authority over footage quality; a NEW TAKE may use a
+different video model on the same canonical pair. Provider-aware concurrent filming (Runway
 THROTTLED/PENDING queue; other adapters may bound locally) is
 backlog. See
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
@@ -221,7 +223,9 @@ still generating in Plan shimmers on the matching Shoot slot. MOTION is an
 inspect/status surface for that segment's automatically generated Motion Plan.
 **NEW TAKE** sits in the TAKES stack when that segment is selected and
 appends another traversal without overwriting earlier Takes. The newest Take
-is selected after generate. The control starts generation
+is selected after generate. A NEW TAKE may use a different video model;
+Takes from different providers can share one cut because they share the
+same canonical endpoints. The filmmaker selects the Take that is the movie. The control starts generation
 without changing selection. It is centered and sized
 to the label. While a take is rendering, FOOTAGE shows Generating…
 in the band.
@@ -332,7 +336,8 @@ confidence is whether a video model can depict continuous physical
 camera travel start→end in the available shot duration without a
 cut, dissolve, teleport, or scene replacement — including through a
 closed but actionable door, or a threshold into a surreal world.
-Shootability is the actionable summary
+CM is not the judge of whether generated footage is artistically
+good; the filmmaker reviews Takes. Shootability is the actionable summary
 of that diagnosis. Camotion executes when valid travel geometry can be
 bridged into CameraMotionPlan; there is no separate Camotion suitability
 score.

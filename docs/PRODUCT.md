@@ -112,12 +112,14 @@ replacing a still asks whether to clear existing plan text so the next CREATE JO
 describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
 stand-in for Discovery. In AGENT mode, CREATE JOURNEY runs
 JourneyAgent (`web/src/project/journey-agent.ts`) on the same Project:
-establish A if needed, DIRECT, then generate each destination,
-CM-evaluate that inbound pair, repair the new END if Traversal
-Confidence is below 30 (Agent-generated stills only, before footage;
-Set Consistency remains diagnostic and does not trigger repair),
-Motion Plan after the canonical pass, NEW TAKE for legs with no Take, then Export Movie assembly. Existing
-actual canonicals and selected Takes are preserved. A required
+Director plans the journey, then sequential canonical construction,
+CM evaluation, bounded END repair when Traversal Confidence is below
+30 (Agent-generated stills only; Set Consistency is diagnostic and
+does not trigger repair), Camotion, asynchronous NEW TAKE as each
+inbound pair is established, then assembly of the **currently
+selected Takes**. Existing actual canonicals and selected Takes are
+preserved. The Agent does not judge artistic footage quality or
+replace Takes — the filmmaker does. A required
 failure stops the Agent and keeps partial work.
 Directed Options (generate all, shoot) remain Directed-only click
 automation, not Agent. LOOP (append exact opening A as the final
@@ -175,7 +177,14 @@ Each segment keeps 0..N Takes under FOOTAGE. Existing footage loads as Take 1.
 **NEW TAKE** (timeline `+ NEW TAKE`, inspector **NEW TAKE**) appends another
 traversal and never overwrites a previous Take. One Take is selected; FOOTAGE,
 preview, playback, and Export Movie use that Take. Newest Take is selected
-after generate. Each new Take records the start/end canonical media
+after generate. A NEW TAKE may use a different video provider/model than
+earlier Takes on the same segment. Because every Take is anchored to the
+same canonical START/END pair, Takes from different models can be mixed
+in one cut (A→B Pruna Take 1, B→C Wan Take 2, C→D Pruna Take 1). That is
+a valid final movie. There is no separate Final state: final quality is
+the filmmaker selecting Takes. This was validated by replacing an
+individual Pruna shot with a Wan NEW TAKE while sharing the same
+canonical endpoints. Each new Take records the start/end canonical media
 IDs it was shot against so later alternate continuities can tell B1
 Takes from B2 Takes. Canonical **RESHOOT** still means regenerate a
 destination, not another footage Take; making that RESHOOT
@@ -391,10 +400,11 @@ preserve world rules, propose meaningful next camera positions,
 distinguish camera displacement from scene evolution, evaluate
 candidates, learn from selections, and maintain discovery.
 
-Later, the Director should review generated takes and decide what to
-do with them. That review loop is **not implemented**. The experimental
-Shot Evaluator remains isolated research, not a separate top-level
-filmmaking role and not production Director review.
+Later, the filmmaker reviews generated Takes and chooses the cut.
+The Agent does not automatically judge artistic footage quality or
+replace Takes. The experimental Shot Evaluator in
+`media/experiments/forest-a-to-f/` is a retired research probe, not
+a planned Agent stage and not a separate filmmaking role.
 
 Plan is Director-level. The Director specifies semantic / spatial
 intent ("approach the house and enter through the bedroom window")
@@ -483,7 +493,8 @@ VP / target / heading). That output is stored on the segment Motion Plan
 with CameraMotionPlan and A′/B′. Shootability is a property of the leg A→B,
 not of destination A or B. It is **advisory set analysis**, not a
 hard gate and not a prediction of whether the stochastic video model
-will succeed. A JourneyShot may progress even when CM reports
+will succeed. CM is not the final judge of whether generated footage
+is artistically good; the filmmaker reviews Takes. A JourneyShot may progress even when CM reports
 `not_shootable`. Shoot tiles show Stage / Film / Export, with filled clear / hold / no go bands after Plan;
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
@@ -697,8 +708,7 @@ rules. **Krea** may be evaluated as another provider. Provider-specific
 structures must not leak into Director, Cinematographer, storyboard, or
 Camotion state. Agent roles must not hardcode provider or model IDs. A
 reasoning provider should support configurable model routing by role
-or profile so Director, Cinematographer, and Evaluator may use
-different models.
+or profile so Director and Cinematographer may use different models.
 
 The MediaProvider contract in `media/` now covers **video and image
 generation** (Seedance 2.5 and Nano Banana 2 Lite adapters). Director
@@ -708,9 +718,10 @@ Cinematographer pair planner also exists in `media/` for Integration
 Test 01; it is not a finished product package.
 
 **Development media (decided strategy, not a user-facing mode):**
-use draft models to develop the filmmaking workflow; use production
-models to evaluate filmmaking quality. Do not create a special
-"Pruna mode." Draft models remain MediaProvider configuration.
+use cheap/fast models to construct a complete journey quickly; the
+filmmaker switches models and generates NEW TAKEs for quality. Do
+not create a special "Pruna mode" or a Draft vs Final project mode.
+Fast models remain MediaProvider configuration.
 Draft media should exercise real asynchronous generation, latency,
 status, failures, and asset creation. It is **not** valid evidence
 for traversal quality, endpoint fidelity, or Camotion effectiveness.
@@ -721,7 +732,7 @@ configurable (cheap/fast during development, Seedance 2.5 or another
 quality model for intentional output validation). The Project panel Image
 and Video controls are that selection for the current project; Nano
 Banana 2 Lite and Pruna remain the defaults. Automated E2E mocks
-the paid media-provider boundary. A user-facing Draft vs Final toggle remains backlog only. Current
+the paid media-provider boundary. Current
 draft candidates and renderer notes live in
 [IMPLEMENTATION.md](IMPLEMENTATION.md).
 

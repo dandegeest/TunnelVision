@@ -105,16 +105,15 @@ Do not replace canonical E.
 Phase 1 research experiments. Next milestone is product development,
 then Movie #2 through the product.
 
-**Current track (product development):** develop interaction,
-orchestration, and filmmaking workflow. Use draft models to develop
-the workflow; use production models to evaluate filmmaking quality.
-Do not pay production-media cost for every UX iteration. Draft
+**Current track (product development):** the Agent filmmaking
+pipeline is proven. Next pre-hackathon work is Timeline / Takes UX
+polish, Project persistence, robustness/regression testing,
+fresh-machine/config/secrets readiness, then freeze that pipeline.
+Use cheap/fast models to construct a complete journey quickly; the
+filmmaker switches models and generates NEW TAKEs for quality.
+Do not pay production-media cost for every UX iteration. Fast
 models remain MediaProvider / configuration choices, not a product
-mode. See the development-draft section below. The product now starts
-from a real untitled project rather than a demonstration journey.
-Every subsequent MVP milestone should advance a real user journey
-through the application and, where practical, extend browser-level
-E2E coverage.
+mode. See the development-draft section below.
 
 **Forest A→F Camotion evidence is completed.** Not a product milestone.
 Not Camotion retuning. Not Director replanning or destination
@@ -150,7 +149,7 @@ question. Do not reopen Camotion tuning from this spike.
 justified baseline freeze), the already planned product-research
 milestone remains Automated Cinematographer + Camotion Benchmark
 Harness. Do not scaffold Screenwriter, conversation persistence,
-undo/redo, a revision graph, a user-facing Draft/Final toggle, or
+undo/redo, a revision graph, a Draft/Final project mode, or
 expand the thin Integration Test 01 cinematographer into a product
 package in this checkpoint.
 
@@ -355,8 +354,9 @@ fixture as production wiring.
 **Decided development strategy. Not architecture. Not a user-facing
 product mode.**
 
-> **Use draft models to develop the filmmaking workflow. Use
-> production models to evaluate filmmaking quality.**
+> **Use cheap/fast models to construct a complete journey quickly.
+> Switch models and generate NEW TAKEs when the filmmaker wants
+> higher-quality footage. Do not invent Draft/Final project modes.**
 
 Do not create a special "Pruna mode." Use the existing MediaProvider
 abstraction so development models remain provider / model choices.
@@ -401,12 +401,12 @@ Conceptual development tier, **not a user-facing mode**:
 -   Plan storyboard → fast `prunaai/p-image`
 -   Shoot canonical draft → fast `prunaai/p-image`
 -   Journey draft → fast video candidate such as `prunaai/p-video`
--   Research / final-quality filmmaking evaluation → production
+-   Research / higher-quality filmmaking validation → production
     providers such as the current FLUX / Seedance pipeline or future
     equivalents
 
-A possible later user-facing Draft vs Final feature remains backlog
-only. Do not build a toggle now.
+There is no user-facing Draft vs Final project mode. Fast vs
+quality is a model/provider choice; the selected Takes are the cut.
 
 ### Storyboard renderer exploration (implementation research)
 
@@ -734,7 +734,7 @@ raw Replicate/Runway/Krea client.
 2.  scene analysis to validated JSON;
 3.  Director proposes next move;
 4.  MediaProvider generates candidates;
-5.  evaluator recommends;
+5.  the filmmaker selects a canonical frame;
 6.  storyboard accepts a canonical frame;
 7.  user opens alternatives;
 8.  user points to a new destination;

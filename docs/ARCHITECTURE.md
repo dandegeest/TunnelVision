@@ -137,8 +137,10 @@ composes the frozen locomotion prompt, and generates a development clip.
 Each Take records the start/end canonical media IDs it was shot against;
 segment letters are not a permanent compatibility key. AGENT CREATE
 JOURNEY runs JourneyAgent on this same Project and those same
-operations (opening, Director, construct, automatic Motion Plan, NEW
-TAKE, Export Movie). It is not a second cinematic stack. LOOP
+operations (opening, Director, sequential construct, CM, bounded
+Traversal-Confidence repair, Camotion, overlapping NEW TAKE, Export
+Movie of selected Takes). The filmmaker remains the authority over
+footage quality. It is not a second cinematic stack. LOOP
 (close on exact canonical A) is backlog, not this orchestrator.
 See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 Parallel NEW TAKE filming is backlog for provider-aware queueing;
@@ -483,7 +485,7 @@ create ScreenwriterAgent.
 
 Agent roles must not hardcode provider or model IDs. A later reasoning
 provider should support configurable model routing by role or profile
-so Director, Cinematographer, and Evaluator may use different models.
+so Director and Cinematographer may use different models.
 
 ## Later media-provider boundary
 

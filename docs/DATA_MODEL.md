@@ -312,7 +312,10 @@ each generated traversal (Take 1, Take 2, …) with the composed prompt,
 provider metadata, clip URL, and the start/end **canonical media IDs**
 that Take was generated from. Compatibility is that stamped pair, not
 the segment letters. `selectedTakeId` is the Take FOOTAGE,
-preview, and Export Movie use. Legacy `take` / `videoUrl` load as Take 1
+preview, and Export Movie use. That selected Take **is** the cut;
+there is no separate Final movie representation. Takes from different
+video models may share one journey because they share canonical
+endpoints. Legacy `take` / `videoUrl` load as Take 1
 without inventing a pair. Future non-destructive canonical RESHOOT
 (B1 vs B2 continuities) is backlog; current RESHOOT still replaces
 the letter in place.

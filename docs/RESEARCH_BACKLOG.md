@@ -505,12 +505,13 @@ Potential later evidence statement, only if supported:
 > traversal but cannot adequately express a route requiring
 > reorientation toward an off-axis destination.
 
-## Draft vs Final (user-facing)
+## Draft vs Final (retired product idea)
 
-**Unvalidated product idea.** Development currently uses draft vs
-production **models** as MediaProvider configuration. A possible later
-user-facing Draft vs Final feature remains backlog only. Do not build
-a toggle now. See [IMPLEMENTATION.md](IMPLEMENTATION.md).
+**Retired.** Fast/cheap vs production models remain MediaProvider
+configuration, not a user-facing Draft/Final project mode. Quality
+iteration is NEW TAKE (optionally on a different model) with the
+filmmaker selecting the cut. See [PRODUCT.md](PRODUCT.md) and
+[IMPLEMENTATION.md](IMPLEMENTATION.md).
 
 ## Conversation persistence / revision graph
 
@@ -747,8 +748,7 @@ an AI upscaler to Phase 1.
     [IMPLEMENTATION.md](IMPLEMENTATION.md)). Location scouting
     remains unvalidated product behavior.
 -   **Draft → Full fixed-seed promotion** as a later experiment.
-    Related: a user-facing Draft vs Final toggle remains backlog
-    only; do not build it now.
+    Do not revive a user-facing Draft vs Final project mode.
 -   **Cinematographer screen-time reasoning:** how much of a shot's
     duration a traversal deserves. Integration Test 01 added
     movie-level evidence that duration should not be globally fixed

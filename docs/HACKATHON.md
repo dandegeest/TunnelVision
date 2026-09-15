@@ -43,7 +43,11 @@ reopen on event day):
 
 Do **not** begin DISCOVER, Camotion redesign, a Plan | Shoot
 rewrite, or a new JourneyAgent from this file on event day.
-JourneyAgent is pre-hackathon product work.
+JourneyAgent is pre-hackathon product work. Freeze that pipeline
+before the event. Next workstation work: Timeline / Takes UX polish,
+Project persistence / shared format, robustness/regression testing,
+and fresh-machine/config/secrets readiness. Event-day work is Runway
+Model Router plus the simplified Agent/chat surface.
 
 ---
 
@@ -55,8 +59,9 @@ the hackathon.
 The hackathon application should demonstrate:
 
 > Describe a journey. An AI filmmaker directs it, constructs the
-> destinations, plans and shoots the traversals, critiques/repairs
-> its own work, and delivers the completed movie.
+> destinations, plans and shoots the traversals, repairs unshootable
+> canonicals, and delivers an assembled first cut. The human
+> filmmaker reviews footage and selects Takes.
 
 This is **not** a rewrite of TunnelVision.
 
@@ -69,15 +74,15 @@ Hackathon narrative:
 > TunnelVision already had an autonomous filmmaking agent. At the
 > Runway hackathon, we made that filmmaker adaptive: instead of
 > hard-coding generation models, TunnelVision uses Runway's
-> model-routing infrastructure to choose the right model for each
-> filmmaking task and escalate quality when a shot or destination
-> needs repair.
+> model-routing infrastructure to choose an eligible model for each
+> filmmaking task. The filmmaker can then switch models and generate
+> NEW TAKEs; quality is Take selection, not a Draft/Final project mode.
 
 TV already decides **what** filmmaking task needs to happen
-(construct this destination, shoot this A→B, retry with higher
-quality). Runway Model Router decides **which eligible model**
-should perform that task. That is a stronger integration story than
-replacing Replicate endpoints with named Runway models.
+(construct this destination, shoot this A→B, repair this END).
+Runway Model Router decides **which eligible model** should perform
+that task. That is a stronger integration story than replacing
+Replicate endpoints with named Runway models.
 
 Hackathon-day work creates a **new application in this same
 repository** that uses that technology as a filmmaking library.
@@ -188,8 +193,8 @@ genesis/      Research site (not the hackathon app)
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
 | CM `SHOOT` / `RESHOOT_END` | **Exists (experimental).** CM assessment JSON returns a repair recommendation plus `repairInstruction` for the new END. JourneyAgent repairs when Traversal Confidence < 30, reshoots only that END (max 2), then continues. Low Set Consistency alone does not trigger repair; it remains a diagnostic. Established START is not rewritten. Dial-back of thresholds is still open. Not event-day work. |
 | Opposite-canonical visual reference on repair | **Exists (experimental).** Agent END repair uses the established START still as the image/spatial source (and extra Nano Banana `image_input` when that still is not already the source). Flux ignores extra refs. Not event-day. |
-| Footage Evaluator | **Does not exist** as product. Experimental Shot Evaluator is isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. If a product evaluator exists by event day, JourneyAgent should already use it. |
-| Movie-evaluation preprocessor | **Does not exist** as product. |
+| Footage evaluation / Agent take selection | **Retired exploration.** Experimental Shot Evaluator remains isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. The filmmaker reviews footage and selects Takes. JourneyAgent does not automatically judge artistic clip quality. |
+| Movie-evaluation preprocessor | **Does not exist** as product. Not planned. |
 | Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
@@ -365,8 +370,9 @@ Existing CREATE JOURNEY (`planWithDirector`) already:
 5.  optionally auto-blocks (redundant with automatic Motion Planning)
 6.  optionally auto-shoots
 
-Pre-hackathon JourneyAgent must own that sequence plus repair
-policy, evaluation policy, and automatic export. Setting
+Pre-hackathon JourneyAgent must own that sequence plus canonical
+repair (Traversal Confidence) and automatic export of selected
+Takes. Setting
 `agency: "autonomous"` is not enough; AGENT mode is where that
 orchestrator is built and proven.
 
@@ -394,9 +400,9 @@ It owns:
 
 -   execution state
 -   progress / activity events
--   failure / retry policy
--   repair decisions (when those operations exist)
--   final completion / export
+-   provider-failure retry
+-   Traversal-Confidence canonical repair
+-   overlapping NEW TAKE and assembly of selected Takes
 
 Conversational journey development (the full-screen chat) is
 hackathon-app UI. It feeds `Project.story` / CREATE JOURNEY; it is
@@ -423,18 +429,18 @@ JOURNEY
   → DIRECTOR
   → GENERATE NEXT CANONICAL
   → CM EVALUATE INBOUND PAIR
-  → REPAIR END IF NECESSARY
-  → ESTABLISH / ADVANCE
+  → REPAIR END IF TRAVERSAL CONFIDENCE < 30
+  → ESTABLISH / CAMOTION
+  → LAUNCH NEW TAKE (may overlap later canonicals)
   → (repeat until the journey is complete)
-  → CAMOTION
-  → VIDEO GENERATION
-  → ASSEMBLY
+  → AWAIT TAKES / ASSEMBLE SELECTED TAKES
   → COMPLETE
 ```
 
-Agent is **not** a fourth filmmaking role. Director still decides
+The Agent is **not** a fourth filmmaking role. Director still decides
 WHERE. CM still decides HOW to shoot the actual pair. Camotion is
-still deterministic. Video still films.
+still deterministic. Video still films. The filmmaker still chooses
+Takes.
 
 ---
 
@@ -451,8 +457,6 @@ CONVERSING
   → PLANNING_MOTION          (existing automatic CM + Camotion)
   → REPAIRING_CANONICALS? ──┐
   → SHOOTING                │
-  → EVALUATING_FOOTAGE      │
-  → REPAIRING_FOOTAGE? ─────┤
   → NEXT_SEGMENT ───────────┘
   → ASSEMBLING
   → COMPLETE
@@ -614,15 +618,8 @@ unless the existing scores are unusable):
 | `not_shootable` or very low confidence | Repair canonicals **only if** the repair operation exists; otherwise shoot |
 
 CM confidence is **pre-shoot evidence**, not proof of footage success
-or failure.
-
-If a Footage Evaluator exists by hackathon day, use its evidence to
-decide whether generated footage should be accepted or retried.
-
-If **no** Footage Evaluator exists by hackathon day, rendered /
-playable footage may be accepted as a **pragmatic hackathon
-fallback** so the autonomous pipeline can complete. That fallback
-is **not** the intended long-term JourneyAgent evaluation policy.
+or failure. The filmmaker reviews generated Takes. JourneyAgent does
+not automatically accept/retry footage based on artistic quality.
 
 Shootability is already documented as advisory and does **not** gate
 `JourneyShot.status` ([PRODUCT.md](PRODUCT.md), [AGENTS.md](AGENTS.md)).
@@ -630,39 +627,32 @@ Keep that.
 
 ---
 
-## 11. Footage Evaluator
+## 11. Footage quality is the filmmaker's job
 
-**Product Footage Evaluator does not exist.**
+**There is no product Footage Evaluator and none is planned as an
+Agent stage.**
 
-Two questions stay distinct:
+CM answers whether the canonical pair can plausibly be **filmed** as
+one continuous shot. The filmmaker answers whether a generated Take
+is artistically good, and which Take is the cut.
 
-| Role | Question |
-| --- | --- |
-| Cinematographer | Can this canonical pair plausibly be shot? (set) |
-| Footage Evaluator | Did the generated clip actually work? |
+Each segment may have multiple immutable Takes. A NEW TAKE may use a
+different video provider/model. Because Takes share the same
+canonical START/END, mixed-model cuts are valid:
 
-If a product Footage Evaluator exists by hackathon day, JourneyAgent
-uses that evidence to accept or retry footage. Do **not** invent new
-thresholds or evaluator behavior here.
+``` text
+A→B · Pruna · Take 1
+B→C · Wan · Take 2
+C→D · Pruna · Take 1
+```
 
-If none exists, rendered / playable footage (`JourneyShot.status ===
-"rendered"` and a playable `videoUrl`) may be accepted as a
-**pragmatic hackathon fallback** so the pipeline can complete. Retry
-the same `shootJourney` once on provider failure. That fallback is
-**not** the intended long-term JourneyAgent evaluation policy.
+There is no separate Final project state. Export Movie concatenates
+the currently selected Take per segment.
 
-Do **not** port
-`media/experiments/forest-a-to-f/cinematographer-shot-evaluation.ts`
-into a filmmaking role.
-
-If a product evaluator exists by event day, reuse it. Useful
-dimensions then: traversal continuity, spatial continuity, canonical
-arrival, story progression, cheating, cuts / dissolves / teleport,
-excessive morph, reverse motion, Camotion artifacts, shot quality.
-
-Outcomes: `ACCEPT` | `REVIEW` / `RETRY` | `RESHOOT` / `REPAIR`.
-
-Do not build a complex new evaluator during the hackathon.
+The experimental Shot Evaluator under
+`media/experiments/forest-a-to-f/` is a retired research probe. Do
+not port it. Do not build a clip judge on event day. Retry
+`shootJourney` once on provider failure only.
 
 ---
 
@@ -848,12 +838,12 @@ Seedance / Veo / Wan / Hailuo / H3 Max, or call a named model
 (`seedance2_5` or `veo3.1`) directly. Do not invent a Router
 “endpoint adherence” knob.
 
-**Repair + Router (architecture).** TV Agent/CM/Evaluator decide
-what failed, why, whether to repair canonical vs footage, which
-endpoint (START / END / BOTH / footage), and which **policy**
-(draft vs quality). Adapter maps policy → `configId`. Router
-picks the eligible model. If S/E is mandatory and the routed
-choice is wrong, skip Router for that retry.
+**Repair + Router (architecture).** TV Agent/CM decide whether a
+canonical pair is unshootable and whether to RESHOOT_END. The
+filmmaker decides whether a Take is the cut. Adapter maps generation
+onto a latency or quality `configId`. Router picks the eligible
+model. If S/E is mandatory and the routed choice is wrong, skip
+Router for that retry.
 
 **Provider readiness (this pass).**
 `GeneratedVideo.provider` / `GeneratedImage.provider` /
@@ -979,9 +969,9 @@ Runway Model Router   chooses WHICH eligible MODEL
                       under that policy
 ```
 
-Do **not** move Director, CM, Camotion, evaluation, or retry
-orchestration into Runway. Router augments TV’s filmmaking
-intelligence; it does not replace it.
+Do **not** move Director, CM, Camotion, canonical repair, or
+Take-selection orchestration into Runway. Router augments TV’s
+filmmaking intelligence; it does not replace it.
 
 ### 14.3 TV tasks → router policies
 
@@ -989,13 +979,17 @@ Map filmmaking tasks onto **config IDs**, not model IDs. Create
 these configs in the Developer Portal (or `POST /v1/routers`) once;
 the adapter only passes `configId` + `input`.
 
-Suggested configs (names are ours; settings are documented):
+Suggested configs (names are ours; settings are documented). These
+are **Runway router policies**, not TunnelVision Draft/Final project
+modes:
 
-| TV policy | Router config (example ID) | Verified settings | Use |
+| TV generation policy | Router config (example ID) | Verified settings | Use |
 | --- | --- | --- | --- |
-| DRAFT / FAST | `tv-draft` | `optimizeFor: latency` (or `cost`); optional lower video `720p` / image `1k`; tighter credit ceiling | Previews, early construct/shoot, first attempt before evaluation |
-| FINAL / QUALITY | `tv-final` | `optimizeFor: quality`; video `1080p` and image `2k` when the request needs them | Accepted canonicals, accepted footage, quality retries |
-| (optional) CHEAP | `tv-cheap` | `optimizeFor: cost` + credit ceiling | Only if latency-optimized draft is still too expensive |
+| Fast / cheap | `tv-draft` | `optimizeFor: latency` (or `cost`); optional lower video `720p` / image `1k`; tighter credit ceiling | Quick complete journey; first construct/shoot |
+| Quality-oriented | `tv-final` | `optimizeFor: quality`; video `1080p` and image `2k` when the request needs them | When the filmmaker or demo wants a stronger model pool |
+
+Filmmaker quality iteration is **NEW TAKE** (optionally after
+switching the project video model), not a Draft/Final movie mode.
 
 Do not claim a “low-res vs high-res router type.” Resolution is an
 **`input` field** that also filters eligibility. The same `tv-draft`
@@ -1014,8 +1008,7 @@ receive `1080p` on a quality retry.
     Router cannot score that. Configure a quality image router with
     a sensible allow/deny list if event-day tests show some models
     only restyle the source. JourneyAgent still rejects a still that
-    kept the source composition (existing construct prompt + any
-    pre-hackathon evaluator).
+    kept the source composition (existing construct prompt).
 -   Escalate: first construct on `tv-draft`; if the still fails
     spatial progression / reference adherence, retry the **same
     construct operation** with `tv-final`.
@@ -1043,38 +1036,34 @@ receive `1080p` on a quality retry.
     start+end model directly. Do not silently switch to Multi-Shot.
 -   The selected model must travel from supplied start to supplied
     end, not treat them as loose style references. That judgment is
-    Footage Evaluator / pragmatic fallback — not a Router setting.
--   Escalate: first shoot on `tv-draft`; on `RETRY` / failed
-    evaluation, reshoot through `tv-final` (same A′/B′, quality
-    policy).
+    the filmmaker's when reviewing Takes — not a Router setting.
+-   Prefer a quality-oriented router (or a NEW TAKE after switching
+    models) when the first clip is not the cut. Do not invent Agent
+    footage-evaluation retries so Router has something to escalate.
 
 **CM / Agent repair loop**
 
 Repair operations themselves remain pre-hackathon product work
 (§9). Router does not become a second Agent.
 
-When JourneyAgent already retries:
+When JourneyAgent already retries **canonicals**:
 
--   CM/Agent diagnose **why** a generation failed and **what** retry
-    is needed (RESHOOT_END, construct retry, footage retry).
--   JourneyAgent chooses the **task and quality policy** (first
-    attempt vs escalate). It does **not** pass a `configId` or
-    model name.
--   The Runway adapter maps first attempt → `RUNWAY_ROUTER_DRAFT`
-    and quality retry → `RUNWAY_ROUTER_FINAL`.
--   Example: a fast/draft A→B fails evaluation → Agent requests
-    another shoot of the same Camotion-conditioned pair; the adapter
-    calls the quality-oriented router. Canonical repair may
-    similarly escalate from a fast image generation to a stronger
-    reference-adherent / high-quality route.
+-   CM/Agent diagnose **why** a pair is unshootable and **what**
+    canonical repair is needed (RESHOOT_END).
+-   JourneyAgent chooses the **task**. It does **not** pass a
+    `configId` or model name, and it does not pick Takes.
+-   The Runway adapter maps generation requests onto router
+    `configId`s (`RUNWAY_ROUTER_DRAFT` / `RUNWAY_ROUTER_FINAL` as
+    latency vs quality pools). Those are adapter configs, not
+    product Draft/Final modes.
+-   Canonical repair may use a stronger image generation route.
 -   Log `routing.model` and credits on the take for debugging; do
     not show them in the hackathon UI.
 
-If no repair/evaluator loop exists by event day, do **not** invent
-one so Router has something to escalate. **Assumption:** call
-`tv-final` for the demo movie so accepted stills and footage are
-quality-oriented; keep `tv-draft` wired for when retries exist or
-for dry-run / smoke tests.
+Do **not** invent a footage-evaluator loop so Router has something
+to escalate. For the demo movie, call the quality-oriented router
+when you want stronger stills and footage; keep the fast router
+wired for smoke tests and complete-journey scouting.
 
 ### 14.4 Adapter implementation
 
@@ -1100,8 +1089,11 @@ media/src/runway/router.ts        configId + generate.image/video
 Env (same pattern as `media/src/config/environment.ts`):
 
 -   `RUNWAYML_API_SECRET`
--   `RUNWAY_ROUTER_DRAFT` — default `tv-draft`
--   `RUNWAY_ROUTER_FINAL` — default `tv-final`
+-   `RUNWAY_ROUTER_DRAFT` — default `tv-draft` (latency/cost pool)
+-   `RUNWAY_ROUTER_FINAL` — default `tv-final` (quality pool)
+
+These env vars name Runway router configs. They are not TunnelVision
+Draft/Final project modes.
 
 Plus catalog entries beside (not inside) role code if a fallback
 named model is required. Do not put `configId` on `Project`,
@@ -1191,7 +1183,7 @@ stack.
 TunnelVision remains the filmmaking intelligence layer: Director
 decides where to go, CM decides how to shoot actual adjacent
 canonicals, Camotion conditions, JourneyAgent chooses the task
-and retry policy, Runway Model Router chooses the eligible model,
+and canonical-repair policy, Runway Model Router chooses the eligible model,
 the generator films.
 
 Do not confuse `gwm1_avatars` (real-time conversational avatars
@@ -1351,6 +1343,11 @@ Concentrate that day on:
 5.  final movie presentation
 6.  event-specific opportunities / polish
 
+Pre-hackathon workstation focus (not event-day): Timeline / Takes UX
+polish, Project persistence / shared Project format, robustness and
+regression testing, fresh-machine/config/secrets readiness, then
+freeze the core filmmaking pipeline.
+
 Do **not** implement JourneyAgent on event day.
 
 ---
@@ -1426,7 +1423,7 @@ Connect CREATE JOURNEY in the new conversational app to the
 Subscribe / render its execution events.
 
 Show Director, canonical generation, CM, repair, shooting,
-evaluation, and assembly activity conversationally.
+and assembly activity conversationally.
 
 Do **not** reimplement those operations.
 
@@ -1483,11 +1480,12 @@ The hackathon product is **DONE** when:
 10. Camotion conditions shots (existing product path).
 11. Runway **Model Router** generates traversals with start+end
     frames when both A′ and B′ exist.
-12. JourneyAgent handles repair / retry / evaluation using the
-    pre-hackathon product path (evaluator if available; otherwise
-    the pragmatic footage fallback in §10–11).
+12. JourneyAgent uses the pre-hackathon product path: sequential
+    canonicals, Traversal-Confidence repair, overlapping NEW TAKE,
+    assembly of selected Takes. The filmmaker may later change
+    Takes; the Agent does not judge artistic footage quality.
 13. Progress is visible conversationally from JourneyAgent events.
-14. Accepted footage is assembled (`requestExportMovie`).
+14. Selected Takes are assembled (`requestExportMovie`).
 15. Final movie appears in the conversation.
 16. No manual filmmaking intervention was required after CREATE
     JOURNEY.
@@ -1505,7 +1503,7 @@ Do **not** spend hackathon time on:
 -   tuning CM prompts without a demonstrated failure
 -   in-app model bakeoffs (configure routers in the Developer
     Portal instead; do not hard-code a winner into JourneyAgent)
--   moving Director / CM / Camotion / evaluation / retry
+-   moving Director / CM / Camotion / canonical repair
     orchestration into Runway
 -   creating a parallel hack-app Agent
 -   replacing `shootJourney` with Multi-Shot Video
@@ -1525,7 +1523,7 @@ Do **not** spend hackathon time on:
 -   DISCOVER before core completion
 -   implementing JourneyAgent (pre-hackathon product work)
 -   Screenwriter
--   promoting the experimental Shot Evaluator
+-   promoting the experimental Shot Evaluator into an Agent stage
 -   destination-aware Camotion fields
 -   extracting a shared UI package
 
@@ -1572,10 +1570,11 @@ Preserve these regardless of hackathon shortcuts:
 -   Continuous forward travel may include turns and curved routes.
 -   Providers remain behind adapters.
 -   Runway Model Router chooses eligible models; JourneyAgent
-    chooses filmmaking tasks and retry policy.
+    chooses filmmaking tasks and canonical-repair policy.
 -   Agent orchestrates existing typed operations rather than
     duplicating them.
--   Footage evaluation is distinct from pre-shoot CM evaluation.
+-   The filmmaker, not the Agent, judges generated footage and
+    selects Takes.
 -   CREATE JOURNEY is the only Director invocation in Directed; AGENT
     may call Director as part of its own loop.
 -   Session conversation is not project persistence.
@@ -1655,12 +1654,13 @@ Then explain:
 >
 > Camotion conditioned those shots for movement.
 >
-> Runway’s Model Router chose the generation model for each
-> filmmaking task — and could escalate from a fast route to a
-> quality route when a destination or shot needed to land.
+> Runway’s Model Router chose an eligible generation model for each
+> filmmaking task. The filmmaker can switch models and generate NEW
+> TAKEs; the selected Takes are the cut.
 >
-> The Agent evaluated the results, repaired weak shots when it
-> could, and assembled the movie.
+> The Agent repaired unshootable canonicals when Traversal
+> Confidence required it, filmed Takes, and assembled the movie.
+> The filmmaker remains the authority over which Takes are the cut.
 
 That is the product story.
 
@@ -1684,8 +1684,8 @@ Do not reverse this order.
 Pre-hackathon shopping list for the product JourneyAgent (existing
 AGENT mode). The sequencer now lives in
 `web/src/project/journey-agent.ts`. The hackathon app only calls this
-Agent. Repair / reshoot is still missing; do not reimplement the
-happy path on event day.
+Agent. Canonical repair (Traversal Confidence) and overlapping NEW
+TAKE already exist; do not reimplement the happy path on event day.
 
 1.  `createNewProject()` — `web/src/project/new-project.ts`
 2.  Set `project.story` from the conversation
@@ -1694,13 +1694,11 @@ happy path on event day.
 4.  `directorPlanRequestFromProject` → Director
 5.  `projectWithDirectorPlan` / `applyDirectorPlanToStoryboard` —
     `web/src/project/storyboard.ts`
-6.  Loop `nextConstructableDestinationId` +
-    `destinationConstructionRequestFromProject`
-7.  Wait for automatic Motion Planning on each new adjacent pair
-8.  `shootJourney` for each `JourneyShot` with a current
-    `motionPlan`
-9.  `requestExportMovie`
-10. Append a final conversation turn with `videoUrl`
+6.  Sequential construct + CM + Traversal-Confidence END repair
+    (`runJourneyAgent`)
+7.  NEW TAKE as each inbound pair is established (`shootJourney`)
+8.  `requestExportMovie` of currently selected Takes
+9.  Append a final conversation turn with `videoUrl`
 
 Do not call Camotion or `composeShootingPrompt` from Agent.
 `web/shoot-journey.ts` already does.
@@ -1721,7 +1719,7 @@ cap) remains backlog:
 Drop in this order (hackathon UI / event work only):
 
 1.  conversational refinement (keep paste-prompt only)
-2.  extra visible repair / evaluation chrome
+2.  extra visible repair chrome
 3.  DISCOVER
 4.  polish
 

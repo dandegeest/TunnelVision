@@ -49,13 +49,17 @@ DIRECT then constructs B…N in travel order; later beats cannot run in
 parallel because each is derived from the previous actual frame. Auto
 blocking is not a checkbox; Motion Planning runs automatically on
 actual adjacent pairs. Auto shoot is a Directed Option. In Agent,
-CREATE JOURNEY runs that whole loop unattended via JourneyAgent,
-including missing NEW TAKEs, experimental canonical repair, and movie
-assembly. Agent hides Options.
+CREATE JOURNEY runs that whole loop unattended via JourneyAgent:
+Director, sequential canonicals, CM, Traversal-Confidence repair,
+Camotion, overlapping NEW TAKE, assembly of selected Takes. Agent
+hides Options. The filmmaker remains the authority over footage
+quality and Take selection.
 LOOP (close on exact opening A) is backlog, not a current Agent
 control. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
-Agent films Takes one segment after another. Provider-aware
+Agent launches NEW TAKE as soon as each inbound pair is established;
+footage may overlap later canonical work. Assembly uses the currently
+selected Take per segment. Provider-aware
 concurrent filming (Runway-managed queue, not a TV concurrency
 cap) is backlog. See
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
@@ -108,7 +112,9 @@ or either endpoint of that segment is selected. Clicking it appends another
 Take without changing the current selection or deleting earlier Takes.
 Takes stack vertically; the timeline already resizes and scrolls
 vertically. The selected Take is outlined. Clicking a Take selects it
-for FOOTAGE, preview, and export. Canonical destination **Reshoot** is a
+for FOOTAGE, preview, and export. That selected Take is the cut;
+there is no separate Final mode. A NEW TAKE may use a different
+video model on the same canonical pair. Canonical destination **Reshoot** is a
 different action. Do not show revision/continuity pickers yet; Takes
 already stamp the canonical media pair for a later non-destructive
 RESHOOT. The timeline is
@@ -368,8 +374,7 @@ boundary match is not a traversal or shootability claim.
     Redo With Note / Adjust (Directed policy).
 3.  User presses **Shoot** on the selected leg or **Export Movie**.
 4.  Cinematographer planning, Camotion, video generation,
-    evaluation/retry, and deterministic assembly run (not wired in
-    the current slice).
+    and deterministic assembly of selected Takes.
 
 The timeline is a readable representation of the crew's decisions. It
 should reveal filmmaking intent without requiring filmmaking
