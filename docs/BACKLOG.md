@@ -49,11 +49,20 @@ Items below are **BACKLOG** unless a later edit changes the status.
 
 ### Agent mode
 
-**Status:** BACKLOG — highest-priority product feature.
+**Status:** First happy-path pass is in product. Repair / reshoot /
+Footage Evaluator / Agent take selection remain BACKLOG.
 
 **Goal.** Implement fully autonomous journey execution. AGENT
 executes the journey. It does not merely press the existing
 Directed UI buttons in sequence.
+
+**Shipped (first pass).** CREATE JOURNEY in AGENT mode runs
+`web/src/project/journey-agent.ts` on the same `Project` as
+Directed. It reuses opening generation, Director, sequential
+construct, automatic Motion Plan / CM / Camotion, NEW TAKE for
+legs with no Take, and Export Movie assembly. Failures stop the
+Agent (`FAILED`), keep partial work, and record a reason. It does
+**not** yet repair canonicals, retry, or pick alternate Takes.
 
 **Why it matters.** Directed mode is a filmmaker-in-the-loop
 workspace. AGENT is the unattended movie: prompt in, finished

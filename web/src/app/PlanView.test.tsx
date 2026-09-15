@@ -1259,6 +1259,29 @@ describe("Plan Director conversation UI", () => {
     expect(html).not.toContain("conversation-filmmaker");
   });
 
+  it("shows a Download control in the Director panel when the journey movie is ready", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        {
+          id: "assembly-1",
+          createdAt: AT2,
+          kind: "assembly",
+          status: "complete",
+          videoUrl: "/api/export-movie/test",
+          filename: "journey.mp4",
+          complete: true,
+        },
+      ],
+    });
+    expect(html).toContain("conversation-assembly");
+    expect(html).toContain("The journey is ready.");
+    expect(html).toContain('aria-label="Download journey movie"');
+    expect(html).toContain('href="/api/export-movie/test"');
+    expect(html).toContain('download="journey.mp4"');
+    expect(html).toContain(">Download<");
+  });
+
   it("treats filmmaker instruction as marked direction, distinct from Director response", () => {
     const html = renderPlan(createWardrobeProject(), {
       composerDraft: "",

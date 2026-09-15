@@ -42,7 +42,7 @@ The current product loop is:
 
 `SPECIFY → DIRECT → CONSTRUCT → SHOOT`
 
-AGENT is the next major target: an unattended observe / repair / reshoot loop over that same pipeline. The earlier research loop remains:
+AGENT first pass: CREATE JOURNEY in Agent mode runs JourneyAgent over that same pipeline (no CM repair loop yet). The earlier research loop remains:
 
 `OBSERVE → PROPOSE → GENERATE → EVALUATE → SELECT → MOVE`
 
@@ -282,6 +282,8 @@ Product Slice 10 canonical spatial progression:
 [`genesis/research/21-product-slice-10.html`](genesis/research/21-product-slice-10.html).
 Product Slice 11 Takes:
 [`genesis/research/22-product-slice-11.html`](genesis/research/22-product-slice-11.html).
+Product Slice 12 Agent CREATE JOURNEY:
+[`genesis/research/23-product-slice-12.html`](genesis/research/23-product-slice-12.html).
 See `docs/PRODUCT.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.

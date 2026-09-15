@@ -135,7 +135,10 @@ cloned Shoot model. NEW TAKE uses the staged Motion Plan's
 A′/B′ (radial Camotion with adaptive depth / destination / VP weights),
 composes the frozen locomotion prompt, and generates a development clip.
 Each Take records the start/end canonical media IDs it was shot against;
-segment letters are not a permanent compatibility key. The current
+segment letters are not a permanent compatibility key. AGENT CREATE
+JOURNEY runs JourneyAgent on this same Project and those same
+operations (opening, Director, construct, automatic Motion Plan, NEW
+TAKE, Export Movie). It is not a second cinematic stack. The current
 cheap generator is `prunaai/p-video` behind MediaProvider and receives
 A′ as `image` and B′ as `last_frame_image`. CameraMotionPlan from the Integration Test 01 vision planner
 is not this path. Discovery, and
@@ -195,6 +198,8 @@ Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 Product Slice 11 Takes:
 [genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
+Product Slice 12 Agent CREATE JOURNEY:
+[genesis/research/23-product-slice-12.html](../genesis/research/23-product-slice-12.html).
 
 Destination construction strategies (Provided / Generated / Derived /
 Discovered) are research vocabulary, **not** a product schema and

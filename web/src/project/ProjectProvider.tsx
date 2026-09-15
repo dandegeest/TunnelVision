@@ -66,6 +66,12 @@ import {
   type ConversationEntry,
 } from "./conversation";
 import { requestExportMovie, type MovieExportResult } from "./export-movie";
+import {
+  idleJourneyAgentSnapshot,
+  journeyAgentIsBusy,
+  runJourneyAgent,
+  type JourneyAgentSnapshot,
+} from "./journey-agent";
 import { storyboardFrameById, type Agency, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type Project, type Selection, type VideoModelId } from "./types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
@@ -118,6 +124,7 @@ type ProjectContextValue = {
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
   planStartError: string | null;
+  journeyAgent: JourneyAgentSnapshot;
   planWithDirector: () => Promise<void>;
   assessingJourneyIds: readonly string[];
   cinematographerError: string | null;
@@ -147,7 +154,7 @@ type ProjectContextValue = {
 const ProjectContext = createContext<ProjectContextValue | null>(null);
 
 /** Survives React Strict Mode remount so one canonical pair is not planned twice. */
-const inFlightMotionPlanKeys = new Set<string>();
+const inFlightMotionPlans = new Map<string, Promise<Project>>();
 
 export function ProjectProvider({
   children,
@@ -194,6 +201,7 @@ export function ProjectProvider({
   const [playing, setPlaying] = useState(false);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>(initialDirectorStatus);
   const [planStartError, setPlanStartError] = useState<string | null>(null);
+  const [journeyAgent, setJourneyAgent] = useState<JourneyAgentSnapshot>(idleJourneyAgentSnapshot);
   const [assessingJourneyIds, setAssessingJourneyIds] = useState<string[]>(() => [
     ...initialAssessingJourneyIds,
   ]);
@@ -341,6 +349,7 @@ export function ProjectProvider({
     if (
       directorStatus === "planning" ||
       constructingBeatId ||
+      journeyAgentIsBusy(journeyAgent) ||
       !canDropAppendStoryboardDestination(current)
     ) {
       return;
@@ -352,16 +361,16 @@ export function ProjectProvider({
     }
     applyProject(added);
     await replaceDestinationImage(frame.id, file);
-  }, [applyProject, constructingBeatId, directorStatus, replaceDestinationImage]);
+  }, [applyProject, constructingBeatId, directorStatus, journeyAgent, replaceDestinationImage]);
 
   const addDestination = useCallback(() => {
     setProject((current) => {
-      if (directorStatus === "planning" || constructingBeatId) {
+      if (directorStatus === "planning" || constructingBeatId || journeyAgentIsBusy(journeyAgent)) {
         return current;
       }
       return projectWithAddedDestination(current);
     });
-  }, [constructingBeatId, directorStatus]);
+  }, [constructingBeatId, directorStatus, journeyAgent]);
 
   const openStoryboardInPlan = useCallback((frameId: string) => {
     setProject((current) => {
@@ -552,10 +561,14 @@ export function ProjectProvider({
         return current;
       }
       const inputKey = journeyMotionPlanInputKey(current, journey);
-      if (!inputKey || inFlightMotionPlanKeys.has(inputKey)) {
+      if (!inputKey) {
         return current;
       }
-      inFlightMotionPlanKeys.add(inputKey);
+      const pending = inFlightMotionPlans.get(inputKey);
+      if (pending) {
+        return pending;
+      }
+      const work = (async (): Promise<Project> => {
       const entryId = nextConversationId("blocking");
       setCinematographerError(null);
       if (journey.motionPlanError) {
@@ -636,9 +649,12 @@ export function ProjectProvider({
         );
         throw error;
       } finally {
-        inFlightMotionPlanKeys.delete(inputKey);
+        inFlightMotionPlans.delete(inputKey);
         setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
       }
+      })();
+      inFlightMotionPlans.set(inputKey, work);
+      return work;
     },
     [applyProject, nextConversationId],
   );
@@ -712,7 +728,7 @@ export function ProjectProvider({
       const journey = current.journeys.find((item) => item.id === journeyId);
       const inputKey = journey ? journeyMotionPlanInputKey(current, journey) : null;
       if (inputKey) {
-        inFlightMotionPlanKeys.delete(inputKey);
+        inFlightMotionPlans.delete(inputKey);
       }
       await assessJourney(journeyId);
     },
@@ -745,54 +761,46 @@ export function ProjectProvider({
     [applyProject],
   );
 
-  const planWithDirector = useCallback(async () => {
-    if (!canPlanMovie(project)) {
-      setPlanStartError(
-        project.story.trim()
-          ? "Add starting frame A before planning."
-          : "Enter a journey story or add starting frame A.",
+  const writeStoryFromOpeningOn = useCallback(
+    async (current: Project): Promise<Project> => {
+      if (current.story.trim()) {
+        return current;
+      }
+      if (!hasAuthoritativeStartingFrame(current)) {
+        throw new Error("Enter a journey story or add starting frame A.");
+      }
+      const storyId = nextConversationId("director");
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: storyId,
+          createdAt: conversationTimestamp(),
+          kind: "director",
+          status: "planning",
+          phase: "story",
+        }),
       );
-      return;
-    }
-    setPlanStartError(null);
-    setDirectorStatus("planning");
-    let current = project;
-    try {
-      if (canGenerateOpeningFrame(current)) {
-        current = await generateOpeningOn(current);
+      const storyResult = await requestDirectorStory(directorStoryRequestFromProject(current));
+      const story = storyResult.story.trim();
+      if (!story) {
+        throw new Error("Director returned no journey story");
       }
+      const next = applyProject({ ...current, story });
+      setComposerDraftState(story);
+      setConversation((entries) =>
+        resolveDirectorEntry(entries, storyId, {
+          status: "complete",
+          phase: "story",
+          evidence: storyResult.evidence,
+          summary: story,
+        }),
+      );
+      return next;
+    },
+    [applyProject, nextConversationId],
+  );
 
-      if (!current.story.trim()) {
-        if (!hasAuthoritativeStartingFrame(current)) {
-          throw new Error("Enter a journey story or add starting frame A.");
-        }
-        const storyId = nextConversationId("director");
-        setConversation((entries) =>
-          appendConversationEntry(entries, {
-            id: storyId,
-            createdAt: conversationTimestamp(),
-            kind: "director",
-            status: "planning",
-            phase: "story",
-          }),
-        );
-        const storyResult = await requestDirectorStory(directorStoryRequestFromProject(current));
-        const story = storyResult.story.trim();
-        if (!story) {
-          throw new Error("Director returned no journey story");
-        }
-        current = applyProject({ ...current, story });
-        setComposerDraftState(story);
-        setConversation((entries) =>
-          resolveDirectorEntry(entries, storyId, {
-            status: "complete",
-            phase: "story",
-            evidence: storyResult.evidence,
-            summary: story,
-          }),
-        );
-      }
-
+  const planDirectorOn = useCallback(
+    async (current: Project): Promise<Project> => {
       const prepared = prepareDirectorPlan(current);
       if (!prepared.ok) {
         throw new Error(
@@ -816,7 +824,7 @@ export function ProjectProvider({
       if (!summary) {
         throw new Error("Director returned no filmmaker-facing summary");
       }
-      current = applyProject(projectWithDirectorPlan(current, result.plan));
+      const next = applyProject(projectWithDirectorPlan(current, result.plan));
       setConversation((entries) =>
         resolveDirectorEntry(entries, directorId, {
           status: "complete",
@@ -826,6 +834,89 @@ export function ProjectProvider({
       );
       setDirectorStatus("ready");
       setSelection({ kind: "storyboard", frameId: prepared.request.startFrameId });
+      return next;
+    },
+    [applyProject, nextConversationId],
+  );
+
+  const runAutonomousJourney = useCallback(async () => {
+    const result = await runJourneyAgent(
+      projectRef.current,
+      {
+        generateOpening: generateOpeningOn,
+        writeStoryFromOpening: writeStoryFromOpeningOn,
+        planJourney: planDirectorOn,
+        constructDestination: constructDestinationOn,
+        planMotion: assessJourneyOn,
+        createTake: shootJourneyOn,
+        assembleMovie: async (current) => {
+          setExportingMovie(true);
+          setExportMovieError(null);
+          try {
+            const exported = await requestExportMovie(current);
+            setMovieExport(exported);
+            setConversation((entries) =>
+              appendConversationEntry(entries, {
+                id: nextConversationId("assembly"),
+                createdAt: conversationTimestamp(),
+                kind: "assembly",
+                status: "complete",
+                videoUrl: exported.videoUrl,
+                filename: exported.filename,
+                complete: exported.complete,
+              }),
+            );
+            return { project: current, export: exported };
+          } catch (error) {
+            const message = error instanceof Error ? error.message : "Movie export failed";
+            setExportMovieError(message);
+            throw error;
+          } finally {
+            setExportingMovie(false);
+          }
+        },
+      },
+      setJourneyAgent,
+    );
+    if (result.snapshot.phase !== "FAILED") {
+      setJourneyAgent(result.snapshot);
+    }
+  }, [
+    assessJourneyOn,
+    constructDestinationOn,
+    generateOpeningOn,
+    nextConversationId,
+    planDirectorOn,
+    shootJourneyOn,
+    writeStoryFromOpeningOn,
+  ]);
+
+  const planWithDirector = useCallback(async () => {
+    if (!canPlanMovie(project)) {
+      setPlanStartError(
+        project.story.trim()
+          ? "Add starting frame A before planning."
+          : "Enter a journey story or add starting frame A.",
+      );
+      return;
+    }
+    if (journeyAgentIsBusy(journeyAgent)) {
+      return;
+    }
+    setPlanStartError(null);
+    if (project.agency === "autonomous") {
+      setJourneyAgent(idleJourneyAgentSnapshot());
+      await runAutonomousJourney();
+      return;
+    }
+    setDirectorStatus("planning");
+    let current = project;
+    try {
+      if (canGenerateOpeningFrame(current)) {
+        current = await generateOpeningOn(current);
+      }
+      current = await writeStoryFromOpeningOn(current);
+      current = await planDirectorOn(current);
       if (current.autoGenerateAllDestinations) {
         try {
           while (true) {
@@ -873,7 +964,17 @@ export function ProjectProvider({
         });
       });
     }
-  }, [applyProject, assessJourneyOn, constructDestinationOn, generateOpeningOn, nextConversationId, project, shootJourneyOn]);
+  }, [
+    assessJourneyOn,
+    constructDestinationOn,
+    generateOpeningOn,
+    journeyAgent,
+    planDirectorOn,
+    project,
+    runAutonomousJourney,
+    shootJourneyOn,
+    writeStoryFromOpeningOn,
+  ]);
 
   const exportMovie = useCallback(async () => {
     setExportMovieError(null);
@@ -935,6 +1036,7 @@ export function ProjectProvider({
       selectedJourney,
       directorStatus,
       planStartError,
+      journeyAgent,
       planWithDirector,
       assessingJourneyIds,
       cinematographerError,
@@ -991,6 +1093,7 @@ export function ProjectProvider({
       selectedJourney,
       directorStatus,
       planStartError,
+      journeyAgent,
       planWithDirector,
       assessingJourneyIds,
       cinematographerError,

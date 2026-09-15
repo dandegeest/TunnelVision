@@ -110,7 +110,14 @@ has no intent or visual description, CREATE JOURNEY describes that still from th
 image and adopts the text. Later CREATE JOURNEY runs leave filled fields alone. Uploading or
 replacing a still asks whether to clear existing plan text so the next CREATE JOURNEY can
 describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
-stand-in for Discovery. Conversation is turn history; the Project panel
+stand-in for Discovery. In AGENT mode, CREATE JOURNEY runs
+JourneyAgent (`web/src/project/journey-agent.ts`) on the same Project:
+establish A if needed, DIRECT, construct unresolved destinations,
+automatic Motion Plan, NEW TAKE for legs with no Take, then Export
+Movie assembly. Existing actual canonicals and selected Takes are
+preserved. A required failure stops the Agent and keeps partial work.
+Directed Options (generate all, shoot) remain Directed-only click
+automation, not Agent. Conversation is turn history; the Project panel
 holds the JOURNEY PROMPT, destination count, Directed Options
 (generate all destinations, shoot), and CREATE JOURNEY.
 Video and Debug mode live in Project settings. Opening A can be
@@ -232,6 +239,8 @@ Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 Product Slice 11 Takes:
 [genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
+Product Slice 12 Agent CREATE JOURNEY:
+[genesis/research/23-product-slice-12.html](../genesis/research/23-product-slice-12.html).
 
 ## Plan is a conversational storyboard
 
@@ -777,6 +786,8 @@ Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 Product Slice 11 Takes:
 [genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
+Product Slice 12 Agent CREATE JOURNEY:
+[genesis/research/23-product-slice-12.html](../genesis/research/23-product-slice-12.html).
 
 How duration maps to shot count, and whether shot duration should vary
 per move, are **open questions**. Do not treat "Director infers

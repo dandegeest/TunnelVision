@@ -47,8 +47,11 @@ the story is empty, DIRECT first writes a journey story from that image.
 When auto-generate all destinations is on,
 DIRECT then constructs B…N in travel order; later beats cannot run in
 parallel because each is derived from the previous actual frame. Auto
-blocking then blocks every actual adjacent pair. Auto shoot then
-shoots blocked legs regardless of CM warnings. DIRECT asks the Director to plan unspecified
+blocking is not a checkbox; Motion Planning runs automatically on
+actual adjacent pairs. Auto shoot is a Directed Option. In Agent,
+CREATE JOURNEY runs that whole loop unattended via JourneyAgent,
+including missing NEW TAKEs and movie assembly. Agent hides Options.
+DIRECT asks the Director to plan unspecified
 beats around the complete ordered storyboard; supplied stills remain
 authoritative. Planned beats start as FPO. Generate is centered beneath the
 planned thumbnail and builds the next planned beat from the preceding
@@ -166,6 +169,8 @@ Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 Product Slice 11 Takes:
 [genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
+Product Slice 12 Agent CREATE JOURNEY:
+[genesis/research/23-product-slice-12.html](../genesis/research/23-product-slice-12.html).
 
 ### Plan — conversational storyboard
 

@@ -111,6 +111,11 @@ Motion Planning is automatic whenever an actual adjacent canonical pair
 exists, using the same Cinematographer and Camotion path. Auto blocking
 during CREATE JOURNEY is that same operation. Auto shoot then generates
 each staged leg, including those with CM hold or no-go warnings.
+AGENT CREATE JOURNEY is not those Directed Options. It runs
+JourneyAgent, which reuses the same opening / Director / construct /
+Motion Plan / NEW TAKE / Export Movie operations and always executes
+the unattended loop. It does not regenerate actual canonicals or
+replace existing selected Takes. Repair / reshoot remains backlog.
 Add Destination appends an unresolved slot after actual A and does not
 call the Director. It is disabled while DIRECT or sequential destination
 generation is running. Motion Planning or footage generation on an
@@ -275,6 +280,8 @@ Product Slice 10 canonical spatial progression:
 [genesis/research/21-product-slice-10.html](../genesis/research/21-product-slice-10.html).
 Product Slice 11 Takes:
 [genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
+Product Slice 12 Agent CREATE JOURNEY:
+[genesis/research/23-product-slice-12.html](../genesis/research/23-product-slice-12.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

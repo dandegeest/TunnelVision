@@ -10,6 +10,7 @@ import {
   storyDurationFieldValue,
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
 import type { Project } from "../project/types";
 import {
   IMAGE_MODELS,
@@ -291,7 +292,7 @@ function ProjectChooser() {
   );
 }
 
-function AgencySelect() {
+function AgencySelect({ disabled = false }: { disabled?: boolean }) {
   const { project, setAgency } = useProject();
   const optionClass = (selected: boolean) =>
     `h-full flex-1 rounded px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
@@ -302,6 +303,7 @@ function AgencySelect() {
       <button
         type="button"
         aria-pressed={project.agency === "directed"}
+        disabled={disabled}
         className={optionClass(project.agency === "directed")}
         onClick={() => setAgency("directed")}
       >
@@ -310,6 +312,7 @@ function AgencySelect() {
       <button
         type="button"
         aria-pressed={project.agency === "autonomous"}
+        disabled={disabled}
         className={optionClass(project.agency === "autonomous")}
         onClick={() => setAgency("autonomous")}
       >
@@ -469,6 +472,7 @@ export function planActionLabel(state: {
   assessingJourneyIds?: readonly string[];
   shootingJourneyIds?: readonly string[];
   planning: boolean;
+  agentLabel?: string | null;
 }): string {
   if (state.constructingBeatId) {
     return `Generating ${state.constructingBeatId}…`;
@@ -484,6 +488,9 @@ export function planActionLabel(state: {
   if (state.planning) {
     return "Planning Destinations…";
   }
+  if (state.agentLabel) {
+    return state.agentLabel;
+  }
   return "CREATE JOURNEY";
 }
 
@@ -497,6 +504,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     setAutoShoot,
     directorStatus,
     planStartError,
+    journeyAgent,
     startingFrameError,
     constructingBeatId,
     assessingJourneyIds,
@@ -506,8 +514,13 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
   } = useProject();
   const [settingsOpen, setSettingsOpen] = useState(initialSettingsOpen);
   const planning = directorStatus === "planning";
+  const agentBusy = journeyAgentIsBusy(journeyAgent);
   const busy =
-    planning || Boolean(constructingBeatId) || assessingJourneyIds.length > 0 || shootingJourneyIds.length > 0;
+    planning ||
+    agentBusy ||
+    Boolean(constructingBeatId) ||
+    assessingJourneyIds.length > 0 ||
+    shootingJourneyIds.length > 0;
   const canPlan = canPlanMovie(project) && !busy;
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
   const directed = project.agency === "directed";
@@ -516,16 +529,23 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     assessingJourneyIds,
     shootingJourneyIds,
     planning,
+    agentLabel: formatJourneyAgentButtonLabel(journeyAgent),
   });
   const planTitle = canPlanMovie(project)
-    ? !project.story.trim()
-      ? "Write a journey story from starting frame A, then ask the Director to plan."
-      : project.autoGenerateAllDestinations
-        ? "Ask the Director to plan, then generate each remaining destination in order."
-        : !hasOpeningFrame
-          ? "Generate starting destination A from the story, then ask the Director to plan."
-          : "Ask the Director to plan unresolved directing decisions."
+    ? project.agency === "autonomous"
+      ? "Run JourneyAgent: resolve the journey, construct unresolved destinations, shoot missing takes, and assemble the movie."
+      : !project.story.trim()
+        ? "Write a journey story from starting frame A, then ask the Director to plan."
+        : project.autoGenerateAllDestinations
+          ? "Ask the Director to plan, then generate each remaining destination in order."
+          : !hasOpeningFrame
+            ? "Generate starting destination A from the story, then ask the Director to plan."
+            : "Ask the Director to plan unresolved directing decisions."
     : "Enter a journey story or upload starting frame A.";
+  const agentFailure =
+    journeyAgent.phase === "FAILED" && journeyAgent.failureReason && journeyAgent.failureReason !== planStartError
+      ? journeyAgent.failureReason
+      : null;
 
   return (
     <aside
@@ -561,8 +581,12 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
               <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
                 {planStartError}
               </p>
+            ) : agentFailure ? (
+              <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
+                {agentFailure}
+              </p>
             ) : null}
-            <AgencySelect />
+            <AgencySelect disabled={busy} />
             <label className="flex flex-col gap-1.5">
               <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Journey prompt</span>
               <ClickToEditTextarea

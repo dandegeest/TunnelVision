@@ -239,6 +239,26 @@ function ConversationEntryView({ entry }: { entry: ConversationEntry }) {
       </article>
     );
   }
+  if (entry.kind === "assembly") {
+    return (
+      <article className="conversation-assembly">
+        <ConversationStamp role="Journey" createdAt={entry.createdAt} />
+        <div className="mt-3 space-y-3">
+          <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">
+            The journey is ready.
+          </p>
+          <a
+            href={entry.videoUrl}
+            download={entry.filename}
+            aria-label="Download journey movie"
+            className="inline-flex rounded border border-[#3a342c] px-3 py-1 text-[13px] tracking-[0.14em] text-[#ece7df] uppercase"
+          >
+            Download
+          </a>
+        </div>
+      </article>
+    );
+  }
   return (
     <article>
       {entry.status === "constructing" ? (

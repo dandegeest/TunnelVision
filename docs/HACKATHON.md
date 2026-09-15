@@ -137,7 +137,7 @@ genesis/      Research site (not the hackathon app)
 | --- | --- |
 | Domain types | `web/src/project/types.ts` — `Project`, `StoryboardFrame`, `JourneyShot`, `SegmentMotionPlan`, `CinematographerAssessment`, `Agency` |
 | Project operations | `web/src/project/ProjectProvider.tsx` — `planWithDirector`, construct, assess, shoot, `exportMovie` |
-| JourneyAgent | **Pre-hackathon product work** in existing AGENT mode. Shared module the workstation validates and the hack app reuses. Not a hackathon-only file under `web/src/agent/`. |
+| JourneyAgent | `web/src/project/journey-agent.ts` — first happy-path orchestrator the workstation validates and the hack app reuses. Not a hackathon-only file under `web/src/agent/`. |
 | Director | `media/src/director/plan-storyboard.ts`, `media/src/director/derive-story.ts`, `media/src/director/prompts.ts` |
 | Director web glue | `web/src/project/director.ts`, `web/director-dev-plugin.ts` |
 | Opening A | `web/src/project/starting-frame.ts`, `generateOpeningOn` in `ProjectProvider` |
@@ -181,8 +181,8 @@ genesis/      Research site (not the hackathon app)
 | Explicit FOOTAGE shoot | **Exists.** `shootJourney` / `web/shoot-journey.ts`. |
 | Directed auto-shoot | **Exists** as Option `autoShoot` (default **off**). Shoots including CM hold / no-go. |
 | Export Movie concat | **Exists.** Deterministic ffmpeg concat of rendered takes. |
-| Agency toggle DIRECTED / AGENT | **Exists as UI.** AGENT hides Options. CREATE JOURNEY still calls `planWithDirector` until pre-hackathon JourneyAgent is wired here. **This is where JourneyAgent is developed, inspected, debugged, and validated.** |
-| `JourneyAgent` orchestrator | **Pre-hackathon.** Does not exist yet. Build and validate it in the existing app’s AGENT mode before the event ([BACKLOG.md — Agent mode](BACKLOG.md#agent-mode)). Hackathon day **reuses** it; do not implement the filmmaking Agent in the 5–6 hour window. |
+| Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Options. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
+| `JourneyAgent` orchestrator | **Exists (first happy path).** Shared module: establish A, DIRECT, construct unresolved destinations, automatic Motion Plan, NEW TAKE if missing, Export Movie. No CM repair loop yet. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
 | CM `SHOOT` / `RESHOOT_START` / `RESHOOT_END` / `RESHOOT_BOTH` | **Does not exist.** Today: `shootability` = `shootable` \| `needs_review` \| `not_shootable`, plus `traversalConfidence` 0–100. Pre-hackathon JourneyAgent work if repair is required; not event-day scope. |
 | Opposite-canonical visual reference on repair | **Does not exist.** Construct uses the *preceding* still; look-ahead is *following* intent text only. Same: pre-hackathon JourneyAgent, not hackathon-day. |
@@ -1694,9 +1694,10 @@ Do not reverse this order.
 ## Appendix A — Operation checklist for JourneyAgent
 
 Pre-hackathon shopping list for the product JourneyAgent (existing
-AGENT mode). All of these operations already exist; the Agent that
-sequences them is what must be built and validated **before** the
-event. The hackathon app only calls this Agent.
+AGENT mode). The sequencer now lives in
+`web/src/project/journey-agent.ts`. The hackathon app only calls this
+Agent. Repair / reshoot is still missing; do not reimplement the
+happy path on event day.
 
 1.  `createNewProject()` — `web/src/project/new-project.ts`
 2.  Set `project.story` from the conversation

@@ -49,12 +49,21 @@ export type ShootingConversationEntry = ConversationEntryBase & {
   error?: string;
 };
 
+export type AssemblyConversationEntry = ConversationEntryBase & {
+  kind: "assembly";
+  status: "complete";
+  videoUrl: string;
+  filename: string;
+  complete: boolean;
+};
+
 export type ConversationEntry =
   | FilmmakerConversationEntry
   | DirectorConversationEntry
   | ConstructionConversationEntry
   | BlockingConversationEntry
-  | ShootingConversationEntry;
+  | ShootingConversationEntry
+  | AssemblyConversationEntry;
 
 export type PlanSubmission =
   | { ok: true; submitted: string; request: DirectorPlanRequest }
