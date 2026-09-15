@@ -14,9 +14,9 @@ import {
   repairCandidateFromJourney,
   type CanonicalRepairRecommendation,
 } from "./journey-agent-repair";
-import { canShootJourney } from "./shoot";
+import { canShootJourney, projectWithJourneyShotFailed, projectWithJourneyShotTake } from "./shoot";
 import { hasAuthoritativeStartingFrame } from "./starting-frame";
-import { journeyHasTakes, journeyTakes } from "./takes";
+import { journeyHasTakes, journeyTakes, selectedTakeVideoUrl } from "./takes";
 import type { Project } from "./types";
 
 export type JourneyAgentPhase =
@@ -178,6 +178,23 @@ function activityEventFields(activity: JourneyAgentActivity): Omit<JourneyAgentE
   };
 }
 
+function mergeFilmedSegment(current: Project, filmed: Project, journeyId: string): Project {
+  const filmedJourney = filmed.journeys.find((item) => item.id === journeyId);
+  const currentJourney = current.journeys.find((item) => item.id === journeyId);
+  if (!filmedJourney || !currentJourney) {
+    return current;
+  }
+  const filmedTakes = journeyTakes(filmedJourney);
+  if (filmedTakes.length <= journeyTakes(currentJourney).length) {
+    return current;
+  }
+  const newest = filmedTakes[filmedTakes.length - 1]!;
+  return projectWithJourneyShotTake(current, journeyId, {
+    take: newest,
+    videoUrl: newest.videoUrl || selectedTakeVideoUrl(filmedJourney) || "",
+  });
+}
+
 function protectedCanonicalRepairReason(project: Project, journeyId: string): string {
   const journey = project.journeys.find((item) => item.id === journeyId);
   if (!journey?.endDestinationId) {
@@ -205,6 +222,16 @@ async function executeJourneyAgent(
   let project = initial;
   let snapshot = idleJourneyAgentSnapshot();
   let movieExport: MovieExportResult | undefined;
+  const footageTasks = new Map<string, Promise<void>>();
+  const filmedSegments = new Map<string, Project>();
+
+  const adoptProject = (next: Project) => {
+    let current = next;
+    for (const [journeyId, filmed] of filmedSegments) {
+      current = mergeFilmedSegment(current, filmed, journeyId);
+    }
+    project = current;
+  };
 
   const emit = (
     phase: JourneyAgentPhase,
@@ -237,7 +264,7 @@ async function executeJourneyAgent(
         message: "generating opening destination A",
         destinationId: "A",
       });
-      project = await operations.generateOpening(project);
+      adoptProject(await operations.generateOpening(project));
     }
 
     if (!project.story.trim()) {
@@ -245,11 +272,58 @@ async function executeJourneyAgent(
         throw new Error("Enter a journey story or add starting frame A.");
       }
       emit("DIRECTING", { message: "directing journey" });
-      project = await operations.writeStoryFromOpening(project);
+      adoptProject(await operations.writeStoryFromOpening(project));
     }
 
     emit("DIRECTING", { message: "directing journey" });
-    project = projectWithSyncedProductionLegs(await operations.planJourney(project));
+    adoptProject(projectWithSyncedProductionLegs(await operations.planJourney(project)));
+
+    let footageFailure: Error | undefined;
+
+    const awaitFootage = async (propagateFailure: boolean) => {
+      if (footageTasks.size === 0) {
+        return;
+      }
+      await Promise.allSettled([...footageTasks.values()]);
+      if (propagateFailure && footageFailure) {
+        throw footageFailure;
+      }
+    };
+
+    const launchFootageFor = (journeyId: string) => {
+      if (footageTasks.has(journeyId)) {
+        return;
+      }
+      const journey = project.journeys.find((item) => item.id === journeyId);
+      if (!journey || journeyHasTakes(journey) || !canAssessJourney(project, journey)) {
+        return;
+      }
+      if (!canShootJourney(project, journey)) {
+        throw new Error(`Cannot create a take for ${journeyLabel(journeyId)}`);
+      }
+      const takeNumber = journeyTakes(journey).length + 1;
+      emit("SHOOTING", {
+        message: `creating ${journeyLabel(journeyId)} TAKE ${takeNumber}`,
+        journeyId,
+      });
+      const launched = project;
+      const task = (async () => {
+        try {
+          const filmed = await operations.createTake(launched, journeyId);
+          filmedSegments.set(journeyId, filmed);
+          adoptProject(project);
+        } catch (error) {
+          const err = error instanceof Error ? error : new Error("JourneyAgent failed");
+          footageFailure ??= err;
+          try {
+            adoptProject(projectWithJourneyShotFailed(project, journeyId, err.message));
+          } catch {
+            // Keep the current project if this segment is no longer on it.
+          }
+        }
+      })();
+      footageTasks.set(journeyId, task);
+    };
 
     const planMotionFor = async (journeyId: string) => {
       const journey = project.journeys.find((item) => item.id === journeyId);
@@ -260,7 +334,7 @@ async function executeJourneyAgent(
         message: `planning ${journeyLabel(journeyId)}`,
         journeyId,
       });
-      project = await operations.planMotion(project, journeyId);
+      adoptProject(await operations.planMotion(project, journeyId));
       const planned = project.journeys.find((item) => item.id === journeyId);
       if (!planned || !hasCurrentMotionPlan(project, planned)) {
         throw new Error(`Motion plan failed for ${journeyLabel(journeyId)}`);
@@ -288,7 +362,7 @@ async function executeJourneyAgent(
             journeyIds: [journeyId],
           });
         }
-        project = await operations.assessCinematographer(project, journeyId);
+        adoptProject(await operations.assessCinematographer(project, journeyId));
         const next = project.journeys.find((item) => item.id === journeyId);
         if (next && cinematographerAssessmentIsCurrent(project, next)) {
           const assessment = journeyCinematographerAssessment(next);
@@ -308,7 +382,7 @@ async function executeJourneyAgent(
           });
           return;
         }
-        project = projectWithoutCinematographerAssessment(project, journeyId);
+        adoptProject(projectWithoutCinematographerAssessment(project, journeyId));
       }
       throw new Error(`Cinematographer evaluation is stale for ${journeyLabel(journeyId)}`);
     };
@@ -361,12 +435,14 @@ async function executeJourneyAgent(
           setConsistency: candidate.setConsistency,
           traversalConfidence: candidate.traversalConfidence,
         });
-        project = projectWithSyncedProductionLegs(
-          await operations.repairCanonical(project, endId, {
-            role: "end",
-            instruction: candidate.instruction,
-            ...(startMediaId ? { referenceMediaId: startMediaId } : {}),
-          }),
+        adoptProject(
+          projectWithSyncedProductionLegs(
+            await operations.repairCanonical(project, endId, {
+              role: "end",
+              instruction: candidate.instruction,
+              ...(startMediaId ? { referenceMediaId: startMediaId } : {}),
+            }),
+          ),
         );
         repairAttempts.count += 1;
         await evaluateCinematographerFor(journeyId, true);
@@ -411,42 +487,37 @@ async function executeJourneyAgent(
           message: `generating destination ${beatId}`,
           destinationId: beatId,
         });
-        project = projectWithSyncedProductionLegs(
-          await operations.constructDestination(project, beatId),
+        adoptProject(
+          projectWithSyncedProductionLegs(await operations.constructDestination(project, beatId)),
         );
       }
       const inbound = inboundJourneyForDestination(project, beatId);
       if (inbound) {
         await establishEndCanonical(inbound.id);
         await planMotionFor(inbound.id);
+        launchFootageFor(inbound.id);
       }
     }
 
     for (const journeyId of project.journeys.map((item) => item.id)) {
       await planMotionFor(journeyId);
+      launchFootageFor(journeyId);
     }
 
-    for (const journeyId of project.journeys.map((journey) => journey.id)) {
-      const journey = project.journeys.find((item) => item.id === journeyId);
-      if (!journey || !canAssessJourney(project, journey) || journeyHasTakes(journey)) {
-        continue;
-      }
-      if (!canShootJourney(project, journey)) {
-        throw new Error(`Cannot create a take for ${journeyLabel(journeyId)}`);
-      }
-      const takeNumber = journeyTakes(journey).length + 1;
-      emit("SHOOTING", {
-        message: `creating ${journeyLabel(journeyId)} TAKE ${takeNumber}`,
-        journeyId: journeyId,
-      });
-      project = await operations.createTake(project, journeyId);
-    }
+    await awaitFootage(true);
+    adoptProject(project);
 
-    const shootableWithoutTakes = project.journeys.filter(
+    const missingTake = project.journeys.find(
       (journey) => canShootJourney(project, journey) && !journeyHasTakes(journey),
     );
-    if (shootableWithoutTakes.length > 0) {
-      throw new Error(`Missing take for ${journeyLabel(shootableWithoutTakes[0]!.id)}`);
+    if (missingTake) {
+      throw new Error(`Missing take for ${journeyLabel(missingTake.id)}`);
+    }
+    const invalidTake = project.journeys.find(
+      (journey) => journeyHasTakes(journey) && !selectedTakeVideoUrl(journey),
+    );
+    if (invalidTake) {
+      throw new Error(`Missing take for ${journeyLabel(invalidTake.id)}`);
     }
 
     if (!canExportMovie(project)) {
@@ -454,12 +525,14 @@ async function executeJourneyAgent(
     }
     emit("ASSEMBLING", { message: "assembling journey" });
     const assembled = await operations.assembleMovie(project);
-    project = assembled.project;
+    adoptProject(assembled.project);
     movieExport = assembled.export;
 
     emit("COMPLETE", { message: "complete" });
     return { project, snapshot, movieExport };
   } catch (error) {
+    await Promise.allSettled([...footageTasks.values()]);
+    adoptProject(project);
     const failureReason = error instanceof Error ? error.message : "JourneyAgent failed";
     emit("FAILED", { message: failureReason }, { failureReason });
     return { project, snapshot };

@@ -300,12 +300,10 @@ Related, do not duplicate:
 
 ### Parallel segment filming
 
-**Status:** BACKLOG — do not implement yet. Current serial filming
-is correct and working. Implement **provider-aware concurrent
-filming** only after the Agent repair / evaluation loop is
-established. See
-[Agent CM repair / reshoot loop](#agent-cm-repair--reshoot-loop)
-and [Agent cinematic-quality critique](#agent-cinematic-quality-critique).
+**Status:** BACKLOG for provider-aware queueing. JourneyAgent now
+launches NEW TAKE as soon as each inbound pair is established and
+awaits in-flight Takes before assembly. Remaining work is adapter /
+Runway THROTTLED handling, not Agent serial waiting.
 
 **Goal.** Once every required canonical and its Motion Plan /
 Camotion A′/B′ are ready, submit independent segment footage
@@ -313,13 +311,15 @@ generations concurrently. Let the **provider / adapter** decide
 how those jobs run. Assemble selected Takes in canonical
 storyboard order.
 
-**Why it matters.** First-pass JourneyAgent films serially:
-A→B TAKE 1, then B→C TAKE 1, then C→D TAKE 1. Video generation
-dominates wall time. Those takes do not depend on each other’s
-footage once the stills and Motion Plans exist, so serial waiting
-is leftover sequencing, not a filmmaking constraint. Concurrent
-submission cuts end-to-end Agent latency, which matters most for
-hackathon / demo waits. Movie order must stay deterministic
+**Why it matters.** Video generation dominates wall time. Once a
+segment’s stills and Motion Plan exist, its NEW TAKE does not
+depend on later canonical work or on other segments’ footage.
+Serial waiting on clip generation is leftover sequencing, not a
+filmmaking constraint. JourneyAgent now launches each NEW TAKE as
+soon as that inbound pair is established so A→B can film while
+B→C is still being constructed. Remaining latency is provider
+queueing: concurrent submission should let the adapter / Runway
+decide in-flight work. Movie order must stay deterministic
 regardless of which provider call finishes first.
 
 Do **not** assume TunnelVision must own a fixed bounded-concurrency

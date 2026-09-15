@@ -141,8 +141,10 @@ operations (opening, Director, construct, automatic Motion Plan, NEW
 TAKE, Export Movie). It is not a second cinematic stack. LOOP
 (close on exact canonical A) is backlog, not this orchestrator.
 See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
-Parallel NEW TAKE filming is backlog; current JourneyAgent shoots
-serially. Do not invent a TunnelVision fixed concurrency queue for
+Parallel NEW TAKE filming is backlog for provider-aware queueing;
+JourneyAgent already launches NEW TAKE as soon as each inbound pair
+is established and may overlap later sequential canonical work.
+Do not invent a TunnelVision fixed concurrency queue for
 Runway — submit ready jobs and treat THROTTLED as wait. See
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 The current

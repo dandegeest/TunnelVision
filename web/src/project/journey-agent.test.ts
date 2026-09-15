@@ -261,6 +261,16 @@ function recordingOps(
   return { ops, calls, received };
 }
 
+async function waitUntil(predicate: () => boolean, timeoutMs = 1000): Promise<void> {
+  const started = Date.now();
+  while (!predicate()) {
+    if (Date.now() - started > timeoutMs) {
+      throw new Error("Timed out waiting for JourneyAgent progress");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+}
+
 describe("JourneyAgent", () => {
   it("completes the happy path from an empty project plus Journey Prompt", async () => {
     const { ops, calls, received } = recordingOps();
@@ -275,11 +285,15 @@ describe("JourneyAgent", () => {
     expect(received.construct).toEqual(["B", "C"]);
     expect(calls.indexOf("construct:B")).toBeLessThan(calls.indexOf("assess:A-B"));
     expect(calls.indexOf("assess:A-B")).toBeLessThan(calls.indexOf("planMotion:A-B"));
-    expect(calls.indexOf("planMotion:A-B")).toBeLessThan(calls.indexOf("construct:C"));
+    expect(calls.indexOf("planMotion:A-B")).toBeLessThan(calls.indexOf("createTake:A-B"));
+    expect(calls.indexOf("createTake:A-B")).toBeLessThan(calls.indexOf("construct:C"));
     expect(calls.indexOf("construct:C")).toBeLessThan(calls.indexOf("assess:B-C"));
     expect(calls.indexOf("assess:B-C")).toBeLessThan(calls.indexOf("planMotion:B-C"));
+    expect(calls.indexOf("planMotion:B-C")).toBeLessThan(calls.indexOf("createTake:B-C"));
     expect(calls.filter((call) => call === "planMotion:A-B")).toHaveLength(1);
     expect(calls.filter((call) => call === "planMotion:B-C")).toHaveLength(1);
+    expect(calls.filter((call) => call === "createTake:A-B")).toHaveLength(1);
+    expect(calls.filter((call) => call === "createTake:B-C")).toHaveLength(1);
     expect(calls).toContain("createTake:A-B");
     expect(calls).toContain("createTake:B-C");
     expect(calls.at(-1)).toBe("assembleMovie");
@@ -372,7 +386,10 @@ describe("JourneyAgent", () => {
     expect(result.project.storyboard.find((frame) => frame.id === "A")?.image).toBe(MEDIA.A.imageUrl);
     expect(result.project.storyboard.find((frame) => frame.id === "B")?.image).toBe(MEDIA.B.imageUrl);
     expect(result.project.storyboard.find((frame) => frame.id === "C")?.image).toBeUndefined();
-    expect(calls).not.toContain("createTake:A-B");
+    expect(calls).toContain("createTake:A-B");
+    expect(selectedTakeVideoUrl(result.project.journeys.find((item) => item.id === "A-B")!)).toBe(
+      "https://example.test/A-B.mp4",
+    );
     expect(calls).not.toContain("assembleMovie");
   });
 
@@ -400,6 +417,59 @@ describe("JourneyAgent", () => {
     await runJourneyAgent(promptedProject(), ops);
     expect(seen[0]?.storyboard[0]?.mediaId).toBe(MEDIA.A.mediaId);
     expect(seen[0]?.story).toBe(STORY);
+  });
+
+  it("starts A→B footage before generating C and only awaits it before assembly", async () => {
+    let releaseAb!: () => void;
+    const abGate = new Promise<void>((resolve) => {
+      releaseAb = resolve;
+    });
+    const takeDone: string[] = [];
+    const { ops, calls } = recordingOps({
+      createTake: async (project, journeyId) => {
+        if (journeyId === "A-B") {
+          await abGate;
+        }
+        takeDone.push(journeyId);
+        return domainOps().createTake(project, journeyId);
+      },
+    });
+    const finished = runJourneyAgent(promptedProject(), ops);
+    await waitUntil(() => calls.includes("construct:C") && calls.includes("createTake:B-C"));
+    expect(calls.indexOf("createTake:A-B")).toBeLessThan(calls.indexOf("construct:C"));
+    expect(takeDone).not.toContain("A-B");
+    expect(calls).not.toContain("assembleMovie");
+    releaseAb();
+    const result = await finished;
+    expect(result.snapshot.phase).toBe("COMPLETE");
+    expect(takeDone).toEqual(["B-C", "A-B"]);
+    expect(selectedTakeVideoUrl(result.project.journeys.find((item) => item.id === "A-B")!)).toBe(
+      "https://example.test/A-B.mp4",
+    );
+    expect(selectedTakeVideoUrl(result.project.journeys.find((item) => item.id === "B-C")!)).toBe(
+      "https://example.test/B-C.mp4",
+    );
+    expect(calls.at(-1)).toBe("assembleMovie");
+  });
+
+  it("keeps successful Takes when a later segment's footage fails", async () => {
+    const { ops, calls } = recordingOps({
+      createTake: async (project, journeyId) => {
+        if (journeyId === "B-C") {
+          throw new Error("Shoot failed.");
+        }
+        return domainOps().createTake(project, journeyId);
+      },
+    });
+    const result = await runJourneyAgent(promptedProject(), ops);
+    expect(result.snapshot.phase).toBe("FAILED");
+    expect(result.snapshot.failureReason).toBe("Shoot failed.");
+    expect(selectedTakeVideoUrl(result.project.journeys.find((item) => item.id === "A-B")!)).toBe(
+      "https://example.test/A-B.mp4",
+    );
+    expect(result.project.storyboard.find((frame) => frame.id === "C")?.image).toBe(MEDIA.C.imageUrl);
+    expect(journeyTakes(result.project.journeys.find((item) => item.id === "B-C")!).length).toBe(0);
+    expect(calls).not.toContain("assembleMovie");
   });
 });
 
@@ -595,6 +665,8 @@ describe("JourneyAgent canonical repair", () => {
     expect(constructC).toBeGreaterThan(calls.lastIndexOf("assess:A-B"));
     expect(calls.indexOf("planMotion:A-B")).toBeGreaterThan(repairB);
     expect(calls.indexOf("planMotion:A-B")).toBeLessThan(constructC);
+    expect(calls.indexOf("createTake:A-B")).toBeGreaterThan(calls.indexOf("planMotion:A-B"));
+    expect(calls.indexOf("createTake:A-B")).toBeLessThan(constructC);
     expect(assessBc).toBeGreaterThan(constructC);
     expect(calls.filter((call) => call.startsWith("repair:"))).toEqual(["repair:B:end"]);
     expect(result.snapshot.phase).toBe("COMPLETE");

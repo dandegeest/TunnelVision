@@ -182,9 +182,9 @@ genesis/      Research site (not the hackathon app)
 | Directed auto-shoot | **Exists** as Option `autoShoot` (default **off**). Shoots including CM hold / no-go. |
 | Export Movie concat | **Exists.** Deterministic ffmpeg concat of rendered takes. |
 | Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Options. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
-| `JourneyAgent` orchestrator | **Exists (happy path + experimental sequential canonical repair).** Shared module: establish A, DIRECT, then GENERATE → CM → REPAIR END → ESTABLISH → ADVANCE per destination, then Motion Plan, NEW TAKE if missing, Export Movie. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
+| `JourneyAgent` orchestrator | **Exists (happy path + experimental sequential canonical repair).** Shared module: establish A, DIRECT, then GENERATE → CM → REPAIR END → ESTABLISH → launch NEW TAKE → ADVANCE per destination. Footage may overlap later canonical work. Export Movie after all Takes. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
 | LOOP (close on exact canonical A) | **Does not exist.** BACKLOG. Explicit Agent/project option; not inferred from the Journey Prompt. Reuse opening A’s media as the final destination so N→A is a normal CM / Camotion / Take. Not event-day. See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option). |
-| Parallel segment filming | **Does not exist.** BACKLOG. JourneyAgent NEW TAKE is serial and correct. Later: submit all ready Takes concurrently; Runway THROTTLED/PENDING is wait, not fail; other adapters may bound locally. JourneyAgent must not assume a universal 2/3 cap. Concat stays canonical order. After repair / evaluation; not event-day. See [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming). |
+| Parallel segment filming | **Partial.** JourneyAgent launches NEW TAKE as soon as a segment is established and awaits all Takes before concat in storyboard order. Provider-aware concurrent filming (Runway THROTTLED/PENDING is wait, not fail; other adapters may bound locally) remains BACKLOG. JourneyAgent must not assume a universal 2/3 cap. Not event-day. See [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming). |
 | Conversational journey development | **Does not exist.** Chat is not implemented. ConversationRail is read-only history. |
 | CM `SHOOT` / `RESHOOT_END` | **Exists (experimental).** CM assessment JSON returns a repair recommendation plus `repairInstruction` for the new END. JourneyAgent uses experimental score gates (Set < 60 or Traversal < 30), reshoots only that END (max 2), then continues. Established START is not rewritten. Dial-back of thresholds is still open. Not event-day work. |
 | Opposite-canonical visual reference on repair | **Exists (experimental).** Agent END repair uses the established START still as the image/spatial source (and extra Nano Banana `image_input` when that still is not already the source). Flux ignores extra refs. Not event-day. |
@@ -792,8 +792,9 @@ are **per-model discriminated unions** — never copy `ratio` /
 `duration` across models. Router uses model-agnostic `aspectRatio`.
 Video jobs share an **organization concurrency pool**; excess
 submits enter THROTTLED rather than requiring TunnelVision to
-serialize Takes. That is backlog for JourneyAgent filming, not
-current serial Agent: [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
+serialize Takes. That is backlog for provider-aware JourneyAgent
+queueing, not Agent serial waiting:
+[BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 
 **Image / canonical candidates (API + Models page).** Google Nano
 Banana names on Runway: `gemini_2.5_flash` = Nano Banana,
@@ -1706,9 +1707,10 @@ Do not call Camotion or `composeShootingPrompt` from Agent.
 LOOP (exact-A close) is **not** on this checklist. It is backlog:
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 
-Parallel NEW TAKE filming is **not** on this checklist. Serial
-filming is the current happy path. Later concurrent submit is
-provider-aware (Runway THROTTLED queue, not a TV cap):
+Parallel NEW TAKE filming is **not** on this checklist. JourneyAgent
+already launches NEW TAKE as soon as a segment is established;
+provider-aware concurrent submit (Runway THROTTLED queue, not a TV
+cap) remains backlog:
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 
 ---
