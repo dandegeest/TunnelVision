@@ -121,7 +121,9 @@ each staged leg, including those with CM hold or no-go warnings.
 AGENT CREATE JOURNEY is not those Directed Options. It runs
 JourneyAgent, which reuses the same opening / Director / construct /
 Motion Plan / NEW TAKE / Export Movie operations and always executes
-the unattended loop. Agent NEW TAKE resolves the video model through
+the unattended loop. While it is in flight, Stop under CREATE JOURNEY
+aborts at the next step and keeps destinations and Takes already made
+(STOPPED, not FAILED). In-flight NEW TAKE calls still finish. Agent NEW TAKE resolves the video model through
 `Project.defaultTakeIntent` (Fast by default) and the Fast / Balanced /
 Quality mappings; there is no separate Agent video-model setting.
 After each constructed destination, it inspects

@@ -348,7 +348,8 @@ Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY
 and can hide to the right. In Agent, CREATE JOURNEY runs JourneyAgent
-on the same Project instead of Directed Options. LOOP is backlog
+on the same Project instead of Directed Options. Stop appears under
+CREATE JOURNEY while JourneyAgent is in flight. LOOP is backlog
 ([BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option));
 Agent has no extra journey options yet. JourneyAgent may repair
 Agent-generated canonicals before footage when Traversal Confidence

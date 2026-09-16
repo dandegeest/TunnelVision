@@ -123,7 +123,11 @@ inbound pair is established, then assembly of the **currently
 selected Takes**. Existing actual canonicals and selected Takes are
 preserved. The Agent does not judge artistic footage quality or
 replace Takes — the filmmaker does. A required
-failure stops the Agent and keeps partial work.
+failure stops the Agent and keeps partial work. While JourneyAgent is
+in flight, **Stop** sits under CREATE JOURNEY and aborts the loop at
+the next step; destinations and Takes already made stay, and the run
+is STOPPED rather than FAILED. In-flight NEW TAKE calls finish so
+those clips are not discarded. Stop does not change the repair loop.
 Directed Options (generate all, shoot) remain Directed-only click
 automation, not Agent. LOOP (append exact opening A as the final
 canonical so the last segment is N→A) is backlog, not current

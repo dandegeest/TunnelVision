@@ -29,6 +29,7 @@ export type JourneyAgentPhase =
   | "SHOOTING"
   | "ASSEMBLING"
   | "COMPLETE"
+  | "STOPPED"
   | "FAILED";
 
 export type JourneyAgentActivityKind =
@@ -105,7 +106,14 @@ export type JourneyAgentResult = {
   movieExport?: MovieExportResult;
 };
 
-const TERMINAL_PHASES: ReadonlySet<JourneyAgentPhase> = new Set(["IDLE", "COMPLETE", "FAILED"]);
+const TERMINAL_PHASES: ReadonlySet<JourneyAgentPhase> = new Set(["IDLE", "COMPLETE", "STOPPED", "FAILED"]);
+
+export class JourneyAgentStoppedError extends Error {
+  constructor() {
+    super("Stopped");
+    this.name = "JourneyAgentStoppedError";
+  }
+}
 
 export function idleJourneyAgentSnapshot(): JourneyAgentSnapshot {
   return { phase: "IDLE", activity: null, events: [] };
@@ -210,14 +218,22 @@ export function runJourneyAgent(
   project: Project,
   operations: JourneyAgentOperations,
   onSnapshot?: (snapshot: JourneyAgentSnapshot) => void,
+  signal?: AbortSignal,
 ): Promise<JourneyAgentResult> {
-  return executeJourneyAgent(project, operations, onSnapshot);
+  return executeJourneyAgent(project, operations, onSnapshot, signal);
+}
+
+function throwIfJourneyAgentStopped(signal?: AbortSignal) {
+  if (signal?.aborted) {
+    throw new JourneyAgentStoppedError();
+  }
 }
 
 async function executeJourneyAgent(
   initial: Project,
   operations: JourneyAgentOperations,
   onSnapshot?: (snapshot: JourneyAgentSnapshot) => void,
+  signal?: AbortSignal,
 ): Promise<JourneyAgentResult> {
   let project = initial;
   let snapshot = idleJourneyAgentSnapshot();
@@ -259,12 +275,14 @@ async function executeJourneyAgent(
   };
 
   try {
+    throwIfJourneyAgentStopped(signal);
     if (canGenerateOpeningFrame(project)) {
       emit("ESTABLISHING_START", {
         message: "generating opening destination A",
         destinationId: "A",
       });
       adoptProject(await operations.generateOpening(project));
+      throwIfJourneyAgentStopped(signal);
     }
 
     if (!project.story.trim()) {
@@ -273,10 +291,12 @@ async function executeJourneyAgent(
       }
       emit("DIRECTING", { message: "directing journey" });
       adoptProject(await operations.writeStoryFromOpening(project));
+      throwIfJourneyAgentStopped(signal);
     }
 
     emit("DIRECTING", { message: "directing journey" });
     adoptProject(projectWithSyncedProductionLegs(await operations.planJourney(project)));
+    throwIfJourneyAgentStopped(signal);
 
     let footageFailure: Error | undefined;
 
@@ -285,12 +305,14 @@ async function executeJourneyAgent(
         return;
       }
       await Promise.allSettled([...footageTasks.values()]);
+      throwIfJourneyAgentStopped(signal);
       if (propagateFailure && footageFailure) {
         throw footageFailure;
       }
     };
 
     const launchFootageFor = (journeyId: string) => {
+      throwIfJourneyAgentStopped(signal);
       if (footageTasks.has(journeyId)) {
         return;
       }
@@ -326,6 +348,7 @@ async function executeJourneyAgent(
     };
 
     const planMotionFor = async (journeyId: string) => {
+      throwIfJourneyAgentStopped(signal);
       const journey = project.journeys.find((item) => item.id === journeyId);
       if (!journey || !canAssessJourney(project, journey) || hasCurrentMotionPlan(project, journey)) {
         return;
@@ -335,6 +358,7 @@ async function executeJourneyAgent(
         journeyId,
       });
       adoptProject(await operations.planMotion(project, journeyId));
+      throwIfJourneyAgentStopped(signal);
       const planned = project.journeys.find((item) => item.id === journeyId);
       if (!planned || !hasCurrentMotionPlan(project, planned)) {
         throw new Error(`Motion plan failed for ${journeyLabel(journeyId)}`);
@@ -343,6 +367,7 @@ async function executeJourneyAgent(
 
     const evaluateCinematographerFor = async (journeyId: string, reevaluation: boolean) => {
       for (let attempt = 0; attempt < 3; attempt += 1) {
+        throwIfJourneyAgentStopped(signal);
         const journey = project.journeys.find((item) => item.id === journeyId);
         if (
           !journey ||
@@ -363,6 +388,7 @@ async function executeJourneyAgent(
           });
         }
         adoptProject(await operations.assessCinematographer(project, journeyId));
+        throwIfJourneyAgentStopped(signal);
         const next = project.journeys.find((item) => item.id === journeyId);
         if (next && cinematographerAssessmentIsCurrent(project, next)) {
           const assessment = journeyCinematographerAssessment(next);
@@ -388,6 +414,7 @@ async function executeJourneyAgent(
     };
 
     const establishEndCanonical = async (journeyId: string) => {
+      throwIfJourneyAgentStopped(signal);
       const initial = project.journeys.find((item) => item.id === journeyId);
       if (!initial || !canAssessJourney(project, initial) || journeyHasTakes(initial)) {
         return;
@@ -396,6 +423,7 @@ async function executeJourneyAgent(
 
       const repairAttempts = { count: 0 };
       while (true) {
+        throwIfJourneyAgentStopped(signal);
         const journey = project.journeys.find((item) => item.id === journeyId);
         if (!journey || !journey.endDestinationId) {
           throw new Error(`Cinematographer evaluation is stale for ${journeyLabel(journeyId)}`);
@@ -444,6 +472,7 @@ async function executeJourneyAgent(
             }),
           ),
         );
+        throwIfJourneyAgentStopped(signal);
         repairAttempts.count += 1;
         await evaluateCinematographerFor(journeyId, true);
         const afterJourney = project.journeys.find((item) => item.id === journeyId);
@@ -475,6 +504,7 @@ async function executeJourneyAgent(
 
     const laterBeatIds = project.storyboard.slice(1).map((frame) => frame.id);
     for (const beatId of laterBeatIds) {
+      throwIfJourneyAgentStopped(signal);
       const frame = project.storyboard.find((item) => item.id === beatId);
       if (!frame) {
         continue;
@@ -490,6 +520,7 @@ async function executeJourneyAgent(
         adoptProject(
           projectWithSyncedProductionLegs(await operations.constructDestination(project, beatId)),
         );
+        throwIfJourneyAgentStopped(signal);
       }
       const inbound = inboundJourneyForDestination(project, beatId);
       if (inbound) {
@@ -500,11 +531,13 @@ async function executeJourneyAgent(
     }
 
     for (const journeyId of project.journeys.map((item) => item.id)) {
+      throwIfJourneyAgentStopped(signal);
       await planMotionFor(journeyId);
       launchFootageFor(journeyId);
     }
 
     await awaitFootage(true);
+    throwIfJourneyAgentStopped(signal);
     adoptProject(project);
 
     const missingTake = project.journeys.find(
@@ -525,6 +558,7 @@ async function executeJourneyAgent(
     }
     emit("ASSEMBLING", { message: "assembling journey" });
     const assembled = await operations.assembleMovie(project);
+    throwIfJourneyAgentStopped(signal);
     adoptProject(assembled.project);
     movieExport = assembled.export;
 
@@ -533,6 +567,10 @@ async function executeJourneyAgent(
   } catch (error) {
     await Promise.allSettled([...footageTasks.values()]);
     adoptProject(project);
+    if (error instanceof JourneyAgentStoppedError) {
+      emit("STOPPED", { message: "stopped" });
+      return { project, snapshot };
+    }
     const failureReason = error instanceof Error ? error.message : "JourneyAgent failed";
     emit("FAILED", { message: failureReason }, { failureReason });
     return { project, snapshot };

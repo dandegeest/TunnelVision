@@ -51,7 +51,9 @@ blocking is not a checkbox; Motion Planning runs automatically on
 actual adjacent pairs. Auto shoot is a Directed Option. In Agent,
 CREATE JOURNEY runs that whole loop unattended via JourneyAgent:
 Director, sequential canonicals, CM, Traversal-Confidence repair,
-Camotion, overlapping NEW TAKE, assembly of selected Takes. Agent
+Camotion, overlapping NEW TAKE, assembly of selected Takes. Stop
+under CREATE JOURNEY aborts the loop at the next step and keeps
+partial work. Agent
 hides Options. The filmmaker remains the authority over footage
 quality and Take selection.
 LOOP (close on exact opening A) is backlog, not a current Agent
@@ -383,7 +385,10 @@ Auto blocking and Auto shoot continue that
 pipeline after destinations exist. While CREATE JOURNEY or those auto stages run,
 the CREATE JOURNEY button uses the generating shimmer and names the current
 stage on that button only: Generating A…, Planning Destinations…,
-Planning A→B…, Generating A→B…. Do not repeat that status as helper
+Planning A→B…, Generating A→B…. In Agent, a **Stop** control appears
+directly under CREATE JOURNEY while JourneyAgent is in flight; it
+halts further destinations, repairs, and new Takes without treating
+the run as a failure. Do not repeat that status as helper
 copy under the button, and do not prefix it with "Director is". CREATE JOURNEY appends a pending
 Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing

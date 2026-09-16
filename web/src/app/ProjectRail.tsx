@@ -572,6 +572,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     shootingJourneyIds,
     project,
     planWithDirector,
+    stopJourneyAgent,
   } = useProject();
   const [settingsOpen, setSettingsOpen] = useState(initialSettingsOpen);
   const planning = directorStatus === "planning";
@@ -698,23 +699,36 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 </label>
               </div>
             ) : null}
-            <button
-              type="button"
-              aria-label="Create journey"
-              aria-busy={busy || undefined}
-              disabled={!canPlan}
-              title={planTitle}
-              onClick={() => {
-                void planWithDirector();
-              }}
-              className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
-                busy ? " storyboard-generating" : ""
-              }`}
-            >
-              <span className={`relative z-[1]${busy ? " storyboard-generating-label" : ""}`}>
-                {actionLabel}
-              </span>
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                aria-label="Create journey"
+                aria-busy={busy || undefined}
+                disabled={!canPlan}
+                title={planTitle}
+                onClick={() => {
+                  void planWithDirector();
+                }}
+                className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
+                  busy ? " storyboard-generating" : ""
+                }`}
+              >
+                <span className={`relative z-[1]${busy ? " storyboard-generating-label" : ""}`}>
+                  {actionLabel}
+                </span>
+              </button>
+              {agentBusy ? (
+                <button
+                  type="button"
+                  aria-label="Stop agent"
+                  title="Stop JourneyAgent. Destinations and Takes already made stay."
+                  onClick={stopJourneyAgent}
+                  className="w-full rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] hover:border-[#7a7266]"
+                >
+                  Stop
+                </button>
+              ) : null}
+            </div>
           </div>
           <div className="flex shrink-0 items-center justify-end px-3 pb-3">
             <SettingsButton onOpen={() => setSettingsOpen(true)} />

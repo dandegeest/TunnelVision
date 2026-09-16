@@ -189,6 +189,26 @@ describe("Shell header chrome", () => {
     expect(project).not.toContain(">Options<");
     expect(project).not.toContain("Generate start destination");
     expect(project).toContain('aria-label="Create journey"');
+    expect(project).not.toContain('aria-label="Stop agent"');
+  });
+
+  it("shows Stop under Create journey while Agent is in flight", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialJourneyAgent={{
+          phase: "CONSTRUCTING",
+          activity: { message: "generating destination C", destinationId: "C" },
+          events: [],
+        }}
+      >
+        <ProjectRail />
+      </ProjectProvider>,
+    );
+    expect(html).toContain('aria-label="Create journey"');
+    expect(html).toContain('aria-label="Stop agent"');
+    expect(html.indexOf('aria-label="Create journey"')).toBeLessThan(html.indexOf('aria-label="Stop agent"'));
+    expect(html).toContain(">Stop<");
   });
 
   it("centers Plan/Shoot in the workspace toolbar grid, not as a viewport heading", () => {

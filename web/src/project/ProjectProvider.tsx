@@ -149,6 +149,7 @@ type ProjectContextValue = {
   planStartError: string | null;
   journeyAgent: JourneyAgentSnapshot;
   planWithDirector: () => Promise<void>;
+  stopJourneyAgent: () => void;
   assessingJourneyIds: readonly string[];
   cinematographerError: string | null;
   retryMotionPlan: (journeyId: string) => Promise<void>;
@@ -205,6 +206,7 @@ export function ProjectProvider({
   initialShootingJourneyIds = [],
   initialConstructingBeatId = null,
   initialDirectorStatus = "idle",
+  initialJourneyAgent,
   initialCutPlaybackJourneyId = null,
   initialPlaying = false,
 }: {
@@ -223,6 +225,7 @@ export function ProjectProvider({
   initialShootingJourneyIds?: readonly string[];
   initialConstructingBeatId?: string | null;
   initialDirectorStatus?: DirectorStatus;
+  initialJourneyAgent?: JourneyAgentSnapshot;
   initialCutPlaybackJourneyId?: string | null;
   initialPlaying?: boolean;
 }) {
@@ -243,7 +246,10 @@ export function ProjectProvider({
   const assembledCutRef = useRef<{ fingerprint: string; result: MovieExportResult } | null>(null);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>(initialDirectorStatus);
   const [planStartError, setPlanStartError] = useState<string | null>(null);
-  const [journeyAgent, setJourneyAgent] = useState<JourneyAgentSnapshot>(idleJourneyAgentSnapshot);
+  const [journeyAgent, setJourneyAgent] = useState<JourneyAgentSnapshot>(
+    () => initialJourneyAgent ?? idleJourneyAgentSnapshot(),
+  );
+  const agentAbortRef = useRef<AbortController | null>(null);
   const [assessingJourneyIds, setAssessingJourneyIds] = useState<string[]>(() => [
     ...initialAssessingJourneyIds,
   ]);
@@ -1171,6 +1177,10 @@ export function ProjectProvider({
 
   const runAutonomousJourney = useCallback(async () => {
     agentConversationCursor.current = 0;
+    agentAbortRef.current?.abort();
+    const controller = new AbortController();
+    agentAbortRef.current = controller;
+    try {
     const result = await runJourneyAgent(
       projectRef.current,
       {
@@ -1251,10 +1261,16 @@ export function ProjectProvider({
           }, entries),
         );
       },
+      controller.signal,
     );
     applyProject(projectWithLatestJourneyTakes(result.project, projectRef.current));
     if (result.snapshot.phase !== "FAILED") {
       setJourneyAgent(result.snapshot);
+    }
+    } finally {
+      if (agentAbortRef.current === controller) {
+        agentAbortRef.current = null;
+      }
     }
   }, [
     assessCinematographerOn,
@@ -1267,6 +1283,10 @@ export function ProjectProvider({
     shootJourneyOn,
     writeStoryFromOpeningOn,
   ]);
+
+  const stopJourneyAgent = useCallback(() => {
+    agentAbortRef.current?.abort();
+  }, []);
 
   const planWithDirector = useCallback(async () => {
     if (!canPlanMovie(project)) {
@@ -1408,6 +1428,7 @@ export function ProjectProvider({
       planStartError,
       journeyAgent,
       planWithDirector,
+      stopJourneyAgent,
       assessingJourneyIds,
       cinematographerError,
       retryMotionPlan,
@@ -1478,6 +1499,7 @@ export function ProjectProvider({
       planStartError,
       journeyAgent,
       planWithDirector,
+      stopJourneyAgent,
       assessingJourneyIds,
       cinematographerError,
       retryMotionPlan,

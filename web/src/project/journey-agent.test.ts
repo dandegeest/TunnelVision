@@ -452,6 +452,59 @@ describe("JourneyAgent", () => {
     expect(calls.at(-1)).toBe("assembleMovie");
   });
 
+  it("stops between destinations and keeps earlier work", async () => {
+    const controller = new AbortController();
+    let releaseB!: () => void;
+    const bGate = new Promise<void>((resolve) => {
+      releaseB = resolve;
+    });
+    const { ops, calls } = recordingOps({
+      constructDestination: async (project, beatId) => {
+        if (beatId === "B") {
+          await bGate;
+        }
+        return domainOps().constructDestination(project, beatId);
+      },
+    });
+    const finished = runJourneyAgent(promptedProject(), ops, undefined, controller.signal);
+    await waitUntil(() => calls.includes("construct:B"));
+    controller.abort();
+    releaseB();
+    const result = await finished;
+    expect(result.snapshot.phase).toBe("STOPPED");
+    expect(result.snapshot.failureReason).toBeUndefined();
+    expect(result.project.storyboard.find((frame) => frame.id === "B")?.mediaId).toBe(MEDIA.B.mediaId);
+    expect(calls).not.toContain("construct:C");
+    expect(calls).not.toContain("assembleMovie");
+    expect(result.movieExport).toBeUndefined();
+  });
+
+  it("keeps in-flight Takes after stop and does not assemble", async () => {
+    const controller = new AbortController();
+    let releaseAb!: () => void;
+    const abGate = new Promise<void>((resolve) => {
+      releaseAb = resolve;
+    });
+    const { ops, calls } = recordingOps({
+      createTake: async (project, journeyId) => {
+        if (journeyId === "A-B") {
+          await abGate;
+        }
+        return domainOps().createTake(project, journeyId);
+      },
+    });
+    const finished = runJourneyAgent(promptedProject(), ops, undefined, controller.signal);
+    await waitUntil(() => calls.includes("construct:C") && calls.includes("createTake:A-B"));
+    controller.abort();
+    releaseAb();
+    const result = await finished;
+    expect(result.snapshot.phase).toBe("STOPPED");
+    expect(selectedTakeVideoUrl(result.project.journeys.find((item) => item.id === "A-B")!)).toBe(
+      "https://example.test/A-B.mp4",
+    );
+    expect(calls).not.toContain("assembleMovie");
+  });
+
   it("keeps successful Takes when a later segment's footage fails", async () => {
     const { ops, calls } = recordingOps({
       createTake: async (project, journeyId) => {
@@ -749,8 +802,11 @@ describe("JourneyAgent canonical repair", () => {
 });
 
 describe("JourneyAgent UI helpers", () => {
-  it("treats COMPLETE and FAILED as idle for the CREATE JOURNEY button", () => {
+  it("treats COMPLETE, STOPPED, and FAILED as idle for the CREATE JOURNEY button", () => {
     expect(journeyAgentIsBusy(idleJourneyAgentSnapshot())).toBe(false);
+    expect(journeyAgentIsBusy({ phase: "STOPPED", activity: { message: "stopped" }, events: [] })).toBe(
+      false,
+    );
     expect(
       formatJourneyAgentButtonLabel({
         phase: "SHOOTING",
