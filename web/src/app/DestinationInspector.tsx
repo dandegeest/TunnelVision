@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import {
   camotionRecordKey,
+  camotionRecordsCopyText,
   camotionRecordsForCanonical,
   preferredCamotionRecord,
   type DestinationCamotionRecord,
@@ -18,7 +19,8 @@ import { formatFriendlyAspectRatio } from "../project/media-preflight";
 import type { Project, StoryboardFrame } from "../project/types";
 import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
-import { CamotionFrameSwitch, CamotionSourceSwitch } from "./CamotionDiagnostic";
+import { CamotionDiagnosticPanel, CamotionEmptyState, CamotionSourceSwitch } from "./CamotionDiagnostic";
+import { InspectorCopyDisclosure, InspectorPaneNav } from "./InspectorPanes";
 import { PanelHeader } from "./PanelHeader";
 
 export function destinationDisplayedStillUrl(
@@ -52,7 +54,7 @@ export function DestinationPlanFields({
 
   return (
     <>
-      <label className="mt-2 block">
+      <label className="block">
         <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
         <ClickToEditTextarea
           aria-label={`Destination ${frame.label} intent`}
@@ -63,7 +65,7 @@ export function DestinationPlanFields({
           onChange={onPlanChange ? (next) => onPlanChange({ intent: next }) : undefined}
         />
       </label>
-      <label className="mt-2 block">
+      <label className="block">
         <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
           {opening ? "Story" : "Beat"}
         </span>
@@ -98,17 +100,14 @@ function DestinationGeneratedPrompt({
     return null;
   }
   return (
-    <details className="mt-2">
-      <summary className="cursor-pointer text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-        Prompt
-      </summary>
+    <InspectorCopyDisclosure label="Prompt" copyLabel="Copy prompt" copyText={generated}>
       <p
         aria-label={`Destination ${frame.label} prompt`}
-        className="mt-2 whitespace-pre-wrap text-[10px] leading-snug text-[#cfc6b8]"
+        className="whitespace-pre-wrap text-[10px] leading-snug text-[#cfc6b8]"
       >
         {generated}
       </p>
-    </details>
+    </InspectorCopyDisclosure>
   );
 }
 
@@ -121,32 +120,18 @@ function DestinationMediaFacts({
 }) {
   const info = frame.mediaInfo;
   const model = destinationImageModelLabel(project, frame);
-  if (!info && !model) {
+  const parts = [
+    info ? formatFriendlyAspectRatio(info.width, info.height) : undefined,
+    info ? `${info.width}×${info.height}` : undefined,
+    model,
+  ].filter((part): part is string => Boolean(part));
+  if (parts.length === 0) {
     return null;
   }
   return (
-    <dl aria-label={`Destination ${frame.label} facts`} className="space-y-1 text-[#cfc6b8]">
-      {info ? (
-        <>
-          <div>
-            <dt className="text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Aspect ratio</dt>
-            <dd>{formatFriendlyAspectRatio(info.width, info.height)}</dd>
-          </div>
-          <div>
-            <dt className="text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Resolution</dt>
-            <dd>
-              {info.width}×{info.height}
-            </dd>
-          </div>
-        </>
-      ) : null}
-      {model ? (
-        <div>
-          <dt className="text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Model</dt>
-          <dd>{model}</dd>
-        </div>
-      ) : null}
-    </dl>
+    <p aria-label={`Destination ${frame.label} facts`} className="text-[10px] leading-snug text-[#9a8f7e]">
+      {parts.join(" · ")}
+    </p>
   );
 }
 
@@ -154,29 +139,25 @@ function DestinationStillPreview({
   frame,
   canonicalImage,
   records,
-  mode: controlledMode,
-  onModeChange,
+  mode = "canonical",
   recordKey: controlledKey,
   onRecordKeyChange,
+  onOpenReel,
 }: {
   frame: StoryboardFrame;
   canonicalImage?: string;
   records: readonly DestinationCamotionRecord[];
   mode?: "canonical" | "primed";
-  onModeChange?: (mode: "canonical" | "primed") => void;
   recordKey?: string;
   onRecordKeyChange?: (key: string) => void;
+  onOpenReel?: () => void;
 }) {
-  const [localMode, setLocalMode] = useState<"canonical" | "primed">("canonical");
   const [localKey, setLocalKey] = useState<string | undefined>();
 
   useEffect(() => {
-    setLocalMode("canonical");
     setLocalKey(undefined);
   }, [frame.id]);
 
-  const mode = controlledMode ?? localMode;
-  const setMode = onModeChange ?? setLocalMode;
   const recordKey = controlledKey ?? localKey;
   const setRecordKey = onRecordKeyChange ?? setLocalKey;
   const active =
@@ -188,23 +169,27 @@ function DestinationStillPreview({
 
   return (
     <div className="space-y-2">
-      {image ? <img src={image} alt="" className="media-contain aspect-video w-full rounded" /> : null}
-      {records.length > 0 ? (
-        <div className="flex flex-col gap-1.5">
-          <CamotionFrameSwitch
-            destinationLabel={frame.label}
-            primedLabel={`${frame.label}′`}
-            mode={mode}
-            onChange={setMode}
-          />
-          {mode === "primed" ? (
-            <CamotionSourceSwitch
-              records={records}
-              activeKey={recordKey ?? (active ? camotionRecordKey(active) : "")}
-              onChange={setRecordKey}
-            />
-          ) : null}
-        </div>
+      {image ? (
+        onOpenReel ? (
+          <button
+            type="button"
+            className="block w-full p-0 outline-none focus-visible:ring-1 focus-visible:ring-[#d4b36a]"
+            onClick={onOpenReel}
+            aria-label={`View destination ${frame.label} still`}
+            title="View still"
+          >
+            <img src={image} alt="" className="media-contain aspect-video w-full rounded" />
+          </button>
+        ) : (
+          <img src={image} alt="" className="media-contain aspect-video w-full rounded" />
+        )
+      ) : null}
+      {mode === "primed" ? (
+        <CamotionSourceSwitch
+          records={records}
+          activeKey={recordKey ?? (active ? camotionRecordKey(active) : "")}
+          onChange={setRecordKey}
+        />
       ) : null}
     </div>
   );
@@ -230,6 +215,14 @@ function destinationShootHint(
   return "This destination cannot be shot yet.";
 }
 
+export type DestinationInspectorPane = "source" | "motion" | "details";
+
+const destinationPanes = [
+  { id: "source" as const, label: "Source" },
+  { id: "motion" as const, label: "Motion" },
+  { id: "details" as const, label: "Details" },
+];
+
 export function DestinationInspectorFields({
   frame,
   project,
@@ -250,6 +243,9 @@ export function DestinationInspectorFields({
   onStillModeChange,
   camotionKey,
   onCamotionKeyChange,
+  onOpenReel,
+  debugOn = false,
+  initialPane = "source",
 }: {
   frame: StoryboardFrame;
   project: Project;
@@ -270,72 +266,118 @@ export function DestinationInspectorFields({
   onStillModeChange?: (mode: "canonical" | "primed") => void;
   camotionKey?: string;
   onCamotionKeyChange?: (key: string) => void;
+  onOpenReel?: () => void;
+  debugOn?: boolean;
+  initialPane?: DestinationInspectorPane;
 }) {
   const records = camotionRecords ?? camotionRecordsForCanonical(project, frame.destinationId ?? frame.id);
   const showShoot = canShoot || canUploadStoryboardFrame(frame);
+  const [pane, setPane] = useState<DestinationInspectorPane>(initialPane);
+
+  useEffect(() => {
+    setPane(initialPane);
+    onStillModeChange?.(initialPane === "motion" ? "primed" : "canonical");
+  }, [frame.id]);
+
+  const selectPane = (next: DestinationInspectorPane) => {
+    setPane(next);
+    if (next === "source") {
+      onStillModeChange?.("canonical");
+    }
+    if (next === "motion") {
+      onStillModeChange?.("primed");
+    }
+  };
+
+  const stillPane = pane === "motion" ? "primed" : "canonical";
+  const camotionCopy = camotionRecordsCopyText(records, project, debugOn);
+
   return (
     <>
       <h2 className="text-2xl">{label}</h2>
-      <DestinationStillPreview
-        frame={frame}
-        canonicalImage={image}
-        records={records}
-        mode={stillMode}
-        onModeChange={onStillModeChange}
-        recordKey={camotionKey}
-        onRecordKeyChange={onCamotionKeyChange}
-      />
-      {banner}
-      <DestinationPlanFields
-        frame={frame}
-        project={project}
-        disabled={reshooting}
-        onPlanChange={onPlanChange}
-        onStoryChange={onStoryChange}
-      />
-      {showShoot ? (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-            disabled={!canShoot || reshooting || !onShoot}
-            aria-label={`Shoot destination ${frame.label}`}
-            title={destinationShootHint(project, frame, canShoot)}
-            onPointerDown={() => {
-              commitActiveTextEdit();
-            }}
-            onClick={() => {
-              if (canShoot) {
-                onShoot?.();
-              }
-            }}
-          >
-            {reshooting ? "Shooting…" : "Shoot"}
-          </button>
-        </div>
-      ) : null}
-      {canReshoot && onReshoot ? (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-            disabled={reshooting}
-            aria-label={`Reshoot destination ${frame.label}`}
-            title="Regenerate this destination from its current prompt."
-            onPointerDown={() => {
-              commitActiveTextEdit();
-            }}
-            onClick={() => {
-              onReshoot();
-            }}
-          >
-            {reshooting ? "Reshooting…" : "Reshoot"}
-          </button>
-        </div>
-      ) : null}
-      <DestinationGeneratedPrompt frame={frame} project={project} />
-      <DestinationMediaFacts frame={frame} project={project} />
-      {afterFields}
+      <InspectorPaneNav pane={pane} onChange={selectPane} panes={destinationPanes} />
+      <div hidden={pane === "details"} className="flex flex-col gap-3">
+        {pane === "motion" && records.length === 0 ? (
+          <CamotionEmptyState compact copy="Awaiting next destination" />
+        ) : (
+          <DestinationStillPreview
+            frame={frame}
+            canonicalImage={image}
+            records={records}
+            mode={stillMode ?? stillPane}
+            recordKey={camotionKey}
+            onRecordKeyChange={onCamotionKeyChange}
+            onOpenReel={onOpenReel}
+          />
+        )}
+        {banner}
+        {pane === "source" ? (
+          <>
+            <DestinationPlanFields
+              frame={frame}
+              project={project}
+              disabled={reshooting}
+              onPlanChange={onPlanChange}
+              onStoryChange={onStoryChange}
+            />
+            {showShoot || (canReshoot && onReshoot) ? (
+              <div className="flex shrink-0 gap-2">
+                {showShoot ? (
+                  <button
+                    type="button"
+                    className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+                    disabled={!canShoot || reshooting || !onShoot}
+                    aria-label={`Shoot destination ${frame.label}`}
+                    title={destinationShootHint(project, frame, canShoot)}
+                    onPointerDown={() => {
+                      commitActiveTextEdit();
+                    }}
+                    onClick={() => {
+                      if (canShoot) {
+                        onShoot?.();
+                      }
+                    }}
+                  >
+                    {reshooting ? "Shooting…" : "Shoot"}
+                  </button>
+                ) : null}
+                {canReshoot && onReshoot ? (
+                  <button
+                    type="button"
+                    className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+                    disabled={reshooting}
+                    aria-label={`Reshoot destination ${frame.label}`}
+                    title="Regenerate this destination from its current prompt."
+                    onPointerDown={() => {
+                      commitActiveTextEdit();
+                    }}
+                    onClick={() => {
+                      onReshoot();
+                    }}
+                  >
+                    {reshooting ? "Reshooting…" : "Reshoot"}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {afterFields}
+          </>
+        ) : null}
+      </div>
+      <div hidden={pane !== "details"} className="space-y-3">
+        <DestinationMediaFacts frame={frame} project={project} />
+        <DestinationGeneratedPrompt frame={frame} project={project} />
+        <InspectorCopyDisclosure label="Camotion" copyLabel="Copy camotion" copyText={camotionCopy}>
+          <CamotionDiagnosticPanel
+            records={records}
+            emptyCopy="Awaiting next destination"
+            filmmaker
+            debugOn={debugOn}
+            project={project}
+            showHeading={false}
+          />
+        </InspectorCopyDisclosure>
+      </div>
       {footer}
     </>
   );

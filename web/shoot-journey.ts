@@ -183,7 +183,7 @@ export async function stagePreparedMotionPlan(input: {
   const effectivePrompt =
     typeof input.body.effectivePrompt === "string" && input.body.effectivePrompt.trim()
       ? input.body.effectivePrompt.trim()
-      : composeShootingPrompt(locomotionBaseline(pace), segmentPromptAddition);
+      : composeShootingPrompt(locomotionBaseline(pace), segmentPromptAddition, pace);
   return {
     journeyId,
     startShootingFrame: {
@@ -297,7 +297,7 @@ function stagedMotionPlanFromShootingFrames(
   const effectivePrompt =
     typeof body.effectivePrompt === "string" && body.effectivePrompt.trim()
       ? body.effectivePrompt.trim()
-      : composeShootingPrompt(locomotionBaseline(pace), segmentPromptAddition);
+      : composeShootingPrompt(locomotionBaseline(pace), segmentPromptAddition, pace);
   return {
     journeyId,
     startShootingFrame: { mediaId: start.mediaId, imageUrl: start.imageUrl },

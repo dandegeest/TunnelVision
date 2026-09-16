@@ -12,6 +12,7 @@ import {
   canReshootOpeningFrame,
   generatedStillNeedsReshoot,
   nextConstructableDestinationId,
+  canGenerateRemainingDestinationsWithoutPlanning,
   destinationConstructionPrompt,
   destinationGeneratedPrompt,
   destinationImageModelLabel,
@@ -254,6 +255,10 @@ describe("construct B from current Project state", () => {
     expect(canConstructDestinationFrame(planned, c)).toBe(false);
     expect(canConstructDestinationFrame(planned, d)).toBe(false);
     expect(nextConstructableDestinationId(planned)).toBe("B");
+    expect(canGenerateRemainingDestinationsWithoutPlanning(createNewProject())).toBe(false);
+    expect(canGenerateRemainingDestinationsWithoutPlanning(createWardrobeProject())).toBe(false);
+    expect(canGenerateRemainingDestinationsWithoutPlanning(planned)).toBe(true);
+    expect(canGenerateRemainingDestinationsWithoutPlanning(createForestProject())).toBe(false);
   });
 
   it("assigns constructed image and trusted media identity without changing A, C...N, or story", () => {

@@ -219,6 +219,8 @@ export {
   locomotionBaseline,
   composeShootingPrompt,
   splitShootingPrompt,
+  extremePaceLeadIn,
+  EXTREME_PACE_LEAD_INS,
 } from "./cinematographer/shooting-prompt.ts";
 export type { LocomotionPace } from "./cinematographer/shooting-prompt.ts";
 export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";

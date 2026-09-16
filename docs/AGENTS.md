@@ -105,8 +105,12 @@ many FPO slots. After the first DIRECT response the count is read-only
 and follows storyboard add/delete. CREATE JOURNEY generates unresolved A from the story before
 Director planning unless A is already actual. When the opening still is already actual and the
 story is empty, DIRECT first asks the Director to write a journey story
-from that image, then continues with the existing plan. When auto-generate all destinations is on, DIRECT then
-constructs B…N in travel order from each preceding actual frame. Later
+from that image, then continues with the existing plan. When auto-generate all destinations is on during CREATE JOURNEY, DIRECT then
+constructs B…N in travel order from each preceding actual frame. After the
+journey is already planned, turning that option on constructs remaining
+unfilled destinations from the existing plan and does not call the Director
+again. Before the first plan, the checkbox only stores the option.
+Later
 beats cannot run in parallel. If a later construct fails, generation
 stops and the Director plan remains.
 Auto blocking and Auto shoot are independent and off by default.
@@ -148,7 +152,7 @@ relabeling remaining ids or calling the Director; opening A cannot be
 deleted. The filmmaker can replace a destination's
 canonical still in place from the destination menu, or Reshoot a generated
 still from the current prompt. If that slot already has
-intent or a visual description, upload asks whether to clear them so a later
+intent or a visual description, upload asks Keep or Clear so a later
 DIRECT can describe the new still. Storyboard and
 other 16:9 thumbnails keep a fixed 16:9 tile and contain source stills
 (letterbox or pillarbox) rather than stretching or cropping them.
@@ -165,18 +169,21 @@ drop. The same Inspector - Destination panel from
 Shoot sits on the right of that reel. The reel does not cover the
 conversation or Project rails. Intent and story (A) or beat (later destinations)
 are click-to-edit and update the journey story or that beat's plan on each
-keystroke. Click-to-edit fields keep a dimmed border at rest. Prompt stays
-collapsed and is read-only, with Reshoot under it. The reel inspector keeps
+keystroke. Click-to-edit fields keep a dimmed border at rest. Source | Motion |
+Details tabs split the inspector: a compact aspect · resolution · model line sits
+above Prompt and Camotion in Details, open by default, with copy-to-clipboard.
+Reshoot stays on Source. The reel inspector keeps
 Shoot visible on FPO destinations and disables it until intent and beat
 are set (and the previous destination is actual). Media facts
 show aspect, resolution, and the product image model on generated stills.
-When Camotion A′ (or B′) exists, SOURCE | MOTION toggles the still between the
-canonical and the conditioned frame, including the reel image. The storyboard
+When Camotion A′ (or B′) exists, Motion shows the conditioned frame, including the
+reel image. The storyboard
 reel also opens planned FPO destinations; that inspector action is Shoot, not
 Reshoot. Plan changed does not block opening the reel. Leaving
 the field or closing the reel commits the current text. Plan and Shoot in the
-workspace header close the storyboard reel. On Shoot, a second click on a
-selected timeline still opens that same reel. Uploaded A with a story stores opening intent from
+workspace header close the storyboard reel. On Shoot, the destination
+inspector still opens that same reel. Motion preview previous/next arrows
+step among adjacent MOTION pairs and update timeline selection. Uploaded A with a story stores opening intent from
 that story; generated A also stores the TunnelVision opening prompt as visual
 description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current storyboard intent and visual description. If the plan changes after a still exists, that
@@ -245,7 +252,11 @@ the next Take row with Generating… — including the first Take on a
 segment. The compact **NEW TAKE** control stays hidden until generation
 finishes.
 Shoot Inspector headers read Inspector - Destination, Inspector - Motion, or
-Inspector - Take. Motion and Take both use the A→B heading; Take
+Inspector - Take. Motion uses Motion | Details tabs: scores, camera path, and
+summary on Motion; Camotion, Start′/End′, and Prompt on Details. Clicking Start′
+or End′ opens destination inspector Motion; clicking the start or end canonical
+opens Source. Motion and Take
+both use the A→B heading; Take
 identifies the selected Take (`A→B · TAKE 2`) and shows that Take's
 conditioned START′/END′ frames plus the generation intent and catalog model
 (`Fast · Pruna`). Take **NEW TAKE** appends another Take.
@@ -402,9 +413,10 @@ destination from that object. Centered `[0.5, 0.5]` is only the fallback
 when a still has no usable target. An actual adjacent canonical pair then
 automatically renders Camotion A′/B′ for that
 segment, and stores the complete Motion Plan on the JourneyShot. FOOTAGE
-Generate uses those staged frames and `composeShootingPrompt` (`segmentPromptAddition` first, then the
+Generate uses those staged frames and `composeShootingPrompt` (extreme-pace
+lead-in for slow-motion / hyperspeed, then `segmentPromptAddition`, then the
 frozen locomotion baseline). Do not have an LLM rewrite or merge those
-two pieces. Terran Boylan's
+pieces. Terran Boylan's
 original TunnelVision continuous-locomotion prompting is the
 foundation of the baseline. Adaptive per-segment choreography is
 current TunnelVision product work, not Terran's agent design.
@@ -608,7 +620,13 @@ Generated motion prioritizes uninterrupted physical travel: camera
 continuously advances; foreground objects pass beside/behind it; strong
 parallax reveals new space ahead. The Cinematographer's
 `segmentPromptAddition` names the specific physical route visible in
-that adjacent pair and, when relevant, subject persistence. The frozen
+that adjacent pair and, when relevant, subject persistence. When the
+pair requires leaving an occluder or crossing a boundary, that addition
+names the physical pass-through — approach and open a door, pass around
+a corner, move through vegetation, enter and emerge from an arch —
+so camera locomotion causes the reveal and scene geometry stays fixed.
+Do not describe the environment as parting or opening to reveal the
+destination. Skip those mechanics on already clear open-space travel. The frozen
 locomotion baseline only enforces continuous travel, unembodied POV,
 and cinematic-cheat / invented-passageway prohibitions. It does not
 enumerate tunnels, thresholds, openings, paths, or FPS-style objects.
@@ -618,7 +636,7 @@ The frozen locomotion baseline now lives in
 `TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is a per-segment
 macro: BLOCK sets `slow-motion`, `slow`, `moderate`, `fast`,
 `hyperspeed`, or `variable` from the geography;
-SHOOT fills the template with the matching speed phrase and concatenates `segmentPromptAddition` first, then the filled baseline, via
+SHOOT fills the template with the matching speed phrase and concatenates an extreme-pace lead-in when the pace is `slow-motion` or `hyperspeed`, then `segmentPromptAddition`, then the filled baseline, via
 `composeShootingPrompt`. Clip duration stays fixed; pace is apparent
 camera speed, not runtime. Do not LLM-merge the baseline and addition.
 Preserve Terran

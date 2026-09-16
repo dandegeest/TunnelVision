@@ -81,6 +81,15 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.systemInstruction, /existing open doorway into the visible room beyond/);
   assert.match(request.systemInstruction, /Continue forward through open air toward the distant structure/);
   assert.match(request.systemInstruction, /Remain entirely within the open pool and arrive directly at the base of the falls/);
+  assert.match(request.systemInstruction, /physically pass the last foreground trees/);
+  assert.match(request.systemInstruction, /The trees pass beside the camera and then behind it/);
+  assert.match(request.systemInstruction, /approach it, open it, and move through the doorway/);
+  assert.match(request.systemInstruction, /physically pass around the corner/);
+  assert.match(request.systemInstruction, /physically move through or past them/);
+  assert.match(request.systemInstruction, /enter it, cross it, and emerge from the other side/);
+  assert.match(request.systemInstruction, /locomotion causes the reveal/);
+  assert.match(request.systemInstruction, /Do not add transition mechanics to already clear open-space/);
+  assert.doesNotMatch(request.systemInstruction, /foliage parts/);
   assert.match(request.systemInstruction, /Reinforce spatial boundaries positively when useful/);
   assert.match(request.systemInstruction, /Do not enumerate absent structures or hypothetical alternatives/);
   assert.match(request.systemInstruction, /genuine ambiguity that cannot be expressed clearly with positive route guidance/);
@@ -91,6 +100,8 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.systemInstruction, /must name the visible physical route for this pair/);
   assert.match(request.prompt, /Name the concrete visible route in segmentPromptAddition/);
   assert.match(request.prompt, /Describe it positively/);
+  assert.match(request.prompt, /Camera locomotion causes the reveal/);
+  assert.match(request.prompt, /Do not add those mechanics to already clear open-space travel/);
   assert.match(request.prompt, /Include concise subject guidance only when subjects are already relevant/);
   assert.match(request.prompt, /Do not enumerate structures that are not in the stills/);
   assert.match(request.systemInstruction, /pedestrians and traffic continue naturally through the street/);
@@ -98,7 +109,12 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.systemInstruction, /figures visible in the destination become clearer during the approach/);
   assert.match(request.systemInstruction, /Do not invent people, animals, vehicles, or other subjects merely to populate/);
   assert.match(request.systemInstruction, /Omit subject guidance entirely when none is needed/);
-  assert.match(request.systemInstruction, /Pace is a per-shot macro/);
+  assert.match(request.systemInstruction, /Pace is a first-class temporal choice/);
+  assert.match(request.systemInstruction, /Perform the entire traversal in extreme cinematic slow motion/);
+  assert.match(request.systemInstruction, /Perform the entire traversal at extreme hyper-speed/);
+  assert.match(request.systemInstruction, /Do not write pace, slow motion, or hyper-speed wording into segmentPromptAddition/);
+  assert.match(request.systemInstruction, /Do not add scene-specific pace examples/);
+  assert.doesNotMatch(request.systemInstruction, /Pace is a per-shot macro/);
   assert.match(request.systemInstruction, /pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable/);
   assert.match(request.prompt, /Report travel geometry for each still/);
   assert.match(request.prompt, /Do not predict whether a specific video provider call will succeed/);
@@ -231,6 +247,15 @@ test("CM segment prompt can name a visible doorway, open traversal, or positive 
     }),
   );
   assert.match(subjects.segmentPromptAddition, /Pedestrians and traffic continue naturally/);
+
+  const trees = parseCinematographerAssessment(
+    validAssessmentJson({
+      segmentPromptAddition:
+        "Continue along the existing road, physically pass the last foreground trees on the left and right, and emerge onto the open street. The trees pass beside the camera and then behind it as the street is revealed by forward travel.",
+    }),
+  );
+  assert.match(trees.segmentPromptAddition, /physically pass the last foreground trees/);
+  assert.doesNotMatch(trees.segmentPromptAddition, /trees part|open to reveal/i);
 });
 
 test("a straight route is valid choreography and does not require a turn", () => {

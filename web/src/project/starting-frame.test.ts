@@ -18,7 +18,7 @@ import {
   runtimeMediaPreviewUrl,
   STARTING_FRAME_MAX_BYTES,
   startingFrameFileError,
-  shouldClearStoryboardPlanOnUpload,
+  shouldAskToClearStoryboardPlanOnUpload,
   storyboardFrameHasPlanText,
   CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT,
   uploadStartingFrame,
@@ -469,14 +469,10 @@ describe("providing starting frame A on a new project", () => {
 
 describe("clearing plan text on upload", () => {
   it("does not prompt when the slot has no intent or visual description", () => {
-    const confirm = vi.fn(() => true);
-    expect(
-      shouldClearStoryboardPlanOnUpload({}, confirm),
-    ).toBe(false);
-    expect(confirm).not.toHaveBeenCalled();
+    expect(shouldAskToClearStoryboardPlanOnUpload({})).toBe(false);
   });
 
-  it("prompts and follows the filmmaker choice when plan text exists", () => {
+  it("asks Keep or Clear when plan text exists", () => {
     const frame = {
       id: "C",
       label: "C",
@@ -485,10 +481,8 @@ describe("clearing plan text on upload", () => {
       visualDescription: "An empty window onto pines.",
     };
     expect(storyboardFrameHasPlanText(frame)).toBe(true);
-    const accepted = vi.fn(() => true);
-    expect(shouldClearStoryboardPlanOnUpload(frame, accepted)).toBe(true);
-    expect(accepted).toHaveBeenCalledWith(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT);
-    const declined = vi.fn(() => false);
-    expect(shouldClearStoryboardPlanOnUpload(frame, declined)).toBe(false);
+    expect(shouldAskToClearStoryboardPlanOnUpload(frame)).toBe(true);
+    expect(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT).toMatch(/Keep it on the new still/);
+    expect(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT).toMatch(/clear the intent and visual description/);
   });
 });

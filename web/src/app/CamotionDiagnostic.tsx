@@ -193,16 +193,20 @@ export function CamotionDiagnosticPanel({
   filmmaker = false,
   debugOn = false,
   project,
+  showHeading = true,
 }: {
   records: readonly DestinationCamotionRecord[];
   emptyCopy?: string;
   filmmaker?: boolean;
   debugOn?: boolean;
   project?: Pick<Project, "destinations" | "journeys">;
+  showHeading?: boolean;
 }) {
   return (
-    <section className="border-t border-[#2a2620] pt-3 text-xs" aria-label="Camotion diagnostic">
-      <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Camotion</p>
+    <section className={showHeading ? "border-t border-[#2a2620] pt-3 text-xs" : "text-xs"} aria-label="Camotion diagnostic">
+      {showHeading ? (
+        <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Camotion</p>
+      ) : null}
       {records.length === 0 ? (
         <CamotionEmptyState compact copy={emptyCopy} />
       ) : (

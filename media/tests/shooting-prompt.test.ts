@@ -11,6 +11,8 @@ import {
   composeShootingPrompt,
   locomotionBaseline,
   splitShootingPrompt,
+  extremePaceLeadIn,
+  EXTREME_PACE_LEAD_INS,
 } from "../src/cinematographer/shooting-prompt.ts";
 
 test("locomotion baseline keeps continuous travel and unembodied first-person POV", () => {
@@ -60,9 +62,9 @@ test("pace is a baseline macro filled per segment", () => {
   assert.match(locomotionBaseline("slow"), /at a constant, slow speed/);
   assert.doesNotMatch(locomotionBaseline("slow"), /fast speed/);
   assert.doesNotMatch(locomotionBaseline("moderate"), /fast speed/);
-  assert.match(locomotionBaseline("slow-motion"), /in continuous slow motion/);
+  assert.match(locomotionBaseline("slow-motion"), /in extreme cinematic slow motion throughout/);
   assert.doesNotMatch(locomotionBaseline("slow-motion"), /constant/);
-  assert.match(locomotionBaseline("hyperspeed"), /at hyperspeed while still physically traversing space/);
+  assert.match(locomotionBaseline("hyperspeed"), /at extreme hyper-speed while still physically traversing space/);
   assert.match(locomotionBaseline("variable"), /variable speed that quickens and eases/);
   assert.doesNotMatch(locomotionBaseline("variable"), /constant/);
   assert.equal(LOCOMOTION_PACE_PHRASES.fast, "at a constant, fast speed");
@@ -113,8 +115,46 @@ test("splitShootingPrompt keeps CM addition ahead of the global baseline", () =>
   const addition = "Pedestrians and traffic continue naturally through the street.";
   const baseline = locomotionBaseline("fast");
   const composed = composeShootingPrompt(baseline, addition);
-  assert.deepEqual(splitShootingPrompt(composed, addition), { addition, baseline });
-  assert.deepEqual(splitShootingPrompt(composed), { addition, baseline });
-  assert.deepEqual(splitShootingPrompt(baseline), { addition: "", baseline });
-  assert.deepEqual(splitShootingPrompt(addition, addition), { addition, baseline: "" });
+  assert.deepEqual(splitShootingPrompt(composed, addition), { paceLeadIn: "", addition, baseline });
+  assert.deepEqual(splitShootingPrompt(composed), { paceLeadIn: "", addition, baseline });
+  assert.deepEqual(splitShootingPrompt(baseline), { paceLeadIn: "", addition: "", baseline });
+  assert.deepEqual(splitShootingPrompt(addition, addition), { paceLeadIn: "", addition, baseline: "" });
+});
+
+test("composeShootingPrompt leads with extreme slow-motion and hyper-speed instructions", () => {
+  const addition = "Push straight forward down the center of the corridor toward the destination ahead.";
+  const slowMo = locomotionBaseline("slow-motion");
+  const hyper = locomotionBaseline("hyperspeed");
+  const slowLead = EXTREME_PACE_LEAD_INS["slow-motion"];
+  const hyperLead = EXTREME_PACE_LEAD_INS.hyperspeed;
+  const slowComposed = composeShootingPrompt(slowMo, addition, "slow-motion");
+  const hyperComposed = composeShootingPrompt(hyper, addition, "hyperspeed");
+  assert.equal(slowComposed, `${slowLead}\n${addition}\n${slowMo}`);
+  assert.equal(hyperComposed, `${hyperLead}\n${addition}\n${hyper}`);
+  assert.ok(slowComposed.startsWith(slowLead));
+  assert.ok(hyperComposed.startsWith(hyperLead));
+  assert.match(slowLead, /extreme cinematic slow motion/);
+  assert.match(slowLead, /dramatically slowed temporal rate from beginning to end/);
+  assert.match(hyperLead, /extreme hyper-speed/);
+  assert.match(hyperLead, /dramatically accelerated temporal rate from beginning to end/);
+  assert.doesNotMatch(slowLead, /rain|pedestrian|traffic/i);
+  assert.doesNotMatch(hyperLead, /rain|pedestrian|traffic/i);
+  assert.doesNotMatch(slowComposed, /in continuous slow motion/);
+  assert.equal(extremePaceLeadIn("fast"), "");
+  assert.equal(composeShootingPrompt(locomotionBaseline("fast"), addition, "fast"), `${addition}\n${locomotionBaseline("fast")}`);
+  assert.deepEqual(splitShootingPrompt(slowComposed, addition), {
+    paceLeadIn: slowLead,
+    addition,
+    baseline: slowMo,
+  });
+  assert.deepEqual(splitShootingPrompt(hyperComposed, addition), {
+    paceLeadIn: hyperLead,
+    addition,
+    baseline: hyper,
+  });
+  assert.deepEqual(splitShootingPrompt(composeShootingPrompt(slowMo, undefined, "slow-motion")), {
+    paceLeadIn: slowLead,
+    addition: "",
+    baseline: slowMo,
+  });
 });

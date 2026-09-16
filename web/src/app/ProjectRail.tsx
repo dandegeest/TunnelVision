@@ -40,6 +40,7 @@ import {
 } from "../project/generation-intent";
 import { klingV3ModeFromProject } from "../project/shoot";
 import { PanelHeader } from "./PanelHeader";
+import { OptionMenu } from "../ui/OptionMenu";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
   const { projectRailOpen, setProjectRailOpen } = useProject();
@@ -367,80 +368,71 @@ function ProjectSettingsView({ busy }: { busy: boolean }) {
 function ImageModelSelect({ disabled }: { disabled: boolean }) {
   const { project, setImageModel, setImageOutputFormat, setImageResolution } = useProject();
   const fieldClass =
-    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]";
+    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]";
   const showFormat = imageModelHasFormatChoice(project.imageModel);
   const showResolution = imageModelHasResolutionChoice(project.imageModel);
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5">
         <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Image</span>
-        <select
-          aria-label="Image model"
+        <OptionMenu
+          ariaLabel="Image model"
           title="Used for opening A and every later still in this project. Nano Banana 2 Lite is the development default."
           disabled={disabled}
-          className={fieldClass}
+          triggerClassName={fieldClass}
           value={project.imageModel}
-          onChange={(event) => {
-            const next = event.target.value;
+          options={IMAGE_MODELS.map((option) => ({
+            value: option.id,
+            label: imageModelMenuLabel(option),
+          }))}
+          onChange={(next) => {
             if (isImageModelId(next)) {
               setImageModel(next);
             }
           }}
-        >
-          {IMAGE_MODELS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {imageModelMenuLabel(option)}
-            </option>
-          ))}
-        </select>
-      </label>
+        />
+      </div>
       {showFormat ? (
-        <label className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Format</span>
-          <select
-            aria-label="Image format"
+          <OptionMenu
+            ariaLabel="Image format"
             title="Output file format for generated stills. PNG is the development default."
             disabled={disabled}
-            className={fieldClass}
+            triggerClassName={fieldClass}
             value={project.imageOutputFormat}
-            onChange={(event) => {
-              const next = event.target.value;
+            options={imageModelOutputFormats(project.imageModel).map((format) => ({
+              value: format,
+              label: format.toUpperCase(),
+            }))}
+            onChange={(next) => {
               if (isImageOutputFormat(next)) {
                 setImageOutputFormat(next);
               }
             }}
-          >
-            {imageModelOutputFormats(project.imageModel).map((format) => (
-              <option key={format} value={format}>
-                {format.toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
       ) : null}
       {showResolution ? (
-        <label className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Resolution</span>
-          <select
-            aria-label="Image resolution"
+          <OptionMenu
+            ariaLabel="Image resolution"
             title="Output resolution for generated stills. 1K is the development default."
             disabled={disabled}
-            className={fieldClass}
+            triggerClassName={fieldClass}
             value={project.imageResolution}
-            onChange={(event) => {
-              const next = event.target.value;
+            options={imageModelResolutions(project.imageModel).map((resolution) => ({
+              value: resolution,
+              label: resolution,
+            }))}
+            onChange={(next) => {
               if (isImageResolution(next)) {
                 setImageResolution(next);
               }
             }}
-          >
-            {imageModelResolutions(project.imageModel).map((resolution) => (
-              <option key={resolution} value={resolution}>
-                {resolution}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
       ) : null}
     </div>
   );
@@ -451,7 +443,7 @@ function VideoModelSelect({ disabled }: { disabled: boolean }) {
   const mappings = videoModelsByIntentFromProject(project);
   const defaultTakeIntent = defaultTakeIntentFromProject(project);
   const fieldClass =
-    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]";
+    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]";
   const intentOptionClass = (selected: boolean) =>
     `flex h-full min-w-0 flex-col items-center justify-center gap-0 rounded px-0.5 text-[9px] leading-tight tracking-[0.08em] uppercase outline-none ${
       selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
@@ -485,54 +477,48 @@ function VideoModelSelect({ disabled }: { disabled: boolean }) {
         </nav>
       </div>
       {GENERATION_INTENTS.map((intent) => (
-        <label key={intent} className="flex flex-col gap-1.5">
+        <div key={intent} className="flex flex-col gap-1.5">
           <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
             {GENERATION_INTENT_MARK[intent]} {GENERATION_INTENT_LABEL[intent]}
           </span>
-          <select
-            aria-label={`${GENERATION_INTENT_LABEL[intent]} video model`}
+          <OptionMenu
+            ariaLabel={`${GENERATION_INTENT_LABEL[intent]} video model`}
             title={`${GENERATION_INTENT_LABEL[intent]} generation intent. Maps onto a catalog model until a router fulfills the intent.`}
             disabled={disabled}
-            className={fieldClass}
+            triggerClassName={fieldClass}
             value={mappings[intent]}
-            onChange={(event) => {
-              const next = event.target.value;
+            options={VIDEO_MODELS.map((option) => ({
+              value: option.id,
+              label: option.label,
+            }))}
+            onChange={(next) => {
               if (isVideoModelId(next)) {
                 setVideoModelForIntent(intent, next);
               }
             }}
-          >
-            {VIDEO_MODELS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
       ))}
       {projectShowsVideoModeChoice(project) ? (
-        <label className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Resolution</span>
-          <select
-            aria-label="Kling 3 resolution"
+          <OptionMenu
+            ariaLabel="Kling 3 resolution"
             title="Kling 3 output. Standard is 720p, Pro is 1080p, 4K is 4K. Product shots stay 6s."
             disabled={disabled}
-            className={fieldClass}
+            triggerClassName={fieldClass}
             value={klingV3ModeFromProject(project)}
-            onChange={(event) => {
-              const next = event.target.value;
+            options={KLING_V3_MODES.map((mode) => ({
+              value: mode,
+              label: KLING_V3_MODE_LABEL[mode],
+            }))}
+            onChange={(next) => {
               if (isKlingV3Mode(next)) {
                 setKlingV3Mode(next);
               }
             }}
-          >
-            {KLING_V3_MODES.map((mode) => (
-              <option key={mode} value={mode}>
-                {KLING_V3_MODE_LABEL[mode]}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
       ) : null}
     </div>
   );
@@ -689,6 +675,11 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                     checked={project.autoGenerateAllDestinations}
                     disabled={busy}
                     aria-label="Generate all destinations"
+                    title={
+                      project.storyDurationLocked
+                        ? "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again."
+                        : "After CREATE JOURNEY plans the journey, generate each remaining destination in order."
+                    }
                     className="mt-0.5 accent-[#ece7df]"
                     onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
                   />

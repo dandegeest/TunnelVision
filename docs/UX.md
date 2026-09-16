@@ -108,10 +108,15 @@ TAKES gutter appears immediately and the in-flight Take uses the same
 row as other Takes, with a number badge and Generating… on that bar. **NEW TAKE** stays
 hidden until generation finishes.
 If automatic Motion Planning fails, that MOTION band and the inspector offer Retry for that pair only.
+Motion preview previous/next arrows step among adjacent MOTION pairs and
+update the selected journey on the timeline. Destination Camotion preview
+previous/next arrows step among actual Shoot destinations and skip FPO
+slots so they never open Plan.
 After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. **NEW TAKE** sits under the Take stack when MOTION
+for variable. Motion Inspector lists Pace under Traversal conf. with that
+same chevron mark plus the pace label. **NEW TAKE** sits under the Take stack when MOTION
 or either endpoint of that segment is selected. The main control starts a
 Take with the Default Take Intent. The arrow offers Fast /
 Balanced / Quality. Clicking an intent appends another
@@ -142,12 +147,15 @@ Canonical destinations stay clickable places on the rail above those
 bands. MOTION inspects that segment's automatically generated Motion Plan: when an actual adjacent pair exists, CM
 inspects the actual pair, Camotion derives A′/B′ for that shot, and
 neighboring segments stay untouched. Advisory shootability lives on the
-motion band as clear / hold / no go. Inspector Motion uses a single
-CINEMATOGRAPHER MOTION PLAN heading with compact SET CONSISTENCY and
-TRAVERSAL CONF. scores (0–100) as the same rounded pills as Plan / Shoot
-and preview tabs, filled with the MOTION clear / hold / no-go colors,
-concerns under those scores, camera path,
-pace, and a concise summary. Generate on FOOTAGE remains explicit and produces that one take from the
+motion band as clear / hold / no go. Inspector Motion uses Motion | Details
+tabs. Motion shows compact SET CONSISTENCY and TRAVERSAL CONF. scores (0–100)
+as the same rounded pills as Plan / Shoot and preview tabs, filled with the
+MOTION clear / hold / no-go colors, concerns under those scores, camera path,
+pace, and a concise summary. Details holds Camotion then Prompt, both
+collapsible and open by default with copy-to-clipboard, and the Start′/End′
+thumbs with the Camotion facts. Clicking Start′ or End′ selects that destination
+and opens the destination inspector on Motion. Clicking the start or end
+canonical still on Motion selects that destination on Source. Generate on FOOTAGE remains explicit and produces that one take from the
 staged frames. The preview
 shows the A|B stills, canonical vs conditioned frames, and Camotion overlay on MOTION, and the
 rendered clip on FOOTAGE. MOTION sizes that pair to the stills'
@@ -280,14 +288,16 @@ uploads once the image exists. **Debug** is a session
 toggle in Project settings, not project
 persistence. Debug is on by default for now. **Agency** is a Directed / Agent segmented control
 at the top of that panel, not a native OS menu and not in the workspace header. The Shoot
-inspector destination view is the canonical letter, still, Intent and Story
-(on A) or Beat (later destinations), Reshoot when allowed, a collapsed
-Prompt after that action, aspect / resolution / model facts, SOURCE | MOTION when a Camotion-conditioned
-still exists, and a compact Camotion
-block (direction, vanishing point, destination, protected, exposure; working
-directory only while Debug is on). Empty Camotion copy is “Awaiting next
-destination.” The footage inspector heading is the pair in arrow form (A→B), with
-clickable start/end canonicals, Take (Start′/End′), Pace, Shot direction when CM
+inspector destination view uses Source | Motion | Details tabs. Source is the
+canonical still, Intent and Story (on A) or Beat (later destinations), and
+Reshoot when allowed. Motion is the Camotion-conditioned still when it exists,
+or “Awaiting next destination.” Details opens with a compact aspect · resolution ·
+model line, then Prompt and Camotion, both collapsible and open by default, each
+with copy-to-clipboard. Camotion lists direction, vanishing point, destination,
+protected, exposure; working directory only while Debug is on. Empty Camotion
+copy is “Awaiting next destination.” Clicking Start′ or End′ on Motion or Take
+selects that destination. The footage inspector heading is the pair in arrow form (A→B), with
+Take (Start′/End′), Pace, Shot direction when CM
 travel exists, a collapsed Prompt, Reshoot, and Model only while Debug is on.
 It does not show destination status, opening-destination
 copy, or Technical/Debug path panels. Camotion work dirs are kept only while Debug is on; product
@@ -304,7 +314,7 @@ the storyboard appends a new destination and places that image. Add
 Destination remains a click-to-append empty slot. Generated stills also expose
 Reshoot, which regenerates that canonical from the current prompt.
 If the slot already has intent or a
-visual description, that action asks whether to clear them so the next DIRECT can
+visual description, that action asks Keep or Clear so the next DIRECT can
 describe the new still. Later destinations also expose
 Delete; opening A cannot be deleted. Delete is structural: it does not
 invoke the Director or relabel remaining beats. An Add Destination affordance
@@ -316,14 +326,16 @@ earlier pair do not lock the storyboard: drop, Add Destination, and
 Generate may continue. It does not encode Provided / Generated / Derived / Discovered.
 Approximate duration belongs to a Journey/segment, not the destination
 thumbnail. Destination planning details (intent, story on A or beat visual
-description on later destinations, a collapsed Prompt, and media facts) live
+description on later destinations, a compact media-facts line above Prompt and Camotion in a Details pane) live
 in the same Inspector - Destination panel used on Shoot, docked to the
 right of the storyboard reel — not as a popup under the tile
-or persistent caption text. Intent and story/beat are click-to-edit: they keep a
+or persistent caption text. That inspector uses Source | Motion | Details
+tabs. Intent and story/beat are click-to-edit: they keep a
 dimmed border at rest, look like an editor when focused, commit on each
 keystroke, and keep that text when the filmmaker leaves the field or closes the
-reel. Prompt is read-only and stays collapsed after Reshoot. A′ appears as a toggle on the still when
-Camotion has conditioned that destination. Uploaded A with a journey story
+reel. Prompt and Camotion in Details are read-only, open by default, and offer
+copy-to-clipboard. Motion shows A′ when Camotion has conditioned that
+destination, and that tab also switches the reel still. Uploaded A with a journey story
 stores opening intent from that story; generated A also stores the opening
 prompt. Actual A can still open the reel inspector when those fields are empty. Clicking an unselected still outside the
 label, kebab, and media-info strips selects it. Clicking the selected
@@ -332,9 +344,10 @@ storyboard area, with previous and next among every storyboard
 destination, including empty FPO slots. The inspector keeps Shoot visible
 on those FPO destinations and disables it until intent and beat are set.
 A desktop still can drop onto
-the reel image the same way it drops onto a tile. On Shoot, clicking an unselected timeline still selects
-it; clicking that selected still again opens the same storyboard reel
-over the timeline. Plan and Shoot
+the reel image the same way it drops onto a tile. On Shoot, clicking a timeline still selects that
+occurrence. The destination inspector still opens the same storyboard reel
+over the timeline. Motion preview previous/next arrows step to the
+adjacent MOTION pair and select that journey on the timeline. Plan and Shoot
 close the reel. A Plan changed badge does not add a special tile border and does not
 block opening that reel. Ungenerated reel stills use the start frame's
 aspect. The image is
@@ -350,7 +363,9 @@ The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
 which can hide to the right. Directed Options are Generate all destinations and Shoot.
-Video, Default Take Intent, and Debug mode are in Project settings. When
+Video, Default Take Intent, and Debug mode are in Project settings. Those
+model, format, and resolution controls are in-app menus, not native OS
+selects. When
 Kling 3 is mapped, settings also show Standard (720p) / Pro (1080p) / 4K.
 Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
@@ -361,7 +376,10 @@ runs Director planning. Uploading A before the first plan supplies that
 opening still instead of generating it. When A is actual and the story is empty, DIRECT
 writes a story from A first. When auto-generate all destinations is on,
 DIRECT then generates each remaining destination in order from the
-previous actual frame. Auto blocking and Auto shoot continue that
+previous actual frame. After the journey is planned, turning that option
+on generates remaining unfilled destinations from that plan without another
+Director call. Before the first plan, the checkbox only stores the option.
+Auto blocking and Auto shoot continue that
 pipeline after destinations exist. While CREATE JOURNEY or those auto stages run,
 the CREATE JOURNEY button uses the generating shimmer and names the current
 stage on that button only: Generating A…, Planning Destinations…,
@@ -427,8 +445,8 @@ Shootability is **relational and advisory**: the Cinematographer
 inspects an intended journey between actual generated sets and
 describes how to shoot it. Timeline tiles use Stage / Film / Export, with clear / hold / no go outlines after
 BLOCK, and a chevron pace mark in the gutter between destination stills.
-Motion Inspector keeps camera path and a concise summary on the analyzed leg;
-destination cards stay world-state. CM `not_shootable` does not change
+Motion Inspector keeps camera path and a concise summary on the Motion tab;
+Camotion, Start′/End′, and Prompt live on Details. Destination cards stay world-state. CM `not_shootable` does not change
 JourneyShot operational status.
 
 A blocked journey is not automatically a Cinematographer repair.

@@ -4,7 +4,7 @@ import { createNewProject } from "../project/new-project";
 import { projectWithDirectorPlan } from "../project/storyboard";
 import { currentCutDurationSeconds } from "../project/current-cut";
 import { projectWithAppendedTake, projectWithSelectedTake, takeId, journeyTakes } from "../project/takes";
-import { journeyPlayheadStart, layoutShootTimeline, occurrenceForJourneyEndpoint, occurrenceIsGenerating, playheadStartForSelection, selectShootOccurrence, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
+import { journeyPlayheadStart, layoutShootTimeline, neighboringMotionJourney, neighboringShootOccurrence, occurrenceForJourneyEndpoint, occurrenceIsGenerating, playheadStartForSelection, selectShootOccurrence, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
 
 const A_MEDIA = {
   mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -129,26 +129,40 @@ describe("shoot timeline slots", () => {
     expect(selected).toEqual([{ destinationId: "A", occurrenceIndex: 0 }]);
   });
 
-  it("opens the storyboard reel when the selected actual is clicked again", () => {
-    const layout = layoutShootTimeline(createForestProject(), 1);
-    const opened: string[] = [];
-    const selected: Array<{ destinationId: string; occurrenceIndex: number }> = [];
-    selectShootOccurrence(occurrenceForJourneyEndpoint(layout.occurrences, "A-B", "start"), {
-      select: (selection) => {
-        if (selection.kind === "destination") {
-          selected.push({ destinationId: selection.destinationId, occurrenceIndex: selection.occurrenceIndex });
-        }
-      },
-      openStoryboardInPlan: () => {
-        throw new Error("actual A should not open Plan");
-      },
-      openStoryboardReel: (frameId) => {
-        opened.push(frameId);
-      },
-      selected: true,
-    });
-    expect(opened).toEqual(["A"]);
-    expect(selected).toEqual([]);
+  it("finds the previous and next motion journey in timeline order", () => {
+    const journeys = [{ id: "A-B" }, { id: "B-C" }, { id: "C-D" }];
+    expect(neighboringMotionJourney(journeys, "A-B", -1)).toBeUndefined();
+    expect(neighboringMotionJourney(journeys, "A-B", 1)?.id).toBe("B-C");
+    expect(neighboringMotionJourney(journeys, "B-C", -1)?.id).toBe("A-B");
+    expect(neighboringMotionJourney(journeys, "B-C", 1)?.id).toBe("C-D");
+    expect(neighboringMotionJourney(journeys, "C-D", 1)).toBeUndefined();
+    expect(neighboringMotionJourney(journeys, "missing", 1)).toBeUndefined();
+  });
+
+  it("finds the previous and next actual Shoot destination, skipping FPO", () => {
+    const forest = layoutShootTimeline(createForestProject(), 1);
+    expect(neighboringShootOccurrence(forest.occurrences, 0, -1)).toBeUndefined();
+    expect(neighboringShootOccurrence(forest.occurrences, 0, 1)?.destinationId).toBe("B");
+    expect(neighboringShootOccurrence(forest.occurrences, 2, -1)?.destinationId).toBe("B");
+    expect(neighboringShootOccurrence(forest.occurrences, 2, 1)?.destinationId).toBe("D");
+    const last = forest.occurrences[forest.occurrences.length - 1]!;
+    expect(neighboringShootOccurrence(forest.occurrences, last.occurrenceIndex, 1)).toBeUndefined();
+    const onlyA = {
+      ...createNewProject(),
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user" as const,
+          image: A_MEDIA.image,
+          mediaId: A_MEDIA.mediaId,
+          destinationId: "A",
+        },
+      ],
+    };
+    const fpo = layoutShootTimeline(onlyA, 1);
+    expect(fpo.occurrences.some((item) => item.fpo)).toBe(true);
+    expect(neighboringShootOccurrence(fpo.occurrences, 0, 1)).toBeUndefined();
   });
 
   it("matches a generating Plan beat to the corresponding Shoot slot", () => {

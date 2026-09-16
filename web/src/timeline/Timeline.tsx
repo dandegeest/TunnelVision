@@ -18,7 +18,6 @@ export function Timeline() {
     selection,
     select,
     openStoryboardInPlan,
-    setStoryboardReelId,
     assessingJourneyIds,
     shootingJourneyIds,
     constructingBeatId,
@@ -76,10 +75,6 @@ export function Timeline() {
               selectShootOccurrence(occurrence, {
                 select,
                 openStoryboardInPlan,
-                openStoryboardReel: setStoryboardReelId,
-                selected:
-                  selection.kind === "destination" &&
-                  selection.occurrenceIndex === occurrenceIndex,
               });
             }}
           />

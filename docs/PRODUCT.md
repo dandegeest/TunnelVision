@@ -88,8 +88,11 @@ story unless the filmmaker already supplied A. If A is already actual
 and the story is empty, CREATE JOURNEY first asks the Director to write a
 journey story from that image, then continues with the existing plan.
 Auto-generate all
-destinations is independent and off by default; after a successful CREATE JOURNEY
-it constructs B…N in travel order from each preceding actual frame.
+destinations is independent and off by default. During CREATE JOURNEY it
+constructs B…N in travel order from each preceding actual frame.
+After the journey is planned, turning that option on constructs remaining
+unfilled destinations from that plan without another Director call. Before
+the first plan, the checkbox only stores the option for CREATE JOURNEY.
 Construction is sequential because each later beat is derived from the
 previous one. If a later construct fails, generation stops and the
 Director plan remains. Auto blocking and Auto shoot are also
@@ -108,7 +111,7 @@ unspecified directing decisions and does not overwrite specified
 filmmaking decisions or generate images. When an uploaded or other actual still
 has no intent or visual description, CREATE JOURNEY describes that still from the attached
 image and adopts the text. Later CREATE JOURNEY runs leave filled fields alone. Uploading or
-replacing a still asks whether to clear existing plan text so the next CREATE JOURNEY can
+replacing a still asks Keep or Clear so the next CREATE JOURNEY can
 describe the new image. Agency (DIRECTED vs AGENT) is orthogonal and is not a
 stand-in for Discovery. In AGENT mode, CREATE JOURNEY runs
 JourneyAgent (`web/src/project/journey-agent.ts`) on the same Project:
@@ -143,11 +146,13 @@ empty opening intent from that story and leaves visual description empty (there 
 no TunnelVision prompt). Generating A stores opening intent from the story and the
 generation prompt as visual description. That prompt asks for the
 opening instant only and does not depict later destinations. The Plan storyboard reel shows the same Inspector - Destination
-panel as Shoot on the right — intent, story/beat, a collapsed Prompt,
-Reshoot, aspect / resolution / model, and A / A′ when Camotion exists —
+panel as Shoot on the right — intent, story/beat, Source | Motion | Details,
+Reshoot, and Details for a compact media-facts line above Prompt and Camotion —
 including on an actual opening whose
 intent and story are still empty so the filmmaker can type them.
-On Shoot, a second click on a selected timeline still opens that same reel.
+On Shoot, the destination inspector still opens that same reel. Motion
+preview previous/next arrows step among adjacent MOTION pairs and update
+timeline selection.
 When A is unresolved, CREATE JOURNEY generates A
 before Director planning. When auto-generate all destinations is on,
 CREATE JOURNEY then generates each remaining destination in order. Director activity appears in conversation when CREATE JOURNEY runs;
@@ -211,8 +216,9 @@ toggle, a CameraMotionPlan overlay on the still, and inspector facts. When an ac
 runs against those stills automatically, renders Camotion A′/B′ for that pair, and stores the
 Motion Plan on that JourneyShot. Changing either canonical invalidates and
 recomputes that segment's Motion Plan. Footage generation remains explicit.
-NEW TAKE uses those staged frames, composes `segmentPromptAddition`
-ahead of the frozen locomotion baseline, and generates a development
+NEW TAKE uses those staged frames, composes an extreme-pace lead-in when
+the shot is slow-motion or hyperspeed, then `segmentPromptAddition`, then
+the frozen locomotion baseline, and generates a development
 clip. The Project panel Image control chooses the still generator for
 opening A and later B…N. Nano Banana 2 Lite is the development
 default; Nano Banana 2 is opt-in. The same model text-to-images A and
@@ -519,8 +525,11 @@ is artistically good; the filmmaker reviews Takes. A JourneyShot may progress ev
 `not_shootable`. Shoot tiles show Stage / Film / Export, with filled clear / hold / no go bands after Plan;
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
-Inspector Motion uses a CINEMATOGRAPHER MOTION PLAN heading with compact
-SET CONSISTENCY and TRAVERSAL CONF. scores; the MOTION band shows those
+Inspector Motion uses Motion | Details tabs with compact
+SET CONSISTENCY and TRAVERSAL CONF. scores on Motion; Details holds Camotion,
+Start′/End′, then Prompt. Clicking Start′ or End′ selects that destination
+on Motion; clicking the start or end canonical selects it on Source.
+The MOTION band shows those
 same two pills. Advisory shootability stays
 on the motion band as clear / hold / no go. CM does **not** emit CameraMotionPlan JSON
 or generate video; the same assessment turn's travel object is bridged
@@ -545,7 +554,11 @@ foundation of the stable baseline. The production baseline enforces
 continuous physical travel and forbids invented intermediate
 structures or passageways. Route-specific spatial language (an
 existing doorway, a visible roadway, open water, open air) belongs in
-`segmentPromptAddition`, not in the global baseline. Adaptive
+`segmentPromptAddition`, not in the global baseline. When A→B must leave
+an occluder or cross a boundary, that addition names the physical
+pass-through so locomotion causes the reveal; scene geometry stays
+fixed. Do not describe trees, foliage, or similar as parting or opening
+to reveal the destination. Adaptive
 per-segment choreography is current TunnelVision product work, not
 Terran's agent design.
 

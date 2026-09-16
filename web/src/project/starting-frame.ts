@@ -101,7 +101,9 @@ export function parseStartingFrameUpload(body: unknown): StartingFrameUpload {
 }
 
 export const CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT =
-  "This destination already has a plan. Clear the intent and visual description so the next DIRECT can describe the new still?";
+  "This destination already has a plan. Keep it on the new still, or clear the intent and visual description so the next DIRECT can describe it?";
+export const CLEAR_STORYBOARD_PLAN_KEEP_LABEL = "Keep";
+export const CLEAR_STORYBOARD_PLAN_CLEAR_LABEL = "Clear";
 
 export function storyboardFrameHasPlanText(
   frame: Pick<StoryboardFrame, "intent" | "visualDescription">,
@@ -109,15 +111,11 @@ export function storyboardFrameHasPlanText(
   return Boolean(frame.intent?.trim() || frame.visualDescription?.trim());
 }
 
-/** Ask whether to null existing plan text so a later DIRECT can describe the new still. */
-export function shouldClearStoryboardPlanOnUpload(
+/** True when replace/upload should ask Keep or Clear before writing the still. */
+export function shouldAskToClearStoryboardPlanOnUpload(
   frame: Pick<StoryboardFrame, "intent" | "visualDescription">,
-  confirm: (message: string) => boolean,
 ): boolean {
-  if (!storyboardFrameHasPlanText(frame)) {
-    return false;
-  }
-  return confirm(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT);
+  return storyboardFrameHasPlanText(frame);
 }
 
 export type ReplaceFrameImageOptions = {

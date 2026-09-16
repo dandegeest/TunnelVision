@@ -321,7 +321,7 @@ export type Project = {
   storyDuration: StoryDuration;
   /** Persistence only. CREATE JOURNEY always generates unresolved A unless A is already actual. */
   autoGenerateOpening: boolean;
-  /** When true, DIRECT then generates B…N in travel order from each preceding actual frame. */
+  /** When true, remaining unfilled destinations generate in travel order. Before the first Director plan this is only a CREATE JOURNEY option; after a plan, turning it on generates those stills without another Director call. */
   autoGenerateAllDestinations: boolean;
   /** When true, DIRECT then blocks every actual adjacent journey after destinations exist. */
   autoBlockShots: boolean;

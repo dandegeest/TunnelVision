@@ -146,14 +146,12 @@ function appendFpoOccurrences(
   };
 }
 
-/** Same destination click as the Shoot timeline: FPO opens Plan; a selected actual opens the reel. */
+/** Same destination click as the Shoot timeline: FPO opens Plan; an actual selects that occurrence. */
 export function selectShootOccurrence(
   occurrence: LaidOutOccurrence | undefined,
   actions: {
     select: (selection: Selection) => void;
     openStoryboardInPlan: (frameId: string) => void;
-    openStoryboardReel?: (frameId: string) => void;
-    selected?: boolean;
   },
 ): void {
   if (!occurrence) {
@@ -163,15 +161,43 @@ export function selectShootOccurrence(
     actions.openStoryboardInPlan(occurrence.destinationId);
     return;
   }
-  if (actions.selected && actions.openStoryboardReel) {
-    actions.openStoryboardReel(occurrence.destinationId);
-    return;
-  }
   actions.select({
     kind: "destination",
     destinationId: occurrence.destinationId,
     occurrenceIndex: occurrence.occurrenceIndex,
   });
+}
+
+/** Adjacent Shoot motion pair in timeline order. */
+export function neighboringMotionJourney<T extends { id: string }>(
+  journeys: readonly T[],
+  journeyId: string,
+  direction: -1 | 1,
+): T | undefined {
+  const currentIndex = journeys.findIndex((journey) => journey.id === journeyId);
+  if (currentIndex < 0) {
+    return undefined;
+  }
+  return journeys[currentIndex + direction];
+}
+
+/** Adjacent actual Shoot destination. Skips FPO so preview arrows never open Plan. */
+export function neighboringShootOccurrence(
+  occurrences: readonly LaidOutOccurrence[],
+  occurrenceIndex: number,
+  direction: -1 | 1,
+): LaidOutOccurrence | undefined {
+  const currentIndex = occurrences.findIndex((item) => item.occurrenceIndex === occurrenceIndex);
+  if (currentIndex < 0) {
+    return undefined;
+  }
+  for (let index = currentIndex + direction; index >= 0 && index < occurrences.length; index += direction) {
+    const next = occurrences[index];
+    if (next && !next.fpo) {
+      return next;
+    }
+  }
+  return undefined;
 }
 
 /** True when Plan is generating the storyboard beat this Shoot slot represents. */

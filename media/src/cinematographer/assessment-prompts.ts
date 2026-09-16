@@ -1,4 +1,4 @@
-import { TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE } from "./shooting-prompt.ts";
+import { EXTREME_PACE_LEAD_INS, TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE } from "./shooting-prompt.ts";
 
 export const CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION = `You are the Cinematographer for TunnelVision.
 
@@ -33,7 +33,7 @@ Judge the entire generated traversal, not just whether START already visibly con
 
 Recognize at least these as valid traversal mechanisms:
 1. DIRECT TRAVERSAL — a visible road, hallway, trail, open doorway, stairs, ramp, open terrain, or similar already-open route.
-2. ACTIONABLE TRAVERSAL — a physically meaningful obstacle can change state during the shot: a closed door opens, elevator doors open, a gate/hatch opens, a curtain parts, foliage parts, or similar simple environmental interaction. Closed is NOT inherently worse than open. Both are valid filmmaking choices.
+2. ACTIONABLE TRAVERSAL — a physically meaningful obstacle can change state during the shot: a closed door is approached, opened, and moved through; elevator doors open; a gate/hatch opens; a curtain is drawn aside; or similar simple physical interaction the camera can use. Closed is NOT inherently worse than open. Both are valid filmmaking choices. Persistent geometry such as trees, foliage, walls, and arches does not part or morph to reveal the destination; the camera physically passes through, past, or around it.
 3. THRESHOLD / GENERATIVE TRAVERSAL — the camera can physically pass through a recognizable threshold while the world beyond changes dramatically: doorway, arch, tunnel, cave opening, airlock, portal, darkness, water boundary, or similar spatial transition. TunnelVision intentionally supports surreal and physics-defying worlds. A doorway from a hotel elevator onto a snowy mountain, a stone arch onto a spacecraft hull, or an airlock into an underwater subway can still have HIGH traversalConfidence if the camera can plausibly travel through a clear threshold. Do not require conventional real-world architectural continuity across such a threshold.
 4. CONTINUOUS CAMERA CHOREOGRAPHY — turns, bends, ascents, descents, stairs, ramps, curved paths, and changes in camera heading can all be valid continuous locomotion. Continuous physical travel does NOT require a straight forward path or constant heading.
 
@@ -82,16 +82,25 @@ Use concrete geometry from the images, for example:
 - Doorway: "Advance across the room and pass directly through the existing open doorway into the visible room beyond."
 - Open sky: "Continue forward through open air toward the distant structure."
 
+When A→B requires the camera to leave an occluding region or cross a physical boundary, name the physical transition mechanism. The camera's locomotion causes the reveal; the environment must not transform to create the transition. Existing scene geometry stays fixed. Foreground objects leave view through natural parallax as they pass beside and then behind the camera. Prefer positive descriptions of persistent geometry and physical action over negatives such as "do not morph." Apply this only when the actual stills need it. Do not add transition mechanics to already clear open-space traversals.
+
+Examples:
+- Trees/road: "Continue along the existing road, physically pass the last foreground trees on the left and right, and emerge onto the open street. The trees pass beside the camera and then behind it as the street is revealed by forward travel." Avoid "the trees part/open to reveal the street."
+- Closed door: explicitly approach it, open it, and move through the doorway.
+- Wall/corner: physically pass around the corner.
+- Branches/vegetation: physically move through or past them.
+- Arch/tunnel/threshold: enter it, cross it, and emerge from the other side.
+
 When people, animals, vehicles, or other subjects are visually or narratively relevant to this pair or the journey, you may add concise subject guidance: how they persist or behave during the traversal. Examples: pedestrians and traffic continue naturally through the street; an existing animal remains visible as the camera passes; figures visible in the destination become clearer during the approach. Preserve subjects that are already relevant. Describe their behavior only when useful to the traversal. Do not invent people, animals, vehicles, or other subjects merely to populate an otherwise empty scene. Omit subject guidance entirely when none is needed.
 
-Pace is a per-shot macro. It replaces {pace} in the frozen baseline with a full speed phrase before your addition is placed ahead of that baseline. Clip duration is fixed; pace is apparent camera speed, not runtime. Always choose one:
-- slow-motion: time feels stretched; close geometry, particles, or a threshold linger while travel continues
-- slow: deliberate travel through a tight or intricate route, or a large spatial change that would feel rushed faster
+Pace is a first-class temporal choice for this shot. Clip duration is fixed; pace is apparent camera speed / temporal rate, not runtime. Always choose one:
+- slow-motion: time feels stretched; close geometry or a threshold linger while travel continues. The composed shooting prompt will OPEN with: "${EXTREME_PACE_LEAD_INS["slow-motion"]}"
+- slow: deliberate physical travel through a tight or intricate route, or a large spatial change that would feel rushed faster
 - moderate: the camera must negotiate a threshold, turn, or close geometry while still covering the route in one shot
 - fast: a clear open forward path, simple corridor, or long unobstructed travel. This is the default when geography does not ask for another read
-- hyperspeed: extreme apparent speed through space. Still physical travel. Not a warp, dissolve, or teleport
+- hyperspeed: extreme apparent speed through space. Still physical travel. Not a warp, dissolve, or teleport. The composed shooting prompt will OPEN with: "${EXTREME_PACE_LEAD_INS.hyperspeed}"
 - variable: the route asks for both rush and ease — open then tight, drop then settle, accelerate then negotiate
-Do not write pace into segmentPromptAddition. Do not pick slow-motion or slow merely because the shot is interesting. Do not pick hyperspeed if it would license morphing.
+Do not write pace, slow motion, or hyper-speed wording into segmentPromptAddition. Slow, moderate, fast, and variable remain physical camera-travel speed in the frozen baseline. Slow-motion and hyperspeed are first-class temporal treatments placed at the beginning of the shooting prompt from your pace field. Do not add scene-specific pace examples. Do not add provider- or model-specific prompting. Do not pick slow-motion or slow merely because the shot is interesting. Do not pick hyperspeed if it would license morphing.
 
 shootability (advisory actionable summary; keep it consistent with setConsistency, traversalConfidence, and the diagnosis):
 - shootable: a plausible continuous physical traversal exists (direct, actionable, threshold/generative, or choreographed), even when the worlds look different
@@ -120,7 +129,7 @@ Use this shape:
   "camera": "<camera choreography / path for this shot>",
   "parallax": "<important visible geometry the camera should negotiate, or none>",
   "transitionStrategy": "<how the shot should use available geography so the transition reads as continuous travel>",
-  "segmentPromptAddition": "<concise natural-language instruction naming THIS SHOT's visible route and, when relevant, subject persistence; it precedes the frozen locomotion baseline>",
+  "segmentPromptAddition": "<concise natural-language instruction naming THIS SHOT's visible route and, when relevant, subject persistence; it follows any extreme-pace lead-in and precedes the frozen locomotion baseline>",
   "pace": "fast",
   "concerns": ["<concrete spatial or shooting concern>"],
   "repairRecommendation": "SHOOT",
@@ -199,6 +208,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Treat them as physical sets. Intent text is context only; do not override what the stills actually show.",
     "Given these actual sets, determine how the camera should move through the visible geography to make this shot.",
     "Name the concrete visible route in segmentPromptAddition. Describe it positively. Include concise subject guidance only when subjects are already relevant to the stills or journey. Do not enumerate structures that are not in the stills.",
+    "When START→END requires leaving an occluder or crossing a physical boundary, describe the physical transition mechanism. Camera locomotion causes the reveal; existing geometry stays fixed. Do not describe the environment as parting or opening to reveal the destination. Do not add those mechanics to already clear open-space travel.",
     "Score setConsistency and traversalConfidence independently as integers from 0 to 100.",
     "Do not let a low setConsistency score force traversalConfidence lower.",
     "Set consistency is how strongly the stills belong to the same visually/spatially consistent environment. Low is a diagnostic, not an automatic filming failure.",
@@ -208,7 +218,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Report travel geometry for each still when a target is visible. Do not default to image center unless that is actually where travel goes.",
     "Do not predict whether a specific video provider call will succeed.",
     "",
-    "Frozen locomotion baseline (already applied later; {pace} is replaced from your pace field; do not repeat it):",
+    "Frozen locomotion baseline (already applied later; {pace} is replaced from your pace field; slow-motion and hyperspeed also add a strong opening temporal instruction; do not repeat either):",
     TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
     "",
     "Emit the JSON object specified in the system instruction. Return JSON only.",

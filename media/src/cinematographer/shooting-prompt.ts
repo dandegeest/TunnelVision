@@ -35,13 +35,31 @@ export type LocomotionPace = (typeof LOCOMOTION_PACES)[number];
 export const DEFAULT_LOCOMOTION_PACE: LocomotionPace = "fast";
 
 export const LOCOMOTION_PACE_PHRASES: Record<LocomotionPace, string> = {
-  "slow-motion": "in continuous slow motion",
+  "slow-motion": "in extreme cinematic slow motion throughout",
   slow: "at a constant, slow speed",
   moderate: "at a constant, moderate speed",
   fast: "at a constant, fast speed",
-  hyperspeed: "at hyperspeed while still physically traversing space",
+  hyperspeed: "at extreme hyper-speed while still physically traversing space",
   variable: "at a variable speed that quickens and eases with the geography",
 };
+
+/** First-class temporal treatments. Composed ahead of CM addition and the baseline. */
+export const EXTREME_PACE_LEAD_INS = {
+  "slow-motion":
+    "Perform the entire traversal in extreme cinematic slow motion. All camera movement and visible motion in the environment unfolds at a dramatically slowed temporal rate from beginning to end.",
+  hyperspeed:
+    "Perform the entire traversal at extreme hyper-speed. Camera travel and visible motion through the environment unfolds at a dramatically accelerated temporal rate from beginning to end.",
+} as const;
+
+export function extremePaceLeadIn(pace: LocomotionPace): string {
+  if (pace === "slow-motion") {
+    return EXTREME_PACE_LEAD_INS["slow-motion"];
+  }
+  if (pace === "hyperspeed") {
+    return EXTREME_PACE_LEAD_INS.hyperspeed;
+  }
+  return "";
+}
 
 export function isLocomotionPace(value: unknown): value is LocomotionPace {
   return typeof value === "string" && (LOCOMOTION_PACES as readonly string[]).includes(value);
@@ -53,8 +71,9 @@ export function locomotionPaceList(): string {
 
 /**
  * Stable TunnelVision locomotion baseline plus segment-specific CM addition.
- * Composition is deterministic concatenation: shot choreography first,
- * then the filled locomotion baseline. Do not LLM-merge these strings.
+ * Composition is deterministic concatenation: extreme-pace lead-in when
+ * the pace is slow-motion or hyperspeed, then shot choreography, then the
+ * filled locomotion baseline. Do not LLM-merge these strings.
  * `{pace}` is filled from the segment's BLOCK pace before concatenation.
  *
  * The baseline inherits Terran Boylan's original TunnelVision continuous-
@@ -84,34 +103,45 @@ export const TUNNELVISION_LOCOMOTION_BASELINE = locomotionBaseline(DEFAULT_LOCOM
 export function composeShootingPrompt(
   baseline: string,
   segmentPromptAddition?: string,
+  pace?: LocomotionPace,
 ): string {
   const frozen = baseline.trim();
   const addition = segmentPromptAddition?.trim();
-  if (!addition) {
-    return frozen;
-  }
-  return `${addition}\n${frozen}`;
+  const lead = pace ? extremePaceLeadIn(pace).trim() : "";
+  return [lead, addition, frozen].filter(Boolean).join("\n");
 }
 
 /** Split a composed video prompt for inspector display. Prefers the stored CM addition. */
 export function splitShootingPrompt(
   effectivePrompt: string,
   segmentPromptAddition?: string,
-): { addition: string; baseline: string } {
-  const prompt = effectivePrompt.trim();
+): { paceLeadIn: string; addition: string; baseline: string } {
+  let prompt = effectivePrompt.trim();
+  let paceLeadIn = "";
+  for (const lead of Object.values(EXTREME_PACE_LEAD_INS)) {
+    if (prompt === lead) {
+      return { paceLeadIn: lead, addition: "", baseline: "" };
+    }
+    const prefix = `${lead}\n`;
+    if (prompt.startsWith(prefix)) {
+      paceLeadIn = lead;
+      prompt = prompt.slice(prefix.length);
+      break;
+    }
+  }
   const addition = segmentPromptAddition?.trim() ?? "";
   if (addition) {
     if (prompt === addition) {
-      return { addition, baseline: "" };
+      return { paceLeadIn, addition, baseline: "" };
     }
     const prefix = `${addition}\n`;
     if (prompt.startsWith(prefix)) {
-      return { addition, baseline: prompt.slice(prefix.length) };
+      return { paceLeadIn, addition, baseline: prompt.slice(prefix.length) };
     }
   }
   const newline = prompt.indexOf("\n");
   if (newline >= 0) {
-    return { addition: prompt.slice(0, newline), baseline: prompt.slice(newline + 1) };
+    return { paceLeadIn, addition: prompt.slice(0, newline), baseline: prompt.slice(newline + 1) };
   }
-  return { addition: "", baseline: prompt };
+  return { paceLeadIn, addition: "", baseline: prompt };
 }

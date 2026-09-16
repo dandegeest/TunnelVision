@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   boundaryContinuitiesForProject,
   boundaryContinuityAtSeam,
@@ -19,15 +19,17 @@ import {
   takeMatchesCurrentCanonicals,
 } from "../project/takes";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake, type ShootingFrameRef } from "../project/types";
-import { layoutShootTimeline } from "../timeline/shoot-layout";
+import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake, type Project, type ShootingFrameRef } from "../project/types";
+import { layoutShootTimeline, occurrenceForJourneyEndpoint, selectShootOccurrence } from "../timeline/shoot-layout";
 import { videoModelDisplayLabel } from "../../../media/src/replicate/video-models.ts";
-import { DestinationInspectorFields } from "./DestinationInspector";
+import { DestinationInspectorFields, type DestinationInspectorPane } from "./DestinationInspector";
 import { ShootingPromptText } from "./ShootingPromptText";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
-import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
+import { camotionRecordsCopyText, camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
 import { PanelHeader } from "./PanelHeader";
+import { InspectorCopyDisclosure, InspectorPaneNav } from "./InspectorPanes";
 import { GenerationIntentMenu } from "../ui/GenerationIntentMenu";
+import { JourneyPaceMark } from "../timeline/JourneyPaceMark";
 import { newTakeActionLabel } from "../timeline/JourneyItem";
 
 export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -98,9 +100,20 @@ export function Inspector() {
     setDestinationPlan,
     setComposerDraft,
     reshootDestination,
+    setStoryboardReelId,
+    select,
+    openStoryboardInPlan,
   } = useProject();
   const layout = useMemo(() => layoutShootTimeline(project, 1), [project]);
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
+  const destPaneIntent = useRef<{ key: string; pane: DestinationInspectorPane } | null>(null);
+  const destSelectionKey =
+    selection.kind === "destination" ? `${selection.destinationId}:${selection.occurrenceIndex}` : "";
+  useEffect(() => {
+    if (selection.kind === "destination") {
+      destPaneIntent.current = null;
+    }
+  }, [destSelectionKey, selection.kind]);
   const shootEmpty = layout.occurrences.length === 0;
 
   if (shootEmpty) {
@@ -147,10 +160,14 @@ export function Inspector() {
       occurrence?.outboundJourneyId ?? null,
     );
 
+    const destPane =
+      destPaneIntent.current?.key === destSelectionKey ? destPaneIntent.current.pane : "source";
+
     return (
       <InspectorShell title="Inspector - Destination">
         {frame ? (
           <DestinationInspectorFields
+            key={destSelectionKey}
             frame={frame}
             project={project}
             image={destination?.image}
@@ -164,20 +181,14 @@ export function Inspector() {
               ) : null
             }
             afterFields={continuity ? <BoundaryContinuityDetail continuity={continuity} /> : null}
-            footer={
-              <CamotionDiagnosticPanel
-                records={camotionRecords}
-                emptyCopy="Awaiting next destination"
-                filmmaker
-                debugOn={debugOn}
-                project={project}
-              />
-            }
             onPlanChange={(next) => setDestinationPlan(frame.id, next)}
             onStoryChange={setComposerDraft}
             camotionRecords={camotionRecords}
             canReshoot={canReshoot}
             reshooting={reshooting}
+            debugOn={debugOn}
+            initialPane={destPane}
+            onOpenReel={frame.image ? () => setStoryboardReelId(frame.id) : undefined}
             onReshoot={() => {
               void reshootDestination(frame.id);
             }}
@@ -217,109 +228,49 @@ export function Inspector() {
   const effectivePrompt = take?.effectivePrompt ?? motionSource?.effectivePrompt;
   const segmentPromptAddition =
     take?.segmentPromptAddition ?? motionSource?.segmentPromptAddition ?? assessment?.segmentPromptAddition;
+  const startLabel = startDestination?.label ?? journey.startDestinationId;
+  const endLabel = endDestination?.label ?? journey.endDestinationId ?? "?";
+  const selectEndpoint = (endpoint: "start" | "end", pane: DestinationInspectorPane) => {
+    const occurrence = occurrenceForJourneyEndpoint(layout.occurrences, journey.id, endpoint);
+    if (occurrence) {
+      destPaneIntent.current = {
+        key: `${occurrence.destinationId}:${occurrence.occurrenceIndex}`,
+        pane,
+      };
+    }
+    selectShootOccurrence(occurrence, {
+      select,
+      openStoryboardInPlan,
+    });
+  };
   return (
     <InspectorShell title={motion ? "Inspector - Motion" : "Inspector - Take"}>
       <h2 className="text-2xl">{motion ? segmentHeading : footageHeading}</h2>
-      {motion && (startDestination || endDestination) ? (
-        <div className="grid grid-cols-2 gap-1">
-          {startDestination ? (
-            <figure className="min-w-0">
-              <img
-                src={startDestination.image}
-                alt={`${journey.id} start ${startDestination.label}`}
-                className="w-full rounded"
-              />
-              <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-                {startDestination.label}
-              </figcaption>
-            </figure>
-          ) : null}
-          {endDestination ? (
-            <figure className="min-w-0">
-              <img
-                src={endDestination.image}
-                alt={`${journey.id} end ${endDestination.label}`}
-                className="w-full rounded"
-              />
-              <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-                {endDestination.label}
-              </figcaption>
-            </figure>
-          ) : null}
-        </div>
-      ) : null}
       {motion ? (
-        <>
-          {assessment ? (
-            <>
-              <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">
-                Cinematographer Motion Plan
-              </p>
-              <CinematographerLegDetail assessment={assessment} />
-            </>
-          ) : assessing ? (
-            <p className="text-[#cfc6b8]">Planning this traversal…</p>
-          ) : canAssess ? (
-            <p className="text-[#cfc6b8]">
-              Motion Plan is created automatically from this actual adjacent pair.
-            </p>
-          ) : (
-            <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
-          )}
-          {motionPlanError ? (
-            <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
-              {motionPlanError}
-            </p>
-          ) : null}
-          {motionPlanError && canAssess ? (
-            <button
-              type="button"
-              className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-              disabled={assessing}
-              aria-label={`Retry ${journey.id}`}
-              onClick={() => {
-                void retryMotionPlan(journey.id);
-              }}
-            >
-              {assessing ? "Planning…" : "Retry"}
-            </button>
-          ) : null}
-          {motionSource ? (
-            <div className="grid grid-cols-2 gap-2">
-              <figure className="min-w-0">
-                <img
-                  src={motionSource.startShootingFrame.imageUrl}
-                  alt={`${journey.id} start shooting frame`}
-                  className="media-contain aspect-video w-full rounded"
-                />
-                <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-                  Start′
-                </figcaption>
-              </figure>
-              <figure className="min-w-0">
-                <img
-                  src={motionSource.endShootingFrame.imageUrl}
-                  alt={`${journey.id} end shooting frame`}
-                  className="media-contain aspect-video w-full rounded"
-                />
-                <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-                  End′
-                </figcaption>
-              </figure>
-            </div>
-          ) : null}
-          {effectivePrompt ? (
-            <details>
-              <summary className="cursor-pointer text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prompt</summary>
-              <ShootingPromptText
-                className="mt-2"
-                effectivePrompt={effectivePrompt}
-                segmentPromptAddition={segmentPromptAddition}
-              />
-            </details>
-          ) : null}
-          <CamotionDiagnosticPanel records={motionRecords} emptyCopy="No Camotion data for this traversal." />
-        </>
+        <MotionInspectorFields
+          journeyId={journey.id}
+          startDestination={startDestination}
+          endDestination={endDestination}
+          assessment={assessment}
+          assessing={assessing}
+          canAssess={canAssess}
+          motionPlanError={motionPlanError}
+          onRetry={() => {
+            void retryMotionPlan(journey.id);
+          }}
+          motionSource={motionSource}
+          motionRecords={motionRecords}
+          effectivePrompt={effectivePrompt}
+          segmentPromptAddition={segmentPromptAddition}
+          project={project}
+          debugOn={debugOn}
+          startLabel={startLabel}
+          endLabel={endLabel}
+          onSelectStart={() => selectEndpoint("start", "motion")}
+          onSelectEnd={() => selectEndpoint("end", "motion")}
+          onSelectCanonicalStart={() => selectEndpoint("start", "source")}
+          onSelectCanonicalEnd={() => selectEndpoint("end", "source")}
+        />
       ) : (
         <TakeInspector
           journeyId={journey.id}
@@ -334,12 +285,245 @@ export function Inspector() {
           shooting={shootingJourneyIds.includes(journey.id)}
           debugOn={debugOn}
           playable={playable}
+          startLabel={startLabel}
+          endLabel={endLabel}
+          onSelectStart={() => selectEndpoint("start", "motion")}
+          onSelectEnd={() => selectEndpoint("end", "motion")}
           onNewTake={(intent) => {
             void shootJourney(journey.id, intent);
           }}
         />
       )}
     </InspectorShell>
+  );
+}
+
+const motionPanes = [
+  { id: "motion" as const, label: "Motion" },
+  { id: "details" as const, label: "Details" },
+];
+
+function MotionInspectorFields({
+  journeyId,
+  startDestination,
+  endDestination,
+  assessment,
+  assessing,
+  canAssess,
+  motionPlanError,
+  onRetry,
+  motionSource,
+  motionRecords,
+  effectivePrompt,
+  segmentPromptAddition,
+  project,
+  debugOn,
+  startLabel,
+  endLabel,
+  onSelectStart,
+  onSelectEnd,
+  onSelectCanonicalStart,
+  onSelectCanonicalEnd,
+}: {
+  journeyId: string;
+  startDestination?: { label: string; image?: string };
+  endDestination?: { label: string; image?: string };
+  assessment?: CinematographerAssessment;
+  assessing: boolean;
+  canAssess: boolean;
+  motionPlanError?: string | null;
+  onRetry: () => void;
+  motionSource?: { startShootingFrame: ShootingFrameRef; endShootingFrame: ShootingFrameRef };
+  motionRecords: ReturnType<typeof camotionRecordsForJourney>;
+  effectivePrompt?: string;
+  segmentPromptAddition?: string;
+  project: Pick<Project, "destinations" | "journeys">;
+  debugOn: boolean;
+  startLabel: string;
+  endLabel: string;
+  onSelectStart: () => void;
+  onSelectEnd: () => void;
+  onSelectCanonicalStart: () => void;
+  onSelectCanonicalEnd: () => void;
+}) {
+  const [pane, setPane] = useState<"motion" | "details">("motion");
+  useEffect(() => {
+    setPane("motion");
+  }, [journeyId]);
+  const camotionCopy = camotionRecordsCopyText(motionRecords, project, debugOn);
+
+  return (
+    <>
+      <InspectorPaneNav pane={pane} onChange={setPane} panes={motionPanes} />
+      <div hidden={pane === "details"} className="flex flex-col gap-3">
+        {startDestination || endDestination ? (
+          <div className="grid grid-cols-2 gap-1">
+            {startDestination ? (
+              <ShootingFrameThumb
+                imageUrl={startDestination.image}
+                alt={`${journeyId} start ${startDestination.label}`}
+                caption={startDestination.label}
+                selectLabel={`Select destination ${startDestination.label}`}
+                onSelect={onSelectCanonicalStart}
+                imageClassName="w-full rounded"
+              />
+            ) : null}
+            {endDestination ? (
+              <ShootingFrameThumb
+                imageUrl={endDestination.image}
+                alt={`${journeyId} end ${endDestination.label}`}
+                caption={endDestination.label}
+                selectLabel={`Select destination ${endDestination.label}`}
+                onSelect={onSelectCanonicalEnd}
+                imageClassName="w-full rounded"
+              />
+            ) : null}
+          </div>
+        ) : null}
+        {assessment ? (
+          <CinematographerLegDetail assessment={assessment} />
+        ) : assessing ? (
+          <p className="text-[#cfc6b8]">Planning this traversal…</p>
+        ) : canAssess ? (
+          <p className="text-[#cfc6b8]">
+            Motion Plan is created automatically from this actual adjacent pair.
+          </p>
+        ) : (
+          <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
+        )}
+        {motionPlanError ? (
+          <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
+            {motionPlanError}
+          </p>
+        ) : null}
+        {motionPlanError && canAssess ? (
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+            disabled={assessing}
+            aria-label={`Retry ${journeyId}`}
+            onClick={onRetry}
+          >
+            {assessing ? "Planning…" : "Retry"}
+          </button>
+        ) : null}
+      </div>
+      <div hidden={pane !== "details"} className="space-y-3">
+        <InspectorCopyDisclosure
+          label="Camotion"
+          copyLabel="Copy camotion"
+          copyText={camotionCopy}
+        >
+          <div className="space-y-3">
+            {motionSource ? (
+              <ShootingFrameThumbs
+                journeyId={journeyId}
+                frames={motionSource}
+                startLabel={startLabel}
+                endLabel={endLabel}
+                onSelectStart={onSelectStart}
+                onSelectEnd={onSelectEnd}
+              />
+            ) : null}
+            <CamotionDiagnosticPanel
+              records={motionRecords}
+              emptyCopy="No Camotion data for this traversal."
+              showHeading={false}
+              debugOn={debugOn}
+              project={project}
+            />
+          </div>
+        </InspectorCopyDisclosure>
+        {effectivePrompt ? (
+          <InspectorCopyDisclosure
+            label="Prompt"
+            copyLabel="Copy prompt"
+            copyText={effectivePrompt}
+          >
+            <ShootingPromptText
+              effectivePrompt={effectivePrompt}
+              segmentPromptAddition={segmentPromptAddition}
+            />
+          </InspectorCopyDisclosure>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+function ShootingFrameThumbs({
+  journeyId,
+  frames,
+  startLabel,
+  endLabel,
+  onSelectStart,
+  onSelectEnd,
+}: {
+  journeyId: string;
+  frames: { startShootingFrame: ShootingFrameRef; endShootingFrame: ShootingFrameRef };
+  startLabel?: string;
+  endLabel?: string;
+  onSelectStart?: () => void;
+  onSelectEnd?: () => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <ShootingFrameThumb
+        imageUrl={frames.startShootingFrame.imageUrl}
+        alt={`${journeyId} start shooting frame`}
+        caption="Start′"
+        selectLabel={startLabel ? `Select destination ${startLabel}′` : undefined}
+        onSelect={onSelectStart}
+      />
+      <ShootingFrameThumb
+        imageUrl={frames.endShootingFrame.imageUrl}
+        alt={`${journeyId} end shooting frame`}
+        caption="End′"
+        selectLabel={endLabel ? `Select destination ${endLabel}′` : undefined}
+        onSelect={onSelectEnd}
+      />
+    </div>
+  );
+}
+
+function ShootingFrameThumb({
+  imageUrl,
+  alt,
+  caption,
+  selectLabel,
+  onSelect,
+  imageClassName = "media-contain aspect-video w-full rounded",
+}: {
+  imageUrl?: string;
+  alt: string;
+  caption: string;
+  selectLabel?: string;
+  onSelect?: () => void;
+  imageClassName?: string;
+}) {
+  if (!imageUrl) {
+    return null;
+  }
+  const image = <img src={imageUrl} alt={alt} className={imageClassName} />;
+  return (
+    <figure className="min-w-0">
+      {onSelect ? (
+        <button
+          type="button"
+          className="block w-full p-0 outline-none focus-visible:ring-1 focus-visible:ring-[#d4b36a]"
+          aria-label={selectLabel ?? alt}
+          title={selectLabel ?? alt}
+          onClick={onSelect}
+        >
+          {image}
+        </button>
+      ) : (
+        image
+      )}
+      <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+        {caption}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -359,6 +543,8 @@ function CinematographerLegDetail({
         <span className={cinematographerScoreTone(assessment.traversalConfidence)}>
           {assessment.traversalConfidence}
         </span>
+        <span>Pace</span>
+        <PaceReadout pace={assessment.pace} />
       </div>
       {assessment.concerns.length > 0 ? (
         <div className="space-y-1">
@@ -373,11 +559,22 @@ function CinematographerLegDetail({
         <span className="text-[#9a8f7e]">Camera path. </span>
         {assessment.camera}
       </p>
-      <p>
-        <span className="text-[#9a8f7e]">Pace. </span>
-        {locomotionPaceLabel(assessment.pace)}
-      </p>
     </div>
+  );
+}
+
+function PaceReadout({ pace }: { pace: CinematographerAssessment["pace"] }) {
+  return (
+    <span
+      className="inline-flex items-center gap-2 text-[#d4b36a]"
+      data-inspector-pace={pace}
+      title={locomotionPaceLabel(pace)}
+    >
+      <JourneyPaceMark pace={pace} />
+      <span className="text-[11px] tracking-[0.16em] text-[#ece7df] uppercase">
+        {locomotionPaceLabel(pace)}
+      </span>
+    </span>
   );
 }
 
@@ -403,6 +600,10 @@ function TakeInspector({
   shooting,
   debugOn,
   playable,
+  startLabel,
+  endLabel,
+  onSelectStart,
+  onSelectEnd,
   onNewTake,
 }: {
   journeyId: string;
@@ -417,6 +618,10 @@ function TakeInspector({
   shooting: boolean;
   debugOn: boolean;
   playable: boolean;
+  startLabel: string;
+  endLabel: string;
+  onSelectStart: () => void;
+  onSelectEnd: () => void;
   onNewTake: (intent: GenerationIntent) => void;
 }) {
   const { project } = useProject();
@@ -436,30 +641,21 @@ function TakeInspector({
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">{shootError}</p>
       ) : null}
       {shootingFrames ? (
-        <div className="grid grid-cols-2 gap-2">
-          <figure className="min-w-0">
-            <img
-              src={shootingFrames.startShootingFrame.imageUrl}
-              alt={`${journeyId} start shooting frame`}
-              className="media-contain aspect-video w-full rounded"
-            />
-            <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-              Start′
-            </figcaption>
-          </figure>
-          <figure className="min-w-0">
-            <img
-              src={shootingFrames.endShootingFrame.imageUrl}
-              alt={`${journeyId} end shooting frame`}
-              className="media-contain aspect-video w-full rounded"
-            />
-            <figcaption className="mt-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-              End′
-            </figcaption>
-          </figure>
+        <ShootingFrameThumbs
+          journeyId={journeyId}
+          frames={shootingFrames}
+          startLabel={startLabel}
+          endLabel={endLabel}
+          onSelectStart={onSelectStart}
+          onSelectEnd={onSelectEnd}
+        />
+      ) : null}
+      {pace ? (
+        <div>
+          <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Pace</p>
+          <PaceReadout pace={pace} />
         </div>
       ) : null}
-      {pace ? <InspectorMeta label="Pace" value={locomotionPaceLabel(pace)} /> : null}
       {direction ? <InspectorMeta label="Shot direction" value={direction} /> : null}
       {intentLabel ? <InspectorMeta label="Generation" value={intentLabel} /> : null}
       {effectivePrompt ? (

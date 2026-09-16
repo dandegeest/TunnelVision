@@ -222,7 +222,8 @@ alter neighboring Motion Plans. Footage generation remains an explicit NEW TAKE
 action. While a Motion Plan is running, that MOTION band
 uses the same generating shimmer as Plan FPO thumbs. A destination still generating in Plan also shimmers on the matching Shoot destination slot. Shootability remains advisory and does not
 gate JourneyShot status. NEW TAKE uses the staged A′/B′ and
-composed prompt (`segmentPromptAddition` first, then the filled baseline via
+composed prompt (extreme-pace lead-in for slow-motion / hyperspeed, then
+`segmentPromptAddition`, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.
 CREATE JOURNEY / Agent NEW TAKE resolves the catalog model through
 `Project.defaultTakeIntent` and `videoModelsByIntent`; filmmaker NEW TAKE
@@ -265,7 +266,9 @@ without planning; destination count (AUTO or a number, typed or stepped) sizes t
 storyboard before DIRECT; CREATE JOURNEY generates unresolved A from the story
 unless A is already actual; that prompt asks for the opening
 instant only and does not depict later destinations; auto-generate all destinations then
-constructs B…N in travel order after DIRECT. Generated A stores opening intent
+constructs B…N in travel order after DIRECT. After the journey is planned,
+turning that option on constructs remaining unfilled destinations without
+another Director call. Generated A stores opening intent
 from the story and the generation prompt as visual description. Uploaded A
 with a story fills empty opening intent the same way and leaves visual
 description empty. If A is actual and the story
@@ -329,11 +332,13 @@ and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
 intent as readable text until an image exists. The Plan storyboard reel
 docks the same Inspector - Destination panel used on Shoot to the
-right of the still (intent, story/beat, collapsed Prompt, Reshoot,
-media facts, and SOURCE | MOTION when Camotion exists). The reel includes
+right of the still (Source | Motion | Details: intent and story/beat on Source,
+Prompt, Camotion, and a compact media-facts line above Prompt on Details). The reel includes
 planned FPO destinations, including empty slots with no prompt, and
 shows Shoot there, disabled until intent and beat are set. A desktop still can drop onto the reel image.
-Plan and Shoot close that
+On Shoot, the destination inspector still opens that reel. Motion preview
+previous/next arrows step among adjacent MOTION pairs and update timeline
+selection. Plan and Shoot close that
 reel. Plan no longer opens an
 intent/prompt popup
 under the tile. A full-width app header keeps
@@ -1379,7 +1384,10 @@ the segment's BLOCK pace (`fast` by default; also `slow-motion`,
 includes `UNEMBODIED_FIRST_PERSON_POV`. The baseline enforces
 continuous physical travel and forbids invented intermediate
 structures or passageways. Route-specific spatial language and
-relevant subject persistence live in CM `segmentPromptAddition`. Audio is not constrained by the
+relevant subject persistence live in CM `segmentPromptAddition`. When A→B
+must leave an occluder or cross a boundary, that addition names the
+physical pass-through so locomotion causes the reveal and scene geometry
+stays fixed. Audio is not constrained by the
 baseline. The later video prompt should concatenate the CM
 `segmentPromptAddition` first, then that baseline, without an LLM rewrite. Do not treat this as
 a Camotion input.

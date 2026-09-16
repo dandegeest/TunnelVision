@@ -7,6 +7,7 @@ import {
   camotionDirectionLabel,
   camotionInspectorHeading,
   camotionRecordKey,
+  camotionRecordsCopyText,
   camotionRecordsForCanonical,
   camotionRecordsForDestination,
   camotionSourceLabel,
@@ -75,6 +76,22 @@ describe("Camotion destination diagnostics", () => {
       camotionInspectorHeading(fromA[0]!, shot.destinations, "A", "B"),
     ).toBe("A′ · A→B START");
     expect(camotionDirectionLabel(fromA[0]!)).toBe("Forward");
+    expect(camotionRecordsCopyText(fromA, shot)).toBe(
+      [
+        "A′ · A→B START",
+        "Direction",
+        "Forward",
+        "Vanishing point",
+        "0.50, 0.50",
+        "Destination",
+        "0.50, 0.50",
+        "Protected",
+        "Yes",
+        "Exposure",
+        "0.080 · Hyperspeed",
+      ].join("\n"),
+    );
+    expect(camotionRecordsCopyText([])).toBe("");
   });
 
   it("keeps inbound end′ and outbound start′ as separate occurrence records", () => {

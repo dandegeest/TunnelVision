@@ -16,6 +16,13 @@ import { GENERATION_INTENT_MARK } from "../project/generation-intent";
 import { TAKE_PREVIOUS_CANONICALS_COPY } from "../project/takes";
 import { JourneyCanonicalPair } from "./Preview";
 
+function isDisabled(html: string, label: string) {
+  const start = html.indexOf(`aria-label="${label}"`);
+  const tagStart = html.lastIndexOf("<button", start);
+  const tagEnd = html.indexOf(">", start);
+  return /\sdisabled(?:="[^"]*")?[\s>]/.test(html.slice(tagStart, tagEnd + 1));
+}
+
 function renderShoot(
   project = createForestProject(),
   selection?: { destinationId: string; occurrenceIndex: number } | { journeyId: string; band?: "motion" | "footage" },
@@ -124,33 +131,37 @@ describe("Shoot boundary continuity UI", () => {
   it("lets Reshoot regenerate a generated canonical from the destination inspector", () => {
     const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 });
     expect(html).toContain('aria-label="Reshoot destination B"');
+    expect(html).toContain('aria-label="View destination B still"');
     expect(html).toContain(">Reshoot<");
+    expect(html).toContain('aria-label="Inspector pane"');
+    expect(html).toContain('aria-label="Inspector details"');
     expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(html.indexOf(">Prompt<"));
     expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(
       html.indexOf('aria-label="Destination B facts"'),
     );
+    expect(html.indexOf('aria-label="Destination B facts"')).toBeLessThan(html.indexOf(">Prompt<"));
     expect(html).toContain('aria-label="Destination B beat"');
     expect(html).toContain('aria-label="Destination B intent"');
     expect(html).toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
     expect(html).toContain('aria-label="Destination B facts"');
-    expect(html).toContain("~1.85:1");
-    expect(html).toContain("1392×752");
-    expect(html).toContain("Nano Banana 2 Lite");
+    expect(html).toContain("~1.85:1 · 1392×752 · Nano Banana 2 Lite");
     expect(html).not.toContain("This is what the generated world actually gave us");
     expect(html).not.toContain("The Cinematographer judges how to shoot");
     const opening = renderShoot();
     expect(opening).toContain(">Inspector - Destination<");
     expect(opening).toContain("text-2xl\">A<");
+    expect(opening).toContain('aria-label="View destination A still"');
+    expect(opening).toContain('title="View still"');
     expect(opening).toContain('aria-label="Destination A intent"');
     expect(opening).toContain("rows=\"3\"");
     expect(opening).toContain('aria-label="Destination A story"');
     expect(opening).toContain(">Prompt<");
-    expect(opening).toContain("<details");
-    expect(opening).not.toMatch(/<details[^>]*\sopen/);
+    expect(opening).toContain('aria-expanded="true"');
+    expect(opening).toContain('aria-label="Copy prompt"');
+    expect(opening).toContain('aria-label="Copy camotion"');
     expect(opening).not.toMatch(/aria-label="Destination A intent"[^>]*readOnly=""/);
     expect(opening).not.toMatch(/aria-label="Destination A story"[^>]*readOnly=""/);
-    expect(opening).toContain("~16:9");
-    expect(opening).toContain("1000×558");
+    expect(opening).toContain("~16:9 · 1000×558");
     expect(opening).not.toContain("Nano Banana 2 Lite");
     expect(opening).toContain("focus:bg-[#161410]");
     expect(opening).not.toContain('aria-label="Reshoot destination A"');
@@ -190,7 +201,12 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Track forward along the path, passing between near trunks toward the opening.");
     expect(html).not.toContain('aria-label="Plan A-B"');
     expect(html).not.toContain(">Plan<");
-    expect(html).toContain(">Cinematographer Motion Plan<");
+    expect(html).not.toContain(">Cinematographer Motion Plan<");
+    expect(html).toContain('aria-label="Inspector pane"');
+    expect(html).toContain('aria-label="Inspector motion"');
+    expect(html).toContain('aria-label="Inspector details"');
+    expect(html).toContain(">Motion<");
+    expect(html).toContain(">Details<");
     expect(html).toContain('aria-label="New take A-B"');
     expect((html.match(/aria-label="New take A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
@@ -205,6 +221,8 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain('aria-label="Block A-B"');
     expect(html).toContain('alt="A-B start A"');
     expect(html).toContain('alt="A-B end B"');
+    expect(html).toContain('aria-label="Select destination A"');
+    expect(html).toContain('aria-label="Select destination B"');
     expect(html).toContain("preview-leg");
     expect(html).toContain("preview-monitor-pair");
     expect(html).toContain('data-preview-aspect="2000/558"');
@@ -341,8 +359,10 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain(">Concerns<");
     expect(html).toContain("Keep the previous space from disappearing too early.");
     expect(html).toContain("Camera path.");
-    expect(html).toContain("Pace.");
+    expect(html).toContain("Pace");
+    expect(html).toContain('data-inspector-pace="fast"');
     expect(html).toContain("Fast");
+    expect(html).not.toContain("Pace.");
     expect(html).not.toContain(">Shot<");
     expect(html).not.toContain("Route.");
     expect(html).not.toContain("Transition.");
@@ -859,9 +879,41 @@ describe("Camotion destination diagnostic", () => {
     const html = renderShoot(createForestProject(), { journeyId: "A-B" });
     expect(html).toContain("preview-leg");
     expect(html).toContain("Preview · Motion A-B");
+    expect(html).toContain('aria-label="Previous motion"');
+    expect(html).toContain('aria-label="Next motion"');
     expect(html).not.toContain('aria-label="Preview video"');
     expect(html).not.toContain("No Camotion data for this destination");
     expect(html).not.toContain("Awaiting next destination");
+  });
+
+  it("steps previous and next motion among Shoot journeys", () => {
+    const first = renderShoot(createForestProject(), { journeyId: "A-B", band: "motion" });
+    const middle = renderShoot(createForestProject(), { journeyId: "C-D", band: "motion" });
+    const last = renderShoot(createForestProject(), { journeyId: "E-F", band: "motion" });
+    const dest = renderShoot(createForestProject(), { destinationId: "A", occurrenceIndex: 0 });
+    expect(isDisabled(first, "Previous motion")).toBe(true);
+    expect(isDisabled(first, "Next motion")).toBe(false);
+    expect(isDisabled(middle, "Previous motion")).toBe(false);
+    expect(isDisabled(middle, "Next motion")).toBe(false);
+    expect(isDisabled(last, "Previous motion")).toBe(false);
+    expect(isDisabled(last, "Next motion")).toBe(true);
+    expect(dest).not.toContain('aria-label="Previous motion"');
+    expect(dest).not.toContain('aria-label="Next motion"');
+  });
+
+  it("steps previous and next destination in the Shoot Camotion preview", () => {
+    const first = renderShoot(createForestProject(), { destinationId: "A", occurrenceIndex: 0 });
+    const middle = renderShoot(createForestProject(), { destinationId: "C", occurrenceIndex: 2 });
+    const last = renderShoot(createForestProject(), { destinationId: "F", occurrenceIndex: 5 });
+    expect(first).toContain('aria-label="Previous destination"');
+    expect(first).toContain('aria-label="Next destination"');
+    expect(isDisabled(first, "Previous destination")).toBe(true);
+    expect(isDisabled(first, "Next destination")).toBe(false);
+    expect(isDisabled(middle, "Previous destination")).toBe(false);
+    expect(isDisabled(middle, "Next destination")).toBe(false);
+    expect(isDisabled(last, "Previous destination")).toBe(false);
+    expect(isDisabled(last, "Next destination")).toBe(true);
+    expect(first).not.toContain('aria-label="Previous motion"');
   });
 
   it("surfaces stored CameraMotionPlan facts for the selected destination occurrence", () => {
@@ -870,7 +922,8 @@ describe("Camotion destination diagnostic", () => {
       videoUrl: "/a-b.mp4",
     });
     const fromA = renderShoot(shot, { destinationId: "A", occurrenceIndex: 0 });
-    expect(fromA.match(/aria-label="Preview motion"/g)).toHaveLength(2);
+    expect(fromA.match(/aria-label="Preview motion"/g)).toHaveLength(1);
+    expect(fromA).toContain('aria-label="Inspector details"');
     expect(fromA).toContain('aria-label="Camotion diagnostic"');
     expect(fromA).toContain("A′ · A→B START");
     expect(fromA).toContain(">Direction<");
@@ -1006,6 +1059,8 @@ describe("Shoot footage inspector", () => {
     expect(html).not.toContain(">Take 1<");
     expect(html).toContain("Start′");
     expect(html).toContain("End′");
+    expect(html).toContain('aria-label="Select destination A′"');
+    expect(html).toContain('aria-label="Select destination B′"');
     expect(html).toContain(">Pace<");
     expect(html).toContain("Fast");
     expect(html).toContain(">Shot direction<");
@@ -1061,7 +1116,18 @@ describe("Shoot footage inspector", () => {
     });
     const html = renderShoot(shot, { journeyId: "A-B", band: "motion" });
     expect(html).toContain(">Inspector - Motion<");
+    expect(html).toContain('aria-label="Inspector details"');
     expect(html).toContain(">Prompt<");
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain('aria-label="Copy prompt"');
+    expect(html).toContain('aria-label="Copy camotion"');
+    expect(html.indexOf('aria-label="Copy camotion"')).toBeLessThan(html.indexOf('aria-label="Copy prompt"'));
+    expect(html).toContain(">Start′<");
+    expect(html).toContain(">End′<");
+    expect(html).toContain('aria-label="Select destination A"');
+    expect(html).toContain('aria-label="Select destination B"');
+    expect(html).toContain('aria-label="Select destination A′"');
+    expect(html).toContain('aria-label="Select destination B′"');
     expect(html).toContain('data-prompt-role="cm"');
     expect(html).toContain('data-prompt-role="baseline"');
     expect(html).toContain("text-[#e6c36a]");

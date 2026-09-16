@@ -560,9 +560,10 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Toggle overlay").click();
   await expect(page.locator(".camotion-overlay")).toBeVisible();
   const destInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "A", exact: true }) });
+  await destInspector.getByLabel("Inspector details").click();
   await expect(destInspector.getByLabel("Camotion diagnostic")).toBeVisible();
   await expect(destInspector.getByText("A′ · A-B start′")).toBeVisible();
-  await expect(destInspector.getByText("Vanishing point.")).toBeVisible();
+  await expect(destInspector.getByText("Vanishing point")).toBeVisible();
   await expect(destInspector.getByText("0.62, 0.41").first()).toBeVisible();
   await expect(destInspector.getByText("0.060 · Fast")).toBeVisible();
   await page.getByLabel("Preview motion").first().click();
@@ -580,6 +581,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.locator(".camotion-overlay")).toBeVisible();
   await expect(page.locator('[data-vanishing-point="0.71,0.36"]')).toBeVisible();
   const destCInspector = page.locator("aside").filter({ has: page.getByRole("heading", { name: "C", exact: true }) });
+  await destCInspector.getByLabel("Inspector details").click();
   await expect(destCInspector.getByLabel("Camotion diagnostic")).toBeVisible();
   await expect(destCInspector.getByText("C′ · B-C end′")).toBeVisible();
   await page.getByLabel("Preview motion").first().click();
@@ -605,25 +607,29 @@ test("project image and video model selectors default to Nano Banana Lite and Pr
   await expect(page.getByLabel("Debug mode")).toBeChecked();
   await expect(page.getByLabel("Create journey")).toHaveCount(0);
   const image = page.getByLabel("Image model");
-  await expect(image).toHaveValue("nano-banana-2-lite");
-  await expect(image.locator("option")).toHaveText([
+  await expect(image).toHaveAttribute("data-value", "nano-banana-2-lite");
+  await image.click();
+  await expect(page.getByRole("menuitem")).toHaveText([
     "Nano Banana 2 Lite $",
     "Nano Banana 2 $$",
   ]);
-  const format = page.getByLabel("Image format");
-  await expect(format).toHaveValue("png");
-  await expect(format.locator("option")).toHaveText(["PNG", "JPG"]);
   await expect(page.getByLabel("Image resolution")).toHaveCount(0);
-  await image.selectOption("nano-banana-2");
-  await expect(image).toHaveValue("nano-banana-2");
+  const format = page.getByLabel("Image format");
+  await expect(format).toHaveAttribute("data-value", "png");
+  await page.getByRole("menuitem", { name: "Nano Banana 2 $$", exact: true }).click();
+  await expect(image).toHaveAttribute("data-value", "nano-banana-2");
+  await format.click();
+  await expect(page.getByRole("menuitem")).toHaveText(["PNG", "JPG"]);
+  await page.getByRole("menuitem", { name: "JPG", exact: true }).click();
   const resolution = page.getByLabel("Image resolution");
-  await expect(resolution).toHaveValue("1K");
-  await expect(resolution.locator("option")).toHaveText(["1K", "2K", "4K"]);
-  await format.selectOption("jpg");
-  await resolution.selectOption("2K");
+  await expect(resolution).toHaveAttribute("data-value", "1K");
+  await resolution.click();
+  await expect(page.getByRole("menuitem")).toHaveText(["1K", "2K", "4K"]);
+  await page.getByRole("menuitem", { name: "2K", exact: true }).click();
   const quality = page.getByLabel("Quality video model");
-  await expect(quality).toHaveValue("seedance-2.5");
-  await expect(quality.locator("option")).toHaveText([
+  await expect(quality).toHaveAttribute("data-value", "seedance-2.5");
+  await quality.click();
+  await expect(page.getByRole("menuitem")).toHaveText([
     "Pruna",
     "Kling 2.5 Turbo Pro",
     "Kling 3",
@@ -632,14 +638,16 @@ test("project image and video model selectors default to Nano Banana Lite and Pr
     "Seedance 2.5",
   ]);
   await expect(page.getByLabel("Kling 3 resolution")).toHaveCount(0);
-  await quality.selectOption("kling-v3-video");
-  await expect(quality).toHaveValue("kling-v3-video");
+  await page.getByRole("menuitem", { name: "Kling 3", exact: true }).click();
+  await expect(quality).toHaveAttribute("data-value", "kling-v3-video");
   const klingRes = page.getByLabel("Kling 3 resolution");
-  await expect(klingRes).toHaveValue("standard");
-  await expect(klingRes.locator("option")).toHaveText(["Standard · 720p", "Pro · 1080p", "4K"]);
-  await klingRes.selectOption("pro");
-  await quality.selectOption("seedance-2.5");
-  await expect(quality).toHaveValue("seedance-2.5");
+  await expect(klingRes).toHaveAttribute("data-value", "standard");
+  await klingRes.click();
+  await expect(page.getByRole("menuitem")).toHaveText(["Standard · 720p", "Pro · 1080p", "4K"]);
+  await page.getByRole("menuitem", { name: "Pro · 1080p", exact: true }).click();
+  await quality.click();
+  await page.getByRole("menuitem", { name: "Seedance 2.5", exact: true }).click();
+  await expect(quality).toHaveAttribute("data-value", "seedance-2.5");
   await expect(page.getByLabel("Kling 3 resolution")).toHaveCount(0);
   await page.getByLabel("Back to project").click();
   await expect(page.getByLabel("Create journey")).toBeVisible();
@@ -648,10 +656,10 @@ test("project image and video model selectors default to Nano Banana Lite and Pr
   await expect(page.getByLabel("Image resolution")).toHaveCount(0);
   await expect(page.getByLabel("Quality video model")).toHaveCount(0);
   await page.getByLabel("Project settings").click();
-  await expect(page.getByLabel("Image model")).toHaveValue("nano-banana-2");
-  await expect(page.getByLabel("Image format")).toHaveValue("jpg");
-  await expect(page.getByLabel("Image resolution")).toHaveValue("2K");
-  await expect(page.getByLabel("Quality video model")).toHaveValue("seedance-2.5");
+  await expect(page.getByLabel("Image model")).toHaveAttribute("data-value", "nano-banana-2");
+  await expect(page.getByLabel("Image format")).toHaveAttribute("data-value", "jpg");
+  await expect(page.getByLabel("Image resolution")).toHaveAttribute("data-value", "2K");
+  await expect(page.getByLabel("Quality video model")).toHaveAttribute("data-value", "seedance-2.5");
 });
 
 test("dropping a desktop image on a storyboard thumb uploads like the kebab", async ({ page }) => {

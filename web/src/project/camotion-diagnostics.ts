@@ -212,6 +212,43 @@ export function formatExposureStrength(strength: number): string {
   return band ? `${shown} · ${band}` : shown;
 }
 
+/** Plain-text Camotion facts for clipboard copy. */
+export function camotionRecordsCopyText(
+  records: readonly DestinationCamotionRecord[],
+  project?: Pick<Project, "destinations" | "journeys">,
+  debugOn = false,
+): string {
+  return records
+    .map((record) => {
+      const journey = project?.journeys.find((item) => item.id === record.journeyId);
+      const heading = journey
+        ? camotionInspectorHeading(
+            record,
+            project?.destinations ?? [],
+            journey.startDestinationId,
+            journey.endDestinationId,
+          )
+        : `${record.primedLabel} · ${camotionSourceLabel(record)}`;
+      const travelDirection =
+        journey?.motionPlan?.cinematographer?.travel?.direction ?? journey?.cinematographer?.travel?.direction;
+      const direction = camotionDirectionLabel(record, travelDirection);
+      const lines = [heading];
+      if (direction) {
+        lines.push("Direction", direction);
+      }
+      lines.push("Vanishing point", formatPlanPoint(record.plan.camera.vanishing_point));
+      lines.push("Destination", formatPlanPoint(record.plan.destination.point));
+      lines.push("Protected", record.plan.destination.protect ? "Yes" : "No");
+      lines.push("Exposure", formatExposureStrength(record.plan.exposure.strength));
+      const workDir = debugOn ? camotionRetainedWorkDir(record) : undefined;
+      if (workDir) {
+        lines.push("Working directory", workDir);
+      }
+      return lines.join("\n");
+    })
+    .join("\n\n");
+}
+
 export function camotionGeneratedPath(record: DestinationCamotionRecord): string | undefined {
   if (!record.camotion) {
     return undefined;

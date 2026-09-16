@@ -9,7 +9,9 @@ import {
   type ImageAspectRatio,
 } from "../project/canonical-aspect";
 import { destinationById, type CameraMotionPlanV1, type Destination } from "../project/types";
-import { layoutShootTimeline } from "../timeline/shoot-layout";
+import { DestinationChevron } from "./DestinationChevron";
+import { layoutShootTimeline, neighboringMotionJourney, neighboringShootOccurrence } from "../timeline/shoot-layout";
+import type { LaidOutOccurrence } from "../timeline/geometry";
 import {
   camotionRecordKey,
   camotionRecordsForDestination,
@@ -68,18 +70,55 @@ function PreviewHeader({ title, trailing }: { title: string; trailing?: ReactNod
   );
 }
 
+function PreviewChevronFrame({
+  previousLabel,
+  nextLabel,
+  previousDisabled,
+  nextDisabled,
+  onPrevious,
+  onNext,
+  children,
+}: {
+  previousLabel: string;
+  nextLabel: string;
+  previousDisabled: boolean;
+  nextDisabled: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-h-0 min-w-0 flex-1 items-stretch">
+      <DestinationChevron
+        direction="prev"
+        label={previousLabel}
+        disabled={previousDisabled}
+        onClick={onPrevious}
+      />
+      {children}
+      <DestinationChevron direction="next" label={nextLabel} disabled={nextDisabled} onClick={onNext} />
+    </div>
+  );
+}
+
 function DestinationCamotionPreview({
   destination,
   records,
   arrivalBlocked,
   title,
   aspect,
+  previousOccurrence,
+  nextOccurrence,
+  onSelectOccurrence,
 }: {
   destination: Destination;
   records: readonly DestinationCamotionRecord[];
   arrivalBlocked: boolean;
   title: string;
   aspect?: ImageAspectRatio;
+  previousOccurrence?: LaidOutOccurrence;
+  nextOccurrence?: LaidOutOccurrence;
+  onSelectOccurrence: (occurrence: LaidOutOccurrence) => void;
 }) {
   const [mode, setMode] = useState<"canonical" | "primed">("canonical");
   const [recordKey, setRecordKey] = useState<string | null>(null);
@@ -115,20 +154,37 @@ function DestinationCamotionPreview({
           />
         }
       />
-      <PreviewMonitor aspect={aspect}>
-        {primed && !active ? (
-          <CamotionEmptyState />
-        ) : (
-          <DiagnosticStill
-            src={stillSrc}
-            alt={stillAlt}
-            plan={plan}
-            overlay={showOverlay}
-            layers={layers}
-            caption={stillCaption}
-          />
-        )}
-      </PreviewMonitor>
+      <PreviewChevronFrame
+        previousLabel="Previous destination"
+        nextLabel="Next destination"
+        previousDisabled={!previousOccurrence}
+        nextDisabled={!nextOccurrence}
+        onPrevious={() => {
+          if (previousOccurrence) {
+            onSelectOccurrence(previousOccurrence);
+          }
+        }}
+        onNext={() => {
+          if (nextOccurrence) {
+            onSelectOccurrence(nextOccurrence);
+          }
+        }}
+      >
+        <PreviewMonitor aspect={aspect}>
+          {primed && !active ? (
+            <CamotionEmptyState />
+          ) : (
+            <DiagnosticStill
+              src={stillSrc}
+              alt={stillAlt}
+              plan={plan}
+              overlay={showOverlay}
+              layers={layers}
+              caption={stillCaption}
+            />
+          )}
+        </PreviewMonitor>
+      </PreviewChevronFrame>
       <div className="flex min-h-5 flex-none flex-wrap items-center gap-2">
         {plan ? (
           <CamotionOverlayToggles
@@ -334,6 +390,7 @@ export function Preview() {
     cutPlaybackJourneyId,
     cutStartOffset,
     advanceCutClip,
+    select,
   } = useProject();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [overlay, setOverlay] = useState(true);
@@ -395,6 +452,22 @@ export function Preview() {
   const take = currentTake;
   const motionSource = selectedJourney?.motionPlan ?? (takeHasShootingFrames(take) ? take : undefined);
   const showMotionOverlay = showMotion && Boolean(motionSource);
+  const previousMotion =
+    showStills && selectedJourney
+      ? neighboringMotionJourney(project.journeys, selectedJourney.id, -1)
+      : undefined;
+  const nextMotion =
+    showStills && selectedJourney
+      ? neighboringMotionJourney(project.journeys, selectedJourney.id, 1)
+      : undefined;
+  const previousDest =
+    showCamotionToggle && selection.kind === "destination"
+      ? neighboringShootOccurrence(layout.occurrences, selection.occurrenceIndex, -1)
+      : undefined;
+  const nextDest =
+    showCamotionToggle && selection.kind === "destination"
+      ? neighboringShootOccurrence(layout.occurrences, selection.occurrenceIndex, 1)
+      : undefined;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -435,6 +508,15 @@ export function Preview() {
         arrivalBlocked={Boolean(occurrence?.arrivalBlocked)}
         title={title}
         aspect={previewFrameAspectRatio(project, destination.id)}
+        previousOccurrence={previousDest}
+        nextOccurrence={nextDest}
+        onSelectOccurrence={(item) => {
+          select({
+            kind: "destination",
+            destinationId: item.destinationId,
+            occurrenceIndex: item.occurrenceIndex,
+          });
+        }}
       />
     );
   }
@@ -454,17 +536,57 @@ export function Preview() {
           ) : undefined
         }
       />
-      <PreviewMonitor
-        pair={showStills}
-        aspect={
-          showVideo
-            ? GENERATED_OPENING_ASPECT_RATIO
-            : previewFrameAspectRatio(
-                project,
-                showStills && selectedJourney ? selectedJourney.startDestinationId : destination?.id,
-              )
-        }
-      >
+      {showStills && selectedJourney ? (
+        <PreviewChevronFrame
+          previousLabel="Previous motion"
+          nextLabel="Next motion"
+          previousDisabled={!previousMotion}
+          nextDisabled={!nextMotion}
+          onPrevious={() => {
+            if (previousMotion) {
+              select({ kind: "journey", journeyId: previousMotion.id, band: "motion" });
+            }
+          }}
+          onNext={() => {
+            if (nextMotion) {
+              select({ kind: "journey", journeyId: nextMotion.id, band: "motion" });
+            }
+          }}
+        >
+          <PreviewMonitor
+            pair={showStills}
+            aspect={previewFrameAspectRatio(project, selectedJourney.startDestinationId)}
+          >
+            {startDestination && endDestination ? (
+              <JourneyCanonicalPair
+                journeyId={selectedJourney.id}
+                startLabel={startDestination.label}
+                startImage={
+                  motionMode === "primed" && motionSource
+                    ? motionSource.startShootingFrame.imageUrl
+                    : startDestination.image
+                }
+                endLabel={endDestination.label}
+                endImage={
+                  motionMode === "primed" && motionSource
+                    ? motionSource.endShootingFrame.imageUrl
+                    : endDestination.image
+                }
+                startPlan={motionSource?.startPlan ?? null}
+                endPlan={motionSource?.endPlan ?? null}
+                overlay={overlay && showMotionOverlay}
+                layers={layers}
+              />
+            ) : null}
+          </PreviewMonitor>
+        </PreviewChevronFrame>
+      ) : (
+        <PreviewMonitor
+          pair={false}
+          aspect={
+            showVideo ? GENERATED_OPENING_ASPECT_RATIO : previewFrameAspectRatio(project, destination?.id)
+          }
+        >
         {showVideo && videoUrl && playbackJourney && cutPlaybackJourneyId ? (
           <CutPlaybackVideos
             currentKey={`${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}`}
@@ -513,30 +635,11 @@ export function Preview() {
           <p className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-[#9a8f7e]">
             No take selected for this traversal.
           </p>
-        ) : showStills && selectedJourney && startDestination && endDestination ? (
-          <JourneyCanonicalPair
-            journeyId={selectedJourney.id}
-            startLabel={startDestination.label}
-            startImage={
-              motionMode === "primed" && motionSource
-                ? motionSource.startShootingFrame.imageUrl
-                : startDestination.image
-            }
-            endLabel={endDestination.label}
-            endImage={
-              motionMode === "primed" && motionSource
-                ? motionSource.endShootingFrame.imageUrl
-                : endDestination.image
-            }
-            startPlan={motionSource?.startPlan ?? null}
-            endPlan={motionSource?.endPlan ?? null}
-            overlay={overlay && showMotionOverlay}
-            layers={layers}
-          />
         ) : destination ? (
           <img src={destination.image} alt={`Destination ${destination.label}`} />
         ) : null}
-      </PreviewMonitor>
+        </PreviewMonitor>
+      )}
       {showMotion && selectedJourney && showMotionOverlay ? (
         <div className="flex min-h-5 flex-none flex-wrap items-center gap-2">
           <CamotionOverlayToggles

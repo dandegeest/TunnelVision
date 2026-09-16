@@ -71,6 +71,7 @@ import {
   canGenerateOpeningFrame,
   canReshootDestinationFrame,
   nextConstructableDestinationId,
+  canGenerateRemainingDestinationsWithoutPlanning,
 } from "./destination";
 import {
   appendConversationEntry,
@@ -228,6 +229,7 @@ export function ProjectProvider({
   const [project, setProject] = useState(() => initialProject ?? createNewProject());
   const projectRef = useRef(project);
   projectRef.current = project;
+  const constructingRemainingRef = useRef(false);
   const [view, setViewState] = useState<WorkspaceView>(initialView);
   const [selection, setSelection] = useState<Selection>(
     () => initialSelection ?? { kind: "storyboard", frameId: "A" },
@@ -366,10 +368,6 @@ export function ProjectProvider({
     projectRef.current = merged;
     setProject(merged);
     return merged;
-  }, []);
-
-  const setAutoGenerateAllDestinations = useCallback((enabled: boolean) => {
-    setProject((current) => projectWithAutoGenerateAllDestinations(current, enabled));
   }, []);
 
   const setAutoBlockShots = useCallback((enabled: boolean) => {
@@ -518,6 +516,48 @@ export function ProjectProvider({
       }
     },
     [applyProject, nextConversationId],
+  );
+
+  const constructRemainingDestinationsOn = useCallback(
+    async (current: Project): Promise<Project> => {
+      if (constructingRemainingRef.current) {
+        return current;
+      }
+      constructingRemainingRef.current = true;
+      let next = current;
+      try {
+        while (projectRef.current.autoGenerateAllDestinations) {
+          const beatId = nextConstructableDestinationId(next);
+          if (!beatId) {
+            break;
+          }
+          next = await constructDestinationOn(next, beatId);
+        }
+      } catch {
+        // Sequential construction stopped; earlier constructed destinations remain.
+      } finally {
+        constructingRemainingRef.current = false;
+      }
+      return next;
+    },
+    [constructDestinationOn],
+  );
+
+  const setAutoGenerateAllDestinations = useCallback(
+    (enabled: boolean) => {
+      const next = applyProject(projectWithAutoGenerateAllDestinations(projectRef.current, enabled));
+      if (
+        !enabled ||
+        directorStatus === "planning" ||
+        constructingBeatId ||
+        journeyAgentIsBusy(journeyAgent) ||
+        !canGenerateRemainingDestinationsWithoutPlanning(next)
+      ) {
+        return;
+      }
+      void constructRemainingDestinationsOn(next);
+    },
+    [applyProject, constructingBeatId, constructRemainingDestinationsOn, directorStatus, journeyAgent],
   );
 
   const constructDestination = useCallback(
@@ -1255,17 +1295,7 @@ export function ProjectProvider({
       current = await writeStoryFromOpeningOn(current);
       current = await planDirectorOn(current);
       if (current.autoGenerateAllDestinations) {
-        try {
-          while (true) {
-            const beatId = nextConstructableDestinationId(current);
-            if (!beatId) {
-              break;
-            }
-            current = await constructDestinationOn(current, beatId);
-          }
-        } catch {
-          // Sequential construction stopped; the Director plan remains.
-        }
+        current = await constructRemainingDestinationsOn(current);
       }
       if (current.autoBlockShots) {
         try {
@@ -1303,7 +1333,7 @@ export function ProjectProvider({
     }
   }, [
     assessJourneyOn,
-    constructDestinationOn,
+    constructRemainingDestinationsOn,
     generateOpeningOn,
     journeyAgent,
     planDirectorOn,

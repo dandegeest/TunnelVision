@@ -6,6 +6,7 @@ import { createNewProject } from "../project/new-project";
 import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
 import { FilmmakingFrame } from "./FilmmakingFrame";
+import { ClearStoryboardPlanDialog } from "./ClearStoryboardPlanDialog";
 import { DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, StoryboardReel, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField, storyboardReelFrames } from "./PlanView";
 import {
   canConstructDestinationFrame,
@@ -16,7 +17,13 @@ import {
 } from "../project/destination";
 import type { DirectorEvidence } from "../project/director";
 import { ProjectProvider } from "../project/ProjectProvider";
-import { STARTING_FRAME_ACCEPT, projectWithReplacedStartImage } from "../project/starting-frame";
+import {
+  CLEAR_STORYBOARD_PLAN_CLEAR_LABEL,
+  CLEAR_STORYBOARD_PLAN_KEEP_LABEL,
+  CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT,
+  STARTING_FRAME_ACCEPT,
+  projectWithReplacedStartImage,
+} from "../project/starting-frame";
 import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "../project/storyboard";
 import { projectWithJourneyShotTake } from "../project/shoot";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
@@ -199,6 +206,9 @@ describe("Plan project story", () => {
   it("keeps Replace… on destination A and does not show a text control under the thumbnail", () => {
     const html = renderPlan(createForestProject());
     expect(html).toContain('aria-label="Destination A actions"');
+    expect(html).toContain(
+      "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again.",
+    );
     expect(html).toContain("destination-menu");
     expect(html).not.toContain("Replace image");
     expect(html).not.toContain("REPLACE IMAGE");
@@ -720,6 +730,21 @@ describe("Plan destination affordance and menu", () => {
     expect(html).not.toContain("Discover");
   });
 
+  it("asks Keep or Clear instead of a Cancel / OK confirm", () => {
+    const html = renderToStaticMarkup(
+      <ClearStoryboardPlanDialog onKeep={() => undefined} onClear={() => undefined} />,
+    );
+    expect(html).toContain('role="alertdialog"');
+    expect(html).toContain(CLEAR_STORYBOARD_PLAN_ON_UPLOAD_PROMPT);
+    expect(html).toContain(CLEAR_STORYBOARD_PLAN_KEEP_LABEL);
+    expect(html).toContain(CLEAR_STORYBOARD_PLAN_CLEAR_LABEL);
+    expect(html).not.toContain("Cancel");
+    expect(html).not.toContain(">OK<");
+    expect(html.indexOf(CLEAR_STORYBOARD_PLAN_KEEP_LABEL)).toBeLessThan(
+      html.indexOf(CLEAR_STORYBOARD_PLAN_CLEAR_LABEL),
+    );
+  });
+
   it("exposes Reshoot on generated stills", () => {
     const html = renderToStaticMarkup(
       <DestinationMenu
@@ -785,6 +810,9 @@ describe("Plan storyboard reel", () => {
     expect(html).not.toContain("storyboard-reel");
     expect(html).toContain('aria-label="Destination A plan"');
     expect(renderPlan(createForestProject(), { storyboardReelId: "A" })).toContain("storyboard-reel");
+    expect(renderPlan(createForestProject(), { storyboardReelId: "A" })).not.toContain(
+      'aria-label="View destination A still"',
+    );
     expect(html).toContain('title="View still"');
   });
 
@@ -823,14 +851,11 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain('aria-label="Destination B intent"');
     expect(html).toContain('aria-label="Destination B beat"');
     expect(html).toContain(">Beat<");
+    expect(html).toContain('aria-label="Inspector pane"');
+    expect(html).toContain('aria-label="Inspector details"');
     expect(html).toContain(">Prompt<");
     expect(html).toContain('aria-label="Destination B facts"');
-    expect(html).toContain(">Aspect ratio<");
-    expect(html).toContain("~1.85:1");
-    expect(html).toContain(">Resolution<");
-    expect(html).toContain("1392×752");
-    expect(html).toContain(">Model<");
-    expect(html).toContain("Nano Banana 2 Lite");
+    expect(html).toContain("~1.85:1 · 1392×752 · Nano Banana 2 Lite");
     expect(html).not.toContain('aria-label="Camotion frame"');
     expect(html).not.toContain('aria-label="Shoot destination B"');
     expect(isDisabled(html, "Previous destination")).toBe(false);
@@ -1033,11 +1058,16 @@ describe("Plan storyboard reel", () => {
         onSelect={() => undefined}
       />,
     );
-    expect(html).toContain('aria-label="Camotion frame"');
-    expect(html).toContain('aria-label="Preview source"');
-    expect(html).toContain('aria-label="Preview motion"');
+    expect(html).toContain('aria-label="Inspector pane"');
+    expect(html).toContain('aria-label="Inspector source"');
+    expect(html).toContain('aria-label="Inspector motion"');
+    expect(html).toContain('aria-label="Inspector details"');
     expect(html).toContain(">Source<");
     expect(html).toContain(">Motion<");
+    expect(html).toContain(">Details<");
+    expect(html).toContain("A′ · A→B START");
+    expect(html).not.toContain('aria-label="Camotion frame"');
+    expect(html).not.toContain('aria-label="Preview source"');
     expect(html).toContain('alt="Destination A"');
     expect(html).not.toContain('alt="Destination A′"');
     expect(destinationDisplayedStillUrl(shot.storyboard[0]?.image, "primed", {
@@ -1493,6 +1523,9 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Increase destinations"');
     expect(html).toContain('aria-label="Decrease destinations"');
     expect(html).toContain('aria-label="Generate all destinations"');
+    expect(html).toContain(
+      "After CREATE JOURNEY plans the journey, generate each remaining destination in order.",
+    );
     expect(html).not.toContain('aria-label="Auto blocking"');
     expect(html).toContain('aria-label="Shoot"');
     expect(html).not.toMatch(

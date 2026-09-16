@@ -17,8 +17,8 @@ import {
   canUploadStoryboardFrame,
   hasAuthoritativeStartingFrame,
   imageFileFromDataTransfer,
-  shouldClearStoryboardPlanOnUpload,
 } from "../project/starting-frame";
+import { useReplaceDestinationImage } from "./ClearStoryboardPlanDialog";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
 import { previewFrameAspectRatio } from "../project/canonical-aspect";
 import type { Project, StoryboardFrame } from "../project/types";
@@ -29,6 +29,7 @@ import {
   preferredCamotionRecord,
 } from "../project/camotion-diagnostics";
 import { destinationDisplayedStillUrl, DestinationInspectorPanel } from "./DestinationInspector";
+import { DestinationChevron } from "./DestinationChevron";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
 
 export { formatDirectorEvidenceJson } from "./ConversationRail";
@@ -579,32 +580,6 @@ export function AddDestinationCard({
   );
 }
 
-function ReelChevron({ direction }: { direction: "prev" | "next" }) {
-  return (
-    <svg viewBox="0 0 12 24" className="h-8 w-4" aria-hidden>
-      {direction === "prev" ? (
-        <path
-          d="M8.5 2 2.5 12 8.5 22"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      ) : (
-        <path
-          d="M3.5 2 9.5 12 3.5 22"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      )}
-    </svg>
-  );
-}
-
 export function storyboardReelFrames(frames: readonly StoryboardFrame[]): StoryboardFrame[] {
   return [...frames];
 }
@@ -713,20 +688,16 @@ export function StoryboardReel({
         <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 text-[11px] tracking-[0.22em] text-[#ece7df] uppercase">
           {current.label}
         </span>
-        <button
-          type="button"
-          aria-label="Previous destination"
+        <DestinationChevron
+          direction="prev"
+          label="Previous destination"
           disabled={!prev}
-          className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
-          onClick={(event) => {
-            event.stopPropagation();
+          onClick={() => {
             if (prev) {
               onSelect(prev.id);
             }
           }}
-        >
-          <ReelChevron direction="prev" />
-        </button>
+        />
         <div
           className="preview-stage h-full min-h-0 min-w-0 flex-1 bg-transparent px-1 py-10"
           onClick={(event) => event.stopPropagation()}
@@ -769,20 +740,16 @@ export function StoryboardReel({
           )}
           </StoryboardDestinationDrop>
         </div>
-        <button
-          type="button"
-          aria-label="Next destination"
+        <DestinationChevron
+          direction="next"
+          label="Next destination"
           disabled={!next}
-          className="flex h-full w-12 shrink-0 items-center justify-center text-[#ece7df] outline-none hover:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a] disabled:text-[#5c564c] disabled:hover:text-[#5c564c]"
-          onClick={(event) => {
-            event.stopPropagation();
+          onClick={() => {
             if (next) {
               onSelect(next.id);
             }
           }}
-        >
-          <ReelChevron direction="next" />
-        </button>
+        />
       </div>
       <DestinationInspectorPanel
         frame={current}
@@ -815,8 +782,8 @@ export function StoryboardReelHost() {
     generateOpeningFrame,
     constructDestination,
     constructingBeatId,
-    replaceDestinationImage,
   } = useProject();
+  const { applyDestinationImageFile, dialog: replacePlanDialog } = useReplaceDestinationImage();
 
   useEffect(() => {
     if (!storyboardReelId) {
@@ -828,10 +795,11 @@ export function StoryboardReelHost() {
   }, [project.storyboard, setStoryboardReelId, storyboardReelId]);
 
   if (!storyboardReelId) {
-    return null;
+    return replacePlanDialog;
   }
 
   return (
+    <>
     <StoryboardReel
       frames={project.storyboard}
       currentId={storyboardReelId}
@@ -883,14 +851,12 @@ export function StoryboardReelHost() {
         void constructDestination(frameId);
       }}
       onDropFile={(file) => {
-        const frame = project.storyboard.find((item) => item.id === storyboardReelId);
-        const clearPlan = frame
-          ? shouldClearStoryboardPlanOnUpload(frame, (message) => window.confirm(message))
-          : false;
-        void replaceDestinationImage(storyboardReelId, file, { clearPlan });
+        applyDestinationImageFile(storyboardReelId, file);
       }}
       reshooting={constructingBeatId === storyboardReelId}
     />
+    {replacePlanDialog}
+    </>
   );
 }
 
@@ -900,7 +866,6 @@ export function PlanView() {
     selection,
     select,
     directorStatus,
-    replaceDestinationImage,
     appendDestinationWithImage,
     addDestination,
     removeDestination,
@@ -911,6 +876,7 @@ export function PlanView() {
     storyboardReelId,
     setStoryboardReelId,
   } = useProject();
+  const { applyDestinationImageFile, dialog: replacePlanDialog } = useReplaceDestinationImage();
   const selectedId = selection.kind === "storyboard" ? selection.frameId : project.storyboard[0]?.id;
   const planning = directorStatus === "planning";
   const storyboardLocked = planning || Boolean(constructingBeatId);
@@ -923,14 +889,6 @@ export function PlanView() {
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
-
-  const applyDestinationImageFile = (frameId: string, file: File) => {
-    const frame = project.storyboard.find((item) => item.id === frameId);
-    const clearPlan = frame
-      ? shouldClearStoryboardPlanOnUpload(frame, (message) => window.confirm(message))
-      : false;
-    void replaceDestinationImage(frameId, file, { clearPlan });
-  };
 
   const canAppendDrop =
     boardInteractive && !storyboardLocked && canDropAppendStoryboardDestination(project);
@@ -1153,6 +1111,7 @@ export function PlanView() {
         </StoryboardDestinationDrop>
       </div>
       <StoryboardReelHost />
+      {replacePlanDialog}
     </section>
   );
 }

@@ -379,6 +379,14 @@ export function nextConstructableDestinationId(project: Project): string | undef
   return project.storyboard.find((frame) => canConstructDestinationFrame(project, frame))?.id;
 }
 
+/**
+ * After the first Director plan, remaining unfilled beats can generate from
+ * that plan. Before that, Generate all destinations is only a CREATE JOURNEY option.
+ */
+export function canGenerateRemainingDestinationsWithoutPlanning(project: Project): boolean {
+  return project.storyDurationLocked && Boolean(nextConstructableDestinationId(project));
+}
+
 /** First sentence of the journey story. Opening A uses this as intent when that field is empty. */
 export function openingFrameIntent(story: string): string | undefined {
   const trimmed = story.trim();

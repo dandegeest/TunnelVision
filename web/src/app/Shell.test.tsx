@@ -150,6 +150,7 @@ describe("Shell header chrome", () => {
     );
     expect(html).toContain("Pruna");
     expect(html).not.toContain("Pruna $");
+    expect(html).not.toContain("<select");
     expect(html).not.toContain('id="project-story"');
     expect(html).not.toContain(">Options<");
     expect(html).not.toContain('aria-label="Create journey"');
@@ -177,7 +178,8 @@ describe("Shell header chrome", () => {
     expect(html).toContain(">Standard · 720p<");
     expect(html).toContain(">Pro · 1080p<");
     expect(html).toContain(">4K<");
-    expect(html).toContain('value="pro"');
+    expect(html).toContain('data-value="pro"');
+    expect(html).not.toContain("<select");
   });
 
   it("hides Options in Agent and keeps Create journey", () => {
