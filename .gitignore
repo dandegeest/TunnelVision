@@ -3,10 +3,12 @@
 !/genesis/assets/**
 !/genesis/research/
 !/genesis/research/**
-# Local Cursor state. Project rules in .cursor/rules/ are tracked.
+# Local Cursor state. Project rules and skills are tracked.
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/**
+!.cursor/skills/
+!.cursor/skills/**
 **/.DS_Store
 __pycache__/
 *.py[cod]
