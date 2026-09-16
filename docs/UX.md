@@ -350,7 +350,9 @@ The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
 which can hide to the right. Directed Options are Generate all destinations and Shoot.
-Video, Default Take Intent, and Debug mode are in Project settings. Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
+Video, Default Take Intent, and Debug mode are in Project settings. When
+Kling 3 is mapped, settings also show Standard (720p) / Pro (1080p) / 4K.
+Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.

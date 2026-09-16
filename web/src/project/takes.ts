@@ -249,6 +249,34 @@ function mirrorSelectedTake(journey: JourneyShot, takes: JourneyShotTake[], sele
   };
 }
 
+/**
+ * Copy any newer Takes from `incoming` onto `base`.
+ * A destination write that started before footage finished must not drop that clip.
+ */
+export function projectWithLatestJourneyTakes(base: Project, incoming: Project): Project {
+  return {
+    ...base,
+    journeys: base.journeys.map((journey) => {
+      const filmed = incoming.journeys.find((item) => item.id === journey.id);
+      if (!filmed || journeyTakes(filmed).length <= journeyTakes(journey).length) {
+        return journey;
+      }
+      const takes = journeyTakes(filmed);
+      const selected =
+        (filmed.selectedTakeId
+          ? takes.find((take) => take.id === filmed.selectedTakeId)
+          : undefined) ??
+        filmed.take ??
+        takes[takes.length - 1]!;
+      return {
+        ...mirrorSelectedTake(journey, takes, selected),
+        status: "rendered",
+        shootError: undefined,
+      };
+    }),
+  };
+}
+
 /** Persist takes[] + selectedTakeId. Newest take is the cut; workspace selection is unchanged. */
 export function projectWithAppendedTake(
   project: Project,

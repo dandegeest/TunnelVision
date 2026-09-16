@@ -4,7 +4,7 @@ import type { Plugin } from "vite";
 import { loadDotEnvLocal, getOptionalEnv } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
-import { videoModelSlug } from "../media/src/replicate/video-models.ts";
+import { resolveKlingV3Mode, videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { renderCamotionShootingFrame } from "./camotion-cli.ts";
 import { createCanonicalDepthCache } from "./camotion-depth.ts";
 import { shootPreparedJourney, stagePreparedMotionPlan, videoModelIdFromBody } from "./shoot-journey.ts";
@@ -122,6 +122,9 @@ export function shootDevPlugin(repoRoot: string): Plugin {
               outputFormat: "mp4",
               ...(optionalSeed() !== undefined ? { seed: optionalSeed() } : {}),
             },
+            klingV3: {
+              mode: resolveKlingV3Mode(body.klingV3Mode),
+            },
           });
           const take = await shootPreparedJourney({
             repoRoot,
@@ -132,7 +135,9 @@ export function shootDevPlugin(repoRoot: string): Plugin {
           sendJson(res, 200, { take, videoUrl: take.videoUrl });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Shoot failed";
-          sendJson(res, statusForError(error), { error: redactSecrets(message) });
+          const safe = redactSecrets(message);
+          console.error(`[shoot] ${url} failed: ${safe}`);
+          sendJson(res, statusForError(error), { error: safe });
         }
       });
     },

@@ -3,6 +3,7 @@ import { test } from "node:test";
 
 import { ReplicateMediaProvider } from "../src/replicate/provider.ts";
 import { kling25TurboProDuration, KLING_25_TURBO_PRO_MODEL, toKling25TurboProInput } from "../src/replicate/kling-v2.5-turbo-pro.ts";
+import { klingV3Duration, KLING_V3_VIDEO_MODEL, toKlingV3VideoInput } from "../src/replicate/kling-v3-video.ts";
 import { toWan22I2vFastInput, WAN_22_I2V_FAST_MODEL, wan22FrameCount } from "../src/replicate/wan-2.2-i2v-fast.ts";
 import { SEEDANCE_20_FAST_MODEL, toSeedance20FastInput } from "../src/replicate/seedance-2.0-fast.ts";
 import { P_VIDEO_MODEL } from "../src/replicate/p-video.ts";
@@ -31,16 +32,19 @@ test("catalog keeps Pruna as the development default and labels cost tiers", () 
   assert.equal(DEFAULT_VIDEO_MODEL_ID, "pruna-p-video");
   assert.equal(videoModelSlug("pruna-p-video"), P_VIDEO_MODEL);
   assert.equal(videoModelSlug("kling-v2.5-turbo-pro"), KLING_25_TURBO_PRO_MODEL);
+  assert.equal(videoModelSlug("kling-v3-video"), KLING_V3_VIDEO_MODEL);
   assert.equal(videoModelSlug("wan-2.2-first-last-frame"), WAN_22_I2V_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.0-fast"), SEEDANCE_20_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.5"), SEEDANCE_25_MODEL);
   assert.equal(videoModelDurationSeconds("pruna-p-video"), 6);
   assert.equal(videoModelDurationSeconds("kling-v2.5-turbo-pro"), 5);
+  assert.equal(videoModelDurationSeconds("kling-v3-video"), 6);
+  assert.equal(parseVideoModelId("kwaivgi/kling-v3-video"), "kling-v3-video");
   assert.equal(parseVideoModelId("bytedance/seedance-2.5"), "seedance-2.5");
   assert.equal(videoModelMenuLabel(VIDEO_MODELS[0]!), "Pruna $");
   assert.deepEqual(
     VIDEO_MODELS.map((item) => item.cost),
-    ["$", "$$", "$$", "$$", "$$$"],
+    ["$", "$$", "$$$", "$$", "$$", "$$$"],
   );
 });
 
@@ -53,6 +57,20 @@ test("Kling 2.5 Turbo Pro maps A′/B′ onto start_image and end_image", () => 
   assert.equal("image" in input, false);
   assert.equal(kling25TurboProDuration(6), 5);
   assert.equal(kling25TurboProDuration(10), 10);
+});
+
+test("Kling 3 maps A′/B′ onto start_image and end_image at 6s with mode", () => {
+  const input = toKlingV3VideoInput(request, start, end, { mode: "pro" });
+  assert.equal(input.start_image, "https://example.com/a-prime.png");
+  assert.equal(input.end_image, "https://example.com/b-prime.png");
+  assert.equal(input.duration, 6);
+  assert.equal(input.mode, "pro");
+  assert.equal(input.generate_audio, false);
+  assert.equal(klingV3Duration(), 6);
+  assert.equal(klingV3Duration(6), 6);
+  assert.equal(klingV3Duration(5), 5);
+  const standard = toKlingV3VideoInput(request, start, end);
+  assert.equal(standard.mode, "standard");
 });
 
 test("Wan 2.2 I2V Fast maps A′/B′ onto image and last_image", () => {
@@ -103,6 +121,36 @@ test("provider Kling path forwards start_image and end_image", async () => {
   assert.equal(captured?.end_image, "https://example.com/b-prime.png");
   assert.equal(captured?.duration, 5);
   assert.equal("aspect_ratio" in (captured ?? {}), false);
+});
+
+test("provider Kling 3 path forwards start_image, end_image, 6s, and mode", async () => {
+  let captured: Record<string, unknown> | undefined;
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      captured = options.input;
+      return { id: "pred_kling3", status: "starting", model: "kwaivgi/kling-v3-video" };
+    },
+    async wait() {
+      return {
+        id: "pred_kling3",
+        status: "succeeded",
+        model: "kwaivgi/kling-v3-video",
+        output: "https://replicate.delivery/kling3.mp4",
+      };
+    },
+  };
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    model: "kwaivgi/kling-v3-video",
+    klingV3: { mode: "4k" },
+    client,
+  });
+  await provider.generateVideo(request);
+  assert.equal(captured?.start_image, "https://example.com/a-prime.png");
+  assert.equal(captured?.end_image, "https://example.com/b-prime.png");
+  assert.equal(captured?.duration, 6);
+  assert.equal(captured?.mode, "4k");
+  assert.equal(captured?.generate_audio, false);
 });
 
 test("provider Wan path forwards image and last_image", async () => {

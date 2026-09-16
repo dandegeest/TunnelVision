@@ -306,7 +306,9 @@ mapping chosen in Project settings (Fast / Balanced / Quality → catalog
 model). Fast defaults to Pruna (`prunaai/p-video`); Balanced to Wan 2.2
 First/Last Frame; Quality to Seedance 2.5. Those mappings stay
 provider-neutral so a later router can fulfill the intents. Clip duration
-follows the generator (Pruna 6s, Kling 2.5 Turbo Pro 5s). Take rows and
+follows the generator (Pruna / Seedance / Kling 3 are 6s; Kling 2.5
+Turbo Pro is 5s). Kling 3 also exposes Standard / Pro / 4K in Project
+settings. Take rows and
 the selected MOTION tile use that clip's duration, so a Fast pass is
 longer than a Kling pass on the same destinations.
 After replacement, that destination

@@ -13,4 +13,8 @@ test("extracts a URL from a FileOutput object or an array of them", () => {
     extractOutputUrl({ url: () => "https://replicate.delivery/method.png" }),
     "https://replicate.delivery/method.png",
   );
+  assert.equal(
+    extractOutputUrl({ video: "https://replicate.delivery/kling3.mp4" }),
+    "https://replicate.delivery/kling3.mp4",
+  );
 });

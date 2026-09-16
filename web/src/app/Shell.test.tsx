@@ -135,6 +135,8 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Fast video model"');
     expect(html).toContain('aria-label="Balanced video model"');
     expect(html).toContain('aria-label="Quality video model"');
+    expect(html).toContain("Kling 3");
+    expect(html).not.toContain('aria-label="Kling 3 resolution"');
     expect(html).toContain('aria-label="Debug mode"');
     expect(html.indexOf('aria-label="Default take intent"')).toBeLessThan(
       html.indexOf('aria-label="Fast video model"'),
@@ -152,6 +154,30 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain(">Options<");
     expect(html).not.toContain('aria-label="Create journey"');
     expect(html).not.toContain('aria-label="Current project:');
+  });
+
+  it("offers Kling 3 resolution when Quality is mapped to Kling 3", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{
+          ...createForestProject(),
+          videoModelsByIntent: {
+            fast: "pruna-p-video",
+            balanced: "wan-2.2-first-last-frame",
+            quality: "kling-v3-video",
+          },
+          klingV3Mode: "pro",
+        }}
+        initialDebug={false}
+      >
+        <ProjectRail initialSettingsOpen />
+      </ProjectProvider>,
+    );
+    expect(html).toContain('aria-label="Kling 3 resolution"');
+    expect(html).toContain(">Standard · 720p<");
+    expect(html).toContain(">Pro · 1080p<");
+    expect(html).toContain(">4K<");
+    expect(html).toContain('value="pro"');
   });
 
   it("hides Options in Agent and keeps Create journey", () => {

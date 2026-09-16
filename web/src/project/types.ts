@@ -4,10 +4,10 @@ import type {
   ImageOutputFormat,
   ImageResolution,
 } from "../../../media/src/replicate/image-models.ts";
-import type { VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import type { KlingV3Mode, VideoModelId } from "../../../media/src/replicate/video-models.ts";
 import type { GenerationIntent, VideoModelsByIntent } from "./generation-intent";
 
-export type { ImageModelId, ImageOutputFormat, ImageResolution, LocomotionPace, VideoModelId };
+export type { ImageModelId, ImageOutputFormat, ImageResolution, KlingV3Mode, LocomotionPace, VideoModelId };
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
 
@@ -343,6 +343,11 @@ export type Project = {
    * Fast is the development default.
    */
   defaultTakeIntent?: GenerationIntent;
+  /**
+   * Kling 3 output mode. Shown in settings only while Kling 3 is mapped
+   * to Fast, Balanced, or Quality. Standard is 720p.
+   */
+  klingV3Mode?: KlingV3Mode;
   /**
    * Still generator for opening A and later B…N. Nano Banana 2 Lite is
    * the development default; the same model text-to-images A and

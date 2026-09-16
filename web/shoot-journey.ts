@@ -34,6 +34,7 @@ export type ShootJourneyBody = {
   pace?: unknown;
   videoModel?: unknown;
   generationIntent?: unknown;
+  klingV3Mode?: unknown;
   debug?: unknown;
   startShootingMediaId?: unknown;
   endShootingMediaId?: unknown;

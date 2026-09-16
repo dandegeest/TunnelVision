@@ -29,6 +29,17 @@ export function extractOutputUrl(output: unknown): string | null {
       return url;
     }
   }
+  if (output && typeof output === "object") {
+    const record = output as Record<string, unknown>;
+    for (const key of ["video", "file", "output"]) {
+      if (key in record) {
+        const url = extractOutputUrl(record[key]);
+        if (url) {
+          return url;
+        }
+      }
+    }
+  }
   return null;
 }
 

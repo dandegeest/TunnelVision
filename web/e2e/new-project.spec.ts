@@ -621,30 +621,37 @@ test("project image and video model selectors default to Nano Banana Lite and Pr
   await expect(resolution.locator("option")).toHaveText(["1K", "2K", "4K"]);
   await format.selectOption("jpg");
   await resolution.selectOption("2K");
-  const select = page.getByLabel("Video model");
-  await expect(select).toHaveValue("pruna-p-video");
-  await expect(select.locator("option")).toHaveText([
-    "Pruna $",
-    "Kling 2.5 Turbo Pro $$",
-    "Wan 2.2 First/Last Frame $$",
-    "Seedance 2.0 Fast $$",
-    "Seedance 2.5 $$$",
+  const quality = page.getByLabel("Quality video model");
+  await expect(quality).toHaveValue("seedance-2.5");
+  await expect(quality.locator("option")).toHaveText([
+    "Pruna",
+    "Kling 2.5 Turbo Pro",
+    "Kling 3",
+    "Wan 2.2 First/Last Frame",
+    "Seedance 2.0 Fast",
+    "Seedance 2.5",
   ]);
-  await select.selectOption("kling-v2.5-turbo-pro");
-  await expect(select).toHaveValue("kling-v2.5-turbo-pro");
-  await select.selectOption("seedance-2.5");
-  await expect(select).toHaveValue("seedance-2.5");
+  await expect(page.getByLabel("Kling 3 resolution")).toHaveCount(0);
+  await quality.selectOption("kling-v3-video");
+  await expect(quality).toHaveValue("kling-v3-video");
+  const klingRes = page.getByLabel("Kling 3 resolution");
+  await expect(klingRes).toHaveValue("standard");
+  await expect(klingRes.locator("option")).toHaveText(["Standard · 720p", "Pro · 1080p", "4K"]);
+  await klingRes.selectOption("pro");
+  await quality.selectOption("seedance-2.5");
+  await expect(quality).toHaveValue("seedance-2.5");
+  await expect(page.getByLabel("Kling 3 resolution")).toHaveCount(0);
   await page.getByLabel("Back to project").click();
   await expect(page.getByLabel("Create journey")).toBeVisible();
   await expect(page.getByLabel("Image model")).toHaveCount(0);
   await expect(page.getByLabel("Image format")).toHaveCount(0);
   await expect(page.getByLabel("Image resolution")).toHaveCount(0);
-  await expect(page.getByLabel("Video model")).toHaveCount(0);
+  await expect(page.getByLabel("Quality video model")).toHaveCount(0);
   await page.getByLabel("Project settings").click();
   await expect(page.getByLabel("Image model")).toHaveValue("nano-banana-2");
   await expect(page.getByLabel("Image format")).toHaveValue("jpg");
   await expect(page.getByLabel("Image resolution")).toHaveValue("2K");
-  await expect(page.getByLabel("Video model")).toHaveValue("seedance-2.5");
+  await expect(page.getByLabel("Quality video model")).toHaveValue("seedance-2.5");
 });
 
 test("dropping a desktop image on a storyboard thumb uploads like the kebab", async ({ page }) => {

@@ -34,6 +34,7 @@ import {
   type NanoBananaSettings,
 } from "./nano-banana.ts";
 import { extractOutputUrl } from "./output.ts";
+import type { KlingV3Settings } from "./kling-v3-video.ts";
 import type { PVideoSettings } from "./p-video.ts";
 import {
   SEEDANCE_25_MODEL,
@@ -49,6 +50,7 @@ export type ReplicateMediaProviderOptions = {
   readonly imageModel?: string;
   readonly imageEditModel?: string;
   readonly seedance?: Seedance25Settings;
+  readonly klingV3?: KlingV3Settings;
   readonly pVideo?: PVideoSettings;
   readonly nanoBanana?: NanoBananaSettings;
   readonly flux?: Flux11ProUltraSettings;
@@ -62,6 +64,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
   private readonly imageModel: string;
   private readonly imageEditModel: string;
   private readonly seedance: Seedance25Settings | undefined;
+  private readonly klingV3: KlingV3Settings | undefined;
   private readonly pVideo: PVideoSettings | undefined;
   private readonly nanoBanana: NanoBananaSettings | undefined;
   private readonly flux: Flux11ProUltraSettings | undefined;
@@ -74,6 +77,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     this.imageModel = options.imageModel ?? NANO_BANANA_2_LITE_MODEL;
     this.imageEditModel = options.imageEditModel ?? options.imageModel ?? NANO_BANANA_2_LITE_MODEL;
     this.seedance = options.seedance;
+    this.klingV3 = options.klingV3;
     this.pVideo = options.pVideo;
     this.nanoBanana = options.nanoBanana;
     this.flux = options.flux;
@@ -90,6 +94,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     const input = toReplicateVideoInput(this.model, request, start, end, {
       pVideo: this.pVideo,
       seedance: this.seedance,
+      klingV3: this.klingV3,
     });
     return this.runFilePrediction(this.model, input);
   }

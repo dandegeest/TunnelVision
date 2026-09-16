@@ -48,6 +48,13 @@ export {
   toKling25TurboProInput,
 } from "./replicate/kling-v2.5-turbo-pro.ts";
 export {
+  KLING_V3_VIDEO_MODEL,
+  isKlingV3Video,
+  klingV3Duration,
+  toKlingV3VideoInput,
+} from "./replicate/kling-v3-video.ts";
+export type { KlingV3Settings, KlingV3VideoInput } from "./replicate/kling-v3-video.ts";
+export {
   WAN_22_I2V_FAST_MODEL,
   isWan22I2vFast,
   wan22FrameCount,
@@ -80,8 +87,14 @@ export {
   videoModelDurationSeconds,
   videoModelOption,
   videoModelMenuLabel,
+  isKlingV3Mode,
+  resolveKlingV3Mode,
+  videoModelHasModeChoice,
+  KLING_V3_MODES,
+  KLING_V3_MODE_LABEL,
+  DEFAULT_KLING_V3_MODE,
 } from "./replicate/video-models.ts";
-export type { VideoModelId, VideoModelOption, VideoModelCost, VideoModelTier } from "./replicate/video-models.ts";
+export type { VideoModelId, VideoModelOption, VideoModelCost, VideoModelTier, KlingV3Mode } from "./replicate/video-models.ts";
 export {
   IMAGE_MODEL_IDS,
   IMAGE_MODELS,

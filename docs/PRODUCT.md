@@ -223,9 +223,11 @@ that control, while Nano Banana 2 offers 1K / 2K / 4K. Project settings map
 Fast / Balanced / Quality generation intents onto catalog video models
 and choose the Default Take Intent (Fast) used by CREATE JOURNEY / Agent
 NEW TAKE. Fast defaults to Pruna; Balanced to Wan 2.2 First/Last Frame; Quality to
-Seedance 2.5. Each adapter maps
+Seedance 2.5. Kling 3 is an opt-in Quality catalog model: product shots
+are 6s, and Project settings expose Standard (720p) / Pro (1080p) / 4K
+while it is mapped. Each adapter maps
 A′/B′ onto that model's start and last-frame fields. Clip duration
-follows the generator: Pruna, Wan, and Seedance product shots are 6s;
+follows the generator: Pruna, Wan, Seedance, and Kling 3 product shots are 6s;
 Kling 2.5 Turbo Pro is 5s. The Shoot timeline tiles follow the selected
 Take. Fast 6s and Kling 5s Takes on the same segment keep those widths;
 the cut clock is the selected Takes (18s for three Fast Takes, 15s for

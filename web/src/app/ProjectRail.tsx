@@ -24,7 +24,10 @@ import {
   isImageResolution,
 } from "../../../media/src/replicate/image-models.ts";
 import {
+  KLING_V3_MODE_LABEL,
+  KLING_V3_MODES,
   VIDEO_MODELS,
+  isKlingV3Mode,
   isVideoModelId,
 } from "../../../media/src/replicate/video-models.ts";
 import {
@@ -32,8 +35,10 @@ import {
   GENERATION_INTENT_LABEL,
   GENERATION_INTENT_MARK,
   GENERATION_INTENTS,
+  projectShowsVideoModeChoice,
   videoModelsByIntentFromProject,
 } from "../project/generation-intent";
+import { klingV3ModeFromProject } from "../project/shoot";
 import { PanelHeader } from "./PanelHeader";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -442,7 +447,7 @@ function ImageModelSelect({ disabled }: { disabled: boolean }) {
 }
 
 function VideoModelSelect({ disabled }: { disabled: boolean }) {
-  const { project, setDefaultTakeIntent, setVideoModelForIntent } = useProject();
+  const { project, setDefaultTakeIntent, setKlingV3Mode, setVideoModelForIntent } = useProject();
   const mappings = videoModelsByIntentFromProject(project);
   const defaultTakeIntent = defaultTakeIntentFromProject(project);
   const fieldClass =
@@ -505,6 +510,30 @@ function VideoModelSelect({ disabled }: { disabled: boolean }) {
           </select>
         </label>
       ))}
+      {projectShowsVideoModeChoice(project) ? (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Resolution</span>
+          <select
+            aria-label="Kling 3 resolution"
+            title="Kling 3 output. Standard is 720p, Pro is 1080p, 4K is 4K. Product shots stay 6s."
+            disabled={disabled}
+            className={fieldClass}
+            value={klingV3ModeFromProject(project)}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (isKlingV3Mode(next)) {
+                setKlingV3Mode(next);
+              }
+            }}
+          >
+            {KLING_V3_MODES.map((mode) => (
+              <option key={mode} value={mode}>
+                {KLING_V3_MODE_LABEL[mode]}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </div>
   );
 }

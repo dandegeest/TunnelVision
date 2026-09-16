@@ -13,6 +13,7 @@ import {
 import {
   journeyTakes,
   projectWithAppendedTake,
+  projectWithLatestJourneyTakes,
   projectWithSelectedTake,
   selectedTake,
   selectedTakeVideoUrl,
@@ -202,6 +203,36 @@ describe("NEW TAKE appends rather than replaces", () => {
     expect(journeyTakes(failed.journeys[0]!)).toHaveLength(1);
     expect(failed.journeys[0]?.videoUrl).toBe("https://example.test/take-1.mp4");
   });
+
+  it("reapplies a C-D take that landed while a later destination write used a stale snapshot", () => {
+    const forest = createForestProject();
+    const filmed = projectWithAppendedTake(forest, "C-D", {
+      take,
+      videoUrl: "https://replicate.delivery/c-d.mp4",
+    });
+    const stale = {
+      ...filmed,
+      journeys: filmed.journeys.map((journey) =>
+        journey.id === "C-D"
+          ? {
+              ...journey,
+              takes: undefined,
+              take: undefined,
+              selectedTakeId: undefined,
+              videoUrl: undefined,
+              status: "ready" as const,
+            }
+          : journey,
+      ),
+    };
+    const restored = projectWithLatestJourneyTakes(stale, filmed);
+    const cd = restored.journeys.find((journey) => journey.id === "C-D");
+    expect(journeyTakes(cd!).length).toBeGreaterThan(0);
+    expect(cd?.videoUrl).toBe("https://replicate.delivery/c-d.mp4");
+    expect(projectWithLatestJourneyTakes(filmed, stale).journeys.find((journey) => journey.id === "C-D")?.videoUrl).toBe(
+      "https://replicate.delivery/c-d.mp4",
+    );
+  });
 });
 
 describe("selection changes current footage", () => {
@@ -229,6 +260,7 @@ describe("selection changes current footage", () => {
     expect(takeClipDurationSeconds({ durationSeconds: 5, model: "kwaivgi/kling-v2.5-turbo-pro" }, 8)).toBe(5);
     expect(takeClipDurationSeconds({ durationSeconds: 0, model: "kwaivgi/kling-v2.5-turbo-pro" }, 8)).toBe(5);
     expect(takeClipDurationSeconds({ durationSeconds: 0, model: "prunaai/p-video" }, 8)).toBe(6);
+    expect(takeClipDurationSeconds({ durationSeconds: 0, model: "kwaivgi/kling-v3-video" }, 8)).toBe(6);
   });
 });
 

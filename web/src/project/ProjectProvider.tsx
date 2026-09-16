@@ -34,6 +34,7 @@ import {
   journeysReadyToAutoShoot,
   journeysReadyToTakeAll,
   projectWithDefaultTakeIntent,
+  projectWithKlingV3Mode,
   projectWithJourneyClipDuration,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
@@ -44,7 +45,7 @@ import {
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
-import { projectWithSelectedTake } from "./takes";
+import { projectWithLatestJourneyTakes, projectWithSelectedTake } from "./takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
 import {
   canDownloadCurrentCut,
@@ -90,7 +91,7 @@ import {
   runJourneyAgent,
   type JourneyAgentSnapshot,
 } from "./journey-agent";
-import { storyboardFrameById, type Agency, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type Project, type Selection, type VideoModelId } from "./types";
+import { storyboardFrameById, type Agency, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function withId(ids: string[], id: string): string[] {
@@ -129,6 +130,7 @@ type ProjectContextValue = {
   setVideoModel: (videoModel: VideoModelId) => void;
   setVideoModelForIntent: (intent: GenerationIntent, videoModel: VideoModelId) => void;
   setDefaultTakeIntent: (intent: GenerationIntent) => void;
+  setKlingV3Mode: (mode: KlingV3Mode) => void;
   setImageModel: (imageModel: ImageModelId) => void;
   setImageOutputFormat: (imageOutputFormat: ImageOutputFormat) => void;
   setImageResolution: (imageResolution: ImageResolution) => void;
@@ -322,6 +324,10 @@ export function ProjectProvider({
     setProject((current) => projectWithDefaultTakeIntent(current, intent));
   }, []);
 
+  const setKlingV3Mode = useCallback((mode: KlingV3Mode) => {
+    setProject((current) => projectWithKlingV3Mode(current, mode));
+  }, []);
+
   const setImageModel = useCallback((imageModel: ImageModelId) => {
     setProject((current) => projectWithImageModel(current, imageModel));
   }, []);
@@ -356,9 +362,10 @@ export function ProjectProvider({
   }, []);
 
   const applyProject = useCallback((next: Project): Project => {
-    projectRef.current = next;
-    setProject(next);
-    return next;
+    const merged = projectWithLatestJourneyTakes(next, projectRef.current);
+    projectRef.current = merged;
+    setProject(merged);
+    return merged;
   }, []);
 
   const setAutoGenerateAllDestinations = useCallback((enabled: boolean) => {
@@ -483,13 +490,14 @@ export function ProjectProvider({
         const request = destinationConstructionRequestFromProject(current, beatId);
         const result = await requestConstructDestination(request);
         const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
-        const next = projectWithConstructedDestination(current, {
-          beatId: request.beatId,
-          mediaId: result.mediaId,
-          imageUrl: result.imageUrl,
-          ...(mediaInfo ? { mediaInfo } : {}),
-        });
-        applyProject(next);
+        const next = applyProject(
+          projectWithConstructedDestination(projectRef.current, {
+            beatId: request.beatId,
+            mediaId: result.mediaId,
+            imageUrl: result.imageUrl,
+            ...(mediaInfo ? { mediaInfo } : {}),
+          }),
+        );
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "constructed",
@@ -536,13 +544,14 @@ export function ProjectProvider({
       const request = destinationRepairRequestFromProject(current, beatId, input);
       const result = await requestConstructDestination(request);
       const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
-      const next = projectWithRepairedCanonical(current, {
-        beatId: request.beatId,
-        mediaId: result.mediaId,
-        imageUrl: result.imageUrl,
-        ...(mediaInfo ? { mediaInfo } : {}),
-      });
-      applyProject(next);
+      const next = applyProject(
+        projectWithRepairedCanonical(projectRef.current, {
+          beatId: request.beatId,
+          mediaId: result.mediaId,
+          imageUrl: result.imageUrl,
+          ...(mediaInfo ? { mediaInfo } : {}),
+        }),
+      );
       return next;
     },
     [applyProject],
@@ -1203,6 +1212,7 @@ export function ProjectProvider({
         );
       },
     );
+    applyProject(projectWithLatestJourneyTakes(result.project, projectRef.current));
     if (result.snapshot.phase !== "FAILED") {
       setJourneyAgent(result.snapshot);
     }
@@ -1350,6 +1360,7 @@ export function ProjectProvider({
       setVideoModel,
       setVideoModelForIntent,
       setDefaultTakeIntent,
+      setKlingV3Mode,
       setImageModel,
       setImageOutputFormat,
       setImageResolution,
@@ -1420,6 +1431,7 @@ export function ProjectProvider({
       setVideoModel,
       setVideoModelForIntent,
       setDefaultTakeIntent,
+      setKlingV3Mode,
       setImageModel,
       setImageOutputFormat,
       setImageResolution,

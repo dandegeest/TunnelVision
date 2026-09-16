@@ -5,6 +5,7 @@ import {
   DEFAULT_VIDEO_MODELS_BY_INTENT,
   GENERATION_INTENT_MARK,
   defaultTakeIntentFromProject,
+  projectShowsVideoModeChoice,
   takeIntentTooltip,
   unshotVideoModel,
   videoModelForIntent,
@@ -50,5 +51,13 @@ describe("generation intents", () => {
     expect(takeDisplayLabel({ number: 3 })).toBe("TAKE 3");
     expect(takeIntentTooltip({ generationIntent: "fast", model: "prunaai/p-video" })).toBe("Fast · Pruna");
     expect(takeIntentTooltip({ generationIntent: "quality", model: "bytedance/seedance-2.5" })).toBe("Quality · Seedance 2.5");
+    expect(takeIntentTooltip({ generationIntent: "quality", model: "kwaivgi/kling-v3-video" })).toBe("Quality · Kling 3");
+  });
+
+  it("shows Kling 3 resolution only when that model is mapped", () => {
+    const project = createNewProject();
+    expect(projectShowsVideoModeChoice(project)).toBe(false);
+    const kling3 = projectWithVideoModelForIntent(project, "quality", "kling-v3-video");
+    expect(projectShowsVideoModeChoice(kling3)).toBe(true);
   });
 });

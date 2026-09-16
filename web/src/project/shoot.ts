@@ -1,5 +1,10 @@
 import { actualFrameForDestination, canAssessJourney, hasCurrentMotionPlan } from "./cinematographer";
-import { videoModelDurationSeconds, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import {
+  resolveKlingV3Mode,
+  type KlingV3Mode,
+  type VideoModelId,
+  videoModelDurationSeconds,
+} from "../../../media/src/replicate/video-models.ts";
 import {
   defaultTakeIntentFromProject,
   unshotVideoModel,
@@ -23,6 +28,7 @@ export type ShootJourneyRequest = {
   pace: LocomotionPace;
   videoModel: VideoModelId;
   generationIntent?: GenerationIntent;
+  klingV3Mode?: KlingV3Mode;
   startShootingMediaId?: string;
   endShootingMediaId?: string;
   startPlan?: CameraMotionPlanV1;
@@ -102,6 +108,18 @@ export function projectWithVideoModelForIntent(
   return { ...next, journeys: withUnshotDurations(next, nextDuration) };
 }
 
+export function klingV3ModeFromProject(project: Pick<Project, "klingV3Mode">): KlingV3Mode {
+  return resolveKlingV3Mode(project.klingV3Mode);
+}
+
+export function projectWithKlingV3Mode(project: Project, mode: KlingV3Mode): Project {
+  const next = resolveKlingV3Mode(mode);
+  if (klingV3ModeFromProject(project) === next && project.klingV3Mode === next) {
+    return project;
+  }
+  return { ...project, klingV3Mode: next };
+}
+
 export function projectWithDefaultTakeIntent(project: Project, intent: GenerationIntent): Project {
   if (defaultTakeIntentFromProject(project) === intent && project.defaultTakeIntent === intent) {
     return project;
@@ -143,6 +161,9 @@ export function shootRequestFromProject(
     pace: journey.motionPlan.pace,
     videoModel: videoModelForIntent(project, intent),
     generationIntent: intent,
+    ...(videoModelForIntent(project, intent) === "kling-v3-video"
+      ? { klingV3Mode: resolveKlingV3Mode(project.klingV3Mode) }
+      : {}),
     startShootingMediaId: journey.motionPlan.startShootingFrame.mediaId,
     endShootingMediaId: journey.motionPlan.endShootingFrame.mediaId,
     startPlan: journey.motionPlan.startPlan,

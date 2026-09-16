@@ -394,7 +394,9 @@ The same model text-to-images A and image-conditions later
 destinations. `Project.imageOutputFormat` (`png` default) is shown in
 settings only when that model offers more than one file format.
 `Project.imageResolution` (`1K` default) is shown only when that model
-offers more than one output size. Model- and
+offers more than one output size. `Project.klingV3Mode` (`standard`
+default) is shown only while Kling 3 is mapped to Fast, Balanced, or
+Quality: `standard` is 720p, `pro` is 1080p, `4k` is 4K. Model- and
 provider-specific knobs stay behind the adapter.
 `Project.canonicalAspectRatio` is the aspect used for later still
 generation: 16:9 when TunnelVision generates A, otherwise A's pixel

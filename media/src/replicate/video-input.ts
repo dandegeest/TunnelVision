@@ -2,6 +2,7 @@ import { MediaGenerationError } from "../errors.ts";
 import type { ResolvedMedia } from "../media-input.ts";
 import type { VideoGenerationRequest } from "../types.ts";
 import { isKling25TurboPro, toKling25TurboProInput } from "./kling-v2.5-turbo-pro.ts";
+import { isKlingV3Video, toKlingV3VideoInput, type KlingV3Settings } from "./kling-v3-video.ts";
 import { isPVideoModel, toPVideoInput, type PVideoSettings } from "./p-video.ts";
 import { isSeedance20Fast, toSeedance20FastInput } from "./seedance-2.0-fast.ts";
 import { isWan22I2vFast, toWan22I2vFastInput } from "./wan-2.2-i2v-fast.ts";
@@ -14,6 +15,7 @@ export function isSeedance25(model: string): boolean {
 export type ReplicateVideoKnobs = {
   readonly pVideo?: PVideoSettings;
   readonly seedance?: Seedance25Settings;
+  readonly klingV3?: KlingV3Settings;
 };
 
 export function toReplicateVideoInput(
@@ -31,6 +33,12 @@ export function toReplicateVideoInput(
   }
   if (isKling25TurboPro(model)) {
     return toKling25TurboProInput(request, resolvedStart, resolvedEnd) as unknown as Record<
+      string,
+      unknown
+    >;
+  }
+  if (isKlingV3Video(model)) {
+    return toKlingV3VideoInput(request, resolvedStart, resolvedEnd, knobs.klingV3) as unknown as Record<
       string,
       unknown
     >;

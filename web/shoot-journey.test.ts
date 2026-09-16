@@ -176,6 +176,44 @@ describe("shootPreparedJourney", () => {
     expect(take.model).toBe("kwaivgi/kling-v2.5-turbo-pro");
   });
 
+  it("requests Kling 3 at 6s like the other Quality models", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-shoot-kling3-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    let duration: number | undefined;
+    const take = await shootPreparedJourney({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        videoModel: "kling-v3-video",
+        klingV3Mode: "4k",
+      },
+      renderFrame: async () => PNG,
+      generateVideo: async (request) => {
+        duration = request.durationSeconds;
+        return {
+          provider: "replicate",
+          model: "kwaivgi/kling-v3-video",
+          modelVersion: "test",
+          predictionId: "pred-kling3",
+          status: "succeeded",
+          outputUrl: "https://example.test/kling3.mp4",
+          metadata: {},
+          startedAt: "2026-09-15T00:00:00.000Z",
+          completedAt: "2026-09-15T00:00:06.000Z",
+          elapsedMs: 6000,
+        };
+      },
+    });
+    expect(duration).toBe(6);
+    expect(take.durationSeconds).toBe(6);
+    expect(take.model).toBe("kwaivgi/kling-v3-video");
+    expect(videoModelIdFromBody("kwaivgi/kling-v3-video")).toBe("kling-v3-video");
+  });
+
   it("stages A′/B′ without generating video", async () => {
     const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-")));
     setActiveRuntimeMediaRegistry(registry);

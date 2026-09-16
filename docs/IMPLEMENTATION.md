@@ -353,7 +353,10 @@ trigger repair
 JourneyAgent launches NEW TAKE
 as each inbound pair is established; provider-aware concurrent
 queueing is backlog
-([BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming)). Video and Debug mode live in Project settings. Director, Project, and Inspector
+([BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming)).
+Destination construct/repair and other Project writes apply onto the
+live Project and keep any Takes that finished on a sibling leg while
+that write was in flight. Video and Debug mode live in Project settings. Director, Project, and Inspector
 headers put the panel name and collapse control on one row below the app header. Shoot Inspector titles are Inspector - Destination, Inspector - Motion, or Inspector - Footage. The Shoot inspector is horizontally resizable and can hide to a reopen strip. That visibility is session UI, not project persistence, and
 is independent of Plan / Shoot and agency.
 Shoot boundary continuity displays stored adjacent-clip MAE/SSIM at
@@ -401,10 +404,11 @@ The current still development generator is Replicate
 catalog. The current Shoot development generator is Replicate `prunaai/p-video`,
 the Project default. The filmmaker can switch the current project's
 video model in Project settings (`pruna-p-video`,
-`kling-v2.5-turbo-pro`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
+`kling-v2.5-turbo-pro`, `kling-v3-video`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
 Seedance models use `image`/`last_frame_image`; Kling 2.5 Turbo Pro
-uses `start_image`/`end_image` and a 5s clip; Wan 2.2 I2V Fast uses
+uses `start_image`/`end_image` and a 5s clip; Kling 3 uses the same
+image fields at 6s with `mode` `standard` / `pro` / `4k`; Wan 2.2 I2V Fast uses
 `image`/`last_image`. The Shoot timeline follows each Take's duration,
 so a Kling 5s clip is shorter than a Pruna 6s clip on the same
 segment. The cut clock sums the selected Takes. Unshot legs preview the

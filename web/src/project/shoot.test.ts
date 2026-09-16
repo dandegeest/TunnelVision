@@ -182,6 +182,22 @@ describe("SHOOT gate and JourneyShot take", () => {
       "A-B",
     );
     expect(agentQuality.videoModel).toBe("seedance-2.5");
+    const kling3 = shootRequestFromProject(
+      {
+        ...prepared,
+        klingV3Mode: "pro",
+        videoModelsByIntent: {
+          fast: "pruna-p-video",
+          balanced: "wan-2.2-first-last-frame",
+          quality: "kling-v3-video",
+        },
+      },
+      "A-B",
+      "quality",
+    );
+    expect(kling3.videoModel).toBe("kling-v3-video");
+    expect(kling3.klingV3Mode).toBe("pro");
+    expect(kling3.generationIntent).toBe("quality");
     expect(agentQuality.generationIntent).toBe("quality");
     const shooting = projectWithJourneyShooting(prepared, "A-B");
     expect(shooting.journeys[0]?.status).toBe("shooting");

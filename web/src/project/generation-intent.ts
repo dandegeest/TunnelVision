@@ -1,4 +1,4 @@
-import { videoModelDisplayLabel, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import { videoModelDisplayLabel, videoModelHasModeChoice, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
 
 export const GENERATION_INTENTS = ["fast", "balanced", "quality"] as const;
 export type GenerationIntent = (typeof GENERATION_INTENTS)[number];
@@ -60,6 +60,13 @@ export function defaultTakeIntentFromProject(project: {
   defaultTakeIntent?: GenerationIntent;
 }): GenerationIntent {
   return project.defaultTakeIntent ?? DEFAULT_GENERATION_INTENT;
+}
+
+export function projectShowsVideoModeChoice(project: {
+  videoModel: VideoModelId;
+  videoModelsByIntent?: VideoModelsByIntent;
+}): boolean {
+  return Object.values(videoModelsByIntentFromProject(project)).some(videoModelHasModeChoice);
 }
 
 export function unshotVideoModel(project: {

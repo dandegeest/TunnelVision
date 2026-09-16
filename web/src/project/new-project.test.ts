@@ -30,6 +30,7 @@ describe("new product project", () => {
     expect(project.imageModel).toBe("nano-banana-2-lite");
     expect(project.imageOutputFormat).toBe("png");
     expect(project.imageResolution).toBe("1K");
+    expect(project.klingV3Mode).toBe("standard");
     expect(project.storyDurationLocked).toBe(false);
     expect(canProvideStartingFrame(project.storyboard[0]!)).toBe(true);
     expect(hasAuthoritativeStartingFrame(project)).toBe(false);
