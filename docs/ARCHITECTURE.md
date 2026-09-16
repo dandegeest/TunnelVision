@@ -282,11 +282,14 @@ weight its motion field with it.
 
 TunnelVision must have **one project model and one canonical serialized
 project format shared by every filmmaking surface**. The full Plan |
-Shoot workstation and the conversational JourneyAgent application
-must read and write the same format. JourneyAgent operates on the
-same `Project` / domain model; it must not create a hackathon-specific
-project or session format, emit an isolated movie artifact, or require
-translation/import before workstation use.
+Shoot workstation and the dedicated hackathon autonomous surface
+must read and write the same format. The hackathon UI is another
+view / interaction model over that `Project`, not a second schema.
+JourneyAgent operates on the same domain model; it must not create
+a hackathon-specific project or session format, emit an isolated
+movie artifact, or require translation/import before workstation
+use. See [HACKATHON.md](HACKATHON.md) and
+[BACKLOG.md — Durable project persistence](BACKLOG.md#durable-project-persistence).
 
 An Agent-created project must open normally in the workstation and
 remain a live, continuable project. Persistence must retain the
@@ -294,8 +297,10 @@ filmmaking state needed to inspect and continue the session, including
 semantic destinations and Director state, canonical images and
 provenance, segment Motion Plans and CM assessments, Camotion
 conditioned assets or deterministic reproduction inputs, every Take
-and the selected Take per segment, provider/model metadata, useful
-Agent activity, and export references. All generated Take alternatives
+and the selected Take per segment, provider/model metadata including
+model-route decisions when they exist, selected camera grammar when
+that discovery exists, retry/reshoot history, useful Agent activity,
+and export references. All generated Take alternatives
 must remain available so a filmmaker can select another Take, create
 new Takes, and produce a different cut.
 

@@ -71,7 +71,17 @@ Other visible questions:
     silent modification. Not Project Properties. Not this slice.
     Detect/report/preserve source until then.
 -   **Eventual Discovery workflow.** See GWM Worlds 2 notes below.
-    Hypothetical only.
+    Hypothetical only. Also the planned DISCOVER canonical
+    strategy in [BACKLOG.md](BACKLOG.md#discover-canonical-strategy)
+    — HACKATHON / DISCOVERY, not current implementation.
+-   **Camera grammar.** Can CM classify FPOV / FP_FOLLOW /
+    REVERSE_LEAD / MOUNTED per traversal and select a matching
+    shooting baseline? See below. HACKATHON / DISCOVERY. Do not
+    implement now.
+-   **Agentic Runway Model Router.** Can agents use grammar, CM
+    scores, and prior results to choose a Runway model / route
+    instead of one fixed model? HACKATHON / DISCOVERY. Do not
+    hard-code Router capabilities before event-day docs.
 -   **Storyboard visualization A/B spike.** Low priority. Do not
     promote into the product roadmap.
 
@@ -695,6 +705,38 @@ Related failure mode (look up → climb the tree):
 
 Do not productize from this. Do not tune Camotion. Do not implement
 STOP / LOOK now. Agent remains first.
+
+## Camera grammar
+
+Unvalidated. **HACKATHON / DISCOVERY.** Not a schema. Not current
+Cinematographer work. Do not implement baselines, enums, or UI
+from this note in a normal product session.
+
+Current product locomotion is forward FPOV
+(`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`). That baseline also
+discourages persistent FPS-style foreground objects.
+
+**Exhibit (do not “fix” before the event).** Reverse Lead
+astronaut experiment: Director planned continuous backward travel
+while facing the astronaut. CM overrode that intent and rewrote
+the shots as forward FPOV that passed the astronaut and continued
+forward. Preserve this as a pre-hackathon failure case.
+
+Research question: can CM recognize the required camera grammar
+and automatically select the correct shooting baseline, instead of
+making one universal locomotion prompt more permissive?
+
+Initial proof set only: **FPOV**, **FP_FOLLOW**, **REVERSE_LEAD**,
+**MOUNTED**. Classify per traversal. Mounted-vehicle foreground
+geometry is expected and conflicts with the FPOV foreground rule —
+that is the argument for specialized baselines.
+
+Planning write-up (including UI card copy and Model Router
+interaction): [HACKATHON.md](HACKATHON.md),
+[BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification).
+
+Do not overbuild SIDE_TRACK / ORBIT / ASCEND / HANDOFF / FREE
+during the hackathon. Do not retune Camotion from this.
 
 ## Endpoint / edit-boundary fidelity instrumentation
 

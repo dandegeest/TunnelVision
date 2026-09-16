@@ -22,18 +22,20 @@ not a CI check.
 
 Organize roughly as:
 
-1.  Hackathon / Agent priorities
-2.  Filmmaking intelligence
-3.  Camotion / visual quality
-4.  Output / persistence
-5.  Provider / infrastructure
-6.  Future UX
+1.  Hackathon / discovery (do not implement now)
+2.  Hackathon / Agent priorities
+3.  Filmmaking intelligence
+4.  Camotion / visual quality
+5.  Output / persistence
+6.  Provider / infrastructure
+7.  Future UX
 
 ### Status
 
 | Status | Meaning |
 | --- | --- |
 | **BACKLOG** | Accepted work; not started. |
+| **HACKATHON / DISCOVERY** | Event-day or immediately pre-event research. Not a current implementation task. Do not start from a normal product session. |
 | **VALIDATE** | Characterize current behavior; change only if it fails the spec. |
 | **EXPERIMENT** | Evidence-gathering; do not productize from a single run. |
 | **READY** | Scoped enough to implement. |
@@ -47,23 +49,164 @@ Items below are **BACKLOG** unless a later edit changes the status.
 
 ## Pre-hackathon focus
 
-The core filmmaking Agent is proven. Freeze that pipeline. Next
-workstation work, in order:
+The core filmmaking Agent is proven. Freeze that pipeline. Treat
+existing generation, canonical-frame, traversal, Camotion, export,
+and JourneyAgent as a **library** the hackathon surface will call.
+
+Next workstation work, in order:
 
 1.  Timeline / Takes UX polish
-2.  Project persistence / shared Project format (workstation and
-    hackathon Agent UI)
+2.  Project persistence / shared Project format (standard TV and
+    the dedicated hackathon surface — same `Project`, no second
+    format)
 3.  Basic robustness and regression testing
 4.  Fresh-machine / config / secrets readiness
 5.  Freeze the core filmmaking pipeline before the event
 
-Hackathon-day work remains Runway Model Router integration and
-the simplified Agent/chat presentation surface. See
+Do **not** implement camera-grammar baselines, “fix” the Reverse
+Lead astronaut override, Discover, or agentic Model Router policy
+before the event. Those are **HACKATHON / DISCOVERY**.
+
+Hackathon-day work is a **new** one-prompt cinematic surface over
+that shared Project, plus Runway Model Router agentic control.
+Camera-grammar classification is a second discovery thread and
+must not displace the Router research. See
 [HACKATHON.md](HACKATHON.md).
 
 Do **not** spend pre-hackathon time inventing a Footage Evaluator,
 Agent take-selection, Draft/Final project modes, or a second
 movie representation.
+
+---
+
+## Hackathon / discovery (do not implement now)
+
+Planning only. Event-day write-up: [HACKATHON.md](HACKATHON.md).
+These items are **HACKATHON / DISCOVERY**, not current product
+work.
+
+### Dedicated hackathon UI surface
+
+**Status:** HACKATHON / DISCOVERY — do not implement from a normal
+product session.
+
+**Goal.** A purpose-built, nearly full-screen autonomous experience:
+one prompt → CREATE JOURNEY → hands off → watch the film crew →
+play the movie in the same surface.
+
+**Why it matters.** The claim is fully unattended agentic journey
+creation, not “AI video generation” and not a restyled Plan | Shoot.
+
+**Intended behavior / design.**
+
+-   New route / Vite entry. Not a visual mode inside the editor.
+-   Initial state: prompt + CREATE JOURNEY. Optional Open Project.
+-   After CREATE JOURNEY: live cards for Director, destinations,
+    CM (scores + grammar when that discovery exists), model
+    routing, shooting, retry, and progress (`A ━━━✓━━━ B …`).
+-   Completion: same surface becomes the player. Download / Open
+    in TunnelVision.
+-   Chat / tool commands are architecturally important and
+    **later** than the unattended demo.
+
+Standard TV stays the detailed creative environment. Both surfaces
+read/write the same Project. Details:
+[HACKATHON.md](HACKATHON.md).
+
+**Constraints / invariants.**
+
+-   Do not replace or gut Plan | Shoot.
+-   Do not invent a hackathon-only project schema.
+-   Do not require user clicks after CREATE JOURNEY for the hero
+    demo.
+
+---
+
+### Camera grammar classification
+
+**Status:** HACKATHON / DISCOVERY — do **not** implement now. Do
+**not** retune the current FPOV locomotion baseline to make one
+failure succeed.
+
+**Goal.** Can CM recognize the required camera grammar **per
+traversal** and select the matching shooting baseline instead of
+forcing every shot through forward FPOV?
+
+**Why it matters.** The Director can already plan non-FPOV camera
+intent. The current Cinematographer baseline
+(`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`) still assumes
+continuous forward travel and avoidance of FPS-style foreground
+objects, and can override valid Director intent.
+
+**Pre-hackathon failure case (preserve).** Reverse Lead astronaut
+experiment: Director planned a backward-moving camera that kept
+facing the astronaut. CM rewrote the shots to pass the astronaut
+and continue forward because the baseline required forward travel.
+Keep this as the exhibit. Do not “fix” it before the hackathon.
+
+**Intended initial grammars only** (do not overbuild):
+
+-   **FPOV** — camera is the traveler; existing forward constraints
+    may stay useful; FPS foreground generally undesirable unless
+    requested
+-   **FP_FOLLOW** — follow a persistent subject (koi, coaster car,
+    person, animal)
+-   **REVERSE_LEAD** — retreat while facing an advancing subject;
+    must not rewrite into forward FPOV
+-   **MOUNTED** — camera on a vehicle / object; persistent
+    foreground geometry is expected (conflicts with FPOV “no FPS
+    foreground”)
+
+Later (not hackathon taxonomy): SIDE_TRACK, ORBIT, ASCEND/DESCEND,
+OBJECT/PROJECTILE, SUBJECT HANDOFF, FREE.
+
+Expose the chosen grammar on hackathon CM cards. Persist it on the
+shared Project when the discovery exists.
+
+**Constraints / invariants.**
+
+-   Do not make one universal locomotion prompt more permissive.
+-   Classify per traversal, not necessarily one grammar per movie.
+-   Current product law in [AGENTS.md](AGENTS.md) stays FPOV until
+    this discovery lands.
+
+**Open questions.** See [HACKATHON.md](HACKATHON.md) and
+[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md#camera-grammar).
+
+---
+
+### Agentic Runway Model Router control
+
+**Status:** HACKATHON / DISCOVERY — major Runway research. Adapter
+plumbing is the related [Runway hackathon integration](#runway-hackathon-integration)
+item. Do not start routing policy from a normal product session.
+
+**Goal.** Can an autonomous filmmaking agent use camera intent,
+geometry, Traversal Confidence, and previous generation results to
+decide **how** a shot should be generated on Runway — not a single
+fixed model for every traversal?
+
+**Why it matters.** Camera grammar is one thread. It must not
+displace this. The judge-facing product is a persistent Project +
+autonomous Director/CM + grammar-aware shooting (if found) +
+agent-controlled Router + evaluation/retry + one-prompt UX.
+
+**Intended behavior / design.** Discovery-driven. Do not hard-code
+Router capabilities until event-day docs and org access exist.
+Public Router API facts stay in [HACKATHON.md](HACKATHON.md) §14.
+
+Potential signals: grammar, Traversal Confidence, Set Consistency,
+subject persistence, motion amount, environmental transformation,
+prior success/failure, cost/latency if relevant.
+
+Surface the chosen route / model and a short reason on the
+hackathon cards. Persist those decisions on the shared Project.
+
+**Constraints / invariants.**
+
+-   Router augments TV; it does not replace Director, CM, Camotion,
+    or JourneyAgent.
+-   Do not invent Draft/Final project modes.
 
 ---
 
@@ -927,7 +1070,10 @@ to the complete B1 continuity and reselect its compatible Takes.
 
 ### Discover canonical strategy
 
-**Status:** BACKLOG — intended major hackathon feature.
+**Status:** HACKATHON / DISCOVERY — intended second journey
+strategy. Do not implement from a normal product session. Do not
+spend event-day time on it until the unattended Derive movie
+already plays.
 
 **Goal.** Add a second strategy for creating the next canonical
 from what actually emerges in generated traversal footage.
@@ -947,19 +1093,21 @@ intent / plan, conditioned on the preceding actual still.
 Likely flow:
 
 1.  Actual A exists.
-2.  Generate traversal (A→B footage). For a first DISCOVER leg the
-    “B” end condition may be weaker or absent; do not assume
-    today’s A′/B′ pair is mandatory for the experiment.
-3.  Inspect a useful ending region / frame.
-4.  Choose or recover the best continuation frame.
-5.  Upscale / normalize into canonical B (canonical resolution
-    rules apply).
-6.  Continue B→C.
+2.  Generate traversal from the current canonical. For a first
+    DISCOVER leg the “B” end condition may be weaker or absent;
+    do not assume today’s A′/B′ pair is mandatory.
+3.  Inspect the generated traversal.
+4.  Use the literal last frame **or** reverse / search backward
+    for the best usable late frame.
+5.  Extract that frame and upscale / promote it into canonical B
+    (canonical resolution rules apply).
+6.  Continue B→C, C→D, …
 
-DISCOVER must **not** enter the normal CM reshoot loop merely
-because the discovered endpoint differs from a predetermined
-destination. Emergence is the point. CM still evaluates whether
-the *next* pair can be shot once two actuals exist.
+DISCOVER must **not** use the Derive reshoot loop. Emergence is
+the point; the generated journey discovers where it goes. CM may
+still evaluate a later pair once two actuals exist, but a
+discovered endpoint that differs from a predetermined destination
+is not a repair trigger.
 
 Canonical-generation strategy is architecturally independent from
 control mode:
@@ -1076,42 +1224,45 @@ JOURNEY, get a new opening that rhymes with the guide.
 
 ### Runway hackathon integration
 
-**Status:** BACKLOG
-
-Event-day implementation plan:
-[HACKATHON.md](HACKATHON.md).
+**Status:** BACKLOG (adapters) + HACKATHON / DISCOVERY (agentic
+routing policy). Event-day plan: [HACKATHON.md](HACKATHON.md).
 
 **Goal.** At the hackathon, integrate Runway **Model Router** (with
 direct-model fallback) into the existing TunnelVision provider
 architecture while treating the current core as a pre-existing
-library. TV decides the filmmaking task; Router chooses the
-eligible model. See [HACKATHON.md](HACKATHON.md) §14.
+library. TV decides the filmmaking task and, as discovery, may
+choose a route from camera grammar / CM scores / prior results.
+Router executes generation. See [HACKATHON.md](HACKATHON.md) §14
+and [Agentic Runway Model Router control](#agentic-runway-model-router-control).
 
-**Why it matters.** Hackathon time is for a fresh Agent-facing
-product surface and adaptive Runway generation, not a rewrite of
-Plan | Shoot, CM, or Camotion, and not a one-for-one swap of
-Replicate model IDs.
+**Why it matters.** Hackathon time is for a dedicated autonomous
+surface and adaptive Runway generation, not a rewrite of Plan |
+Shoot, CM, or Camotion, and not a one-for-one swap of Replicate
+model IDs. We are not claiming the whole application was built
+that day.
 
 **Intended behavior / design.**
 
 Hackathon-day focus:
 
--   Fresh **minimal** UI (stripped timeline that builds as the
-    Agent works)
+-   Shared Project persistence used by both surfaces
+-   Dedicated **minimal cinematic** UI (not a stripped editor)
 -   Agent layer ([Agent mode](#agent-mode)) — **reused**, not
     implemented on event day
--   Runway **Model Router** behind adapters (`tv-draft` /
-    `tv-final`); named models only as fallback
--   [DISCOVER](#discover-canonical-strategy) if time
--   Fully unattended first cut: prompt → CREATE JOURNEY → Agent
-    directs, constructs, CM-repairs unshootable pairs, films
-    Takes, and assembles. The filmmaker reviews footage and
-    selects Takes.
+-   Runway **Model Router** behind adapters; named models only as
+    fallback; **visible** route / model decisions
+-   [Camera grammar](#camera-grammar-classification) if the
+    unattended path already plays
+-   [DISCOVER](#discover-canonical-strategy) only after that
+-   Fully unattended first cut: prompt → CREATE JOURNEY → watch
+    agents work → play the movie in the same surface. Opening the
+    Project in standard TV later is how the filmmaker inspects
+    Takes.
 
-User-facing hackathon loop: starting journey prompt, press CREATE
-JOURNEY, watch a thin timeline grow. No extra Agent options on
-event day. Product [Agent LOOP option](#agent-loop-option) is
-backlog, not hackathon UI.
+User-facing hackathon loop: one prompt, CREATE JOURNEY, hands
+off. No extra Agent options on event day. Product
+[Agent LOOP option](#agent-loop-option) is backlog, not hackathon
+UI. Advanced chat must not jeopardize the hero demo.
 
 **Constraints / invariants.**
 
@@ -2156,15 +2307,14 @@ A real project cannot be handed to another machine or resumed
 tomorrow.
 
 **Architecture requirement: one project model, multiple filmmaking
-surfaces.** The full Plan | Shoot filmmaker workstation and the
-conversational JourneyAgent application must read and write the exact
-same TunnelVision project format. The Agent application must not
-invent a hackathon-specific project or session format, emit only an
-isolated movie artifact, or require a later translation/import step.
-JourneyAgent operates on the same `Project` / domain model as the
-workstation. A project created autonomously in the Agent surface must
-open normally in the full workstation, where the filmmaker can inspect
-and continue it.
+surfaces.** The full Plan | Shoot workstation and the dedicated
+hackathon surface must read and write the exact same TunnelVision
+project format. The hackathon UI is another VIEW / interaction
+model over that `Project`, not a second schema. It must not emit
+only an isolated movie artifact or require a later
+translation/import step. A project created autonomously in the
+hackathon UI must open normally in the full workstation, and an
+existing project may later be opened in the hackathon surface.
 
 **Intended behavior / design.**
 
@@ -2185,8 +2335,14 @@ Persist enough to restore the actual workspace:
 -   per-Take start/end canonical media IDs (the pair the Take was
     shot against)
 -   provider/model/generation metadata needed for inspection and
-    reproducibility
+    reproducibility, including Runway model / model-route
+    decisions and reasons when that discovery exists
+-   selected camera grammar per traversal when that discovery
+    exists
+-   retry / reshoot / reroute history
 -   Agent activity and results where useful for provenance/debugging
+-   relevant agent conversation / history when it is project
+    provenance (chat is not the source of truth)
 -   final assembled movie/export references where appropriate
 -   relevant project settings (agency, video model, aspect,
     Directed options if still used)
@@ -2203,9 +2359,9 @@ state.
 **Constraints / invariants.**
 
 -   Session UI ≠ project persistence (already documented).
--   The workstation and JourneyAgent use one canonical serialized
-    project format; no surface-specific project/session schema.
--   An Agent-created project must be directly openable and
+-   The workstation and hackathon surface use one canonical
+    serialized project format; no surface-specific schema.
+-   A hackathon-created project must be directly openable and
     continuable in the full workstation.
 -   Persist every generated Take, including non-selected alternatives.
 -   Takes remain reviewable and selectable after reopen; a different

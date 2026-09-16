@@ -1425,10 +1425,18 @@ ahead. Leaves, dust, and loose particles move naturally through the air
 as the camera passes. No music, no soundtrack, no dialogue.
 ```
 
-Locomotion grammar (stable): continuous forward travel; never stop
-moving; spatially contiguous environment; foreground objects pass
-beside/behind the camera; new terrain revealed ahead; incidental
-particles; no soundtrack.
+Locomotion grammar (stable, current product): continuous forward
+travel; never stop moving; spatially contiguous environment;
+foreground objects pass beside/behind the camera; new terrain
+revealed ahead; incidental particles; no soundtrack.
+
+A Reverse Lead astronaut experiment showed this baseline can
+override valid Director backward-travel intent. That is a
+**HACKATHON / DISCOVERY** camera-grammar research exhibit, not a
+current prompt-tweak. Do not retune this baseline or add grammar
+enums from a normal implementation session. See
+[BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
+and [HACKATHON.md](HACKATHON.md).
 
 A 15 September 2026 Journey Prompt test found LEFT / RIGHT / UP /
 DOWN can steer that continuing forward travel (turns, not
