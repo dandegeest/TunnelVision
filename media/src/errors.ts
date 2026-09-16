@@ -84,6 +84,14 @@ export function classifyProviderFailure(input: {
   if (input.timeout || input.network) {
     return "provider_unavailable";
   }
+  if (
+    input.httpStatus === 429 ||
+    input.httpStatus === 502 ||
+    input.httpStatus === 503 ||
+    input.httpStatus === 504
+  ) {
+    return "provider_unavailable";
+  }
   const error = (input.error ?? "").toLowerCase();
   if (
     input.httpStatus === 401 ||
@@ -108,4 +116,26 @@ export function classifyProviderFailure(input: {
     return "moderation";
   }
   return "generation_failed";
+}
+
+const RETRYABLE_TRANSPORT = [
+  "timeout",
+  "fetch failed",
+  "network",
+  "econnreset",
+  "econnrefused",
+  "enotfound",
+  "socket hang up",
+];
+
+/** Transport / availability failures that should be retried. Not model or parse errors. */
+export function isRetryableProviderError(error: unknown): boolean {
+  if (error instanceof Error && error.name === "AbortError") {
+    return false;
+  }
+  if (error instanceof MediaGenerationError) {
+    return error.code === "provider_unavailable";
+  }
+  const message = formatErrorWithCause(error).toLowerCase();
+  return RETRYABLE_TRANSPORT.some((token) => message.includes(token));
 }

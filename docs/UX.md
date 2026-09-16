@@ -392,7 +392,16 @@ the run as a failure. Do not repeat that status as helper
 copy under the button, and do not prefix it with "Director is". CREATE JOURNEY appends a pending
 Director turn in history; that same Director entry resolves
 in place to structured evidence plus a concise filmmaker-facing
-summary. Pending Director **Planning…**, **Blocking…**, and
+summary. The conversation rail presents that history as compact
+production cards: a journey progress rail once a journey exists
+(`A > B > C` badges: dim until a canonical still exists, olive when
+it does; the `>` lights when that leg has accepted footage; long
+rows scroll),
+destination stills, grouped Cinematographer evaluation with the
+existing Set Consistency / Traversal Confidence scores, shot
+accepted/in-progress status, and a journey-complete card with Play
+and Download. Play journey moves the playhead to the start of the
+cut, opens Shoot, then plays. Pending Director **Planning…**, Cinematographer, and
 **Shooting…** turns, and construction, show a
 progress spinner beside that status copy. Timestamps are stored on each conversation entry when it is
 created; the UI formats that stored time. Role labels are FILMMAKER

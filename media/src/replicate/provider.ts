@@ -3,6 +3,7 @@ import Replicate from "replicate";
 import { getOptionalEnv } from "../config/environment.ts";
 import { classifyProviderFailure, formatErrorWithCause, MediaGenerationError, redactSecrets, assertNoSecret } from "../errors.ts";
 import { resolveMediaInput } from "../media-input.ts";
+import { withProviderRetry, type ProviderRetryOptions } from "../provider-retry.ts";
 import {
   GeneratedImage,
   GeneratedVideo,
@@ -56,6 +57,7 @@ export type ReplicateMediaProviderOptions = {
   readonly flux?: Flux11ProUltraSettings;
   readonly kontext?: FluxKontextProSettings;
   readonly client?: ReplicatePredictionClient;
+  readonly retry?: ProviderRetryOptions;
 };
 
 export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider {
@@ -70,6 +72,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
   private readonly flux: Flux11ProUltraSettings | undefined;
   private readonly kontext: FluxKontextProSettings | undefined;
   private readonly client: ReplicatePredictionClient;
+  private readonly retry: ProviderRetryOptions;
 
   constructor(options: ReplicateMediaProviderOptions = {}) {
     this.token = options.token ?? getOptionalEnv("REPLICATE_API_TOKEN");
@@ -83,6 +86,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     this.flux = options.flux;
     this.kontext = options.kontext;
     this.client = options.client ?? createOfficialClient(this.token);
+    this.retry = options.retry ?? {};
   }
 
   async generateVideo(request: VideoGenerationRequest): Promise<GeneratedVideo> {
@@ -200,8 +204,14 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     const startedAt = new Date();
     let prediction: ReplicatePrediction;
     try {
-      prediction = await this.client.create({ model, input });
-      prediction = await this.client.wait(prediction);
+      prediction = await withProviderRetry(async () => {
+        try {
+          const created = await this.client.create({ model, input });
+          return await this.client.wait(created);
+        } catch (error) {
+          throw wrapClientError(error, this.token);
+        }
+      }, this.retry);
     } catch (error) {
       throw wrapClientError(error, this.token);
     }

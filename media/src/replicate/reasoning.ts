@@ -3,6 +3,7 @@ import Replicate from "replicate";
 import { getOptionalEnv } from "../config/environment.ts";
 import { classifyProviderFailure, formatErrorWithCause, MediaGenerationError, redactSecrets, assertNoSecret } from "../errors.ts";
 import { resolveMediaInput } from "../media-input.ts";
+import { withProviderRetry, type ProviderRetryOptions } from "../provider-retry.ts";
 import { ReasoningProvider, ReasoningRequest, ReasoningResult } from "../reasoning/types.ts";
 import { ReplicatePrediction, ReplicatePredictionClient } from "./client.ts";
 import {
@@ -20,6 +21,7 @@ export type ReplicateReasoningProviderOptions = {
   readonly model?: string;
   readonly gemini?: Gemini31ProSettings;
   readonly client?: ReplicatePredictionClient;
+  readonly retry?: ProviderRetryOptions;
 };
 
 export class ReplicateReasoningProvider implements ReasoningProvider {
@@ -27,12 +29,14 @@ export class ReplicateReasoningProvider implements ReasoningProvider {
   private readonly model: string;
   private readonly gemini: Gemini31ProSettings | undefined;
   private readonly client: ReplicatePredictionClient;
+  private readonly retry: ProviderRetryOptions;
 
   constructor(options: ReplicateReasoningProviderOptions = {}) {
     this.token = options.token ?? getOptionalEnv("REPLICATE_API_TOKEN");
     this.model = options.model ?? GEMINI_31_PRO_MODEL;
     this.gemini = options.gemini;
     this.client = options.client ?? createOfficialClient(this.token);
+    this.retry = options.retry ?? {};
   }
 
   async complete(request: ReasoningRequest): Promise<ReasoningResult> {
@@ -49,11 +53,17 @@ export class ReplicateReasoningProvider implements ReasoningProvider {
 
     let prediction: ReplicatePrediction;
     try {
-      prediction = await this.client.create({
-        model: this.model,
-        input: input as unknown as Record<string, unknown>,
-      });
-      prediction = await this.client.wait(prediction);
+      prediction = await withProviderRetry(async () => {
+        try {
+          const created = await this.client.create({
+            model: this.model,
+            input: input as unknown as Record<string, unknown>,
+          });
+          return await this.client.wait(created);
+        } catch (error) {
+          throw wrapClientError(error, this.token);
+        }
+      }, this.retry);
     } catch (error) {
       throw wrapClientError(error, this.token);
     }

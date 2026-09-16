@@ -211,7 +211,11 @@ v1 from it (`cameraMotionPlansFromAssessment`; centered fallback only when a
 still has no usable target; exposure.strength from CM `pace`), renders Camotion A′/B′ for that pair, and stores the complete Motion Plan
 on that JourneyShot, including `segmentPromptAddition`, a per-shot `pace` (`slow-motion` / `slow` /
 `moderate` / `fast` / `hyperspeed` / `variable`), and independent integer
-`setConsistency` / `traversalConfidence` scores (0–100). Set
+`setConsistency` / `traversalConfidence` scores (0–100). Replicate
+Director / Cinematographer reasoning and image/video create+wait retry
+transient `provider_unavailable` transport failures (connect timeout,
+fetch failed, 429/502/503/504) up to two extra times. Model, parse,
+and configuration errors are not retried. Set
 consistency is world match; traversal confidence is whether the pair
 can be filmed as one continuous shot, including across a surreal
 threshold. The two must not be collapsed. Shootability remains
@@ -326,8 +330,12 @@ selection of a canonical still uses the same Shoot timeline occurrence click as 
 destination rail. Destination actions live in
 the destination menu, including Reshoot for generated stills. Director conversation entries resolve in place
 from planning to complete, with structured evidence and a filmmaker-facing
-summary. Conversation timestamps are stored on the entry. Pending
-Director **Planning…**, Cinematographer **Blocking…**, **Shooting…**,
+summary. Conversation timestamps are stored on the entry. The
+Director rail renders that session history as compact production
+cards (progress rail of canonical badges and footage chevrons, destination stills, grouped Cinematographer
+evaluation, shot status, journey complete) without changing Agent or
+shoot logic. Pending
+Director **Planning…**, Cinematographer, **Shooting…**,
 and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
 intent as readable text until an image exists. The Plan storyboard reel

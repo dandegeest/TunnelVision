@@ -388,7 +388,10 @@ architecture.
     filmmaker-facing summary. Send is not an active filmmaking command. Entry timestamps are stored data. The
     filmmaking conversation rail is a project-level workspace the
     filmmaker can hide or show; its visibility is independent of
-    Plan / Shoot and Directed / Agent.
+    Plan / Shoot and Directed / Agent. Once a journey exists, that
+    rail shows compact production-card presentation of the same
+    session transcript: progress, constructed destinations,
+    Cinematographer evaluation, accepted shots, and journey complete.
 -   **Boundary continuity (Shoot)** is the visual match of adjacent
     **completed** Journey clips at their shared destination: previous
     clip final decoded frame ↔ next clip first decoded frame. It

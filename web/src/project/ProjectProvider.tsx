@@ -161,6 +161,7 @@ type ProjectContextValue = {
   cutPlaybackJourneyId: string | null;
   cutStartOffset: number;
   playCurrentCut: () => void;
+  playCurrentCutFromStart: () => void;
   pauseCurrentCut: () => void;
   seekCutPrevious: () => void;
   seekCutNext: () => void;
@@ -1013,6 +1014,19 @@ export function ProjectProvider({
     setPlaying(true);
   }, [laidClipsForCut, playheadTime]);
 
+  const playCurrentCutFromStart = useCallback(() => {
+    const clips = laidClipsForCut(projectRef.current);
+    if (clips.length === 0) {
+      return;
+    }
+    const first = clips[0]!;
+    setCutPlaybackJourneyId(first.clip.journeyId);
+    setCutStartOffset(0);
+    setPlayheadTime(first.laid.startTime);
+    setView("shoot");
+    setPlaying(true);
+  }, [laidClipsForCut]);
+
   const pauseCurrentCut = useCallback(() => {
     setPlaying(false);
   }, []);
@@ -1440,6 +1454,7 @@ export function ProjectProvider({
       cutPlaybackJourneyId,
       cutStartOffset,
       playCurrentCut,
+      playCurrentCutFromStart,
       pauseCurrentCut,
       seekCutPrevious,
       seekCutNext,
@@ -1511,6 +1526,7 @@ export function ProjectProvider({
       cutPlaybackJourneyId,
       cutStartOffset,
       playCurrentCut,
+      playCurrentCutFromStart,
       pauseCurrentCut,
       seekCutPrevious,
       seekCutNext,

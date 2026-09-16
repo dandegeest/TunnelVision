@@ -191,7 +191,7 @@ describe("Plan project story", () => {
     expect(html).toContain(formatConversationClock(AT2));
     expect(html).not.toContain("Director planning…");
     expect(html).toContain(submitted);
-    expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(1);
+    expect(html.match(/<summary[^>]*>Evidence<\/summary>/g)?.length).toBe(1);
   });
 
   it("does not enable later destinations while the journey story is empty", () => {
@@ -372,6 +372,7 @@ describe("Plan storyboard FPO intent", () => {
     expect(html).toContain(">Director<");
     expect(html).toContain('id="project-story"');
     expect(html).not.toContain("Constructing");
+    expect(html).not.toContain("Destination B");
     expect(html).not.toContain("Constructed B");
 
     const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
@@ -427,7 +428,7 @@ describe("Plan conversation thread", () => {
     const filmmaker = html.indexOf("Filmmaker");
     const first = html.indexOf(firstStory);
     const directorOne = html.indexOf("pred-1");
-    const constructedB = html.indexOf("Constructed B");
+    const constructedB = html.indexOf("Destination B");
     const constructingC = html.indexOf("Constructing C");
     const second = html.indexOf(secondStory);
     const directorTwo = html.indexOf("pred-2");
@@ -439,7 +440,7 @@ describe("Plan conversation thread", () => {
     expect(second).toBeGreaterThan(constructingC);
     expect(directorTwo).toBeGreaterThan(second);
     expect(html).toContain("/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-    expect(html.match(/<summary[^>]*>Director<\/summary>/g)?.length).toBe(2);
+    expect(html.match(/<summary[^>]*>Evidence<\/summary>/g)?.length).toBe(2);
     expect(html).toContain("First journey.");
     expect(html).toContain("Deeper into the fissure.");
     expect(html).toContain(formatConversationClock(AT));
@@ -475,11 +476,11 @@ describe("Plan conversation thread", () => {
         },
       ],
     });
-    expect(html).toContain("Constructed B");
+    expect(html).toContain("Destination B");
     expect(html).toContain("/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
     expect(html).toContain("Destination construction failed.");
     expect(html).not.toContain("Constructing B");
-    expect(html.indexOf("Constructed B")).toBeLessThan(html.indexOf("Destination construction failed."));
+    expect(html.indexOf("Destination B")).toBeLessThan(html.indexOf("Destination construction failed."));
   });
 
   it("renders Agent canonical reshoot cards separately from footage NEW TAKE", () => {
@@ -516,14 +517,77 @@ describe("Plan conversation thread", () => {
     });
     expect(html).toContain("Reshoot · D");
     expect(html).toContain("C→D needs a stronger spatial connection.");
-    expect(html).toContain("Set Consistency 25 · Traversal Confidence 45");
+    expect(html).toContain("Set Consistency");
+    expect(html).toContain(">25<");
+    expect(html).toContain("Traversal Confidence");
+    expect(html).toContain(">45<");
     expect(html).toContain("RESHOOT END");
     expect(html).toContain("Brief reason:");
     expect(html).toContain("Reshoot complete · D");
     expect(html).toContain("Set Consistency 25 → 72");
     expect(html).toContain("Traversal Confidence 45 → 68");
     expect(html).toContain("conversation-agent");
+    expect(html).toContain('aria-label="Copy reshoot D"');
     expect(html).not.toContain("creating C→D TAKE");
+  });
+
+  it("shows a compact journey progress rail once a journey exists", () => {
+    expect(renderPlan(createNewProject(), { composerDraft: "" })).not.toContain('aria-label="Journey progress"');
+    const html = renderPlan(createWardrobeProject(), { composerDraft: "" });
+    expect(html).toContain('aria-label="Journey progress"');
+    expect(html).toContain('aria-label="Canonical A constructed"');
+    expect(html).toContain('aria-label="Footage A to B accepted"');
+    expect(html).toContain(">");
+  });
+
+  it("groups cinematographer evaluation and blocking into one card", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      conversation: [
+        {
+          id: "eval",
+          createdAt: AT,
+          kind: "agent",
+          status: "evaluated",
+          destinationIds: ["C"],
+          journeyId: "B-C",
+          setConsistency: 85,
+          traversalConfidence: 75,
+        },
+        {
+          id: "block",
+          createdAt: AT2,
+          kind: "blocking",
+          journeyId: "B-C",
+          status: "blocked",
+          assessment: {
+            shootability: "shootable",
+            summary: "Track forward through the connected volumes.",
+            route: "Advance from the current volume into the next.",
+            threshold: "The opening ahead.",
+            camera: "Track forward along the visible corridor.",
+            parallax: "Near walls the camera can pass.",
+            transitionStrategy: "Pass through the visible opening.",
+            segmentPromptAddition: "Track forward through the visible opening.",
+            pace: "fast",
+            setConsistency: 85,
+            traversalConfidence: 75,
+            concerns: [],
+          },
+        },
+      ],
+    });
+    expect(html).toContain("Cinematographer · B → C");
+    expect(html).toContain("Set Consistency");
+    expect(html).toContain(">85<");
+    expect(html).toContain("Traversal Confidence");
+    expect(html).toContain(">75<");
+    expect(html).toContain("Track forward through the connected volumes.");
+    expect(html).toContain(">Traversal<");
+    expect(html.indexOf("Track forward through the connected volumes.")).toBeLessThan(html.indexOf(">Traversal<"));
+    expect(html).toContain("conversation-blocking");
+    expect(html.match(/Cinematographer · B → C/g)?.length).toBe(1);
+    expect(html).toContain('aria-label="Copy cinematographer B → C"');
   });
 });
 
@@ -1308,10 +1372,10 @@ describe("Plan Director conversation UI", () => {
     expect(html).toContain("whitespace-pre-wrap");
     expect(html).toContain("<details");
     expect(html).not.toMatch(/<details[^>]*\sopen(?:[\s>]|$)/);
-    expect(html.indexOf("<details")).toBeLessThan(html.indexOf("Treating this as a continuous forward journey."));
+    expect(html.indexOf("Treating this as a continuous forward journey.")).toBeLessThan(html.indexOf("<details"));
   });
 
-  it("shows the collapsible evidence card above the filmmaker-facing summary", () => {
+  it("shows the collapsible evidence card below the filmmaker-facing summary", () => {
     const html = renderPlan(createWardrobeProject(), {
       composerDraft: "",
       conversation: [
@@ -1327,7 +1391,7 @@ describe("Plan Director conversation UI", () => {
     });
     expect(html).toContain("<summary");
     expect(html).toContain("Treating this as a continuous forward journey.");
-    expect(html.indexOf("<details")).toBeLessThan(html.indexOf("Treating this as a continuous forward journey."));
+    expect(html.indexOf("Treating this as a continuous forward journey.")).toBeLessThan(html.indexOf("<details"));
     expect(html).toContain(formatConversationClock(AT2));
     expect(html).toContain("conversation-director");
     expect(html).not.toContain("conversation-filmmaker");
@@ -1350,6 +1414,10 @@ describe("Plan Director conversation UI", () => {
     });
     expect(html).toContain("conversation-assembly");
     expect(html).toContain("The journey is ready.");
+    expect(html).toContain("Journey complete");
+    expect(html).toContain("Full journey ready");
+    expect(html).toContain("Play journey");
+    expect(html).toContain('aria-label="Copy journey complete"');
     expect(html).toContain('aria-label="Download journey movie"');
     expect(html).toContain('href="/api/export-movie/test"');
     expect(html).toContain('download="journey.mp4"');
@@ -1380,8 +1448,10 @@ describe("Plan Director conversation UI", () => {
     expect(html).toContain("text-[13px] leading-relaxed text-[#cfc6b8]");
     expect(html).toContain("text-[15px] leading-relaxed text-[#ece7df]");
     expect(html.indexOf("conversation-filmmaker")).toBeLessThan(html.indexOf("conversation-director"));
-    expect(html.indexOf("Travel forward through this night forest.")).toBeLessThan(html.indexOf("<details"));
-    expect(html.indexOf("<details")).toBeLessThan(html.indexOf("A continuous forward journey through connected spaces."));
+    expect(html.indexOf("Travel forward through this night forest.")).toBeLessThan(
+      html.indexOf("A continuous forward journey through connected spaces."),
+    );
+    expect(html.indexOf("A continuous forward journey through connected spaces.")).toBeLessThan(html.indexOf("<details"));
     expect(html).toContain(formatConversationClock(AT));
     expect(html).toContain(formatConversationClock(AT2));
   });
@@ -1465,15 +1535,26 @@ describe("Plan Director conversation UI", () => {
         },
       ],
     });
-    expect(html).toContain("Blocking A-B…");
-    expect(html).toContain("Shooting A-B…");
+    expect(html).toContain("Cinematographer · A → B");
+    expect(html).toContain("Shooting A → B");
     expect(html).toContain("conversation-blocking");
     expect(html).toContain("conversation-shooting");
     expect(html).toContain("Track forward through the connected volumes.");
-    expect(html).toContain("Shot B-C.");
+    expect(html.indexOf("Track forward through the connected volumes.")).toBeLessThan(html.indexOf(">Traversal<"));
+    expect(html).toContain("Shot B → C accepted");
+    expect(html).toContain("/a-prime.png");
+    expect(html).toContain("/b-prime.png");
+    expect(html.indexOf("/a-prime.png")).toBeLessThan(html.indexOf(">Take<"));
+    expect(html.indexOf('data-prompt-role="cm"')).toBeLessThan(html.indexOf(">Take<"));
+    expect(html.indexOf(">Take<")).toBeLessThan(html.indexOf("First person POV camera continuously moving forward."));
     expect(html).toContain("<summary");
     expect(html).toContain("Cinematographer");
     expect(html).toContain("Take");
+    expect(html).toContain("Set Consistency");
+    expect(html).toContain(">87<");
+    expect(html).toContain("Traversal Confidence");
+    expect(html).toContain(">74<");
+    expect(html).toContain('aria-label="Copy cinematographer A → B"');
     expect(html).toContain('data-prompt-role="cm"');
     expect(html).toContain("text-[#e6c36a]");
   });

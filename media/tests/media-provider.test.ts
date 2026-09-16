@@ -154,6 +154,10 @@ test("provider error normalization does not infer moderation", () => {
     classifyProviderFailure({ httpStatus: 422, error: "Invalid type" }),
     "invalid_input",
   );
+  assert.equal(
+    classifyProviderFailure({ httpStatus: 503, error: "Bad gateway" }),
+    "provider_unavailable",
+  );
 });
 
 test("provider fetch failures include the undici cause", () => {
