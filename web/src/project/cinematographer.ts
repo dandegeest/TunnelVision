@@ -180,16 +180,18 @@ export function cinematographerShootabilityTileLabel(
   }
 }
 
-/** Inspector chrome only. App pill shape with MOTION-band colors; not a shoot gate. */
-export function cinematographerScoreTone(score: number): string {
-  const chrome = "rounded-full px-2.5 py-0.5 tabular-nums tracking-[0.14em]";
+/** Inspector chrome. Compact fits the 26px MOTION band. Not a shoot gate. */
+export function cinematographerScoreTone(score: number, compact = false): string {
+  const chrome = compact
+    ? "rounded-full px-1.5 py-0 text-[9px] leading-[14px] tabular-nums tracking-[0.08em]"
+    : "rounded-full px-2.5 py-0.5 tabular-nums tracking-[0.14em]";
   if (score >= 70) {
-    return `${chrome} border border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]`;
+    return `${chrome} border border-[#3f5a3a] ${compact ? "bg-[#0c140c]" : "bg-[#142014]"} text-[#d7e7cf]`;
   }
   if (score >= 40) {
-    return `${chrome} border border-[#d4b36a] bg-[#443922] text-[#e4d2a4]`;
+    return `${chrome} border border-[#d4b36a] ${compact ? "bg-[#2a2214]" : "bg-[#443922]"} text-[#e4d2a4]`;
   }
-  return `${chrome} border border-[#c45c38] bg-[#2a1610] text-[#f0c2a8]`;
+  return `${chrome} border border-[#c45c38] ${compact ? "bg-[#1a0e0a]" : "bg-[#2a1610]"} text-[#f0c2a8]`;
 }
 
 export function locomotionPaceLabel(

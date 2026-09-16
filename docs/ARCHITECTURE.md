@@ -180,8 +180,8 @@ destinations exist.
 The filmmaker can replace a destination's canonical still in place.
 Delete removes a later storyboard beat without planning or relabeling;
 opening A cannot be deleted.
-Replacing either canonical still on a production leg returns that
-JourneyShot to not prepared and not shot.
+Replacing either canonical still on a production leg invalidates that
+JourneyShot's Motion Plan and keeps existing Takes.
 Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 After

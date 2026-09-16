@@ -245,8 +245,11 @@ describe("Cinematographer actual-set assessment", () => {
     expect(cinematographerShootabilityTileLabel("not_shootable")).toBe("no go");
     expect(cinematographerScoreTone(87)).toContain("rounded-full");
     expect(cinematographerScoreTone(87)).toContain("border-[#3f5a3a]");
+    expect(cinematographerScoreTone(87)).toContain("px-2.5");
     expect(cinematographerScoreTone(61)).toContain("border-[#d4b36a]");
     expect(cinematographerScoreTone(38)).toContain("border-[#c45c38]");
+    expect(cinematographerScoreTone(87, true)).toContain("text-[9px]");
+    expect(cinematographerScoreTone(87, true)).not.toContain("px-2.5");
     expect(locomotionPaceLabel("slow-motion")).toBe("Slow-motion");
     expect(locomotionPaceLabel("slow")).toBe("Slow");
     expect(locomotionPaceLabel("fast")).toBe("Fast");

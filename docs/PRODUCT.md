@@ -173,11 +173,20 @@ the current Project: consecutive actual adjacent canonicals appear as
 JourneyShots automatically. There is no separate send-to-Shoot step.
 CREATE JOURNEY is not a prerequisite for shooting actual adjacent canonicals.
 MOTION is an inspect/status surface for the automatically generated Motion Plan.
-Each segment keeps 0..N Takes under FOOTAGE. Existing footage loads as Take 1.
-**NEW TAKE** (timeline `+ NEW TAKE`, inspector **NEW TAKE**) appends another
-traversal and never overwrites a previous Take. One Take is selected; FOOTAGE,
-preview, playback, and Export Movie use that Take. Newest Take is selected
-after generate. A NEW TAKE may use a different video provider/model than
+Each segment keeps 0..N Takes. Existing footage loads as Take 1.
+**NEW TAKE** (timeline `+ NEW TAKE · ⚡`, inspector the same) appends another
+traversal and never overwrites a previous Take. Clicking the control uses the
+project Default Take Intent; the arrow offers Fast /
+Balanced / Quality generation intents; those are generation intents, not
+ratings of the resulting footage. CREATE JOURNEY / Agent shooting uses the
+project **Default Take Intent** (Fast by default) and that intent's mapped
+model. Filmmaker **NEW TAKE** can still pick Fast / Balanced / Quality per
+Take. **NEW TAKE ALL** starts one new Take on every shootable segment
+at once. The ALL arrow changes intent without generating unless that
+intent is already selected — then it generates on that click. The main
+control starts the batch. One Take is selected; preview, current-cut
+playback, and DOWNLOAD use that Take. Completing a Take, Motion Plan, or
+canonical does not move the current workspace selection. A NEW TAKE may use a different video provider/model than
 earlier Takes on the same segment. Because every Take is anchored to the
 same canonical START/END pair, Takes from different models can be mixed
 in one cut (A→B Pruna Take 1, B→C Wan Take 2, C→D Pruna Take 1). That is
@@ -187,12 +196,16 @@ individual Pruna shot with a Wan NEW TAKE while sharing the same
 canonical endpoints. Each new Take records the start/end canonical media
 IDs it was shot against so later alternate continuities can tell B1
 Takes from B2 Takes. Canonical **RESHOOT** still means regenerate a
-destination, not another footage Take; making that RESHOOT
-non-destructive (keep B1 and its Takes) is backlog. While a take is rendering, FOOTAGE shows Generating…
-in the band like MOTION shows Planning…. Each Shoot interval stacks MOTION,
-FOOTAGE (the selected Take), then TAKES (TAKE 1…N and + NEW TAKE). Canonicals
+destination, not another footage Take. Existing Takes stay on that
+segment, stamped to the previous canonical pair; destination versioning
+(B1 vs B2 as separate places) is backlog. While a take is rendering,
+the TAKES gutter appears immediately and that in-flight Take occupies
+the next Take row with Generating…, even when it is Take 1. Each Shoot
+interval stacks MOTION, then TAKES (number badge, intent mark, and + NEW TAKE). Takes
+shot against a previous START/END show a previous-canonical mark. Canonicals
 remain clickable places above those bands. When only A is
-actual, Shoot still shows A and an FPO B that opens Plan on B. Band labels are MOTION and FOOTAGE only. Selecting a destination
+actual, Shoot still shows A and an FPO B that opens Plan on B. MOTION shows that
+label and the Set consistency / Traversal confidence pills. Selecting a destination
 exposes stored Camotion A′/B′ for that occurrence as a read-only preview
 toggle, a CameraMotionPlan overlay on the still, and inspector facts. When an actual adjacent pair exists, the existing Cinematographer
 runs against those stills automatically, renders Camotion A′/B′ for that pair, and stores the
@@ -206,24 +219,30 @@ default; Nano Banana 2 is opt-in. The same model text-to-images A and
 image-conditions later destinations. Format (PNG default) appears when
 the model can emit jpg or png. Resolution (1K default) appears only
 when the model offers more than one size; Lite is 1K-only and hides
-that control, while Nano Banana 2 offers 1K / 2K / 4K. The Project panel Video control
-chooses the generator for every
-SHOOT in the current project. Pruna (`prunaai/p-video`) is the development
-default; mid-tier Kling 2.5 Turbo Pro, Wan 2.2 First/Last Frame, and
-Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in. Each adapter maps
+that control, while Nano Banana 2 offers 1K / 2K / 4K. Project settings map
+Fast / Balanced / Quality generation intents onto catalog video models
+and choose the Default Take Intent (Fast) used by CREATE JOURNEY / Agent
+NEW TAKE. Fast defaults to Pruna; Balanced to Wan 2.2 First/Last Frame; Quality to
+Seedance 2.5. Each adapter maps
 A′/B′ onto that model's start and last-frame fields. Clip duration
 follows the generator: Pruna, Wan, and Seedance product shots are 6s;
-Kling 2.5 Turbo Pro is 5s. The Shoot timeline tiles follow the take.
+Kling 2.5 Turbo Pro is 5s. The Shoot timeline tiles follow the selected
+Take. Fast 6s and Kling 5s Takes on the same segment keep those widths;
+the cut clock is the selected Takes (18s for three Fast Takes, 15s for
+three Kling Takes).
 Shootability remains advisory set analysis; it does not
 gate JourneyShot progression. CM does not generate
 CameraMotionPlan JSON; a narrow deterministic bridge turns the same
 assessment's travel geometry into CameraMotionPlan v1 and maps CM `pace`
 to Camotion `exposure.strength`. Adaptive Camotion then scales that
 exposure per pixel by depth, destination protection, and vanishing-point
-protection. Export Movie
-concatenates whatever rendered journey clips currently exist, in
-storyboard order, without transitions, bridges, or repair. Incomplete
-exports report missing legs. The application starts as a
+protection. DOWNLOAD
+assembles the current cut — the selected Take of every required segment,
+in storyboard order — and will not silently emit a partial movie.
+Current-cut playback sequences those same Takes in the preview without
+rendering a new file, and prebuffers the next Take so the boundary is
+not a cold load. Selecting MOTION, a Take, or a destination moves the
+playhead to that item's place on the cut. The application starts as a
 genuinely new project: untitled, empty story, unresolved opening
 frame A, and no destinations, journeys, assessments, or media. Forest
 A→F and Wardrobe Loop remain research evidence and explicit test
@@ -236,7 +255,7 @@ visual description onto an actual still only when those fields are empty.
 The Director runtime resolves
 that identity from Project state; it does not independently substitute
 a catalog still. Story edits update `Project.story` without planning. The filmmaker can
-replace a destination's canonical still in place. Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot. Uploaded media is
+replace a destination's canonical still in place. Replacing either canonical still on a production leg invalidates that JourneyShot's Motion Plan and keeps existing Takes. Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
 as provider input. After replacement, that destination keeps its identity. Visual checkpoint for the frozen Plan shell:
@@ -499,7 +518,8 @@ is artistically good; the filmmaker reviews Takes. A JourneyShot may progress ev
 the gutter between destination stills also shows a chevron pace mark after BLOCK. While
 BLOCK or SHOOT runs, that segment uses the generating shimmer.
 Inspector Motion uses a CINEMATOGRAPHER MOTION PLAN heading with compact
-SET CONSISTENCY and TRAVERSAL CONF. scores. Advisory shootability stays
+SET CONSISTENCY and TRAVERSAL CONF. scores; the MOTION band shows those
+same two pills. Advisory shootability stays
 on the motion band as clear / hold / no go. CM does **not** emit CameraMotionPlan JSON
 or generate video; the same assessment turn's travel object is bridged
 deterministically into CameraMotionPlan, then Plan runs Camotion.
@@ -760,7 +780,7 @@ intent. Optional Keep / Redo remains at cheap destination stages.
 When the plan is ready enough to confront reality, Shoot generates
 actual Destinations, the Cinematographer inspects those sets and
 determines how to shoot between them, and the user later presses
-**Shoot** on a blocked leg or **Export Movie**. Video generation is not
+**NEW TAKE** on a staged leg or **DOWNLOAD**. Video generation is not
 wired in this slice. Approximate duration and destination pointing
 are later collaborative controls.
 
@@ -770,8 +790,8 @@ the Director rail is history. Journey prompt and CREATE JOURNEY live in the
 Project panel. After planning, Construct builds the next
 planned beat from the preceding actual destination, with following-beat
 look-ahead in the Construct prompt when a successor plan exists.
-Later beats remain unresolved until the filmmaker constructs them. Export Movie concatenates
-rendered journey clips that exist; it is a test convenience, not an
+Later beats remain unresolved until the filmmaker constructs them. DOWNLOAD concatenates
+the current cut when every required segment has a selected Take; it is not an
 Edit workspace. A forest A→F
 research spike assembled a review movie outside the product UI; do
 not treat that research concat as an NLE. That spike showed a
@@ -785,7 +805,7 @@ a controlled test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does not independently
 substitute a catalog still. Story edits update `Project.story` without
 planning. The filmmaker can replace a destination's canonical still in place.
-Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
+Replacing either canonical still on a production leg invalidates that JourneyShot's Motion Plan and keeps existing Takes.
 Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
 be resolved as provider input. After replacement, that destination keeps its identity. Visual

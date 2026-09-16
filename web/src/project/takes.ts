@@ -1,11 +1,55 @@
+import { parseVideoModelId, videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
+import { GENERATION_INTENT_MARK, unshotVideoModel } from "./generation-intent";
 import type { JourneyShot, JourneyShotTake, Project } from "./types";
 
 export function takeId(journeyId: string, number: number): string {
   return `${journeyId}:take:${number}`;
 }
 
-export function takeDisplayLabel(take: Pick<JourneyShotTake, "number"> | { number: number }): string {
-  return `TAKE ${take.number}`;
+export function takeDisplayLabel(
+  take: Pick<JourneyShotTake, "number" | "generationIntent"> | { number: number; generationIntent?: JourneyShotTake["generationIntent"] },
+): string {
+  const base = `TAKE ${take.number}`;
+  const mark = take.generationIntent ? GENERATION_INTENT_MARK[take.generationIntent] : undefined;
+  return mark ? `${base} · ${mark}` : base;
+}
+
+export const TAKE_PREVIOUS_CANONICALS_COPY = "Not shot from the current START/END";
+
+export function currentJourneyCanonicalPair(
+  project: Project,
+  journey: JourneyShot,
+): { startCanonicalMediaId: string; endCanonicalMediaId: string } | undefined {
+  if (!journey.endDestinationId) {
+    return undefined;
+  }
+  const start = storyboardMediaId(project, journey.startDestinationId);
+  const end = storyboardMediaId(project, journey.endDestinationId);
+  if (!start || !end) {
+    return undefined;
+  }
+  return { startCanonicalMediaId: start, endCanonicalMediaId: end };
+}
+
+/** `false` when this Take was shot against a previous canonical pair. */
+export function takeMatchesCurrentCanonicals(
+  project: Project,
+  journey: JourneyShot,
+  take: Pick<JourneyShotTake, "startCanonicalMediaId" | "endCanonicalMediaId">,
+): boolean | undefined {
+  const pair = takeCanonicalPair(take);
+  const current = currentJourneyCanonicalPair(project, journey);
+  if (!pair || !current) {
+    return undefined;
+  }
+  return (
+    pair.startCanonicalMediaId === current.startCanonicalMediaId &&
+    pair.endCanonicalMediaId === current.endCanonicalMediaId
+  );
+}
+
+export function journeyHasStaleTakes(project: Project, journey: JourneyShot): boolean {
+  return journeyTakes(journey).some((take) => takeMatchesCurrentCanonicals(project, journey, take) === false);
 }
 
 function storyboardMediaId(project: Project, destinationId: string): string | undefined {
@@ -147,6 +191,45 @@ export function selectedTakeVideoUrl(journey: JourneyShot): string | undefined {
   return take?.videoUrl || journey.videoUrl || undefined;
 }
 
+export function unshotClipDurationSeconds(project: Project): number {
+  return videoModelDurationSeconds(unshotVideoModel(project));
+}
+
+/** Clip length for a Take: stored duration, else that generator's catalog length. */
+export function takeClipDurationSeconds(
+  take: Pick<JourneyShotTake, "durationSeconds" | "model"> | undefined,
+  fallbackSeconds: number,
+): number {
+  if (take && Number.isFinite(take.durationSeconds) && take.durationSeconds > 0) {
+    return take.durationSeconds;
+  }
+  const modelId = take?.model ? parseVideoModelId(take.model) : undefined;
+  if (modelId) {
+    return videoModelDurationSeconds(modelId);
+  }
+  return fallbackSeconds;
+}
+
+/** Cut / MOTION length for this segment: the selected Take, else the unshot preview. */
+export function journeyClipDurationSeconds(project: Project, journey: JourneyShot): number {
+  const fallback = unshotClipDurationSeconds(project);
+  const selected = selectedTake(journey);
+  if (selected) {
+    return takeClipDurationSeconds(selected, fallback);
+  }
+  if (Number.isFinite(journey.durationSeconds) && journey.durationSeconds > 0) {
+    return journey.durationSeconds;
+  }
+  return fallback;
+}
+
+export function journeysWithClipDurations(project: Project): JourneyShot[] {
+  return project.journeys.map((journey) => ({
+    ...journey,
+    durationSeconds: journeyClipDurationSeconds(project, journey),
+  }));
+}
+
 export function takeHasShootingFrames(take: JourneyShotTake | undefined): boolean {
   return Boolean(take?.startShootingFrame.imageUrl && take.endShootingFrame.imageUrl);
 }
@@ -162,11 +245,11 @@ function mirrorSelectedTake(journey: JourneyShot, takes: JourneyShotTake[], sele
     selectedTakeId: selected.id,
     take: selected,
     videoUrl: selected.videoUrl,
-    durationSeconds: selected.durationSeconds,
+    durationSeconds: takeClipDurationSeconds(selected, journey.durationSeconds),
   };
 }
 
-/** Persist takes[] + selectedTakeId. Newest take is selected. */
+/** Persist takes[] + selectedTakeId. Newest take is the cut; workspace selection is unchanged. */
 export function projectWithAppendedTake(
   project: Project,
   journeyId: string,

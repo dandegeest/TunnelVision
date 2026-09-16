@@ -311,14 +311,15 @@ CameraMotionPlan, Camotion parameters, and A′/B′. `JourneyShot.takes` stores
 each generated traversal (Take 1, Take 2, …) with the composed prompt,
 provider metadata, clip URL, and the start/end **canonical media IDs**
 that Take was generated from. Compatibility is that stamped pair, not
-the segment letters. `selectedTakeId` is the Take FOOTAGE,
-preview, and Export Movie use. That selected Take **is** the cut;
+the segment letters. `selectedTakeId` is the Take preview,
+playback, and DOWNLOAD use. That selected Take **is** the cut;
 there is no separate Final movie representation. Takes from different
 video models may share one journey because they share canonical
-endpoints. Legacy `take` / `videoUrl` load as Take 1
-without inventing a pair. Future non-destructive canonical RESHOOT
-(B1 vs B2 continuities) is backlog; current RESHOOT still replaces
-the letter in place.
+endpoints. Each Take may also record `generationIntent` (`fast` /
+`balanced` / `quality`) alongside provider/model metadata. Legacy `take` / `videoUrl` load as Take 1
+without inventing a pair. Canonical RESHOOT still replaces the letter
+in place and keeps existing Takes stamped to the previous media pair.
+Destination versioning (B1 vs B2 continuities) is backlog.
 Product CM scores are integer `setConsistency` and
 `traversalConfidence` (0–100). Set consistency is same-environment
 match; traversal confidence is independent continuous-shot
@@ -362,8 +363,10 @@ Do **not** design these until a later milestone needs them:
 Product `Project.storyboard` may contain unresolved destination slots.
 That is the current partially specified movie interaction model, not a
 CameraMotionPlan field. Director planning receives the complete ordered
-storyboard; actual stills stay authoritative. Export Movie concatenates
-the selected Take for each JourneyShot and is not an editing schema.
+storyboard; actual stills stay authoritative. DOWNLOAD concatenates
+the selected Take for each required JourneyShot and is not an editing schema.
+Agent assembly still concatenates selected Takes after filming; filmmaker
+DOWNLOAD will not emit a partial cut.
 
 Phase 1 produced bounded shootability evidence (Wardrobe E→A
 independently judged NEEDS_INTERMEDIATE; actual generated X rejected
@@ -378,9 +381,13 @@ They are not Camotion types and must not appear in CameraMotionPlan.
 
 Current video inputs: start shooting frame, optional end shooting
 frame, prompt, optional duration. Extra pristine/canonical reference
-images are not part of the current architecture. `Project.videoModel`
-chooses which catalog generator films those frames for every SHOOT in
-the current project; Pruna is the development default.
+images are not part of the current architecture. `Project.videoModelsByIntent`
+maps Fast / Balanced / Quality onto catalog generators; `Project.videoModel`
+mirrors the Fast mapping. `Project.defaultTakeIntent` (Fast default) is
+the intent CREATE JOURNEY / Agent NEW TAKE uses to resolve that mapping.
+Unshot duration preview follows the same default intent. Filmmaker NEW TAKE
+can still pick Fast / Balanced / Quality per Take. Pruna is the Fast
+development default.
 `Project.imageModel` chooses which catalog generator builds opening A
 and later B…N stills; Nano Banana 2 Lite is the development default.
 The same model text-to-images A and image-conditions later

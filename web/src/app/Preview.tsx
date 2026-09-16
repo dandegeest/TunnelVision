@@ -24,6 +24,12 @@ import {
   DiagnosticStill,
 } from "./CamotionOverlay";
 import type { OverlayLayers } from "../project/camotion-overlay";
+import {
+  cutPlaybackSlotFromClip,
+  nextCurrentCutClip,
+  reconcileCutPlaybackSlots,
+  type CutPlaybackSlot,
+} from "../project/current-cut";
 
 function PreviewMonitor({
   children,
@@ -196,6 +202,126 @@ export function JourneyCanonicalPair({
   );
 }
 
+function CutPlaybackVideos({
+  currentKey,
+  currentUrl,
+  nextClip,
+  startOffset,
+  playing,
+  poster,
+  journeyId,
+  startTime,
+  onEnded,
+  onTimeUpdate,
+  onDuration,
+}: {
+  currentKey: string;
+  currentUrl: string;
+  nextClip: ReturnType<typeof nextCurrentCutClip>;
+  startOffset: number;
+  playing: boolean;
+  poster?: string;
+  journeyId: string;
+  startTime: number;
+  onEnded: () => void;
+  onTimeUpdate: (time: number) => void;
+  onDuration: (duration: number) => void;
+}) {
+  const slot0Ref = useRef<HTMLVideoElement>(null);
+  const slot1Ref = useRef<HTMLVideoElement>(null);
+  const refs = [slot0Ref, slot1Ref] as const;
+  const [front, setFront] = useState<0 | 1>(0);
+  const [slots, setSlots] = useState<[CutPlaybackSlot, CutPlaybackSlot]>([
+    { key: currentKey, url: currentUrl },
+    cutPlaybackSlotFromClip(nextClip),
+  ]);
+  const nextSlot = cutPlaybackSlotFromClip(nextClip);
+
+  useEffect(() => {
+    const reconciled = reconcileCutPlaybackSlots(front, slots, { key: currentKey, url: currentUrl }, nextSlot);
+    if (reconciled.front !== front) {
+      setFront(reconciled.front);
+    }
+    if (reconciled.slots[0].key !== slots[0].key || reconciled.slots[1].key !== slots[1].key) {
+      setSlots(reconciled.slots);
+    }
+  }, [currentKey, currentUrl, front, nextSlot.key, nextSlot.url, slots]);
+
+  useEffect(() => {
+    const visible = refs[front].current;
+    if (!visible) {
+      return;
+    }
+    visible.muted = false;
+    if (playing) {
+      void visible.play().catch(() => undefined);
+    } else {
+      visible.pause();
+    }
+  }, [front, playing, currentKey]);
+
+  useEffect(() => {
+    const hidden = refs[front === 0 ? 1 : 0].current;
+    const standby = slots[front === 0 ? 1 : 0];
+    if (!hidden || !standby.url) {
+      return;
+    }
+    hidden.muted = true;
+    hidden.preload = "auto";
+    const warm = hidden.play();
+    if (warm) {
+      void warm
+        .then(() => {
+          hidden.pause();
+          hidden.currentTime = 0;
+        })
+        .catch(() => undefined);
+    }
+  }, [front, slots]);
+
+  return (
+    <div className="relative h-full w-full">
+      {slots.map((slot, index) => {
+        const visible = index === front;
+        return (
+          <video
+            key={slot.key || `empty-${index}`}
+            ref={refs[index]}
+            className={visible ? "rounded bg-black" : "pointer-events-none absolute h-0 w-0 opacity-0"}
+            src={slot.url || undefined}
+            poster={visible ? poster : undefined}
+            controls={false}
+            preload="auto"
+            playsInline
+            muted={!visible}
+            data-cut-slot={visible ? "current" : "next"}
+            data-cut-key={slot.key}
+            onEnded={() => {
+              if (visible) {
+                onEnded();
+              }
+            }}
+            onLoadedMetadata={(event) => {
+              if (visible) {
+                onDuration(event.currentTarget.duration);
+                if (startOffset > 0) {
+                  event.currentTarget.currentTime = startOffset;
+                }
+              }
+            }}
+            onTimeUpdate={(event) => {
+              if (visible) {
+                onTimeUpdate(startTime + event.currentTarget.currentTime);
+              }
+            }}
+          />
+        );
+      })}
+      <span className="sr-only">{`Cut playback ${journeyId}`}</span>
+    </div>
+  );
+}
+
 export function Preview() {
   const {
     project,
@@ -205,6 +331,9 @@ export function Preview() {
     playheadTime,
     setPlayheadTime,
     syncJourneyClipDuration,
+    cutPlaybackJourneyId,
+    cutStartOffset,
+    advanceCutClip,
   } = useProject();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [overlay, setOverlay] = useState(true);
@@ -221,22 +350,29 @@ export function Preview() {
     selection.kind === "destination"
       ? layout.occurrences.find((item) => item.occurrenceIndex === selection.occurrenceIndex)
       : null;
+  const playbackJourney = cutPlaybackJourneyId
+    ? project.journeys.find((journey) => journey.id === cutPlaybackJourneyId) ?? null
+    : selectedJourney;
   const startDestination = destinationById(
     project.destinations,
-    selection.kind === "destination"
+    selection.kind === "destination" && !cutPlaybackJourneyId
       ? selection.destinationId
-      : selectedJourney?.startDestinationId ?? "A",
+      : playbackJourney?.startDestinationId ?? selectedJourney?.startDestinationId ?? "A",
   );
-  const endDestination = selectedJourney?.endDestinationId
-    ? destinationById(project.destinations, selectedJourney.endDestinationId)
-    : undefined;
-  const playable = selectedJourney ? journeyIsPlayable(selectedJourney) : false;
+  const endDestination = playbackJourney?.endDestinationId
+    ? destinationById(project.destinations, playbackJourney.endDestinationId)
+    : selectedJourney?.endDestinationId
+      ? destinationById(project.destinations, selectedJourney.endDestinationId)
+      : undefined;
+  const playable = playbackJourney ? journeyIsPlayable(playbackJourney) : false;
   const canShowStills = Boolean(selectedJourney && startDestination && endDestination);
-  const showMotion = Boolean(selectedJourney && journeyBand === "motion");
-  const showFootage = Boolean(selectedJourney && journeyBand === "footage");
-  const currentTake = selectedJourney ? selectedTake(selectedJourney) : undefined;
-  const videoUrl = selectedJourney ? selectedTakeVideoUrl(selectedJourney) : undefined;
-  const showVideo = showFootage && playable && Boolean(videoUrl);
+  const showMotion = Boolean(selectedJourney && journeyBand === "motion" && !cutPlaybackJourneyId);
+  const showFootage = Boolean(
+    (selectedJourney && journeyBand === "footage" && !cutPlaybackJourneyId) || cutPlaybackJourneyId,
+  );
+  const currentTake = playbackJourney ? selectedTake(playbackJourney) : undefined;
+  const videoUrl = playbackJourney ? selectedTakeVideoUrl(playbackJourney) : undefined;
+  const showVideo = Boolean(showFootage && playable && videoUrl && playbackJourney);
   const showStills = showMotion && canShowStills;
   const destination = startDestination;
   const shootEmpty = layout.occurrences.length === 0;
@@ -250,7 +386,10 @@ export function Preview() {
         )
       : [];
   const showCamotionToggle =
-    project.journeys.length > 0 && selection.kind === "destination" && Boolean(destination);
+    !cutPlaybackJourneyId &&
+    project.journeys.length > 0 &&
+    selection.kind === "destination" &&
+    Boolean(destination);
   const destinationKey =
     selection.kind === "destination" ? `${selection.destinationId}:${selection.occurrenceIndex}` : "";
   const take = currentTake;
@@ -268,14 +407,14 @@ export function Preview() {
     } else {
       video.pause();
     }
-  }, [playing, showVideo, selectedJourney?.id, videoUrl]);
+  }, [playing, showVideo, playbackJourney?.id, videoUrl]);
 
   const title = shootEmpty
     ? "Preview"
     : showMotion && selectedJourney
       ? `Preview · Motion ${selectedJourney.id}`
-      : showFootage && selectedJourney
-        ? `Preview · Footage ${selectedJourney.id}${currentTake ? ` · ${takeDisplayLabel(currentTake)}` : ""}`
+      : showFootage && playbackJourney
+        ? `Preview · Take ${playbackJourney.id}${currentTake ? ` · ${takeDisplayLabel(currentTake)}` : ""}`
         : destination
           ? `Preview · Destination ${destination.label}${occurrence?.arrivalBlocked ? " · arrival blocked" : ""}`
           : "Preview";
@@ -326,31 +465,53 @@ export function Preview() {
               )
         }
       >
-        {showVideo && videoUrl && selectedJourney ? (
+        {showVideo && videoUrl && playbackJourney && cutPlaybackJourneyId ? (
+          <CutPlaybackVideos
+            currentKey={`${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}`}
+            currentUrl={videoUrl}
+            nextClip={nextCurrentCutClip(project, cutPlaybackJourneyId)}
+            startOffset={cutStartOffset}
+            playing={playing}
+            poster={destinationById(project.destinations, playbackJourney.startDestinationId)?.image}
+            journeyId={playbackJourney.id}
+            startTime={layout.journeys.find((item) => item.journeyId === playbackJourney.id)?.startTime ?? 0}
+            onEnded={advanceCutClip}
+            onTimeUpdate={setPlayheadTime}
+            onDuration={(duration) => syncJourneyClipDuration(playbackJourney.id, duration)}
+          />
+        ) : showVideo && videoUrl && playbackJourney ? (
           <video
             ref={videoRef}
-            key={`${selectedJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}`}
+            key={`${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}:${cutStartOffset}`}
             className="rounded bg-black"
             src={videoUrl}
-            poster={destinationById(project.destinations, selectedJourney.startDestinationId)?.image}
+            poster={destinationById(project.destinations, playbackJourney.startDestinationId)?.image}
             controls
-            preload="metadata"
+            preload="auto"
             onPlay={() => setPlaying(true)}
-            onPause={() => setPlaying(false)}
+            onPause={() => {
+              setPlaying(false);
+            }}
+            onEnded={() => {
+              setPlaying(false);
+            }}
             onLoadedMetadata={(event) => {
-              syncJourneyClipDuration(selectedJourney.id, event.currentTarget.duration);
+              syncJourneyClipDuration(playbackJourney.id, event.currentTarget.duration);
+              if (cutStartOffset > 0) {
+                event.currentTarget.currentTime = cutStartOffset;
+              }
             }}
             onTimeUpdate={(event) => {
-              const laid = layout.journeys.find((item) => item.journeyId === selectedJourney.id);
+              const laid = layout.journeys.find((item) => item.journeyId === playbackJourney.id);
               if (!laid) {
                 return;
               }
               setPlayheadTime(laid.startTime + event.currentTarget.currentTime);
             }}
           />
-        ) : showFootage && selectedJourney ? (
+        ) : showFootage && playbackJourney ? (
           <p className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-[#9a8f7e]">
-            No footage for this traversal.
+            No take selected for this traversal.
           </p>
         ) : showStills && selectedJourney && startDestination && endDestination ? (
           <JourneyCanonicalPair

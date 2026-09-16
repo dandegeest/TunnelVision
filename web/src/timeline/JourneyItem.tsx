@@ -1,8 +1,7 @@
 import type { MouseEvent } from "react";
-import { locomotionPaceLabel, motionBandAriaLabel, footageBandAriaLabel } from "../project/cinematographer";
-import { journeyHasTakes } from "../project/takes";
+import { cinematographerScoreTone, locomotionPaceLabel, motionBandAriaLabel } from "../project/cinematographer";
 import { useProject } from "../project/ProjectProvider";
-import type { JourneyBand, JourneyShot, Selection } from "../project/types";
+import type { CinematographerAssessment, JourneyShot, Selection } from "../project/types";
 import type { LaidOutJourney } from "./geometry";
 
 export { journeySegmentIsActive } from "./takes-layout";
@@ -26,21 +25,12 @@ export function journeySegmentTone(journey: JourneyShot): string {
   }
 }
 
-function footageBandTone(journey: JourneyShot): string {
-  if (journey.status === "rendered" || journeyHasTakes(journey)) {
-    return "border border-[#3f5a3a] bg-[#142014] text-[#d7e7cf]";
-  }
-  if (journey.status === "failed") {
-    return "border border-[#c45c38] bg-transparent text-[#f0c2a8]";
-  }
-  return "border border-[#3a342c] bg-transparent text-[#cfc6b8]";
-}
-
-const ctaClass =
-  "relative z-[2] shrink-0 rounded border border-[#3a342c] px-1.5 py-0 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
-
 export function newTakeActionLabel(): string {
   return "+ NEW TAKE";
+}
+
+export function newTakeAllActionLabel(): string {
+  return "+ NEW TAKE ALL";
 }
 
 export function newTakeBusyLabel(): string {
@@ -54,30 +44,23 @@ export function newTakeActionAriaLabel(journey: JourneyShot): string {
 export function JourneyItem({
   laid,
   journey,
-  band,
   selected,
   preparing = false,
-  shooting = false,
   onSelect,
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
-  band: JourneyBand;
   selected: boolean;
   preparing?: boolean;
-  shooting?: boolean;
   onSelect: () => void;
 }) {
   const { retryMotionPlan } = useProject();
-  const motion = band === "motion";
-  const tone = motion ? journeySegmentTone(journey) : footageBandTone(journey);
+  const tone = journeySegmentTone(journey);
   const ring = selected
     ? "ring-2 ring-[#ece7df]"
     : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";
-  const ariaLabel = motion ? motionBandAriaLabel(journey) : footageBandAriaLabel(journey);
-  const busy = motion ? preparing : shooting;
-  const actionsBusy = preparing || shooting;
-  const label = motion ? "MOTION" : "FOOTAGE";
+  const ctaClass =
+    "relative z-[2] shrink-0 rounded border border-[#3a342c] px-1.5 py-0 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
 
   const onRetry = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -88,17 +71,17 @@ export function JourneyItem({
   return (
     <div
       className={`absolute box-border overflow-hidden rounded ${tone} ${ring}${
-        busy ? " storyboard-generating" : ""
+        preparing ? " storyboard-generating" : ""
       }`}
       style={{
-        top: motion ? 0 : 30,
+        top: 0,
         left: laid.left,
         width: Math.max(laid.width, 8),
         height: 26,
       }}
-      aria-busy={busy || undefined}
+      aria-busy={preparing || undefined}
       title={
-        motion && journey.cinematographer
+        journey.cinematographer
           ? `${journey.cinematographer.summary} · ${locomotionPaceLabel(journey.cinematographer.pace)}`
           : undefined
       }
@@ -106,45 +89,63 @@ export function JourneyItem({
       <div className="flex h-full items-center gap-1 px-1.5">
         <button
           type="button"
-          className="flex min-w-0 flex-1 items-center text-left outline-none"
+          className="flex min-w-0 flex-1 items-center gap-1 text-left outline-none"
           onClick={onSelect}
-          aria-label={ariaLabel}
+          aria-label={motionBandAriaLabel(journey)}
           aria-pressed={selected}
         >
           <span
-            className={`truncate text-[9px] tracking-[0.16em] opacity-70${
-              busy ? " storyboard-generating-label" : ""
+            className={`min-w-0 truncate text-[9px] tracking-[0.16em] opacity-70${
+              preparing ? " storyboard-generating-label" : ""
             }`}
           >
-            {label}
+            MOTION
           </span>
+          {!preparing && journey.cinematographer ? (
+            <MotionBandScores assessment={journey.cinematographer} />
+          ) : null}
         </button>
-        {motion ? (
-          preparing ? (
-            <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] text-[#ece7df] storyboard-generating-label">
-              Planning…
-            </span>
-          ) : journey.motionPlanError ? (
-            <button
-              type="button"
-              className={ctaClass}
-              disabled={actionsBusy}
-              aria-label={`Retry ${journey.id}`}
-              onClick={onRetry}
-            >
-              Retry
-            </button>
-          ) : null
-        ) : shooting ? (
+        {preparing ? (
           <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] text-[#ece7df] storyboard-generating-label">
-            {newTakeBusyLabel()}
+            Planning…
           </span>
+        ) : journey.motionPlanError ? (
+          <button
+            type="button"
+            className={ctaClass}
+            disabled={preparing}
+            aria-label={`Retry ${journey.id}`}
+            onClick={onRetry}
+          >
+            Retry
+          </button>
         ) : null}
       </div>
     </div>
   );
 }
 
-export function journeyBandSelected(selection: Selection, journeyId: string, band: JourneyBand): boolean {
+function MotionBandScores({ assessment }: { assessment: CinematographerAssessment }) {
+  return (
+    <span className="ml-auto flex shrink-0 items-center gap-0.5">
+      <span
+        className={cinematographerScoreTone(assessment.setConsistency, true)}
+        aria-label={`Set consistency ${assessment.setConsistency}`}
+        title="Set consistency"
+      >
+        {assessment.setConsistency}
+      </span>
+      <span
+        className={cinematographerScoreTone(assessment.traversalConfidence, true)}
+        aria-label={`Traversal confidence ${assessment.traversalConfidence}`}
+        title="Traversal confidence"
+      >
+        {assessment.traversalConfidence}
+      </span>
+    </span>
+  );
+}
+
+export function journeyBandSelected(selection: Selection, journeyId: string, band: "motion" | "footage"): boolean {
   return selection.kind === "journey" && selection.journeyId === journeyId && selection.band === band;
 }

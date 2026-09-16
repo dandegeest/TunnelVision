@@ -9,8 +9,15 @@ import {
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import { canAssessJourney, cinematographerScoreTone, locomotionPaceLabel } from "../project/cinematographer";
 import { canReshootDestinationFrame } from "../project/destination";
+import { defaultTakeIntentFromProject, takeIntentTooltip, type GenerationIntent } from "../project/generation-intent";
 import { canShootJourney } from "../project/shoot";
-import { selectedTake, takeDisplayLabel, takeHasShootingFrames } from "../project/takes";
+import {
+  selectedTake,
+  TAKE_PREVIOUS_CANONICALS_COPY,
+  takeDisplayLabel,
+  takeHasShootingFrames,
+  takeMatchesCurrentCanonicals,
+} from "../project/takes";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, storyboardFrameForDestination, type CinematographerAssessment, type JourneyShotTake, type ShootingFrameRef } from "../project/types";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
@@ -20,6 +27,8 @@ import { ShootingPromptText } from "./ShootingPromptText";
 import { CamotionDiagnosticPanel } from "./CamotionDiagnostic";
 import { camotionRecordsForDestination, camotionRecordsForJourney } from "../project/camotion-diagnostics";
 import { PanelHeader } from "./PanelHeader";
+import { GenerationIntentMenu } from "../ui/GenerationIntentMenu";
+import { newTakeActionLabel } from "../timeline/JourneyItem";
 
 export function InspectorToggle({ compact = false }: { compact?: boolean } = {}) {
   const { inspectorOpen, setInspectorOpen } = useProject();
@@ -209,7 +218,7 @@ export function Inspector() {
   const segmentPromptAddition =
     take?.segmentPromptAddition ?? motionSource?.segmentPromptAddition ?? assessment?.segmentPromptAddition;
   return (
-    <InspectorShell title={motion ? "Inspector - Motion" : "Inspector - Footage"}>
+    <InspectorShell title={motion ? "Inspector - Motion" : "Inspector - Take"}>
       <h2 className="text-2xl">{motion ? segmentHeading : footageHeading}</h2>
       {motion && (startDestination || endDestination) ? (
         <div className="grid grid-cols-2 gap-1">
@@ -312,7 +321,7 @@ export function Inspector() {
           <CamotionDiagnosticPanel records={motionRecords} emptyCopy="No Camotion data for this traversal." />
         </>
       ) : (
-        <FootageInspector
+        <TakeInspector
           journeyId={journey.id}
           take={take}
           shootingFrames={takeHasShootingFrames(take) ? take : !take && journey.motionPlan ? journey.motionPlan : undefined}
@@ -325,8 +334,8 @@ export function Inspector() {
           shooting={shootingJourneyIds.includes(journey.id)}
           debugOn={debugOn}
           playable={playable}
-          onNewTake={() => {
-            void shootJourney(journey.id);
+          onNewTake={(intent) => {
+            void shootJourney(journey.id, intent);
           }}
         />
       )}
@@ -381,7 +390,7 @@ function InspectorMeta({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FootageInspector({
+function TakeInspector({
   journeyId,
   take,
   shootingFrames,
@@ -408,12 +417,21 @@ function FootageInspector({
   shooting: boolean;
   debugOn: boolean;
   playable: boolean;
-  onNewTake: () => void;
+  onNewTake: (intent: GenerationIntent) => void;
 }) {
+  const { project } = useProject();
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  const stale = Boolean(take && journey && takeMatchesCurrentCanonicals(project, journey, take) === false);
   const direction = assessment?.travel?.direction?.trim();
   const modelLabel = take ? videoModelDisplayLabel(take.model) : undefined;
+  const intentLabel = take?.generationIntent ? takeIntentTooltip(take) : undefined;
   return (
     <>
+      {stale ? (
+        <p className="rounded border border-[#d4b36a] bg-[#443922] px-3 py-2 text-[#e4d2a4]">
+          {TAKE_PREVIOUS_CANONICALS_COPY}
+        </p>
+      ) : null}
       {shootError ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">{shootError}</p>
       ) : null}
@@ -443,6 +461,7 @@ function FootageInspector({
       ) : null}
       {pace ? <InspectorMeta label="Pace" value={locomotionPaceLabel(pace)} /> : null}
       {direction ? <InspectorMeta label="Shot direction" value={direction} /> : null}
+      {intentLabel ? <InspectorMeta label="Generation" value={intentLabel} /> : null}
       {effectivePrompt ? (
         <details>
           <summary className="cursor-pointer text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prompt</summary>
@@ -454,16 +473,16 @@ function FootageInspector({
         </details>
       ) : null}
       {debugOn && modelLabel ? <InspectorMeta label="Model" value={modelLabel} /> : null}
-      {!take && !playable ? <p className="text-[#9a8f7e]">No footage for this traversal.</p> : null}
-      <button
-        type="button"
-        className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
-        disabled={!canShoot || shooting}
-        aria-label={`New take ${journeyId}`}
-        onClick={onNewTake}
-      >
-        {shooting ? "Generating…" : "NEW TAKE"}
-      </button>
+      {!take && !playable ? <p className="text-[#9a8f7e]">No take selected for this traversal.</p> : null}
+      <GenerationIntentMenu
+        label={newTakeActionLabel()}
+        ariaLabel={`New take ${journeyId}`}
+        defaultIntent={defaultTakeIntentFromProject(project)}
+        disabled={!canShoot}
+        busy={shooting}
+        buttonClass="h-7 w-max shrink-0 cursor-pointer self-start rounded border border-[#3a342c] text-[11px] tracking-[0.16em] text-[#ece7df] hover:border-[#7a7266] disabled:opacity-40"
+        onChoose={onNewTake}
+      />
     </>
   );
 }

@@ -6,11 +6,15 @@ import { projectWithSyncedProductionLegs } from "./production-legs";
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
+  journeysReadyToTakeAll,
   projectWithJourneyClipDuration,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
+  projectWithJourneysShooting,
+  projectWithDefaultTakeIntent,
   projectWithJourneyShotTake,
   projectWithVideoModel,
+  projectWithVideoModelForIntent,
   shootRequestFromProject,
 } from "./shoot";
 import { layoutTimeline } from "../timeline/geometry";
@@ -93,6 +97,46 @@ function projectWithLeg(): Project {
   });
 }
 
+function projectWithTwoLegs(): Project {
+  return projectWithSyncedProductionLegs({
+    ...createNewProject(),
+    storyboard: [
+      {
+        id: "A",
+        label: "A",
+        imageOrigin: "user",
+        image: "/a.png",
+        mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        destinationId: "A",
+      },
+      {
+        id: "B",
+        label: "B",
+        imageOrigin: "generated",
+        image: "/b.png",
+        mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        destinationId: "B",
+      },
+      {
+        id: "C",
+        label: "C",
+        imageOrigin: "generated",
+        image: "/c.png",
+        mediaId: "upload-cccccccccccccccccccccccccccccccc",
+        destinationId: "C",
+      },
+    ],
+  });
+}
+
+const motionPlanBC: SegmentMotionPlan = {
+  ...motionPlan,
+  startCanonicalMediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  endCanonicalMediaId: "upload-cccccccccccccccccccccccccccccccc",
+  startShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b-prime.png" },
+  endShootingFrame: { mediaId: "upload-cccccccccccccccccccccccccccccccc", imageUrl: "/c-prime.png" },
+};
+
 describe("SHOOT gate and JourneyShot take", () => {
   it("does not shoot until the segment Motion Plan has A′/B′", () => {
     const project = projectWithLeg();
@@ -118,6 +162,27 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
     const kling = shootRequestFromProject({ ...prepared, videoModel: "kling-v2.5-turbo-pro" }, "A-B");
     expect(kling.videoModel).toBe("kling-v2.5-turbo-pro");
+    expect(kling.generationIntent).toBe("fast");
+    const quality = shootRequestFromProject(
+      {
+        ...prepared,
+        videoModelsByIntent: {
+          fast: "pruna-p-video",
+          balanced: "wan-2.2-first-last-frame",
+          quality: "seedance-2.5",
+        },
+      },
+      "A-B",
+      "quality",
+    );
+    expect(quality.videoModel).toBe("seedance-2.5");
+    expect(quality.generationIntent).toBe("quality");
+    const agentQuality = shootRequestFromProject(
+      { ...prepared, defaultTakeIntent: "quality" },
+      "A-B",
+    );
+    expect(agentQuality.videoModel).toBe("seedance-2.5");
+    expect(agentQuality.generationIntent).toBe("quality");
     const shooting = projectWithJourneyShooting(prepared, "A-B");
     expect(shooting.journeys[0]?.status).toBe("shooting");
     expect(shooting.journeys[0]?.cinematographer).toEqual(assessment);
@@ -135,6 +200,25 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(failed.journeys[0]?.status).toBe("failed");
     expect(failed.journeys[0]?.cinematographer).toEqual(assessment);
     expect(failed.journeys[0]?.shootError).toBe("provider down");
+  });
+
+  it("marks every NEW TAKE ALL segment shooting so provider calls can overlap", () => {
+    const staged = projectWithMotionPlan(projectWithMotionPlan(projectWithTwoLegs(), "A-B", motionPlan), "B-C", motionPlanBC);
+    expect(journeysReadyToTakeAll(staged).map((journey) => journey.id)).toEqual(["A-B", "B-C"]);
+    const firstTake = projectWithJourneyShotTake(staged, "A-B", {
+      take,
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    expect(journeysReadyToTakeAll(firstTake).map((journey) => journey.id)).toEqual(["A-B", "B-C"]);
+    expect(journeysReadyToAutoShoot(firstTake).map((journey) => journey.id)).toEqual(["B-C"]);
+    const launching = projectWithJourneysShooting(
+      firstTake,
+      journeysReadyToTakeAll(firstTake).map((journey) => journey.id),
+    );
+    expect(launching.journeys.map((journey) => journey.status)).toEqual(["shooting", "shooting"]);
+    expect(journeysReadyToTakeAll(launching)).toEqual([]);
+    expect(shootRequestFromProject(launching, "A-B").journeyId).toBe("A-B");
+    expect(shootRequestFromProject(launching, "B-C").journeyId).toBe("B-C");
   });
 
   it("auto-shoots blocked legs regardless of CM warnings and skips completed takes", () => {
@@ -213,6 +297,25 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(backToPruna.videoModel).toBe("pruna-p-video");
     expect(backToPruna.journeys[0]?.durationSeconds).toBe(5);
     expect(backToPruna.journeys[0]?.take?.durationSeconds).toBe(5);
+  });
+
+  it("previews unshot duration from the default Take intent mapping", () => {
+    const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    const qualityKling = projectWithVideoModelForIntent(
+      projectWithDefaultTakeIntent(prepared, "quality"),
+      "quality",
+      "kling-v2.5-turbo-pro",
+    );
+    expect(qualityKling.defaultTakeIntent).toBe("quality");
+    expect(qualityKling.videoModel).toBe("pruna-p-video");
+    expect(qualityKling.journeys[0]?.durationSeconds).toBe(5);
+    const rendered = projectWithJourneyShotTake(qualityKling, "A-B", {
+      take: { ...take, model: "kwaivgi/kling-v2.5-turbo-pro", durationSeconds: 5 },
+      videoUrl: "https://example.test/kling.mp4",
+    });
+    const backToFast = projectWithDefaultTakeIntent(rendered, "fast");
+    expect(backToFast.defaultTakeIntent).toBe("fast");
+    expect(backToFast.journeys[0]?.durationSeconds).toBe(5);
   });
 
   it("snaps the timeline to the actual clip duration", () => {

@@ -304,11 +304,16 @@ describe("replacing authoritative A", () => {
     expect(next.destinations.find((destination) => destination.id === "B")?.image).toBe(
       "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     );
-    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("ready");
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     expect(next.journeys.find((journey) => journey.id === "A-B")?.cinematographer).toBeUndefined();
-    expect(next.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBeUndefined();
-    expect(next.journeys.find((journey) => journey.id === "B-C")?.status).toBe("ready");
-    expect(next.journeys.find((journey) => journey.id === "B-C")?.videoUrl).toBeUndefined();
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.motionPlan).toBeUndefined();
+    expect(next.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBe(
+      forest.journeys.find((journey) => journey.id === "A-B")?.videoUrl,
+    );
+    expect(next.journeys.find((journey) => journey.id === "B-C")?.status).toBe("rendered");
+    expect(next.journeys.find((journey) => journey.id === "B-C")?.videoUrl).toBe(
+      forest.journeys.find((journey) => journey.id === "B-C")?.videoUrl,
+    );
     expect(next.journeys.find((journey) => journey.id === "C-D")?.status).toBe("rendered");
     expect(next.journeys.find((journey) => journey.id === "C-D")?.videoUrl).toBe(
       forest.journeys.find((journey) => journey.id === "C-D")?.videoUrl,

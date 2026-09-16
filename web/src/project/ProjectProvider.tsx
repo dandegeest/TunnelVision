@@ -32,15 +32,26 @@ import {
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
+  journeysReadyToTakeAll,
+  projectWithDefaultTakeIntent,
   projectWithJourneyClipDuration,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
+  projectWithJourneysShooting,
   projectWithJourneyShotTake,
   projectWithVideoModel,
+  projectWithVideoModelForIntent,
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
 import { projectWithSelectedTake } from "./takes";
+import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
+import {
+  canDownloadCurrentCut,
+  currentCutClips,
+  currentCutFingerprint,
+} from "./current-cut";
+import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
@@ -72,7 +83,7 @@ import {
   resolveShootingEntry,
   type ConversationEntry,
 } from "./conversation";
-import { requestExportMovie, type MovieExportResult } from "./export-movie";
+import { requestDownloadCurrentCut, requestExportMovie, type MovieExportResult } from "./export-movie";
 import {
   idleJourneyAgentSnapshot,
   journeyAgentIsBusy,
@@ -116,6 +127,8 @@ type ProjectContextValue = {
   setStoryboardReelId: (frameId: string | null) => void;
   setAgency: (agency: Agency) => void;
   setVideoModel: (videoModel: VideoModelId) => void;
+  setVideoModelForIntent: (intent: GenerationIntent, videoModel: VideoModelId) => void;
+  setDefaultTakeIntent: (intent: GenerationIntent) => void;
   setImageModel: (imageModel: ImageModelId) => void;
   setImageOutputFormat: (imageOutputFormat: ImageOutputFormat) => void;
   setImageResolution: (imageResolution: ImageResolution) => void;
@@ -138,8 +151,18 @@ type ProjectContextValue = {
   retryMotionPlan: (journeyId: string) => Promise<void>;
   shootingJourneyIds: readonly string[];
   shootError: string | null;
-  shootJourney: (journeyId: string) => Promise<void>;
+  shootJourney: (journeyId: string, intent?: GenerationIntent) => Promise<void>;
+  shootAllJourneys: (intent: GenerationIntent) => Promise<void>;
   selectTake: (journeyId: string, takeId: string) => void;
+  cutPlaybackJourneyId: string | null;
+  cutStartOffset: number;
+  playCurrentCut: () => void;
+  pauseCurrentCut: () => void;
+  seekCutPrevious: () => void;
+  seekCutNext: () => void;
+  advanceCutClip: () => void;
+  downloadCurrentCut: () => Promise<void>;
+  downloadingCut: boolean;
   startingFrameError: string | null;
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File, options?: { clearPlan?: boolean }) => Promise<void>;
@@ -179,6 +202,8 @@ export function ProjectProvider({
   initialShootingJourneyIds = [],
   initialConstructingBeatId = null,
   initialDirectorStatus = "idle",
+  initialCutPlaybackJourneyId = null,
+  initialPlaying = false,
 }: {
   children: ReactNode;
   initialProject?: Project;
@@ -195,6 +220,8 @@ export function ProjectProvider({
   initialShootingJourneyIds?: readonly string[];
   initialConstructingBeatId?: string | null;
   initialDirectorStatus?: DirectorStatus;
+  initialCutPlaybackJourneyId?: string | null;
+  initialPlaying?: boolean;
 }) {
   const [project, setProject] = useState(() => initialProject ?? createNewProject());
   const projectRef = useRef(project);
@@ -205,7 +232,11 @@ export function ProjectProvider({
   );
   const [zoom, setZoomState] = useState(1);
   const [playheadTime, setPlayheadTime] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(initialPlaying);
+  const [cutPlaybackJourneyId, setCutPlaybackJourneyId] = useState<string | null>(initialCutPlaybackJourneyId);
+  const [cutStartOffset, setCutStartOffset] = useState(0);
+  const [downloadingCut, setDownloadingCut] = useState(false);
+  const assembledCutRef = useRef<{ fingerprint: string; result: MovieExportResult } | null>(null);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>(initialDirectorStatus);
   const [planStartError, setPlanStartError] = useState<string | null>(null);
   const [journeyAgent, setJourneyAgent] = useState<JourneyAgentSnapshot>(idleJourneyAgentSnapshot);
@@ -250,6 +281,12 @@ export function ProjectProvider({
     commitActiveTextEdit();
     setSelection(next);
     setPlaying(false);
+    setCutPlaybackJourneyId(null);
+    setCutStartOffset(0);
+    const start = playheadStartForSelection(projectRef.current, next);
+    if (start != null) {
+      setPlayheadTime(start);
+    }
   }, []);
 
   const setView = useCallback((next: WorkspaceView) => {
@@ -261,6 +298,8 @@ export function ProjectProvider({
     setViewState(next);
     setSelection((current) => selectionForWorkspaceView(next, current, project));
     setPlaying(false);
+    setCutPlaybackJourneyId(null);
+    setCutStartOffset(0);
   }, [project]);
 
   const setZoom = useCallback((next: number) => {
@@ -273,6 +312,14 @@ export function ProjectProvider({
 
   const setVideoModel = useCallback((videoModel: VideoModelId) => {
     setProject((current) => projectWithVideoModel(current, videoModel));
+  }, []);
+
+  const setVideoModelForIntent = useCallback((intent: GenerationIntent, videoModel: VideoModelId) => {
+    setProject((current) => projectWithVideoModelForIntent(current, intent, videoModel));
+  }, []);
+
+  const setDefaultTakeIntent = useCallback((intent: GenerationIntent) => {
+    setProject((current) => projectWithDefaultTakeIntent(current, intent));
   }, []);
 
   const setImageModel = useCallback((imageModel: ImageModelId) => {
@@ -449,7 +496,6 @@ export function ProjectProvider({
             imageUrl: result.imageUrl,
           }),
         );
-        setSelection({ kind: "storyboard", frameId: beatId });
         return next;
       } catch (error) {
         setConversation((entries) =>
@@ -497,7 +543,6 @@ export function ProjectProvider({
         ...(mediaInfo ? { mediaInfo } : {}),
       });
       applyProject(next);
-      setSelection({ kind: "storyboard", frameId: beatId });
       return next;
     },
     [applyProject],
@@ -534,7 +579,6 @@ export function ProjectProvider({
             imageUrl: result.imageUrl,
           }),
         );
-        setSelection({ kind: "storyboard", frameId: "A" });
         return next;
       } catch (error) {
         const message = error instanceof Error ? error.message : "Opening frame generation failed.";
@@ -731,36 +775,22 @@ export function ProjectProvider({
     [applyProject, nextConversationId],
   );
 
-  const shootJourneyOn = useCallback(
-    async (current: Project, journeyId: string): Promise<Project> => {
-      const journey = current.journeys.find((item) => item.id === journeyId);
-      if (!journey || !canShootJourney(current, journey)) {
-        throw new Error("Stage this journey before generating");
-      }
-      const entryId = nextConversationId("shooting");
-      setShootError(null);
-      setShootingJourneyIds((ids) => withId(ids, journeyId));
-      const shooting = projectWithJourneyShooting(projectRef.current, journeyId);
-      applyProject(shooting);
-      setConversation((entries) =>
-        appendConversationEntry(entries, {
-          id: entryId,
-          createdAt: conversationTimestamp(),
-          kind: "shooting",
-          journeyId,
-          status: "shooting",
-        }),
-      );
+  const completeJourneyShoot = useCallback(
+    async (journeyId: string, resolvedIntent: GenerationIntent, entryId: string): Promise<Project> => {
       try {
-        const request = shootRequestFromProject(shooting, journeyId);
+        const request = shootRequestFromProject(projectRef.current, journeyId, resolvedIntent);
         const result = await requestShootJourney({ ...request, debug: debugOnRef.current });
-        const next = projectWithJourneyShotTake(projectRef.current, journeyId, result);
+        const stamped = {
+          ...result,
+          take: { ...result.take, generationIntent: result.take.generationIntent ?? resolvedIntent },
+        };
+        const next = projectWithJourneyShotTake(projectRef.current, journeyId, stamped);
         applyProject(next);
         setConversation((entries) =>
           resolveShootingEntry(entries, entryId, {
             status: "shot",
-            take: result.take,
-            videoUrl: result.videoUrl,
+            take: stamped.take,
+            videoUrl: stamped.videoUrl,
           }),
         );
         return next;
@@ -780,7 +810,32 @@ export function ProjectProvider({
         setShootingJourneyIds((ids) => withoutId(ids, journeyId));
       }
     },
-    [applyProject, nextConversationId],
+    [applyProject],
+  );
+
+  const shootJourneyOn = useCallback(
+    async (current: Project, journeyId: string, intent?: GenerationIntent): Promise<Project> => {
+      const resolvedIntent = intent ?? defaultTakeIntentFromProject(current);
+      const journey = current.journeys.find((item) => item.id === journeyId);
+      if (!journey || !canShootJourney(current, journey)) {
+        throw new Error("Stage this journey before generating");
+      }
+      const entryId = nextConversationId("shooting");
+      setShootError(null);
+      setShootingJourneyIds((ids) => withId(ids, journeyId));
+      applyProject(projectWithJourneyShooting(projectRef.current, journeyId));
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: entryId,
+          createdAt: conversationTimestamp(),
+          kind: "shooting",
+          journeyId,
+          status: "shooting",
+        }),
+      );
+      return completeJourneyShoot(journeyId, resolvedIntent, entryId);
+    },
+    [applyProject, completeJourneyShoot, nextConversationId],
   );
 
   const assessJourney = useCallback(
@@ -819,9 +874,9 @@ export function ProjectProvider({
   }, [assessJourney, autoMotionKey, journeyAgent]);
 
   const shootJourney = useCallback(
-    async (journeyId: string) => {
+    async (journeyId: string, intent?: GenerationIntent) => {
       try {
-        await shootJourneyOn(projectRef.current, journeyId);
+        await shootJourneyOn(projectRef.current, journeyId, intent);
       } catch {
         // Conversation already records the failure.
       }
@@ -829,12 +884,164 @@ export function ProjectProvider({
     [shootJourneyOn],
   );
 
+  const shootAllJourneys = useCallback(
+    async (intent: GenerationIntent) => {
+      const current = projectRef.current;
+      const launches = journeysReadyToTakeAll(current).map((journey) => ({
+        journeyId: journey.id,
+        entryId: nextConversationId("shooting"),
+      }));
+      if (launches.length === 0) {
+        return;
+      }
+      setShootError(null);
+      applyProject(projectWithJourneysShooting(current, launches.map((launch) => launch.journeyId)));
+      setShootingJourneyIds((ids) =>
+        launches.reduce((next, launch) => withId(next, launch.journeyId), ids),
+      );
+      setConversation((entries) =>
+        launches.reduce(
+          (next, launch) =>
+            appendConversationEntry(next, {
+              id: launch.entryId,
+              createdAt: conversationTimestamp(),
+              kind: "shooting",
+              journeyId: launch.journeyId,
+              status: "shooting",
+            }),
+          entries,
+        ),
+      );
+      await Promise.all(
+        launches.map(async ({ journeyId, entryId }) => {
+          try {
+            await completeJourneyShoot(journeyId, intent, entryId);
+          } catch {
+            // One failure must not drop the rest of the overlapping batch.
+          }
+        }),
+      );
+    },
+    [applyProject, completeJourneyShoot, nextConversationId],
+  );
+
   const selectTake = useCallback(
     (journeyId: string, takeId: string) => {
       applyProject(projectWithSelectedTake(projectRef.current, journeyId, takeId));
+      const start = journeyPlayheadStart(projectRef.current, journeyId);
+      if (start != null) {
+        setPlayheadTime(start);
+        setCutStartOffset(0);
+      }
     },
     [applyProject],
   );
+
+  const laidClipsForCut = useCallback((current: Project) => {
+    const layout = layoutShootTimeline(current, 1);
+    return currentCutClips(current).flatMap((clip) => {
+      const laid = layout.journeys.find((item) => item.journeyId === clip.journeyId);
+      return laid ? [{ clip, laid }] : [];
+    });
+  }, []);
+
+  const playCurrentCut = useCallback(() => {
+    const clips = laidClipsForCut(projectRef.current);
+    if (clips.length === 0) {
+      return;
+    }
+    const atPlayhead =
+      clips.find(({ laid }) => playheadTime < laid.endTime - 0.05) ?? clips[clips.length - 1]!;
+    const offset = Math.max(0, Math.min(playheadTime - atPlayhead.laid.startTime, atPlayhead.clip.durationSeconds));
+    setCutPlaybackJourneyId(atPlayhead.clip.journeyId);
+    setCutStartOffset(Number.isFinite(offset) ? offset : 0);
+    setPlaying(true);
+  }, [laidClipsForCut, playheadTime]);
+
+  const pauseCurrentCut = useCallback(() => {
+    setPlaying(false);
+  }, []);
+
+  const seekCutPrevious = useCallback(() => {
+    const clips = laidClipsForCut(projectRef.current);
+    if (clips.length === 0) {
+      return;
+    }
+    const index = clips.findIndex(({ clip }) => clip.journeyId === cutPlaybackJourneyId);
+    const currentIndex = index < 0 ? 0 : index;
+    const atStart = playheadTime - (clips[currentIndex]?.laid.startTime ?? 0) < 1;
+    const previous =
+      currentIndex > 0 && atStart ? clips[currentIndex - 1]! : clips[currentIndex] ?? clips[0]!;
+    setCutPlaybackJourneyId(previous.clip.journeyId);
+    setCutStartOffset(0);
+    setPlayheadTime(previous.laid.startTime);
+    if (playing) {
+      setPlaying(true);
+    }
+  }, [cutPlaybackJourneyId, laidClipsForCut, playheadTime, playing]);
+
+  const seekCutNext = useCallback(() => {
+    const clips = laidClipsForCut(projectRef.current);
+    if (clips.length === 0) {
+      return;
+    }
+    const index = clips.findIndex(({ clip }) => clip.journeyId === cutPlaybackJourneyId);
+    const next = index >= 0 && index < clips.length - 1 ? clips[index + 1]! : clips[clips.length - 1]!;
+    setCutPlaybackJourneyId(next.clip.journeyId);
+    setCutStartOffset(0);
+    setPlayheadTime(next.laid.startTime);
+    if (index >= clips.length - 1) {
+      setPlaying(false);
+    }
+  }, [cutPlaybackJourneyId, laidClipsForCut]);
+
+  const advanceCutClip = useCallback(() => {
+    const clips = laidClipsForCut(projectRef.current);
+    const index = clips.findIndex(({ clip }) => clip.journeyId === cutPlaybackJourneyId);
+    if (index < 0 || index >= clips.length - 1) {
+      setPlaying(false);
+      return;
+    }
+    const next = clips[index + 1]!;
+    setCutPlaybackJourneyId(next.clip.journeyId);
+    setCutStartOffset(0);
+    setPlayheadTime(next.laid.startTime);
+    setPlaying(true);
+  }, [cutPlaybackJourneyId, laidClipsForCut]);
+
+  const downloadCurrentCut = useCallback(async () => {
+    const current = projectRef.current;
+    if (!canDownloadCurrentCut(current)) {
+      return;
+    }
+    const fingerprint = currentCutFingerprint(current);
+    const cached = assembledCutRef.current;
+    const result =
+      cached && cached.fingerprint === fingerprint
+        ? cached.result
+        : await (async () => {
+            setDownloadingCut(true);
+            setExportMovieError(null);
+            try {
+              const assembled = await requestDownloadCurrentCut(current);
+              assembledCutRef.current = { fingerprint, result: assembled };
+              setMovieExport(assembled);
+              return assembled;
+            } catch (error) {
+              setExportMovieError(error instanceof Error ? error.message : "Download failed");
+              throw error;
+            } finally {
+              setDownloadingCut(false);
+            }
+          })();
+    const link = document.createElement("a");
+    link.href = result.videoUrl;
+    link.download = result.filename;
+    link.rel = "noopener";
+    document.body.append(link);
+    link.click();
+    link.remove();
+  }, []);
 
   const writeStoryFromOpeningOn = useCallback(
     async (current: Project): Promise<Project> => {
@@ -908,7 +1115,6 @@ export function ProjectProvider({
         }),
       );
       setDirectorStatus("ready");
-      setSelection({ kind: "storyboard", frameId: prepared.request.startFrameId });
       return next;
     },
     [applyProject, nextConversationId],
@@ -1142,6 +1348,8 @@ export function ProjectProvider({
       setStoryboardReelId,
       setAgency,
       setVideoModel,
+      setVideoModelForIntent,
+      setDefaultTakeIntent,
       setImageModel,
       setImageOutputFormat,
       setImageResolution,
@@ -1165,7 +1373,17 @@ export function ProjectProvider({
       shootingJourneyIds,
       shootError,
       shootJourney,
+      shootAllJourneys,
       selectTake,
+      cutPlaybackJourneyId,
+      cutStartOffset,
+      playCurrentCut,
+      pauseCurrentCut,
+      seekCutPrevious,
+      seekCutNext,
+      advanceCutClip,
+      downloadCurrentCut,
+      downloadingCut,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,
@@ -1200,6 +1418,8 @@ export function ProjectProvider({
       storyboardReelId,
       setAgency,
       setVideoModel,
+      setVideoModelForIntent,
+      setDefaultTakeIntent,
       setImageModel,
       setImageOutputFormat,
       setImageResolution,
@@ -1222,7 +1442,17 @@ export function ProjectProvider({
       shootingJourneyIds,
       shootError,
       shootJourney,
+      shootAllJourneys,
       selectTake,
+      cutPlaybackJourneyId,
+      cutStartOffset,
+      playCurrentCut,
+      pauseCurrentCut,
+      seekCutPrevious,
+      seekCutNext,
+      advanceCutClip,
+      downloadCurrentCut,
+      downloadingCut,
       startingFrameError,
       replacingStart,
       replaceDestinationImage,

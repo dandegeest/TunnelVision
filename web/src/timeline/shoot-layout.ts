@@ -1,6 +1,11 @@
-import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
 import { isProductionEndpoint, productionDestinationId } from "../project/production-legs";
 import { nextStoryboardSlot } from "../project/storyboard";
+import {
+  journeyTakes,
+  journeysWithClipDurations,
+  takeClipDurationSeconds,
+  unshotClipDurationSeconds,
+} from "../project/takes";
 import type { Project, Selection } from "../project/types";
 import {
   BASE_PX_PER_SECOND,
@@ -195,9 +200,47 @@ export function occurrenceForJourneyEndpoint(
   );
 }
 
+export function journeyPlayheadStart(project: Project, journeyId: string): number | undefined {
+  return layoutShootTimeline(project, 1).journeys.find((item) => item.journeyId === journeyId)?.startTime;
+}
+
+export function playheadStartForSelection(project: Project, selection: Selection): number | undefined {
+  const layout = layoutShootTimeline(project, 1);
+  if (selection.kind === "journey") {
+    return layout.journeys.find((item) => item.journeyId === selection.journeyId)?.startTime;
+  }
+  if (selection.kind === "destination") {
+    return layout.occurrences.find((item) => item.occurrenceIndex === selection.occurrenceIndex)?.timeSeconds;
+  }
+  return undefined;
+}
+
+function withOverflowingTakeBars(project: Project, layout: TimelineLayout, zoom: number): TimelineLayout {
+  const fallback = unshotClipDurationSeconds(project);
+  let end = layout.totalDuration;
+  for (const laid of layout.journeys) {
+    const journey = project.journeys.find((item) => item.id === laid.journeyId);
+    if (!journey) {
+      continue;
+    }
+    for (const take of journeyTakes(journey)) {
+      end = Math.max(end, laid.startTime + takeClipDurationSeconds(take, fallback));
+    }
+  }
+  if (end <= layout.totalDuration) {
+    return layout;
+  }
+  const contentWidth = end * BASE_PX_PER_SECOND * zoom;
+  return {
+    ...layout,
+    contentWidth,
+    trackWidth: contentWidth + layout.padPx * 2,
+  };
+}
+
 /** Production legs plus unresolved storyboard beats so Shoot is populated before B is actual. */
 export function layoutShootTimeline(project: Project, zoom: number): TimelineLayout {
-  const durationSeconds = videoModelDurationSeconds(project.videoModel);
+  const durationSeconds = unshotClipDurationSeconds(project);
   if (project.journeys.length === 0) {
     const slots = shootTimelineSlots(project);
     if (slots.length === 0) {
@@ -205,10 +248,14 @@ export function layoutShootTimeline(project: Project, zoom: number): TimelineLay
     }
     return layoutFromSlots(slots, durationSeconds, zoom);
   }
-  return appendFpoOccurrences(
-    layoutTimeline(project.destinations, project.journeys, zoom),
-    trailingFpoSlots(project),
-    durationSeconds,
+  return withOverflowingTakeBars(
+    project,
+    appendFpoOccurrences(
+      layoutTimeline(project.destinations, journeysWithClipDurations(project), zoom),
+      trailingFpoSlots(project),
+      durationSeconds,
+      zoom,
+    ),
     zoom,
   );
 }

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createNewProject } from "../project/new-project";
 import { projectWithDirectorPlan } from "../project/storyboard";
-import { layoutShootTimeline, occurrenceForJourneyEndpoint, occurrenceIsGenerating, selectShootOccurrence, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
+import { currentCutDurationSeconds } from "../project/current-cut";
+import { projectWithAppendedTake, projectWithSelectedTake, takeId, journeyTakes } from "../project/takes";
+import { journeyPlayheadStart, layoutShootTimeline, occurrenceForJourneyEndpoint, occurrenceIsGenerating, playheadStartForSelection, selectShootOccurrence, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
 
 const A_MEDIA = {
   mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -66,6 +68,41 @@ describe("shoot timeline slots", () => {
     const layout = layoutShootTimeline(forest, 1);
     expect(layout.occurrences.some((occurrence) => occurrence.destinationId === "G")).toBe(false);
     expect(layout.occurrences.some((occurrence) => occurrence.fpo)).toBe(false);
+  });
+
+  it("places the playhead at the selected segment item", () => {
+    const forest = createForestProject();
+    const layout = layoutShootTimeline(forest, 1);
+    expect(journeyPlayheadStart(forest, "A-B")).toBe(layout.journeys[0]?.startTime);
+    expect(journeyPlayheadStart(forest, "B-C")).toBe(layout.journeys[1]?.startTime);
+    expect(journeyPlayheadStart(forest, "B-C")).toBeGreaterThan(0);
+    expect(journeyPlayheadStart(forest, "missing")).toBeUndefined();
+    expect(playheadStartForSelection(forest, { kind: "journey", journeyId: "B-C", band: "motion" })).toBe(
+      layout.journeys[1]?.startTime,
+    );
+    expect(playheadStartForSelection(forest, { kind: "journey", journeyId: "B-C", band: "footage" })).toBe(
+      layout.journeys[1]?.startTime,
+    );
+    expect(playheadStartForSelection(forest, { kind: "destination", destinationId: "B", occurrenceIndex: 1 })).toBe(
+      layout.occurrences[1]?.timeSeconds,
+    );
+  });
+
+  it("lays Fast 6s Takes at 18s and Kling 5s Takes at 15s on a three-leg cut", () => {
+    const three = threeLegForest();
+    expect(layoutShootTimeline(three, 1).totalDuration).toBe(18);
+    expect(currentCutDurationSeconds(three)).toBe(18);
+    const kling = withKlingPass(three);
+    expect(layoutShootTimeline(kling, 1).totalDuration).toBe(15);
+    expect(currentCutDurationSeconds(kling)).toBe(15);
+    expect(layoutShootTimeline(kling, 1).journeys.map((item) => item.endTime - item.startTime)).toEqual([5, 5, 5]);
+    const fastCut = ["A-B", "B-C", "C-D"].reduce(
+      (project, journeyId) => projectWithSelectedTake(project, journeyId, takeId(journeyId, 1)),
+      kling,
+    );
+    expect(layoutShootTimeline(fastCut, 1).totalDuration).toBe(18);
+    expect(currentCutDurationSeconds(fastCut)).toBe(18);
+    expect(layoutShootTimeline(fastCut, 1).journeys.map((item) => item.endTime - item.startTime)).toEqual([6, 6, 6]);
   });
 
   it("finds the start and end occurrences used by a Forest leg", () => {
@@ -139,3 +176,33 @@ describe("shoot timeline slots", () => {
     expect(occurrenceIsGenerating(b!, "C", forest.storyboard)).toBe(false);
   });
 });
+
+function threeLegForest() {
+  const forest = createForestProject();
+  return {
+    ...forest,
+    destinations: forest.destinations.filter((destination) => ["A", "B", "C", "D"].includes(destination.id)),
+    storyboard: forest.storyboard.filter((frame) => ["A", "B", "C", "D"].includes(frame.id)),
+    journeys: forest.journeys.filter((journey) => ["A-B", "B-C", "C-D"].includes(journey.id)),
+  };
+}
+
+function withKlingPass(project: ReturnType<typeof threeLegForest>) {
+  return project.journeys.reduce((next, journey) => {
+    const first = journeyTakes(next.journeys.find((item) => item.id === journey.id)!)[0];
+    if (!first) {
+      throw new Error(`${journey.id} needs a Fast take`);
+    }
+    return projectWithAppendedTake(next, journey.id, {
+      take: {
+        ...first,
+        id: undefined,
+        number: undefined,
+        model: "kwaivgi/kling-v2.5-turbo-pro",
+        durationSeconds: 5,
+        generationIntent: "quality",
+      },
+      videoUrl: `/${journey.id}-kling.mp4`,
+    });
+  }, project);
+}

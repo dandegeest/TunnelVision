@@ -16,9 +16,12 @@ import {
   projectWithSelectedTake,
   selectedTake,
   selectedTakeVideoUrl,
+  TAKE_PREVIOUS_CANONICALS_COPY,
   takeCanonicalPair,
+  takeClipDurationSeconds,
   takeDisplayLabel,
   takeId,
+  takeMatchesCurrentCanonicals,
   takesShareHandoffCanonical,
 } from "./takes";
 import type { CinematographerAssessment, JourneyShot, JourneyShotTake, Project, SegmentMotionPlan } from "./types";
@@ -220,6 +223,13 @@ describe("selection changes current footage", () => {
     expect(journey.durationSeconds).toBe(6);
     expect(journeyTakes(journey)[1]?.videoUrl).toBe("https://example.test/take-2.mp4");
   });
+
+  it("reads Kling 5s and Pruna 6s from the Take, or from the generator when duration is missing", () => {
+    expect(takeClipDurationSeconds({ durationSeconds: 6, model: "prunaai/p-video" }, 8)).toBe(6);
+    expect(takeClipDurationSeconds({ durationSeconds: 5, model: "kwaivgi/kling-v2.5-turbo-pro" }, 8)).toBe(5);
+    expect(takeClipDurationSeconds({ durationSeconds: 0, model: "kwaivgi/kling-v2.5-turbo-pro" }, 8)).toBe(5);
+    expect(takeClipDurationSeconds({ durationSeconds: 0, model: "prunaai/p-video" }, 8)).toBe(6);
+  });
 });
 
 describe("assembly uses the selected Take", () => {
@@ -292,5 +302,24 @@ describe("Take canonical pair", () => {
     expect(takesShareHandoffCanonical(aToB1, b1ToC)).toBe(true);
     expect(takesShareHandoffCanonical(aToB2, b1ToC)).toBe(false);
     expect(takesShareHandoffCanonical(take, b1ToC)).toBeUndefined();
+  });
+
+  it("marks a Take stale after START or END canon changes", () => {
+    const rendered = projectWithJourneyShotTake(stagedLeg(), "A-B", {
+      take,
+      videoUrl: "https://example.test/take-1.mp4",
+    });
+    const journey = rendered.journeys[0]!;
+    expect(takeMatchesCurrentCanonicals(rendered, journey, journey.takes![0]!)).toBe(true);
+    const reshot = {
+      ...rendered,
+      storyboard: rendered.storyboard.map((frame) =>
+        frame.id === "B"
+          ? { ...frame, mediaId: "upload-ffffffffffffffffffffffffffffffff" }
+          : frame,
+      ),
+    };
+    expect(takeMatchesCurrentCanonicals(reshot, reshot.journeys[0]!, reshot.journeys[0]!.takes![0]!)).toBe(false);
+    expect(TAKE_PREVIOUS_CANONICALS_COPY).toMatch(/current START\/END/i);
   });
 });

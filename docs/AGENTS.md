@@ -117,7 +117,10 @@ each staged leg, including those with CM hold or no-go warnings.
 AGENT CREATE JOURNEY is not those Directed Options. It runs
 JourneyAgent, which reuses the same opening / Director / construct /
 Motion Plan / NEW TAKE / Export Movie operations and always executes
-the unattended loop. After each constructed destination, it inspects
+the unattended loop. Agent NEW TAKE resolves the video model through
+`Project.defaultTakeIntent` (Fast by default) and the Fast / Balanced /
+Quality mappings; there is no separate Agent video-model setting.
+After each constructed destination, it inspects
 that inbound pair's CM scores and may enter `REPAIRING_CANONICALS`
 for the new Agent-generated END (experimental Traversal Confidence
 < 30). Set Consistency stays a diagnostic and does not trigger
@@ -214,30 +217,45 @@ falls back to dest/VP weights only; it does not block Camotion. Debug
 keeps those weight previews in the Camotion work dir.
 Shoot is a production view of
 the current Project: actual adjacent canonicals become JourneyShots
-automatically. Each interval is two stacked bands under the destination
-rail: MOTION (the stored A→B Motion Plan) and FOOTAGE (the selected Take),
-with TAKES stacked under FOOTAGE.
+automatically. Each interval stacks MOTION (the stored A→B Motion Plan)
+under the destination rail. Once a segment has at least one Take, its
+Take stack appears beneath MOTION. There is no separate FOOTAGE row;
+the selected Take is the footage used by preview, current-cut playback,
+and DOWNLOAD.
 Canonicals remain clickable places above those bands. When only A is actual,
 Shoot still shows A and an FPO B that opens Plan on B. A destination
 still generating in Plan shimmers on the matching Shoot slot. MOTION is an
 inspect/status surface for that segment's automatically generated Motion Plan.
-**NEW TAKE** sits in the TAKES stack when that segment is selected and
-appends another traversal without overwriting earlier Takes. The newest Take
-is selected after generate. A NEW TAKE may use a different video model;
+The MOTION band shows the two CM score pills once that pair is scored.
+**+ NEW TAKE** sits under the segment when it is selected. The main control
+uses **Default Take Intent** from Project settings; the arrow offers
+Fast / Balanced / Quality. Choosing one appends another
+immutable Take using the project mapping for that intent. CREATE JOURNEY /
+Agent shooting uses that same Default Take Intent instead
+of a separate video-model control. Completing a Take, Motion Plan, or
+canonical does not move the current workspace selection. A NEW TAKE may use a different video model;
 Takes from different providers can share one cut because they share the
-same canonical endpoints. The filmmaker selects the Take that is the movie. The control starts generation
-without changing selection. It is centered and sized
-to the label. While a take is rendering, FOOTAGE shows Generating…
-in the band.
+same canonical endpoints. The filmmaker selects the Take that is the movie.
+**+ NEW TAKE ALL** generates one new Take for every shootable segment
+in parallel. The arrow changes that control's intent without generating
+unless the intent is already selected, in which case that click
+generates. The main hit starts the batch. It does not rank or auto-select. While a take is
+rendering, the TAKES gutter is visible and the in-flight Take sits on
+the next Take row with Generating… — including the first Take on a
+segment. The compact **NEW TAKE** control stays hidden until generation
+finishes.
 Shoot Inspector headers read Inspector - Destination, Inspector - Motion, or
-Inspector - Footage. Motion and footage both use the A→B heading; footage
+Inspector - Take. Motion and Take both use the A→B heading; Take
 identifies the selected Take (`A→B · TAKE 2`) and shows that Take's
-conditioned START′/END′ frames. Footage **NEW TAKE** appends another Take.
+conditioned START′/END′ frames plus the generation intent and catalog model
+(`Fast · Pruna`). Take **NEW TAKE** appends another Take.
 Canonical destination Reshoot stays a destination action. New Takes
 stamp the start/end canonical media IDs they were generated from;
-segment letters alone do not define Take compatibility. Non-destructive
-canonical revision (keep B1 continuity after reshooting B) is backlog.
-Model label is Debug-only.
+segment letters alone do not define Take compatibility. Reshooting a
+canonical invalidates that segment's Motion Plan and does not delete
+earlier Takes. Destination versioning (B1 vs B2 as separate places) is
+backlog.
+Debug still shows the catalog model label.
 When an actual adjacent canonical pair exists, the existing Cinematographer
 path runs automatically: CM inspects the actual A/B
 canonicals, reports semantic travel geometry in the same assessment turn, a
@@ -249,22 +267,30 @@ to `exposure.strength`. Camotion then weights that exposure spatially
 that shot only. Neighboring
 segments are unchanged. Changing either canonical invalidates that segment's
 Motion Plan and recomputes it; unrelated UI and story edits do not. Footage
-generation remains an explicit FOOTAGE action. MOTION shows the A|B canonical stills, a canonical vs
+generation remains an explicit NEW TAKE action. MOTION shows the A|B canonical stills, a canonical vs
 conditioned toggle, and the stored CameraMotionPlan overlay once the Motion
-Plan exists; FOOTAGE shows the clip. When a destination is selected, the preview can toggle
+Plan exists. Selecting MOTION, a Take, or a destination moves the
+playhead to that item's place on the cut. A selected Take shows the
+clip. The footer plays the current cut
+(selected Takes in storyboard order); the next clip is prebuffered so
+the boundary does not wait on a cold load. DOWNLOAD assembles that same cut.
+When a destination is selected, the preview can toggle
 that occurrence's canonical still against stored Camotion A′/B′ from the
 inbound/outbound Motion Plans, draw the
 stored CameraMotionPlan as a read-only overlay on the displayed still
 (travel path, radial direction, points; letterboxed to the image; knockout
 halo and chipped VP/D labels), and the
-inspector lists that segment's Motion Plan facts read-only. Band labels are MOTION and FOOTAGE only.
+inspector lists that segment's Motion Plan facts read-only. Band labels are MOTION
+plus the two CM score pills. Take rows show a number badge to the left
+and the intent mark; inspector headings still read TAKE N. Takes stamped
+to a previous START/END show a previous-canonical mark.
 The Shoot timeline height is resizable with the same separator
 interaction as the story and project panels. The Shoot inspector can hide to a
 reopen strip like the conversation and Project rails; that visibility is
 session UI, not project persistence.
 While a Motion Plan or take is running, that band uses the same generating
-shimmer as Plan FPO thumbs. MOTION shows Planning… in the band; FOOTAGE
-shows Generating… there and hides the compact **NEW TAKE**
+shimmer as Plan FPO thumbs. MOTION shows Planning… in the band; an in-progress
+Take shows Generating… there and hides the compact **NEW TAKE**
 control until generation finishes. The app
 can track more than one blocking or shooting operation at a time.
 Opening A and later B…N stills use the image model chosen in Project
@@ -275,12 +301,14 @@ the default when jpg/png are both available; 1K is the default when
 the model offers 1K / 2K / 4K. Leave resolution out of settings when
 the model has only one size (Lite). Flux Ultra is not a product still
 generator.
-SHOOT on a staged leg uses the Motion Plan's A′/B′ and a configurable
-video model chosen in Project settings. Pruna (`prunaai/p-video`) is the
-development default. Mid-tier Kling 2.5 Turbo Pro, Wan 2.2 First/Last
-Frame, and Seedance 2.0 Fast, plus Seedance 2.5 HQ, are opt-in for the
-same A′/B′ pipeline. Clip duration follows the generator (Pruna 6s,
-Kling 2.5 Turbo Pro 5s); the Shoot timeline follows the take.
+SHOOT on a staged leg uses the Motion Plan's A′/B′ and the generation-intent
+mapping chosen in Project settings (Fast / Balanced / Quality → catalog
+model). Fast defaults to Pruna (`prunaai/p-video`); Balanced to Wan 2.2
+First/Last Frame; Quality to Seedance 2.5. Those mappings stay
+provider-neutral so a later router can fulfill the intents. Clip duration
+follows the generator (Pruna 6s, Kling 2.5 Turbo Pro 5s). Take rows and
+the selected MOTION tile use that clip's duration, so a Fast pass is
+longer than a Kling pass on the same destinations.
 After replacement, that destination
 keeps its identity. First destination-construction observation:
 [genesis/research/13-destination-construction.html](../genesis/research/13-destination-construction.html).

@@ -198,11 +198,12 @@ in the TAKES stack when that
 segment is selected and appends another traversal. The
 control starts generation without changing selection. It is
 centered and sized to the label. While a take is rendering,
-FOOTAGE shows Generating… in the band. Each interval stacks
-MOTION, FOOTAGE (the selected Take), and TAKES under the destination rail.
+that segment shows Generating…. Each interval stacks
+MOTION and, once footage exists, TAKES under the destination rail.
 Canonicals remain clickable places above
 those bands. When only A is actual, Shoot still shows A and an FPO B
-that opens Plan on B. Band labels are MOTION and FOOTAGE only. When an actual
+that opens Plan on B. MOTION shows that label plus the two CM score pills.
+Takes are labeled TAKE N. When an actual
 adjacent canonical pair exists, the existing
 Cinematographer assessment runs automatically through `ReasoningProvider`, including semantic travel
 geometry in that same JSON, derives CameraMotionPlan
@@ -217,12 +218,26 @@ threshold. The two must not be collapsed. Shootability remains
 the advisory summary. Camotion executes from bridged travel geometry, not a
 Camotion suitability enum. Changing either canonical
 invalidates that segment's Motion Plan and recomputes it. Restaging one segment does not
-alter neighboring Motion Plans. Footage generation remains an explicit FOOTAGE
+alter neighboring Motion Plans. Footage generation remains an explicit NEW TAKE
 action. While a Motion Plan is running, that MOTION band
 uses the same generating shimmer as Plan FPO thumbs. A destination still generating in Plan also shimmers on the matching Shoot destination slot. Shootability remains advisory and does not
 gate JourneyShot status. NEW TAKE uses the staged A′/B′ and
 composed prompt (`segmentPromptAddition` first, then the filled baseline via
 `composeShootingPrompt`) and generates video through MediaProvider.
+CREATE JOURNEY / Agent NEW TAKE resolves the catalog model through
+`Project.defaultTakeIntent` and `videoModelsByIntent`; filmmaker NEW TAKE
+uses that same default on the main control, and the arrow still picks
+Fast / Balanced / Quality per Take. Filmmaker **NEW TAKE ALL** marks
+every shootable segment shooting in one apply, then submits those
+provider calls together. The ALL arrow changes that control's intent
+without generating unless the intent is already selected, in which case
+that click generates. Agent `createTake` stays one destination at a
+time. Completing a Take, Motion Plan, construct, or repair does not
+move workspace selection. Selecting MOTION, a Take, or a destination
+moves the playhead to that item's place on the cut. Cut playback keeps the next selected Take loaded on a
+hidden video so the boundary is not a cold load. Take rows use a number badge; Takes whose stamped
+canonical pair no longer matches the storyboard show a previous-
+canonical mark.
 Each appended Take stores `startCanonicalMediaId` / `endCanonicalMediaId`
 from the Motion Plan or current storyboard pair. That is a stamp for
 future handoff compatibility, not a revision UI.
@@ -261,7 +276,9 @@ The filmmaker can replace a destination's canonical still in place; replacement 
 Dropping an image from the desktop onto a storyboard thumb uses the same upload or Replace… path as the kebab.
 When every destination already has a still, dropping on the storyboard appends a new destination and places that image.
 Delete removes a later storyboard beat without planning or relabeling; opening A cannot be deleted.
-Replacing either canonical still on a production leg returns that JourneyShot to not prepared and not shot.
+Replacing either canonical still on a production leg invalidates that
+JourneyShot's Motion Plan. Existing Takes stay, stamped to the previous
+canonical pair.
 Uploaded media is session/dev-runtime trusted media, not durable project
 persistence. Constructed B is registered the same way so it can later
 be resolved as provider input. After replacement, that destination keeps
@@ -388,8 +405,9 @@ video model in Project settings (`pruna-p-video`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
 Seedance models use `image`/`last_frame_image`; Kling 2.5 Turbo Pro
 uses `start_image`/`end_image` and a 5s clip; Wan 2.2 I2V Fast uses
-`image`/`last_image`. The Shoot timeline follows that take's duration,
-so a Kling reshoot shortens a 6s tile to 5s. Unshot legs preview the
+`image`/`last_image`. The Shoot timeline follows each Take's duration,
+so a Kling 5s clip is shorter than a Pruna 6s clip on the same
+segment. The cut clock sums the selected Takes. Unshot legs preview the
 current project's model duration.
 `TUNNELVISION_VIDEO_MODEL` remains an env fallback for
 tools that still read a slug. It does not replace Seedance 2.5 as the

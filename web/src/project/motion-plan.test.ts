@@ -81,7 +81,7 @@ describe("per-segment Motion Plan", () => {
     });
   });
 
-  it("restaging A→B clears only A→B footage", () => {
+  it("restaging A→B keeps A→B Takes and leaves neighboring footage untouched", () => {
     const forest = createForestProject();
     const shot = projectWithJourneyShotTake(forest, "A-B", {
       take: {
@@ -101,13 +101,16 @@ describe("per-segment Motion Plan", () => {
       videoUrl: "/a-b.mp4",
     });
     const withBC = projectWithMotionPlan(shot, "B-C", planFor("B-C"));
-    expect(withBC.journeys.find((journey) => journey.id === "B-C")?.videoUrl).toBeUndefined();
+    expect(withBC.journeys.find((journey) => journey.id === "B-C")?.videoUrl).toBe(forest.journeys[1]?.videoUrl);
     const restaged = projectWithMotionPlan(withBC, "A-B", planFor("A-B"));
-    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.take).toBeUndefined();
-    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.takes).toBeUndefined();
-    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.selectedTakeId).toBeUndefined();
-    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBeUndefined();
-    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.status).toBe("ready");
+    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.videoUrl).toBe("/a-b.mp4");
+    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.takes?.some((take) => take.videoUrl === "/a-b.mp4")).toBe(
+      true,
+    );
+    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
+    expect(restaged.journeys.find((journey) => journey.id === "A-B")?.motionPlan?.cinematographer.summary).toBe(
+      "A-B choreography.",
+    );
     expect(restaged.journeys.find((journey) => journey.id === "B-C")?.motionPlan?.cinematographer.summary).toBe(
       "B-C choreography.",
     );

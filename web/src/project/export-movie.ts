@@ -62,6 +62,14 @@ export function canExportMovie(project: Project): boolean {
   return movieExportPlan(project).included.length > 0;
 }
 
+export async function requestDownloadCurrentCut(project: Project): Promise<MovieExportResult> {
+  const plan = movieExportPlan(project);
+  if (plan.included.length < 1 || plan.missing.length > 0) {
+    throw new Error("DOWNLOAD needs a selected Take on every required segment.");
+  }
+  return requestExportMovie(project);
+}
+
 export function exportMovieUnavailableReason(project: Project): string {
   if (!canExportMovie(project)) {
     return "Export Movie needs at least one rendered journey clip.";

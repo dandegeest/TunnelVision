@@ -118,6 +118,14 @@ export function layoutTimeline(
   };
 }
 
+export function durationBarWidth(
+  durationSeconds: number,
+  zoom: number,
+  pxPerSecond = BASE_PX_PER_SECOND,
+): number {
+  return Math.max(durationSeconds * pxPerSecond * zoom, 8);
+}
+
 export function timeToX(
   timeSeconds: number,
   zoom: number,

@@ -12,6 +12,8 @@ import { TimelineView } from "./TimelineView";
 import { CamotionFrameSwitch } from "./CamotionDiagnostic";
 import { CamotionOverlayToggles, CamotionPlanOverlay } from "./CamotionOverlay";
 import { DEFAULT_OVERLAY_LAYERS } from "../project/camotion-overlay";
+import { GENERATION_INTENT_MARK } from "../project/generation-intent";
+import { TAKE_PREVIOUS_CANONICALS_COPY } from "../project/takes";
 import { JourneyCanonicalPair } from "./Preview";
 
 function renderShoot(
@@ -22,6 +24,8 @@ function renderShoot(
     debug?: boolean;
     constructingBeatId?: string | null;
     storyboardReelId?: string | null;
+    cutPlaybackJourneyId?: string | null;
+    playing?: boolean;
   },
 ) {
   const initialSelection =
@@ -43,6 +47,8 @@ function renderShoot(
       initialDebug={options?.debug}
       initialConstructingBeatId={options?.constructingBeatId}
       initialStoryboardReelId={options?.storyboardReelId}
+      initialCutPlaybackJourneyId={options?.cutPlaybackJourneyId}
+      initialPlaying={options?.playing}
     >
       <TimelineView />
     </ProjectProvider>,
@@ -119,7 +125,7 @@ describe("Shoot boundary continuity UI", () => {
     const html = renderShoot(createForestProject(), { destinationId: "B", occurrenceIndex: 1 });
     expect(html).toContain('aria-label="Reshoot destination B"');
     expect(html).toContain(">Reshoot<");
-    expect(html.indexOf(">Prompt<")).toBeLessThan(html.indexOf('aria-label="Reshoot destination B"'));
+    expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(html.indexOf(">Prompt<"));
     expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(
       html.indexOf('aria-label="Destination B facts"'),
     );
@@ -160,9 +166,12 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(project.journeys.find((journey) => journey.id === "A-B")?.status).toBe("rendered");
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain('aria-label="Motion A-B"');
-    expect(html).toContain('aria-label="Footage A-B"');
     expect(html).toContain(">MOTION<");
-    expect(html).toContain(">FOOTAGE<");
+    expect(html).toContain('aria-label="Set consistency 87"');
+    expect(html).toContain('aria-label="Traversal confidence 74"');
+    expect(html).toContain(">87<");
+    expect(html).toContain(">74<");
+    expect(html).not.toContain(">FOOTAGE<");
     expect(html).toContain('data-journey-pace="fast"');
     expect(html).toContain('data-pace-gutter="A-B"');
     expect(html).not.toContain("A-B ·");
@@ -185,8 +194,10 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain('aria-label="New take A-B"');
     expect((html.match(/aria-label="New take A-B"/g) ?? []).length).toBe(1);
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
-    expect(html).toContain(">+ NEW TAKE<");
-    expect(html).toContain(">TAKE 1<");
+    expect(html).toContain("+ NEW TAKE");
+    expect(html).toContain(`+ NEW TAKE · ${GENERATION_INTENT_MARK.fast}`);
+    expect(html).toContain('data-take-number="1"');
+    expect(html).not.toContain(">TAKE 1<");
     expect(html).toContain(">TAKES<");
     expect(html).not.toContain('aria-label="Shoot A-B"');
     expect(html).not.toContain('aria-label="Generate A-B"');
@@ -232,14 +243,14 @@ describe("Shoot Cinematographer journey assessment", () => {
   it("opens footage for a rendered take without Video|A|B tabs", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
     const html = renderShoot(project, { journeyId: "A-B", band: "footage" });
-    expect(html).toContain("Preview · Footage A-B");
+    expect(html).toContain("Preview · Take A-B");
     expect(html).toContain("<video");
-    expect(html).toContain(">Inspector - Footage<");
+    expect(html).toContain(">Inspector - Take<");
     expect(html).toContain('text-2xl">A→B · TAKE 1<');
     expect(html).not.toContain('text-2xl">A-B<');
     expect(html).not.toContain("A → B");
     expect(html).not.toContain("This take is available in the preview.");
-    expect(html).toContain('aria-label="Footage A-B"');
+    expect(html).toContain('aria-label="Take 1 A-B"');
     expect(html).toContain('aria-label="New take A-B"');
     expect((html.match(/aria-label="New take A-B"/g) ?? []).length).toBe(2);
     expect(html).toContain('aria-pressed="true"');
@@ -248,9 +259,9 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain('aria-label="Preview A|B"');
     expect(html).not.toContain('aria-label="Plan A-B"');
     expect(html).not.toContain('aria-label="Generate A-B"');
-    expect(html).toContain(">+ NEW TAKE<");
-    expect(html).toContain(">NEW TAKE<");
-    expect(html).toContain(">TAKE 1<");
+    expect(html).toContain("+ NEW TAKE");
+    expect(html).toContain('data-take-number="1"');
+    expect(html).not.toContain(">TAKE 1<");
     expect(html).toContain(">TAKES<");
     expect(html).toContain('aria-label="Take 1 A-B"');
     expect(html).not.toContain("preview-leg");
@@ -299,7 +310,11 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(cd).toContain("border-2 border-[#d4b36a] bg-[#443922]");
     expect(cd).not.toContain("border-[#d4b36a] border-dashed");
     expect(cd).not.toContain(">Needs review<");
+    expect(cd).toContain('aria-label="Set consistency 61"');
+    expect(cd).toContain('aria-label="Traversal confidence 44"');
     expect(ef).toContain('aria-label="Motion E-F"');
+    expect(ef).toContain('aria-label="Set consistency 38"');
+    expect(ef).toContain('aria-label="Traversal confidence 19"');
     expect(ef).toContain("border-[#c45c38]");
     expect(ef).toContain("border-2");
     expect(ef).toContain("bg-[#142014]");
@@ -378,7 +393,7 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).not.toContain("Motion Plan is created automatically from this actual adjacent pair.");
     expect(html).not.toContain('aria-label="Plan A-B"');
     expect(html).toContain('aria-label="New take A-B"');
-    expect(html).toContain(">+ NEW TAKE<");
+    expect(html).toContain("+ NEW TAKE");
     expect(html).not.toContain('aria-label="Generate A-B"');
     expect(html).not.toContain('aria-label="Shoot A-B"');
     expect(html).not.toContain(">Assess shot<");
@@ -496,8 +511,9 @@ describe("Shoot from a real planned project", () => {
     const html = renderShoot(project, { journeyId: "A-B" });
     expect(html).toContain('aria-label="Motion A-B"');
     expect(html).toContain('aria-label="Motion B-C"');
-    expect(html).toContain('aria-label="Footage A-B"');
-    expect(html).toContain('aria-label="Footage B-C"');
+    expect(html).not.toContain('aria-label="Footage A-B"');
+    expect(html).not.toContain('aria-label="Footage B-C"');
+    expect(html).not.toContain(">TAKES<");
     expect(html).not.toContain("data-journey-pace");
     expect(html).not.toContain(">Plan<");
     expect(html).toContain("border-[#3a342c]");
@@ -529,7 +545,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain(">Assess shot<");
   });
 
-  it("shows NEW TAKE under FOOTAGE only when that segment is selected", () => {
+  it("shows NEW TAKE only when that segment is selected", () => {
     const project = projectWithSyncedProductionLegs({
       ...createNewProject(),
       storyboard: [
@@ -561,7 +577,7 @@ describe("Shoot from a real planned project", () => {
     });
     const atA = renderShoot(project, { destinationId: "A", occurrenceIndex: 0 });
     expect(atA).toContain('aria-label="New take A-B"');
-    expect(atA).toContain(">+ NEW TAKE<");
+    expect(atA).toContain("+ NEW TAKE");
     expect(atA).not.toContain('aria-label="New take B-C"');
     const atB = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 });
     expect(atB).toContain('aria-label="New take A-B"');
@@ -639,7 +655,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain("border-[#d4b36a] border-dashed");
     expect(html).not.toContain(">Needs review<");
     expect((html.match(/aria-label="New take A-B"/g) ?? []).length).toBe(1);
-    expect(html).toContain(">+ NEW TAKE<");
+    expect(html).toContain("+ NEW TAKE");
     expect((html.match(/aria-label="Plan A-B"/g) ?? []).length).toBe(0);
   });
 
@@ -672,7 +688,7 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain("Status: Planning");
     expect(html).not.toContain("animate-spin");
     expect(html).toContain('aria-label="Motion B-C"');
-    expect(html).toContain('aria-label="Footage B-C"');
+    expect(html).toContain('aria-label="Take 1 B-C"');
   });
 
   it("animates shooting tiles without a spinner and tracks more than one in-progress shoot", () => {
@@ -700,15 +716,69 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain('aria-label="Motion A-B"');
     expect(html).toContain('aria-label="Motion B-C"');
-    expect(html).toContain('aria-label="Footage A-B"');
-    expect(html).toContain('aria-label="Footage B-C"');
-    expect((html.match(/>Generating…</g) ?? []).length).toBe(2);
-    expect(html).not.toContain(">+ NEW TAKE<");
+    expect(html).not.toContain('aria-label="Footage A-B"');
+    expect(html).not.toContain('aria-label="Footage B-C"');
+    expect(html).toContain(">TAKES<");
+    expect(html).toContain('aria-label="Generating take 2 A-B"');
+    expect(html).toContain('aria-label="Generating take 2 B-C"');
+    expect((html.match(/aria-label="Generating take /g) ?? []).length).toBe(2);
+    expect(html).not.toContain("+ NEW TAKE");
     expect(html).not.toContain(">RESHOOT<");
     expect(html).not.toContain(">SHOOT<");
     expect(html).not.toContain("Reshooting…");
     const spinningTiles = html.match(/animate-spin/g) ?? [];
     expect(spinningTiles).toHaveLength(0);
+  });
+
+  it("shows the TAKES gutter and a generating Take row for the first in-flight Take", () => {
+    const forest = createForestProject();
+    const project = {
+      ...forest,
+      journeys: forest.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              status: "shooting" as const,
+              videoUrl: undefined,
+              take: undefined,
+              takes: undefined,
+              selectedTakeId: undefined,
+            }
+          : journey,
+      ),
+    };
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={project}
+        initialView="shoot"
+        initialSelection={{ kind: "journey", journeyId: "A-B", band: "motion" }}
+        initialShootingJourneyIds={["A-B"]}
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(html).toContain(">TAKES<");
+    expect(html).toContain('aria-label="Generating take 1 A-B"');
+    expect(html).toContain('data-take-number="1"');
+    expect(html).toContain("Generating…");
+    expect(html).not.toContain(">TAKE 1<");
+    expect(html).not.toContain("+ NEW TAKE");
+    expect(html).toContain("storyboard-generating");
+  });
+});
+
+describe("Shoot cut playback", () => {
+  it("prebuffers the next selected Take during continuous playback", () => {
+    const forest = createForestProject();
+    const next = forest.journeys.find((journey) => journey.id === "B-C")?.videoUrl;
+    const html = renderShoot(forest, { journeyId: "A-B", band: "footage" }, { cutPlaybackJourneyId: "A-B", playing: true });
+    expect(html).toContain('data-cut-slot="current"');
+    expect(html).toContain('data-cut-slot="next"');
+    expect(html).toContain('preload="auto"');
+    expect(html).toContain("Cut playback A-B");
+    if (next) {
+      expect(html).toContain(next);
+    }
   });
 });
 
@@ -883,21 +953,40 @@ describe("Camotion destination diagnostic", () => {
 });
 
 describe("Shoot footage inspector", () => {
-  it("stacks TAKE rows under FOOTAGE and inspects the selected Take", () => {
+  it("stacks TAKE rows under MOTION and inspects the selected Take", () => {
     const shot = projectWithJourneyShotTake(createForestProject(), "A-B", {
       take: diagnosticTake,
       videoUrl: "/a-b-take-2.mp4",
     });
     const html = renderShoot(shot, { journeyId: "A-B", band: "footage" });
     expect(html).toContain(">TAKES<");
-    expect(html).toContain(">TAKE 1<");
-    expect(html).toContain(">TAKE 2<");
-    expect(html).toContain(">+ NEW TAKE<");
+    expect(html).toContain('data-take-number="1"');
+    expect(html).toContain('data-take-number="2"');
+    expect(html).not.toContain(">TAKE 1<");
+    expect(html).not.toContain(">TAKE 2<");
+    expect(html).toContain("+ NEW TAKE");
     expect(html).toContain('aria-label="Take 1 A-B"');
     expect(html).toContain('aria-label="Take 2 A-B"');
     expect(html).toContain('text-2xl">A→B · TAKE 2<');
-    expect(html).toContain("Preview · Footage A-B · TAKE 2");
+    expect(html).toContain("Preview · Take A-B · TAKE 2");
     expect(html).toContain('src="/a-b-take-2.mp4"');
+  });
+
+  it("sizes Fast 6s and Kling 5s Take rows to those clip lengths", () => {
+    const shot = projectWithJourneyShotTake(createForestProject(), "A-B", {
+      take: {
+        ...diagnosticTake,
+        model: "kwaivgi/kling-v2.5-turbo-pro",
+        durationSeconds: 5,
+        generationIntent: "quality",
+      },
+      videoUrl: "/a-b-kling.mp4",
+    });
+    const html = renderShoot(shot, { journeyId: "A-B", band: "footage" });
+    expect(html).toContain('data-take-duration="6"');
+    expect(html).toContain('data-take-duration="5"');
+    expect(html).toContain("width:228px");
+    expect(html).toContain("width:190px");
   });
 
   it("uses a single arrow heading, collapsed prompt, and debug-only model", () => {
@@ -910,11 +999,11 @@ describe("Shoot footage inspector", () => {
       videoUrl: "/a-b.mp4",
     });
     const html = renderShoot(shot, { journeyId: "A-B", band: "footage" });
-    expect(html).toContain(">Inspector - Footage<");
+    expect(html).toContain(">Inspector - Take<");
     expect(html).toContain('text-2xl">A→B · TAKE 2<');
     expect(html).not.toContain('text-2xl">A-B<');
     expect(html).not.toContain("A → B");
-    expect(html).not.toContain(">Take<");
+    expect(html).not.toContain(">Take 1<");
     expect(html).toContain("Start′");
     expect(html).toContain("End′");
     expect(html).toContain(">Pace<");
@@ -937,13 +1026,32 @@ describe("Shoot footage inspector", () => {
     expect(html).not.toContain("This take is available in the preview.");
     expect(html).not.toContain("last-frame conditioning");
     expect(html).toContain('aria-label="New take A-B"');
-    expect(html).toContain(">NEW TAKE<");
-    expect(html).toContain(">+ NEW TAKE<");
-    expect(html).toContain(">TAKE 1<");
-    expect(html).toContain(">TAKE 2<");
+    expect(html).toContain("+ NEW TAKE");
+    expect(html).toContain('data-take-number="1"');
+    expect(html).toContain('data-take-number="2"');
+    expect(html).not.toContain(">TAKE 1<");
+    expect(html).not.toContain(">TAKE 2<");
     const hidden = renderShoot(shot, { journeyId: "A-B", band: "footage" }, { debug: false });
     expect(hidden).not.toContain(">Model<");
     expect(hidden).not.toContain("Seedance 2.0 Fast");
+  });
+
+  it("marks Takes that were shot against a previous START/END", () => {
+    const shot = projectWithJourneyShotTake(createForestProject(), "A-B", {
+      take: diagnosticTake,
+      videoUrl: "/a-b-take-2.mp4",
+    });
+    const reshot = {
+      ...shot,
+      storyboard: shot.storyboard.map((frame) =>
+        frame.id === "B" ? { ...frame, mediaId: "upload-ffffffffffffffffffffffffffffffff" } : frame,
+      ),
+    };
+    const html = renderShoot(reshot, { journeyId: "A-B", band: "footage" });
+    expect(html).toContain('data-canonical-stale="true"');
+    expect(html).toContain('aria-label="Take 2 A-B previous canonicals"');
+    expect(html).toContain(TAKE_PREVIOUS_CANONICALS_COPY);
+    expect(html).toContain("≠");
   });
 
   it("colors CM prompt addition in the Motion Inspector", () => {

@@ -26,8 +26,14 @@ import {
 import {
   VIDEO_MODELS,
   isVideoModelId,
-  videoModelMenuLabel,
 } from "../../../media/src/replicate/video-models.ts";
+import {
+  defaultTakeIntentFromProject,
+  GENERATION_INTENT_LABEL,
+  GENERATION_INTENT_MARK,
+  GENERATION_INTENTS,
+  videoModelsByIntentFromProject,
+} from "../project/generation-intent";
 import { PanelHeader } from "./PanelHeader";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -436,30 +442,70 @@ function ImageModelSelect({ disabled }: { disabled: boolean }) {
 }
 
 function VideoModelSelect({ disabled }: { disabled: boolean }) {
-  const { project, setVideoModel } = useProject();
+  const { project, setDefaultTakeIntent, setVideoModelForIntent } = useProject();
+  const mappings = videoModelsByIntentFromProject(project);
+  const defaultTakeIntent = defaultTakeIntentFromProject(project);
+  const fieldClass =
+    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]";
+  const intentOptionClass = (selected: boolean) =>
+    `flex h-full min-w-0 flex-col items-center justify-center gap-0 rounded px-0.5 text-[9px] leading-tight tracking-[0.08em] uppercase outline-none ${
+      selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
+    }`;
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Video</span>
-      <select
-        aria-label="Video model"
-        title="Used for every SHOOT in this project. Pruna is the development default."
-        disabled={disabled}
-        className="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]"
-        value={project.videoModel}
-        onChange={(event) => {
-          const next = event.target.value;
-          if (isVideoModelId(next)) {
-            setVideoModel(next);
-          }
-        }}
-      >
-        {VIDEO_MODELS.map((option) => (
-          <option key={option.id} value={option.id}>
-            {videoModelMenuLabel(option)}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className="flex flex-col gap-3">
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Generation</span>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Default Take Intent</span>
+        <nav
+          aria-label="Default take intent"
+          title="CREATE JOURNEY and Agent NEW TAKE use this intent's mapped model. Filmmaker NEW TAKE can still pick Fast, Balanced, or Quality per Take."
+          className="grid h-11 w-full grid-cols-3 items-stretch rounded border border-[#3a342c] p-0.5"
+        >
+          {GENERATION_INTENTS.map((intent) => (
+            <button
+              key={intent}
+              type="button"
+              aria-label={`Default take intent ${GENERATION_INTENT_LABEL[intent]}`}
+              aria-pressed={defaultTakeIntent === intent}
+              disabled={disabled}
+              className={intentOptionClass(defaultTakeIntent === intent)}
+              onClick={() => setDefaultTakeIntent(intent)}
+            >
+              <span aria-hidden="true" className="text-[10px] leading-none">
+                {GENERATION_INTENT_MARK[intent]}
+              </span>
+              {GENERATION_INTENT_LABEL[intent]}
+            </button>
+          ))}
+        </nav>
+      </div>
+      {GENERATION_INTENTS.map((intent) => (
+        <label key={intent} className="flex flex-col gap-1.5">
+          <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            {GENERATION_INTENT_MARK[intent]} {GENERATION_INTENT_LABEL[intent]}
+          </span>
+          <select
+            aria-label={`${GENERATION_INTENT_LABEL[intent]} video model`}
+            title={`${GENERATION_INTENT_LABEL[intent]} generation intent. Maps onto a catalog model until a router fulfills the intent.`}
+            disabled={disabled}
+            className={fieldClass}
+            value={mappings[intent]}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (isVideoModelId(next)) {
+                setVideoModelForIntent(intent, next);
+              }
+            }}
+          >
+            {VIDEO_MODELS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ))}
+    </div>
   );
 }
 

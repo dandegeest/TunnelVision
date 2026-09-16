@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Destination, JourneyShot } from "../project/types";
-import { DESTINATION_THUMB_PX, MIN_PACE_GUTTER_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, journeyBoundaryTimes, journeyThumbGutter, layoutTimeline, wholeSecondMarkTimes } from "./geometry";
+import { DESTINATION_THUMB_PX, MIN_PACE_GUTTER_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, durationBarWidth, journeyBoundaryTimes, journeyThumbGutter, layoutTimeline, wholeSecondMarkTimes } from "./geometry";
 
 const destinations: Destination[] = ["A", "B", "C", "D", "E"].map((id) => ({
   id,
@@ -80,6 +80,12 @@ describe("timeline geometry", () => {
     expect(journeyBoundaryTimes(uneven)).toEqual([0, 4, 11, 16]);
     expect(wholeSecondMarkTimes(16)).toEqual(Array.from({ length: 17 }, (_, time) => time));
     expect(journeyBoundaryTimes(uneven)).not.toEqual([0, 6, 12, 18]);
+  });
+
+  it("scales Take bars from that clip's duration, not a shared six seconds", () => {
+    expect(durationBarWidth(6, 1)).toBe(6 * 38);
+    expect(durationBarWidth(5, 1)).toBe(5 * 38);
+    expect(durationBarWidth(6, 1)).not.toBe(durationBarWidth(5, 1));
   });
 
   it("lays out an empty journey without inventing destinations", () => {

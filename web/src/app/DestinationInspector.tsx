@@ -48,7 +48,6 @@ export function DestinationPlanFields({
   const opening = frame.id === "A";
   const intent = frame.intent ?? "";
   const source = opening ? project.story : (frame.visualDescription ?? "");
-  const generated = destinationGeneratedPrompt(project, frame);
   const fieldClass = "destination-detail-prompt mt-2 block w-full text-[10px] leading-snug text-[#ece7df]";
 
   return (
@@ -83,20 +82,33 @@ export function DestinationPlanFields({
           }
         />
       </label>
-      {generated ? (
-        <details className="mt-2">
-          <summary className="cursor-pointer text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-            Prompt
-          </summary>
-          <p
-            aria-label={`Destination ${frame.label} prompt`}
-            className="mt-2 whitespace-pre-wrap text-[10px] leading-snug text-[#cfc6b8]"
-          >
-            {generated}
-          </p>
-        </details>
-      ) : null}
     </>
+  );
+}
+
+function DestinationGeneratedPrompt({
+  frame,
+  project,
+}: {
+  frame: StoryboardFrame;
+  project: Project;
+}) {
+  const generated = destinationGeneratedPrompt(project, frame);
+  if (!generated) {
+    return null;
+  }
+  return (
+    <details className="mt-2">
+      <summary className="cursor-pointer text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+        Prompt
+      </summary>
+      <p
+        aria-label={`Destination ${frame.label} prompt`}
+        className="mt-2 whitespace-pre-wrap text-[10px] leading-snug text-[#cfc6b8]"
+      >
+        {generated}
+      </p>
+    </details>
   );
 }
 
@@ -321,6 +333,7 @@ export function DestinationInspectorFields({
           </button>
         </div>
       ) : null}
+      <DestinationGeneratedPrompt frame={frame} project={project} />
       <DestinationMediaFacts frame={frame} project={project} />
       {afterFields}
       {footer}

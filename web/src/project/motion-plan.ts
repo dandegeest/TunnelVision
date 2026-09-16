@@ -1,12 +1,13 @@
 import { cameraMotionPlansFromAssessment } from "../../../media/src/cinematographer/camera-motion-plan.ts";
 import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
+import { unshotVideoModel } from "./generation-intent";
 import {
   actualFrameForDestination,
   canAssessJourney,
   hasCurrentMotionPlan,
   hasStagedMotionPlan,
 } from "./cinematographer";
-import { selectedTake } from "./takes";
+import { journeyTakes, selectedTake } from "./takes";
 import type { CinematographerAssessment, JourneyShot, Project, SegmentMotionPlan } from "./types";
 
 export { hasStagedMotionPlan };
@@ -103,7 +104,7 @@ export function motionPlanStageRequestFromAssessment(
 
 /**
  * Store a complete Motion Plan on one JourneyShot only.
- * Restaging clears that segment's footage and leaves neighboring legs untouched.
+ * Restaging leaves existing Takes in place and does not touch neighboring legs.
  */
 export function projectWithMotionPlan(
   project: Project,
@@ -121,28 +122,26 @@ export function projectWithMotionPlan(
     startCanonicalMediaId: start?.mediaId ?? motionPlan.startCanonicalMediaId,
     endCanonicalMediaId: end?.mediaId ?? motionPlan.endCanonicalMediaId,
   };
-  const durationSeconds = videoModelDurationSeconds(project.videoModel);
+  const durationSeconds = videoModelDurationSeconds(unshotVideoModel(project));
   return {
     ...project,
-    journeys: project.journeys.map((item) =>
-      item.id === journeyId
-        ? {
-            ...item,
-            cinematographer: stamped.cinematographer,
-            cinematographerStartMediaId: stamped.startCanonicalMediaId,
-            cinematographerEndMediaId: stamped.endCanonicalMediaId,
-            motionPlan: stamped,
-            status: item.status === "shooting" ? "shooting" : "ready",
-            durationSeconds,
-            take: undefined,
-            takes: undefined,
-            selectedTakeId: undefined,
-            videoUrl: undefined,
-            shootError: undefined,
-            motionPlanError: undefined,
-          }
-        : item,
-    ),
+    journeys: project.journeys.map((item) => {
+      if (item.id !== journeyId) {
+        return item;
+      }
+      const hasTakes = journeyTakes(item).length > 0;
+      return {
+        ...item,
+        cinematographer: stamped.cinematographer,
+        cinematographerStartMediaId: stamped.startCanonicalMediaId,
+        cinematographerEndMediaId: stamped.endCanonicalMediaId,
+        motionPlan: stamped,
+        status: item.status === "shooting" ? "shooting" : hasTakes ? "rendered" : "ready",
+        durationSeconds: hasTakes ? item.durationSeconds : durationSeconds,
+        shootError: undefined,
+        motionPlanError: undefined,
+      };
+    }),
   };
 }
 

@@ -22,6 +22,7 @@ import type { CamotionDebug } from "./src/project/types.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { runtimeMediaPreviewUrl } from "./runtime-media-limits.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
+import { isGenerationIntent, type GenerationIntent } from "./src/project/generation-intent.ts";
 
 export const JOURNEY_VIDEO_DURATION_SECONDS = videoModelDurationSeconds(DEFAULT_VIDEO_MODEL_ID);
 
@@ -32,6 +33,7 @@ export type ShootJourneyBody = {
   segmentPromptAddition?: unknown;
   pace?: unknown;
   videoModel?: unknown;
+  generationIntent?: unknown;
   debug?: unknown;
   startShootingMediaId?: unknown;
   endShootingMediaId?: unknown;
@@ -72,6 +74,7 @@ export type JourneyShotTakeResult = {
   providerOutputUrl: string;
   videoInputs: { startShootingFrame: true; endShootingFrame: true };
   camotion: CamotionDebug;
+  generationIntent?: GenerationIntent;
 };
 
 function requiredId(value: unknown, label: string): string {
@@ -248,6 +251,9 @@ export async function shootPreparedJourney(input: {
     durationSeconds,
     ...(seed !== undefined ? { seed } : {}),
   });
+  const generationIntent = isGenerationIntent(input.body.generationIntent)
+    ? input.body.generationIntent
+    : undefined;
   return {
     journeyId: staged.journeyId,
     ...(startCanonicalMediaId ? { startCanonicalMediaId } : {}),
@@ -263,6 +269,7 @@ export async function shootPreparedJourney(input: {
     model: generated.model,
     modelVersion: generated.modelVersion,
     durationSeconds,
+    ...(generationIntent ? { generationIntent } : {}),
     ...(typeof generated.metadata.seed === "number"
       ? { seed: generated.metadata.seed }
       : seed !== undefined

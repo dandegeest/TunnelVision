@@ -15,8 +15,8 @@ must show a physically advanced camera, not the source composition with
 new content — and this
 viewpoint stays this destination. The last beat has no look-ahead.
 Each construction is explicit. There is no filmmaker look-ahead
-control. Export Movie
-concatenates rendered journey clips that already exist.
+control. DOWNLOAD
+assembles the current cut from selected Takes.
 
 ## Primary interaction
 
@@ -31,7 +31,7 @@ centered. The left rail is conversation turn history only. The Project
 panel holds the project selector, then Directed | Agent, Journey prompt, destination count (AUTO or a
 number, typed or stepped), and, in Directed, Options (Generate all destinations,
 Shoot). Blocking is not a user automation option.
-CREATE JOURNEY is the primary action. Video and Debug mode live in Project
+CREATE JOURNEY is the primary action. Video, Default Take Intent, and Debug mode live in Project
 settings, opened from the gear. Agent hides Options. The panel can collapse to the right
 like conversation collapses to the left. Director, Project, and Inspector
 headers put the panel name and collapse control on one row, below the app header. Shoot Inspector titles are Inspector - Destination, Inspector - Motion, or Inspector - Footage. The project selector sits in the Project panel under that header. Opening A can be uploaded
@@ -86,33 +86,48 @@ a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
 production view of the current Project: consecutive actual adjacent
 canonicals appear as Destinations / JourneyShots automatically. Each
-interval stacks MOTION, FOOTAGE (the selected Take), and TAKES
+interval stacks MOTION and, once footage exists, TAKES
 under the destination rail.
 When only A is actual, Shoot still shows A and an FPO B; clicking that
-FPO opens Plan with B selected. MOTION/FOOTAGE appear once adjacent
+FPO opens Plan with B selected. MOTION appears once adjacent
 canonicals exist. Unrendered motion stays outlined. After a Motion Plan exists, the
 band follows advisory shootability: 2px solid green for clear, 2px
 solid gold fill and border for hold, 2px solid rust for no go.
-Clear MOTION uses the same green fill as completed FOOTAGE. Hold uses
+Clear MOTION uses the same green fill as a selected Take. Hold uses
 the same filled-band treatment in the current gold. While a Motion Plan or Generate is running, the matching band uses the
 same generating shimmer as Plan FPO thumbs, and more than one shoot
 can be in progress. While a destination still is generating in Plan, the
-matching Shoot destination slot uses that same shimmer. Green fill on FOOTAGE appears only after the clip is
-complete. MOTION and FOOTAGE bands show those labels only; MOTION is
+matching Shoot destination slot uses that same shimmer. Green fill on a Take appears only after the clip is
+complete. MOTION bands show that label plus the Set consistency and
+Traversal confidence pills when CM has scored the pair; MOTION is
 inspect/status for the automatically generated Motion Plan. **NEW TAKE**
-is a compact centered control under the TAKES stack when that segment
-is selected. While a take is rendering, FOOTAGE shows Generating…
-in the band, the same way MOTION shows Planning….
+is a compact centered split control under the stack when that segment
+is selected: `+ NEW TAKE · ⚡` uses the project Default Take Intent, and the
+arrow opens Fast / Balanced / Quality. While a take is rendering, the
+TAKES gutter appears immediately and the in-flight Take uses the same
+row as other Takes, with a number badge and Generating… on that bar. **NEW TAKE** stays
+hidden until generation finishes.
 If automatic Motion Planning fails, that MOTION band and the inspector offer Retry for that pair only.
 After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. **NEW TAKE** sits in the TAKES stack under FOOTAGE when MOTION, FOOTAGE,
-or either endpoint of that segment is selected. Clicking it appends another
-Take without changing the current selection or deleting earlier Takes.
+for variable. **NEW TAKE** sits under the Take stack when MOTION
+or either endpoint of that segment is selected. The main control starts a
+Take with the Default Take Intent. The arrow offers Fast /
+Balanced / Quality. Clicking an intent appends another
+Take without deleting earlier Takes. Footer **NEW TAKE ALL** launches
+those Takes together instead of waiting for each segment to finish.
+The ALL arrow changes intent without generating unless that intent is
+already selected — then it generates on that click. The main control
+starts the batch.
 Takes stack vertically; the timeline already resizes and scrolls
-vertically. The selected Take is outlined. Clicking a Take selects it
-for FOOTAGE, preview, and export. That selected Take is the cut;
+vertically. Each Take row uses a number badge on the left instead of a
+TAKE N label. Takes stamped to a previous START/END show a
+previous-canonical mark. Completing Takes, Motion Plans, or canonicals
+does not move the current selection. The selected Take is outlined. Clicking a Take selects it
+for preview, playback, and download. Selecting MOTION, a Take, or a
+destination moves the playhead to that item's place on the cut.
+That selected Take is the cut;
 there is no separate Final mode. A NEW TAKE may use a different
 video model on the same canonical pair. Canonical destination **Reshoot** is a
 different action. Do not show revision/continuity pickers yet; Takes
@@ -122,7 +137,7 @@ vertically resizable. The Shoot inspector is horizontally resizable and can hide
 conversation and Project rails; that visibility is session UI, not project
 persistence. Canonicals are places;
 MOTION is how the camera traverses between
-canonicals; FOOTAGE is the selected Take for that traversal.
+canonicals; the selected Take is the footage for that traversal.
 Canonical destinations stay clickable places on the rail above those
 bands. MOTION inspects that segment's automatically generated Motion Plan: when an actual adjacent pair exists, CM
 inspects the actual pair, Camotion derives A′/B′ for that shot, and
@@ -154,8 +169,8 @@ The Director runtime resolves starting-frame identity from
 Project state; it does not independently substitute a catalog still.
 Story edits update `Project.story` without planning. The filmmaker can replace
 a destination's canonical still in place from the destination menu.
-Replacing either canonical still on a production leg returns that
-JourneyShot to not prepared and not shot. Uploaded media is
+Replacing either canonical still on a production leg invalidates that
+JourneyShot's Motion Plan and keeps existing Takes. Uploaded media is
 session/dev-runtime trusted media, not durable project persistence.
 Constructed B is registered the same way so it can later be resolved
 as provider input. After replacement, that destination's identity stays
@@ -266,8 +281,8 @@ toggle in Project settings, not project
 persistence. Debug is on by default for now. **Agency** is a Directed / Agent segmented control
 at the top of that panel, not a native OS menu and not in the workspace header. The Shoot
 inspector destination view is the canonical letter, still, Intent and Story
-(on A) or Beat (later destinations), a collapsed Prompt, Reshoot when allowed,
-aspect / resolution / model facts, SOURCE | MOTION when a Camotion-conditioned
+(on A) or Beat (later destinations), Reshoot when allowed, a collapsed
+Prompt after that action, aspect / resolution / model facts, SOURCE | MOTION when a Camotion-conditioned
 still exists, and a compact Camotion
 block (direction, vanishing point, destination, protected, exposure; working
 directory only while Debug is on). Empty Camotion copy is “Awaiting next
@@ -307,7 +322,7 @@ right of the storyboard reel — not as a popup under the tile
 or persistent caption text. Intent and story/beat are click-to-edit: they keep a
 dimmed border at rest, look like an editor when focused, commit on each
 keystroke, and keep that text when the filmmaker leaves the field or closes the
-reel. Prompt is read-only and stays collapsed, with Reshoot directly under it. A′ appears as a toggle on the still when
+reel. Prompt is read-only and stays collapsed after Reshoot. A′ appears as a toggle on the still when
 Camotion has conditioned that destination. Uploaded A with a journey story
 stores opening intent from that story; generated A also stores the opening
 prompt. Actual A can still open the reel inspector when those fields are empty. Clicking an unselected still outside the
@@ -335,7 +350,7 @@ The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
 which can hide to the right. Directed Options are Generate all destinations and Shoot.
-Video and Debug mode are in Project settings. Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
+Video, Default Take Intent, and Debug mode are in Project settings. Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.
@@ -372,7 +387,7 @@ boundary match is not a traversal or shootability claim.
 1.  Destinations and journeys appear on a locked timeline.
 2.  Optional cheap destination intervention: Approve, Redo, possibly
     Redo With Note / Adjust (Directed policy).
-3.  User presses **Shoot** on the selected leg or **Export Movie**.
+3.  User presses **NEW TAKE** on the selected leg or **DOWNLOAD**.
 4.  Cinematographer planning, Camotion, video generation,
     and deterministic assembly of selected Takes.
 
@@ -399,8 +414,9 @@ Timeline has two locked lanes on one time axis:
 - **Journeys** — shots between those occurrences. Destination frame
   **centers** sit on journey **boundaries**. Tile width follows the
   actual clip duration. Unshot legs preview the current video model's
-  length. After SHOOT, the take and the file win, so a 5s Kling reshoot
-  is shorter than a 6s Pruna take.
+  length. After SHOOT, each Take keeps that generator's length, so a 5s
+  Kling Take is shorter than a 6s Pruna Take on the same segment. The
+  cut clock follows the selected Takes.
 
 Preview sits above the timeline. A contextual inspector sits beside
 it. DIRECTED vs AGENT is one project policy flag, not two UIs.
@@ -516,8 +532,8 @@ ignore an unshootable journey.
 
 Approve still exploration before expensive video rendering. The
 current primary action names are **NEW TAKE**
-under the FOOTAGE / TAKES stack, and
-**Export Movie**. Destination Keep / Redo / Reshoot happens before those actions. In the
+under the Take stack, and
+**DOWNLOAD**. Destination Keep / Redo / Reshoot happens before those actions. In the
 current slice those production actions are labeled and disabled.
 Intended later Cinematographer review of actual canonicals (PASS /
 REGEN / REPAIR) is recorded in
@@ -532,8 +548,7 @@ fabricated destinations or journeys. The storyboard stays disabled
 until a story is entered. Then the filmmaker provides or generates A, may set
 destination count, asks the Director with DIRECT, and generates
 unresolved destinations. CREATE JOURNEY generates unresolved A from the story
-unless the filmmaker already supplied A. Export Movie concatenates rendered takes that
-exist.
+unless the filmmaker already supplied A. DOWNLOAD concatenates the current cut.
 Forest A→F remains available so Plan preflight, Shoot boundary
 continuity, and CM tests can be exercised against a controlled
 journey. After a Director replan, Construct still builds the

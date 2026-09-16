@@ -1,6 +1,13 @@
 import { actualFrameForDestination, canAssessJourney, hasCurrentMotionPlan } from "./cinematographer";
 import { videoModelDurationSeconds, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
 import {
+  defaultTakeIntentFromProject,
+  unshotVideoModel,
+  videoModelForIntent,
+  videoModelsByIntentFromProject,
+  type GenerationIntent,
+} from "./generation-intent";
+import {
   journeyTakes,
   patchSelectedTake,
   projectWithAppendedTake,
@@ -15,6 +22,7 @@ export type ShootJourneyRequest = {
   segmentPromptAddition: string;
   pace: LocomotionPace;
   videoModel: VideoModelId;
+  generationIntent?: GenerationIntent;
   startShootingMediaId?: string;
   endShootingMediaId?: string;
   startPlan?: CameraMotionPlanV1;
@@ -48,24 +56,70 @@ export function journeysReadyToAutoShoot(project: Project): JourneyShot[] {
   });
 }
 
-/** Switch generator. Unshot legs preview that model's clip length; rendered takes keep theirs until a new take. */
-export function projectWithVideoModel(project: Project, videoModel: VideoModelId): Project {
-  if (project.videoModel === videoModel) {
-    return project;
-  }
-  const durationSeconds = videoModelDurationSeconds(videoModel);
-  return {
-    ...project,
-    videoModel,
-    journeys: project.journeys.map((journey) =>
-      journeyTakes(journey).length > 0
-        ? journey
-        : { ...journey, durationSeconds },
-    ),
-  };
+/** Filmmaker NEW TAKE ALL: every staged segment, including those that already have Takes. */
+export function journeysReadyToTakeAll(project: Project): JourneyShot[] {
+  return project.journeys.filter((journey) => canShootJourney(project, journey));
 }
 
-export function shootRequestFromProject(project: Project, journeyId: string): ShootJourneyRequest {
+function withUnshotDurations(project: Project, durationSeconds: number): Project["journeys"] {
+  return project.journeys.map((journey) =>
+    journeyTakes(journey).length > 0 ? journey : { ...journey, durationSeconds },
+  );
+}
+
+/** Switch the Fast mapping. Unshot legs preview the default Take intent's clip length. */
+export function projectWithVideoModel(project: Project, videoModel: VideoModelId): Project {
+  return projectWithVideoModelForIntent(project, "fast", videoModel);
+}
+
+export function projectWithVideoModelForIntent(
+  project: Project,
+  intent: GenerationIntent,
+  videoModel: VideoModelId,
+): Project {
+  const mapped = videoModelsByIntentFromProject(project);
+  const alreadyMapped =
+    mapped[intent] === videoModel &&
+    (intent !== "fast" || project.videoModel === videoModel) &&
+    project.videoModelsByIntent?.fast === mapped.fast &&
+    project.videoModelsByIntent?.balanced === mapped.balanced &&
+    project.videoModelsByIntent?.quality === mapped.quality;
+  if (alreadyMapped) {
+    return project;
+  }
+  const videoModelsByIntent = { ...mapped, [intent]: videoModel };
+  const nextVideoModel = intent === "fast" ? videoModel : project.videoModel;
+  const next: Project = {
+    ...project,
+    videoModel: nextVideoModel,
+    videoModelsByIntent,
+  };
+  const prevDuration = videoModelDurationSeconds(unshotVideoModel(project));
+  const nextDuration = videoModelDurationSeconds(unshotVideoModel(next));
+  if (prevDuration === nextDuration) {
+    return next;
+  }
+  return { ...next, journeys: withUnshotDurations(next, nextDuration) };
+}
+
+export function projectWithDefaultTakeIntent(project: Project, intent: GenerationIntent): Project {
+  if (defaultTakeIntentFromProject(project) === intent && project.defaultTakeIntent === intent) {
+    return project;
+  }
+  const next: Project = { ...project, defaultTakeIntent: intent };
+  const prevDuration = videoModelDurationSeconds(unshotVideoModel(project));
+  const nextDuration = videoModelDurationSeconds(unshotVideoModel(next));
+  if (prevDuration === nextDuration) {
+    return next;
+  }
+  return { ...next, journeys: withUnshotDurations(next, nextDuration) };
+}
+
+export function shootRequestFromProject(
+  project: Project,
+  journeyId: string,
+  intent: GenerationIntent = defaultTakeIntentFromProject(project),
+): ShootJourneyRequest {
   const journey = project.journeys.find((item) => item.id === journeyId);
   if (!journey) {
     throw new Error("Unknown journey");
@@ -87,7 +141,8 @@ export function shootRequestFromProject(project: Project, journeyId: string): Sh
     endMediaId: end.mediaId,
     segmentPromptAddition: journey.motionPlan.segmentPromptAddition,
     pace: journey.motionPlan.pace,
-    videoModel: project.videoModel,
+    videoModel: videoModelForIntent(project, intent),
+    generationIntent: intent,
     startShootingMediaId: journey.motionPlan.startShootingFrame.mediaId,
     endShootingMediaId: journey.motionPlan.endShootingFrame.mediaId,
     startPlan: journey.motionPlan.startPlan,
@@ -108,6 +163,10 @@ export function projectWithJourneyShooting(project: Project, journeyId: string):
         : journey,
     ),
   };
+}
+
+export function projectWithJourneysShooting(project: Project, journeyIds: readonly string[]): Project {
+  return journeyIds.reduce((next, journeyId) => projectWithJourneyShooting(next, journeyId), project);
 }
 
 export function projectWithJourneyShotTake(

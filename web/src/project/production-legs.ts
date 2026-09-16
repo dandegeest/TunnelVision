@@ -1,6 +1,8 @@
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type { Destination, JourneyShot, Project, StoryboardFrame } from "./types";
 import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
+import { unshotVideoModel } from "./generation-intent";
+import { journeyTakes } from "./takes";
 
 export type ProductionEndpoint = StoryboardFrame & { image: string; mediaId: string };
 
@@ -96,6 +98,35 @@ function motionPlanCanonicalsChanged(journey: JourneyShot | undefined, pair: Pro
   );
 }
 
+function journeyWithPreservedTakes(
+  existing: JourneyShot,
+  startDestinationId: string,
+  endDestinationId: string | null,
+  unshotDurationSeconds: number,
+): JourneyShot {
+  const takes = journeyTakes(existing);
+  const hasTakes = takes.length > 0;
+  const selected = hasTakes ? existing.take ?? takes[takes.length - 1] : undefined;
+  return {
+    ...existing,
+    id: endDestinationId ? `${startDestinationId}-${endDestinationId}` : startDestinationId,
+    startDestinationId,
+    endDestinationId,
+    cinematographer: undefined,
+    cinematographerStartMediaId: undefined,
+    cinematographerEndMediaId: undefined,
+    motionPlan: undefined,
+    motionPlanError: undefined,
+    shootError: undefined,
+    take: selected,
+    takes: hasTakes ? existing.takes ?? takes : undefined,
+    selectedTakeId: hasTakes ? existing.selectedTakeId ?? selected?.id : undefined,
+    videoUrl: hasTakes ? existing.videoUrl ?? selected?.videoUrl : undefined,
+    status: existing.status === "shooting" ? "shooting" : hasTakes ? "rendered" : "ready",
+    durationSeconds: hasTakes ? existing.durationSeconds : unshotDurationSeconds,
+  };
+}
+
 function upsertJourney(
   existing: JourneyShot | undefined,
   pair: ProductionPair,
@@ -112,6 +143,9 @@ function upsertJourney(
       endDestinationId,
     };
   }
+  if (existing && stale) {
+    return journeyWithPreservedTakes(existing, startDestinationId, endDestinationId, durationSeconds);
+  }
   return freshProductionJourney(
     startDestinationId,
     endDestinationId,
@@ -124,7 +158,8 @@ function upsertJourney(
  * Merge into existing destinations/journeys. Do not wipe fixture extras.
  * A-only still records destination A so Shoot can show the opening still.
  * Unresolved-next remains a valid project with no directed legs.
- * Changing either canonical still returns that leg to not prepared and not shot.
+ * Changing either canonical still invalidates that leg's Motion Plan.
+ * Existing Takes stay; they remain stamped to the previous canonical pair.
  */
 export function projectWithSyncedProductionLegs(project: Project): Project {
   const pairs = consecutiveProductionPairs(project);
@@ -179,7 +214,7 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     }
   }
 
-  const defaultDuration = videoModelDurationSeconds(project.videoModel);
+  const defaultDuration = videoModelDurationSeconds(unshotVideoModel(project));
   const nextDestinationsById = new Map(destinations.map((destination) => [destination.id, destination]));
   const pairIds: string[] = [];
   const journeys: JourneyShot[] = pairs.map((pair) => {
@@ -200,7 +235,8 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     }
     if (journeyCanonicalsChanged(journey, destinationsById, nextDestinationsById)) {
       journeys.push(
-        freshProductionJourney(
+        journeyWithPreservedTakes(
+          journey,
           journey.startDestinationId,
           journey.endDestinationId,
           journey.durationSeconds,

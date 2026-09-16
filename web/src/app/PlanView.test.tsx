@@ -1132,7 +1132,7 @@ describe("Plan destination details", () => {
     expect(html).toContain('aria-label="Inspector - Destination"');
     expect(html).toContain('aria-label="Reshoot destination B"');
     expect(html).toContain(">Reshoot<");
-    expect(html.indexOf(">Prompt<")).toBeLessThan(html.indexOf('aria-label="Reshoot destination B"'));
+    expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(html.indexOf(">Prompt<"));
   });
 
   it("marks a generated still when the plan changes before reshoot", () => {

@@ -5,6 +5,7 @@ import type {
   ImageResolution,
 } from "../../../media/src/replicate/image-models.ts";
 import type { VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import type { GenerationIntent, VideoModelsByIntent } from "./generation-intent";
 
 export type { ImageModelId, ImageOutputFormat, ImageResolution, LocomotionPace, VideoModelId };
 export type Agency = "directed" | "autonomous";
@@ -145,7 +146,7 @@ export type SegmentMotionPlan = {
 
 /**
  * One generated traversal of a JourneyShot. Segments keep 0..N Takes;
- * one is selected for FOOTAGE, preview, playback, and export.
+ * one is selected for preview, playback, and download.
  * Session/in-memory; provider URLs are allowed until Node persistence exists.
  * A′/B′ on the take are the shooting frames that were sent to video.
  * Compatibility is the stamped canonical media pair, not the segment letter
@@ -180,6 +181,11 @@ export type JourneyShotTake = {
   provider: string;
   model: string;
   modelVersion: string | null;
+  /**
+   * Generation intent used to produce this Take (Fast / Balanced / Quality).
+   * Not a rating of the resulting footage. Absent on legacy Takes.
+   */
+  generationIntent?: GenerationIntent;
   durationSeconds: number;
   seed?: number;
   providerOutputUrl?: string;
@@ -291,11 +297,11 @@ export type JourneyShot = {
    * load as Take 1 via journeyTakes().
    */
   takes?: JourneyShotTake[];
-  /** Which take FOOTAGE / preview / export use. Defaults to the newest. */
+  /** Which take preview / playback / download use. Defaults to the newest. */
   selectedTakeId?: string;
   /**
    * Mirror of the selected take for older readers. Prefer journeyTakes() /
-   * selectedTake(). Absent until FOOTAGE NEW TAKE completes, except legacy
+   * selectedTake(). Absent until NEW TAKE completes, except legacy
    * videoUrl-only fixtures. `videoUrl` on the journey is the selected clip.
    */
   take?: JourneyShotTake;
@@ -322,10 +328,21 @@ export type Project = {
   /** When true, DIRECT then shoots blocked journeys, including those with CM warnings. */
   autoShoot: boolean;
   /**
-   * Video generator for every SHOOT in this project.
-   * Pruna is the development default; mid-tier and Seedance 2.5 are opt-in.
+   * Fast generation-intent mapping. Prefer `videoModelsByIntent`.
+   * Unshot duration preview and Agent NEW TAKE follow `defaultTakeIntent`.
    */
   videoModel: VideoModelId;
+  /**
+   * Fast / Balanced / Quality → catalog video model. Provider-neutral so a
+   * later router can fulfill intents without renaming the filmmaking controls.
+   */
+  videoModelsByIntent?: VideoModelsByIntent;
+  /**
+   * CREATE JOURNEY / Agent NEW TAKE uses this intent's mapping.
+   * Filmmaker NEW TAKE can still pick Fast / Balanced / Quality per Take.
+   * Fast is the development default.
+   */
+  defaultTakeIntent?: GenerationIntent;
   /**
    * Still generator for opening A and later B…N. Nano Banana 2 Lite is
    * the development default; the same model text-to-images A and

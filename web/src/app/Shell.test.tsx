@@ -127,16 +127,27 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Image model"');
     expect(html).toContain('aria-label="Image format"');
     expect(html).not.toContain('aria-label="Image resolution"');
-    expect(html).toContain('aria-label="Video model"');
+    expect(html).toContain('aria-label="Default take intent"');
+    expect(html).toContain('aria-label="Default take intent Fast"');
+    expect(html).toContain('aria-label="Default take intent Balanced"');
+    expect(html).toContain('aria-label="Default take intent Quality"');
+    expect(html).toMatch(/aria-pressed="true"[^>]*aria-label="Default take intent Fast"|aria-label="Default take intent Fast"[^>]*aria-pressed="true"/);
+    expect(html).toContain('aria-label="Fast video model"');
+    expect(html).toContain('aria-label="Balanced video model"');
+    expect(html).toContain('aria-label="Quality video model"');
     expect(html).toContain('aria-label="Debug mode"');
-    expect(html.indexOf('aria-label="Video model"')).toBeLessThan(
+    expect(html.indexOf('aria-label="Default take intent"')).toBeLessThan(
+      html.indexOf('aria-label="Fast video model"'),
+    );
+    expect(html.indexOf('aria-label="Fast video model"')).toBeLessThan(
       html.indexOf('aria-label="Back to project"'),
     );
     expect(html).toContain("items-center justify-end px-3 pb-3");
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Debug mode"|aria-label="Debug mode"[^>]*checked/,
     );
-    expect(html).toContain("Pruna $");
+    expect(html).toContain("Pruna");
+    expect(html).not.toContain("Pruna $");
     expect(html).not.toContain('id="project-story"');
     expect(html).not.toContain(">Options<");
     expect(html).not.toContain('aria-label="Create journey"');
@@ -175,6 +186,12 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Agency"');
     expect(html).not.toContain("You are supervising");
     expect(html).not.toContain("Live production monitor");
+    expect(html).toContain('aria-label="Download"');
+    expect(html).toContain(">DOWNLOAD<");
+    expect(html).toContain('aria-label="Play current cut"');
+    expect(html).toContain('aria-label="New take all"');
+    expect(html).not.toContain("Export Movie");
+    expect(html).not.toContain("Exported the rendered journey clips");
   });
 
   it("opens the storyboard reel on Plan and Shoot", () => {
