@@ -13,6 +13,7 @@ export function isSeedance25(model: string): boolean {
 }
 
 export type ReplicateVideoKnobs = {
+  readonly generateAudio?: boolean;
   readonly pVideo?: PVideoSettings;
   readonly seedance?: Seedance25Settings;
   readonly klingV3?: KlingV3Settings;
@@ -25,11 +26,12 @@ export function toReplicateVideoInput(
   resolvedEnd: ResolvedMedia | undefined,
   knobs: ReplicateVideoKnobs = {},
 ): Record<string, unknown> {
+  const generateAudio = knobs.generateAudio === true;
   if (isPVideoModel(model)) {
-    return toPVideoInput(request, resolvedStart, resolvedEnd, knobs.pVideo) as unknown as Record<
-      string,
-      unknown
-    >;
+    return toPVideoInput(request, resolvedStart, resolvedEnd, {
+      ...knobs.pVideo,
+      saveAudio: knobs.pVideo?.saveAudio ?? generateAudio,
+    }) as unknown as Record<string, unknown>;
   }
   if (isKling25TurboPro(model)) {
     return toKling25TurboProInput(request, resolvedStart, resolvedEnd) as unknown as Record<
@@ -38,30 +40,30 @@ export function toReplicateVideoInput(
     >;
   }
   if (isKlingV3Video(model)) {
-    return toKlingV3VideoInput(request, resolvedStart, resolvedEnd, knobs.klingV3) as unknown as Record<
-      string,
-      unknown
-    >;
+    return toKlingV3VideoInput(request, resolvedStart, resolvedEnd, {
+      ...knobs.klingV3,
+      generateAudio: knobs.klingV3?.generateAudio ?? generateAudio,
+    }) as unknown as Record<string, unknown>;
   }
   if (isVeo31Fast(model)) {
-    return toVeo31FastInput(request, resolvedStart, resolvedEnd) as unknown as Record<
+    return toVeo31FastInput(request, resolvedStart, resolvedEnd, { generateAudio }) as unknown as Record<
       string,
       unknown
     >;
   }
   if (isSeedance20Fast(model)) {
     return toSeedance20FastInput(request, resolvedStart, resolvedEnd, {
-      generateAudio: knobs.seedance?.generateAudio,
+      generateAudio: knobs.seedance?.generateAudio ?? generateAudio,
       resolution: knobs.seedance?.resolution === "1080p" ? "720p" : knobs.seedance?.resolution,
       aspectRatio: knobs.seedance?.aspectRatio,
       seed: knobs.seedance?.seed,
     }) as unknown as Record<string, unknown>;
   }
   if (isSeedance25(model)) {
-    return toSeedance25Input(request, resolvedStart, resolvedEnd, knobs.seedance) as unknown as Record<
-      string,
-      unknown
-    >;
+    return toSeedance25Input(request, resolvedStart, resolvedEnd, {
+      ...knobs.seedance,
+      generateAudio: knobs.seedance?.generateAudio ?? generateAudio,
+    }) as unknown as Record<string, unknown>;
   }
   throw new MediaGenerationError("invalid_input", `Unsupported video model ${model}`);
 }

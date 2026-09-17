@@ -37,6 +37,8 @@ export type VideoModelOption = {
   readonly cost: VideoModelCost;
   /** Clip length this generator produces for a product SHOOT. */
   readonly durationSeconds: number;
+  /** When true, GENERATE AUDIO maps onto this model's audio input. */
+  readonly supportsAudio?: boolean;
 };
 
 export const DEFAULT_VIDEO_MODEL_ID: VideoModelId = "pruna-p-video";
@@ -49,6 +51,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     tier: "dev",
     cost: "$",
     durationSeconds: 6,
+    supportsAudio: true,
   },
   {
     id: "kling-v2.5-turbo-pro",
@@ -65,6 +68,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     tier: "hq",
     cost: "$$$",
     durationSeconds: 6,
+    supportsAudio: true,
   },
   {
     id: "veo-3.1-fast",
@@ -73,6 +77,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     tier: "hq",
     cost: "$$$",
     durationSeconds: 6,
+    supportsAudio: true,
   },
   {
     id: "seedance-2.0-fast",
@@ -81,6 +86,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     tier: "mid",
     cost: "$$",
     durationSeconds: 6,
+    supportsAudio: true,
   },
   {
     id: "seedance-2.5",
@@ -89,6 +95,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     tier: "hq",
     cost: "$$$",
     durationSeconds: 6,
+    supportsAudio: true,
   },
 ];
 
@@ -110,6 +117,10 @@ export function videoModelSlug(id: VideoModelId): string {
 
 export function videoModelDurationSeconds(id: VideoModelId): number {
   return videoModelOption(id).durationSeconds;
+}
+
+export function videoModelSupportsAudio(id: VideoModelId): boolean {
+  return videoModelOption(id).supportsAudio === true;
 }
 
 export function isKlingV3Mode(value: unknown): value is KlingV3Mode {

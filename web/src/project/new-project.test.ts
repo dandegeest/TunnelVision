@@ -20,6 +20,7 @@ describe("new product project", () => {
     expect(project.autoGenerateAllDestinations).toBe(false);
     expect(project.autoBlockShots).toBe(false);
     expect(project.autoShoot).toBe(false);
+    expect(project.generateAudio).toBe(false);
     expect(project.videoModel).toBe("pruna-p-video");
     expect(project.defaultTakeIntent).toBe("fast");
     expect(project.videoModelsByIntent).toEqual({

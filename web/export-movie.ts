@@ -11,6 +11,12 @@ export type ClipSize = {
   height: number;
 };
 
+type ProbedClip = {
+  size: ClipSize;
+  hasAudio: boolean;
+  durationSeconds: number;
+};
+
 export type ConcatenateClipsInput = {
   clipPaths: string[];
   outputPath: string;
@@ -22,29 +28,36 @@ export type ConcatenateClipsResult = {
   outputPath: string;
 };
 
-async function probeVideoSize(
+async function probeClip(
   path: string,
   exec: typeof execFileAsync,
-): Promise<ClipSize | null> {
+): Promise<ProbedClip | null> {
   try {
     const { stdout } = await exec("ffprobe", [
       "-v",
       "error",
-      "-select_streams",
-      "v:0",
       "-show_entries",
-      "stream=width,height",
+      "stream=codec_type,width,height:format=duration",
       "-of",
-      "csv=p=0",
+      "json",
       path,
     ]);
-    const [widthText, heightText] = stdout.trim().split(",");
-    const width = Number(widthText);
-    const height = Number(heightText);
+    const parsed = JSON.parse(stdout) as {
+      streams?: Array<{ codec_type?: string; width?: number; height?: number }>;
+      format?: { duration?: string };
+    };
+    const video = parsed.streams?.find((stream) => stream.codec_type === "video");
+    const width = Number(video?.width);
+    const height = Number(video?.height);
     if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1) {
       return null;
     }
-    return { width, height };
+    const durationSeconds = Number(parsed.format?.duration);
+    return {
+      size: { width, height },
+      hasAudio: parsed.streams?.some((stream) => stream.codec_type === "audio") === true,
+      durationSeconds: Number.isFinite(durationSeconds) && durationSeconds > 0 ? durationSeconds : 0,
+    };
   } catch {
     return null;
   }
@@ -87,7 +100,6 @@ async function concatCopy(
     listPath,
     "-c",
     "copy",
-    "-an",
     "-movflags",
     "+faststart",
     outputPath,
@@ -96,19 +108,35 @@ async function concatCopy(
 
 async function concatTranscode(
   clipPaths: string[],
-  sizes: ClipSize[],
+  clips: readonly ProbedClip[],
   outputPath: string,
   exec: typeof execFileAsync,
 ): Promise<void> {
-  const target = mostCommonSize(sizes);
+  const target = mostCommonSize(clips.map((clip) => clip.size));
+  const keepAudio = clips.some((clip) => clip.hasAudio);
   const labels = clipPaths.map((_, index) => `v${index}`);
   const scaled = clipPaths
     .map((_, index) => {
       return `[${index}:v]scale=${target.width}:${target.height}:force_original_aspect_ratio=decrease,pad=${target.width}:${target.height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps=24,format=yuv420p[${labels[index]}]`;
     })
     .join(";");
-  const concatInputs = labels.map((label) => `[${label}]`).join("");
-  const filter = `${scaled};${concatInputs}concat=n=${clipPaths.length}:v=1:a=0[v]`;
+  const audio = keepAudio
+    ? clipPaths
+        .map((_, index) => {
+          if (clips[index]?.hasAudio) {
+            return `[${index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,aresample=48000[a${index}]`;
+          }
+          const duration = Math.max(clips[index]?.durationSeconds ?? 0, 0.1).toFixed(3);
+          return `anullsrc=channel_layout=stereo:sample_rate=48000:d=${duration}[a${index}]`;
+        })
+        .join(";")
+    : "";
+  const concatInputs = keepAudio
+    ? labels.map((label, index) => `[${label}][a${index}]`).join("")
+    : labels.map((label) => `[${label}]`).join("");
+  const filter = keepAudio
+    ? `${scaled};${audio};${concatInputs}concat=n=${clipPaths.length}:v=1:a=1[v][a]`
+    : `${scaled};${concatInputs}concat=n=${clipPaths.length}:v=1:a=0[v]`;
   await exec("ffmpeg", [
     "-y",
     ...clipPaths.flatMap((path) => ["-i", path]),
@@ -116,7 +144,7 @@ async function concatTranscode(
     filter,
     "-map",
     "[v]",
-    "-an",
+    ...(keepAudio ? ["-map", "[a]", "-c:a", "aac"] : ["-an"]),
     "-c:v",
     "libx264",
     "-pix_fmt",
@@ -132,16 +160,16 @@ export async function concatenateClipFiles(input: ConcatenateClipsInput): Promis
     throw new Error("Export Movie needs at least one rendered journey clip.");
   }
   const exec = input.execFileImpl ?? execFileAsync;
-  const sizes: ClipSize[] = [];
+  const clips: ProbedClip[] = [];
   for (const path of input.clipPaths) {
-    const size = await probeVideoSize(path, exec);
-    if (!size) {
+    const clip = await probeClip(path, exec);
+    if (!clip) {
       throw new Error(`Could not probe video size for ${path}`);
     }
-    sizes.push(size);
+    clips.push(clip);
   }
-  const sameSize = sizes.every(
-    (size) => size.width === sizes[0]!.width && size.height === sizes[0]!.height,
+  const sameSize = clips.every(
+    (clip) => clip.size.width === clips[0]!.size.width && clip.size.height === clips[0]!.size.height,
   );
   try {
     if (sameSize) {
@@ -151,7 +179,7 @@ export async function concatenateClipFiles(input: ConcatenateClipsInput): Promis
   } catch {
     // Mixed codecs or concat-demuxer failure: fall through to a narrow transcode.
   }
-  await concatTranscode(input.clipPaths, sizes, input.outputPath, exec);
+  await concatTranscode(input.clipPaths, clips, input.outputPath, exec);
   return { method: "transcode", outputPath: input.outputPath };
 }
 

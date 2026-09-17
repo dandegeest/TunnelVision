@@ -23,6 +23,10 @@ export function veo31FastDuration(seconds?: number): Veo31FastDuration {
   return 6;
 }
 
+export type Veo31FastSettings = {
+  readonly generateAudio?: boolean;
+};
+
 export type Veo31FastInput = {
   readonly prompt: string;
   readonly image: string | Buffer;
@@ -30,7 +34,7 @@ export type Veo31FastInput = {
   readonly duration: Veo31FastDuration;
   readonly resolution: Veo31FastResolution;
   readonly aspect_ratio: Veo31FastAspectRatio;
-  readonly generate_audio: false;
+  readonly generate_audio: boolean;
   readonly seed?: number;
 };
 
@@ -38,6 +42,7 @@ export function toVeo31FastInput(
   request: VideoGenerationRequest,
   resolvedStart: ResolvedMedia,
   resolvedEnd?: ResolvedMedia,
+  settings?: Veo31FastSettings,
 ): Veo31FastInput {
   if (!request.prompt.trim()) {
     throw new MediaGenerationError("invalid_input", "prompt is required");
@@ -49,7 +54,7 @@ export function toVeo31FastInput(
     duration: veo31FastDuration(request.durationSeconds),
     resolution: "1080p",
     aspect_ratio: "16:9",
-    generate_audio: false,
+    generate_audio: settings?.generateAudio === true,
     ...(request.seed !== undefined ? { seed: request.seed } : {}),
   };
 }

@@ -283,6 +283,13 @@ export function projectWithAutoShoot(project: Project, enabled: boolean): Projec
   return { ...project, autoShoot: enabled };
 }
 
+export function projectWithGenerateAudio(project: Project, enabled: boolean): Project {
+  if (project.generateAudio === enabled) {
+    return project;
+  }
+  return { ...project, generateAudio: enabled };
+}
+
 /** Updates Director plan fields on a beat. Does not invoke the Director or regenerate media. */
 export function projectWithStoryboardBeatPlan(
   project: Project,

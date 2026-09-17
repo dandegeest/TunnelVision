@@ -100,7 +100,7 @@ test("provider p-video path forwards B′ as last_frame_image", async () => {
   assert.equal(isPVideoModel(P_VIDEO_MODEL), true);
   assert.equal(captured?.image, "https://example.com/a-prime.png");
   assert.equal(captured?.last_frame_image, "https://example.com/b-prime.png");
-  assert.equal(captured?.draft, true);
+  assert.equal(captured?.draft, false);
   assert.equal(captured?.prompt_upsampling, false);
   assert.equal(captured?.duration, 6);
   assert.equal(captured?.resolution, "720p");

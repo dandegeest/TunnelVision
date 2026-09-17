@@ -103,6 +103,8 @@ describe("Shell header chrome", () => {
     expect(project).toContain(">Options<");
     expect(project).not.toContain("Generate start destination");
     expect(project).toContain("Generate all destinations");
+    expect(project).toContain("Shoot all segments");
+    expect(project).toContain("Generate audio");
     expect(project).not.toContain("Auto generate");
     expect(project).not.toContain("Auto blocking");
     expect(project).not.toContain("Auto shoot");
@@ -183,11 +185,14 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain("<select");
   });
 
-  it("hides Options in Agent and keeps Create journey", () => {
+  it("keeps Generate audio in Agent and hides Directed-only Options", () => {
     const html = renderShell({ agency: "autonomous" });
     const project = html.slice(html.indexOf('id="project-panel"'));
     expect(project).toContain(">Agent<");
-    expect(project).not.toContain(">Options<");
+    expect(project).toContain(">Options<");
+    expect(project).toContain("Generate audio");
+    expect(project).not.toContain("Generate all destinations");
+    expect(project).not.toContain("Shoot all segments");
     expect(project).not.toContain("Generate start destination");
     expect(project).toContain('aria-label="Create journey"');
     expect(project).not.toContain('aria-label="Stop agent"');

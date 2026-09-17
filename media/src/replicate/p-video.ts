@@ -27,7 +27,7 @@ export type PVideoSettings = {
 export const DEFAULT_P_VIDEO_SETTINGS = {
   resolution: "720p",
   fps: 24,
-  draft: true,
+  draft: false,
   promptUpsampling: false,
   saveAudio: false,
 } as const satisfies Required<Omit<PVideoSettings, "seed">>;

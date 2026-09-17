@@ -130,8 +130,9 @@ in flight, **Stop** sits under CREATE JOURNEY and aborts the loop at
 the next step; destinations and Takes already made stay, and the run
 is STOPPED rather than FAILED. In-flight NEW TAKE calls finish so
 those clips are not discarded. Stop does not change the repair loop.
-Directed Options (generate all, shoot) remain Directed-only click
-automation, not Agent. LOOP (append exact opening A as the final
+Directed Options (generate all destinations, shoot all segments) remain Directed-only click
+automation, not Agent. Generate audio is a Project option in both
+modes and is passed to audio-capable video models on NEW TAKE. LOOP (append exact opening A as the final
 canonical so the last segment is N→A) is backlog, not current
 JourneyAgent. It is an explicit Agent/project option, not inferred
 from the Journey Prompt. See
@@ -144,8 +145,8 @@ a universal concurrency cap; the adapter / Runway queue decides.
 See
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 Conversation is turn history; the Project panel
-holds the JOURNEY PROMPT, destination count, Directed Options
-(generate all destinations, shoot), and CREATE JOURNEY.
+holds the JOURNEY PROMPT, destination count, Options
+(generate all destinations and shoot all segments in Directed; generate audio in both modes), and CREATE JOURNEY.
 Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is
@@ -262,7 +263,9 @@ to Camotion `exposure.strength`. Adaptive Camotion then scales that
 exposure per pixel by depth, destination protection, and vanishing-point
 protection. DOWNLOAD
 assembles the current cut — the selected Take of every required segment,
-in storyboard order — and will not silently emit a partial movie.
+in storyboard order — and will not silently emit a partial movie. The
+assembled file is cached until the selected-Take fingerprint changes.
+Concat keeps audio when those Takes have it.
 Current-cut playback sequences those same Takes in the preview without
 rendering a new file, and prebuffers the next Take so the boundary is
 not a cold load. Selecting MOTION, a Take, or a destination moves the

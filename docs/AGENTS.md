@@ -118,6 +118,8 @@ Motion Planning is automatic whenever an actual adjacent canonical pair
 exists, using the same Cinematographer and Camotion path. Auto blocking
 during CREATE JOURNEY is that same operation. Auto shoot then generates
 each staged leg, including those with CM hold or no-go warnings.
+Generate audio is available in Directed and Agent and is passed to
+audio-capable video models on NEW TAKE.
 AGENT CREATE JOURNEY is not those Directed Options. It runs
 JourneyAgent, which reuses the same opening / Director / construct /
 Motion Plan / NEW TAKE / Export Movie operations and always executes
@@ -293,7 +295,8 @@ Plan exists. Selecting MOTION, a Take, or a destination moves the
 playhead to that item's place on the cut. A selected Take shows the
 clip. The footer plays the current cut
 (selected Takes in storyboard order); the next clip is prebuffered so
-the boundary does not wait on a cold load. DOWNLOAD assembles that same cut.
+the boundary does not wait on a cold load. DOWNLOAD assembles that same cut from the timeline selection and
+rebuilds when selected Takes change. Concat keeps audio when Takes have it.
 When a destination is selected, the preview can toggle
 that occurrence's canonical still against stored Camotion A′/B′ from the
 inbound/outbound Motion Plans, draw the

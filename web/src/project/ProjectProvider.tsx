@@ -54,15 +54,11 @@ import {
   projectWithSelectedTake,
 } from "./takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
-import {
-  canDownloadCurrentCut,
-  currentCutClips,
-  currentCutFingerprint,
-} from "./current-cut";
+import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from "./current-cut";
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
-import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import {
   requestConstructDestination,
   projectWithConstructedDestination,
@@ -172,6 +168,7 @@ type ProjectContextValue = {
   setAutoGenerateAllDestinations: (enabled: boolean) => void;
   setAutoBlockShots: (enabled: boolean) => void;
   setAutoShoot: (enabled: boolean) => void;
+  setGenerateAudio: (enabled: boolean) => void;
   conversation: ConversationEntry[];
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
@@ -463,6 +460,10 @@ export function ProjectProvider({
 
   const setAutoShoot = useCallback((enabled: boolean) => {
     setProject((current) => projectWithAutoShoot(current, enabled));
+  }, []);
+
+  const setGenerateAudio = useCallback((enabled: boolean) => {
+    setProject((current) => projectWithGenerateAudio(current, enabled));
   }, []);
 
   const replaceDestinationImage = useCallback(async (
@@ -1828,6 +1829,7 @@ export function ProjectProvider({
       setAutoGenerateAllDestinations,
       setAutoBlockShots,
       setAutoShoot,
+      setGenerateAudio,
       conversation,
       selectedJourney,
       directorStatus,
@@ -1912,6 +1914,7 @@ export function ProjectProvider({
       setAutoGenerateAllDestinations,
       setAutoBlockShots,
       setAutoShoot,
+      setGenerateAudio,
       conversation,
       selectedJourney,
       directorStatus,

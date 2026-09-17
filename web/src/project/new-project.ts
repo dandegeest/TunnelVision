@@ -23,6 +23,7 @@ export function createNewProject(): Project {
     autoGenerateAllDestinations: false,
     autoBlockShots: false,
     autoShoot: false,
+    generateAudio: false,
     videoModel: DEFAULT_VIDEO_MODEL_ID,
     videoModelsByIntent: defaultVideoModelsByIntent(),
     defaultTakeIntent: DEFAULT_GENERATION_INTENT,

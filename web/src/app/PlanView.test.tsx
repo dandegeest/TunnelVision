@@ -1695,12 +1695,16 @@ describe("new-project Plan", () => {
       "After PLAN JOURNEY plans the journey, generate each remaining destination in order.",
     );
     expect(html).not.toContain('aria-label="Auto blocking"');
-    expect(html).toContain('aria-label="Shoot"');
+    expect(html).toContain('aria-label="Shoot all segments"');
+    expect(html).toContain('aria-label="Generate audio"');
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Generate all destinations"|aria-label="Generate all destinations"[^>]*checked/,
     );
     expect(html).not.toMatch(
-      /checked[^>]*aria-label="Shoot"|aria-label="Shoot"[^>]*checked/,
+      /checked[^>]*aria-label="Shoot all segments"|aria-label="Shoot all segments"[^>]*checked/,
+    );
+    expect(html).not.toMatch(
+      /checked[^>]*aria-label="Generate audio"|aria-label="Generate audio"[^>]*checked/,
     );
     expect(html).not.toMatch(/<button type="button" aria-label="Plan journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");

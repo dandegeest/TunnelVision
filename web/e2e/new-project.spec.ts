@@ -342,15 +342,20 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Add Destination")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeDisabled();
   await expect(page.getByLabel("Auto blocking")).toHaveCount(0);
-  await expect(page.getByRole("checkbox", { name: "Shoot" })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Shoot all segments" })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Generate audio" })).not.toBeChecked();
   await expect(page.getByLabel("Image model")).toHaveCount(0);
   await expect(page.getByLabel("Video model")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Agent" }).click();
   await expect(page.getByLabel("Generate all destinations")).toHaveCount(0);
+  await expect(page.getByLabel("Shoot all segments")).toHaveCount(0);
+  await expect(page.getByLabel("Generate audio")).toBeVisible();
   await expect(page.getByLabel("Create journey")).toBeVisible();
   await page.getByRole("button", { name: "Directed" }).click();
   await expect(page.getByLabel("Generate all destinations")).toBeVisible();
+  await expect(page.getByLabel("Shoot all segments")).toBeVisible();
+  await expect(page.getByLabel("Generate audio")).toBeVisible();
   await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
 
   await page.getByLabel("Journey story").fill("Travel forward through an imagined interior at night.");
@@ -361,7 +366,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Increase destinations")).toBeEnabled();
   await expect(page.getByLabel("Decrease destinations")).toBeDisabled();
   await expect(page.getByLabel("Generate all destinations")).not.toBeChecked();
-  await expect(page.getByRole("checkbox", { name: "Shoot" })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Shoot all segments" })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Generate audio" })).not.toBeChecked();
   await expect(page.getByLabel("Plan journey")).toBeEnabled();
 
   await page.getByLabel("Increase destinations").click();
@@ -607,6 +613,7 @@ test("project image and video model selectors default to Nano Banana 2 and Pruna
   await expect(page.getByLabel("Debug mode")).toBeChecked();
   await expect(page.getByLabel("Plan journey")).toHaveCount(0);
   await expect(page.getByLabel("Create journey")).toHaveCount(0);
+  await expect(page.getByLabel("Generate audio")).toHaveCount(0);
   const image = page.getByLabel("Image model");
   await expect(image).toHaveAttribute("data-value", "nano-banana-2");
   const format = page.getByLabel("Image format");

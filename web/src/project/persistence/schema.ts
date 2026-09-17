@@ -24,6 +24,7 @@ export type ProjectSettingsSnapshot = {
   autoGenerateAllDestinations: boolean;
   autoBlockShots: boolean;
   autoShoot: boolean;
+  generateAudio?: boolean;
   storyDuration: StoryDuration;
   storyDurationLocked: boolean;
 };

@@ -29,6 +29,7 @@ export type ShootJourneyRequest = {
   videoModel: VideoModelId;
   generationIntent?: GenerationIntent;
   klingV3Mode?: KlingV3Mode;
+  generateAudio?: boolean;
   startShootingMediaId?: string;
   endShootingMediaId?: string;
   startPlan?: CameraMotionPlanV1;
@@ -164,6 +165,7 @@ export function shootRequestFromProject(
     ...(videoModelForIntent(project, intent) === "kling-v3-video"
       ? { klingV3Mode: resolveKlingV3Mode(project.klingV3Mode) }
       : {}),
+    generateAudio: project.generateAudio === true,
     startShootingMediaId: journey.motionPlan.startShootingFrame.mediaId,
     endShootingMediaId: journey.motionPlan.endShootingFrame.mediaId,
     startPlan: journey.motionPlan.startPlan,

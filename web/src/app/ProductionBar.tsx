@@ -124,7 +124,7 @@ export function ProductionBar() {
           type="button"
           className={`rounded border border-[#3a342c] px-3 py-1 ${canDownload ? "text-[#ece7df]" : "opacity-50"}`}
           disabled={!canDownload}
-          title={downloadReason || exportMovieError || "Download the current cut."}
+          title={downloadReason || exportMovieError || "Assemble and download the selected Takes."}
           aria-label="Download"
           onClick={() => {
             void downloadCurrentCut();

@@ -94,6 +94,7 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     autoGenerateAllDestinations: project.autoGenerateAllDestinations,
     autoBlockShots: project.autoBlockShots,
     autoShoot: project.autoShoot,
+    generateAudio: project.generateAudio,
     storyDuration: project.storyDuration,
     storyDurationLocked: project.storyDurationLocked,
   };
@@ -552,6 +553,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     autoGenerateAllDestinations: settings.autoGenerateAllDestinations,
     autoBlockShots: settings.autoBlockShots,
     autoShoot: settings.autoShoot,
+    generateAudio: settings.generateAudio === true,
     videoModel: settings.videoModel,
     videoModelsByIntent: settings.videoModelsByIntent,
     defaultTakeIntent: settings.defaultTakeIntent,

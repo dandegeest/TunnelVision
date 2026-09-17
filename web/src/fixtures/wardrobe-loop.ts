@@ -37,6 +37,7 @@ export function createWardrobeProject(): Project {
     autoGenerateAllDestinations: false,
     autoBlockShots: false,
     autoShoot: false,
+    generateAudio: false,
     videoModel: "pruna-p-video",
     imageModel: "nano-banana-2-lite",
     imageOutputFormat: "png",

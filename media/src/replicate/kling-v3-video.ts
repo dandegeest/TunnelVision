@@ -26,6 +26,7 @@ export function klingV3Duration(seconds?: number): number {
 
 export type KlingV3Settings = {
   readonly mode?: KlingV3Mode;
+  readonly generateAudio?: boolean;
 };
 
 export type KlingV3VideoInput = {
@@ -34,7 +35,7 @@ export type KlingV3VideoInput = {
   readonly end_image?: string | Buffer;
   readonly duration: number;
   readonly mode: KlingV3Mode;
-  readonly generate_audio: false;
+  readonly generate_audio: boolean;
 };
 
 export function toKlingV3VideoInput(
@@ -52,6 +53,6 @@ export function toKlingV3VideoInput(
     ...(resolvedEnd ? { end_image: toReplicateFileInput(resolvedEnd) } : {}),
     duration: klingV3Duration(request.durationSeconds),
     mode: resolveKlingV3Mode(settings?.mode ?? DEFAULT_KLING_V3_MODE),
-    generate_audio: false,
+    generate_audio: settings?.generateAudio === true,
   };
 }

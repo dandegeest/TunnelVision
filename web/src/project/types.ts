@@ -372,6 +372,8 @@ export type Project = {
   autoBlockShots: boolean;
   /** When true, DIRECT then shoots blocked journeys, including those with CM warnings. */
   autoShoot: boolean;
+  /** When true, NEW TAKE asks audio-capable generators (Veo, Seedance, Kling 3, Pruna) for sound. */
+  generateAudio: boolean;
   /**
    * Fast generation-intent mapping. Prefer `videoModelsByIntent`.
    * Unshot duration preview and Agent NEW TAKE follow `defaultTakeIntent`.

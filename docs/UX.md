@@ -16,7 +16,10 @@ new content — and this
 viewpoint stays this destination. The last beat has no look-ahead.
 Each construction is explicit. There is no filmmaker look-ahead
 control. DOWNLOAD
-assembles the current cut from selected Takes.
+assembles the current cut from the Takes selected on the timeline.
+A cached assembly is reused only while that selection fingerprint
+matches; changing selected Takes rebuilds the file. Concat keeps
+audio when those Takes have it.
 
 ## Primary interaction
 
@@ -384,7 +387,7 @@ can hide to the left. The project selector, Directed | Agent, Journey prompt, de
 which can hide to the right. The selector offers New, Rename, Open, and Save.
 New names the project and creates its folder in the Projects Folder so
 the session autosaves. Rename changes the current project's title and
-folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Shoot.
+folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Shoot all segments. Generate audio is available in Directed and Agent; it asks audio-capable video models for sound on NEW TAKE.
 Video, Default Take Intent, and Debug mode are in Project settings. Those
 model, format, and resolution controls are in-app menus, not native OS
 selects. Clicking outside a popup menu closes it; opening one menu closes any

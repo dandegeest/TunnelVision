@@ -50,6 +50,7 @@ export type ReplicateMediaProviderOptions = {
   readonly model?: string;
   readonly imageModel?: string;
   readonly imageEditModel?: string;
+  readonly generateAudio?: boolean;
   readonly seedance?: Seedance25Settings;
   readonly klingV3?: KlingV3Settings;
   readonly pVideo?: PVideoSettings;
@@ -65,6 +66,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
   private readonly model: string;
   private readonly imageModel: string;
   private readonly imageEditModel: string;
+  private readonly generateAudio: boolean | undefined;
   private readonly seedance: Seedance25Settings | undefined;
   private readonly klingV3: KlingV3Settings | undefined;
   private readonly pVideo: PVideoSettings | undefined;
@@ -79,6 +81,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
     this.model = options.model ?? SEEDANCE_25_MODEL;
     this.imageModel = options.imageModel ?? NANO_BANANA_2_LITE_MODEL;
     this.imageEditModel = options.imageEditModel ?? options.imageModel ?? NANO_BANANA_2_LITE_MODEL;
+    this.generateAudio = options.generateAudio;
     this.seedance = options.seedance;
     this.klingV3 = options.klingV3;
     this.pVideo = options.pVideo;
@@ -96,6 +99,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
       ? await resolveMediaInput(request.endImage)
       : undefined;
     const input = toReplicateVideoInput(this.model, request, start, end, {
+      generateAudio: this.generateAudio,
       pVideo: this.pVideo,
       seedance: this.seedance,
       klingV3: this.klingV3,

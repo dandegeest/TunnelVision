@@ -105,17 +105,19 @@ export function shootDevPlugin(repoRoot: string): Plugin {
             return;
           }
           const videoModelId = videoModelIdFromBody(body.videoModel);
+          const generateAudio = body.generateAudio === true;
           const provider = new ReplicateMediaProvider({
             model: videoModelSlug(videoModelId),
+            generateAudio,
             pVideo: {
-              draft: true,
+              draft: false,
               promptUpsampling: false,
               resolution: "720p",
-              saveAudio: false,
+              saveAudio: generateAudio,
               ...(optionalSeed() !== undefined ? { seed: optionalSeed() } : {}),
             },
             seedance: {
-              generateAudio: false,
+              generateAudio,
               resolution: "720p",
               aspectRatio: "adaptive",
               watermark: false,
@@ -124,6 +126,7 @@ export function shootDevPlugin(repoRoot: string): Plugin {
             },
             klingV3: {
               mode: resolveKlingV3Mode(body.klingV3Mode),
+              generateAudio,
             },
           });
           const take = await shootPreparedJourney({

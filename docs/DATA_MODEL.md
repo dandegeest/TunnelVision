@@ -369,8 +369,10 @@ That is the current partially specified movie interaction model, not a
 CameraMotionPlan field. Director planning receives the complete ordered
 storyboard; actual stills stay authoritative. DOWNLOAD concatenates
 the selected Take for each required JourneyShot and is not an editing schema.
-Agent assembly still concatenates selected Takes after filming; filmmaker
-DOWNLOAD will not emit a partial cut.
+The assembled file is cached until that selected-Take fingerprint
+changes. Concat keeps audio when those Takes have it. Agent assembly
+still concatenates selected Takes after filming; filmmaker DOWNLOAD
+will not emit a partial cut.
 
 Phase 1 produced bounded shootability evidence (Wardrobe E→A
 independently judged NEEDS_INTERMEDIATE; actual generated X rejected
@@ -390,7 +392,10 @@ maps Fast / Balanced / Quality onto catalog generators; `Project.videoModel`
 mirrors the Fast mapping. `Project.defaultTakeIntent` (Fast default) is
 the intent CREATE JOURNEY / Agent NEW TAKE uses to resolve that mapping.
 Unshot duration preview follows the same default intent. Filmmaker NEW TAKE
-can still pick Fast / Balanced / Quality per Take. Pruna is the Fast
+can still pick Fast / Balanced / Quality per Take.
+`Project.generateAudio` (default off) asks audio-capable catalog
+generators (Veo, Seedance, Kling 3, Pruna `save_audio`) for sound;
+models without an audio input ignore it. Pruna is the Fast
 development default. Quality defaults to Veo 3.1 Fast. Balanced defaults
 to Kling 2.5 Turbo Pro.
 `Project.imageModel` chooses which catalog generator builds opening A

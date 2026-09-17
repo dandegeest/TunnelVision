@@ -26,4 +26,29 @@ describe("Export Movie concatenation", () => {
     expect(output.size).toBeGreaterThan(first.size / 2);
     expect(output.size).toBeGreaterThan(second.size / 2);
   }, 30_000);
+
+  it("keeps audio when a Take has a soundtrack", async () => {
+    const calls: string[][] = [];
+    const probe = JSON.stringify({
+      streams: [
+        { codec_type: "video", width: 1280, height: 720 },
+        { codec_type: "audio" },
+      ],
+      format: { duration: "6.0" },
+    });
+    await concatenateClipFiles({
+      clipPaths: ["/tmp/a.mp4", "/tmp/b.mp4"],
+      outputPath: "/tmp/out.mp4",
+      execFileImpl: async (cmd, args) => {
+        calls.push([String(cmd), ...(args ?? []).map(String)]);
+        if (cmd === "ffprobe") {
+          return { stdout: probe, stderr: "" };
+        }
+        return { stdout: "", stderr: "" };
+      },
+    });
+    const ffmpeg = calls.find((call) => call[0] === "ffmpeg");
+    expect(ffmpeg).toBeDefined();
+    expect(ffmpeg).not.toContain("-an");
+  });
 });

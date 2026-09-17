@@ -775,6 +775,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     nudgeStoryDuration,
     setAutoGenerateAllDestinations,
     setAutoShoot,
+    setGenerateAudio,
     directorStatus,
     planStartError,
     journeyAgent,
@@ -880,38 +881,53 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
               onCommit={setStoryDurationInput}
               onNudge={nudgeStoryDuration}
             />
-            {directed ? (
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Options</span>
-                <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                  <input
-                    type="checkbox"
-                    checked={project.autoGenerateAllDestinations}
-                    disabled={busy}
-                    aria-label="Generate all destinations"
-                    title={
-                      project.storyDurationLocked
-                        ? "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again."
-                        : "After PLAN JOURNEY plans the journey, generate each remaining destination in order."
-                    }
-                    className="mt-0.5 accent-[#ece7df]"
-                    onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
-                  />
-                  Generate all destinations
-                </label>
-                <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                  <input
-                    type="checkbox"
-                    checked={project.autoShoot}
-                    disabled={busy}
-                    aria-label="Shoot"
-                    className="mt-0.5 accent-[#ece7df]"
-                    onChange={(event) => setAutoShoot(event.target.checked)}
-                  />
-                  Shoot
-                </label>
-              </div>
-            ) : null}
+            <div className="flex flex-col gap-3">
+              <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Options</span>
+              {directed ? (
+                <>
+                  <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                    <input
+                      type="checkbox"
+                      checked={project.autoGenerateAllDestinations}
+                      disabled={busy}
+                      aria-label="Generate all destinations"
+                      title={
+                        project.storyDurationLocked
+                          ? "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again."
+                          : "After PLAN JOURNEY plans the journey, generate each remaining destination in order."
+                      }
+                      className="mt-0.5 accent-[#ece7df]"
+                      onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
+                    />
+                    Generate all destinations
+                  </label>
+                  <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                    <input
+                      type="checkbox"
+                      checked={project.autoShoot}
+                      disabled={busy}
+                      aria-label="Shoot all segments"
+                      title="After destinations exist, shoot every actual adjacent segment, including those with CM warnings."
+                      className="mt-0.5 accent-[#ece7df]"
+                      onChange={(event) => setAutoShoot(event.target.checked)}
+                    />
+                    Shoot all segments
+                  </label>
+                </>
+              ) : null}
+              <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                <input
+                  type="checkbox"
+                  checked={project.generateAudio}
+                  disabled={busy}
+                  aria-label="Generate audio"
+                  title="Ask audio-capable video models (Veo, Seedance, Kling 3, Pruna) to generate sound on NEW TAKE."
+                  className="mt-0.5 accent-[#ece7df]"
+                  onChange={(event) => setGenerateAudio(event.target.checked)}
+                />
+                Generate audio
+              </label>
+            </div>
             <div className="flex flex-col gap-2">
               <button
                 type="button"

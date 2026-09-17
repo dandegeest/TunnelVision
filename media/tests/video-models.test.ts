@@ -84,6 +84,7 @@ test("Veo 3.1 Fast maps A′/B′ onto image and last_frame at 6s 1080p", () => 
   assert.equal(input.resolution, "1080p");
   assert.equal(input.aspect_ratio, "16:9");
   assert.equal(input.generate_audio, false);
+  assert.equal(toVeo31FastInput(request, start, end, { generateAudio: true }).generate_audio, true);
   assert.equal(veo31FastDuration(), 6);
   assert.equal(veo31FastDuration(6), 6);
   assert.equal(veo31FastDuration(8), 8);
@@ -157,6 +158,40 @@ test("provider Kling 3 path forwards start_image, end_image, 6s, and mode", asyn
   assert.equal(captured?.duration, 6);
   assert.equal(captured?.mode, "4k");
   assert.equal(captured?.generate_audio, false);
+});
+
+test("provider Veo and Seedance forward generate_audio when asked", async () => {
+  let captured: Record<string, unknown> | undefined;
+  const client: ReplicatePredictionClient = {
+    async create(options) {
+      captured = options.input;
+      return { id: "pred_audio", status: "starting", model: options.model };
+    },
+    async wait(prediction) {
+      return {
+        id: prediction.id,
+        status: "succeeded",
+        model: prediction.model,
+        output: "https://replicate.delivery/audio.mp4",
+      };
+    },
+  };
+  const veo = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    model: "google/veo-3.1-fast",
+    generateAudio: true,
+    client,
+  });
+  await veo.generateVideo(request);
+  assert.equal(captured?.generate_audio, true);
+  const seedance = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    model: "bytedance/seedance-2.5",
+    generateAudio: true,
+    client,
+  });
+  await seedance.generateVideo(request);
+  assert.equal(captured?.generate_audio, true);
 });
 
 test("provider Veo 3.1 Fast path forwards image and last_frame", async () => {

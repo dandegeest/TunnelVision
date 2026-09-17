@@ -156,9 +156,11 @@ describe("SHOOT gate and JourneyShot take", () => {
       segmentPromptAddition: assessment.segmentPromptAddition,
       pace: "fast",
       videoModel: "pruna-p-video",
+      generateAudio: false,
       startShootingMediaId: take.startShootingFrame.mediaId,
       endShootingMediaId: take.endShootingFrame.mediaId,
     });
+    expect(shootRequestFromProject({ ...prepared, generateAudio: true }, "A-B").generateAudio).toBe(true);
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
     const kling = shootRequestFromProject({ ...prepared, videoModel: "kling-v2.5-turbo-pro" }, "A-B");
     expect(kling.videoModel).toBe("kling-v2.5-turbo-pro");
