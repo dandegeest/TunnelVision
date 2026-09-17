@@ -697,6 +697,12 @@ describe("destination reshoot", () => {
       visualDescription: "A rewritten following destination after B already exists.",
     });
     expect(generatedStillNeedsReshoot(nextStale, nextStale.storyboard[1]!)).toBe(true);
+    const followingActual = projectWithConstructedDestination(nextStale, {
+      beatId: "C",
+      ...generatedC,
+    });
+    expect(generatedStillNeedsReshoot(followingActual, followingActual.storyboard[1]!)).toBe(false);
+    expect(generatedStillNeedsReshoot(followingActual, followingActual.storyboard[2]!)).toBe(false);
   });
 });
 

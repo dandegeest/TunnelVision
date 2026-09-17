@@ -11,6 +11,7 @@ describe("GenerationIntentMenu", () => {
         ariaLabel="New take A-B"
         defaultIntent="fast"
         buttonClass="test-cta"
+        initiallyOpen
         onChoose={() => undefined}
       />,
     );
@@ -27,6 +28,24 @@ describe("GenerationIntentMenu", () => {
     expect(html).toContain("w-max");
     expect(html).toContain("self-start");
     expect(html).toContain("top-full");
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain('aria-haspopup="menu"');
+  });
+
+  it("keeps the intent menu closed until the arrow is used", () => {
+    const html = renderToStaticMarkup(
+      <GenerationIntentMenu
+        label="+ NEW TAKE"
+        ariaLabel="New take A-B"
+        defaultIntent="fast"
+        buttonClass="test-cta"
+        onChoose={() => undefined}
+      />,
+    );
+    expect(html).toContain('aria-label="New take A-B intent chooser"');
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).not.toContain('role="menu"');
+    expect(html).not.toContain(">Fast · Default<");
   });
 
   it("opens the chooser upward when placed in the footer", () => {
@@ -37,6 +56,7 @@ describe("GenerationIntentMenu", () => {
         defaultIntent="fast"
         buttonClass="test-cta"
         menuPlacement="up"
+        initiallyOpen
         onChoose={() => undefined}
       />,
     );
@@ -62,6 +82,7 @@ describe("GenerationIntentMenu", () => {
         onChoose={(intent) => {
           chosen.push(intent);
         }}
+        initiallyOpen
         onPickIntent={(intent) => {
           picked.push(intent);
         }}

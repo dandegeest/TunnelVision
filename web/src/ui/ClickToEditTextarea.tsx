@@ -44,6 +44,7 @@ export function ClickToEditTextarea({
       onChange={(event) => onChange?.(event.target.value)}
       onClick={(event) => event.stopPropagation()}
       onPointerDown={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
     />
   );
 }

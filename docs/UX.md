@@ -87,8 +87,10 @@ description for actual cards also stay on-demand in the lightbox Inspector -
 Destination panel, with an
 editable prompt and Reshoot for generated stills on the kebab and in that
 inspector. A generated still whose
-plan later changes, including a following destination used as look-ahead,
-shows Plan changed until Reshoot. Construct is sequential **Derived**
+plan later changes, including a following destination used as look-ahead while
+that next beat is still FPO, shows Plan changed until Reshoot. Once the following
+destination is actual, look-ahead mismatch no longer keeps the badge; this beat's
+own intent/beat still does until Reshoot. Construct is sequential **Derived**
 construction, not
 a global movie mode and not a requirement that every destination use
 previous-frame conditioning. Shoot is a
@@ -341,7 +343,9 @@ or persistent caption text. That inspector uses Source | Motion | Details
 tabs. Intent and story/beat are click-to-edit: they keep a
 dimmed border at rest, look like an editor when focused, commit on each
 keystroke, and keep that text when the filmmaker leaves the field or closes the
-reel. Prompt and Camotion in Details are read-only, open by default, and offer
+reel. Selecting that text and pressing Backspace deletes characters; arrows
+move the caret. They do not close the reel or step destination. Escape closes
+an open popup menu first, then the reel when no field is focused. Prompt and Camotion in Details are read-only, open by default, and offer
 copy-to-clipboard. Motion shows A′ when Camotion has conditioned that
 destination, and that tab also switches the reel still. Uploaded A with a journey story
 stores opening intent from that story. The opening still prompt lives under
@@ -377,7 +381,8 @@ the session autosaves. Rename changes the current project's title and
 folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Shoot.
 Video, Default Take Intent, and Debug mode are in Project settings. Those
 model, format, and resolution controls are in-app menus, not native OS
-selects. When
+selects. Clicking outside a popup menu closes it; opening one menu closes any
+other. When
 Kling 3 is mapped, settings also show Standard (720p) / Pro (1080p) / 4K.
 Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,

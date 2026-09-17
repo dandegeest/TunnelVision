@@ -842,6 +842,8 @@ describe("Plan destination affordance and menu", () => {
     );
     expect(html).toContain("destination-menu");
     expect(html).toContain("absolute top-0 right-0");
+    expect(html).toContain('aria-haspopup="menu"');
+    expect(html).toContain('aria-expanded="true"');
     expect(html).toContain("Replace…");
     const forest = renderPlan(createForestProject());
     const storyboardA = forest.indexOf('aria-label="Storyboard A"');
@@ -1327,6 +1329,13 @@ describe("Plan destination details", () => {
     });
     expect(generatedStillNeedsReshoot(nextStale, nextStale.storyboard[1]!)).toBe(true);
     expect(renderPlan(nextStale)).toContain('aria-label="Storyboard B, plan changed"');
+    const followingActual = projectWithConstructedDestination(nextStale, {
+      beatId: "C",
+      mediaId: "upload-22222222222222222222222222222222",
+      imageUrl: "/api/runtime-media/upload-22222222222222222222222222222222",
+    });
+    expect(generatedStillNeedsReshoot(followingActual, followingActual.storyboard[1]!)).toBe(false);
+    expect(renderPlan(followingActual)).not.toContain('aria-label="Storyboard B, plan changed"');
   });
 
   it("does not treat Add Destination or empty frames as destination details", () => {

@@ -412,6 +412,7 @@ export function DestinationInspectorPanel({
     <aside
       className="destination-inspector flex h-full min-h-0 w-[20rem] shrink-0 flex-col border-l border-[#2a2620] bg-[#12100d] text-sm"
       aria-label="Inspector - Destination"
+      onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => event.stopPropagation()}
     >
       <PanelHeader className="inspector-header" title="Inspector - Destination">

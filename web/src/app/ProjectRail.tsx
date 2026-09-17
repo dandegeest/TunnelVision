@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
 import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
 import {
@@ -40,6 +40,7 @@ import {
 } from "../project/generation-intent";
 import { klingV3ModeFromProject } from "../project/shoot";
 import { PanelHeader } from "./PanelHeader";
+import { useDismissableMenu } from "../ui/dismissable-menu";
 import { OptionMenu } from "../ui/OptionMenu";
 
 export function ProjectRailToggle({ compact = false }: { compact?: boolean } = {}) {
@@ -163,6 +164,7 @@ function StoryDurationField({
             }
           }}
           onKeyDown={(event) => {
+            event.stopPropagation();
             if (event.key === "ArrowUp") {
               event.preventDefault();
               applyNudge(1);
@@ -287,6 +289,8 @@ function ProjectChooser() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [nameDialog, setNameDialog] = useState<"new" | "save" | "rename" | null>(null);
   const [nameDraft, setNameDraft] = useState(project.title === "UNTITLED" ? "" : project.title);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useDismissableMenu(menuOpen, () => setMenuOpen(false), menuRef);
 
   const suggested =
     project.title.trim() && project.title !== "UNTITLED"
@@ -295,7 +299,8 @@ function ProjectChooser() {
 
   return (
     <div className="relative min-w-0 w-full">
-      <button
+      <div ref={menuRef} className="relative min-w-0 w-full">
+        <button
         type="button"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
@@ -385,6 +390,7 @@ function ProjectChooser() {
           )}
         </div>
       ) : null}
+      </div>
       {persistenceError ? (
         <p className="mt-2 text-[11px] leading-snug text-[#f0c2a8]">{persistenceError}</p>
       ) : null}
@@ -460,6 +466,7 @@ function ProjectNameDialog({
           className="mt-3 h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[13px] text-[#ece7df] outline-none focus-visible:border-[#ece7df]"
           onChange={(event) => onChange(event.target.value.replace(/\s+/g, ""))}
           onKeyDown={(event) => {
+            event.stopPropagation();
             if (event.key === "Enter") {
               event.preventDefault();
               onConfirm();

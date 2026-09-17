@@ -174,7 +174,9 @@ drop. The same Inspector - Destination panel from
 Shoot sits on the right of that reel. The reel does not cover the
 conversation or Project rails. Intent and story (A) or beat (later destinations)
 are click-to-edit and update the journey story or that beat's plan on each
-keystroke. Click-to-edit fields keep a dimmed border at rest. Source | Motion |
+keystroke. Backspace, Delete, and arrows edit that field; they do not close
+the reel or change destination. Escape closes an open popup menu first, then
+the reel when no field is focused. Click-to-edit fields keep a dimmed border at rest. Source | Motion |
 Details tabs split the inspector: a compact aspect · resolution · model line sits
 above Prompt and Camotion in Details, open by default, with copy-to-clipboard.
 Reshoot stays on Source. The reel inspector keeps
@@ -192,7 +194,9 @@ step among adjacent MOTION pairs and update timeline selection. Uploaded A with 
 that story. The opening still prompt is rebuilt from the story at generate
 time, not stored as visual description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current storyboard intent and visual description. If the plan changes after a still exists, that
-thumbnail shows Plan changed until Reshoot. Shoot Reshoot on the same canonical does the same
+thumbnail shows Plan changed until Reshoot. A following destination used as
+look-ahead flags the previous still only while that next beat is still FPO; once
+it is actual the badge drops unless this beat's own plan changed. Shoot Reshoot on the same canonical does the same
 thing. Replacing either
 canonical still on a production leg returns that JourneyShot to not
 prepared and not shot. Add Destination

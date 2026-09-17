@@ -258,8 +258,7 @@ export function destinationConstructionPlan(
   };
 }
 
-/** Inputs that would be used to generate or reshoot this still right now. */
-export function storyboardGenerationSignature(project: Project, frame: StoryboardFrame): string | undefined {
+function ownGenerationSignature(project: Project, frame: StoryboardFrame): string | undefined {
   if (frame.id === "A") {
     const story = project.story.trim();
     return story ? `story:${story}` : undefined;
@@ -268,11 +267,38 @@ export function storyboardGenerationSignature(project: Project, frame: Storyboar
   if (!plan) {
     return undefined;
   }
+  return `plan:${plan.intent}\n${plan.visualDescription}`;
+}
+
+function storedOwnGenerationSignature(generatedFrom: string): string {
+  const lookAhead = generatedFrom.indexOf("\nnext:");
+  return lookAhead >= 0 ? generatedFrom.slice(0, lookAhead) : generatedFrom;
+}
+
+/** Following storyboard beat if it already has a still. */
+export function followingActualFrame(
+  project: Project,
+  frame: StoryboardFrame,
+): (StoryboardFrame & { mediaId: string }) | undefined {
+  const index = project.storyboard.findIndex((item) => item.id === frame.id);
+  if (index < 0 || index >= project.storyboard.length - 1) {
+    return undefined;
+  }
+  const next = project.storyboard[index + 1];
+  return isActualTrustedFrame(next) ? next : undefined;
+}
+
+/** Inputs that would be used to generate or reshoot this still right now. */
+export function storyboardGenerationSignature(project: Project, frame: StoryboardFrame): string | undefined {
+  const own = ownGenerationSignature(project, frame);
+  if (!own || frame.id === "A") {
+    return own;
+  }
   const next = followingDestinationPlan(project, frame);
   if (!next) {
-    return `plan:${plan.intent}\n${plan.visualDescription}`;
+    return own;
   }
-  return `plan:${plan.intent}\n${plan.visualDescription}\nnext:${next.intent}\n${next.visualDescription}`;
+  return `${own}\nnext:${next.intent}\n${next.visualDescription}`;
 }
 
 /** Prompt TunnelVision would send to generate or reshoot this still right now. */
@@ -337,6 +363,13 @@ export function projectWithImageResolution(project: Project, imageResolution: Im
 
 export function generatedStillNeedsReshoot(project: Project, frame: StoryboardFrame): boolean {
   if (frame.imageOrigin !== "generated" || !frame.image || !frame.generatedFrom) {
+    return false;
+  }
+  const own = ownGenerationSignature(project, frame);
+  if (own && own !== storedOwnGenerationSignature(frame.generatedFrom)) {
+    return true;
+  }
+  if (followingActualFrame(project, frame)) {
     return false;
   }
   const current = storyboardGenerationSignature(project, frame);

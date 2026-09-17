@@ -367,7 +367,9 @@ right of the still (Source | Motion | Details: intent and story/beat on Source,
 Prompt, Camotion, and a compact media-facts line above Prompt on Details). The reel includes
 planned FPO destinations, including empty slots with no prompt, and
 shows Shoot there, disabled until intent and beat are set. A desktop still can drop onto the reel image.
-On Shoot, the destination inspector still opens that reel. Motion preview
+Intent, story, and beat fields keep Backspace and arrows as text editing while
+the reel is open. Clicking outside a popup menu closes it, and opening another
+menu closes the one that was open. On Shoot, the destination inspector still opens that reel. Motion preview
 previous/next arrows step among adjacent MOTION pairs and update timeline
 selection. Plan and Shoot close that
 reel. Plan no longer opens an

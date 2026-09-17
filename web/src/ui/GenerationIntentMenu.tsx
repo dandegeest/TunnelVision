@@ -1,10 +1,11 @@
-import type { MouseEvent } from "react";
+import { useRef, useState, type MouseEvent } from "react";
 import {
   GENERATION_INTENT_LABEL,
   GENERATION_INTENT_MARK,
   GENERATION_INTENTS,
   type GenerationIntent,
 } from "../project/generation-intent";
+import { useDismissableMenu } from "./dismissable-menu";
 
 const menuItemClass =
   "flex w-full items-center gap-2 px-2.5 py-1 text-left text-[10px] tracking-[0.12em] text-[#ece7df] hover:bg-[#2a2620]";
@@ -34,6 +35,7 @@ export function GenerationIntentMenu({
   busyLabel = "Generating…",
   buttonClass,
   menuPlacement = "down",
+  initiallyOpen = false,
   onChoose,
   onPickIntent,
 }: {
@@ -45,10 +47,15 @@ export function GenerationIntentMenu({
   busyLabel?: string;
   buttonClass: string;
   menuPlacement?: "up" | "down";
+  initiallyOpen?: boolean;
   onChoose: (intent: GenerationIntent) => void;
   /** When set, the arrow menu only changes intent. The primary hit still generates. */
   onPickIntent?: (intent: GenerationIntent) => void;
 }) {
+  const [open, setOpen] = useState(initiallyOpen && !disabled && !busy);
+  const rootRef = useRef<HTMLDivElement>(null);
+  useDismissableMenu(open && !disabled && !busy, () => setOpen(false), rootRef);
+
   if (busy) {
     return (
       <span className="relative z-[2] shrink-0 text-[10px] leading-[16px] tracking-[0.12em] text-[#ece7df] storyboard-generating-label">
@@ -67,14 +74,8 @@ export function GenerationIntentMenu({
       event.preventDefault();
       return;
     }
+    setOpen(false);
     onChoose(defaultIntent);
-  };
-
-  const onChevronClick = (event: MouseEvent<HTMLElement>) => {
-    stop(event);
-    if (disabled) {
-      event.preventDefault();
-    }
   };
 
   const intentName = GENERATION_INTENT_LABEL[defaultIntent];
@@ -87,10 +88,12 @@ export function GenerationIntentMenu({
 
   return (
     <div
+      ref={rootRef}
       className={`relative z-30 inline-flex w-max max-w-full shrink-0 items-center self-start ${buttonClass}${
         disabled ? " cursor-not-allowed opacity-40" : ""
       }`}
       onClick={stop}
+      onPointerDown={stop}
     >
       <button
         type="button"
@@ -111,50 +114,55 @@ export function GenerationIntentMenu({
           ▾
         </span>
       ) : (
-        <details className="relative flex h-full shrink-0 items-center" onClick={stop}>
-          <summary
-            className="flex h-full list-none cursor-pointer items-center border-l border-[#3a342c] px-1.5 outline-none [&::-webkit-details-marker]:hidden"
+        <span className="relative flex h-full shrink-0 items-center">
+          <button
+            type="button"
+            className="flex h-full cursor-pointer items-center border-l border-[#3a342c] px-1.5 outline-none"
             aria-label={`${ariaLabel} intent chooser`}
+            aria-haspopup="menu"
+            aria-expanded={open}
             title={
               onPickIntent
                 ? "Choose Fast, Balanced, or Quality. The same intent generates; a new intent only changes the control."
                 : "Choose Fast, Balanced, or Quality"
             }
-            onClick={onChevronClick}
+            onClick={(event) => {
+              stop(event);
+              setOpen((current) => !current);
+            }}
           >
             ▾
-          </summary>
-          <div
-            role="menu"
-            className={`absolute z-40 min-w-[8.5rem] rounded border border-[#3a342c] bg-[#161410] py-1 ${menuPositionClass}`}
-          >
-            {GENERATION_INTENTS.map((intent) => (
-              <button
-                key={intent}
-                type="button"
-                role="menuitem"
-                className={menuItemClass}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  const details = event.currentTarget.closest("details");
-                  if (details) {
-                    details.open = false;
-                  }
-                  if (intentMenuAppliesChoice(intent, defaultIntent, Boolean(onPickIntent)) === "pick" && onPickIntent) {
-                    onPickIntent(intent);
-                  } else {
-                    onChoose(intent);
-                  }
-                }}
-              >
-                <span aria-hidden="true">{GENERATION_INTENT_MARK[intent]}</span>
-                {GENERATION_INTENT_LABEL[intent]}
-                {intent === defaultIntent ? " · Default" : ""}
-              </button>
-            ))}
-          </div>
-        </details>
+          </button>
+          {open ? (
+            <div
+              role="menu"
+              className={`absolute z-40 min-w-[8.5rem] rounded border border-[#3a342c] bg-[#161410] py-1 ${menuPositionClass}`}
+            >
+              {GENERATION_INTENTS.map((intent) => (
+                <button
+                  key={intent}
+                  type="button"
+                  role="menuitem"
+                  className={menuItemClass}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setOpen(false);
+                    if (intentMenuAppliesChoice(intent, defaultIntent, Boolean(onPickIntent)) === "pick" && onPickIntent) {
+                      onPickIntent(intent);
+                    } else {
+                      onChoose(intent);
+                    }
+                  }}
+                >
+                  <span aria-hidden="true">{GENERATION_INTENT_MARK[intent]}</span>
+                  {GENERATION_INTENT_LABEL[intent]}
+                  {intent === defaultIntent ? " · Default" : ""}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </span>
       )}
     </div>
   );

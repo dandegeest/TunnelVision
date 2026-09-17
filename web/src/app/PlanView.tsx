@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useProject } from "../project/ProjectProvider";
 import { canConstructDestinationFrame, canGenerateOpeningFrame, canReshootDestinationFrame, generatedStillNeedsReshoot } from "../project/destination";
 import {
@@ -23,6 +23,8 @@ import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../
 import { previewFrameAspectRatio } from "../project/canonical-aspect";
 import type { Project, StoryboardFrame } from "../project/types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
+import { useDismissableMenu } from "../ui/dismissable-menu";
+import { isTextEntryTarget, pointerOnBackdrop, reelKeyboardAction } from "../ui/text-entry";
 import {
   camotionRecordKey,
   camotionRecordsForCanonical,
@@ -442,28 +444,7 @@ export function DestinationMenu({
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const rootRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    const onPointerDown = (event: globalThis.PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  useDismissableMenu(open, () => setOpen(false), rootRef);
 
   return (
     <span ref={rootRef} className="destination-menu absolute top-0 right-0 z-10">
@@ -602,28 +583,7 @@ export function StoryboardViewMenu({
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const rootRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    const onPointerDown = (event: globalThis.PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  useDismissableMenu(open, () => setOpen(false), rootRef);
 
   return (
     <span ref={rootRef} className="storyboard-view-menu relative shrink-0">
@@ -835,6 +795,9 @@ export function StoryboardReel({
     preferredCamotionRecord(camotionRecords);
   const reelImage = destinationDisplayedStillUrl(current?.image, stillMode, activeCamotion);
   const startAspect = previewFrameAspectRatio(project);
+  const reelRef = useRef<HTMLDivElement>(null);
+  const stageColumnRef = useRef<HTMLDivElement>(null);
+  const backdropPointerRef = useRef(false);
 
   useEffect(() => {
     setStillMode("canonical");
@@ -843,24 +806,49 @@ export function StoryboardReel({
 
   useEffect(() => {
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
+      const action = reelKeyboardAction(event);
+      if (action === "close") {
         event.preventDefault();
         onClose();
         return;
       }
-      if (event.key === "ArrowLeft" && prev?.id) {
+      if (action === "prev" && prev?.id) {
         event.preventDefault();
         onSelect(prev.id);
         return;
       }
-      if (event.key === "ArrowRight" && next?.id) {
+      if (action === "next" && next?.id) {
         event.preventDefault();
         onSelect(next.id);
+        return;
+      }
+      if (
+        (event.key === "Backspace" || event.key === "Delete") &&
+        !event.defaultPrevented &&
+        !isTextEntryTarget(event.target)
+      ) {
+        event.preventDefault();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, onSelect, prev?.id, next?.id]);
+
+  const noteBackdropPointer = (event: ReactPointerEvent<HTMLDivElement>) => {
+    backdropPointerRef.current = pointerOnBackdrop(event.target, [
+      reelRef.current,
+      stageColumnRef.current,
+    ]);
+  };
+
+  const closeIfBackdropClick = (event: { target: EventTarget | null }) => {
+    if (
+      backdropPointerRef.current &&
+      pointerOnBackdrop(event.target, [reelRef.current, stageColumnRef.current])
+    ) {
+      onClose();
+    }
+  };
 
   if (!current) {
     return null;
@@ -868,12 +856,17 @@ export function StoryboardReel({
 
   return (
     <div
+      ref={reelRef}
       className="storyboard-reel absolute inset-0 z-30 flex bg-[#0c0b0a]"
       role="dialog"
       aria-label={`Storyboard reel, destination ${current.label}`}
-      onClick={onClose}
+      onPointerDownCapture={noteBackdropPointer}
+      onClick={closeIfBackdropClick}
     >
-      <div className="relative flex min-h-0 min-w-0 flex-1">
+      <div
+        ref={stageColumnRef}
+        className="relative flex min-h-0 min-w-0 flex-1"
+      >
         <button
           type="button"
           aria-label="Close storyboard reel"
@@ -902,6 +895,7 @@ export function StoryboardReel({
         />
         <div
           className="preview-stage h-full min-h-0 min-w-0 flex-1 bg-transparent px-1 py-10"
+          onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
         >
           <StoryboardDestinationDrop
