@@ -252,6 +252,7 @@ function mirrorSelectedTake(journey: JourneyShot, takes: JourneyShotTake[], sele
 /**
  * Copy any newer Takes from `incoming` onto `base`.
  * A destination write that started before footage finished must not drop that clip.
+ * Journey ids are A-B in every project, so this must not run across projects.
  */
 export function projectWithLatestJourneyTakes(base: Project, incoming: Project): Project {
   return {
@@ -275,6 +276,34 @@ export function projectWithLatestJourneyTakes(base: Project, incoming: Project):
       };
     }),
   };
+}
+
+/**
+ * Same-project concurrent footage only. A foreign `next` is ignored so A-B
+ * from another movie cannot replace the workspace.
+ * New/Open must call replace, not this merge.
+ */
+export function mergeProjectUpdate(next: Project, current: Project): Project {
+  if (next.id !== current.id) {
+    return current;
+  }
+  return projectWithLatestJourneyTakes(next, current);
+}
+
+/** False when this journey is gone or was shot against a different START/END. */
+export function filmedTakeFitsCurrentJourney(
+  project: Project,
+  journeyId: string,
+  shotAgainst: { startCanonicalMediaId: string; endCanonicalMediaId: string } | undefined,
+): boolean {
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  if (!journey) {
+    return false;
+  }
+  if (!shotAgainst) {
+    return true;
+  }
+  return takeMatchesCurrentCanonicals(project, journey, shotAgainst) !== false;
 }
 
 /** Persist takes[] + selectedTakeId. Newest take is the cut; workspace selection is unchanged. */

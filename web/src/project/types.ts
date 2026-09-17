@@ -145,9 +145,40 @@ export type SegmentMotionPlan = {
 };
 
 /**
+ * How a canonical still was produced. Distinct from `imageOrigin`
+ * (user vs generated) so repair / Discover / upload history can coexist.
+ */
+export type CanonicalTakeSource = "upload" | "generated" | "constructed" | "repair" | "discover";
+
+/**
+ * One still for a storyboard letter. Canonicals keep 0..N takes; one is selected.
+ * `StoryboardFrame.image` / `mediaId` always mirror the selected take.
+ */
+export type CanonicalTake = {
+  id: string;
+  number: number;
+  mediaId: string;
+  /** Runtime preview URL. Not stored on disk. */
+  imageUrl?: string;
+  origin: StoryboardImageOrigin;
+  source?: CanonicalTakeSource;
+  generatedFrom?: string;
+  prompt?: string;
+  model?: string;
+  createdAt?: string;
+  reason?: string;
+  mediaInfo?: StoryboardMediaInfo;
+  /**
+   * Forward-compatible generation metadata (router, cost, latency, retry).
+   * Persistence round-trips unknown keys. Not a UI contract.
+   */
+  generation?: Record<string, unknown>;
+};
+
+/**
  * One generated traversal of a JourneyShot. Segments keep 0..N Takes;
  * one is selected for preview, playback, and download.
- * Session/in-memory; provider URLs are allowed until Node persistence exists.
+ * Session/in-memory; provider URLs are allowed until copied into a project directory.
  * A′/B′ on the take are the shooting frames that were sent to video.
  * Compatibility is the stamped canonical media pair, not the segment letter
  * (`A-B`). Happy path: one pair per letter. Future: a RESHOOT of B creates
@@ -189,6 +220,13 @@ export type JourneyShotTake = {
   durationSeconds: number;
   seed?: number;
   providerOutputUrl?: string;
+  /** Trusted identity of the persisted video bytes, when the take is project-owned. */
+  videoMediaId?: string;
+  /**
+   * Forward-compatible generation metadata (router, cost, latency, retry).
+   * Persistence round-trips unknown keys. Not a UI contract.
+   */
+  generation?: Record<string, unknown>;
   /** Directed Shoot sends A′ as the start image and B′ as the last-frame condition. */
   videoInputs: { startShootingFrame: true; endShootingFrame: boolean };
   camotion?: CamotionDebug;
@@ -261,6 +299,13 @@ export type StoryboardFrame = {
    * that changed after the image was made. Absent on uploads and unresolved FPO.
    */
   generatedFrom?: string;
+  /**
+   * Every still produced for this letter. Absent on legacy in-memory frames;
+   * `canonicalTakes()` synthesizes take 1 from `image` / `mediaId`.
+   */
+  takes?: CanonicalTake[];
+  /** Which still Plan / Shoot / generation use. Defaults to the newest. */
+  selectedTakeId?: string;
 };
 
 export type JourneyShot = {
@@ -349,7 +394,7 @@ export type Project = {
    */
   klingV3Mode?: KlingV3Mode;
   /**
-   * Still generator for opening A and later B…N. Nano Banana 2 Lite is
+   * Still generator for opening A and later B…N. Nano Banana 2 at 1K is
    * the development default; the same model text-to-images A and
    * image-conditions later destinations.
    */

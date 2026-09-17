@@ -577,7 +577,7 @@ genesis/      Research site (not the hackathon app)
 | Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
-| Durable project persistence | **Does not exist.** Session/dev-runtime media only. When implemented, it must use one canonical TunnelVision project format shared by the workstation and JourneyAgent; the hackathon app may not create a separate project/session format or isolated movie artifact. |
+| Durable project persistence | **Exists.** Directory format under the app Projects Folder. Unsaved work still uses session runtime media until Save. Same `Project` for workstation and future hackathon UI. |
 
 Directed Options (generate all, auto-shoot) are
 **not** AGENT. They automate filmmaker clicks inside Directed.

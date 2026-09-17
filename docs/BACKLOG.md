@@ -56,9 +56,8 @@ and JourneyAgent as a **library** the hackathon surface will call.
 Next workstation work, in order:
 
 1.  Timeline / Takes UX polish
-2.  Project persistence / shared Project format (standard TV and
-    the dedicated hackathon surface — same `Project`, no second
-    format)
+2.  Project persistence / shared Project format — **in product**
+    (directory format under the configured Projects Folder)
 3.  Basic robustness and regression testing
 4.  Fresh-machine / config / secrets readiness
 5.  Freeze the core filmmaking pipeline before the event
@@ -1198,8 +1197,9 @@ JOURNEY, get a new opening that rhymes with the guide.
 -   Do not persist the guide as `storyboard[0].image`.
 -   Replacing uploaded A is still Replace; a guide never overwrites
     an actual A.
--   Generated A still stores opening intent from the story and the
-    TunnelVision opening prompt as visual description.
+-   Generated A stores opening intent from the story. The opening still
+    prompt is rebuilt from that story and is not stored as visual
+    description.
 -   Provider reference-image fields stay in the image adapter.
 
 **Likely implementation areas.**
@@ -2296,7 +2296,11 @@ No Editor agent.
 
 ### Durable project persistence
 
-**Status:** BACKLOG
+**Status:** DONE — native format is a project directory under a
+user-chosen Projects Folder (`project.json` schemaVersion 1).
+Unsaved session work still uses runtime media until Save. See
+[IMPLEMENTATION.md](IMPLEMENTATION.md) (Save / Open) and
+`web/src/project/persistence/`.
 
 **Goal.** Save and reopen a complete TunnelVision project so the
 filmmaking workspace survives a reload.

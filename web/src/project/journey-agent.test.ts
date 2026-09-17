@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { projectWithCinematographerAssessment } from "./cinematographer";
 import {
+  generatedStillNeedsReshoot,
   projectWithConstructedDestination,
   projectWithGeneratedOpeningFrame,
   precedingActualFrame,
@@ -17,7 +18,7 @@ import {
 import { projectWithMotionPlan } from "./motion-plan";
 import { createNewProject } from "./new-project";
 import { projectWithJourneyShotTake } from "./shoot";
-import { projectWithDirectorPlan } from "./storyboard";
+import { projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "./storyboard";
 import { journeyTakes, selectedTakeVideoUrl } from "./takes";
 import type { CinematographerAssessment, JourneyShotTake, Project, SegmentMotionPlan } from "./types";
 
@@ -351,6 +352,34 @@ describe("JourneyAgent", () => {
     expect(calls.filter((call) => call.startsWith("createTake"))).toEqual([]);
     expect(selectedTakeVideoUrl(result.project.journeys[0]!)).toBe("https://example.test/keep-take-1.mp4");
     expect(journeyTakes(result.project.journeys[0]!).length).toBe(1);
+    expect(result.snapshot.phase).toBe("COMPLETE");
+  });
+
+  it("reshoots plan-changed generated stills and appends a new Take", async () => {
+    const planned = projectWithDirectorPlan(withActualA(), {
+      summary: "One move.",
+      beats: [{ id: "B", intent: "Enter the next volume.", visualDescription: "A continuing corridor." }],
+    });
+    const constructed = await domainOps().constructDestination(planned, "B");
+    const staged = await domainOps().planMotion(constructed, "A-B");
+    const withTake = projectWithJourneyShotTake(staged, "A-B", {
+      take,
+      videoUrl: "https://example.test/keep-take-1.mp4",
+    });
+    const stale = projectWithStoryboardBeatPlan(withTake, "B", {
+      intent: "Cross the irradiated threshold.",
+      visualDescription: "A cracked concrete corridor.",
+    });
+    expect(generatedStillNeedsReshoot(stale, stale.storyboard[1]!)).toBe(true);
+    const { ops, calls } = recordingOps({
+      planJourney: async (project) => project,
+    });
+    const result = await runJourneyAgent(stale, ops);
+    expect(calls).toContain("construct:B");
+    expect(calls.filter((call) => call.startsWith("createTake"))).toEqual(["createTake:A-B"]);
+    expect(journeyTakes(result.project.journeys[0]!).length).toBe(2);
+    expect(result.snapshot.events.some((event) => event.activity === "reshooting destination B")).toBe(true);
+    expect(result.snapshot.events.some((event) => event.activity === "creating A→B TAKE 2")).toBe(true);
     expect(result.snapshot.phase).toBe("COMPLETE");
   });
 

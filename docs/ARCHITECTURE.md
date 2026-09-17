@@ -164,8 +164,9 @@ destination stills. A project is a partially specified movie: the
 Director resolves what is not specified and preserves destinations
 that already have actual media. Empty intent or visual description on an
 actual still is filled from the attached image; existing plan text is kept.
-Generating A writes opening intent from the story and stores the generation
-prompt as visual description. Uploading A with a story fills empty opening
+Generating A writes opening intent from the story. The opening still
+prompt is rebuilt from that story at generate time and is not stored as
+visual description. Uploading A with a story fills empty opening
 intent and leaves visual description empty so DIRECT can still describe the
 look of the still.
 Story edits update `Project.story`
@@ -182,8 +183,9 @@ Delete removes a later storyboard beat without planning or relabeling;
 opening A cannot be deleted.
 Replacing either canonical still on a production leg invalidates that
 JourneyShot's Motion Plan and keeps existing Takes.
-Uploaded media is
-session/dev-runtime trusted media, not durable project persistence.
+Uploaded media first lands in session/dev-runtime trusted media.
+Save Project copies those bytes into the project directory; Open
+restores them.
 After
 replacement, that destination keeps its identity. Shoot is the current
 Project's Destinations and Journey lanes, not a second synchronized

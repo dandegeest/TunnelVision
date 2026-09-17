@@ -23,6 +23,7 @@ import {
   projectCanonicalAspectRatio,
 } from "./canonical-aspect";
 import { projectWithSyncedProductionLegs } from "./production-legs";
+import { frameWithAppendedCanonicalTake } from "./canonical-takes";
 import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 
 export type DestinationLookAhead = {
@@ -413,23 +414,18 @@ export function openingFrameGenerationPrompt(story: string): string {
 }
 
 /**
- * Attach opening plan text to A. Generated stills store the TunnelVision
- * prompt as visualDescription. Uploads only fill empty intent from the story.
+ * Attach opening plan text to A. Intent is the first sentence of the
+ * journey when empty. A has no Director beat; the opening still prompt is
+ * rebuilt from `Project.story` at generate/reshoot time and is not stored
+ * as visualDescription.
  */
-export function storyboardFrameWithOpeningPlan(
-  frame: StoryboardFrame,
-  story: string,
-  origin: "user" | "generated",
-): StoryboardFrame {
+export function storyboardFrameWithOpeningPlan(frame: StoryboardFrame, story: string): StoryboardFrame {
   const next: StoryboardFrame = { ...frame };
   if (!next.intent?.trim()) {
     const intent = openingFrameIntent(story);
     if (intent) {
       next.intent = intent;
     }
-  }
-  if (origin === "generated") {
-    next.visualDescription = openingFrameGenerationPrompt(story);
   }
   return next;
 }
@@ -466,22 +462,19 @@ export function openingFrameGenerationRequestFromProject(
 function frameWithConstructedStill(
   frame: StoryboardFrame,
   next: DestinationConstructionResult & { mediaInfo?: StoryboardMediaInfo },
-  extras: Pick<StoryboardFrame, "destinationId" | "generatedFrom">,
+  extras: Pick<StoryboardFrame, "destinationId" | "generatedFrom"> & { source?: "generated" | "constructed" | "repair" },
 ): StoryboardFrame {
-  const constructed: StoryboardFrame = {
-    ...frame,
-    image: next.imageUrl,
-    mediaId: next.mediaId,
-    imageOrigin: "generated",
-    destinationId: extras.destinationId,
-    generatedFrom: extras.generatedFrom,
-  };
-  if (next.mediaInfo) {
-    constructed.mediaInfo = next.mediaInfo;
-  } else {
-    delete constructed.mediaInfo;
-  }
-  return constructed;
+  return frameWithAppendedCanonicalTake(
+    { ...frame, destinationId: extras.destinationId ?? frame.destinationId ?? frame.id },
+    {
+      mediaId: next.mediaId,
+      imageUrl: next.imageUrl,
+      origin: "generated",
+      source: extras.source ?? "constructed",
+      generatedFrom: extras.generatedFrom,
+      mediaInfo: next.mediaInfo,
+    },
+  );
 }
 
 export function projectWithGeneratedOpeningFrame(
@@ -499,14 +492,18 @@ export function projectWithGeneratedOpeningFrame(
     canonicalAspectRatio: GENERATED_OPENING_ASPECT_RATIO,
     storyboard: project.storyboard.map((frame) =>
       frame.id === "A"
-        ? storyboardFrameWithOpeningPlan(
-            frameWithConstructedStill(frame, next, {
-              destinationId: frame.destinationId ?? "A",
-              generatedFrom: storyboardGenerationSignature(project, frame),
-            }),
-            project.story,
-            "generated",
-          )
+        ? (() => {
+            const opening = storyboardFrameWithOpeningPlan(
+              frameWithConstructedStill(frame, next, {
+                destinationId: frame.destinationId ?? "A",
+                generatedFrom: storyboardGenerationSignature(project, frame),
+                source: "generated",
+              }),
+              project.story,
+            );
+            delete opening.visualDescription;
+            return opening;
+          })()
         : frame,
     ),
   });
@@ -688,6 +685,7 @@ export function projectWithConstructedDestination(
         ? frameWithConstructedStill(frame, next, {
             destinationId: frame.destinationId ?? frame.id,
             generatedFrom: storyboardGenerationSignature(project, frame),
+            source: "constructed",
           })
         : frame,
     ),

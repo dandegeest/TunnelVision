@@ -25,9 +25,9 @@ describe("new product project", () => {
     expect(project.videoModelsByIntent).toEqual({
       fast: "pruna-p-video",
       balanced: "wan-2.2-first-last-frame",
-      quality: "seedance-2.5",
+      quality: "kling-v2.5-turbo-pro",
     });
-    expect(project.imageModel).toBe("nano-banana-2-lite");
+    expect(project.imageModel).toBe("nano-banana-2");
     expect(project.imageOutputFormat).toBe("png");
     expect(project.imageResolution).toBe("1K");
     expect(project.klingV3Mode).toBe("standard");

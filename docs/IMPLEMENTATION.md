@@ -246,8 +246,8 @@ canonical mark.
 Each appended Take stores `startCanonicalMediaId` / `endCanonicalMediaId`
 from the Motion Plan or current storyboard pair. That is a stamp for
 future handoff compatibility, not a revision UI.
-The current development still model is `google/nano-banana-2-lite`
-unless the Project settings Image control selects Nano Banana 2.
+The current development still model is `google/nano-banana-2`
+at 1K unless the Project settings Image control selects Nano Banana 2 Lite.
 Generated stills default to PNG; Nano Banana 2 can also emit JPG and
 1K / 2K / 4K (1K default). Lite stays 1K and does not send
 `resolution`. Gemini 3.1 Pro on Replicate accepts images up to 7MB;
@@ -273,7 +273,8 @@ instant only and does not depict later destinations; auto-generate all destinati
 constructs B…N in travel order after DIRECT. After the journey is planned,
 turning that option on constructs remaining unfilled destinations without
 another Director call. Generated A stores opening intent
-from the story and the generation prompt as visual description. Uploaded A
+from the story. The opening still prompt is rebuilt from that story and
+shown under Prompt; it is not A's visual description. Uploaded A
 with a story fills empty opening intent the same way and leaves visual
 description empty. If A is actual and the story
 is empty, DIRECT first derives a journey story from that still. Auto
@@ -286,10 +287,29 @@ Delete removes a later storyboard beat without planning or relabeling; opening A
 Replacing either canonical still on a production leg invalidates that
 JourneyShot's Motion Plan. Existing Takes stay, stamped to the previous
 canonical pair.
-Uploaded media is session/dev-runtime trusted media, not durable project
-persistence. Constructed B is registered the same way so it can later
+Uploaded media first lands in session/dev-runtime trusted media.
+Save Project copies those bytes into the project directory and
+Open restores them into the runtime registry under the same media
+ids. Constructed B is registered the same way so it can later
 be resolved as provider input. After replacement, that destination keeps
-its identity. Visual checkpoint for the frozen Plan shell:
+its identity.
+
+**Project Save / Open.** Native format is a directory under a
+user-chosen Projects Folder (app setting in
+`~/.tunnelvision/settings.json`). `project.json` is schemaVersion 1
+with relative asset paths: `canonicals/<letter>/`, `traversals/<id>/`,
+`shooting-frames/<id>/`, `conversation/events.jsonl`, `exports/`.
+Movie export files are `{ProjectName}_vN.mp4` (no spaces, truncated).
+The in-memory `Project` stays the source of truth; disk is a portable
+copy. New Project names the session and creates that folder immediately
+so later work autosaves. Unsaved sessions still work if Create cannot
+write yet. After a project is on disk, meaningful project changes
+autosave. Canonical stills append takes rather than
+overwriting the previous PNG. Vite middleware
+(`web/project-store-plugin.ts`) owns filesystem I/O. The Project
+chooser offers New, Rename, Open, and Save; settings holds Choose Folder.
+
+Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [`genesis/research/12-product-slice-3.html`](../genesis/research/12-product-slice-3.html).
@@ -338,7 +358,10 @@ shoot logic. Pending
 Director **Planning…**, Cinematographer, **Shooting…**,
 and construction turns show a progress spinner
 beside that status copy. Empty Plan FPO thumbnails overlay Director
-intent as readable text until an image exists. The Plan storyboard reel
+intent as readable text. A storyboard kebab on Plan offers Intent
+and Beat as checked on/off overlays over generated stills, off by default.
+When both are on, the overlay labels them and scrolls if the copy does
+not fit. The Plan storyboard reel
 docks the same Inspector - Destination panel used on Shoot to the
 right of the still (Source | Motion | Details: intent and story/beat on Source,
 Prompt, Camotion, and a compact media-facts line above Prompt on Details). The reel includes
@@ -351,7 +374,8 @@ reel. Plan no longer opens an
 intent/prompt popup
 under the tile. A full-width app header keeps
 TunnelVision on the left and Plan | Shoot centered. The project selector lives
-in the Project panel under the Project header. The
+in the Project panel under the Project header and offers New, Rename, Open, and
+Save. Rename updates the title and the on-disk folder. Projects Folder is chosen in Project settings. The
 Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY
@@ -413,10 +437,10 @@ quality model during intentional output validation. Automated E2E
 must mock the paid media-provider boundary.
 
 The current still development generator is Replicate
-`google/nano-banana-2-lite`, the Project Image default
-(`nano-banana-2-lite`, `nano-banana-2`). Flux Ultra is not in that
+`google/nano-banana-2` at 1K, the Project Image default
+(`nano-banana-2`, with `nano-banana-2-lite` opt-in). Flux Ultra is not in that
 catalog. The current Shoot development generator is Replicate `prunaai/p-video`,
-the Project default. The filmmaker can switch the current project's
+the Fast default. Quality defaults to `kling-v2.5-turbo-pro`. The filmmaker can switch the current project's
 video model in Project settings (`pruna-p-video`,
 `kling-v2.5-turbo-pro`, `kling-v3-video`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both

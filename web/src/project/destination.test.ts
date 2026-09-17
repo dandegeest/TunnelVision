@@ -602,8 +602,9 @@ describe("opening frame generation", () => {
     expect(openingFrameGenerationRequestFromProject(withStory)).toEqual({
       story: withStory.story,
       aspectRatio: { width: 16, height: 9 },
-      imageModel: "nano-banana-2-lite",
+      imageModel: "nano-banana-2",
       imageOutputFormat: "png",
+      imageResolution: "1K",
     });
     expect(openingFrameIntent(withStory.story)).toBe(
       "Travel forward through an imagined interior at night.",
@@ -623,17 +624,16 @@ describe("opening frame generation", () => {
     expect(generated.storyboard[0]?.intent).toBe(
       "Travel forward through an imagined interior at night.",
     );
-    expect(generated.storyboard[0]?.visualDescription).toBe(
-      openingFrameGenerationPrompt(withStory.story),
-    );
+    expect(generated.storyboard[0]?.visualDescription).toBeUndefined();
     expect(generatedStillNeedsReshoot(generated, generated.storyboard[0]!)).toBe(false);
     expect(canGenerateOpeningFrame(generated)).toBe(false);
     expect(canReshootOpeningFrame(generated)).toBe(true);
     expect(openingFrameGenerationRequestFromProject(generated)).toEqual({
       story: generated.story,
       aspectRatio: { width: 16, height: 9 },
-      imageModel: "nano-banana-2-lite",
+      imageModel: "nano-banana-2",
       imageOutputFormat: "png",
+      imageResolution: "1K",
     });
     const keptIntent = projectWithGeneratedOpeningFrame(
       {
@@ -645,15 +645,19 @@ describe("opening frame generation", () => {
       generatedC,
     );
     expect(keptIntent.storyboard[0]?.intent).toBe("Filmmaker opening note.");
-    expect(keptIntent.storyboard[0]?.visualDescription).toBe(
-      openingFrameGenerationPrompt(generated.story),
-    );
-    const reshots = projectWithGeneratedOpeningFrame(generated, generatedC);
+    expect(keptIntent.storyboard[0]?.visualDescription).toBeUndefined();
+    const stalePrompt = {
+      ...generated,
+      storyboard: generated.storyboard.map((frame) =>
+        frame.id === "A"
+          ? { ...frame, visualDescription: openingFrameGenerationPrompt(generated.story) }
+          : frame,
+      ),
+    };
+    const reshots = projectWithGeneratedOpeningFrame(stalePrompt, generatedC);
     expect(reshots.storyboard[0]?.mediaId).toBe(generatedC.mediaId);
     expect(reshots.storyboard[0]?.intent).toBe(generated.storyboard[0]?.intent);
-    expect(reshots.storyboard[0]?.visualDescription).toBe(
-      openingFrameGenerationPrompt(generated.story),
-    );
+    expect(reshots.storyboard[0]?.visualDescription).toBeUndefined();
   });
 });
 
@@ -712,9 +716,9 @@ describe("destination inspector copy", () => {
     expect(destinationGeneratedPrompt(generated, generated.storyboard[0]!)).toBe(
       openingFrameGenerationPrompt(story),
     );
-    expect(destinationImageModelLabel(generated, generated.storyboard[0]!)).toBe("Nano Banana 2 Lite");
-    const hq = { ...generated, imageModel: "nano-banana-2" as const };
-    expect(destinationImageModelLabel(hq, hq.storyboard[0]!)).toBe("Nano Banana 2");
+    expect(destinationImageModelLabel(generated, generated.storyboard[0]!)).toBe("Nano Banana 2");
+    const lite = { ...generated, imageModel: "nano-banana-2-lite" as const };
+    expect(destinationImageModelLabel(lite, lite.storyboard[0]!)).toBe("Nano Banana 2 Lite");
     const empty = projectWithReplacedStartImage(createNewProject(), {
       mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -724,7 +728,7 @@ describe("destination inspector copy", () => {
   });
 
   it("accepts a product id or known slug and rejects unknown image models", () => {
-    expect(imageModelIdFromBody(undefined)).toBe("nano-banana-2-lite");
+    expect(imageModelIdFromBody(undefined)).toBe("nano-banana-2");
     expect(imageModelIdFromBody("nano-banana-2")).toBe("nano-banana-2");
     expect(imageModelIdFromBody("google/nano-banana-2-lite")).toBe("nano-banana-2-lite");
     expect(() => imageModelIdFromBody("black-forest-labs/flux-1.1-pro-ultra")).toThrow(

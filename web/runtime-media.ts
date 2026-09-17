@@ -30,6 +30,13 @@ const EXT_BY_KIND: Record<RuntimeImageKind, string> = {
   webp: "webp",
 };
 
+export function detectVideoKind(bytes: Buffer): "mp4" | null {
+  if (bytes.length >= 12 && bytes.toString("ascii", 4, 8) === "ftyp") {
+    return "mp4";
+  }
+  return null;
+}
+
 export class RuntimeMediaError extends Error {
   readonly code: "unsupported_type" | "too_large" | "invalid_identity";
 
@@ -74,6 +81,7 @@ export function createRuntimeMediaId(): string {
 export type RuntimeMediaRegistry = {
   directory: string;
   register(bytes: Buffer, contentType?: string): RuntimeMediaRecord & { imageUrl: string };
+  adopt(record: RuntimeMediaRecord): RuntimeMediaRecord & { imageUrl: string };
   get(id: string): RuntimeMediaRecord | undefined;
   list(): RuntimeMediaRecord[];
 };
@@ -110,6 +118,13 @@ export function createRuntimeMediaRegistry(directory: string): RuntimeMediaRegis
       };
       entries.set(mediaId, record);
       return { ...record, imageUrl: runtimeMediaPreviewUrl(mediaId) };
+    },
+    adopt(record) {
+      if (!isTrustedMediaIdShape(record.mediaId)) {
+        throw new RuntimeMediaError("Server returned an invalid media identity.", "invalid_identity");
+      }
+      entries.set(record.mediaId, record);
+      return { ...record, imageUrl: runtimeMediaPreviewUrl(record.mediaId) };
     },
     get(id) {
       if (!isTrustedMediaIdShape(id)) {

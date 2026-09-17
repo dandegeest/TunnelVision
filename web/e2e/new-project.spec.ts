@@ -129,9 +129,9 @@ async function mockProviderBoundaries(page: Page) {
       expect(request.nextDestination).toBeUndefined();
     }
     expect(request.aspectRatio).toEqual({ width: 1, height: 1 });
-    expect(request.imageModel).toBe("nano-banana-2-lite");
+    expect(request.imageModel).toBe("nano-banana-2");
     expect(request.imageOutputFormat).toBe("png");
-    expect(request.imageResolution).toBeUndefined();
+    expect(request.imageResolution).toBe("1K");
     const constructed = request.beatId === "C" ? CONSTRUCTED_C : CONSTRUCTED_B;
     await route.fulfill({
       status: 200,
@@ -598,7 +598,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByRole("button", { name: "New take B-C" })).toBeEnabled();
 });
 
-test("project image and video model selectors default to Nano Banana Lite and Pruna", async ({
+test("project image and video model selectors default to Nano Banana 2 and Pruna", async ({
   page,
 }) => {
   await page.goto("/");
@@ -607,27 +607,31 @@ test("project image and video model selectors default to Nano Banana Lite and Pr
   await expect(page.getByLabel("Debug mode")).toBeChecked();
   await expect(page.getByLabel("Create journey")).toHaveCount(0);
   const image = page.getByLabel("Image model");
-  await expect(image).toHaveAttribute("data-value", "nano-banana-2-lite");
+  await expect(image).toHaveAttribute("data-value", "nano-banana-2");
+  const format = page.getByLabel("Image format");
+  await expect(format).toHaveAttribute("data-value", "png");
+  const resolution = page.getByLabel("Image resolution");
+  await expect(resolution).toHaveAttribute("data-value", "1K");
   await image.click();
   await expect(page.getByRole("menuitem")).toHaveText([
     "Nano Banana 2 Lite $",
     "Nano Banana 2 $$",
   ]);
+  await page.getByRole("menuitem", { name: "Nano Banana 2 Lite $", exact: true }).click();
+  await expect(image).toHaveAttribute("data-value", "nano-banana-2-lite");
   await expect(page.getByLabel("Image resolution")).toHaveCount(0);
-  const format = page.getByLabel("Image format");
-  await expect(format).toHaveAttribute("data-value", "png");
+  await image.click();
   await page.getByRole("menuitem", { name: "Nano Banana 2 $$", exact: true }).click();
   await expect(image).toHaveAttribute("data-value", "nano-banana-2");
   await format.click();
   await expect(page.getByRole("menuitem")).toHaveText(["PNG", "JPG"]);
   await page.getByRole("menuitem", { name: "JPG", exact: true }).click();
-  const resolution = page.getByLabel("Image resolution");
   await expect(resolution).toHaveAttribute("data-value", "1K");
   await resolution.click();
   await expect(page.getByRole("menuitem")).toHaveText(["1K", "2K", "4K"]);
   await page.getByRole("menuitem", { name: "2K", exact: true }).click();
   const quality = page.getByLabel("Quality video model");
-  await expect(quality).toHaveAttribute("data-value", "seedance-2.5");
+  await expect(quality).toHaveAttribute("data-value", "kling-v2.5-turbo-pro");
   await quality.click();
   await expect(page.getByRole("menuitem")).toHaveText([
     "Pruna",

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 
 import { concatenateClipFiles, downloadClipToFile, prepareExportDirectory } from "./export-movie.ts";
+import { isMovieExportFilename, nextMovieExportFilename } from "./src/project/export-movie.ts";
 
 type ExportRecord = {
   filePath: string;
@@ -77,6 +78,7 @@ export async function handleExportMovieRequest(
       const body = (await readJsonBody(req)) as {
         included?: Array<{ journeyId?: string; videoUrl?: string }>;
         missingJourneyIds?: unknown;
+        filename?: unknown;
       };
       const included = Array.isArray(body.included) ? body.included : [];
       const clips = included.filter(
@@ -105,10 +107,13 @@ export async function handleExportMovieRequest(
         await downloadClipToFile(clipUrl(origin, clip.videoUrl), dest);
         clipPaths.push(dest);
       }
-      const outputPath = join(directory, "movie.mp4");
+      const outputName = isMovieExportFilename(body.filename)
+        ? body.filename
+        : nextMovieExportFilename("Untitled");
+      const outputPath = join(directory, outputName);
       await concatenateClipFiles({ clipPaths, outputPath });
       const id = `export-${randomBytes(16).toString("hex")}`;
-      const filename = "movie.mp4";
+      const filename = outputName;
       exportsById.set(id, { filePath: outputPath, filename });
       sendJson(res, 200, {
         videoUrl: `/api/export-movie/${id}`,

@@ -13,6 +13,8 @@ import {
 import {
   journeyTakes,
   projectWithAppendedTake,
+  filmedTakeFitsCurrentJourney,
+  mergeProjectUpdate,
   projectWithLatestJourneyTakes,
   projectWithSelectedTake,
   selectedTake,
@@ -232,6 +234,63 @@ describe("NEW TAKE appends rather than replaces", () => {
     expect(projectWithLatestJourneyTakes(filmed, stale).journeys.find((journey) => journey.id === "C-D")?.videoUrl).toBe(
       "https://replicate.delivery/c-d.mp4",
     );
+  });
+
+  it("does not copy A-B footage from a different project", () => {
+    const feather = {
+      ...projectWithAppendedTake(stagedLeg(), "A-B", {
+        take,
+        videoUrl: "https://example.test/featherflight.mp4",
+      }),
+      id: "featherflight",
+      title: "FeatherFlight",
+    };
+    const chernobyl = { ...stagedLeg(), id: "chernobyl", title: "Chernobyl" };
+    expect(mergeProjectUpdate(feather, chernobyl)).toEqual(chernobyl);
+    expect(mergeProjectUpdate(chernobyl, feather)).toEqual(feather);
+  });
+
+  it("keeps in-flight A-B footage when the same project updates", () => {
+    const filmed = projectWithAppendedTake(stagedLeg(), "A-B", {
+      take,
+      videoUrl: "https://example.test/keep.mp4",
+    });
+    const stale = {
+      ...filmed,
+      story: "updated story",
+      journeys: filmed.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              takes: undefined,
+              take: undefined,
+              selectedTakeId: undefined,
+              videoUrl: undefined,
+              status: "ready" as const,
+            }
+          : journey,
+      ),
+    };
+    const restored = mergeProjectUpdate(stale, filmed);
+    expect(restored.story).toBe("updated story");
+    expect(restored.journeys[0]?.videoUrl).toBe("https://example.test/keep.mp4");
+  });
+
+  it("rejects a take whose START/END no longer match the current journey", () => {
+    const staged = stagedLeg();
+    expect(
+      filmedTakeFitsCurrentJourney(staged, "A-B", {
+        startCanonicalMediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        endCanonicalMediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      }),
+    ).toBe(true);
+    expect(
+      filmedTakeFitsCurrentJourney(staged, "A-B", {
+        startCanonicalMediaId: "upload-ffffffffffffffffffffffffffffffff",
+        endCanonicalMediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      }),
+    ).toBe(false);
+    expect(filmedTakeFitsCurrentJourney({ ...staged, journeys: [] }, "A-B", undefined)).toBe(false);
   });
 });
 

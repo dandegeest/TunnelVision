@@ -21,7 +21,7 @@ export const GENERATION_INTENT_LABEL: Record<GenerationIntent, string> = {
 export const DEFAULT_VIDEO_MODELS_BY_INTENT: VideoModelsByIntent = {
   fast: "pruna-p-video",
   balanced: "wan-2.2-first-last-frame",
-  quality: "seedance-2.5",
+  quality: "kling-v2.5-turbo-pro",
 };
 
 export function isGenerationIntent(value: unknown): value is GenerationIntent {

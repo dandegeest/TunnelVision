@@ -2,7 +2,8 @@
  * Product video generators. Slugs stay at the MediaProvider boundary.
  * This catalog is importable from the web app; do not import adapter
  * modules here (they pull Node types into the browser compile).
- * Pruna is the development default. Mid-tier, Seedance 2.5, and Kling 3 are opt-in.
+ * Pruna is the Fast development default. Quality defaults to Kling 2.5 Turbo Pro.
+ * Mid-tier, Seedance 2.5, and Kling 3 remain catalog options.
  */
 export const VIDEO_MODEL_IDS = [
   "pruna-p-video",

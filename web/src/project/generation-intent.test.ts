@@ -15,19 +15,19 @@ import { takeDisplayLabel } from "./takes";
 import { projectWithVideoModelForIntent } from "./shoot";
 
 describe("generation intents", () => {
-  it("defaults a new project to Fast/Pruna, Balanced/Wan, Quality/Seedance 2.5", () => {
+  it("defaults a new project to Fast/Pruna, Balanced/Wan, Quality/Kling 2.5", () => {
     const project = createNewProject();
     expect(videoModelsByIntentFromProject(project)).toEqual(DEFAULT_VIDEO_MODELS_BY_INTENT);
     expect(defaultTakeIntentFromProject(project)).toBe(DEFAULT_GENERATION_INTENT);
     expect(unshotVideoModel(project)).toBe("pruna-p-video");
     expect(videoModelForIntent(project, "fast")).toBe("pruna-p-video");
     expect(videoModelForIntent(project, "balanced")).toBe("wan-2.2-first-last-frame");
-    expect(videoModelForIntent(project, "quality")).toBe("seedance-2.5");
+    expect(videoModelForIntent(project, "quality")).toBe("kling-v2.5-turbo-pro");
   });
 
   it("resolves Agent footage through the default Take intent mapping", () => {
     const project = createNewProject();
-    expect(unshotVideoModel({ ...project, defaultTakeIntent: "quality" })).toBe("seedance-2.5");
+    expect(unshotVideoModel({ ...project, defaultTakeIntent: "quality" })).toBe("kling-v2.5-turbo-pro");
     expect(unshotVideoModel({ ...project, defaultTakeIntent: "balanced" })).toBe("wan-2.2-first-last-frame");
     expect(defaultTakeIntentFromProject({ videoModel: "pruna-p-video" })).toBe("fast");
   });
@@ -39,8 +39,8 @@ describe("generation intents", () => {
   });
 
   it("updates one intent mapping without renaming the filmmaking control", () => {
-    const project = projectWithVideoModelForIntent(createNewProject(), "quality", "kling-v2.5-turbo-pro");
-    expect(project.videoModelsByIntent?.quality).toBe("kling-v2.5-turbo-pro");
+    const project = projectWithVideoModelForIntent(createNewProject(), "quality", "seedance-2.5");
+    expect(project.videoModelsByIntent?.quality).toBe("seedance-2.5");
     expect(project.videoModel).toBe("pruna-p-video");
     expect(project.videoModelsByIntent?.fast).toBe("pruna-p-video");
   });

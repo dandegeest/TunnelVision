@@ -142,11 +142,71 @@ export function PreflightWarningControl({
   );
 }
 
+function storyboardIntentCopy(intent: string) {
+  return formatFpoIntentField(intent);
+}
+
+function StoryboardPlanOverlay({
+  intent,
+  beat,
+  beatLabel = "Beat",
+  showIntent,
+  showBeat,
+  variant,
+  className,
+}: {
+  intent?: string;
+  beat?: string;
+  beatLabel?: "Beat" | "Story";
+  showIntent: boolean;
+  showBeat: boolean;
+  variant: "still" | "fpo";
+  className?: string;
+}) {
+  const intentText = showIntent ? intent?.trim() || undefined : undefined;
+  const beatText = showBeat ? beat?.trim() || undefined : undefined;
+  const beatDistinct = beatText && beatText !== intentText ? beatText : undefined;
+  if (!intentText && !beatDistinct) {
+    return null;
+  }
+  const split = Boolean(intentText && beatDistinct);
+  const overlayClass = variant === "still" ? "storyboard-still-intent" : "storyboard-fpo-intent";
+  return (
+    <span
+      className={`${overlayClass}${split ? " storyboard-plan-overlay-split" : ""}${className ? ` ${className}` : ""}`}
+    >
+      {intentText ? (
+        <span className="storyboard-plan-overlay-block">
+          {split ? <span className="storyboard-plan-overlay-kicker">Intent</span> : null}
+          <span className="storyboard-plan-overlay-body">{storyboardIntentCopy(intentText)}</span>
+        </span>
+      ) : null}
+      {split ? <span className="storyboard-plan-overlay-rule" aria-hidden /> : null}
+      {beatDistinct ? (
+        <span className="storyboard-plan-overlay-block">
+          {split ? <span className="storyboard-plan-overlay-kicker">{beatLabel}</span> : null}
+          <span className="storyboard-plan-overlay-body">{storyboardIntentCopy(beatDistinct)}</span>
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+function openingOverlayCopy(frame: StoryboardFrame, story?: string): { text?: string; label: "Beat" | "Story" } {
+  if (frame.id === "A") {
+    return { text: story, label: "Story" };
+  }
+  return { text: frame.visualDescription, label: "Beat" };
+}
+
 export function StoryboardFrameMedia({
   frame,
   selected,
   constructing,
   showMediaInfo = false,
+  showIntentOverlay = false,
+  showBeatOverlay = false,
+  story,
   hasWarning = false,
   planChanged = false,
   onSelect,
@@ -158,6 +218,9 @@ export function StoryboardFrameMedia({
   selected: boolean;
   constructing: boolean;
   showMediaInfo?: boolean;
+  showIntentOverlay?: boolean;
+  showBeatOverlay?: boolean;
+  story?: string;
   hasWarning?: boolean;
   planChanged?: boolean;
   onSelect?: () => void;
@@ -168,8 +231,8 @@ export function StoryboardFrameMedia({
   const frameBorder = selected ? "border-2 border-[#ece7df]" : "border-2 border-[#3a342c]";
   const provenance = displayProvenanceForFrame(frame);
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
-  const fpoIntent = frame.intent?.trim() || undefined;
   const showPlanChanged = planChanged && !constructing;
+  const overlaySecond = openingOverlayCopy(frame, story);
   const stillLabel = planChanged ? `Storyboard ${frame.label}, plan changed` : `Storyboard ${frame.label}`;
   const still = frame.image ? (
     <img src={frame.image} alt="" className="media-contain block h-full w-full" />
@@ -224,6 +287,17 @@ export function StoryboardFrameMedia({
               </span>
             </span>
           )}
+          <StoryboardPlanOverlay
+            variant="still"
+            intent={frame.intent}
+            beat={overlaySecond.text}
+            beatLabel={overlaySecond.label}
+            showIntent={showIntentOverlay}
+            showBeat={showBeatOverlay}
+            className={`absolute inset-x-0 top-6 z-[1] px-1.5 pt-1.5 ${
+              showMediaInfo && frame.mediaInfo ? "bottom-6" : "bottom-0 pb-2"
+            }`}
+          />
           {showPlanChanged ? (
             <span className="storyboard-plan-changed-flag pointer-events-none">Plan changed</span>
           ) : null}
@@ -260,9 +334,14 @@ export function StoryboardFrameMedia({
             <span className="storyboard-fpo-label max-w-full truncate" title={frame.label}>
               {frame.label}
             </span>
-            {fpoIntent ? (
-              <span className="storyboard-fpo-intent">{formatFpoIntentField(fpoIntent)}</span>
-            ) : null}
+            <StoryboardPlanOverlay
+              variant="fpo"
+              intent={frame.intent}
+              beat={overlaySecond.text}
+              beatLabel={overlaySecond.label}
+              showIntent
+              showBeat={showBeatOverlay}
+            />
           </button>
           {constructing ? (
             <span
@@ -462,6 +541,129 @@ export function DestinationMenu({
         </span>
       ) : null}
       <span className="sr-only">{`Destination ${frameId} menu`}</span>
+    </span>
+  );
+}
+
+function StoryboardOverlayToggle({
+  checked,
+  label,
+  ariaLabel,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  ariaLabel: string;
+  onChange: (on: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitemcheckbox"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[12px] text-[#ece7df] outline-none hover:bg-[#1c1916] focus-visible:bg-[#1c1916]"
+      onClick={(event) => {
+        event.stopPropagation();
+        onChange(!checked);
+      }}
+    >
+      <span className="inline-flex h-3 w-3 shrink-0 items-center justify-center" aria-hidden>
+        {checked ? (
+          <svg viewBox="0 0 12 12" className="h-3 w-3">
+            <path
+              d="M2.4 6.2 4.8 8.6 9.6 3.4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : null}
+      </span>
+      {label}
+    </button>
+  );
+}
+
+export function StoryboardViewMenu({
+  intentOverlay,
+  beatOverlay,
+  onIntentOverlayChange,
+  onBeatOverlayChange,
+  initiallyOpen = false,
+}: {
+  intentOverlay: boolean;
+  beatOverlay: boolean;
+  onIntentOverlayChange: (on: boolean) => void;
+  onBeatOverlayChange: (on: boolean) => void;
+  initiallyOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(initiallyOpen);
+  const rootRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <span ref={rootRef} className="storyboard-view-menu relative shrink-0">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Storyboard options"
+        title="Storyboard options"
+        className="flex h-6 w-7 items-center justify-center text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen((current) => !current);
+        }}
+      >
+        <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+          <circle cx="6" cy="2.4" r="0.85" fill="currentColor" />
+          <circle cx="6" cy="6" r="0.85" fill="currentColor" />
+          <circle cx="6" cy="9.6" r="0.85" fill="currentColor" />
+        </svg>
+      </button>
+      {open ? (
+        <span
+          role="menu"
+          className="absolute top-full right-0 z-20 mt-0.5 min-w-[9.5rem] rounded border border-[#3a342c] bg-[#12100d] py-1 shadow-lg"
+        >
+          <StoryboardOverlayToggle
+            checked={intentOverlay}
+            label="Intent"
+            ariaLabel="Intent overlay"
+            onChange={onIntentOverlayChange}
+          />
+          <StoryboardOverlayToggle
+            checked={beatOverlay}
+            label="Beat"
+            ariaLabel="Beat overlay"
+            onChange={onBeatOverlayChange}
+          />
+        </span>
+      ) : null}
     </span>
   );
 }
@@ -732,9 +934,14 @@ export function StoryboardReel({
             >
               <span className="storyboard-fpo-copy">
                 <span className="storyboard-fpo-label">{current.label}</span>
-                {current.intent?.trim() ? (
-                  <span className="storyboard-fpo-intent">{formatFpoIntentField(current.intent)}</span>
-                ) : null}
+                <StoryboardPlanOverlay
+                  variant="fpo"
+                  intent={current.intent}
+                  beat={current.id === "A" ? project.story : current.visualDescription}
+                  beatLabel={current.id === "A" ? "Story" : "Beat"}
+                  showIntent
+                  showBeat
+                />
               </span>
             </span>
           )}
@@ -889,6 +1096,8 @@ export function PlanView() {
   const mediaPreflight = mediaPreflightForProject(project);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replacingFrameId = useRef<string | null>(null);
+  const [showIntentOverlay, setShowIntentOverlay] = useState(false);
+  const [showBeatOverlay, setShowBeatOverlay] = useState(false);
 
   const canAppendDrop =
     boardInteractive && !storyboardLocked && canDropAppendStoryboardDestination(project);
@@ -937,11 +1146,21 @@ export function PlanView() {
             }
           }}
         />
-        {!storyboardLive ? (
-          <p className="mb-4 text-sm text-[#9a8f7e]">
-            Enter a journey story or upload starting frame A.
-          </p>
-        ) : null}
+        <div className="mb-4 flex items-start justify-between gap-3">
+          {!storyboardLive ? (
+            <p className="text-sm text-[#9a8f7e]">
+              Enter a journey story or upload starting frame A.
+            </p>
+          ) : (
+            <span />
+          )}
+          <StoryboardViewMenu
+            intentOverlay={showIntentOverlay}
+            beatOverlay={showBeatOverlay}
+            onIntentOverlayChange={setShowIntentOverlay}
+            onBeatOverlayChange={setShowBeatOverlay}
+          />
+        </div>
         <ol
           className={`grid grid-cols-[repeat(auto-fill,minmax(15.5rem,1fr))] gap-x-5 gap-y-7 ${
             boardInteractive ? "" : "pointer-events-none opacity-40"
@@ -982,6 +1201,9 @@ export function PlanView() {
                 selected={selectedCard}
                 constructing={constructing}
                 showMediaInfo={selectedCard}
+                showIntentOverlay={showIntentOverlay}
+                showBeatOverlay={showBeatOverlay}
+                story={project.story}
                 hasWarning={warnings.length > 0}
                 planChanged={planChanged}
                 onSelect={frame.image ? selectStill : selectOrOpenReel}

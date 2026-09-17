@@ -19,8 +19,8 @@ import {
   parseImageModelId,
 } from "../src/replicate/image-models.ts";
 
-test("catalog keeps Nano Banana 2 Lite as the development default", () => {
-  assert.equal(DEFAULT_IMAGE_MODEL_ID, "nano-banana-2-lite");
+test("catalog keeps Nano Banana 2 at 1K as the development default", () => {
+  assert.equal(DEFAULT_IMAGE_MODEL_ID, "nano-banana-2");
   assert.equal(imageModelSlug("nano-banana-2-lite"), NANO_BANANA_2_LITE_MODEL);
   assert.equal(imageModelSlug("nano-banana-2"), NANO_BANANA_2_MODEL);
   assert.equal(parseImageModelId("google/nano-banana-2-lite"), "nano-banana-2-lite");

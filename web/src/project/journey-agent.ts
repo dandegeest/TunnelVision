@@ -1,5 +1,5 @@
 import { actualFrameForDestination, canAssessJourney, cinematographerAssessmentIsCurrent, hasCurrentMotionPlan, projectWithoutCinematographerAssessment } from "./cinematographer";
-import { canGenerateOpeningFrame, nextConstructableDestinationId } from "./destination";
+import { canGenerateOpeningFrame, canReshootDestinationFrame, canReshootOpeningFrame, generatedStillNeedsReshoot, nextConstructableDestinationId } from "./destination";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import { canExportMovie, exportMovieUnavailableReason, type MovieExportResult } from "./export-movie";
 import {
@@ -238,8 +238,9 @@ async function executeJourneyAgent(
   let project = initial;
   let snapshot = idleJourneyAgentSnapshot();
   let movieExport: MovieExportResult | undefined;
-  const footageTasks = new Map<string, Promise<void>>();
+    const footageTasks = new Map<string, Promise<void>>();
   const filmedSegments = new Map<string, Project>();
+  const reshotDestinationIds = new Set<string>();
 
   const adoptProject = (next: Project) => {
     let current = next;
@@ -298,6 +299,21 @@ async function executeJourneyAgent(
     adoptProject(projectWithSyncedProductionLegs(await operations.planJourney(project)));
     throwIfJourneyAgentStopped(signal);
 
+    const opening = project.storyboard.find((frame) => frame.id === "A");
+    if (
+      opening &&
+      generatedStillNeedsReshoot(project, opening) &&
+      canReshootOpeningFrame(project)
+    ) {
+      emit("ESTABLISHING_START", {
+        message: "reshooting opening destination A",
+        destinationId: "A",
+      });
+      adoptProject(projectWithSyncedProductionLegs(await operations.generateOpening(project)));
+      reshotDestinationIds.add("A");
+      throwIfJourneyAgentStopped(signal);
+    }
+
     let footageFailure: Error | undefined;
 
     const awaitFootage = async (propagateFailure: boolean) => {
@@ -317,7 +333,13 @@ async function executeJourneyAgent(
         return;
       }
       const journey = project.journeys.find((item) => item.id === journeyId);
-      if (!journey || journeyHasTakes(journey) || !canAssessJourney(project, journey)) {
+      if (!journey || !canAssessJourney(project, journey)) {
+        return;
+      }
+      const retakeAfterReshoot =
+        reshotDestinationIds.has(journey.startDestinationId) ||
+        Boolean(journey.endDestinationId && reshotDestinationIds.has(journey.endDestinationId));
+      if (journeyHasTakes(journey) && !retakeAfterReshoot) {
         return;
       }
       if (!canShootJourney(project, journey)) {
@@ -520,6 +542,19 @@ async function executeJourneyAgent(
         adoptProject(
           projectWithSyncedProductionLegs(await operations.constructDestination(project, beatId)),
         );
+        throwIfJourneyAgentStopped(signal);
+      } else if (
+        generatedStillNeedsReshoot(project, frame) &&
+        canReshootDestinationFrame(project, frame)
+      ) {
+        emit("CONSTRUCTING", {
+          message: `reshooting destination ${beatId}`,
+          destinationId: beatId,
+        });
+        adoptProject(
+          projectWithSyncedProductionLegs(await operations.constructDestination(project, beatId)),
+        );
+        reshotDestinationIds.add(beatId);
         throwIfJourneyAgentStopped(signal);
       }
       const inbound = inboundJourneyForDestination(project, beatId);

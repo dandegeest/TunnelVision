@@ -121,7 +121,9 @@ CM evaluation, bounded END repair when Traversal Confidence is below
 does not trigger repair), Camotion, asynchronous NEW TAKE as each
 inbound pair is established, then assembly of the **currently
 selected Takes**. Existing actual canonicals and selected Takes are
-preserved. The Agent does not judge artistic footage quality or
+preserved unless a generated still is plan-changed: Agent then
+reshoots those stills in travel order and appends a NEW TAKE on the
+affected legs. Uploaded stills stay. The Agent does not judge artistic footage quality or
 replace Takes — the filmmaker does. A required
 failure stops the Agent and keeps partial work. While JourneyAgent is
 in flight, **Stop** sits under CREATE JOURNEY and aborts the loop at
@@ -147,8 +149,9 @@ holds the JOURNEY PROMPT, destination count, Directed Options
 Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is
-no TunnelVision prompt). Generating A stores opening intent from the story and the
-generation prompt as visual description. That prompt asks for the
+no TunnelVision prompt). Generating A stores opening intent from the story.
+The opening still request is rebuilt from that story at generate/reshoot
+time and shown under Prompt; it is not stored as A's beat. That prompt asks for the
 opening instant only and does not depict later destinations. The Plan storyboard reel shows the same Inspector - Destination
 panel as Shoot on the right — intent, story/beat, Source | Motion | Details,
 Reshoot, and Details for a compact media-facts line above Prompt and Camotion —
@@ -161,8 +164,11 @@ When A is unresolved, CREATE JOURNEY generates A
 before Director planning. When auto-generate all destinations is on,
 CREATE JOURNEY then generates each remaining destination in order. Director activity appears in conversation when CREATE JOURNEY runs;
 pending **Planning…**, **Blocking…**, **Shooting…**, and construction turns show a progress spinner.
-Empty Plan FPO thumbnails overlay Director intent as readable text until
-an image exists. After planning, Construct builds a planned beat from the immediately
+Empty Plan FPO thumbnails overlay Director intent as readable text. A
+storyboard kebab on Plan offers Intent and Beat as checked on/off overlays over
+generated stills, off by default. When both overlays are on, the copy is labeled and scrolls
+if it does not fit.
+After planning, Construct builds a planned beat from the immediately
 preceding actual destination through image-conditioned generation
 (`ImageEditProvider` / Nano Banana 2 Lite by default). Generated A
 requests 16:9.
@@ -224,8 +230,8 @@ NEW TAKE uses those staged frames, composes an extreme-pace lead-in when
 the shot is slow-motion or hyperspeed, then `segmentPromptAddition`, then
 the frozen locomotion baseline, and generates a development
 clip. The Project panel Image control chooses the still generator for
-opening A and later B…N. Nano Banana 2 Lite is the development
-default; Nano Banana 2 is opt-in. The same model text-to-images A and
+opening A and later B…N. Nano Banana 2 at 1K is the development
+default; Nano Banana 2 Lite is opt-in. The same model text-to-images A and
 image-conditions later destinations. Format (PNG default) appears when
 the model can emit jpg or png. Resolution (1K default) appears only
 when the model offers more than one size; Lite is 1K-only and hides
@@ -233,7 +239,7 @@ that control, while Nano Banana 2 offers 1K / 2K / 4K. Project settings map
 Fast / Balanced / Quality generation intents onto catalog video models
 and choose the Default Take Intent (Fast) used by CREATE JOURNEY / Agent
 NEW TAKE. Fast defaults to Pruna; Balanced to Wan 2.2 First/Last Frame; Quality to
-Seedance 2.5. Kling 3 is an opt-in Quality catalog model: product shots
+Kling 2.5 Turbo Pro. Kling 3 is an opt-in Quality catalog model: product shots
 are 6s, and Project settings expose Standard (720p) / Pro (1080p) / 4K
 while it is mapped. Each adapter maps
 A′/B′ onto that model's start and last-frame fields. Clip duration
@@ -267,10 +273,12 @@ visual description onto an actual still only when those fields are empty.
 The Director runtime resolves
 that identity from Project state; it does not independently substitute
 a catalog still. Story edits update `Project.story` without planning. The filmmaker can
-replace a destination's canonical still in place. Replacing either canonical still on a production leg invalidates that JourneyShot's Motion Plan and keeps existing Takes. Uploaded media is
-session/dev-runtime trusted media, not durable project persistence.
-Constructed B is registered the same way so it can later be resolved
-as provider input. After replacement, that destination keeps its identity. Visual checkpoint for the frozen Plan shell:
+replace a destination's canonical still in place. Replacing either canonical still on a production leg invalidates that JourneyShot's Motion Plan and keeps existing Takes. Uploaded media first lands in session/dev-runtime trusted media.
+Save Project copies those bytes into the project directory; Open
+restores them. New Project names the session and creates that folder
+immediately so later work autosaves. Rename Project changes the current
+title and moves that folder when the project is already on disk. Constructed B is registered the same way so it can later
+be resolved as provider input. After replacement, that destination keeps its identity. Visual checkpoint for the frozen Plan shell:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 First live Director observation:
 [genesis/research/12-product-slice-3.html](../genesis/research/12-product-slice-3.html).
@@ -773,7 +781,8 @@ development model into Shoot. Provider/model selection remains
 configurable (cheap/fast during development, Seedance 2.5 or another
 quality model for intentional output validation). The Project panel Image
 and Video controls are that selection for the current project; Nano
-Banana 2 Lite and Pruna remain the defaults. Automated E2E mocks
+Banana 2 at 1K and Pruna remain the defaults, with Quality mapped to
+Kling 2.5 Turbo Pro. Automated E2E mocks
 the paid media-provider boundary. Current
 draft candidates and renderer notes live in
 [IMPLEMENTATION.md](IMPLEMENTATION.md).

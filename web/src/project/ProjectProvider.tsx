@@ -45,7 +45,13 @@ import {
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
-import { projectWithLatestJourneyTakes, projectWithSelectedTake } from "./takes";
+import {
+  currentJourneyCanonicalPair,
+  filmedTakeFitsCurrentJourney,
+  mergeProjectUpdate,
+  projectWithLatestJourneyTakes,
+  projectWithSelectedTake,
+} from "./takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
 import {
   canDownloadCurrentCut,
@@ -87,6 +93,17 @@ import {
 } from "./conversation";
 import { requestDownloadCurrentCut, requestExportMovie, type MovieExportResult } from "./export-movie";
 import {
+  chooseProjectsFolder as requestChooseProjectsFolder,
+  createPersistedProject,
+  fetchAppSettings,
+  listPersistedProjects,
+  openPersistedProject,
+  renamePersistedProject,
+  savePersistedProject,
+  type ListedProject,
+} from "./project-persistence-client";
+import { sanitizeProjectFolderName } from "./persistence/paths";
+import {
   idleJourneyAgentSnapshot,
   journeyAgentIsBusy,
   runJourneyAgent,
@@ -94,6 +111,17 @@ import {
 } from "./journey-agent";
 import { storyboardFrameById, type Agency, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
+
+function suggestedProjectName(project: Project): string {
+  if (project.title.trim() && project.title.trim() !== "UNTITLED") {
+    return project.title.trim();
+  }
+  const line = project.story.trim().split("\n")[0]?.trim() ?? "";
+  if (line) {
+    return sanitizeProjectFolderName(line);
+  }
+  return "Untitled";
+}
 
 function withId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids : [...ids, id];
@@ -184,6 +212,17 @@ type ProjectContextValue = {
   exportingMovie: boolean;
   exportMovieError: string | null;
   exportMovie: () => Promise<void>;
+  projectsFolder: string | null;
+  persistedProjectPath: string | null;
+  availableProjects: readonly ListedProject[];
+  persistenceError: string | null;
+  newProject: (name?: string) => Promise<void>;
+  saveProject: (name?: string) => Promise<void>;
+  renameProject: (name?: string) => Promise<void>;
+  openProject: (path: string) => Promise<void>;
+  chooseProjectsFolder: () => Promise<string | null>;
+  setProjectTitle: (title: string) => void;
+  refreshProjectList: () => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -233,6 +272,7 @@ export function ProjectProvider({
   const [project, setProject] = useState(() => initialProject ?? createNewProject());
   const projectRef = useRef(project);
   projectRef.current = project;
+  const projectSessionRef = useRef(0);
   const constructingRemainingRef = useRef(false);
   const [view, setViewState] = useState<WorkspaceView>(initialView);
   const [selection, setSelection] = useState<Selection>(
@@ -267,6 +307,14 @@ export function ProjectProvider({
   const [movieExport, setMovieExport] = useState<MovieExportResult | null>(null);
   const [exportingMovie, setExportingMovie] = useState(false);
   const [exportMovieError, setExportMovieError] = useState<string | null>(null);
+  const [projectsFolder, setProjectsFolder] = useState<string | null>(null);
+  const [persistedProjectPath, setPersistedProjectPath] = useState<string | null>(null);
+  const persistedProjectPathRef = useRef<string | null>(null);
+  persistedProjectPathRef.current = persistedProjectPath;
+  const persistedCreatedAtRef = useRef<string | undefined>(undefined);
+  const [availableProjects, setAvailableProjects] = useState<ListedProject[]>([]);
+  const [persistenceError, setPersistenceError] = useState<string | null>(null);
+  const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [debugOn, setDebugOn] = useState(initialDebug);
   const debugOnRef = useRef(debugOn);
   debugOnRef.current = debugOn;
@@ -370,8 +418,38 @@ export function ProjectProvider({
     setProject((current) => projectWithNudgedStoryDuration(current, delta));
   }, []);
 
+  const replaceProject = useCallback((next: Project): Project => {
+    projectSessionRef.current += 1;
+    agentAbortRef.current?.abort();
+    agentAbortRef.current = null;
+    agentConversationCursor.current = 0;
+    constructingRemainingRef.current = false;
+    projectRef.current = next;
+    setProject(next);
+    setJourneyAgent(idleJourneyAgentSnapshot());
+    setShootingJourneyIds([]);
+    setAssessingJourneyIds([]);
+    setConstructingBeatId(null);
+    setDirectorStatus("idle");
+    setPlaying(false);
+    setCutPlaybackJourneyId(null);
+    setReplacingStart(false);
+    setExportingMovie(false);
+    setDownloadingCut(false);
+    return next;
+  }, []);
+
   const applyProject = useCallback((next: Project): Project => {
-    const merged = projectWithLatestJourneyTakes(next, projectRef.current);
+    const merged = mergeProjectUpdate(next, projectRef.current);
+    projectRef.current = merged;
+    setProject(merged);
+    return merged;
+  }, []);
+
+  const adoptSavedProject = useCallback((persisted: Project): Project => {
+    const current = projectRef.current;
+    const incoming = current.id === persisted.id ? current : { ...current, id: persisted.id };
+    const merged = projectWithLatestJourneyTakes(persisted, incoming);
     projectRef.current = merged;
     setProject(merged);
     return merged;
@@ -491,10 +569,14 @@ export function ProjectProvider({
           status: "constructing",
         }),
       );
+      const session = projectSessionRef.current;
       try {
         const request = destinationConstructionRequestFromProject(current, beatId);
         const result = await requestConstructDestination(request);
         const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
         const next = applyProject(
           projectWithConstructedDestination(projectRef.current, {
             beatId: request.beatId,
@@ -511,6 +593,9 @@ export function ProjectProvider({
         );
         return next;
       } catch (error) {
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "failed",
@@ -531,9 +616,13 @@ export function ProjectProvider({
         return current;
       }
       constructingRemainingRef.current = true;
+      const session = projectSessionRef.current;
       let next = current;
       try {
         while (projectRef.current.autoGenerateAllDestinations) {
+          if (projectSessionRef.current !== session) {
+            return projectRef.current;
+          }
           const beatId = nextConstructableDestinationId(next);
           if (!beatId) {
             break;
@@ -588,9 +677,13 @@ export function ProjectProvider({
         referenceMediaId?: string;
       },
     ): Promise<Project> => {
+      const session = projectSessionRef.current;
       const request = destinationRepairRequestFromProject(current, beatId, input);
       const result = await requestConstructDestination(request);
       const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
+      if (projectSessionRef.current !== session) {
+        return projectRef.current;
+      }
       const next = applyProject(
         projectWithRepairedCanonical(projectRef.current, {
           beatId: request.beatId,
@@ -618,12 +711,16 @@ export function ProjectProvider({
           status: "constructing",
         }),
       );
+      const session = projectSessionRef.current;
       try {
         const request = openingFrameGenerationRequestFromProject(current);
         const result = await requestGenerateOpeningFrame(request);
         const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
         const next = applyProject(
-          projectWithGeneratedOpeningFrame(current, {
+          projectWithGeneratedOpeningFrame(projectRef.current, {
             mediaId: result.mediaId,
             imageUrl: result.imageUrl,
             ...(mediaInfo ? { mediaInfo } : {}),
@@ -637,6 +734,9 @@ export function ProjectProvider({
         );
         return next;
       } catch (error) {
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
         const message = error instanceof Error ? error.message : "Opening frame generation failed.";
         setStartingFrameError(message);
         setConversation((entries) =>
@@ -694,10 +794,14 @@ export function ProjectProvider({
       if (!journey || !canAssessJourney(current, journey) || cinematographerAssessmentIsCurrent(current, journey)) {
         return current;
       }
+      const session = projectSessionRef.current;
       setAssessingJourneyIds((ids) => withId(ids, journeyId));
       try {
         const request = cinematographerRequestFromProject(current, journeyId);
         const result = await requestCinematographerAssessment(request);
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
         const latest = projectRef.current;
         const latestJourney = latest.journeys.find((item) => item.id === journeyId);
         const latestPair = latestJourney ? cinematographerPairMediaIds(latest, latestJourney) : undefined;
@@ -736,94 +840,101 @@ export function ProjectProvider({
         return pending;
       }
       const work = (async (): Promise<Project> => {
-      const entryId = nextConversationId("blocking");
-      setCinematographerError(null);
-      if (journey.motionPlanError) {
-        applyProject(projectWithMotionPlanError(current, journeyId, undefined));
-      }
-      setAssessingJourneyIds((ids) => withId(ids, journeyId));
-      setConversation((entries) =>
-        appendConversationEntry(entries, {
-          id: entryId,
-          createdAt: conversationTimestamp(),
-          kind: "blocking",
-          journeyId,
-          status: "blocking",
-        }),
-      );
-      try {
-        const request = cinematographerRequestFromProject(current, journeyId);
-        const reuseAssessment =
-          cinematographerAssessmentIsCurrent(current, journey) && journey.cinematographer
-            ? journey.cinematographer
-            : undefined;
-        const assessment =
-          reuseAssessment ?? (await requestCinematographerAssessment(request)).assessment;
-        const staged = await requestMotionPlan(
-          motionPlanStageRequestFromAssessment(
-            journeyId,
-            request.startMediaId,
-            request.endMediaId,
-            assessment,
-            debugOnRef.current,
-          ),
-        );
-        const latest = projectRef.current;
-        const latestJourney = latest.journeys.find((item) => item.id === journeyId);
-        if (!latestJourney || journeyMotionPlanInputKey(latest, latestJourney) !== inputKey) {
-          setConversation((entries) =>
-            resolveBlockingEntry(entries, entryId, {
-              status: "failed",
-              error: "Canonical pair changed",
-            }),
-          );
-          return latest;
+        const session = projectSessionRef.current;
+        const entryId = nextConversationId("blocking");
+        setCinematographerError(null);
+        if (journey.motionPlanError) {
+          applyProject(projectWithMotionPlanError(current, journeyId, undefined));
         }
-        if (hasCurrentMotionPlan(latest, latestJourney)) {
+        setAssessingJourneyIds((ids) => withId(ids, journeyId));
+        setConversation((entries) =>
+          appendConversationEntry(entries, {
+            id: entryId,
+            createdAt: conversationTimestamp(),
+            kind: "blocking",
+            journeyId,
+            status: "blocking",
+          }),
+        );
+        try {
+          const request = cinematographerRequestFromProject(current, journeyId);
+          const reuseAssessment =
+            cinematographerAssessmentIsCurrent(current, journey) && journey.cinematographer
+              ? journey.cinematographer
+              : undefined;
+          const assessment =
+            reuseAssessment ?? (await requestCinematographerAssessment(request)).assessment;
+          const staged = await requestMotionPlan(
+            motionPlanStageRequestFromAssessment(
+              journeyId,
+              request.startMediaId,
+              request.endMediaId,
+              assessment,
+              debugOnRef.current,
+            ),
+          );
+          if (projectSessionRef.current !== session) {
+            return projectRef.current;
+          }
+          const latest = projectRef.current;
+          const latestJourney = latest.journeys.find((item) => item.id === journeyId);
+          if (!latestJourney || journeyMotionPlanInputKey(latest, latestJourney) !== inputKey) {
+            setConversation((entries) =>
+              resolveBlockingEntry(entries, entryId, {
+                status: "failed",
+                error: "Canonical pair changed",
+              }),
+            );
+            return latest;
+          }
+          if (hasCurrentMotionPlan(latest, latestJourney)) {
+            setConversation((entries) =>
+              resolveBlockingEntry(entries, entryId, {
+                status: "blocked",
+                assessment,
+              }),
+            );
+            return latest;
+          }
+          const next = projectWithMotionPlan(latest, journeyId, {
+            cinematographer: assessment,
+            startCanonicalMediaId: request.startMediaId,
+            endCanonicalMediaId: request.endMediaId,
+            startShootingFrame: staged.startShootingFrame,
+            endShootingFrame: staged.endShootingFrame,
+            startPlan: staged.startPlan,
+            endPlan: staged.endPlan,
+            segmentPromptAddition: staged.segmentPromptAddition,
+            effectivePrompt: staged.effectivePrompt,
+            pace: staged.pace,
+            camotion: staged.camotion,
+          });
+          applyProject(next);
           setConversation((entries) =>
             resolveBlockingEntry(entries, entryId, {
               status: "blocked",
               assessment,
             }),
           );
-          return latest;
+          return next;
+        } catch (error) {
+          if (projectSessionRef.current !== session) {
+            return projectRef.current;
+          }
+          const message = error instanceof Error ? error.message : "Cinematographer assessment failed";
+          setCinematographerError(message);
+          applyProject(projectWithMotionPlanError(projectRef.current, journeyId, message));
+          setConversation((entries) =>
+            resolveBlockingEntry(entries, entryId, {
+              status: "failed",
+              error: message,
+            }),
+          );
+          throw error;
+        } finally {
+          inFlightMotionPlans.delete(inputKey);
+          setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
         }
-        const next = projectWithMotionPlan(latest, journeyId, {
-          cinematographer: assessment,
-          startCanonicalMediaId: request.startMediaId,
-          endCanonicalMediaId: request.endMediaId,
-          startShootingFrame: staged.startShootingFrame,
-          endShootingFrame: staged.endShootingFrame,
-          startPlan: staged.startPlan,
-          endPlan: staged.endPlan,
-          segmentPromptAddition: staged.segmentPromptAddition,
-          effectivePrompt: staged.effectivePrompt,
-          pace: staged.pace,
-          camotion: staged.camotion,
-        });
-        applyProject(next);
-        setConversation((entries) =>
-          resolveBlockingEntry(entries, entryId, {
-            status: "blocked",
-            assessment,
-          }),
-        );
-        return next;
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Cinematographer assessment failed";
-        setCinematographerError(message);
-        applyProject(projectWithMotionPlanError(projectRef.current, journeyId, message));
-        setConversation((entries) =>
-          resolveBlockingEntry(entries, entryId, {
-            status: "failed",
-            error: message,
-          }),
-        );
-        throw error;
-      } finally {
-        inFlightMotionPlans.delete(inputKey);
-        setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
-      }
       })();
       inFlightMotionPlans.set(inputKey, work);
       return work;
@@ -833,9 +944,18 @@ export function ProjectProvider({
 
   const completeJourneyShoot = useCallback(
     async (journeyId: string, resolvedIntent: GenerationIntent, entryId: string): Promise<Project> => {
+      const session = projectSessionRef.current;
+      const journey = projectRef.current.journeys.find((item) => item.id === journeyId);
+      const shotAgainst = journey ? currentJourneyCanonicalPair(projectRef.current, journey) : undefined;
       try {
         const request = shootRequestFromProject(projectRef.current, journeyId, resolvedIntent);
         const result = await requestShootJourney({ ...request, debug: debugOnRef.current });
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
+        if (!filmedTakeFitsCurrentJourney(projectRef.current, journeyId, shotAgainst)) {
+          throw new Error("Start and end frames changed before this take finished.");
+        }
         const stamped = {
           ...result,
           take: { ...result.take, generationIntent: result.take.generationIntent ?? resolvedIntent },
@@ -851,6 +971,9 @@ export function ProjectProvider({
         );
         return next;
       } catch (error) {
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
         const message = error instanceof Error ? error.message : "Shoot failed";
         setShootError(message);
         const failed = projectWithJourneyShotFailed(projectRef.current, journeyId, message);
@@ -875,6 +998,9 @@ export function ProjectProvider({
       const journey = current.journeys.find((item) => item.id === journeyId);
       if (!journey || !canShootJourney(current, journey)) {
         throw new Error("Stage this journey before generating");
+      }
+      if (current.id !== projectRef.current.id) {
+        throw new Error("Project switched");
       }
       const entryId = nextConversationId("shooting");
       setShootError(null);
@@ -1092,7 +1218,7 @@ export function ProjectProvider({
             setDownloadingCut(true);
             setExportMovieError(null);
             try {
-              const assembled = await requestDownloadCurrentCut(current);
+              const assembled = await requestDownloadCurrentCut(current, movieExport?.filename);
               assembledCutRef.current = { fingerprint, result: assembled };
               setMovieExport(assembled);
               return assembled;
@@ -1110,7 +1236,7 @@ export function ProjectProvider({
     document.body.append(link);
     link.click();
     link.remove();
-  }, []);
+  }, [movieExport?.filename]);
 
   const writeStoryFromOpeningOn = useCallback(
     async (current: Project): Promise<Project> => {
@@ -1121,6 +1247,7 @@ export function ProjectProvider({
         throw new Error("Enter a journey story or add starting frame A.");
       }
       const storyId = nextConversationId("director");
+      const session = projectSessionRef.current;
       setConversation((entries) =>
         appendConversationEntry(entries, {
           id: storyId,
@@ -1135,7 +1262,10 @@ export function ProjectProvider({
       if (!story) {
         throw new Error("Director returned no journey story");
       }
-      const next = applyProject({ ...current, story });
+      if (projectSessionRef.current !== session) {
+        return projectRef.current;
+      }
+      const next = applyProject({ ...projectRef.current, story });
       setComposerDraftState(story);
       setConversation((entries) =>
         resolveDirectorEntry(entries, storyId, {
@@ -1161,6 +1291,7 @@ export function ProjectProvider({
         );
       }
       const directorId = nextConversationId("director");
+      const session = projectSessionRef.current;
       setConversation((entries) =>
         appendConversationEntry(entries, {
           id: directorId,
@@ -1175,7 +1306,10 @@ export function ProjectProvider({
       if (!summary) {
         throw new Error("Director returned no filmmaker-facing summary");
       }
-      const next = applyProject(projectWithDirectorPlan(current, result.plan));
+      if (projectSessionRef.current !== session) {
+        return projectRef.current;
+      }
+      const next = applyProject(projectWithDirectorPlan(projectRef.current, result.plan));
       setConversation((entries) =>
         resolveDirectorEntry(entries, directorId, {
           status: "complete",
@@ -1194,6 +1328,7 @@ export function ProjectProvider({
     agentAbortRef.current?.abort();
     const controller = new AbortController();
     agentAbortRef.current = controller;
+    const agentSession = projectSessionRef.current;
     try {
     const result = await runJourneyAgent(
       projectRef.current,
@@ -1207,10 +1342,16 @@ export function ProjectProvider({
         planMotion: assessJourneyOn,
         createTake: shootJourneyOn,
         assembleMovie: async (current) => {
+          if (projectSessionRef.current !== agentSession) {
+            throw new Error("Project switched");
+          }
           setExportingMovie(true);
           setExportMovieError(null);
           try {
-            const exported = await requestExportMovie(current);
+            const exported = await requestExportMovie(current, movieExport?.filename);
+            if (projectSessionRef.current !== agentSession) {
+              throw new Error("Project switched");
+            }
             setMovieExport(exported);
             setConversation((entries) =>
               appendConversationEntry(entries, {
@@ -1234,6 +1375,9 @@ export function ProjectProvider({
         },
       },
       (snapshot) => {
+        if (projectSessionRef.current !== agentSession) {
+          return;
+        }
         setJourneyAgent(snapshot);
         const fresh = snapshot.events.slice(agentConversationCursor.current);
         agentConversationCursor.current = snapshot.events.length;
@@ -1277,6 +1421,9 @@ export function ProjectProvider({
       },
       controller.signal,
     );
+    if (projectSessionRef.current !== agentSession) {
+      return;
+    }
     applyProject(projectWithLatestJourneyTakes(result.project, projectRef.current));
     if (result.snapshot.phase !== "FAILED") {
       setJourneyAgent(result.snapshot);
@@ -1296,6 +1443,7 @@ export function ProjectProvider({
     repairCanonicalOn,
     shootJourneyOn,
     writeStoryFromOpeningOn,
+    movieExport,
   ]);
 
   const stopJourneyAgent = useCallback(() => {
@@ -1381,14 +1529,250 @@ export function ProjectProvider({
     setExportMovieError(null);
     setExportingMovie(true);
     try {
-      const result = await requestExportMovie(project);
+      const result = await requestExportMovie(project, movieExport?.filename);
       setMovieExport(result);
     } catch (error) {
       setExportMovieError(error instanceof Error ? error.message : "Movie export failed");
     } finally {
       setExportingMovie(false);
     }
-  }, [project]);
+  }, [movieExport?.filename, project]);
+
+  const refreshProjectList = useCallback(async () => {
+    try {
+      const listed = await listPersistedProjects();
+      setProjectsFolder(listed.projectsFolder);
+      setAvailableProjects(listed.projects);
+    } catch {
+      // Tests and a missing Vite plugin should not crash the workspace.
+    }
+  }, []);
+
+  const chooseProjectsFolder = useCallback(async () => {
+    try {
+      const result = await requestChooseProjectsFolder();
+      if (result.cancelled) {
+        return projectsFolder;
+      }
+      const folder = result.projectsFolder ?? null;
+      setProjectsFolder(folder);
+      await refreshProjectList();
+      return folder;
+    } catch (error) {
+      setPersistenceError(error instanceof Error ? error.message : "Could not choose a Projects Folder.");
+      return null;
+    }
+  }, [projectsFolder, refreshProjectList]);
+
+  const ensureProjectsFolder = useCallback(async () => {
+    if (projectsFolder) {
+      return projectsFolder;
+    }
+    const settings = await fetchAppSettings().catch(() => ({}) as { projectsFolder?: string });
+    if (settings.projectsFolder) {
+      setProjectsFolder(settings.projectsFolder);
+      return settings.projectsFolder;
+    }
+    const chosen = await chooseProjectsFolder();
+    if (!chosen) {
+      throw Object.assign(new Error("Choose a Projects Folder first."), { code: "projects_folder_required" });
+    }
+    return chosen;
+  }, [chooseProjectsFolder, projectsFolder]);
+
+  const saveProject = useCallback(
+    async (name?: string) => {
+      setPersistenceError(null);
+      const session = projectSessionRef.current;
+      const current = projectRef.current;
+      const title = sanitizeProjectFolderName((name ?? suggestedProjectName(current)).trim() || "Untitled");
+      try {
+        if (!persistedProjectPathRef.current) {
+          await ensureProjectsFolder();
+          const created = await createPersistedProject({
+            name: title,
+            project: { ...current, title },
+            conversation,
+          });
+          if (projectSessionRef.current !== session) {
+            return;
+          }
+          persistedCreatedAtRef.current = created.createdAt;
+          setPersistedProjectPath(created.path);
+          adoptSavedProject({ ...created.project, title });
+          if (created.missingAssets.length > 0) {
+            setPersistenceError(`Saved with missing assets: ${created.missingAssets.join(", ")}`);
+          }
+        } else {
+          const saved = await savePersistedProject({
+            path: persistedProjectPathRef.current,
+            project: { ...current, title },
+            conversation,
+            movieExport,
+            createdAt: persistedCreatedAtRef.current,
+          });
+          if (projectSessionRef.current !== session) {
+            return;
+          }
+          persistedCreatedAtRef.current = saved.createdAt;
+          if (saved.project.id !== current.id || saved.project.title !== current.title) {
+            adoptSavedProject({ ...projectRef.current, id: saved.project.id, title: saved.project.title });
+          }
+          if (saved.missingAssets.length > 0) {
+            setPersistenceError(`Saved with missing assets: ${saved.missingAssets.join(", ")}`);
+          }
+        }
+        await refreshProjectList();
+      } catch (error) {
+        setPersistenceError(error instanceof Error ? error.message : "Could not save the project.");
+        throw error;
+      }
+    },
+    [adoptSavedProject, conversation, ensureProjectsFolder, movieExport, refreshProjectList],
+  );
+
+  const openProject = useCallback(
+    async (path: string) => {
+      setPersistenceError(null);
+      try {
+        const opened = await openPersistedProject(path);
+        persistedCreatedAtRef.current = opened.createdAt;
+        setPersistedProjectPath(opened.path);
+        replaceProject(opened.project);
+        setComposerDraftState(opened.project.story);
+        setConversation(opened.conversation);
+        setMovieExport(opened.movieExport ?? null);
+        setViewState("plan");
+        setSelection({ kind: "storyboard", frameId: opened.project.storyboard[0]?.id ?? "A" });
+        if (opened.missingAssets.length > 0) {
+          setPersistenceError(`Opened with missing assets: ${opened.missingAssets.join(", ")}`);
+        }
+        await refreshProjectList();
+      } catch (error) {
+        setPersistenceError(error instanceof Error ? error.message : "Could not open the project.");
+        throw error;
+      }
+    },
+    [refreshProjectList, replaceProject],
+  );
+
+  const newProject = useCallback(
+    async (name?: string) => {
+      const title = sanitizeProjectFolderName(name?.trim() || "UNTITLED");
+      const next = { ...createNewProject(), title };
+      persistedCreatedAtRef.current = undefined;
+      setPersistedProjectPath(null);
+      replaceProject(next);
+      const session = projectSessionRef.current;
+      setComposerDraftState("");
+      setConversation([]);
+      setMovieExport(null);
+      setViewState("plan");
+      setSelection({ kind: "storyboard", frameId: "A" });
+      setPersistenceError(null);
+      try {
+        await ensureProjectsFolder();
+        const created = await createPersistedProject({
+          name: title,
+          project: next,
+          conversation: [],
+        });
+        if (projectSessionRef.current !== session) {
+          return;
+        }
+        persistedCreatedAtRef.current = created.createdAt;
+        setPersistedProjectPath(created.path);
+        adoptSavedProject({ ...created.project, title: created.project.title });
+        await refreshProjectList();
+      } catch (error) {
+        setPersistenceError(error instanceof Error ? error.message : "Could not create the project.");
+        throw error;
+      }
+    },
+    [adoptSavedProject, ensureProjectsFolder, refreshProjectList, replaceProject],
+  );
+
+  const setProjectTitle = useCallback((title: string) => {
+    const next = sanitizeProjectFolderName(title.trim() || "UNTITLED");
+    setProject((current) => (current.title === next ? current : { ...current, title: next }));
+  }, []);
+
+  const renameProject = useCallback(
+    async (name?: string) => {
+      const title = sanitizeProjectFolderName((name ?? projectRef.current.title).trim() || "UNTITLED");
+      setPersistenceError(null);
+      if (!persistedProjectPathRef.current) {
+        setProjectTitle(title);
+        return;
+      }
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+        autosaveTimerRef.current = null;
+      }
+      const session = projectSessionRef.current;
+      const current = projectRef.current;
+      try {
+        const renamed = await renamePersistedProject({
+          path: persistedProjectPathRef.current,
+          name: title,
+          project: { ...current, title },
+          conversation,
+          movieExport,
+          createdAt: persistedCreatedAtRef.current,
+        });
+        if (projectSessionRef.current !== session) {
+          return;
+        }
+        persistedCreatedAtRef.current = renamed.createdAt;
+        setPersistedProjectPath(renamed.path);
+        adoptSavedProject({ ...projectRef.current, id: renamed.project.id, title: renamed.project.title });
+        if (renamed.missingAssets.length > 0) {
+          setPersistenceError(`Saved with missing assets: ${renamed.missingAssets.join(", ")}`);
+        }
+        await refreshProjectList();
+      } catch (error) {
+        setPersistenceError(error instanceof Error ? error.message : "Could not rename the project.");
+        throw error;
+      }
+    },
+    [adoptSavedProject, conversation, movieExport, refreshProjectList, setProjectTitle],
+  );
+
+  useEffect(() => {
+    void fetchAppSettings()
+      .then((settings) => {
+        if (settings.projectsFolder) {
+          setProjectsFolder(settings.projectsFolder);
+        }
+      })
+      .catch(() => undefined);
+    void refreshProjectList();
+  }, [refreshProjectList]);
+
+  useEffect(() => {
+    if (!persistedProjectPath) {
+      return;
+    }
+    if (autosaveTimerRef.current) {
+      clearTimeout(autosaveTimerRef.current);
+    }
+    autosaveTimerRef.current = setTimeout(() => {
+      void savePersistedProject({
+        path: persistedProjectPath,
+        project: projectRef.current,
+        conversation,
+        movieExport,
+        createdAt: persistedCreatedAtRef.current,
+      }).catch((error) => {
+        setPersistenceError(error instanceof Error ? error.message : "Autosave failed.");
+      });
+    }, 800);
+    return () => {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+      }
+    };
+  }, [conversation, movieExport, persistedProjectPath, project]);
 
   const selectedJourney = useMemo(() => {
     if (selection.kind !== "journey") {
@@ -1477,6 +1861,17 @@ export function ProjectProvider({
       exportingMovie,
       exportMovieError,
       exportMovie,
+      projectsFolder,
+      persistedProjectPath,
+      availableProjects,
+      persistenceError,
+      newProject,
+      saveProject,
+      renameProject,
+      openProject,
+      chooseProjectsFolder,
+      setProjectTitle,
+      refreshProjectList,
     }),
     [
       project,
@@ -1549,6 +1944,17 @@ export function ProjectProvider({
       exportingMovie,
       exportMovieError,
       exportMovie,
+      projectsFolder,
+      persistedProjectPath,
+      availableProjects,
+      persistenceError,
+      newProject,
+      saveProject,
+      renameProject,
+      openProject,
+      chooseProjectsFolder,
+      setProjectTitle,
+      refreshProjectList,
     ],
   );
 

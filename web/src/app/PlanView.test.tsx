@@ -7,11 +7,10 @@ import type { ConversationEntry } from "../project/conversation";
 import { formatConversationClock } from "../project/conversation";
 import { FilmmakingFrame } from "./FilmmakingFrame";
 import { ClearStoryboardPlanDialog } from "./ClearStoryboardPlanDialog";
-import { DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, StoryboardReel, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField, storyboardReelFrames } from "./PlanView";
+import { DestinationMenu, PlanView, PreflightWarningControl, StoryboardFrameMedia, StoryboardReel, StoryboardViewMenu, destinationDetailContent, formatDirectorEvidenceJson, formatFpoIntentField, storyboardReelFrames } from "./PlanView";
 import {
   canConstructDestinationFrame,
   generatedStillNeedsReshoot,
-  openingFrameGenerationPrompt,
   projectWithConstructedDestination,
   projectWithGeneratedOpeningFrame,
 } from "../project/destination";
@@ -216,7 +215,8 @@ describe("Plan project story", () => {
     const storyboard = html.slice(html.indexOf('aria-label="Storyboard"'), html.indexOf('id="project-panel"'));
     expect(storyboard).not.toContain("Generate");
     expect(html).not.toContain("CONSTRUCT");
-    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+    expect(storyboard).not.toContain("storyboard-still-intent");
+    expect(storyboard).not.toContain("<textarea");
   });
 });
 
@@ -235,6 +235,9 @@ describe("Plan storyboard FPO intent", () => {
     expect(html).not.toContain("A corridor continuing the same world.");
     expect(html).not.toContain("Deeper volume ahead.");
     expect(html).not.toContain("A cavern continuing the same world.");
+    expect(html).not.toContain("storyboard-plan-overlay-split");
+    expect(html).toContain('aria-label="Storyboard options"');
+    expect(html).not.toContain('aria-expanded="true"');
     expect(planned.storyboard[1]?.intent).toBe("Move forward into the next space.");
     expect(planned.storyboard[1]?.visualDescription).toBe("A corridor continuing the same world.");
     const fpo = renderFrame(planned.storyboard[1]!);
@@ -242,6 +245,12 @@ describe("Plan storyboard FPO intent", () => {
     expect(fpo).toContain("storyboard-fpo-intent");
     expect(fpo).toContain("Move forward into the next space.");
     expect(fpo).not.toContain("A corridor continuing the same world.");
+    expect(fpo).not.toContain("storyboard-plan-overlay-split");
+    const fpoBoth = renderFrame(planned.storyboard[1]!, { showBeatOverlay: true });
+    expect(fpoBoth).toContain("A corridor continuing the same world.");
+    expect(fpoBoth).toContain("storyboard-plan-overlay-split");
+    expect(fpoBoth).toContain(">Intent</span>");
+    expect(fpoBoth).toContain(">Beat</span>");
     expect(fpo).not.toContain("Generate");
   });
 
@@ -300,9 +309,8 @@ describe("Plan storyboard FPO intent", () => {
     expect(generating).toContain("storyboard-fpo-label");
     expect(generating).toContain("storyboard-fpo-intent");
     expect(generating).toContain("Move forward into the next space.");
-    expect(generating).not.toContain("CONSTRUCT");
-    expect(generating).not.toContain("Generate");
     expect(generating).not.toContain("A corridor continuing the same world.");
+    expect(generating).not.toContain("CONSTRUCT");
   });
 
   it("replaces the FPO with the actual image after successful construction", () => {
@@ -320,7 +328,10 @@ describe("Plan storyboard FPO intent", () => {
     expect(afterB).not.toContain("Generate destination D");
     expect(afterB).not.toContain("CONSTRUCT");
     expect(afterB.match(/destination-generate-row/g)?.length).toBe(1);
-    expect(afterB).not.toContain("Move forward into the next space.");
+    expect(afterB).toContain("Continue through the corridor.");
+    expect(afterB).not.toContain("storyboard-still-intent");
+    expect(afterB).not.toContain("storyboard-plan-overlay-split");
+    expect(afterB).toContain('aria-label="Storyboard options"');
     expect(afterB).not.toContain("A corridor continuing the same world.");
     expect(afterB).not.toContain("REPLACE IMAGE");
     expect(constructedB.storyboard[1]?.intent).toBe("Move forward into the next space.");
@@ -331,9 +342,25 @@ describe("Plan storyboard FPO intent", () => {
     const actual = renderFrame(constructedB.storyboard[1]!);
     expect(actual).toContain('src="/api/runtime-media/upload-11111111111111111111111111111111"');
     expect(actual).not.toContain("storyboard-fpo");
+    expect(actual).not.toContain("storyboard-still-intent");
     expect(actual).not.toContain("Move forward into the next space.");
     expect(actual).not.toContain("CONSTRUCT");
     expect(actual).not.toContain("Generate");
+
+    const overlaid = renderFrame(constructedB.storyboard[1]!, { showIntentOverlay: true });
+    expect(overlaid).toContain("storyboard-still-intent");
+    expect(overlaid).toContain("Move forward into the next space.");
+    expect(overlaid).not.toContain("storyboard-fpo-intent");
+    expect(overlaid).not.toContain("A corridor continuing the same world.");
+
+    const overlaidBoth = renderFrame(constructedB.storyboard[1]!, {
+      showIntentOverlay: true,
+      showBeatOverlay: true,
+    });
+    expect(overlaidBoth).toContain("storyboard-plan-overlay-split");
+    expect(overlaidBoth).toContain("storyboard-plan-overlay-kicker");
+    expect(overlaidBoth).toContain("Move forward into the next space.");
+    expect(overlaidBoth).toContain("A corridor continuing the same world.");
   });
 
   it("updates the FPO overlay when a later Director plan changes stored intent", () => {
@@ -624,8 +651,7 @@ describe("Plan storyboard chrome", () => {
     const html = renderPlan(createForestProject());
     expect(html).toContain("storyboard-frame-label");
     expect(html).toContain("inset-x-0 top-0");
-    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
-    expect(html).not.toContain("Root-tunnel mouth. The dark opening is slightly right of center.");
+    expect(html).not.toContain("storyboard-still-intent");
     expect(html).not.toContain("UPLOADED");
     expect(html).not.toContain("Uploaded</span>");
   });
@@ -771,6 +797,43 @@ describe("Plan destination affordance and menu", () => {
     expect(added.destinations).toEqual(forest.destinations);
     expect(html).not.toContain("storyboard-fpo-label");
     expect(html).not.toMatch(/>G</);
+  });
+
+  it("puts Intent and Beat overlays on checked storyboard kebab items", () => {
+    const on = renderToStaticMarkup(
+      <StoryboardViewMenu
+        intentOverlay
+        beatOverlay
+        initiallyOpen
+        onIntentOverlayChange={() => undefined}
+        onBeatOverlayChange={() => undefined}
+      />,
+    );
+    expect(on).toContain("storyboard-view-menu");
+    expect(on).toContain('aria-label="Storyboard options"');
+    expect(on).toContain('aria-haspopup="menu"');
+    expect(on).toContain('role="menuitemcheckbox"');
+    expect(on).toContain('aria-label="Intent overlay"');
+    expect(on).toContain('aria-label="Beat overlay"');
+    expect(on).toContain('aria-checked="true"');
+    expect(on).toContain(">Intent</button>");
+    expect(on).toContain(">Beat</button>");
+    expect(on).not.toContain('aria-pressed="true"');
+    expect(on).not.toContain("Toggle intent overlay");
+
+    const off = renderToStaticMarkup(
+      <StoryboardViewMenu
+        intentOverlay={false}
+        beatOverlay={false}
+        initiallyOpen
+        onIntentOverlayChange={() => undefined}
+        onBeatOverlayChange={() => undefined}
+      />,
+    );
+    expect(off).toContain('role="menuitemcheckbox"');
+    expect(off).toContain('aria-checked="false"');
+    expect(off).toContain(">Intent</button>");
+    expect(off).toContain(">Beat</button>");
   });
 
   it("keeps the kebab in the label strip with only Replace…", () => {
@@ -1147,10 +1210,14 @@ describe("Plan storyboard reel", () => {
 });
 
 describe("Plan destination details", () => {
-  it("keeps Director planning data off the persistent storyboard until details open", () => {
+  it("overlays Director intent on generated stills when Intent is on", () => {
     const forest = createForestProject();
     const html = renderPlan(forest);
-    expect(html).not.toContain("Night forest path toward the tree-trunk / root gateway in mist.");
+    expect(html).toContain('aria-label="Storyboard options"');
+    expect(html).not.toContain("storyboard-still-intent");
+    const overlaid = renderFrame(forest.storyboard[0]!, { showIntentOverlay: true });
+    expect(overlaid).toContain("storyboard-still-intent");
+    expect(overlaid).toContain("Night forest path toward the tree-trunk / root gateway in mist.");
     expect(destinationDetailContent(forest.storyboard[0]!)).toEqual({
       label: "A",
       intent: "Night forest path toward the tree-trunk / root gateway in mist.",
@@ -1194,6 +1261,7 @@ describe("Plan destination details", () => {
     expect(closed).toContain("Move forward into the next space.");
     expect(closed).not.toContain("A corridor continuing the same world.");
     expect(closed).toContain("storyboard-fpo-intent");
+    expect(closed).not.toContain("storyboard-plan-overlay-split");
     expect(closed).toContain('aria-label="Generate destination B"');
     expect(closed).toContain("destination-menu");
   });
@@ -1292,8 +1360,8 @@ describe("Plan destination details", () => {
     expect(html).not.toContain(">Prompt<");
   });
 
-  it("stores generated A's opening intent and TunnelVision prompt in destination details", () => {
-    const story = "Travel forward through an imagined interior at night.";
+  it("stores generated A's opening intent; Prompt holds the TunnelVision opening still request", () => {
+    const story = "Travel forward through an imagined interior at night. Later enter a hall.";
     const generated = projectWithGeneratedOpeningFrame(
       { ...createNewProject(), story },
       {
@@ -1301,11 +1369,10 @@ describe("Plan destination details", () => {
         imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
       },
     );
-    const prompt = openingFrameGenerationPrompt(story);
+    expect(generated.storyboard[0]?.visualDescription).toBeUndefined();
     expect(destinationDetailContent(generated.storyboard[0]!)).toEqual({
       label: "A",
-      intent: story,
-      visualDescription: prompt,
+      intent: "Travel forward through an imagined interior at night.",
     });
     const html = renderToStaticMarkup(
       <StoryboardReel
@@ -1318,11 +1385,22 @@ describe("Plan destination details", () => {
     );
     expect(html).toContain('aria-label="Destination A intent"');
     expect(html).toContain('aria-label="Destination A story"');
+    expect(html).not.toContain('aria-label="Destination A beat"');
     expect(html).toContain(">Prompt<");
     expect(html).toContain(">Inspector - Destination<");
     expect(html).toContain(story);
     expect(html).toContain("unembodied first-person POV");
-    expect(html).toContain("Nano Banana 2 Lite");
+    expect(html).toContain("Nano Banana 2");
+
+    const overlaid = renderFrame(generated.storyboard[0]!, {
+      showIntentOverlay: true,
+      showBeatOverlay: true,
+      story,
+    });
+    expect(overlaid).toContain(">Story</span>");
+    expect(overlaid).not.toContain(">Beat</span>");
+    expect(overlaid).not.toContain("Generate a still photograph");
+    expect(overlaid).toContain("Later enter a hall.");
   });
 });
 

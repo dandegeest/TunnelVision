@@ -40,7 +40,8 @@ a number adds that many FPO destinations. After the first DIRECT
 response the count is read-only and follows storyboard add/delete.
 When A is unresolved, CREATE JOURNEY generates A from
 the story then runs Director planning. That generated still stores opening
-intent from the story and the TunnelVision prompt as visual description. The
+intent from the story. The opening still prompt is rebuilt from the story
+when generating and is not stored as a beat. The
 prompt asks for the opening instant only and does not depict later
 destinations. When A is already actual and
 the story is empty, DIRECT first writes a journey story from that image.
@@ -61,7 +62,9 @@ control. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 Agent launches NEW TAKE as soon as each inbound pair is established;
 footage may overlap later canonical work. Assembly uses the currently
-selected Take per segment. Provider-aware
+selected Take per segment, named `{ProjectName}_vN.mp4`. When a generated
+still is plan-changed, a later Agent CREATE JOURNEY reshoots those
+stills and appends NEW TAKEs on the affected legs. Provider-aware
 concurrent filming (Runway-managed queue, not a TV concurrency
 cap) is backlog. See
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
@@ -76,8 +79,11 @@ path. Following-beat
 look-ahead is part of that Construct algorithm, not a Project-panel
 toggle; later beats stay
 planned until the filmmaker generates them. Empty FPO thumbnails overlay
-Director intent as readable text until an image exists; intent and visual
-description for actual cards stay on-demand in the lightbox Inspector -
+Director intent as readable text. A storyboard kebab on Plan offers Intent
+and Beat as checked on/off overlays over generated stills, off by default;
+when both are on the
+overlay labels them and scrolls if needed. Intent and visual
+description for actual cards also stay on-demand in the lightbox Inspector -
 Destination panel, with an
 editable prompt and Reshoot for generated stills on the kebab and in that
 inspector. A generated still whose
@@ -180,10 +186,10 @@ Project state; it does not independently substitute a catalog still.
 Story edits update `Project.story` without planning. The filmmaker can replace
 a destination's canonical still in place from the destination menu.
 Replacing either canonical still on a production leg invalidates that
-JourneyShot's Motion Plan and keeps existing Takes. Uploaded media is
-session/dev-runtime trusted media, not durable project persistence.
-Constructed B is registered the same way so it can later be resolved
-as provider input. After replacement, that destination's identity stays
+JourneyShot's Motion Plan and keeps existing Takes. Uploaded media first lands in session/dev-runtime trusted media.
+Save Project copies those bytes into the project directory; Open
+restores them. Constructed B is registered the same way so it can later
+be resolved as provider input. After replacement, that destination's identity stays
 the same. Slice 2 visual checkpoint:
 [genesis/research/11-product-slice-2.html](../genesis/research/11-product-slice-2.html).
 Slice 3 Director observation:
@@ -338,8 +344,8 @@ keystroke, and keep that text when the filmmaker leaves the field or closes the
 reel. Prompt and Camotion in Details are read-only, open by default, and offer
 copy-to-clipboard. Motion shows A′ when Camotion has conditioned that
 destination, and that tab also switches the reel still. Uploaded A with a journey story
-stores opening intent from that story; generated A also stores the opening
-prompt. Actual A can still open the reel inspector when those fields are empty. Clicking an unselected still outside the
+stores opening intent from that story. The opening still prompt lives under
+Prompt, not as a beat. Actual A can still open the reel inspector when those fields are empty. Clicking an unselected still outside the
 label, kebab, and media-info strips selects it. Clicking the selected
 still or the label strip opens that storyboard reel in the
 storyboard area, with previous and next among every storyboard
@@ -354,8 +360,9 @@ close the reel. A Plan changed badge does not add a special tile border and does
 block opening that reel. Ungenerated reel stills use the start frame's
 aspect. The image is
 contained at the largest scale that fits that area and does not cover the
-conversation or Project rails. Empty FPO thumbnails
-overlay Director intent as readable text until an image exists. Storyboard
+conversation or Project rails. Empty FPO thumbnails overlay Director intent as readable text. A storyboard kebab on Plan offers
+Intent and Beat as checked on/off overlays over generated stills, off by default. When both are on,
+the overlay labels them and scrolls if the copy does not fit. Storyboard
 and other 16:9 thumbnails keep a fixed 16:9 tile. Source stills are
 centered and scaled to fit so the entire image stays visible; unused
 area letterboxes or pillarboxes. 16:9 stills fill the tile. Do not
@@ -364,7 +371,10 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
-which can hide to the right. Directed Options are Generate all destinations and Shoot.
+which can hide to the right. The selector offers New, Rename, Open, and Save.
+New names the project and creates its folder in the Projects Folder so
+the session autosaves. Rename changes the current project's title and
+folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Shoot.
 Video, Default Take Intent, and Debug mode are in Project settings. Those
 model, format, and resolution controls are in-app menus, not native OS
 selects. When

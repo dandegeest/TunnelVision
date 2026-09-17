@@ -139,7 +139,10 @@ and do not implement it in the current happy path. See
 [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option).
 NEW TAKE launches as soon as each inbound pair is established and
 may overlap later sequential canonical work. Assembly stays
-storyboard order of the **currently selected Takes**. The filmmaker
+storyboard order of the **currently selected Takes**. A later Agent
+CREATE JOURNEY reshoots plan-changed generated stills and appends NEW
+TAKEs on those legs; uploaded stills and current Takes on unchanged
+legs stay. The filmmaker
 remains the authority over footage quality; a NEW TAKE may use a
 different video model on the same canonical pair. Provider-aware concurrent filming (Runway
 THROTTLED/PENDING queue; other adapters may bound locally) is
@@ -186,8 +189,8 @@ the field or closing the reel commits the current text. Plan and Shoot in the
 workspace header close the storyboard reel. On Shoot, the destination
 inspector still opens that same reel. Motion preview previous/next arrows
 step among adjacent MOTION pairs and update timeline selection. Uploaded A with a story stores opening intent from
-that story; generated A also stores the TunnelVision opening prompt as visual
-description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
+that story. The opening still prompt is rebuilt from the story at generate
+time, not stored as visual description. Actual A can open details before those fields exist. Reshoot on the kebab or in details regenerates a generated still from
 the current storyboard intent and visual description. If the plan changes after a still exists, that
 thumbnail shows Plan changed until Reshoot. Shoot Reshoot on the same canonical does the same
 thing. Replacing either
@@ -307,8 +310,8 @@ Take shows Generating… there and hides the compact **NEW TAKE**
 control until generation finishes. The app
 can track more than one blocking or shooting operation at a time.
 Opening A and later B…N stills use the image model chosen in Project
-settings. Nano Banana 2 Lite is the development default; Nano Banana 2
-is opt-in. The same model generates A and image-conditions later
+settings. Nano Banana 2 at 1K is the development default; Nano Banana 2
+Lite is opt-in. The same model generates A and image-conditions later
 destinations. Format and resolution follow the selected model: PNG is
 the default when jpg/png are both available; 1K is the default when
 the model offers 1K / 2K / 4K. Leave resolution out of settings when
@@ -317,7 +320,7 @@ generator.
 SHOOT on a staged leg uses the Motion Plan's A′/B′ and the generation-intent
 mapping chosen in Project settings (Fast / Balanced / Quality → catalog
 model). Fast defaults to Pruna (`prunaai/p-video`); Balanced to Wan 2.2
-First/Last Frame; Quality to Seedance 2.5. Those mappings stay
+First/Last Frame; Quality to Kling 2.5 Turbo Pro. Those mappings stay
 provider-neutral so a later router can fulfill the intents. Clip duration
 follows the generator (Pruna / Seedance / Kling 3 are 6s; Kling 2.5
 Turbo Pro is 5s). Kling 3 also exposes Standard / Pro / 4K in Project

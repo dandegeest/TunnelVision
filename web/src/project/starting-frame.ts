@@ -1,4 +1,5 @@
 import { storyboardFrameWithOpeningPlan } from "./destination";
+import { frameWithAppendedCanonicalTake } from "./canonical-takes";
 import { canonicalAspectRatioFromMediaInfo } from "./canonical-aspect";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import { projectWithSyncedProductionLegs } from "./production-legs";
@@ -151,13 +152,13 @@ export function projectWithReplacedFrameImage(
       if (frame.id !== frameId) {
         return frame;
       }
-      const replaced: StoryboardFrame = {
-        ...frame,
-        image: next.imageUrl,
+      const replaced = frameWithAppendedCanonicalTake(frame, {
         mediaId: next.mediaId,
-        imageOrigin: "user",
-        ...(frame.destinationId ? {} : { destinationId: frame.id }),
-      };
+        imageUrl: next.imageUrl,
+        origin: "user",
+        source: "upload",
+        mediaInfo: next.mediaInfo,
+      });
       delete replaced.generatedFrom;
       if (options?.clearPlan) {
         delete replaced.intent;
@@ -165,12 +166,15 @@ export function projectWithReplacedFrameImage(
       }
       const withPlan =
         !options?.clearPlan && frameId === "A"
-          ? storyboardFrameWithOpeningPlan(replaced, project.story, "user")
+          ? storyboardFrameWithOpeningPlan(replaced, project.story)
           : replaced;
       if (next.mediaInfo) {
         withPlan.mediaInfo = next.mediaInfo;
       } else {
         delete withPlan.mediaInfo;
+      }
+      if (!withPlan.destinationId) {
+        withPlan.destinationId = withPlan.id;
       }
       return withPlan;
     }),

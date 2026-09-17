@@ -8,9 +8,12 @@ import { DEFAULT_KLING_V3_MODE, DEFAULT_VIDEO_MODEL_ID } from "../../../media/sr
 import { DEFAULT_GENERATION_INTENT, defaultVideoModelsByIntent } from "./generation-intent";
 
 /** Minimum valid product project. Not a research fixture. */
+/** Unsaved in-memory projects keep this id until the first durable save. */
+export const UNSAVED_PROJECT_ID = "untitled";
+
 export function createNewProject(): Project {
   return {
-    id: "untitled",
+    id: UNSAVED_PROJECT_ID,
     title: "UNTITLED",
     story: "",
     agency: "directed",

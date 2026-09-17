@@ -2,7 +2,7 @@
  * Product still generators. Slugs stay at the MediaProvider boundary.
  * This catalog is importable from the web app; do not import adapter
  * modules here (they pull Node types into the browser compile).
- * Nano Banana 2 Lite is the default for opening A and later B…N stills.
+ * Nano Banana 2 at 1K is the default for opening A and later B…N stills.
  * Flux Ultra is not in this catalog: it cannot take reference images.
  */
 export const IMAGE_MODEL_IDS = ["nano-banana-2-lite", "nano-banana-2"] as const;
@@ -27,7 +27,7 @@ export type ImageModelOption = {
   readonly resolutions: readonly ImageResolution[];
 };
 
-export const DEFAULT_IMAGE_MODEL_ID: ImageModelId = "nano-banana-2-lite";
+export const DEFAULT_IMAGE_MODEL_ID: ImageModelId = "nano-banana-2";
 export const DEFAULT_IMAGE_OUTPUT_FORMAT: ImageOutputFormat = "png";
 export const DEFAULT_IMAGE_RESOLUTION: ImageResolution = "1K";
 

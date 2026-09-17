@@ -9,6 +9,7 @@ import { cinematographerDevPlugin } from "./cinematographer-dev-plugin.ts";
 import { shootDevPlugin } from "./shoot-dev-plugin.ts";
 import { runtimeMediaPlugin } from "./runtime-media-plugin.ts";
 import { exportMoviePlugin } from "./export-movie-plugin.ts";
+import { projectStorePlugin } from "./project-store-plugin.ts";
 
 const webDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(webDir, "..");
@@ -23,6 +24,7 @@ export default defineConfig({
     shootDevPlugin(repoRoot),
     runtimeMediaPlugin(),
     exportMoviePlugin(),
+    projectStorePlugin(repoRoot),
   ],
   root: webDir,
   server: {
@@ -45,6 +47,8 @@ export default defineConfig({
       "camotion-cli.test.ts",
       "camotion-depth.test.ts",
       "export-movie.test.ts",
+      "project-store.test.ts",
+      "app-settings.test.ts",
     ],
   },
 });

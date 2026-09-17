@@ -274,33 +274,220 @@ function BackButton({ onBack }: { onBack: () => void }) {
 }
 
 function ProjectChooser() {
-  const { project } = useProject();
+  const {
+    project,
+    availableProjects,
+    persistedProjectPath,
+    persistenceError,
+    newProject,
+    openProject,
+    saveProject,
+    renameProject,
+  } = useProject();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [nameDialog, setNameDialog] = useState<"new" | "save" | "rename" | null>(null);
+  const [nameDraft, setNameDraft] = useState(project.title === "UNTITLED" ? "" : project.title);
+
+  const suggested =
+    project.title.trim() && project.title !== "UNTITLED"
+      ? project.title.trim()
+      : project.story.trim().split("\n")[0]?.trim().slice(0, 60) || "Untitled";
+
   return (
-    <button
-      type="button"
-      disabled
-      aria-haspopup="listbox"
-      aria-expanded={false}
-      aria-label={`Current project: ${project.title}`}
-      title="Project switching is not available in this slice."
-      className="flex min-w-0 w-full items-baseline gap-2 text-left text-[#ece7df] disabled:cursor-not-allowed disabled:opacity-100"
-    >
-      <span className="truncate text-lg leading-tight">{project.title}</span>
-      <svg
-        className="relative top-px h-2.5 w-2.5 shrink-0 text-[#9a8f7e]"
-        viewBox="0 0 12 8"
-        aria-hidden
+    <div className="relative min-w-0 w-full">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        aria-label={`Current project: ${project.title}`}
+        title="New, open, save, or rename a project"
+        className="flex min-w-0 w-full items-baseline gap-2 text-left text-[#ece7df] outline-none hover:text-[#fff]"
+        onClick={() => setMenuOpen((open) => !open)}
       >
-        <path
-          d="M1.5 1.75 6 6.25 10.5 1.75"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <span className="truncate text-lg leading-tight">{project.title}</span>
+        <svg
+          className="relative top-px h-2.5 w-2.5 shrink-0 text-[#9a8f7e]"
+          viewBox="0 0 12 8"
+          aria-hidden
+        >
+          <path
+            d="M1.5 1.75 6 6.25 10.5 1.75"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {menuOpen ? (
+        <div
+          role="menu"
+          aria-label="Project"
+          className="absolute z-20 mt-2 w-full min-w-[14rem] rounded border border-[#3a342c] bg-[#141210] py-1 shadow-[0_18px_48px_rgba(0,0,0,0.45)]"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full px-3 py-1.5 text-left text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:bg-[#1c1914]"
+            onClick={() => {
+              setMenuOpen(false);
+              setNameDraft("");
+              setNameDialog("new");
+            }}
+          >
+            New Project
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full px-3 py-1.5 text-left text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:bg-[#1c1914]"
+            onClick={() => {
+              setMenuOpen(false);
+              setNameDraft(suggested);
+              setNameDialog("rename");
+            }}
+          >
+            Rename Project
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full px-3 py-1.5 text-left text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:bg-[#1c1914]"
+            onClick={() => {
+              setMenuOpen(false);
+              setNameDraft(suggested);
+              setNameDialog("save");
+            }}
+          >
+            {persistedProjectPath ? "Save Project" : "Save Project As"}
+          </button>
+          {availableProjects.length > 0 ? (
+            <div className="mt-1 border-t border-[#2a2620] pt-1">
+              <p className="px-3 py-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Open</p>
+              {availableProjects.map((item) => (
+                <button
+                  key={item.path}
+                  type="button"
+                  role="menuitem"
+                  className="block w-full truncate px-3 py-1.5 text-left text-[12px] text-[#ece7df] hover:bg-[#1c1914]"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    void openProject(item.path);
+                  }}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="px-3 py-1.5 text-[11px] text-[#9a8f7e]">No saved projects yet.</p>
+          )}
+        </div>
+      ) : null}
+      {persistenceError ? (
+        <p className="mt-2 text-[11px] leading-snug text-[#f0c2a8]">{persistenceError}</p>
+      ) : null}
+      {nameDialog ? (
+        <ProjectNameDialog
+          title={nameDialog === "new" ? "New project" : nameDialog === "rename" ? "Rename project" : "Save project"}
+          hint={
+            nameDialog === "new"
+              ? "Creates a folder in the Projects Folder. Later changes autosave."
+              : nameDialog === "rename"
+                ? persistedProjectPath
+                  ? "Renames this project and its folder in the Projects Folder."
+                  : "Names this project. Save writes a folder in the Projects Folder."
+                : "Writes this session into the Projects Folder. Later changes autosave."
+          }
+          confirmLabel={nameDialog === "new" ? "Create" : nameDialog === "rename" ? "Rename" : "Save"}
+          value={nameDraft}
+          onChange={setNameDraft}
+          onCancel={() => setNameDialog(null)}
+          onConfirm={() => {
+            const nextName = nameDraft.trim() || suggested;
+            if (nameDialog === "new") {
+              void newProject(nameDraft.trim() || undefined);
+            } else if (nameDialog === "rename") {
+              void renameProject(nextName);
+            } else {
+              void saveProject(nextName);
+            }
+            setNameDialog(null);
+          }}
         />
-      </svg>
-    </button>
+      ) : null}
+    </div>
+  );
+}
+
+function ProjectNameDialog({
+  title,
+  hint,
+  confirmLabel,
+  value,
+  onChange,
+  onCancel,
+  onConfirm,
+}: {
+  title: string;
+  hint: string;
+  confirmLabel: string;
+  value: string;
+  onChange: (value: string) => void;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md rounded border border-[#3a342c] bg-[#141210] px-5 py-4"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p className="text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">{title}</p>
+        <p className="mt-1 text-[11px] leading-snug text-[#9a8f7e]">{hint}</p>
+        <input
+          autoFocus
+          value={value}
+          aria-label="Project name"
+          placeholder="Project name (no spaces)"
+          className="mt-3 h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[13px] text-[#ece7df] outline-none focus-visible:border-[#ece7df]"
+          onChange={(event) => onChange(event.target.value.replace(/\s+/g, ""))}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onConfirm();
+            }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              onCancel();
+            }
+          }}
+        />
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1.5 text-[11px] tracking-[0.14em] text-[#9a8f7e] uppercase"
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="rounded border border-[#ece7df] bg-[#ece7df] px-3 py-1.5 text-[11px] tracking-[0.14em] text-[#141210] uppercase"
+            onClick={onConfirm}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -356,8 +543,25 @@ function DebugModeToggle() {
 }
 
 function ProjectSettingsView({ busy }: { busy: boolean }) {
+  const { projectsFolder, chooseProjectsFolder } = useProject();
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Projects Folder</span>
+        <p className="truncate text-[12px] text-[#ece7df]" title={projectsFolder ?? undefined}>
+          {projectsFolder ?? "Not set"}
+        </p>
+        <button
+          type="button"
+          aria-label="Choose projects folder"
+          className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:border-[#7a7266]"
+          onClick={() => {
+            void chooseProjectsFolder();
+          }}
+        >
+          Choose Folder
+        </button>
+      </div>
       <ImageModelSelect disabled={busy} />
       <VideoModelSelect disabled={busy} />
       <DebugModeToggle />
@@ -377,7 +581,7 @@ function ImageModelSelect({ disabled }: { disabled: boolean }) {
         <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Image</span>
         <OptionMenu
           ariaLabel="Image model"
-          title="Used for opening A and every later still in this project. Nano Banana 2 Lite is the development default."
+          title="Used for opening A and every later still in this project. Nano Banana 2 at 1K is the development default."
           disabled={disabled}
           triggerClassName={fieldClass}
           value={project.imageModel}

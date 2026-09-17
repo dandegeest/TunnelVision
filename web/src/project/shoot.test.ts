@@ -181,7 +181,7 @@ describe("SHOOT gate and JourneyShot take", () => {
       { ...prepared, defaultTakeIntent: "quality" },
       "A-B",
     );
-    expect(agentQuality.videoModel).toBe("seedance-2.5");
+    expect(agentQuality.videoModel).toBe("kling-v2.5-turbo-pro");
     const kling3 = shootRequestFromProject(
       {
         ...prepared,
