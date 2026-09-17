@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/tunnelvision-mark.jpg" alt="TunnelVision" width="280">
+</p>
+
 # TunnelVision
 
 **An AI filmmaking system for directing continuous first-person journeys through imagined worlds.**
