@@ -90,7 +90,7 @@ describe("Shell header chrome", () => {
     const html = renderShell();
     const project = html.slice(html.indexOf('id="project-panel"'));
     const storyAt = project.indexOf('id="project-story"');
-    const createAt = project.indexOf('aria-label="Create journey"');
+    const createAt = project.indexOf('aria-label="Plan journey"');
     const settingsAt = project.indexOf('aria-label="Project settings"');
     const agencyAt = project.indexOf('aria-label="Agency"');
     expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Current project:'));
@@ -109,7 +109,7 @@ describe("Shell header chrome", () => {
     expect(project).not.toContain('aria-label="Video model"');
     expect(project).not.toContain('aria-label="Debug mode"');
     expect(project).not.toContain("DIRECT asks the Director");
-    expect(project).toContain(">CREATE JOURNEY<");
+    expect(project).toContain(">PLAN JOURNEY<");
     expect(project).toContain("project-rail-header");
     expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Agency"'));
     expect(project).toContain("text-[13px] font-semibold");
@@ -153,6 +153,7 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain("<select");
     expect(html).not.toContain('id="project-story"');
     expect(html).not.toContain(">Options<");
+    expect(html).not.toContain('aria-label="Plan journey"');
     expect(html).not.toContain('aria-label="Create journey"');
     expect(html).not.toContain('aria-label="Current project:');
   });

@@ -98,7 +98,7 @@ project rather than a demonstration journey. Forest A→F remains
 research evidence and an explicit test fixture. The Director runtime
 resolves starting-frame identity from Project state; it does
 not independently substitute a catalog still. Story text is project
-intent; CREATE JOURNEY in the Project panel is the only Director invocation.
+intent; PLAN JOURNEY (Directed) / CREATE JOURNEY (Agent) in the Project panel is the only Director invocation.
 AUTO destination count lets the Director choose N; a number, typed or
 stepped, adds that
 many FPO slots. After the first DIRECT response the count is read-only
@@ -311,7 +311,8 @@ session UI, not project persistence.
 While a Motion Plan or take is running, that band uses the same generating
 shimmer as Plan FPO thumbs. MOTION shows Planning… in the band; an in-progress
 Take shows Generating… there and hides the compact **NEW TAKE**
-control until generation finishes. The app
+control until generation finishes. A Take bar can delete that Take when selected or hovered;
+deleting the selected Take asks first. Remaining Takes keep their numbers. The app
 can track more than one blocking or shooting operation at a time.
 Opening A and later B…N stills use the image model chosen in Project
 settings. Nano Banana 2 at 1K is the development default; Nano Banana 2

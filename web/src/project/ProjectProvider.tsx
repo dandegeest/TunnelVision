@@ -50,6 +50,7 @@ import {
   filmedTakeFitsCurrentJourney,
   mergeProjectUpdate,
   projectWithLatestJourneyTakes,
+  projectWithDeletedTake,
   projectWithSelectedTake,
 } from "./takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
@@ -186,6 +187,7 @@ type ProjectContextValue = {
   shootJourney: (journeyId: string, intent?: GenerationIntent) => Promise<void>;
   shootAllJourneys: (intent: GenerationIntent) => Promise<void>;
   selectTake: (journeyId: string, takeId: string) => void;
+  deleteTake: (journeyId: string, takeId: string) => void;
   cutPlaybackJourneyId: string | null;
   cutStartOffset: number;
   playCurrentCut: () => void;
@@ -1119,6 +1121,12 @@ export function ProjectProvider({
     [applyProject],
   );
 
+  const deleteTake = useCallback((journeyId: string, takeId: string) => {
+    const next = projectWithDeletedTake(projectRef.current, journeyId, takeId);
+    projectRef.current = next;
+    setProject(next);
+  }, []);
+
   const laidClipsForCut = useCallback((current: Project) => {
     const layout = layoutShootTimeline(current, 1);
     return currentCutClips(current).flatMap((clip) => {
@@ -1835,6 +1843,7 @@ export function ProjectProvider({
       shootJourney,
       shootAllJourneys,
       selectTake,
+      deleteTake,
       cutPlaybackJourneyId,
       cutStartOffset,
       playCurrentCut,
@@ -1918,6 +1927,7 @@ export function ProjectProvider({
       shootJourney,
       shootAllJourneys,
       selectTake,
+      deleteTake,
       cutPlaybackJourneyId,
       cutStartOffset,
       playCurrentCut,

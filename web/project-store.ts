@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { copyFile, mkdir, readdir, readFile, rename, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -16,7 +16,9 @@ import {
   conversationEventsPath,
   isSafeProjectRelativePath,
   PROJECT_MANIFEST_NAME,
+  relativePosix,
   sanitizeProjectFolderName,
+  TRAVERSALS_DIR,
   uniqueProjectFolderName,
 } from "./src/project/persistence/paths.ts";
 import { ensureDurableProjectId } from "./src/project/persistence/ids.ts";
@@ -71,6 +73,50 @@ async function pathExists(filePath: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+const TRAVERSAL_TAKE_ASSET = /^take-\d+\.(mp4|webm)$/i;
+
+async function pruneUnreferencedTraversalTakes(
+  projectRoot: string,
+  keepRelativePaths: ReadonlySet<string>,
+): Promise<void> {
+  const traversalsRoot = join(projectRoot, TRAVERSALS_DIR);
+  let journeys: string[] = [];
+  try {
+    journeys = await readdir(traversalsRoot);
+  } catch {
+    return;
+  }
+  const registry = getActiveRuntimeMediaRegistry();
+  for (const journeyId of journeys) {
+    const dir = join(traversalsRoot, journeyId);
+    let files: string[] = [];
+    try {
+      files = await readdir(dir);
+    } catch {
+      continue;
+    }
+    for (const name of files) {
+      if (!TRAVERSAL_TAKE_ASSET.test(name)) {
+        continue;
+      }
+      const relativePath = relativePosix(TRAVERSALS_DIR, journeyId, name);
+      if (keepRelativePaths.has(relativePath) || !isSafeProjectRelativePath(relativePath)) {
+        continue;
+      }
+      const abs = join(projectRoot, relativePath);
+      await rm(abs, { force: true });
+      if (!registry) {
+        continue;
+      }
+      for (const record of registry.list()) {
+        if (record.filePath === abs) {
+          registry.drop(record.mediaId);
+        }
+      }
+    }
   }
 }
 
@@ -271,6 +317,10 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
         await writeFile(eventsPath, conversationEventsText(input.conversation), "utf8");
       }
       await writeJsonAtomic(join(projectRoot, PROJECT_MANIFEST_NAME), documents.manifest);
+      await pruneUnreferencedTraversalTakes(
+        projectRoot,
+        new Set(documents.mediaCopies.map((copy) => copy.relativePath)),
+      );
       for (const [mediaId, relativePath] of Object.entries(documents.manifest.media)) {
         if (await pathExists(join(projectRoot, relativePath))) {
           adoptProjectMedia(projectRoot, mediaId, relativePath);

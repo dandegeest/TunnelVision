@@ -6,6 +6,11 @@ export function takeId(journeyId: string, number: number): string {
   return `${journeyId}:take:${number}`;
 }
 
+/** Next TAKE N. Numbers are identity and are not reused after a delete. */
+export function nextTakeNumber(takes: readonly Pick<JourneyShotTake, "number">[]): number {
+  return takes.reduce((max, take) => Math.max(max, take.number ?? 0), 0) + 1;
+}
+
 export function takeDisplayLabel(
   take: Pick<JourneyShotTake, "number" | "generationIntent"> | { number: number; generationIntent?: JourneyShotTake["generationIntent"] },
 ): string {
@@ -317,7 +322,7 @@ export function projectWithAppendedTake(
     throw new Error("Unknown journey");
   }
   const existing = journeyTakes(journey);
-  const number = existing.length + 1;
+  const number = nextTakeNumber(existing);
   const stored = withIdentity(
     journeyId,
     withCanonicalPair(project, journey, next.take),
@@ -335,6 +340,57 @@ export function projectWithAppendedTake(
             shootError: undefined,
           }
         : item,
+    ),
+  };
+}
+
+function journeyWithoutTakes(project: Project, journey: JourneyShot): JourneyShot {
+  return {
+    ...journey,
+    takes: [],
+    selectedTakeId: undefined,
+    take: undefined,
+    videoUrl: undefined,
+    durationSeconds: unshotClipDurationSeconds(project),
+    status: journey.status === "shooting" ? "shooting" : journey.motionPlan ? "ready" : "planned",
+  };
+}
+
+/**
+ * Remove one Take. Remaining Takes keep their numbers and ids so TAKE 3
+ * stays TAKE 3. Deleting a non-selected Take leaves the current selection
+ * alone. Deleting the selected Take moves the cut to the following Take,
+ * or the previous if that was the last. An empty stack returns the
+ * segment to Ready and keeps the Motion Plan.
+ */
+export function projectWithDeletedTake(project: Project, journeyId: string, takeIdToDelete: string): Project {
+  const journey = project.journeys.find((item) => item.id === journeyId);
+  if (!journey) {
+    throw new Error("Unknown journey");
+  }
+  const takes = journeyTakes(journey);
+  const index = takes.findIndex((take) => take.id === takeIdToDelete);
+  if (index < 0) {
+    throw new Error("Unknown take");
+  }
+  const remaining = takes.filter((take) => take.id !== takeIdToDelete);
+  if (remaining.length === 0) {
+    const cleared = journeyWithoutTakes(project, journey);
+    return {
+      ...project,
+      journeys: project.journeys.map((item) => (item.id === journeyId ? cleared : item)),
+    };
+  }
+  const current = selectedTake(journey);
+  const keep =
+    current && current.id !== takeIdToDelete
+      ? remaining.find((take) => take.id === current.id)
+      : undefined;
+  const selected = keep ?? remaining[index] ?? remaining[index - 1]!;
+  return {
+    ...project,
+    journeys: project.journeys.map((item) =>
+      item.id === journeyId ? mirrorSelectedTake(item, remaining, selected) : item,
     ),
   };
 }

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { canShootJourney } from "../project/shoot";
 import {
   defaultTakeIntentFromProject,
@@ -7,6 +8,7 @@ import {
 import {
   journeyHasStaleTakes,
   journeyTakes,
+  nextTakeNumber,
   selectedTake,
   TAKE_PREVIOUS_CANONICALS_COPY,
   takeClipDurationSeconds,
@@ -73,7 +75,9 @@ function TakeRow({
   selected,
   thumbSrc,
   zoom,
+  rowIndex,
   onSelectTake,
+  onDeleteTake,
 }: {
   laid: LaidOutJourney;
   project: Project;
@@ -82,7 +86,9 @@ function TakeRow({
   selected: boolean;
   thumbSrc?: string;
   zoom: number;
+  rowIndex: number;
   onSelectTake: () => void;
+  onDeleteTake?: () => void;
 }) {
   const number = take.number ?? 1;
   const stale = takeMatchesCurrentCanonicals(project, journey, take) === false;
@@ -99,30 +105,120 @@ function TakeRow({
     stale ? TAKE_PREVIOUS_CANONICALS_COPY : undefined,
   ].filter(Boolean);
   return (
-    <button
-      type="button"
-      className={`absolute box-border flex items-center gap-1 rounded border px-1.5 text-left text-[#cfc6b8] outline-none ${ring}`}
+    <div
+      className={`group absolute box-border flex items-center gap-1 rounded border px-1.5 text-[#cfc6b8] ${ring}`}
       style={{
-        top: takeRowTop(number - 1),
+        top: takeRowTop(rowIndex),
         left: laid.left,
         width: durationBarWidth(durationSeconds, zoom),
         height: TAKE_ROW_HEIGHT,
       }}
-      aria-label={`Take ${number} ${journey.id}${stale ? " previous canonicals" : ""}`}
-      aria-pressed={selected}
       data-canonical-stale={stale || undefined}
       data-take-duration={durationSeconds}
-      title={titleParts.length > 0 ? titleParts.join(" · ") : undefined}
-      onClick={onSelectTake}
     >
-      <TakeNumberBadge number={number} stale={stale} />
-      {thumbSrc ? (
-        <img src={thumbSrc} alt="" className="media-contain h-[18px] w-[32px] shrink-0 rounded" />
-      ) : (
-        <span className="h-[18px] w-[32px] shrink-0 rounded border border-[#3a342c] bg-[#142014]" />
-      )}
-      {intentMark ? <span className="truncate text-[9px] tracking-[0.16em] opacity-80">{intentMark}</span> : null}
-    </button>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-1 text-left outline-none"
+        aria-label={`Take ${number} ${journey.id}${stale ? " previous canonicals" : ""}`}
+        aria-pressed={selected}
+        title={titleParts.length > 0 ? titleParts.join(" · ") : undefined}
+        onClick={onSelectTake}
+      >
+        <TakeNumberBadge number={number} stale={stale} />
+        {thumbSrc ? (
+          <img src={thumbSrc} alt="" className="media-contain h-[18px] w-[32px] shrink-0 rounded" />
+        ) : (
+          <span className="h-[18px] w-[32px] shrink-0 rounded border border-[#3a342c] bg-[#142014]" />
+        )}
+        {intentMark ? <span className="truncate text-[9px] tracking-[0.16em] opacity-80">{intentMark}</span> : null}
+      </button>
+      {onDeleteTake ? (
+        <button
+          type="button"
+          className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded text-[12px] leading-none text-[#9a8f7e] hover:bg-[#2a2620] hover:text-[#ece7df] ${
+            selected
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+          }`}
+          aria-label={`Delete take ${number} ${journey.id}`}
+          title="Delete this take from the project"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onDeleteTake();
+          }}
+        >
+          ×
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+export function DeleteTakeDialog({
+  journeyId,
+  takeNumber,
+  onCancel,
+  onConfirm,
+}: {
+  journeyId: string;
+  takeNumber: number;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  useEffect(() => {
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCancel();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onCancel]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-take-title"
+      aria-describedby="delete-take-copy"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md rounded border border-[#3a342c] bg-[#141210] px-5 py-4 shadow-[0_18px_48px_rgba(0,0,0,0.45)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p
+          id="delete-take-title"
+          className="text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase"
+        >
+          Delete take
+        </p>
+        <p id="delete-take-copy" className="mt-2 text-sm leading-6 text-[#ece7df]">
+          Delete TAKE {takeNumber} on {journeyId}? This removes the take and its clip from the
+          project.
+        </p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1.5 text-[11px] tracking-[0.14em] text-[#9a8f7e] uppercase outline-none hover:border-[#7a7266] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+            onClick={onCancel}
+            autoFocus
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="rounded border border-[#ece7df] bg-[#ece7df] px-3 py-1.5 text-[11px] tracking-[0.14em] text-[#141210] uppercase outline-none hover:bg-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a]"
+            onClick={onConfirm}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -132,18 +228,20 @@ function GeneratingTakeRow({
   number,
   zoom,
   durationSeconds,
+  rowIndex,
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
   number: number;
   zoom: number;
   durationSeconds: number;
+  rowIndex: number;
 }) {
   return (
     <div
       className="absolute z-[2] box-border flex items-center gap-1 rounded border border-[#3a342c] bg-[#10100c] px-1.5 storyboard-generating"
       style={{
-        top: takeRowTop(number - 1),
+        top: takeRowTop(rowIndex),
         left: laid.left,
         width: durationBarWidth(durationSeconds, zoom),
         height: TAKE_ROW_HEIGHT,
@@ -176,10 +274,16 @@ export function JourneyLane({
   shootingJourneyIds?: readonly string[];
   onSelect: (journeyId: string, band: "motion" | "footage") => void;
 }) {
-  const { project, shootJourney, selectTake, zoom } = useProject();
+  const { project, shootJourney, selectTake, deleteTake, zoom } = useProject();
+  const [pendingDelete, setPendingDelete] = useState<{
+    journeyId: string;
+    takeId: string;
+    number: number;
+  } | null>(null);
   const laneHeight = journeyLaneHeight(projectJourneys, selection, shootingJourneyIds ?? []);
   const generatingDuration = unshotClipDurationSeconds(project);
   return (
+    <>
     <div className="absolute inset-x-0 z-[1]" style={{ top: JOURNEY_LANE_TOP, height: laneHeight }}>
       {journeys.map((laid) => {
         const journey = projectJourneys.find((item) => item.id === laid.journeyId);
@@ -225,7 +329,7 @@ export function JourneyLane({
                 ) : null}
               </div>
             ) : null}
-            {takes.map((take) => (
+            {takes.map((take, rowIndex) => (
               <TakeRow
                 key={take.id ?? take.number}
                 laid={laid}
@@ -235,21 +339,38 @@ export function JourneyLane({
                 selected={take.id === current?.id}
                 thumbSrc={takeThumbnailUrl(take, startImage)}
                 zoom={zoom}
+                rowIndex={rowIndex}
                 onSelectTake={() => {
                   onSelect(laid.journeyId, "footage");
                   if (take.id) {
                     selectTake(journey.id, take.id);
                   }
                 }}
+                onDeleteTake={
+                  take.id
+                    ? () => {
+                        if (take.id === current?.id) {
+                          setPendingDelete({
+                            journeyId: journey.id,
+                            takeId: take.id!,
+                            number: take.number ?? 1,
+                          });
+                          return;
+                        }
+                        deleteTake(journey.id, take.id!);
+                      }
+                    : undefined
+                }
               />
             ))}
             {shooting ? (
               <GeneratingTakeRow
                 laid={laid}
                 journey={journey}
-                number={takes.length + 1}
+                number={nextTakeNumber(takes)}
                 zoom={zoom}
                 durationSeconds={generatingDuration}
+                rowIndex={takes.length}
               />
             ) : null}
             {showNewTake ? (
@@ -278,5 +399,17 @@ export function JourneyLane({
         );
       })}
     </div>
+    {pendingDelete ? (
+      <DeleteTakeDialog
+        journeyId={pendingDelete.journeyId}
+        takeNumber={pendingDelete.number}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          deleteTake(pendingDelete.journeyId, pendingDelete.takeId);
+          setPendingDelete(null);
+        }}
+      />
+    ) : null}
+    </>
   );
 }

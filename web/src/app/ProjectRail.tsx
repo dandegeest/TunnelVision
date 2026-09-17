@@ -11,7 +11,7 @@ import {
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
-import type { Project } from "../project/types";
+import type { Agency, Project } from "../project/types";
 import {
   IMAGE_MODELS,
   imageModelHasFormatChoice,
@@ -745,6 +745,7 @@ export function planActionLabel(state: {
   shootingJourneyIds?: readonly string[];
   planning: boolean;
   agentLabel?: string | null;
+  agency?: Agency;
 }): string {
   if (state.constructingBeatId) {
     return `Generating ${state.constructingBeatId}…`;
@@ -763,7 +764,7 @@ export function planActionLabel(state: {
   if (state.agentLabel) {
     return state.agentLabel;
   }
-  return "CREATE JOURNEY";
+  return state.agency === "autonomous" ? "CREATE JOURNEY" : "PLAN JOURNEY";
 }
 
 export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOpen?: boolean } = {}) {
@@ -803,6 +804,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     shootingJourneyIds,
     planning,
     agentLabel: formatJourneyAgentButtonLabel(journeyAgent),
+    agency: project.agency,
   });
   const planTitle = canPlanMovie(project)
     ? project.agency === "autonomous"
@@ -890,7 +892,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                     title={
                       project.storyDurationLocked
                         ? "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again."
-                        : "After CREATE JOURNEY plans the journey, generate each remaining destination in order."
+                        : "After PLAN JOURNEY plans the journey, generate each remaining destination in order."
                     }
                     className="mt-0.5 accent-[#ece7df]"
                     onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
@@ -913,7 +915,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
             <div className="flex flex-col gap-2">
               <button
                 type="button"
-                aria-label="Create journey"
+                aria-label={directed ? "Plan journey" : "Create journey"}
                 aria-busy={busy || undefined}
                 disabled={!canPlan}
                 title={planTitle}

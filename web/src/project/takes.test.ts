@@ -15,6 +15,8 @@ import {
   projectWithAppendedTake,
   filmedTakeFitsCurrentJourney,
   mergeProjectUpdate,
+  nextTakeNumber,
+  projectWithDeletedTake,
   projectWithLatestJourneyTakes,
   projectWithSelectedTake,
   selectedTake,
@@ -291,6 +293,53 @@ describe("NEW TAKE appends rather than replaces", () => {
       }),
     ).toBe(false);
     expect(filmedTakeFitsCurrentJourney({ ...staged, journeys: [] }, "A-B", undefined)).toBe(false);
+  });
+});
+
+describe("deleting a Take", () => {
+  it("keeps remaining numbers, selects the neighbor, and numbers the next NEW TAKE after the gap", () => {
+    const withThree = [1, 2, 3].reduce(
+      (project, number) =>
+        projectWithAppendedTake(project, "A-B", {
+          take: { ...take, durationSeconds: number === 2 ? 5 : 6 },
+          videoUrl: `https://example.test/take-${number}.mp4`,
+        }),
+      stagedLeg(),
+    );
+    const deleted = projectWithDeletedTake(withThree, "A-B", takeId("A-B", 2));
+    const journey = deleted.journeys[0]!;
+    expect(journeyTakes(journey).map((item) => item.number)).toEqual([1, 3]);
+    expect(journey.selectedTakeId).toBe(takeId("A-B", 3));
+    expect(journey.videoUrl).toBe("https://example.test/take-3.mp4");
+    expect(journey.motionPlan).toBeDefined();
+    expect(nextTakeNumber(journeyTakes(journey))).toBe(4);
+    const appended = projectWithAppendedTake(deleted, "A-B", {
+      take,
+      videoUrl: "https://example.test/take-4.mp4",
+    });
+    expect(journeyTakes(appended.journeys[0]!).map((item) => item.number)).toEqual([1, 3, 4]);
+    const deletedLast = projectWithDeletedTake(withThree, "A-B", takeId("A-B", 3));
+    expect(deletedLast.journeys[0]?.selectedTakeId).toBe(takeId("A-B", 2));
+    const onFirst = projectWithSelectedTake(withThree, "A-B", takeId("A-B", 1));
+    const deletedOther = projectWithDeletedTake(onFirst, "A-B", takeId("A-B", 2));
+    expect(deletedOther.journeys[0]?.selectedTakeId).toBe(takeId("A-B", 1));
+    expect(deletedOther.journeys[0]?.videoUrl).toBe("https://example.test/take-1.mp4");
+  });
+
+  it("returns the segment to Ready and clears footage when the last Take is deleted", () => {
+    const first = projectWithJourneyShotTake(stagedLeg(), "A-B", {
+      take,
+      videoUrl: "https://example.test/take-1.mp4",
+    });
+    const empty = projectWithDeletedTake(first, "A-B", takeId("A-B", 1));
+    const journey = empty.journeys[0]!;
+    expect(journeyTakes(journey)).toEqual([]);
+    expect(journey.takes).toEqual([]);
+    expect(journey.take).toBeUndefined();
+    expect(journey.videoUrl).toBeUndefined();
+    expect(journey.selectedTakeId).toBeUndefined();
+    expect(journey.status).toBe("ready");
+    expect(journey.motionPlan).toBeDefined();
   });
 });
 

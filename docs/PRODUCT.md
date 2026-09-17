@@ -104,7 +104,7 @@ Destination is structural only: it appends one unresolved slot and does
 not invoke the Director or generate an image. Delete is the same class of
 edit: it removes a later beat without planning or relabeling; opening A
 cannot be deleted. Story text is project
-intent; editing it does not plan. **CREATE JOURNEY** in the Project panel is the
+intent; editing it does not plan. **PLAN JOURNEY** in Directed (CREATE JOURNEY in Agent) in the Project panel is the
 only UI action that invokes Director planning. The Director treats
 actual filmmaker-specified canonicals as authoritative: it resolves
 unspecified directing decisions and does not overwrite specified
@@ -216,7 +216,13 @@ segment, stamped to the previous canonical pair; destination versioning
 (B1 vs B2 as separate places) is backlog. While a take is rendering,
 the TAKES gutter appears immediately and that in-flight Take occupies
 the next Take row with Generating…, even when it is Take 1. Each Shoot
-interval stacks MOTION, then TAKES (number badge, intent mark, and + NEW TAKE). Takes
+interval stacks MOTION, then TAKES (number badge, intent mark, and + NEW TAKE).
+Each Take bar shows an × when selected or hovered. Deleting a
+non-selected Take leaves the current selection alone. Deleting the
+selected Take asks for confirmation, then removes that Take and its clip
+file. Remaining Takes keep their numbers; NEW TAKE uses the next
+unused number. Deleting the last Take returns the segment to Ready and keeps
+the Motion Plan. Takes
 shot against a previous START/END show a previous-canonical mark. Canonicals
 remain clickable places above those bands. When only A is
 actual, Shoot still shows A and an FPO B that opens Plan on B. MOTION shows that

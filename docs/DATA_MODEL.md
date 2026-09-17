@@ -313,7 +313,11 @@ provider metadata, clip URL, and the start/end **canonical media IDs**
 that Take was generated from. Compatibility is that stamped pair, not
 the segment letters. `selectedTakeId` is the Take preview,
 playback, and DOWNLOAD use. That selected Take **is** the cut;
-there is no separate Final movie representation. Takes from different
+there is no separate Final movie representation. A Take can be
+deleted from its bar without changing the current selection; deleting the
+selected Take asks first, then the cut moves to a remaining Take.
+Remaining Takes keep their numbers and ids, and the next NEW TAKE
+continues after the highest remaining number. Takes from different
 video models may share one journey because they share canonical
 endpoints. Each Take may also record `generationIntent` (`fast` /
 `balanced` / `quality`) alongside provider/model metadata. Legacy `take` / `videoUrl` load as Take 1

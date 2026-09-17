@@ -140,7 +140,13 @@ vertically. Each Take row uses a number badge on the left instead of a
 TAKE N label. Takes stamped to a previous START/END show a
 previous-canonical mark. Completing Takes, Motion Plans, or canonicals
 does not move the current selection. The selected Take is outlined. Clicking a Take selects it
-for preview, playback, and download. Selecting MOTION, a Take, or a
+for preview, playback, and download. Each Take bar shows an × on the
+right when selected or hovered; deleting a non-selected Take leaves the
+current selection alone. Deleting the selected Take asks for confirmation,
+then removes that Take from the project and its clip file. Remaining
+Takes keep their numbers; the next NEW TAKE continues after the highest
+remaining number. Deleting the last Take on a segment returns it to Ready
+and keeps the Motion Plan. Selecting MOTION, a Take, or a
 destination moves the playhead to that item's place on the cut.
 That selected Take is the cut;
 there is no separate Final mode. A NEW TAKE may use a different
@@ -374,7 +380,7 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
-can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and CREATE JOURNEY live in the Project panel,
+can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and PLAN JOURNEY (CREATE JOURNEY in Agent) live in the Project panel,
 which can hide to the right. The selector offers New, Rename, Open, and Save.
 New names the project and creates its folder in the Projects Folder so
 the session autosaves. Rename changes the current project's title and
@@ -384,11 +390,11 @@ model, format, and resolution controls are in-app menus, not native OS
 selects. Clicking outside a popup menu closes it; opening one menu closes any
 other. When
 Kling 3 is mapped, settings also show Standard (720p) / Pro (1080p) / 4K.
-Helper copy does not sit under CREATE JOURNEY. Opening A can be uploaded before a journey
+Helper copy does not sit under PLAN JOURNEY. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.
-When A is unresolved, CREATE JOURNEY generates A then
+When A is unresolved, PLAN JOURNEY generates A then
 runs Director planning. Uploading A before the first plan supplies that
 opening still instead of generating it. When A is actual and the story is empty, DIRECT
 writes a story from A first. When auto-generate all destinations is on,

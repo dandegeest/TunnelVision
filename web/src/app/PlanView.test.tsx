@@ -135,9 +135,9 @@ describe("Plan project story", () => {
     expect(html).toContain('aria-label="Resize project panel"');
     expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
-    expect(html).toContain('aria-label="Create journey"');
+    expect(html).toContain('aria-label="Plan journey"');
     expect(html).toContain("relative w-full overflow-hidden rounded");
-    expect(html).toContain(">CREATE JOURNEY<");
+    expect(html).toContain(">PLAN JOURNEY<");
     expect(html).not.toContain(">Technical<");
     expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
     expect(html).not.toContain("Turn on Debug mode in Project settings");
@@ -1656,7 +1656,7 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Destination A actions"');
     expect(html).not.toContain('aria-label="Generate destination A"');
     expect(html).toContain('placeholder="Describe the journey…"');
-    expect(html).toMatch(/disabled[^>]*aria-label="Create journey"|aria-label="Create journey"[^>]*disabled/);
+    expect(html).toMatch(/disabled[^>]*aria-label="Plan journey"|aria-label="Plan journey"[^>]*disabled/);
     expect(html).toContain("Enter a journey story or upload starting frame A.");
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
@@ -1678,7 +1678,7 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Story destinations"');
     expect(html).not.toContain('aria-label="Video model"');
     const storyAt = html.indexOf('id="project-story"');
-    const createAt = html.indexOf('aria-label="Create journey"');
+    const createAt = html.indexOf('aria-label="Plan journey"');
     const settingsAt = html.indexOf('aria-label="Project settings"');
     const agencyAt = html.indexOf('aria-label="Agency"');
     expect(agencyAt).toBeLessThan(storyAt);
@@ -1692,7 +1692,7 @@ describe("new-project Plan", () => {
     expect(html).toContain('aria-label="Decrease destinations"');
     expect(html).toContain('aria-label="Generate all destinations"');
     expect(html).toContain(
-      "After CREATE JOURNEY plans the journey, generate each remaining destination in order.",
+      "After PLAN JOURNEY plans the journey, generate each remaining destination in order.",
     );
     expect(html).not.toContain('aria-label="Auto blocking"');
     expect(html).toContain('aria-label="Shoot"');
@@ -1702,7 +1702,7 @@ describe("new-project Plan", () => {
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Shoot"|aria-label="Shoot"[^>]*checked/,
     );
-    expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).not.toMatch(/<button type="button" aria-label="Plan journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
   });
 
@@ -1712,7 +1712,7 @@ describe("new-project Plan", () => {
       story: "Travel forward through an imagined interior at night.",
       autoGenerateOpening: false,
     });
-    expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).not.toMatch(/<button type="button" aria-label="Plan journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
   });
 
   it("lets PLAN run when A is actual and the story is empty", () => {
@@ -1730,7 +1730,7 @@ describe("new-project Plan", () => {
       ],
     };
     const html = renderPlan(withA, { composerDraft: "" });
-    expect(html).not.toMatch(/<button type="button" aria-label="Create journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    expect(html).not.toMatch(/<button type="button" aria-label="Plan journey"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Add Destination");
     expect(html).not.toContain("Generate start destination");
   });

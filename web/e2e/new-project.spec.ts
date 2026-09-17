@@ -336,7 +336,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByText("Not yet planned")).toHaveCount(0);
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
   await expect(page.getByLabel("Generate destination A")).toHaveCount(0);
-  await expect(page.getByLabel("Create journey")).toBeDisabled();
+  await expect(page.getByLabel("Plan journey")).toBeDisabled();
   await expect(page.getByLabel("Project settings")).toBeVisible();
   await expect(page.getByLabel("Agency")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toHaveCount(0);
@@ -362,7 +362,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Decrease destinations")).toBeDisabled();
   await expect(page.getByLabel("Generate all destinations")).not.toBeChecked();
   await expect(page.getByRole("checkbox", { name: "Shoot" })).not.toBeChecked();
-  await expect(page.getByLabel("Create journey")).toBeEnabled();
+  await expect(page.getByLabel("Plan journey")).toBeEnabled();
 
   await page.getByLabel("Increase destinations").click();
   await expect(page.getByLabel("Story destinations")).toHaveValue("2");
@@ -390,7 +390,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.locator('[data-destination-card="A"] .storyboard-media-info')).toContainText("PNG");
   await expect(page.getByLabel("Uploaded frame")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toBeVisible();
-  await expect(page.getByLabel("Create journey")).toBeEnabled();
+  await expect(page.getByLabel("Plan journey")).toBeEnabled();
   await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeEnabled();
 
@@ -413,8 +413,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Storyboard B")).toBeVisible();
   await expect(page.getByLabel("Storyboard B")).toHaveAttribute("aria-pressed", "true");
 
-  await expect(page.getByLabel("Create journey")).toBeEnabled();
-  await page.getByLabel("Create journey").click();
+  await expect(page.getByLabel("Plan journey")).toBeEnabled();
+  await page.getByLabel("Plan journey").click();
 
   await expect(page.getByLabel("Generate destination B")).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toBeVisible();
@@ -605,6 +605,7 @@ test("project image and video model selectors default to Nano Banana 2 and Pruna
   await page.getByLabel("Project settings").click();
   await expect(page.getByLabel("Back to project")).toBeVisible();
   await expect(page.getByLabel("Debug mode")).toBeChecked();
+  await expect(page.getByLabel("Plan journey")).toHaveCount(0);
   await expect(page.getByLabel("Create journey")).toHaveCount(0);
   const image = page.getByLabel("Image model");
   await expect(image).toHaveAttribute("data-value", "nano-banana-2");
@@ -654,7 +655,7 @@ test("project image and video model selectors default to Nano Banana 2 and Pruna
   await expect(quality).toHaveAttribute("data-value", "seedance-2.5");
   await expect(page.getByLabel("Kling 3 resolution")).toHaveCount(0);
   await page.getByLabel("Back to project").click();
-  await expect(page.getByLabel("Create journey")).toBeVisible();
+  await expect(page.getByLabel("Plan journey")).toBeVisible();
   await expect(page.getByLabel("Image model")).toHaveCount(0);
   await expect(page.getByLabel("Image format")).toHaveCount(0);
   await expect(page.getByLabel("Image resolution")).toHaveCount(0);

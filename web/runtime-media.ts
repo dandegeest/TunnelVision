@@ -82,6 +82,7 @@ export type RuntimeMediaRegistry = {
   directory: string;
   register(bytes: Buffer, contentType?: string): RuntimeMediaRecord & { imageUrl: string };
   adopt(record: RuntimeMediaRecord): RuntimeMediaRecord & { imageUrl: string };
+  drop(id: string): void;
   get(id: string): RuntimeMediaRecord | undefined;
   list(): RuntimeMediaRecord[];
 };
@@ -125,6 +126,12 @@ export function createRuntimeMediaRegistry(directory: string): RuntimeMediaRegis
       }
       entries.set(record.mediaId, record);
       return { ...record, imageUrl: runtimeMediaPreviewUrl(record.mediaId) };
+    },
+    drop(id) {
+      if (!isTrustedMediaIdShape(id)) {
+        return;
+      }
+      entries.delete(id);
     },
     get(id) {
       if (!isTrustedMediaIdShape(id)) {

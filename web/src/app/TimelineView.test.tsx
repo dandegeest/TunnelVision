@@ -15,6 +15,7 @@ import { DEFAULT_OVERLAY_LAYERS } from "../project/camotion-overlay";
 import { GENERATION_INTENT_MARK } from "../project/generation-intent";
 import { TAKE_PREVIOUS_CANONICALS_COPY } from "../project/takes";
 import { JourneyCanonicalPair } from "./Preview";
+import { DeleteTakeDialog } from "../timeline/JourneyLane";
 
 function isDisabled(html: string, label: string) {
   const start = html.indexOf(`aria-label="${label}"`);
@@ -1020,9 +1021,23 @@ describe("Shoot footage inspector", () => {
     expect(html).toContain("+ NEW TAKE");
     expect(html).toContain('aria-label="Take 1 A-B"');
     expect(html).toContain('aria-label="Take 2 A-B"');
+    expect(html).toContain('aria-label="Delete take 1 A-B"');
+    expect(html).toContain('aria-label="Delete take 2 A-B"');
+    expect(html).toContain("group-hover:opacity-100");
+    expect(html).toContain("×");
     expect(html).toContain('text-2xl">A→B · TAKE 2<');
     expect(html).toContain("Preview · Take A-B · TAKE 2");
     expect(html).toContain('src="/a-b-take-2.mp4"');
+  });
+
+  it("asks before deleting the selected Take", () => {
+    const html = renderToStaticMarkup(
+      <DeleteTakeDialog journeyId="A-B" takeNumber={2} onCancel={() => undefined} onConfirm={() => undefined} />,
+    );
+    expect(html).toContain('role="alertdialog"');
+    expect(html).toContain("Delete TAKE 2 on A-B?");
+    expect(html).toContain("Cancel");
+    expect(html).toContain("Delete");
   });
 
   it("sizes Fast 6s and Kling 5s Take rows to those clip lengths", () => {

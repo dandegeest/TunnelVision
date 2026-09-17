@@ -190,6 +190,78 @@ describe("project store round-trip", () => {
     expect(missing.missingAssets.some((item) => item.includes("take-02.png"))).toBe(true);
     expect(missing.project.storyboard[0]?.takes).toHaveLength(2);
   });
+
+  it("deletes unreferenced traversal take files on save", async () => {
+    const root = await tempDir("tv-projects-prune-takes-");
+    const runtimeDir = await tempDir("tv-runtime-prune-takes-");
+    const registry = createRuntimeMediaRegistry(runtimeDir);
+    setActiveRuntimeMediaRegistry(registry);
+    const stillA = registry.register(PNG);
+    const stillB = registry.register(PNG);
+    const take1 = registry.adopt({
+      mediaId: "upload-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      filePath: stillA.filePath,
+      mimeType: "video/mp4",
+    });
+    const take2 = registry.adopt({
+      mediaId: "upload-wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+      filePath: stillB.filePath,
+      mimeType: "video/mp4",
+    });
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(root, "PruneTakes");
+    const project: Project = {
+      ...createNewProject(),
+      title: "PruneTakes",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user",
+          mediaId: stillA.mediaId,
+          image: stillA.imageUrl,
+        },
+        {
+          id: "B",
+          label: "B",
+          imageOrigin: "generated",
+          mediaId: stillB.mediaId,
+          image: stillB.imageUrl,
+        },
+      ],
+      journeys: [
+        {
+          id: "A-B",
+          startDestinationId: "A",
+          endDestinationId: "B",
+          durationSeconds: 5,
+          status: "rendered",
+          takes: [videoTake(1, take1.mediaId, take1.imageUrl), videoTake(2, take2.mediaId, take2.imageUrl)],
+          selectedTakeId: "A-B:take:2",
+        },
+      ],
+    };
+    await store.saveProject({ projectRoot, project, conversation: [] });
+    expect(existsSync(join(projectRoot, "traversals", "A-B", "take-01.mp4"))).toBe(true);
+    expect(existsSync(join(projectRoot, "traversals", "A-B", "take-02.mp4"))).toBe(true);
+    await store.saveProject({
+      projectRoot,
+      project: {
+        ...project,
+        journeys: [
+          {
+            ...project.journeys[0]!,
+            takes: [videoTake(1, take1.mediaId, take1.imageUrl)],
+            selectedTakeId: "A-B:take:1",
+          },
+        ],
+      },
+      conversation: [],
+    });
+    expect(existsSync(join(projectRoot, "traversals", "A-B", "take-01.mp4"))).toBe(true);
+    expect(existsSync(join(projectRoot, "traversals", "A-B", "take-02.mp4"))).toBe(false);
+    expect(registry.get(take2.mediaId)).toBeUndefined();
+  });
 });
 
 describe("project store rename", () => {
