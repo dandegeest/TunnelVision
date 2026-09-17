@@ -77,7 +77,8 @@ Other visible questions:
 -   **Camera grammar.** Can CM classify FPOV / FP_FOLLOW /
     REVERSE_LEAD / MOUNTED per traversal and select a matching
     shooting baseline? See below. HACKATHON / DISCOVERY. Do not
-    implement now.
+    implement now. Human-facing camera-intent language:
+    [PROMPT_COACH.md](PROMPT_COACH.md).
 -   **Agentic Runway Model Router.** Can agents use grammar, CM
     scores, and prior results to choose a Runway model / route
     instead of one fixed model? HACKATHON / DISCOVERY. Do not
@@ -734,6 +735,9 @@ that is the argument for specialized baselines.
 Planning write-up (including UI card copy and Model Router
 interaction): [HACKATHON.md](HACKATHON.md),
 [BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification).
+Human-facing camera-intent language vs internal grammar:
+[PROMPT_COACH.md](PROMPT_COACH.md). Do not leak current locomotion
+workarounds into the filmmaker's Journey prompt.
 
 Do not overbuild SIDE_TRACK / ORBIT / ASCEND / HANDOFF / FREE
 during the hackathon. Do not retune Camotion from this.

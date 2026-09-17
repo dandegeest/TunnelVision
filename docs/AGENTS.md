@@ -29,6 +29,12 @@ Potential separation:
 Do not create `ScreenwriterAgent` or Screenwriter schemas in this
 checkpoint.
 
+Prompt Coach / Intent Conditioning
+([PROMPT_COACH.md](PROMPT_COACH.md)) is a related **future** layer
+for compiling human Journey-prompt language. It is not Screenwriter
+and is not implemented. Do not create a `PromptCoach` agent from
+that note.
+
 ## Director --- where do we go next?
 
 Inputs: current/prior canonical frames, journey brief, remaining

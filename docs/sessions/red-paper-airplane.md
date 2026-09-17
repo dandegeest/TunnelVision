@@ -232,3 +232,4 @@ Once Agent has a C→D-quality pair you love:
 - Runtime store (dev): `tunnelvision-runtime-media-*` under the macOS temp dir; **not durable**. Canonicals worth keeping were copied into [red-paper-airplane/](red-paper-airplane/).
 - Product rules cited: [AGENTS.md](../AGENTS.md) (Agent CREATE JOURNEY, repair gate), [destination.ts](../../web/src/project/destination.ts) (opening and construct prompts), [shooting-prompt.ts](../../media/src/cinematographer/shooting-prompt.ts) (baseline + pace), [journey-agent-repair.ts](../../web/src/project/journey-agent-repair.ts) (traversal < 30, END only).
 - This is a filmmaking reference, not a Camotion retune and not a new Agent loop.
+- Prompting lessons extracted from this run (do not copy the literal prompt): [PROMPT_COACH.md](../PROMPT_COACH.md).

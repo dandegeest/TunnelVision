@@ -284,7 +284,8 @@ Product Slice 11 Takes:
 [`genesis/research/22-product-slice-11.html`](genesis/research/22-product-slice-11.html).
 Product Slice 12 Agent CREATE JOURNEY:
 [`genesis/research/23-product-slice-12.html`](genesis/research/23-product-slice-12.html).
-See `docs/PRODUCT.md`.
+See `docs/PRODUCT.md`. Journey-prompting philosophy:
+`docs/PROMPT_COACH.md`.
 
 The exploration phase intentionally documents failures as well as successes because several of the most important architectural discoveries came from understanding **why seemingly good generations failed when treated as parts of a continuous journey**.
 

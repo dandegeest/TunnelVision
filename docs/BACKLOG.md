@@ -9,7 +9,10 @@ Research brainstorms and unvalidated Camotion questions stay in
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md). Current-code facts stay
 in [PRODUCT.md](PRODUCT.md), [AGENTS.md](AGENTS.md),
 [ARCHITECTURE.md](ARCHITECTURE.md), and
-[IMPLEMENTATION.md](IMPLEMENTATION.md).
+[IMPLEMENTATION.md](IMPLEMENTATION.md). Journey-prompting
+philosophy and experimental findings stay in
+[PROMPT_COACH.md](PROMPT_COACH.md). Do not implement a Prompt Coach
+agent from that file.
 
 Do not implement from this file until a session is explicitly asked
 to take an item. Do not re-litigate completed product work here.
@@ -171,6 +174,9 @@ shared Project when the discovery exists.
 
 **Open questions.** See [HACKATHON.md](HACKATHON.md) and
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md#camera-grammar).
+Human-facing camera-intent language vs internal grammar:
+[PROMPT_COACH.md](PROMPT_COACH.md). Do not leak current locomotion
+workarounds into the filmmaker's Journey prompt.
 
 ---
 
@@ -189,6 +195,8 @@ fixed model for every traversal?
 displace this. The judge-facing product is a persistent Project +
 autonomous Director/CM + grammar-aware shooting (if found) +
 agent-controlled Router + evaluation/retry + one-prompt UX.
+Do not collapse Prompt Coach, Camera Grammar, and Model Router into
+one giant prompt; see [PROMPT_COACH.md](PROMPT_COACH.md).
 
 **Intended behavior / design.** Discovery-driven. Do not hard-code
 Router capabilities until event-day docs and org access exist.
@@ -1088,6 +1096,9 @@ not a CM failure.
 intent / plan, conditioned on the preceding actual still.
 
 **DISCOVER:** next canonical from the actual generated traversal.
+Discover prompts may stay looser; do not force Derive-style
+Destination specification onto Discover. See
+[PROMPT_COACH.md](PROMPT_COACH.md).
 
 Likely flow:
 

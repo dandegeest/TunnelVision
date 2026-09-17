@@ -31,7 +31,9 @@ deliberately no Edit workspace.
 storyboard grid between a Director conversation rail and a Project
 panel. A full-width app header keeps TunnelVision on the left and Plan | Shoot
 centered. The left rail is conversation turn history only. The Project
-panel holds the project selector, then Directed | Agent, Journey prompt, destination count (AUTO or a
+panel holds the project selector, then Directed | Agent, Journey prompt
+(creative intent — [PROMPT_COACH.md](PROMPT_COACH.md); philosophy
+only, not a new control), destination count (AUTO or a
 number, typed or stepped), and, in Directed, Options (Generate all destinations,
 Shoot). Blocking is not a user automation option.
 CREATE JOURNEY is the primary action. Video, Default Take Intent, and Debug mode live in Project

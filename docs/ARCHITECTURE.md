@@ -43,7 +43,9 @@ python -m camotion --image input.png --plan camera-motion.json --output output.p
 python -m camotion --image input.png --plan camera-motion.json --depth near-weight.png --adaptive --output output.png
 ```
 
--   **Exists now:** planning docs; genesis experiment record; Camotion
+-   **Exists now:** planning docs ([PRODUCT.md](PRODUCT.md),
+    [AGENTS.md](AGENTS.md), [PROMPT_COACH.md](PROMPT_COACH.md)
+    philosophy only); genesis experiment record; Camotion
     v1 (radial field, multisample exposure, destination protection);
     optional near-weight CLI/renderer input; Terran Boylan original
     TunnelVision Action reverse-engineering as reference research; an **experimental**

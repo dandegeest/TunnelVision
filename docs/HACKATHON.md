@@ -18,6 +18,9 @@ Related current-code docs (do not treat them as optional):
 -   [DATA_MODEL.md](DATA_MODEL.md) — CameraMotionPlan v1 only
 -   [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md) — GWM Worlds 2 notes;
     camera grammar / Reverse Lead exhibit; hypothesis only
+-   [PROMPT_COACH.md](PROMPT_COACH.md) — Journey-prompting philosophy
+    and experimental findings; Prompt Coach is **future**, not a
+    hackathon role to implement
 
 Public Runway Dev documentation (source of truth for the API;
 reopen on event day):

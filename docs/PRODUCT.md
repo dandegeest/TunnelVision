@@ -24,7 +24,10 @@ Director structures the destinations. The Cinematographer figures out
 how to physically shoot each traversal. Camotion prepares
 motion-conditioned endpoint frames. The video model films the
 traversal. A finished film is one journey assembled from canonical
-destinations.
+destinations. How a filmmaker should describe that journey — and
+what must stay internal — is in [PROMPT_COACH.md](PROMPT_COACH.md).
+That document is philosophy and experimental findings, not a current
+product surface.
 
 Current product overview:
 [genesis/research/19-product-slice-8.html](../genesis/research/19-product-slice-8.html).
@@ -492,7 +495,8 @@ strategies:
     Sequential chain frozen as forest A–F canonicals in
     `camotion/integration/forest-a-to-f/`.
 -   **Discovered** — eventual observation from traversal / exploration.
-    Not implemented.
+    Not implemented. Derive vs Discover prompting:
+    [PROMPT_COACH.md](PROMPT_COACH.md).
 
 These are construction strategies, **not** four global movie modes.
 Destination provenance belongs to the frame. Destination construction
