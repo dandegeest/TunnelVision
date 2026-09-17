@@ -539,7 +539,7 @@ genesis/      Research site (not the hackathon app)
 | Reasoning contract | `media/src/reasoning/types.ts` — `ReasoningProvider` |
 | Current adapters | `media/src/replicate/*` only. **No Runway package exists.** Event-day work adds `media/src/runway/` behind the same contracts, with **Model Router as the primary generation path** and direct model calls as fallback. |
 | Image catalog | `media/src/replicate/image-models.ts` — Nano Banana 2 Lite default; Nano Banana 2 opt-in |
-| Video catalog | `media/src/replicate/video-models.ts` — Pruna default; Kling / Wan / Seedance opt-in |
+| Video catalog | `media/src/replicate/video-models.ts` — Pruna default; Kling / Veo / Seedance opt-in |
 
 ### Existing UI to copy or wrap (do not extract a design system)
 

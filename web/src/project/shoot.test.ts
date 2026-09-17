@@ -168,7 +168,7 @@ describe("SHOOT gate and JourneyShot take", () => {
         ...prepared,
         videoModelsByIntent: {
           fast: "pruna-p-video",
-          balanced: "wan-2.2-first-last-frame",
+          balanced: "kling-v2.5-turbo-pro",
           quality: "seedance-2.5",
         },
       },
@@ -181,14 +181,14 @@ describe("SHOOT gate and JourneyShot take", () => {
       { ...prepared, defaultTakeIntent: "quality" },
       "A-B",
     );
-    expect(agentQuality.videoModel).toBe("kling-v2.5-turbo-pro");
+    expect(agentQuality.videoModel).toBe("veo-3.1-fast");
     const kling3 = shootRequestFromProject(
       {
         ...prepared,
         klingV3Mode: "pro",
         videoModelsByIntent: {
           fast: "pruna-p-video",
-          balanced: "wan-2.2-first-last-frame",
+          balanced: "kling-v2.5-turbo-pro",
           quality: "kling-v3-video",
         },
       },

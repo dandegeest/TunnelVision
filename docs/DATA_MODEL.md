@@ -387,7 +387,8 @@ mirrors the Fast mapping. `Project.defaultTakeIntent` (Fast default) is
 the intent CREATE JOURNEY / Agent NEW TAKE uses to resolve that mapping.
 Unshot duration preview follows the same default intent. Filmmaker NEW TAKE
 can still pick Fast / Balanced / Quality per Take. Pruna is the Fast
-development default. Quality defaults to Kling 2.5 Turbo Pro.
+development default. Quality defaults to Veo 3.1 Fast. Balanced defaults
+to Kling 2.5 Turbo Pro.
 `Project.imageModel` chooses which catalog generator builds opening A
 and later B…N stills; Nano Banana 2 at 1K is the development default.
 The same model text-to-images A and image-conditions later

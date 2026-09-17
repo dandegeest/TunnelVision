@@ -15,20 +15,20 @@ import { takeDisplayLabel } from "./takes";
 import { projectWithVideoModelForIntent } from "./shoot";
 
 describe("generation intents", () => {
-  it("defaults a new project to Fast/Pruna, Balanced/Wan, Quality/Kling 2.5", () => {
+  it("defaults a new project to Fast/Pruna, Balanced/Kling 2.5, Quality/Veo 3.1 Fast", () => {
     const project = createNewProject();
     expect(videoModelsByIntentFromProject(project)).toEqual(DEFAULT_VIDEO_MODELS_BY_INTENT);
     expect(defaultTakeIntentFromProject(project)).toBe(DEFAULT_GENERATION_INTENT);
     expect(unshotVideoModel(project)).toBe("pruna-p-video");
     expect(videoModelForIntent(project, "fast")).toBe("pruna-p-video");
-    expect(videoModelForIntent(project, "balanced")).toBe("wan-2.2-first-last-frame");
-    expect(videoModelForIntent(project, "quality")).toBe("kling-v2.5-turbo-pro");
+    expect(videoModelForIntent(project, "balanced")).toBe("kling-v2.5-turbo-pro");
+    expect(videoModelForIntent(project, "quality")).toBe("veo-3.1-fast");
   });
 
   it("resolves Agent footage through the default Take intent mapping", () => {
     const project = createNewProject();
-    expect(unshotVideoModel({ ...project, defaultTakeIntent: "quality" })).toBe("kling-v2.5-turbo-pro");
-    expect(unshotVideoModel({ ...project, defaultTakeIntent: "balanced" })).toBe("wan-2.2-first-last-frame");
+    expect(unshotVideoModel({ ...project, defaultTakeIntent: "quality" })).toBe("veo-3.1-fast");
+    expect(unshotVideoModel({ ...project, defaultTakeIntent: "balanced" })).toBe("kling-v2.5-turbo-pro");
     expect(defaultTakeIntentFromProject({ videoModel: "pruna-p-video" })).toBe("fast");
   });
 
@@ -36,6 +36,16 @@ describe("generation intents", () => {
     const project = { ...createNewProject(), videoModelsByIntent: undefined, videoModel: "kling-v2.5-turbo-pro" as const };
     expect(videoModelForIntent(project, "fast")).toBe("kling-v2.5-turbo-pro");
     expect(videoModelForIntent(project, "quality")).toBe("kling-v2.5-turbo-pro");
+  });
+
+  it("remaps a retired Wan 2.2 Balanced mapping onto Kling 2.5", () => {
+    const project = {
+      ...createNewProject(),
+      videoModelsByIntent: JSON.parse(
+        '{"fast":"pruna-p-video","balanced":"wan-2.2-first-last-frame","quality":"veo-3.1-fast"}',
+      ),
+    };
+    expect(videoModelForIntent(project, "balanced")).toBe("kling-v2.5-turbo-pro");
   });
 
   it("updates one intent mapping without renaming the filmmaking control", () => {
@@ -50,6 +60,7 @@ describe("generation intents", () => {
     expect(takeDisplayLabel({ number: 2, generationIntent: "quality" })).toBe(`TAKE 2 · ${GENERATION_INTENT_MARK.quality}`);
     expect(takeDisplayLabel({ number: 3 })).toBe("TAKE 3");
     expect(takeIntentTooltip({ generationIntent: "fast", model: "prunaai/p-video" })).toBe("Fast · Pruna");
+    expect(takeIntentTooltip({ generationIntent: "quality", model: "google/veo-3.1-fast" })).toBe("Quality · Veo 3.1 Fast");
     expect(takeIntentTooltip({ generationIntent: "quality", model: "bytedance/seedance-2.5" })).toBe("Quality · Seedance 2.5");
     expect(takeIntentTooltip({ generationIntent: "quality", model: "kwaivgi/kling-v3-video" })).toBe("Quality · Kling 3");
   });

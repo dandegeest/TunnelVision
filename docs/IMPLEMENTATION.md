@@ -442,14 +442,15 @@ The current still development generator is Replicate
 `google/nano-banana-2` at 1K, the Project Image default
 (`nano-banana-2`, with `nano-banana-2-lite` opt-in). Flux Ultra is not in that
 catalog. The current Shoot development generator is Replicate `prunaai/p-video`,
-the Fast default. Quality defaults to `kling-v2.5-turbo-pro`. The filmmaker can switch the current project's
+the Fast default. Quality defaults to `veo-3.1-fast`. Balanced defaults to
+`kling-v2.5-turbo-pro`. The filmmaker can switch the current project's
 video model in Project settings (`pruna-p-video`,
-`kling-v2.5-turbo-pro`, `kling-v3-video`, `wan-2.2-first-last-frame`, `seedance-2.0-fast`,
+`kling-v2.5-turbo-pro`, `kling-v3-video`, `veo-3.1-fast`, `seedance-2.0-fast`,
 `seedance-2.5`). Adapters map A′/B′ onto each generator: Pruna and both
 Seedance models use `image`/`last_frame_image`; Kling 2.5 Turbo Pro
 uses `start_image`/`end_image` and a 5s clip; Kling 3 uses the same
-image fields at 6s with `mode` `standard` / `pro` / `4k`; Wan 2.2 I2V Fast uses
-`image`/`last_image`. The Shoot timeline follows each Take's duration,
+image fields at 6s with `mode` `standard` / `pro` / `4k`; Veo 3.1 Fast uses
+`image`/`last_frame` at 6s 1080p. The Shoot timeline follows each Take's duration,
 so a Kling 5s clip is shorter than a Pruna 6s clip on the same
 segment. The cut clock sums the selected Takes. Unshot legs preview the
 current project's model duration.

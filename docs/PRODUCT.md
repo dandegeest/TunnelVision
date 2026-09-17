@@ -204,10 +204,10 @@ playback, and DOWNLOAD use that Take. Completing a Take, Motion Plan, or
 canonical does not move the current workspace selection. A NEW TAKE may use a different video provider/model than
 earlier Takes on the same segment. Because every Take is anchored to the
 same canonical START/END pair, Takes from different models can be mixed
-in one cut (A→B Pruna Take 1, B→C Wan Take 2, C→D Pruna Take 1). That is
+in one cut (A→B Pruna Take 1, B→C Kling Take 2, C→D Pruna Take 1). That is
 a valid final movie. There is no separate Final state: final quality is
 the filmmaker selecting Takes. This was validated by replacing an
-individual Pruna shot with a Wan NEW TAKE while sharing the same
+individual Pruna shot with a Kling NEW TAKE while sharing the same
 canonical endpoints. Each new Take records the start/end canonical media
 IDs it was shot against so later alternate continuities can tell B1
 Takes from B2 Takes. Canonical **RESHOOT** still means regenerate a
@@ -238,12 +238,12 @@ when the model offers more than one size; Lite is 1K-only and hides
 that control, while Nano Banana 2 offers 1K / 2K / 4K. Project settings map
 Fast / Balanced / Quality generation intents onto catalog video models
 and choose the Default Take Intent (Fast) used by CREATE JOURNEY / Agent
-NEW TAKE. Fast defaults to Pruna; Balanced to Wan 2.2 First/Last Frame; Quality to
-Kling 2.5 Turbo Pro. Kling 3 is an opt-in Quality catalog model: product shots
+NEW TAKE. Fast defaults to Pruna; Balanced to Kling 2.5 Turbo Pro; Quality to
+Veo 3.1 Fast. Kling 3 is an opt-in Quality catalog model: product shots
 are 6s, and Project settings expose Standard (720p) / Pro (1080p) / 4K
 while it is mapped. Each adapter maps
 A′/B′ onto that model's start and last-frame fields. Clip duration
-follows the generator: Pruna, Wan, Seedance, and Kling 3 product shots are 6s;
+follows the generator: Pruna, Veo 3.1 Fast, Seedance, and Kling 3 product shots are 6s;
 Kling 2.5 Turbo Pro is 5s. The Shoot timeline tiles follow the selected
 Take. Fast 6s and Kling 5s Takes on the same segment keep those widths;
 the cut clock is the selected Takes (18s for three Fast Takes, 15s for

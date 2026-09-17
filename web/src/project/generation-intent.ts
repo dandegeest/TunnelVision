@@ -1,4 +1,10 @@
-import { videoModelDisplayLabel, videoModelHasModeChoice, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import {
+  DEFAULT_VIDEO_MODEL_ID,
+  parseVideoModelId,
+  videoModelDisplayLabel,
+  videoModelHasModeChoice,
+  type VideoModelId,
+} from "../../../media/src/replicate/video-models.ts";
 
 export const GENERATION_INTENTS = ["fast", "balanced", "quality"] as const;
 export type GenerationIntent = (typeof GENERATION_INTENTS)[number];
@@ -20,8 +26,8 @@ export const GENERATION_INTENT_LABEL: Record<GenerationIntent, string> = {
 /** Provider-neutral defaults. Router policies can fulfill these later. */
 export const DEFAULT_VIDEO_MODELS_BY_INTENT: VideoModelsByIntent = {
   fast: "pruna-p-video",
-  balanced: "wan-2.2-first-last-frame",
-  quality: "kling-v2.5-turbo-pro",
+  balanced: "kling-v2.5-turbo-pro",
+  quality: "veo-3.1-fast",
 };
 
 export function isGenerationIntent(value: unknown): value is GenerationIntent {
@@ -32,15 +38,20 @@ export function defaultVideoModelsByIntent(): VideoModelsByIntent {
   return { ...DEFAULT_VIDEO_MODELS_BY_INTENT };
 }
 
+function catalogVideoModel(value: unknown, fallback: VideoModelId): VideoModelId {
+  return parseVideoModelId(value) ?? fallback;
+}
+
 export function videoModelsByIntentFromProject(project: {
   videoModel: VideoModelId;
   videoModelsByIntent?: VideoModelsByIntent;
 }): VideoModelsByIntent {
   const mapped = project.videoModelsByIntent;
+  const fast = catalogVideoModel(project.videoModel, DEFAULT_VIDEO_MODEL_ID);
   return {
-    fast: project.videoModel,
-    balanced: mapped?.balanced ?? project.videoModel,
-    quality: mapped?.quality ?? project.videoModel,
+    fast,
+    balanced: catalogVideoModel(mapped?.balanced, fast),
+    quality: catalogVideoModel(mapped?.quality, fast),
   };
 }
 

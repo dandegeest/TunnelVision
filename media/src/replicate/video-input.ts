@@ -5,7 +5,7 @@ import { isKling25TurboPro, toKling25TurboProInput } from "./kling-v2.5-turbo-pr
 import { isKlingV3Video, toKlingV3VideoInput, type KlingV3Settings } from "./kling-v3-video.ts";
 import { isPVideoModel, toPVideoInput, type PVideoSettings } from "./p-video.ts";
 import { isSeedance20Fast, toSeedance20FastInput } from "./seedance-2.0-fast.ts";
-import { isWan22I2vFast, toWan22I2vFastInput } from "./wan-2.2-i2v-fast.ts";
+import { isVeo31Fast, toVeo31FastInput } from "./veo-3.1-fast.ts";
 import { SEEDANCE_25_MODEL, toSeedance25Input, type Seedance25Settings } from "./seedance-2.5.ts";
 
 export function isSeedance25(model: string): boolean {
@@ -43,8 +43,8 @@ export function toReplicateVideoInput(
       unknown
     >;
   }
-  if (isWan22I2vFast(model)) {
-    return toWan22I2vFastInput(request, resolvedStart, resolvedEnd) as unknown as Record<
+  if (isVeo31Fast(model)) {
+    return toVeo31FastInput(request, resolvedStart, resolvedEnd) as unknown as Record<
       string,
       unknown
     >;

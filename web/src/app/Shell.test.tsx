@@ -164,7 +164,7 @@ describe("Shell header chrome", () => {
           ...createForestProject(),
           videoModelsByIntent: {
             fast: "pruna-p-video",
-            balanced: "wan-2.2-first-last-frame",
+            balanced: "kling-v2.5-turbo-pro",
             quality: "kling-v3-video",
           },
           klingV3Mode: "pro",

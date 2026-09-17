@@ -323,10 +323,10 @@ the model has only one size (Lite). Flux Ultra is not a product still
 generator.
 SHOOT on a staged leg uses the Motion Plan's A′/B′ and the generation-intent
 mapping chosen in Project settings (Fast / Balanced / Quality → catalog
-model). Fast defaults to Pruna (`prunaai/p-video`); Balanced to Wan 2.2
-First/Last Frame; Quality to Kling 2.5 Turbo Pro. Those mappings stay
+model). Fast defaults to Pruna (`prunaai/p-video`); Balanced to Kling 2.5
+Turbo Pro; Quality to Veo 3.1 Fast (`google/veo-3.1-fast`). Those mappings stay
 provider-neutral so a later router can fulfill the intents. Clip duration
-follows the generator (Pruna / Seedance / Kling 3 are 6s; Kling 2.5
+follows the generator (Pruna / Seedance / Kling 3 / Veo 3.1 Fast are 6s; Kling 2.5
 Turbo Pro is 5s). Kling 3 also exposes Standard / Pro / 4K in Project
 settings. Take rows and
 the selected MOTION tile use that clip's duration, so a Fast pass is
@@ -451,7 +451,7 @@ generator for A and B…N, plus format and resolution when that model
 offers a choice. The Video control chooses the generator
 for every SHOOT in the current project. Pruna maps those frames to
 `image` and `last_frame_image`; Kling 2.5 Turbo Pro uses `start_image`/`end_image`;
-Wan 2.2 I2V Fast uses `image`/`last_image`; Seedance 2.0 Fast and 2.5
+Veo 3.1 Fast uses `image`/`last_frame`; Seedance 2.0 Fast and 2.5
 use `image`/`last_frame_image`. Canonical frames stay
 Shoot world-state authority; they are not currently video inputs. Plan
 storyboard drawings are not canonicals.

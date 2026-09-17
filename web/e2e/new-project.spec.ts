@@ -631,13 +631,13 @@ test("project image and video model selectors default to Nano Banana 2 and Pruna
   await expect(page.getByRole("menuitem")).toHaveText(["1K", "2K", "4K"]);
   await page.getByRole("menuitem", { name: "2K", exact: true }).click();
   const quality = page.getByLabel("Quality video model");
-  await expect(quality).toHaveAttribute("data-value", "kling-v2.5-turbo-pro");
+  await expect(quality).toHaveAttribute("data-value", "veo-3.1-fast");
   await quality.click();
   await expect(page.getByRole("menuitem")).toHaveText([
     "Pruna",
     "Kling 2.5 Turbo Pro",
     "Kling 3",
-    "Wan 2.2 First/Last Frame",
+    "Veo 3.1 Fast",
     "Seedance 2.0 Fast",
     "Seedance 2.5",
   ]);

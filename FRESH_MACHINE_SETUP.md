@@ -170,7 +170,7 @@ project, not those journeys; they are tests and Debug fixtures.
 1. **Replicate API token** (this is the one required secret today).
 2. Replicate account that can run `google/gemini-3.1-pro`,
    `google/nano-banana-2-lite` / `google/nano-banana-2`, and the
-   Project video models (`prunaai/p-video`, Kling, Wan, Seedance).
+   Project video models (`prunaai/p-video`, Kling, Veo 3.1 Fast, Seedance).
 3. GitHub access to this repo.
 4. Later: Runway Dev **account** (MCP OAuth) plus
    `RUNWAYML_API_SECRET` and Model Router config IDs

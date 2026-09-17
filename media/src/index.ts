@@ -55,11 +55,11 @@ export {
 } from "./replicate/kling-v3-video.ts";
 export type { KlingV3Settings, KlingV3VideoInput } from "./replicate/kling-v3-video.ts";
 export {
-  WAN_22_I2V_FAST_MODEL,
-  isWan22I2vFast,
-  wan22FrameCount,
-  toWan22I2vFastInput,
-} from "./replicate/wan-2.2-i2v-fast.ts";
+  VEO_31_FAST_MODEL,
+  isVeo31Fast,
+  veo31FastDuration,
+  toVeo31FastInput,
+} from "./replicate/veo-3.1-fast.ts";
 export {
   SEEDANCE_20_FAST_MODEL,
   DEFAULT_SEEDANCE_20_FAST_SETTINGS,

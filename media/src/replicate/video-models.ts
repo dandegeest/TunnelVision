@@ -2,14 +2,15 @@
  * Product video generators. Slugs stay at the MediaProvider boundary.
  * This catalog is importable from the web app; do not import adapter
  * modules here (they pull Node types into the browser compile).
- * Pruna is the Fast development default. Quality defaults to Kling 2.5 Turbo Pro.
- * Mid-tier, Seedance 2.5, and Kling 3 remain catalog options.
+ * Pruna is the Fast development default. Quality defaults to Veo 3.1 Fast.
+ * Balanced defaults to Kling 2.5 Turbo Pro. Seedance 2.5 and Kling 3 remain
+ * catalog options.
  */
 export const VIDEO_MODEL_IDS = [
   "pruna-p-video",
   "kling-v2.5-turbo-pro",
   "kling-v3-video",
-  "wan-2.2-first-last-frame",
+  "veo-3.1-fast",
   "seedance-2.0-fast",
   "seedance-2.5",
 ] as const;
@@ -66,11 +67,11 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     durationSeconds: 6,
   },
   {
-    id: "wan-2.2-first-last-frame",
-    slug: "wan-video/wan-2.2-i2v-fast",
-    label: "Wan 2.2 First/Last Frame",
-    tier: "mid",
-    cost: "$$",
+    id: "veo-3.1-fast",
+    slug: "google/veo-3.1-fast",
+    label: "Veo 3.1 Fast",
+    tier: "hq",
+    cost: "$$$",
     durationSeconds: 6,
   },
   {
@@ -134,7 +135,12 @@ export function videoModelDisplayLabel(model: string): string | undefined {
   return id ? videoModelOption(id).label : undefined;
 }
 
-/** Accept a product id or a known Replicate slug. */
+/** Retired product ids still found on saved projects. */
+const RETIRED_VIDEO_MODEL_IDS: Record<string, VideoModelId> = {
+  "wan-2.2-first-last-frame": "kling-v2.5-turbo-pro",
+};
+
+/** Accept a product id, a known Replicate slug, or a retired catalog id. */
 export function parseVideoModelId(value: unknown): VideoModelId | undefined {
   if (isVideoModelId(value)) {
     return value;
@@ -143,5 +149,5 @@ export function parseVideoModelId(value: unknown): VideoModelId | undefined {
     return undefined;
   }
   const trimmed = value.trim();
-  return VIDEO_MODELS.find((item) => item.slug === trimmed)?.id;
+  return RETIRED_VIDEO_MODEL_IDS[trimmed] ?? VIDEO_MODELS.find((item) => item.slug === trimmed)?.id;
 }
