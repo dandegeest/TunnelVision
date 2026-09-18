@@ -344,7 +344,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Auto blocking")).toHaveCount(0);
   await expect(page.getByRole("checkbox", { name: "Generate all segments" })).not.toBeChecked();
   await expect(page.getByRole("checkbox", { name: "Generate audio" })).not.toBeChecked();
-  await expect(page.getByRole("checkbox", { name: "Adaptive duration" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Adaptive durations" })).toBeChecked();
   await expect(page.getByLabel("Fixed duration seconds")).toHaveCount(0);
   await expect(page.getByLabel("Image model")).toHaveCount(0);
   await expect(page.getByLabel("Video model")).toHaveCount(0);
@@ -353,7 +353,7 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Generate all destinations")).toHaveCount(0);
   await expect(page.getByLabel("Generate all segments")).toHaveCount(0);
   await expect(page.getByLabel("Generate audio")).toBeVisible();
-  await expect(page.getByLabel("Adaptive duration")).toBeVisible();
+  await expect(page.getByLabel("Adaptive durations")).toBeVisible();
   await expect(page.getByLabel("Create journey")).toBeVisible();
   await page.getByRole("button", { name: "Directed" }).click();
   await expect(page.getByLabel("Generate all destinations")).toBeVisible();

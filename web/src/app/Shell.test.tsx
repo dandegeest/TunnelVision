@@ -109,7 +109,8 @@ describe("Shell header chrome", () => {
     expect(project).toContain("Generate all destinations");
     expect(project).toContain("Generate all segments");
     expect(project).toContain("Generate audio");
-    expect(project).toContain("Adaptive duration");
+    expect(project).toContain("Adaptive durations");
+    expect(project).toContain('aria-label="Copy journey prompt"');
     expect(project).not.toContain("Fixed duration");
     expect(project).not.toContain("Auto generate");
     expect(project).not.toContain("Auto blocking");
@@ -206,7 +207,8 @@ describe("Shell header chrome", () => {
     expect(project).toContain(">Agent<");
     expect(project).toContain(">Options<");
     expect(project).toContain("Generate audio");
-    expect(project).toContain("Adaptive duration");
+    expect(project).toContain("Adaptive durations");
+    expect(project).toContain('aria-label="Copy journey prompt"');
     expect(project).not.toContain("Generate all destinations");
     expect(project).not.toContain("Generate all segments");
     expect(project).not.toContain("Generate start destination");

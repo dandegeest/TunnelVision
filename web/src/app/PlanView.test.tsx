@@ -1697,9 +1697,10 @@ describe("new-project Plan", () => {
     expect(html).not.toContain('aria-label="Auto blocking"');
     expect(html).toContain('aria-label="Generate all segments"');
     expect(html).toContain('aria-label="Generate audio"');
-    expect(html).toContain('aria-label="Adaptive duration"');
+    expect(html).toContain('aria-label="Copy journey prompt"');
+    expect(html).toContain('aria-label="Adaptive durations"');
     expect(html).toMatch(
-      /checked[^>]*aria-label="Adaptive duration"|aria-label="Adaptive duration"[^>]*checked/,
+      /checked[^>]*aria-label="Adaptive durations"|aria-label="Adaptive durations"[^>]*checked/,
     );
     expect(html).not.toContain('aria-label="Fixed duration seconds"');
     expect(html).not.toMatch(

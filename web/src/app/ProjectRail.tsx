@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
 import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
+import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
 import {
   canPlanMovie,
   MAX_STORYBOARD_DESTINATIONS,
@@ -873,8 +874,16 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
               </p>
             ) : null}
             <AgencySelect disabled={busy} />
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Journey prompt</span>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="project-story"
+                  className="min-w-0 flex-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase"
+                >
+                  Journey prompt
+                </label>
+                <CopyToClipboardButton text={composerDraft} label="Copy journey prompt" />
+              </div>
               <ClickToEditTextarea
                 id="project-story"
                 rows={8}
@@ -884,7 +893,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
               />
-            </label>
+            </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera</span>
               <OptionMenu
@@ -961,12 +970,12 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   type="checkbox"
                   checked={durationModeFromProject(project) === "adaptive"}
                   disabled={busy}
-                  aria-label="Adaptive duration"
+                  aria-label="Adaptive durations"
                   title="When on, each traversal uses the Cinematographer's desired duration. When off, every traversal targets the fixed duration."
                   className="mt-0.5 accent-[#ece7df]"
                   onChange={(event) => setDurationMode(event.target.checked ? "adaptive" : "fixed")}
                 />
-                Adaptive duration
+                Adaptive durations
               </label>
               {durationModeFromProject(project) === "fixed" ? (
                 <label className="flex items-center gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
