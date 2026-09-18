@@ -298,92 +298,220 @@ onto Discover. Do not implement Discover from this document.
 
 Broad camera intent can change the meaning of a journey.
 
-**Researched / planned categories** (HACKATHON / DISCOVERY; not
-current product classification):
+**Hackathon vocabulary** (pre-hackathon **target**, not current
+product classification). Four whole-journey grammars only:
 
-| Grammar | Meaning |
+| Grammar | Relationship |
 | --- | --- |
-| **FPOV** | Camera itself is the traveler. |
-| **FP_FOLLOW** | Camera follows a persistent subject. |
-| **REVERSE_LEAD** | Camera retreats while facing an advancing subject. |
-| **MOUNTED** | Camera is physically mounted on a vehicle or object. |
-| Later | SIDE_TRACK, ORBIT, ASCEND / DESCEND, OBJECT / PROJECTILE, SUBJECT HANDOFF, FREE |
+| **POV** | Camera **is** the traveler. Unembodied unless explicitly requested otherwise. |
+| **FOLLOW** | Camera follows the traveler. Invisible objective / third-person follow. **Not** true first-person. |
+| **LEAD** | Camera travels **ahead of** the traveler while facing them, usually retreating as they advance. Also objective / invisible. |
+| **MOUNTED** | Camera is physically attached to the traveler, vehicle, or moving object. |
 
-**Current.** Product locomotion law is forward unembodied FPOV
+Older names, retired here: POV was sometimes called FPOV / first-person
+POV; FOLLOW was called FP Follow; LEAD was called Reverse Lead. Use
+**POV, FOLLOW, LEAD, MOUNTED** from here on. Later grammars
+(SIDE_TRACK, ORBIT, ASCEND / DESCEND, OBJECT / PROJECTILE, SUBJECT
+HANDOFF, FREE) remain **post-hackathon**.
+
+See
+[HACKATHON.md — Camera grammar](HACKATHON.md#camera-grammar--hackathon-decision).
+
+### One journey = one camera grammar
+
+For hackathon scope, the selected grammar applies across the **entire
+continuous journey**.
+
+Valid examples: POV rollercoaster; POV trench run; FOLLOW skier;
+FOLLOW koi; FOLLOW tornado; LEAD astronaut; MOUNTED vehicle
+journey.
+
+Do **not** treat mixed-grammar journeys as supported hackathon
+behavior (A→B = POV, B→C = FOLLOW, C→D = LEAD). That is explicitly
+**post-hackathon**.
+
+TunnelVision's core magic for this scope is a continuous cinematic
+journey of arbitrary length while preserving **one coherent camera
+relationship**. The goal is not general-purpose cinematography or
+coverage planning. Keeping one grammar avoids prematurely
+introducing canonical reinterpretation between adjacent grammars,
+incoming vs outgoing camera-state variants around one canonical,
+camera cuts at grammar boundaries, continuous grammar-transition
+planning, coverage planning, and complex shot-to-shot camera
+semantics. Those remain post-hackathon research.
+
+The human may **state** a grammar directly:
+
+``` text
+Photorealistic FOLLOW journey chasing a downhill skier.
+```
+
+Prompt Coach may also **infer or clarify** a grammar when intent
+strongly implies one:
+
+``` text
+"I am the camera moving through the maze."
+  → POV
+
+"Follow the same skier down the mountain."
+  → FOLLOW
+
+"Stay ahead of the astronaut while facing them."
+  → LEAD
+
+"Camera mounted to the front of the motorcycle."
+  → MOUNTED
+```
+
+Then keep the **entire** journey compatible with that grammar. Coach
+may help structure legs/beats. It must **not** switch grammar from
+beat to beat.
+
+Journey legs may vary in environment, speed, danger, lighting,
+scale, topology, and narrative intensity while grammar stays
+constant:
+
+``` text
+FOLLOW skier:
+mountain start → steep descent → gates → rocky chute → tunnel → finish
+(all FOLLOW)
+
+POV trench attack:
+space approach → trench entry → defensive fire → final attack run
+→ target → smoke → open space
+(all POV)
+```
+
+Optimize the **story and journey**. Preserve the selected camera
+relationship.
+
+### Grammar is not every local movement
+
+Camera grammar is the persistent relationship between camera and
+traveler/subject. It is **not** the same as every local movement.
+Within one grammar the camera may still turn, bank, climb, descend,
+accelerate, decelerate, pass through thresholds, and follow curved
+paths. POV can still turn through a maze. FOLLOW can still bank
+behind a skier. MOUNTED can still climb and roll with a vehicle.
+The grammar stays constant while local movement changes.
+
+### Segment duration / pace
+
+**Nice to have** before hack day. Not part of the four grammar
+definitions, and **not implemented**. Prefer pace or shot-length
+intent over precise duration control.
+
+If easy, CM may return `pace` or an approximate desired duration.
+The generation layer would map that to the closest duration the
+**currently selected** video model supports. If a Take is
+regenerated with a different model, remap — models expose different
+discrete durations.
+
+``` text
+CM desiredDuration ≈ 6s
+Model A supports 5s / 10s  → nearest sensible value
+Retry on Model B (4s / 6s / 8s) → remap again for Model B
+```
+
+Do not document exact mapping as live behavior. Current product
+already maps CM `pace` onto Camotion exposure and shooting-prompt
+speed phrases; clip duration stays fixed per model. That is not
+this optional duration-mapping layer.
+
+**Current.** Product locomotion law is forward unembodied POV
 (`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`). The Director can
-already write non-FPOV intent in a plan; the Cinematographer
-baseline can still override it (Reverse Lead astronaut exhibit).
-Camera Grammar classification is **not** implemented. Do not
-document it as live behavior. See
+already write non-POV intent in a plan; the Cinematographer
+baseline can still override it (LEAD astronaut exhibit). Camera
+Grammar classification is **not** implemented. Do not document it
+as live behavior. See also
 [BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
 and [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md#camera-grammar).
 
-**Useful prompting principle (current + future).** The filmmaker may
-express broad camera intent. TunnelVision should **eventually**
-translate that into the appropriate internal grammar and
-conditioning. Do not require the filmmaker to name the taxonomy.
+**Useful prompting principle.** The filmmaker may express broad
+camera intent. TunnelVision should translate that into the
+appropriate internal grammar and conditioning. Do not require the
+filmmaker to name the taxonomy or understand TV internals.
 
 ---
 
-## 9. FPOV
+## 9. POV
 
-FPOV means the camera itself is the traveler: through a maze, a
+POV means the camera itself is the traveler: through a maze, a
 trench, a building, a road.
 
 **Current product law** ([AGENTS.md](AGENTS.md)): TunnelVision uses
-an **unembodied** first-person POV unless the filmmaker explicitly
-asks otherwise. Do not automatically introduce hands, feet, skis,
+an **unembodied** POV unless the filmmaker explicitly asks
+otherwise. Do not automatically introduce hands, feet, skis,
 cockpit, handlebars, hood, vehicle body, camera operator, avatar, or
 persistent foreground equipment. Filmmaker and Director story text
 should not add a POV clause; the product injects the unembodied
 constraint.
 
-If the filmmaker explicitly requests embodied or mounted POV, those
-elements may be appropriate.
+This distinction matters because **MOUNTED** exists as its own
+grammar. If visible vehicle or body geometry is essential to the
+concept, the intent may actually be MOUNTED rather than POV.
+
+If the filmmaker explicitly requests embodied POV, those elements
+may be appropriate. Do not treat that as the POV default.
 
 **Future.** A Prompt Coach should not require humans to repeatedly
-specify "no hands, no skis, no cockpit." That belongs in the FPOV
+specify "no hands, no skis, no cockpit." That belongs in the POV
 baseline.
 
 ---
 
-## 10. FP Follow
+## 10. FOLLOW
 
-**Experimental / discovery.** FP_FOLLOW is a researched grammar, not
+**Experimental / discovery.** FOLLOW is a researched grammar, not
 a current CM classifier.
 
-FP Follow means the camera follows a persistent subject through the
-environment. Subjects discussed in sessions and discovery notes:
-glowing koi, downhill skier, tornado, roller coaster, red paper
-airplane.
+FOLLOW means an **invisible objective** camera follows a persistent
+subject through space. A persistent subject is visible ahead or
+within the frame and is the continuity anchor. The camera travels
+through the environment with them and itself remains invisible. It
+should not become another visible participant by accident.
 
-The followed subject is the primary continuity anchor. The camera
-should follow the subject's physical route without overtaking it or
-arbitrarily changing perspective. The camera itself should generally
-remain invisible.
+Subjects discussed in sessions and discovery notes: skier, koi,
+tornado, roller coaster, paper airplane.
 
-Example: a downhill skier is visible ahead. The pursuing camera is
-**not** necessarily another visible skier. Skis, poles, or a body
-belonging to a camera operator should not appear automatically.
+For a FOLLOW skier shot: the skier is visible. The camera
+operator's skis should **not** automatically be visible. That would
+imply a different camera relationship (embodied POV or a second
+skier).
 
-**Future.** That distinction should live in an FP Follow baseline
+**Future.** That distinction should live in a FOLLOW baseline
 rather than requiring every Journey prompt to explain it.
 
 ---
 
-## 11. Mounted is different
+## 11. LEAD and MOUNTED
 
-**Discovery.** MOUNTED is a researched grammar, not current product
-classification.
+**LEAD** is a planned / pre-hackathon grammar **target**, not current
+product classification.
 
-If the camera is physically mounted to a vehicle or object,
-persistent foreground geometry may be **desirable**: car hood,
-handlebars, boat bow, aircraft structure.
+LEAD means the subject remains visible; the camera travels **ahead
+of** the subject while facing them, often retreating as the subject
+advances. Example: an astronaut walks toward the camera while the
+camera retreats through connected environments.
 
-Do not apply FPOV's default "no persistent foreground objects" rule
-blindly to Mounted shots. This is one reason grammar-specific
-baselines are preferable to one universal locomotion baseline.
-[HACKATHON.md](HACKATHON.md) records the same conflict.
+**Experimental observation (historical limitation, not desired
+LEAD).** Earlier TunnelVision conditioning strongly favored forward
+camera travel and could override this intent (astronaut exhibit: CM
+rewrote a retreating, facing-the-subject plan into forward POV that
+passed the astronaut). Do not present that override as part of the
+desired LEAD grammar. The dedicated LEAD baseline is the intended
+fix, not a more permissive universal POV template.
+
+**MOUNTED** means the camera is physically associated with the
+moving subject, vehicle, or object: hood-mounted car, motorcycle,
+handlebars, train exterior, boat bow, aircraft-mounted perspective.
+
+Unlike POV / FOLLOW / LEAD, persistent foreground vehicle geometry
+may be **expected and desirable**. Do not apply POV's default "no
+persistent foreground objects" rule blindly to MOUNTED shots. This
+is why one universal camera baseline is insufficient.
+[HACKATHON.md](HACKATHON.md#camera-grammar--hackathon-decision)
+records the same conflict.
 
 ---
 
@@ -426,7 +554,7 @@ materials, feature-film scale.
 ```
 
 ``` text
-Photorealistic cinematic FP Follow.
+Photorealistic cinematic FOLLOW.
 ```
 
 **Future.** Prompt Coach / Intent Conditioning should expand compact
@@ -497,7 +625,7 @@ already present in the filmmaker's idea — smallest useful change.
 If a particular visual event is essential, state it.
 
 Example: for an attack run, if the filmmaker specifically wants to
-**see** two torpedoes launch from the FPOV camera position, travel
+**see** two torpedoes launch from the POV camera position, travel
 ahead, and enter the target opening, that is important creative
 intent. Do not leave essential story actions entirely to inference.
 
@@ -555,21 +683,23 @@ generic continuous forward travel toward:
 
 And:
 
-> When the route changes direction, the camera physically rotates
-> onto the new heading, then continues forward.
+> When the route changes direction, physically rotate/bank onto
+> the new heading, then continue forward.
 
 For intersections, corners, landings, and switchbacks, explicitly
 describing the heading change improved at least one Pac-Man
 experiment.
 
 **Do not** conclude that every human Journey prompt should contain
-this language.
+this language. This is likely **internal** grammar / Cinematographer
+conditioning. Prompt Coach should absorb that knowledge instead of
+leaking the workaround into user prompts.
 
-**Future.** The likely solution is for the FPOV baseline / Camera
-Grammar / Cinematographer conditioning to understand path-relative
-forward motion automatically. The filmmaker should eventually be
-able to say "race through the maze" without understanding
-TunnelVision's heading-change problem.
+**Future.** The POV baseline / Camera Grammar / Cinematographer
+conditioning should understand path-relative forward motion
+automatically. The filmmaker should eventually be able to say
+"race through the maze" without understanding TunnelVision's
+heading-change problem.
 
 ---
 
@@ -618,7 +748,9 @@ quietly ask:
 3.  Is there a physically connected journey?
 4.  Are important thresholds available or reasonably inferable?
 5.  Are continuity anchors explicit?
-6.  Is broad camera intent clear when it matters?
+6.  Is broad camera intent stated or clearly implied — and does the
+    whole journey stay in one grammar (hackathon: POV, FOLLOW,
+    LEAD, or MOUNTED)?
 7.  Is there enough visual direction for the intended aesthetic?
 8.  Is there an emotional / narrative progression?
 9.  Are essential story actions explicit?
@@ -645,6 +777,7 @@ Avoid:
 -   forcing current model weaknesses into the filmmaker's vocabulary
 -   removing opportunities for Director creativity
 -   treating every journey as Derive
+-   encouraging grammar switching within a single journey
 -   assuming more words means a better journey
 
 ---
@@ -693,7 +826,7 @@ mechanism, and every generation constraint.
 **TunnelVision-appropriate:**
 
 ``` text
-Photorealistic cinematic FPOV. Approach a colossal
+Photorealistic cinematic POV. Approach a colossal
 planet-destroying space station and dive into its trench. Race
 deeper as defensive fire becomes increasingly intense and enemy
 fighters close in. The final trench run becomes brutally tense as
@@ -728,7 +861,8 @@ journey as a qualitative reference, not a prompt to copy.
 That Agent run produced some of TunnelVision's strongest visual
 results and useful continuous-space planning. The journey followed a
 persistent red paper airplane through distinct but physically
-connected environments.
+connected environments — a FOLLOW-shaped continuity anchor, not a
+prompt to copy.
 
 Structural lessons:
 
@@ -782,7 +916,7 @@ Prompt Coach and Camera Grammar solve different problems.
 | **Prompt Coach** (future) | What movie is the human asking for? |
 | **Director** (current) | Where does that movie go? |
 | **Cinematographer** (current) | Can / how should this local traversal be shot? |
-| **Camera Grammar** (discovery) | What family of camera behavior does this traversal require? |
+| **Camera Grammar** (hackathon target) | What family of camera behavior does this **journey** require? (POV, FOLLOW, LEAD, or MOUNTED — one grammar for the whole journey) |
 | **Model Router** (discovery) | Which generation strategy / model is appropriate? |
 | **Generation model** (current adapters) | Actually creates the media. |
 
@@ -822,9 +956,11 @@ prompting, camera strategies, and models actually worked.
 
 | Kind | What is true now |
 | --- | --- |
-| **Current observed practice** | Journey prompt → PLAN JOURNEY / CREATE JOURNEY → sequential Derived Construct → CM on actual pairs → Camotion A′/B′ → NEW TAKE. Unembodied FPOV baseline. Discover is unwired. |
-| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons; Camera Grammar exploration. |
-| **Future direction** | Prompt Coach / Intent Conditioning; structured creative intent; Project-level Creative Direction; automatic Camera Grammar classification; agentic Runway Model Router control; Discover as a second construction strategy. |
+| **Current observed practice** | Journey prompt → PLAN JOURNEY / CREATE JOURNEY → sequential Derived Construct → CM on actual pairs → Camotion A′/B′ → NEW TAKE. Unembodied POV baseline. Discover is unwired. Camera grammar is not implemented. |
+| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons. |
+| **Current / pre-hackathon target (not done)** | POV, FOLLOW, LEAD, MOUNTED. One grammar per entire journey. Prompt Coach helps keep the journey compatible with that grammar. Segment pace/duration mapping is nice-to-have if easy. |
+| **Post-hackathon** | Mixed grammar within one journey; grammar switching between adjacent traversals; multiple camera interpretations of the same canonical; explicit camera cuts at grammar changes; continuous transitions between grammars; coverage planning; richer shot-duration planning. |
+| **Future direction** | Prompt Coach / Intent Conditioning; structured creative intent; Project-level Creative Direction; agentic Runway Model Router control; Discover as a second construction strategy. |
 
 Do not document future concepts as though they already exist.
 
@@ -835,9 +971,15 @@ Do not document future concepts as though they already exist.
 **THE HUMAN DESCRIBES THE MOVIE.
 TUNNELVISION FIGURES OUT HOW TO MAKE THE JOURNEY.**
 
-Prompt Coach should improve clarity, continuity, cinematic intent,
-and shootability without replacing the creative contribution of
-either the human or TunnelVision's filmmaking roles.
+**THE HUMAN CHOOSES OR IMPLIES THE CAMERA RELATIONSHIP.
+TUNNELVISION PRESERVES THAT GRAMMAR ACROSS THE JOURNEY.**
+
+Prompt Coach should make the smallest useful intervention needed to
+preserve story intent, physical continuity, camera grammar,
+continuity anchors, cinematic quality, strong destinations, and
+shootability — without replacing the creative contribution of
+either the human or TunnelVision's filmmaking roles, and without
+turning the idea into a giant low-level generation prompt.
 
 The best Prompt Coach intervention is usually the **smallest one**
 that gives the filmmaking system what it actually needs.

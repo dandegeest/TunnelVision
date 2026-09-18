@@ -126,57 +126,89 @@ read/write the same Project. Details:
 
 ### Camera grammar classification
 
-**Status:** HACKATHON / DISCOVERY — do **not** implement now. Do
-**not** retune the current FPOV locomotion baseline to make one
-failure succeed.
+**Status:** HACKATHON / DISCOVERY — pre-hackathon implementation
+**target**, not current product. Do **not** retune the single FPOV
+locomotion baseline as a one-off prompt tweak. Mixed-grammar
+journeys are **post-hackathon**.
 
-**Goal.** Can CM recognize the required camera grammar **per
-traversal** and select the matching shooting baseline instead of
-forcing every shot through forward FPOV?
+**Goal.** Support **four whole-journey camera grammars** — POV,
+FOLLOW, LEAD, MOUNTED — so a continuous shot of arbitrary length
+can use one selected grammar instead of forcing every shot through
+forward POV.
 
-**Why it matters.** The Director can already plan non-FPOV camera
+**Why it matters.** The Director can already plan non-POV camera
 intent. The current Cinematographer baseline
 (`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`) still assumes
 continuous forward travel and avoidance of FPS-style foreground
 objects, and can override valid Director intent.
 
-**Pre-hackathon failure case (preserve).** Reverse Lead astronaut
-experiment: Director planned a backward-moving camera that kept
-facing the astronaut. CM rewrote the shots to pass the astronaut
-and continue forward because the baseline required forward travel.
-Keep this as the exhibit. Do not “fix” it before the hackathon.
+**Hackathon rule.** One journey = one camera grammar. Do not
+switch grammar mid-journey before hack day.
 
-**Intended initial grammars only** (do not overbuild):
+**Terminology (use these names):**
 
--   **FPOV** — camera is the traveler; existing forward constraints
-    may stay useful; FPS foreground generally undesirable unless
-    requested
--   **FP_FOLLOW** — follow a persistent subject (koi, coaster car,
-    person, animal)
--   **REVERSE_LEAD** — retreat while facing an advancing subject;
-    must not rewrite into forward FPOV
--   **MOUNTED** — camera on a vehicle / object; persistent
-    foreground geometry is expected (conflicts with FPOV “no FPS
-    foreground”)
+-   **POV** — camera is the traveler (formerly FPOV / first-person
+    POV)
+-   **FOLLOW** — invisible objective camera follows the subject.
+    **Not** true first-person. Formerly FP Follow / FP_FOLLOW.
+-   **LEAD** — invisible objective camera retreats ahead of the
+    subject while facing them. Formerly Reverse Lead /
+    REVERSE_LEAD.
+-   **MOUNTED** — camera physically attached to the subject or
+    vehicle; persistent foreground geometry is expected
+
+Retire **FP Follow** and **Reverse Lead** as names.
 
 Later (not hackathon taxonomy): SIDE_TRACK, ORBIT, ASCEND/DESCEND,
 OBJECT/PROJECTILE, SUBJECT HANDOFF, FREE.
 
-Expose the chosen grammar on hackathon CM cards. Persist it on the
-shared Project when the discovery exists.
+**Pre-hackathon failure case (preserve).** LEAD astronaut
+experiment: Director planned a backward-moving camera that kept
+facing the astronaut. CM rewrote the shots to pass the astronaut
+and continue forward because the baseline required forward travel.
+Keep this as the exhibit. Do not “fix” it by making the single
+FPOV baseline more permissive.
+
+**Intended pre-hackathon work (target, not necessarily done):**
+
+-   grammar choice / classification using POV, FOLLOW, LEAD,
+    MOUNTED
+-   Director / Prompt Coach / CM prompts aligned to the selected
+    grammar
+-   grammar-specific conditioning across the full journey
+-   persist selected journey grammar on the Project when
+    implemented
+-   keep grammar stable for the entire journey
+
+Canonicals stay pristine story-space destinations. Because grammar
+does not switch, they do not yet need incoming/outgoing camera
+variants.
+
+**Duration / pace.** Nice to have if easy, not core. Prefer pace
+or shot-length intent over precise duration. If CM returns a
+pace/duration hint, map it to the nearest duration the selected
+video model supports. Remap if the model changes. See
+[HACKATHON.md — Camera grammar](HACKATHON.md#camera-grammar--hackathon-decision).
 
 **Constraints / invariants.**
 
 -   Do not make one universal locomotion prompt more permissive.
--   Classify per traversal, not necessarily one grammar per movie.
--   Current product law in [AGENTS.md](AGENTS.md) stays FPOV until
-    this discovery lands.
+-   Do not classify per traversal for hackathon scope.
+-   Current product law in [AGENTS.md](AGENTS.md) stays unembodied
+    POV until this discovery lands.
+-   Prompt Coach may structure legs/beats but must keep one
+    grammar for the journey. See [PROMPT_COACH.md](PROMPT_COACH.md).
 
 **Open questions.** See [HACKATHON.md](HACKATHON.md) and
 [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md#camera-grammar).
 Human-facing camera-intent language vs internal grammar:
 [PROMPT_COACH.md](PROMPT_COACH.md). Do not leak current locomotion
 workarounds into the filmmaker's Journey prompt.
+
+**Explicitly post-hackathon:** mixed-grammar journeys; grammar
+switching within a journey; canonical reinterpretation for
+different incoming/outgoing shot grammars; advanced coverage
+planning across multiple grammars.
 
 ---
 
@@ -2352,8 +2384,9 @@ Persist enough to restore the actual workspace:
 -   provider/model/generation metadata needed for inspection and
     reproducibility, including Runway model / model-route
     decisions and reasons when that discovery exists
--   selected camera grammar per traversal when that discovery
-    exists
+-   selected journey camera grammar (POV / FOLLOW / LEAD / MOUNTED)
+    when that discovery exists; do **not** persist per-traversal
+    grammar for hackathon scope
 -   retry / reshoot / reroute history
 -   Agent activity and results where useful for provenance/debugging
 -   relevant agent conversation / history when it is project

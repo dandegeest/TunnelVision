@@ -1457,13 +1457,14 @@ travel; never stop moving; spatially contiguous environment;
 foreground objects pass beside/behind the camera; new terrain
 revealed ahead; incidental particles; no soundtrack.
 
-A Reverse Lead astronaut experiment showed this baseline can
-override valid Director backward-travel intent. That is a
-**HACKATHON / DISCOVERY** camera-grammar research exhibit, not a
-current prompt-tweak. Do not retune this baseline or add grammar
-enums from a normal implementation session. See
+A LEAD (formerly Reverse Lead) astronaut experiment showed this
+baseline can override valid Director backward-travel intent. That
+is a **HACKATHON / DISCOVERY** camera-grammar research exhibit, not
+a current prompt-tweak. Do not retune this single baseline to make
+LEAD succeed. Pre-hackathon grammar work is the planned exception:
+four whole-journey grammars (POV, FOLLOW, LEAD, MOUNTED). See
 [BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
-and [HACKATHON.md](HACKATHON.md).
+and [HACKATHON.md](HACKATHON.md#camera-grammar--hackathon-decision).
 
 A 15 September 2026 Journey Prompt test found LEFT / RIGHT / UP /
 DOWN can steer that continuing forward travel (turns, not

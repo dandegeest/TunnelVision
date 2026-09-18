@@ -17,10 +17,11 @@ Related current-code docs (do not treat them as optional):
     Model Router / dedicated hackathon UI (HACKATHON / DISCOVERY)
 -   [DATA_MODEL.md](DATA_MODEL.md) — CameraMotionPlan v1 only
 -   [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md) — GWM Worlds 2 notes;
-    camera grammar / Reverse Lead exhibit; hypothesis only
--   [PROMPT_COACH.md](PROMPT_COACH.md) — Journey-prompting philosophy
-    and experimental findings; Prompt Coach is **future**, not a
-    hackathon role to implement
+    LEAD (formerly Reverse Lead) exhibit; hypothesis only
+-   [PROMPT_COACH.md](PROMPT_COACH.md) — Journey-prompting philosophy;
+    Prompt Coach is **future**, not a product agent. Hackathon camera
+    grammar (POV / FOLLOW / LEAD / MOUNTED, one journey = one
+    grammar) is decided in this file.
 
 Public Runway Dev documentation (source of truth for the API;
 reopen on event day):
@@ -113,8 +114,9 @@ invention):**
 -   dedicated autonomous UI surface (not the workstation restyled)
 -   live visualization of unattended Agent decisions
 -   shared Project Save/Open used by both surfaces
--   camera-grammar classification (discovery; do not “fix” the
-    current FPOV baseline before the event)
+-   camera grammar (pre-hackathon **target**: POV / FOLLOW / LEAD /
+    MOUNTED, one journey = one grammar; reuse if landed, do not
+    invent mixed-grammar journeys on event day)
 -   agentic Runway Model Router control (major research)
 -   optional Discover strategy if the unattended Derive demo is
     already solid
@@ -176,7 +178,8 @@ autonomous film crew:
 -   Director plan
 -   destination construction
 -   Cinematographer
--   camera grammar (when that discovery exists)
+-   camera grammar (whole-journey POV / FOLLOW / LEAD / MOUNTED
+    when that target lands)
 -   Set Consistency / Traversal Confidence
 -   model / model-route decision
 -   shooting
@@ -241,74 +244,232 @@ journey discovers where it goes. Do not start Discover from a
 normal implementation session, and do not spend event-day time on
 it until the unattended Derive demo already plays back.
 
-### Camera grammar — HACKATHON / DISCOVERY
+<a id="camera-grammar--hackathon-decision"></a>
 
-Do **not** fix this before the event.
+### Camera grammar — hackathon decision
 
-Current experiments exposed a limitation in the existing
-Cinematographer baseline (`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`
-in `media/src/cinematographer/shooting-prompt.ts`; product law in
-[AGENTS.md](AGENTS.md)). The baseline assumes continuous **forward**
-FPOV travel and avoidance of FPS-style foreground objects.
+**Status:** pre-hackathon implementation **target**. Not current
+product. Do not treat as implemented. Do **not** retune the single
+universal FPOV locomotion baseline
+(`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE` in
+`media/src/cinematographer/shooting-prompt.ts`; product law in
+[AGENTS.md](AGENTS.md)) as a one-off prompt tweak. The intended
+work is four grammar-specific baselines locked to the whole
+journey. See
+[BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
+and [PROMPT_COACH.md](PROMPT_COACH.md).
 
-**Pre-hackathon failure case (preserve; do not “correct” the
-baseline to make this one run succeed):**
+Simplify camera grammar aggressively for hackathon scope.
+TunnelVision should support **four** grammars only. Use these
+names consistently:
 
-In a Reverse Lead astronaut experiment, the Director correctly
-planned a backward-moving camera that continually faced the
-astronaut. The Cinematographer overrode that intent because its
-baseline required forward travel. It rewrote the shots so the
-camera passed the astronaut and continued forward.
+| Grammar | Meaning | Retired / related name |
+| --- | --- | --- |
+| **POV** | Camera is the traveler. Unembodied unless the filmmaker explicitly asks otherwise. Persistent FPS-style foreground objects are generally undesirable. | FPOV / first-person POV |
+| **FOLLOW** | Invisible **objective** camera follows the subject. **Not** true first-person. Better understood as an invisible third-person objective follow shot. The subject is the continuity anchor. | FP Follow / FP_FOLLOW / first-person follow |
+| **LEAD** | Invisible objective camera retreats **ahead of** the subject while facing them. Must preserve backward travel; must not rewrite the shot into forward POV. | Reverse Lead / REVERSE_LEAD |
+| **MOUNTED** | Camera is physically attached to the subject or vehicle (hood, handlebars, boat bow, aircraft, dashboard). Persistent foreground geometry is **expected** and can be a continuity anchor. This conflicts with POV’s “no FPS foreground” rule — the reason grammar-specific baselines matter. | — |
 
-That is a useful failure, not a prompt-tweak ticket.
+Retire **FP Follow** and **Reverse Lead** as names in favor of
+**FOLLOW** and **LEAD**.
 
-Hackathon research question:
-
-``` text
-CAN THE CINEMATOGRAPHER RECOGNIZE THE REQUIRED CAMERA GRAMMAR
-AND AUTOMATICALLY SELECT THE CORRECT SHOOTING BASELINE?
-```
-
-Do not make one universal locomotion prompt increasingly
-permissive. Investigate specialized camera-grammar baselines that
-CM selects agentically.
-
-Initial proof set only — do not overbuild the taxonomy:
-
-| Grammar | Meaning |
-| --- | --- |
-| **FPOV** | Camera itself is the traveler. Existing forward traversal constraints may stay useful. Persistent FPS-style foreground objects are generally undesirable unless explicitly requested. |
-| **FP_FOLLOW** | Camera follows a persistent subject (koi, roller-coaster car, person, animal). The subject is the continuity anchor while camera and subject traverse environments. |
-| **REVERSE_LEAD** | Camera retreats through space while facing a subject that advances toward it. Must preserve backward travel; must not rewrite the shot into forward FPOV. |
-| **MOUNTED** | Camera is physically mounted on or associated with a moving object / vehicle (hood, handlebars, bow, train, dashboard). Persistent foreground vehicle / object geometry is **expected** and can be a continuity anchor. This directly conflicts with the FPOV “no FPS foreground” rule — the reason grammar-specific baselines matter. |
-
-Possible later grammars (do not implement in the hackathon
-taxonomy): SIDE_TRACK, ORBIT, ASCEND/DESCEND, OBJECT/PROJECTILE,
+Later grammars remain **post-hackathon**. Do not overbuild the
+taxonomy: SIDE_TRACK, ORBIT, ASCEND/DESCEND, OBJECT/PROJECTILE,
 SUBJECT HANDOFF, FREE.
 
-CM should classify grammar **per traversal**, not necessarily lock
-an entire journey to one grammar.
+#### One journey = one camera grammar
 
-Potential pipeline (discovery; do not hard-code as product now):
+Camera grammar is chosen for the **entire continuous journey**.
+
+Do **not** support grammar switching within a single journey
+before hack day. Do **not** attempt mixed-grammar journeys such as
+A→B = POV, B→C = FOLLOW, C→D = LEAD. That is explicitly
+**post-hackathon**.
+
+The value proposition:
+
+> TunnelVision can create a long continuous shot of arbitrary
+> length using a selected camera grammar.
+
+The magic is the continuous-shot journey itself, not grammar
+intermixing.
+
+Valid hackathon journeys:
+
+-   POV rollercoaster
+-   POV trench run
+-   FOLLOW skier
+-   FOLLOW tornado
+-   FOLLOW koi
+-   LEAD astronaut
+-   MOUNTED car chase
+
+#### Current canonical architecture is sufficient
+
+Because grammar remains constant across the whole journey, the
+current canonical architecture is enough for hackathon scope.
+
+-   Canonicals remain pristine story-space destinations.
+-   Traversals / shots remain the generated segments between
+    canonicals.
+-   Canonicals do **not** yet need multiple explicit
+    camera-interpretation variants for incoming vs outgoing
+    grammars.
+
+That more advanced architecture remains **post-hackathon**.
+
+#### Pre-hackathon failure case (preserve)
+
+In a LEAD (formerly Reverse Lead) astronaut experiment, the
+Director correctly planned a backward-moving camera that
+continually faced the astronaut. The Cinematographer overrode that
+intent because its baseline required forward travel. It rewrote
+the shots so the camera passed the astronaut and continued
+forward.
+
+That is a useful failure of the **single** FPOV baseline, not a
+prompt-tweak ticket. The pre-hackathon target is grammar-specific
+baselines so LEAD is not rewritten into POV.
+
+#### Prompt Coach
+
+Prompt Coach is still **future** as a product layer. Its hackathon
+guidance must match this simplified model.
+
+Prompt Coach **may**:
+
+-   help the filmmaker express the desired whole-journey camera
+    grammar clearly
+-   refine the Journey prompt so the idea adheres to the selected
+    grammar
+-   help shape beats / legs while keeping the grammar consistent
+
+Prompt Coach must **not**:
+
+-   encourage grammar switching within a single journey
+-   expose Camotion, A′/B′, or other internals
+-   force the filmmaker to understand TunnelVision implementation
+
+Guiding principle: Prompt Coach may help structure the legs/beats
+of a journey, but **all legs must still adhere to the same
+selected camera grammar** for hackathon scope.
+
+#### Pre-hackathon implementation plan
+
+Intended before hack day — **target, not necessarily done**:
+
+1.  Introduce a camera-grammar choice / classification using POV,
+    FOLLOW, LEAD, MOUNTED.
+2.  Align Director / Prompt Coach / Cinematographer prompts with
+    the selected grammar.
+3.  Apply grammar-specific conditioning / baseline language across
+    the full journey.
+4.  Persist the selected grammar on the **journey** (hackathon
+    movies are one journey) when implemented. Do not add
+    speculative schema fields before the feature exists. A later
+    multi-journey Project may still obey one-grammar-per-journey.
+5.  Keep grammar stable across the entire journey.
+
+Event day should **reuse** this if it landed. Do not invent a
+fifth grammar, mixed-grammar journeys, or a more permissive
+universal locomotion prompt in the 5–6 hour window.
+
+Potential pipeline (when implemented; do not hard-code as product
+now):
 
 ``` text
-Director intent
-  → CM identifies shot / camera grammar
-  → select appropriate baseline
-  → CM evaluates A→B
-  → choreograph traversal
-  → shoot
-  → evaluate / retry where appropriate
+Journey grammar (POV | FOLLOW | LEAD | MOUNTED)
+  → Prompt Coach / Director keep the whole journey in that grammar
+  → grammar-specific baseline
+  → CM evaluates each A→B under that same grammar
+  → choreograph / shoot / evaluate / retry
   → continue
 ```
 
-Expose the selected grammar in the hackathon UI, for example:
+Expose the selected **journey** grammar in the hackathon UI, for
+example:
 
 ``` text
 CINEMATOGRAPHER · B → C
-SHOT: REVERSE LEAD
+GRAMMAR: LEAD
 SET CONSISTENCY: 85
 TRAVERSAL CONFIDENCE: 82
+```
+
+Do not show a different grammar on the next card in the same
+journey.
+
+#### Segment duration / pace — nice to have if easy
+
+Duration control is **not** core hackathon scope unless it turns
+out to be easy. Prefer **pace** or **shot-length intent** over
+precise low-level duration control.
+
+If easy, CM may return a duration- or pace-related value for a
+segment, mapped to the closest duration the currently selected
+video model supports.
+
+Practical consideration (not a fully designed feature):
+
+``` text
+CM: grammar FOLLOW · pace fast
+  or desiredDuration ~5s
+Generation: nearest supported duration for the selected model
+If the model changes (routing or manual): remap for the new model
+```
+
+Exact duration support is model-dependent. If a Take is
+regenerated with a different model, the originally requested
+duration may need to be **remapped** to the closest supported
+duration for that model. Anticipate remapping if Model Router or
+manual model changes are involved.
+
+Current product already maps CM `pace` onto Camotion
+`exposure.strength` and shooting-prompt speed phrases; clip
+duration stays fixed per model. Do not confuse that with this
+optional duration-mapping layer.
+
+#### Camera-grammar priorities
+
+High:
+
+1.  one-journey / one-grammar model
+2.  four-grammar vocabulary: POV, FOLLOW, LEAD, MOUNTED
+3.  Prompt Coach / Director / CM alignment around the selected
+    grammar
+4.  autonomous continuous-shot journey generation
+5.  model routing / generation evaluation
+6.  visually compelling hackathon UI
+
+Lower / nice to have:
+
+7.  per-segment pace/duration hints
+8.  automatic mapping of pace/duration to model-supported shot
+    lengths
+9.  duration remapping when switching models
+
+Explicitly **post-hackathon**:
+
+-   mixed-grammar journeys
+-   grammar switching within a journey
+-   canonical reinterpretation for different incoming/outgoing
+    shot grammars
+-   advanced coverage planning across multiple grammars
+
+#### Short summary
+
+``` text
+Camera Grammar Hackathon Rule:
+- TunnelVision will support four whole-journey camera grammars:
+  POV, FOLLOW, LEAD, MOUNTED.
+- A single journey uses one grammar only.
+- Prompt Coach, Director, and Cinematographer should all align
+  to that selected grammar.
+- Segment pace/duration is a possible nice-to-have, but only if
+  easy.
+- If different video models support different durations,
+  duration must be remapped when the model changes.
+- Mixed-grammar journeys are post-hackathon.
 ```
 
 ### Runway Model Router — do not lose this goal
@@ -357,14 +518,16 @@ the API source of truth in §14; they do not pre-answer *which*
 route a given shot should use.
 
 A compelling visible experiment (behavior discovered that day, not
-predetermined now):
+predetermined now). Grammar stays **constant** for the journey;
+routing may still change per segment:
 
 ``` text
 DIRECTOR
 Journey planned.
+GRAMMAR: FOLLOW
 
 CINEMATOGRAPHER · A→B
-SHOT: FP FOLLOW
+GRAMMAR: FOLLOW
 Traversal Confidence: 91
 
 MODEL ROUTING
@@ -375,12 +538,12 @@ SHOOTING...
 ✓ ACCEPTED
 
 CINEMATOGRAPHER · B→C
-SHOT: REVERSE LEAD
+GRAMMAR: FOLLOW
 Traversal Confidence: 58
 
 MODEL ROUTING
 Selected: [different Runway route/model]
-Reason: reverse camera motion + strong subject consistency
+Reason: subject persistence under heavier motion
 
 SHOOTING...
 CM EVALUATION
@@ -391,18 +554,20 @@ Traversal insufficient.
 ### Hackathon story
 
 **Before.** TunnelVision has proven core continuous-traversal
-technology, including FPOV and FP Follow, plus Derive (and Discover
+technology, including POV and FOLLOW, plus Derive (and Discover
 as a planned second strategy).
 
 **Known limitation.** The Cinematographer still carries assumptions
-from the original traversal grammar and can override other valid
-camera intentions. The Reverse Lead astronaut run is the exhibit.
+from the original POV traversal grammar and can override other
+valid camera intentions. The LEAD astronaut run is the exhibit.
 
 **Hackathon questions.**
 
-1.  Can CM recognize the cinematographic grammar required for each
-    shot?
-2.  Can it select the appropriate shooting baseline automatically?
+1.  Can the selected whole-journey camera grammar (POV, FOLLOW,
+    LEAD, or MOUNTED) drive Director / CM / shooting baselines
+    instead of forcing every shot through forward POV?
+2.  Can grammar-specific baselines land before hack day so LEAD
+    and MOUNTED are not rewritten into POV?
 3.  Can agents use Runway’s Model Router intelligently rather than
     blindly choosing one generation model?
 4.  Can evaluation results feed back into shooting / model
@@ -456,7 +621,8 @@ Project state must be able to reconstruct:
 -   generation prompts
 -   cinematographer evaluations, Set Consistency, Traversal
     Confidence
--   selected camera grammar (when that discovery exists)
+-   selected journey camera grammar (POV / FOLLOW / LEAD / MOUNTED
+    when that target lands; not per-traversal)
 -   model / model-route decisions
 -   retry / reshoot history
 -   runtime / generated asset references
@@ -578,6 +744,7 @@ genesis/      Research site (not the hackathon app)
 | Footage evaluation / Agent take selection | **Retired exploration.** Experimental Shot Evaluator remains isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. The filmmaker reviews footage and selects Takes. JourneyAgent does not automatically judge artistic clip quality. |
 | Movie-evaluation preprocessor | **Does not exist** as product. Not planned. |
 | Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
+| Camera grammar (POV / FOLLOW / LEAD / MOUNTED) | **Does not exist.** Pre-hackathon **target**: one grammar per journey, grammar-specific baselines, persist on the Project when implemented. Mixed-grammar journeys are post-hackathon. See Camera grammar decision above. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
 | Durable project persistence | **Exists.** Directory format under the app Projects Folder. Unsaved work still uses session runtime media until Save. Same `Project` for workstation and future hackathon UI. |
@@ -1696,8 +1863,9 @@ TunnelVision work (including pre-hackathon AGENT-mode validation).
 
 The hackathon project is a new one-prompt cinematic surface plus
 Runway Model Router agentic control on top of that already-working
-JourneyAgent. Camera-grammar classification is discovery on the
-same day if the unattended path already plays.
+JourneyAgent. Camera grammar (POV / FOLLOW / LEAD / MOUNTED, one
+journey = one grammar) is a **pre-hackathon target**; event day
+reuses it if landed and does not invent mixed-grammar journeys.
 
 Concentrate that day on:
 
@@ -1713,15 +1881,17 @@ Concentrate that day on:
     retry
 6.  automatic transition to playback
 7.  Open in TunnelVision
-8.  event-specific opportunities (camera grammar, Discover) only
-    after the unattended movie plays
+8.  event-specific opportunities (Discover; camera-grammar UI
+    polish) only after the unattended movie plays
 
 Pre-hackathon workstation focus (not event-day filmmaking): Timeline
 / Takes UX polish, start shared Project persistence if possible,
 robustness and regression testing, fresh-machine/config/secrets
-readiness, then freeze the core filmmaking pipeline. Do **not**
-implement camera-grammar baselines or “fix” Reverse Lead before
-the event.
+readiness, then freeze the core filmmaking pipeline. **Try** to
+land the four whole-journey camera grammars before hack day (see
+Camera grammar decision). Do **not** “fix” LEAD by making the
+single FPOV baseline more permissive. Mixed-grammar journeys are
+post-hackathon.
 
 Do **not** implement JourneyAgent on event day.
 
@@ -1734,9 +1904,10 @@ Treat this as a hard timebox.
 Assume pre-hackathon JourneyAgent already executes the unattended
 workflow in existing AGENT mode. Event-day risk is Runway adapters
 and the new autonomous surface, not the filmmaking Agent. If Runway
-or the new UI slips, drop Discover, camera-grammar experiments, and
-chat first. Do not start implementing JourneyAgent during this
-window. Do not “fix” the FPOV baseline to chase Reverse Lead.
+or the new UI slips, drop Discover, unneeded camera-grammar UI
+chrome, and chat first. Do not start implementing JourneyAgent
+during this window. Do not invent mixed-grammar journeys or “fix”
+LEAD by making the single FPOV baseline more permissive.
 
 ### 0:00–0:30 — Event / API reconnaissance
 
@@ -1895,12 +2066,14 @@ Do **not** spend hackathon time on:
 -   arbitrary animations
 -   named canonicals
 -   filmmaker-adjustable D
--   CM-selected duration
+-   CM-selected duration as a core feature (pace / nearest-supported
+    duration mapping is nice-to-have **if easy**; see Camera grammar
+    decision)
 -   generalized plugin architecture
 -   speculative world-model abstractions
 -   DISCOVER before the unattended Derive movie plays
--   “fixing” the FPOV locomotion baseline or Reverse Lead before
-    camera-grammar discovery is in hand
+-   mixed-grammar journeys, or “fixing” LEAD by making the single
+    FPOV baseline more permissive
 -   implementing JourneyAgent (pre-hackathon product work)
 -   advanced Project-tool chat before the hands-off demo works
 -   Screenwriter
@@ -2095,7 +2268,9 @@ Drop in this order (hackathon UI / event work only):
 
 1.  chat / conversational refinement (keep one prompt + CREATE
     JOURNEY)
-2.  camera-grammar experiments (keep current FPOV baseline)
+2.  extra camera-grammar UI chrome (keep whatever whole-journey
+    grammar landed pre-hackathon; do not invent mixed-grammar
+    journeys or retune the single FPOV baseline on event day)
 3.  extra visible repair chrome
 4.  DISCOVER
 5.  polish
