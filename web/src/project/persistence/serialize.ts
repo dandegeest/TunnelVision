@@ -4,6 +4,7 @@ import type { ConversationEntry } from "../conversation";
 import type { MovieExportResult } from "../export-movie";
 import { createNewProject } from "../new-project";
 import { projectWithSyncedProductionLegs } from "../production-legs";
+import { cameraGrammarFromProject, cameraGrammarFromUnknown } from "../camera-grammar";
 import {
   DEFAULT_DURATION_MODE,
   DEFAULT_FIXED_DURATION_SECONDS,
@@ -103,6 +104,7 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     autoBlockShots: project.autoBlockShots,
     autoShoot: project.autoShoot,
     generateAudio: project.generateAudio,
+    cameraGrammar: cameraGrammarFromProject(project),
     durationMode: durationModeFromProject(project),
     fixedDurationSeconds: fixedDurationSecondsFromProject(project),
     storyDuration: project.storyDuration,
@@ -564,6 +566,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     autoBlockShots: settings.autoBlockShots,
     autoShoot: settings.autoShoot,
     generateAudio: settings.generateAudio === true,
+    cameraGrammar: cameraGrammarFromUnknown(settings.cameraGrammar),
     durationMode: isDurationMode(settings.durationMode) ? settings.durationMode : DEFAULT_DURATION_MODE,
     fixedDurationSeconds:
       typeof settings.fixedDurationSeconds === "number"

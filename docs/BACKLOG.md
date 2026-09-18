@@ -126,10 +126,10 @@ read/write the same Project. Details:
 
 ### Camera grammar classification
 
-**Status:** HACKATHON / DISCOVERY — pre-hackathon implementation
-**target**, not current product. Do **not** retune the single FPOV
-locomotion baseline as a one-off prompt tweak. Mixed-grammar
-journeys are **post-hackathon**.
+**Status:** Implemented for hackathon scope — four whole-journey
+camera grammars (POV, FOLLOW, LEAD, MOUNTED), persisted on the
+Project as `cameraGrammar`. Mixed-grammar journeys remain
+**post-hackathon**.
 
 **Goal.** Support **four whole-journey camera grammars** — POV,
 FOLLOW, LEAD, MOUNTED — so a continuous shot of arbitrary length
@@ -137,10 +137,9 @@ can use one selected grammar instead of forcing every shot through
 forward POV.
 
 **Why it matters.** The Director can already plan non-POV camera
-intent. The current Cinematographer baseline
-(`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`) still assumes
-continuous forward travel and avoidance of FPS-style foreground
-objects, and can override valid Director intent.
+intent. Product locomotion now uses grammar-specific baselines
+instead of one forward-POV template that could override FOLLOW /
+LEAD / MOUNTED.
 
 **Hackathon rule.** One journey = one camera grammar. Do not
 switch grammar mid-journey before hack day.
@@ -172,21 +171,24 @@ and continue forward because the baseline required forward travel.
 Keep this as the exhibit. Do not “fix” it by making the single
 FPOV baseline more permissive.
 
-**Intended pre-hackathon work (target, not necessarily done):**
+**Intended pre-hackathon work — landed 18 September 2026** (canyon
+control experiment). Mixed-grammar journeys remain post-hackathon.
 
 -   grammar choice / classification using POV, FOLLOW, LEAD,
     MOUNTED
 -   Director / Prompt Coach / CM prompts aligned to the selected
     grammar
 -   grammar-specific conditioning across the full journey
--   persist selected journey grammar on the Project when
-    implemented
+-   persist selected journey grammar on the Project as
+    `cameraGrammar`
 -   keep grammar stable for the entire journey
--   FOLLOW baseline (when implemented): persistent subject,
-    invisible objective camera, natural pursuit, dynamic
-    following distance, no overtaking unless requested, no second
-    traveler, no rigid mounted-rig feel. Do not over-constrain
-    framing. See [PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
+-   FOLLOW baseline: persistent subject, invisible objective
+    camera, natural pursuit, dynamic following distance, no
+    overtaking unless requested, no second traveler, no rigid
+    mounted-rig feel. Do not over-constrain framing. See
+    [PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
+    Canyon FOLLOW E shows the car farther ahead on the cliff
+    road; that elasticity is success, not MOUNTED.
 
 Canonicals stay pristine story-space destinations. Because grammar
 does not switch, they do not yet need incoming/outgoing camera
@@ -206,8 +208,8 @@ fix; it is another reason CM `desiredDurationSeconds` may help.
 
 -   Do not make one universal locomotion prompt more permissive.
 -   Do not classify per traversal for hackathon scope.
--   Current product law in [AGENTS.md](AGENTS.md) stays unembodied
-    POV until this discovery lands.
+-   Current product law in [AGENTS.md](AGENTS.md) uses
+    grammar-specific locomotion baselines. POV remains unembodied.
 -   Prompt Coach may structure legs/beats but must keep one
     grammar for the journey. See [PROMPT_COACH.md](PROMPT_COACH.md).
 

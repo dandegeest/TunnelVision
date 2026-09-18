@@ -1,3 +1,4 @@
+import type { CameraGrammar } from "../../../media/src/cinematographer/camera-grammar.ts";
 import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import type {
   ImageModelId,
@@ -7,7 +8,7 @@ import type {
 import type { KlingV3Mode, VideoModelId } from "../../../media/src/replicate/video-models.ts";
 import type { GenerationIntent, VideoModelsByIntent } from "./generation-intent";
 
-export type { ImageModelId, ImageOutputFormat, ImageResolution, KlingV3Mode, LocomotionPace, VideoModelId };
+export type { ImageModelId, ImageOutputFormat, ImageResolution, KlingV3Mode, LocomotionPace, VideoModelId, CameraGrammar };
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
 export type DurationMode = "adaptive" | "fixed";
@@ -381,6 +382,10 @@ export type Project = {
   autoShoot: boolean;
   /** When true, NEW TAKE asks audio-capable generators (Veo, Seedance, Kling 3, Pruna) for sound. */
   generateAudio: boolean;
+  /**
+   * Whole-journey camera relationship. Missing on older projects means POV.
+   */
+  cameraGrammar?: CameraGrammar;
   /**
    * Adaptive: map CM `desiredDurationSeconds` onto the selected generator.
    * Fixed: map `fixedDurationSeconds` onto the selected generator.

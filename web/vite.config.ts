@@ -49,6 +49,7 @@ export default defineConfig({
       "export-movie.test.ts",
       "project-store.test.ts",
       "app-settings.test.ts",
+      "headless-journey.test.ts",
     ],
   },
 });

@@ -249,6 +249,7 @@ describe("replacing authoritative A", () => {
     expect(request).toEqual({
       story: "Travel forward through a quiet abandoned greenhouse at night.",
       agency: project.agency,
+      cameraGrammar: "pov",
       startFrameId: "A",
       startMediaId: "upload-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
       startFrameIntent: STORYBOARD_INTENTS.A,

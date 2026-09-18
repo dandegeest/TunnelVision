@@ -1,4 +1,5 @@
-import type { Project, StoryboardFrame } from "./types";
+import type { CameraGrammar, Project, StoryboardFrame } from "./types";
+import { cameraGrammarFromUnknown } from "../../../media/src/cinematographer/camera-grammar.ts";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 
 export type DirectorBeat = {
@@ -63,6 +64,7 @@ export type DirectorPlanRequest = {
   anchors?: DirectorAnchor[];
   storyboard?: DirectorStoryboardSlot[];
   storyDuration?: "auto" | number;
+  cameraGrammar?: CameraGrammar;
 };
 
 export function authoritativeStartFrame(project: Project) {
@@ -136,6 +138,7 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
     startFrameId: start.id,
     startMediaId: start.mediaId,
     storyDuration,
+    cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
     ...(startFrameIntent ? { startFrameIntent } : {}),
     ...(extra.length > 0 ? { anchors: specified.map(directorAnchorFromFrame) } : {}),
     ...(storyboard.length > 0 ? { storyboard } : {}),

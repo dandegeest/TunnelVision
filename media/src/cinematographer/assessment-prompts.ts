@@ -1,6 +1,18 @@
-import { EXTREME_PACE_LEAD_INS, TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE } from "./shooting-prompt.ts";
+import {
+  cinematographerBaselineDescription,
+  cinematographerGrammarInstruction,
+  cinematographerNotShootableCaveat,
+  cinematographerPairUserLines,
+  DEFAULT_CAMERA_GRAMMAR,
+  locomotionBaselineTemplate,
+  type CameraGrammar,
+} from "./camera-grammar.ts";
+import { EXTREME_PACE_LEAD_INS } from "./shooting-prompt.ts";
 
-export const CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION = `You are the Cinematographer for TunnelVision.
+export function cinematographerAssessmentSystemInstruction(
+  grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR,
+): string {
+  return `You are the Cinematographer for TunnelVision.
 
 You inspect two ACTUAL adjacent canonical stills — a START set and an END set — and determine HOW THE CAMERA SHOULD MOVE through the visible geography to make this shot.
 
@@ -10,11 +22,7 @@ You DO report normalized travel geometry for EACH still in the same JSON: the se
 
 These images are physical sets. Reason from what is actually visible. Do not invent invisible doors, corridors, gaps, or geometry. A door, gate, hatch, or similar threshold that is visible but closed is still present: treat it as an actionable traversal, not as missing geometry.
 
-Both stills are first-person POV from the same continuously forward-moving camera. Image 2 is the next viewpoint along that same travel direction. It is not a reverse angle, not a look back, and not a camera placed at the far end of the destination facing toward the start.
-
-The camera is unembodied. The viewer/camera operator is never a visible character. People, animals, vehicles, objects, and other subjects in the stills are part of the world.
-
-A landmark that appears ahead in the start (a doorway, light, pool edge, corridor mouth) is typically the space the camera is traveling INTO. The end still is what that same forward camera sees after continuing into the next volume, still looking forward. Do not treat a shared landmark as evidence that the destination was photographed from the opposite direction.
+${cinematographerGrammarInstruction(grammar)}
 
 Director intent may provide context. Visible actual imagery is authoritative for shot geometry.
 
@@ -66,7 +74,7 @@ If you see foreground geometry such as a structure, root, doorway, tunnel wall, 
 
 Camera-path language may include approach, continue forward, drift left/right, veer left/right, curve, turn, pass left/right of an object, pass between objects, pass beneath/through an opening, cross a threshold, enter a corridor/tunnel, allow foreground geometry to sweep beside and behind camera, ascend/descend, recenter/reacquire a forward path, or another physically understandable move supported by the images. This list is descriptive, not a requirement to use every action.
 
-The video model will later receive your segmentPromptAddition first, then a frozen locomotion baseline, concatenated without rewriting. The baseline only enforces continuous first-person travel and forbids cinematic cheats (dissolve, morph, cut, teleport, invented passageways). It does not name this shot's route. Your addition must describe THIS SHOT's visible physical route only. Do not repeat the baseline.
+The video model will later receive your segmentPromptAddition first, then a frozen locomotion baseline, concatenated without rewriting. The baseline ${cinematographerBaselineDescription(grammar)} It does not name this shot's route. Your addition must describe THIS SHOT's visible physical route only. Do not repeat the baseline.
 
 segmentPromptAddition owns the specific route between the supplied start and end images. Describe that route positively and concretely: where the camera travels and where it arrives. Name only surfaces and spaces that are actually visible — open water, a visible roadway, an existing doorway, open air, a corridor that is in the stills. Include turns, bends, ramps, or stairs only when they are visible.
 
@@ -107,7 +115,7 @@ Separately choose desiredDurationSeconds: how many seconds this shot should last
 shootability (advisory actionable summary; keep it consistent with setConsistency, traversalConfidence, and the diagnosis):
 - shootable: a plausible continuous physical traversal exists (direct, actionable, threshold/generative, or choreographed), even when the worlds look different
 - needs_review: a plausible relationship, but an ambiguous route, weak threshold, difficult geometry, or a score disagreement a filmmaker should inspect
-- not_shootable: no plausible continuous shot — boxed in, immutable blockage, or scene replacement rather than travel. Still produce choreography. Do not mark not_shootable merely because setConsistency is low, the space beyond a threshold is surreal or impossible, or continuing forward through a start-frame opening would, under a reverse-angle reading, place the camera at the far end of the destination looking back.
+- not_shootable: no plausible continuous shot — boxed in, immutable blockage, or scene replacement rather than travel. Still produce choreography. ${cinematographerNotShootableCaveat(grammar)}
 
 Also choose a canonical repairRecommendation. The START still is already established and will not be rewritten. This is diagnosis of the actual pair, not aesthetics and not a prediction of video-model success.
 - SHOOT: a plausible continuous traversal exists from the established START. Do not withhold SHOOT merely because setConsistency is low or the world beyond a threshold is surreal
@@ -188,6 +196,11 @@ Rules:
 - repairInstruction is required when repairRecommendation is not SHOOT; omit or empty when SHOOT
 - do not add provider, model, CameraMotionPlan, or image-path fields
 `;
+}
+
+/** POV default. Prefer `cinematographerAssessmentSystemInstruction(grammar)` when known. */
+export const CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION =
+  cinematographerAssessmentSystemInstruction(DEFAULT_CAMERA_GRAMMAR);
 
 export function cinematographerAssessmentUserPrompt(input: {
   readonly journeyId: string;
@@ -196,19 +209,22 @@ export function cinematographerAssessmentUserPrompt(input: {
   readonly story?: string;
   readonly startIntent?: string;
   readonly endIntent?: string;
+  readonly cameraGrammar?: CameraGrammar;
 }): string {
   const story = input.story?.trim();
   const startIntent = input.startIntent?.trim();
   const endIntent = input.endIntent?.trim();
+  const grammar = input.cameraGrammar ?? DEFAULT_CAMERA_GRAMMAR;
   return [
     `Journey ${input.journeyId}: actual canonical ${input.startId} → actual canonical ${input.endId}.`,
+    `Camera grammar: ${grammar}. Apply this relationship to this entire traversal.`,
     "",
     ...(story ? ["Filmmaker / journey intent:", story, ""] : []),
     ...(startIntent ? [`Start-set intent already on the destination: ${startIntent}`] : []),
     ...(endIntent ? [`End-set intent already on the destination: ${endIntent}`] : []),
     ...(startIntent || endIntent ? [""] : []),
     "Image 1 is the START canonical set. Image 2 is the END canonical set.",
-    "Both stills are first-person POV looking in the same travel direction. Image 2 is the next forward viewpoint, not a reverse shot of Image 1.",
+    ...cinematographerPairUserLines(grammar),
     "Treat them as physical sets. Intent text is context only; do not override what the stills actually show.",
     "Given these actual sets, determine how the camera should move through the visible geography to make this shot.",
     "Name the concrete visible route in segmentPromptAddition. Describe it positively. Include concise subject guidance only when subjects are already relevant to the stills or journey. Do not enumerate structures that are not in the stills.",
@@ -224,7 +240,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Do not predict whether a specific video provider call will succeed.",
     "",
     "Frozen locomotion baseline (already applied later; {pace} is replaced from your pace field; slow-motion and hyperspeed also add a strong opening temporal instruction; do not repeat either):",
-    TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
+    locomotionBaselineTemplate(grammar),
     "",
     "Emit the JSON object specified in the system instruction. Return JSON only.",
   ].join("\n");

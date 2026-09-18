@@ -1,19 +1,13 @@
-/**
- * Unembodied first-person POV: the camera has a position and trajectory,
- * but the viewer/camera operator must never become a visible character.
- * Do not enumerate FPS-style objects; that primes the video model.
- * Product still and video prompts share this clause; filmmaker/Director
- * story text should not. World-subject persistence is not part of this
- * clause — stills may add WORLD_SUBJECTS_MAY_APPEAR; video leaves
- * subjects to CM segmentPromptAddition.
- */
-export const UNEMBODIED_FIRST_PERSON_POV =
-  "Maintain an unembodied first-person POV. Never show the viewer/camera operator, their body, shadow, reflection, or FPS-style objects.";
+import {
+  DEFAULT_CAMERA_GRAMMAR,
+  locomotionBaselineTemplate,
+  UNEMBODIED_FIRST_PERSON_POV,
+  WORLD_SUBJECTS_MAY_APPEAR,
+  type CameraGrammar,
+} from "./camera-grammar.ts";
 
-/** Still-generation only. Video subject guidance belongs in CM. */
-export const WORLD_SUBJECTS_MAY_APPEAR =
-  "People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.";
-
+export { UNEMBODIED_FIRST_PERSON_POV, WORLD_SUBJECTS_MAY_APPEAR };
+export type { CameraGrammar };
 /**
  * Apparent camera speed in the frozen locomotion baseline.
  * Pace does not set clip duration; this is linguistic conditioning, not runtime.
@@ -70,28 +64,28 @@ export function locomotionPaceList(): string {
 }
 
 /**
- * Stable TunnelVision locomotion baseline plus segment-specific CM addition.
+ * Grammar-specific locomotion baseline plus segment-specific CM addition.
  * Composition is deterministic concatenation: extreme-pace lead-in when
  * the pace is slow-motion or hyperspeed, then shot choreography, then the
  * filled locomotion baseline. Do not LLM-merge these strings.
  * `{pace}` is filled from the segment's BLOCK pace before concatenation.
  *
- * The baseline inherits Terran Boylan's original TunnelVision continuous-
- * locomotion / anti-cheat prompting. Route-specific spatial language
- * (doorways, roads, open water, and so on) belongs in CM
- * segmentPromptAddition, not here. Agent-generated per-segment
- * choreography is current TunnelVision product work, not Terran's design.
+ * POV inherits Terran Boylan's original TunnelVision continuous-locomotion /
+ * anti-cheat prompting. FOLLOW / LEAD / MOUNTED are dedicated baselines so
+ * forward-only POV conditioning cannot rewrite those relationships.
+ * Route-specific spatial language belongs in CM segmentPromptAddition.
  * Video generation is not invoked here.
  */
-export const TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE =
-  `First person POV camera continuously moving forward through a spatially-contiguous environment ${LOCOMOTION_PACE_MACRO}, physically traveling from the supplied starting location to the supplied ending location along the route described above, arriving at the supplied ending location in uninterrupted forward motion. The camera never stops advancing through the environment. Nearby foreground objects pass beside the camera and move behind it through strong natural parallax as new space is continuously revealed ahead. Maintain continuous physical travel through the visible environment. Do not invent intermediate structures or passageways. Do not dissolve, morph, crossfade, cut, teleport, retreat, reverse direction, or replace one scene with another. ` +
-  UNEMBODIED_FIRST_PERSON_POV;
+export const TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE = locomotionBaselineTemplate("pov");
 
-export function locomotionBaseline(pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE): string {
+export function locomotionBaseline(
+  pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE,
+  grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR,
+): string {
   if (!isLocomotionPace(pace)) {
     throw new Error(`Locomotion pace must be ${locomotionPaceList()}`);
   }
-  return TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE.replaceAll(
+  return locomotionBaselineTemplate(grammar).replaceAll(
     LOCOMOTION_PACE_MACRO,
     LOCOMOTION_PACE_PHRASES[pace],
   );

@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
 
+import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { assessJourney } from "../media/src/cinematographer/assess-journey.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
@@ -72,6 +73,7 @@ export function cinematographerDevPlugin(repoRoot: string): Plugin {
             story: typeof body.story === "string" ? body.story : undefined,
             start: pair.start,
             end: pair.end,
+            cameraGrammar: cameraGrammarFromUnknown(body.cameraGrammar),
           });
           sendJson(res, 200, {
             assessment: result.assessment,

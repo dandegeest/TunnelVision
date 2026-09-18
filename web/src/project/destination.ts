@@ -1,7 +1,10 @@
 import {
-  UNEMBODIED_FIRST_PERSON_POV,
-  WORLD_SUBJECTS_MAY_APPEAR,
-} from "../../../media/src/cinematographer/shooting-prompt.ts";
+  constructionTravelClause,
+  stillViewpointClause,
+  openingStillLead,
+  cameraGrammarFromUnknown,
+  type CameraGrammar,
+} from "../../../media/src/cinematographer/camera-grammar.ts";
 import {
   DEFAULT_IMAGE_MODEL_ID,
   DEFAULT_IMAGE_OUTPUT_FORMAT,
@@ -49,6 +52,7 @@ export type DestinationConstructionRequest = {
   /** CM spatial repair instruction. Directed construct leaves this unset. */
   repairInstruction?: string;
   repairRole?: "start" | "end";
+  cameraGrammar?: CameraGrammar;
 };
 
 export type DestinationConstructionResult = {
@@ -153,12 +157,14 @@ export function destinationConstructionPrompt(input: {
   intent: string;
   visualDescription: string;
   nextDestination?: DestinationLookAhead;
+  cameraGrammar?: CameraGrammar;
 }): string {
   const intent = input.intent.trim();
   const visualDescription = input.visualDescription.trim();
   if (!intent || !visualDescription) {
     throw new Error("Destination construction requires intent and visual description");
   }
+  const grammar = cameraGrammarFromUnknown(input.cameraGrammar);
   const next = optionalDestinationLookAhead(input.nextDestination);
   return [
     "Create this destination viewpoint:",
@@ -166,18 +172,17 @@ export function destinationConstructionPrompt(input: {
     "",
     "SPATIAL PROGRESSION IS PRIMARY.",
     "Render this canonical from a substantially progressed camera viewpoint. Do not render it from the source camera position. Nearby foreground geometry from the source must have passed behind the camera or be substantially repositioned. Reveal new terrain and environment ahead as a consequence of that movement.",
-    "The destination may be the same kind of place as the source — deeper in the same forest, farther along the same track, farther down the same hill. Do not invent a new type of location to prove progress. The required change is camera viewpoint displacement, not a change of world.",
+    constructionTravelClause(grammar),
     "Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene. Preserve world and style continuity, but do not preserve the source composition.",
-    "Environmental activity, subject motion, and stylistic changes are secondary to viewpoint displacement. Include them when called for by the Journey, but only with clear physical advancement of the camera.",
+    "Environmental activity, subject motion, and stylistic changes are secondary to viewpoint displacement. Include them when called for by the Journey, but only with clear physical travel of the camera along the route.",
     "",
     "Preserve the same physical world, materials, lighting character, and visual identity of the source image. Do not keep the source framing.",
     "Move the camera from the source viewpoint:",
     intent,
-    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically advance. Keeping the source composition and substituting new content is a failure.",
+    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically travel along the route. Keeping the source composition and substituting new content is a failure.",
     "",
     ...(next ? [farFieldContinuity(next), ""] : []),
-    UNEMBODIED_FIRST_PERSON_POV,
-    WORLD_SUBJECTS_MAY_APPEAR,
+    stillViewpointClause(grammar),
   ].join("\n");
 }
 
@@ -187,6 +192,7 @@ export function canonicalRepairPrompt(input: {
   intent: string;
   visualDescription: string;
   instruction: string;
+  cameraGrammar?: CameraGrammar;
 }): string {
   const intent = input.intent.trim();
   const visualDescription = input.visualDescription.trim();
@@ -194,6 +200,7 @@ export function canonicalRepairPrompt(input: {
   if (!intent || !visualDescription || !instruction) {
     throw new Error("Canonical repair requires intent, visual description, and a repair instruction");
   }
+  const grammar = cameraGrammarFromUnknown(input.cameraGrammar);
   const roleLine =
     input.role === "start"
       ? "Regenerate this START destination so it still depicts the same intended place, while establishing a plausible continuous route toward the opposite canonical."
@@ -212,8 +219,7 @@ export function canonicalRepairPrompt(input: {
     `CM spatial repair: ${instruction}`,
     referenceLine,
     "",
-    UNEMBODIED_FIRST_PERSON_POV,
-    WORLD_SUBJECTS_MAY_APPEAR,
+    stillViewpointClause(grammar),
   ].join("\n");
 }
 
@@ -305,7 +311,7 @@ export function storyboardGenerationSignature(project: Project, frame: Storyboar
 export function destinationGeneratedPrompt(project: Project, frame: StoryboardFrame): string | undefined {
   if (frame.id === "A") {
     const story = project.story.trim();
-    return story ? openingFrameGenerationPrompt(story) : undefined;
+    return story ? openingFrameGenerationPrompt(story, project.cameraGrammar) : undefined;
   }
   const plan = destinationConstructionPlan(frame);
   if (!plan) {
@@ -314,6 +320,7 @@ export function destinationGeneratedPrompt(project: Project, frame: StoryboardFr
   return destinationConstructionPrompt({
     ...plan,
     nextDestination: followingDestinationPlan(project, frame),
+    cameraGrammar: project.cameraGrammar,
   });
 }
 
@@ -432,15 +439,16 @@ export function openingFrameIntent(story: string): string | undefined {
   return intent || undefined;
 }
 
-export function openingFrameGenerationPrompt(story: string): string {
+export function openingFrameGenerationPrompt(story: string, cameraGrammar?: CameraGrammar): string {
   const trimmed = story.trim();
   if (!trimmed) {
     throw new Error("Opening frame requires a journey story");
   }
+  const grammar = cameraGrammarFromUnknown(cameraGrammar);
   return [
-    "Generate a still photograph of the opening viewpoint of this first-person POV journey. Use the Journey to determine the specific physical viewpoint, orientation, environment, and situation at the instant the journey begins. Show only that opening moment; do not anticipate, combine, or depict later destinations or events from the Journey.",
+    `${openingStillLead(grammar)} Use the Journey to determine the specific physical viewpoint, orientation, environment, and situation at the instant the journey begins. Show only that opening moment; do not anticipate, combine, or depict later destinations or events from the Journey.`,
     "",
-    `The camera is already in the world, oriented along the journey's intended direction of travel. ${UNEMBODIED_FIRST_PERSON_POV} ${WORLD_SUBJECTS_MAY_APPEAR} Do not show text.`,
+    `The camera is already in the world, oriented along the journey's intended direction of travel. ${stillViewpointClause(grammar)} Do not show text.`,
     "",
     `Journey: ${trimmed}`,
   ].join("\n");
@@ -477,6 +485,7 @@ export type OpeningFrameGenerationRequest = {
   imageModel: ImageModelId;
   imageOutputFormat: ImageOutputFormat;
   imageResolution?: ImageResolution;
+  cameraGrammar?: CameraGrammar;
 };
 
 export function openingFrameGenerationRequestFromProject(
@@ -489,6 +498,7 @@ export function openingFrameGenerationRequestFromProject(
     story: project.story,
     aspectRatio: GENERATED_OPENING_ASPECT_RATIO,
     ...imageGenerationKnobsFromProject(project),
+    cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
   };
 }
 
@@ -564,6 +574,7 @@ export function destinationConstructionRequestFromProject(
     ...(nextDestination ? { nextDestination } : {}),
     ...(aspectRatio ? { aspectRatio } : {}),
     ...imageGenerationKnobsFromProject(project),
+    cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
   };
 }
 
@@ -585,7 +596,7 @@ export function destinationRepairRequestFromProject(
     (beat.id === "A" && project.story.trim()
       ? {
           intent: openingFrameIntent(project.story) ?? project.story.trim(),
-          visualDescription: openingFrameGenerationPrompt(project.story),
+          visualDescription: openingFrameGenerationPrompt(project.story, project.cameraGrammar),
         }
       : null);
   if (!plan) {
@@ -617,6 +628,7 @@ export function destinationRepairRequestFromProject(
     ...imageGenerationKnobsFromProject(project),
     repairInstruction: input.instruction,
     repairRole: input.role,
+    cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
     ...(referenceMediaId ? { referenceMediaId } : {}),
   };
 }

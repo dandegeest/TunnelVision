@@ -113,6 +113,8 @@ describe("project persistence schema", () => {
     expect(documents.manifest.settings.fixedDurationSeconds).toBe(5);
     expect(hydrated.project.durationMode).toBe("adaptive");
     expect(hydrated.project.fixedDurationSeconds).toBe(5);
+    expect(documents.manifest.settings.cameraGrammar).toBe("pov");
+    expect(hydrated.project.cameraGrammar).toBe("pov");
     expect(hydrated.warnings.missingAssets).toEqual([]);
   });
 

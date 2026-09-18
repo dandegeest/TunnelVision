@@ -1,5 +1,6 @@
 import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
 import { GENERATED_OPENING_ASPECT_RATIO, parseImageAspectRatio } from "../media/src/image-aspect-ratio.ts";
+import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { destinationConstructionPrompt, canonicalRepairPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead } from "./src/project/destination.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
@@ -15,6 +16,7 @@ export type ConstructDestinationBody = {
   referenceMediaId?: unknown;
   repairInstruction?: unknown;
   repairRole?: unknown;
+  cameraGrammar?: unknown;
 };
 
 export async function fetchGeneratedOutputBytes(url: string): Promise<{
@@ -84,8 +86,14 @@ export async function constructDestinationImage(input: {
           intent,
           visualDescription,
           instruction: repairInstruction,
+          cameraGrammar: cameraGrammarFromUnknown(input.body.cameraGrammar),
         })
-      : destinationConstructionPrompt({ intent, visualDescription, nextDestination });
+      : destinationConstructionPrompt({
+          intent,
+          visualDescription,
+          nextDestination,
+          cameraGrammar: cameraGrammarFromUnknown(input.body.cameraGrammar),
+        });
   const sourceImage = resolveTrustedMedia(input.repoRoot, sourceMediaId);
   const extraRefId =
     typeof input.body.referenceMediaId === "string" ? input.body.referenceMediaId.trim() : "";
@@ -130,7 +138,7 @@ export async function constructDestinationImage(input: {
 }
 
 export async function generateOpeningFrameImage(input: {
-  body: { story?: unknown; aspectRatio?: unknown; imageModel?: unknown };
+  body: { story?: unknown; aspectRatio?: unknown; imageModel?: unknown; cameraGrammar?: unknown };
   generateImage: (request: ImageGenerationRequest) => Promise<GeneratedImage>;
   fetchOutput?: (url: string) => Promise<{ bytes: Buffer; contentType?: string }>;
 }): Promise<{
@@ -154,7 +162,7 @@ export async function generateOpeningFrameImage(input: {
   };
 }> {
   const story = typeof input.body.story === "string" ? input.body.story.trim() : "";
-  const prompt = openingFrameGenerationPrompt(story);
+  const prompt = openingFrameGenerationPrompt(story, cameraGrammarFromUnknown(input.body.cameraGrammar));
   const aspectRatio = GENERATED_OPENING_ASPECT_RATIO;
   const generated = await input.generateImage({ prompt, aspectRatio });
   const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;

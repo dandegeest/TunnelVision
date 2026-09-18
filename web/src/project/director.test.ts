@@ -145,6 +145,7 @@ describe("Director request from Project state", () => {
     expect(directorPlanRequestFromProject(project)).toEqual({
       story: project.story,
       agency: project.agency,
+      cameraGrammar: "pov",
       startFrameId: "A",
       startFrameIntent: project.storyboard[0]?.intent,
       startMediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,

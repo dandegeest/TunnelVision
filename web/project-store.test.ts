@@ -309,4 +309,28 @@ describe("project store rename", () => {
     });
     expect(same.path).toBe(collided.path);
   });
+
+  it("copies a local movie export file into the project exports folder", async () => {
+    const root = await tempDir("tv-projects-export-local-");
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(root, "Export Local");
+    const source = join(root, "cut.mp4");
+    await writeFile(source, Buffer.from("fake-mp4"));
+    await store.saveProject({
+      projectRoot,
+      project: { ...createNewProject(), title: "Export Local" },
+      movieExport: {
+        videoUrl: source,
+        filename: "ExportLocal_v1.mp4",
+        complete: true,
+        includedJourneyIds: [],
+        missingJourneyIds: [],
+      },
+    });
+    expect(existsSync(join(projectRoot, "exports", "ExportLocal_v1.mp4"))).toBe(true);
+    const manifest = JSON.parse(await readFile(join(projectRoot, "project.json"), "utf8")) as {
+      missingAssets?: string[];
+    };
+    expect(manifest.missingAssets ?? []).not.toContain("exports/ExportLocal_v1.mp4");
+  });
 });

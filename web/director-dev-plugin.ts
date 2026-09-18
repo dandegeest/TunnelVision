@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
 
+import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { deriveStory } from "../media/src/director/derive-story.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
@@ -107,6 +108,7 @@ export function directorDevPlugin(repoRoot: string): Plugin {
             ...(anchors ? { anchors } : {}),
             ...(storyboard ? { storyboard } : {}),
             ...(storyDuration !== undefined ? { storyDuration } : {}),
+            cameraGrammar: cameraGrammarFromUnknown(body.cameraGrammar),
           });
           sendJson(res, 200, {
             plan: result.plan,

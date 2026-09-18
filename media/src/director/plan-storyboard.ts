@@ -2,7 +2,9 @@ import { MediaGenerationError } from "../errors.ts";
 import { parseJsonObject } from "../reasoning/json.ts";
 import type { ReasoningProvider, ReasoningRequest } from "../reasoning/types.ts";
 import type { MediaInput } from "../types.ts";
-import { DIRECTOR_SYSTEM_INSTRUCTION, directorUserPrompt } from "./prompts.ts";
+import type { CameraGrammar } from "../cinematographer/camera-grammar.ts";
+import { cameraGrammarFromUnknown } from "../cinematographer/camera-grammar.ts";
+import { directorSystemInstruction, directorUserPrompt } from "./prompts.ts";
 
 export type DirectorAgency = "directed" | "autonomous";
 
@@ -25,6 +27,7 @@ export type DirectorPlanInput = {
     readonly image: MediaInput;
   };
   readonly agency: DirectorAgency;
+  readonly cameraGrammar?: CameraGrammar;
   readonly anchors?: readonly {
     readonly id: string;
     readonly label: string;
@@ -45,6 +48,7 @@ export type DirectorPlanInput = {
 export type DirectorRequestPayload = {
   readonly story: string;
   readonly agency: DirectorAgency;
+  readonly cameraGrammar?: CameraGrammar;
   readonly startFrameId: string;
   readonly startFrameIntent?: string;
   readonly startImage: MediaInput;
@@ -84,6 +88,8 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
 } {
   const story = input.story.trim();
   const startFrameId = input.startFrame.id.trim();
+  const cameraGrammar = cameraGrammarFromUnknown(input.cameraGrammar);
+  const systemInstruction = directorSystemInstruction(cameraGrammar);
   if (!story) {
     throw new MediaGenerationError("invalid_input", "Director requires a filmmaker story");
   }
@@ -141,6 +147,7 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
     startFrameId,
     startFrameIntent,
     agency: input.agency,
+    cameraGrammar,
     ...(promptAnchors ? { anchors: promptAnchors } : {}),
     ...(promptStoryboard && promptStoryboard.length > 0 ? { storyboard: promptStoryboard } : {}),
     ...(input.storyDuration !== undefined ? { storyDuration: input.storyDuration } : {}),
@@ -161,17 +168,18 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
   const payload: DirectorRequestPayload = {
     story,
     agency: input.agency,
+    cameraGrammar,
     startFrameId,
     ...(startFrameIntent ? { startFrameIntent } : {}),
     startImage: input.startFrame.image,
     ...(textualAnchors ? { anchors: textualAnchors } : {}),
     ...(textualStoryboard && textualStoryboard.length > 0 ? { storyboard: textualStoryboard } : {}),
     ...(input.storyDuration !== undefined ? { storyDuration: input.storyDuration } : {}),
-    systemInstruction: DIRECTOR_SYSTEM_INSTRUCTION,
+    systemInstruction,
     prompt,
   };
   return {
-    systemInstruction: DIRECTOR_SYSTEM_INSTRUCTION,
+    systemInstruction,
     prompt,
     images: [input.startFrame.image, ...extraImages],
     payload,

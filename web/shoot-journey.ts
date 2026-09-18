@@ -1,4 +1,5 @@
 import { getOptionalEnv } from "../media/src/config/environment.ts";
+import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { productionCameraMotionPlan } from "../media/src/cinematographer/camera-motion-plan.ts";
 import type { CameraMotionPlanV1 } from "../media/src/cinematographer/plan-shot.ts";
 import {
@@ -44,6 +45,7 @@ export type ShootJourneyBody = {
   startPlan?: unknown;
   endPlan?: unknown;
   effectivePrompt?: unknown;
+  cameraGrammar?: unknown;
 };
 
 export type StagedMotionPlanResult = {
@@ -186,7 +188,11 @@ export async function stagePreparedMotionPlan(input: {
   const effectivePrompt =
     typeof input.body.effectivePrompt === "string" && input.body.effectivePrompt.trim()
       ? input.body.effectivePrompt.trim()
-      : composeShootingPrompt(locomotionBaseline(pace), segmentPromptAddition, pace);
+      : composeShootingPrompt(
+          locomotionBaseline(pace, cameraGrammarFromUnknown(input.body.cameraGrammar)),
+          segmentPromptAddition,
+          pace,
+        );
   return {
     journeyId,
     startShootingFrame: {
@@ -304,7 +310,11 @@ function stagedMotionPlanFromShootingFrames(
   const effectivePrompt =
     typeof body.effectivePrompt === "string" && body.effectivePrompt.trim()
       ? body.effectivePrompt.trim()
-      : composeShootingPrompt(locomotionBaseline(pace), segmentPromptAddition, pace);
+      : composeShootingPrompt(
+          locomotionBaseline(pace, cameraGrammarFromUnknown(body.cameraGrammar)),
+          segmentPromptAddition,
+          pace,
+        );
   return {
     journeyId,
     startShootingFrame: { mediaId: start.mediaId, imageUrl: start.imageUrl },

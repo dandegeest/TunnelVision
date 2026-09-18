@@ -150,6 +150,8 @@ See
 Conversation is turn history; the Project panel
 holds the JOURNEY PROMPT, destination count, Options
 (generate all destinations and generate all segments in Directed; generate audio in both modes), and CREATE JOURNEY.
+Camera grammar (POV / FOLLOW / LEAD / MOUNTED) is a Project setting and
+applies to every traversal in the journey.
 Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is

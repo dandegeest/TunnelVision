@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { downloadClipToFile } from "./export-movie.ts";
 import {
@@ -188,6 +188,15 @@ async function copyMediaIntoProject(
         await copyFile(record.filePath, dest);
         return;
       }
+    }
+    const localPath = sourceUrl.startsWith("file:")
+      ? fileURLToPath(sourceUrl)
+      : /^https?:\/\//i.test(sourceUrl)
+        ? undefined
+        : sourceUrl;
+    if (localPath && (await pathExists(localPath))) {
+      await copyFile(localPath, dest);
+      return;
     }
     const absolute =
       sourceUrl.startsWith("http://") || sourceUrl.startsWith("https://")

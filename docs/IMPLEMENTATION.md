@@ -1457,14 +1457,16 @@ travel; never stop moving; spatially contiguous environment;
 foreground objects pass beside/behind the camera; new terrain
 revealed ahead; incidental particles; no soundtrack.
 
-A LEAD (formerly Reverse Lead) astronaut experiment showed this
-baseline can override valid Director backward-travel intent. That
-is a **HACKATHON / DISCOVERY** camera-grammar research exhibit, not
-a current prompt-tweak. Do not retune this single baseline to make
-LEAD succeed. Pre-hackathon grammar work is the planned exception:
-four whole-journey grammars (POV, FOLLOW, LEAD, MOUNTED). FOLLOW
-preserves the camera–subject relationship, not a fixed following
-distance. See
+A LEAD (formerly Reverse Lead) astronaut experiment showed a
+**single** FPOV baseline can override valid Director
+backward-travel intent. Product locomotion is now
+**grammar-specific** (POV / FOLLOW / LEAD / MOUNTED). Do not
+retune POV’s unembodied forward baseline to make LEAD succeed.
+The 18 September 2026 canyon control experiment is the
+hackathon-scope exhibit:
+[sessions/canyon-grammar.md](sessions/canyon-grammar.md).
+FOLLOW preserves the camera–subject relationship, not a fixed
+following distance. See
 [BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification),
 [HACKATHON.md](HACKATHON.md#camera-grammar--hackathon-decision),
 and [PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).

@@ -13,7 +13,8 @@ import {
   projectWithAppendedTake,
   selectedTake,
 } from "./takes";
-import type { CameraMotionPlanV1, JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
+import type { CameraGrammar, CameraMotionPlanV1, JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
+import { cameraGrammarFromProject } from "./camera-grammar";
 
 export type ShootJourneyRequest = {
   journeyId: string;
@@ -32,6 +33,7 @@ export type ShootJourneyRequest = {
   startPlan?: CameraMotionPlanV1;
   endPlan?: CameraMotionPlanV1;
   effectivePrompt?: string;
+  cameraGrammar?: CameraGrammar;
   /** When true, Camotion work dirs are kept on disk after A′/B′ are copied. */
   debug?: boolean;
 };
@@ -153,6 +155,7 @@ export function shootRequestFromProject(
     startPlan: journey.motionPlan.startPlan,
     endPlan: journey.motionPlan.endPlan,
     effectivePrompt: journey.motionPlan.effectivePrompt,
+    cameraGrammar: cameraGrammarFromProject(project),
   };
 }
 

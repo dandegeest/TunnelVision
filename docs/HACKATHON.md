@@ -114,8 +114,8 @@ invention):**
 -   dedicated autonomous UI surface (not the workstation restyled)
 -   live visualization of unattended Agent decisions
 -   shared Project Save/Open used by both surfaces
--   camera grammar (pre-hackathon **target**: POV / FOLLOW / LEAD /
-    MOUNTED, one journey = one grammar; reuse if landed, do not
+-   camera grammar (landed pre-hackathon: POV / FOLLOW / LEAD /
+    MOUNTED, one journey = one grammar; reuse, do not
     invent mixed-grammar journeys on event day)
 -   agentic Runway Model Router control (major research)
 -   optional Discover strategy if the unattended Derive demo is
@@ -248,14 +248,14 @@ it until the unattended Derive demo already plays back.
 
 ### Camera grammar — hackathon decision
 
-**Status:** pre-hackathon implementation **target**. Not current
-product. Do not treat as implemented. Do **not** retune the single
-universal FPOV locomotion baseline
-(`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE` in
-`media/src/cinematographer/shooting-prompt.ts`; product law in
-[AGENTS.md](AGENTS.md)) as a one-off prompt tweak. The intended
-work is four grammar-specific baselines locked to the whole
-journey. See
+**Status:** Implemented for hackathon scope (18 September 2026 canyon
+experiment). Four whole-journey grammars (POV, FOLLOW, LEAD,
+MOUNTED) persist as Project `cameraGrammar`, with grammar-specific
+Director / still / CM / locomotion baselines. Mixed-grammar
+journeys remain **post-hackathon**. Evidence:
+[sessions/canyon-grammar.md](sessions/canyon-grammar.md).
+Do **not** retune a single universal FPOV locomotion baseline
+as a one-off prompt tweak. See
 [BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
 and [PROMPT_COACH.md](PROMPT_COACH.md).
 
@@ -285,12 +285,13 @@ another reason CM `desiredDurationSeconds` is potentially
 valuable. Full Prompt Coach wording:
 [PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
 
-When FOLLOW grammar is implemented before hack day, its baseline
-should encourage persistent subject continuity, an invisible
-objective camera, natural pursuit, dynamic following distance, no
-overtaking unless requested, no visible camera operator / second
-traveler, and no rigid mounted-rig feel. Do not over-constrain
-framing.
+The FOLLOW locomotion baseline encourages persistent subject
+continuity, an invisible objective camera, natural pursuit, dynamic
+following distance, no overtaking unless requested, no visible
+camera operator / second traveler, and no rigid mounted-rig feel.
+Do not over-constrain framing. Canyon FOLLOW stills (18 September
+2026) show the car pulling farther ahead at the overlook without
+becoming a bolted-behind MOUNTED shot.
 
 Retire **FP Follow** and **Reverse Lead** as names in favor of
 **FOLLOW** and **LEAD**.
@@ -378,26 +379,19 @@ selected camera grammar** for hackathon scope.
 
 #### Pre-hackathon implementation plan
 
-Intended before hack day — **target, not necessarily done**:
-
-1.  Introduce a camera-grammar choice / classification using POV,
-    FOLLOW, LEAD, MOUNTED.
-2.  Align Director / Prompt Coach / Cinematographer prompts with
-    the selected grammar.
-3.  Apply grammar-specific conditioning / baseline language across
-    the full journey.
-4.  Persist the selected grammar on the **journey** (hackathon
-    movies are one journey) when implemented. Do not add
-    speculative schema fields before the feature exists. A later
-    multi-journey Project may still obey one-grammar-per-journey.
-5.  Keep grammar stable across the entire journey.
-
-Event day should **reuse** this if it landed. Do not invent a
+Intended before hack day — **landed 18 September 2026** (canyon
+control experiment). Event day **reuses** it. Do not invent a
 fifth grammar, mixed-grammar journeys, or a more permissive
 universal locomotion prompt in the 5–6 hour window.
 
-Potential pipeline (when implemented; do not hard-code as product
-now):
+1.  Camera-grammar choice / classification: POV, FOLLOW, LEAD,
+    MOUNTED. Persisted as Project `cameraGrammar`.
+2.  Director / Prompt Coach / Cinematographer prompts aligned to
+    the selected grammar.
+3.  Grammar-specific locomotion baselines for the full journey.
+4.  Grammar stays stable across the entire journey.
+
+Pipeline:
 
 ``` text
 Journey grammar (POV | FOLLOW | LEAD | MOUNTED)
@@ -776,7 +770,7 @@ genesis/      Research site (not the hackathon app)
 | Footage evaluation / Agent take selection | **Retired exploration.** Experimental Shot Evaluator remains isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. The filmmaker reviews footage and selects Takes. JourneyAgent does not automatically judge artistic clip quality. |
 | Movie-evaluation preprocessor | **Does not exist** as product. Not planned. |
 | Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
-| Camera grammar (POV / FOLLOW / LEAD / MOUNTED) | **Does not exist.** Pre-hackathon **target**: one grammar per journey, grammar-specific baselines, persist on the Project when implemented. Mixed-grammar journeys are post-hackathon. See Camera grammar decision above. |
+| Camera grammar (POV / FOLLOW / LEAD / MOUNTED) | **Exists (hackathon scope).** One grammar per journey, grammar-specific baselines, persisted as Project `cameraGrammar`. Canyon control experiment 18 September 2026. Mixed-grammar journeys are post-hackathon. See Camera grammar decision above. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
 | Durable project persistence | **Exists.** Directory format under the app Projects Folder. Unsaved work still uses session runtime media until Save. Same `Project` for workstation and future hackathon UI. |
@@ -1896,8 +1890,8 @@ TunnelVision work (including pre-hackathon AGENT-mode validation).
 The hackathon project is a new one-prompt cinematic surface plus
 Runway Model Router agentic control on top of that already-working
 JourneyAgent. Camera grammar (POV / FOLLOW / LEAD / MOUNTED, one
-journey = one grammar) is a **pre-hackathon target**; event day
-reuses it if landed and does not invent mixed-grammar journeys.
+journey = one grammar) **landed pre-hackathon**; event day
+reuses it and does not invent mixed-grammar journeys.
 
 Concentrate that day on:
 
@@ -1919,10 +1913,10 @@ Concentrate that day on:
 Pre-hackathon workstation focus (not event-day filmmaking): Timeline
 / Takes UX polish, start shared Project persistence if possible,
 robustness and regression testing, fresh-machine/config/secrets
-readiness, then freeze the core filmmaking pipeline. **Try** to
-land the four whole-journey camera grammars before hack day (see
-Camera grammar decision). Do **not** “fix” LEAD by making the
-single FPOV baseline more permissive. Mixed-grammar journeys are
+readiness, then freeze the core filmmaking pipeline. The four
+whole-journey camera grammars landed (see Camera grammar
+decision). Do **not** “fix” LEAD by making a single FPOV
+baseline more permissive. Mixed-grammar journeys are
 post-hackathon.
 
 Do **not** implement JourneyAgent on event day.

@@ -431,14 +431,13 @@ and more varied framing. Do **not** claim longer duration
 automatically improves FOLLOW. This is another reason
 CM-controlled `desiredDurationSeconds` is potentially valuable.
 
-**Current.** Product locomotion law is forward unembodied POV
-(`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`). The Director can
-already write non-POV intent in a plan; the Cinematographer
-baseline can still override it (LEAD astronaut exhibit). Camera
-Grammar classification is **not** implemented. Do not document it
-as live behavior. See also
-[BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
-and [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md#camera-grammar).
+**Current.** Product locomotion uses four whole-journey camera grammars
+— POV, FOLLOW, LEAD, MOUNTED — persisted as `cameraGrammar` on the
+Project. Missing/legacy projects load as POV. The Director, still
+construction, Cinematographer, and frozen locomotion baseline all
+receive the selected grammar. One journey = one grammar. Mixed-grammar
+journeys remain post-hackathon. See
+[HACKATHON.md — Camera grammar](HACKATHON.md#camera-grammar--hackathon-decision).
 
 **Useful prompting principle.** The filmmaker may express broad
 camera intent. TunnelVision should translate that into the
@@ -475,8 +474,9 @@ baseline.
 
 ## 10. FOLLOW
 
-**Experimental / discovery.** FOLLOW is a researched grammar, not
-a current CM classifier.
+**Current product grammar.** FOLLOW is one of four whole-journey
+camera grammars (`cameraGrammar: "follow"`). It is not a per-pair
+CM classifier, and it is not mixed with POV mid-journey.
 
 **FOLLOW preserves the relationship, not the distance.**
 
@@ -548,10 +548,9 @@ may be expected. If a shot looks bolted directly behind the
 subject with almost no relational variation, that may visually
 resemble **MOUNTED** more than cinematic FOLLOW.
 
-**Future / pre-hackathon implementation.** That distinction should
-live in a FOLLOW baseline rather than requiring every Journey
-prompt to explain it. When FOLLOW is implemented, the baseline
-should encourage: persistent subject continuity; invisible
+**Current.** That distinction lives in the FOLLOW locomotion
+baseline rather than requiring every Journey prompt to explain it.
+The baseline encourages: persistent subject continuity; invisible
 objective camera; natural pursuit; dynamic following distance; no
 overtaking unless explicitly requested; no visible camera operator
 / second traveler; no rigid mounted-rig feel. Do not over-constrain
@@ -561,8 +560,8 @@ framing.
 
 ## 11. LEAD and MOUNTED
 
-**LEAD** is a planned / pre-hackathon grammar **target**, not current
-product classification.
+**LEAD** is a current whole-journey camera grammar, persisted as
+`cameraGrammar: "lead"`.
 
 LEAD means the subject remains visible; the camera travels **ahead
 of** the subject while facing them, often retreating as the subject
@@ -995,7 +994,7 @@ Prompt Coach and Camera Grammar solve different problems.
 | **Prompt Coach** (future) | What movie is the human asking for? |
 | **Director** (current) | Where does that movie go? |
 | **Cinematographer** (current) | Can / how should this local traversal be shot? |
-| **Camera Grammar** (hackathon target) | What family of camera behavior does this **journey** require? (POV, FOLLOW, LEAD, or MOUNTED — one grammar for the whole journey) |
+| **Camera Grammar** | What family of camera behavior does this **journey** require? (POV, FOLLOW, LEAD, or MOUNTED — one grammar for the whole journey) |
 | **Model Router** (discovery) | Which generation strategy / model is appropriate? |
 | **Generation model** (current adapters) | Actually creates the media. |
 
@@ -1035,9 +1034,9 @@ prompting, camera strategies, and models actually worked.
 
 | Kind | What is true now |
 | --- | --- |
-| **Current observed practice** | Journey prompt → PLAN JOURNEY / CREATE JOURNEY → sequential Derived Construct → CM on actual pairs → Camotion A′/B′ → NEW TAKE. Unembodied POV baseline. Discover is unwired. Camera grammar is not implemented. |
-| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons; FOLLOW skier ~10s Kling: elastic following distance is cinematic, not a failure. |
-| **Current / pre-hackathon target (not done)** | POV, FOLLOW, LEAD, MOUNTED. One grammar per entire journey. Prompt Coach helps keep the journey compatible with that grammar. Segment pace/duration mapping is nice-to-have if easy. |
+| **Current observed practice** | Journey prompt → PLAN JOURNEY / CREATE JOURNEY → sequential Derived Construct → CM on actual pairs → Camotion A′/B′ → NEW TAKE. Selected whole-journey camera grammar (POV / FOLLOW / LEAD / MOUNTED) conditions Director, stills, CM, and the locomotion baseline. Discover is unwired. |
+| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons; FOLLOW skier ~10s Kling: elastic following distance is cinematic, not a failure. Canyon grammar experiment (18 September 2026): four Projects, same route, POV / FOLLOW / LEAD / MOUNTED; grammar held in stills and CM; filmmaker Kling 2.5 Turbo Pro recuts. |
+| **Current / pre-hackathon** | POV, FOLLOW, LEAD, MOUNTED. One grammar per entire journey. Prompt Coach remains documentation, not a product agent. Segment Adaptive/Fixed duration mapping is live. |
 | **Post-hackathon** | Mixed grammar within one journey; grammar switching between adjacent traversals; multiple camera interpretations of the same canonical; explicit camera cuts at grammar changes; continuous transitions between grammars; coverage planning; richer shot-duration planning. |
 | **Future direction** | Prompt Coach / Intent Conditioning; structured creative intent; Project-level Creative Direction; agentic Runway Model Router control; Discover as a second construction strategy. |
 

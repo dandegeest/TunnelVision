@@ -1,0 +1,46 @@
+2026-09-18T06:42:36.312Z grammar=mounted name=Grammar Test - MOUNTED Canyon Run
+2026-09-18T06:42:36.314Z [ESTABLISHING_START] generating opening destination A
+2026-09-18T06:42:36.314Z Generating opening still A
+2026-09-18T06:42:46.857Z [DIRECTING] directing journey
+2026-09-18T06:42:46.857Z Director planning destinations
+2026-09-18T06:43:11.001Z Director planned 4 subsequent destination(s)
+2026-09-18T06:43:11.005Z [CONSTRUCTING] generating destination B
+2026-09-18T06:43:11.005Z Constructing destination B
+2026-09-18T06:43:23.017Z [PLANNING_MOTION] evaluating A→B
+2026-09-18T06:43:23.017Z Cinematographer assessing A-B
+2026-09-18T06:43:39.758Z [PLANNING_MOTION] evaluated A→B
+2026-09-18T06:43:39.758Z [PLANNING_MOTION] planning A→B
+2026-09-18T06:43:39.758Z Staging motion plan A-B
+2026-09-18T06:43:44.642Z [SHOOTING] creating A→B TAKE 1
+2026-09-18T06:43:44.642Z Shooting A-B
+2026-09-18T06:43:44.643Z [CONSTRUCTING] generating destination C
+2026-09-18T06:43:44.643Z Constructing destination C
+2026-09-18T06:43:56.754Z [PLANNING_MOTION] evaluating B→C
+2026-09-18T06:43:56.754Z Cinematographer assessing B-C
+2026-09-18T06:44:12.299Z [PLANNING_MOTION] evaluated B→C
+2026-09-18T06:44:12.299Z [PLANNING_MOTION] planning B→C
+2026-09-18T06:44:12.299Z Staging motion plan B-C
+2026-09-18T06:44:16.519Z [SHOOTING] creating B→C TAKE 1
+2026-09-18T06:44:16.519Z Shooting B-C
+2026-09-18T06:44:16.519Z [CONSTRUCTING] generating destination D
+2026-09-18T06:44:16.519Z Constructing destination D
+2026-09-18T06:44:28.432Z [PLANNING_MOTION] evaluating C→D
+2026-09-18T06:44:28.432Z Cinematographer assessing C-D
+2026-09-18T06:44:45.011Z [PLANNING_MOTION] evaluated C→D
+2026-09-18T06:44:45.011Z [PLANNING_MOTION] planning C→D
+2026-09-18T06:44:45.011Z Staging motion plan C-D
+2026-09-18T06:44:49.265Z [SHOOTING] creating C→D TAKE 1
+2026-09-18T06:44:49.265Z Shooting C-D
+2026-09-18T06:44:49.265Z [CONSTRUCTING] generating destination E
+2026-09-18T06:44:49.265Z Constructing destination E
+2026-09-18T06:45:04.670Z [PLANNING_MOTION] evaluating D→E
+2026-09-18T06:45:04.671Z Cinematographer assessing D-E
+2026-09-18T06:45:24.350Z [PLANNING_MOTION] evaluated D→E
+2026-09-18T06:45:24.350Z [PLANNING_MOTION] planning D→E
+2026-09-18T06:45:24.350Z Staging motion plan D-E
+2026-09-18T06:45:28.571Z [SHOOTING] creating D→E TAKE 1
+2026-09-18T06:45:28.571Z Shooting D-E
+2026-09-18T06:46:29.308Z [FAILED] Prediction failed: Failed to generate video: {'code': 3, 'message': 'The prompt could not be submitted due to the interests of third-party content providers. Please modify your prompt and try again. Support codes: 35561575'}
+status=FAILED
+projectRoot=/Users/ddegeest/Source/tunnelvision/projects/GrammarTest-MOUNTEDCanyonRun
+error=Prediction failed: Failed to generate video: {'code': 3, 'message': 'The prompt could not be submitted due to the interests of third-party content providers. Please modify your prompt and try again. Support codes: 35561575'}

@@ -204,10 +204,6 @@ export type {
   CinematographerTravelTarget,
 } from "./cinematographer/assess-journey.ts";
 export {
-  CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
-  cinematographerAssessmentUserPrompt,
-} from "./cinematographer/assessment-prompts.ts";
-export {
   UNEMBODIED_FIRST_PERSON_POV,
   WORLD_SUBJECTS_MAY_APPEAR,
   LOCOMOTION_PACE_MACRO,
@@ -224,7 +220,25 @@ export {
   extremePaceLeadIn,
   EXTREME_PACE_LEAD_INS,
 } from "./cinematographer/shooting-prompt.ts";
-export type { LocomotionPace } from "./cinematographer/shooting-prompt.ts";
+export type { LocomotionPace, CameraGrammar } from "./cinematographer/shooting-prompt.ts";
+export {
+  CAMERA_GRAMMARS,
+  CAMERA_GRAMMAR_LABEL,
+  DEFAULT_CAMERA_GRAMMAR,
+  isCameraGrammar,
+  cameraGrammarFromUnknown,
+  locomotionBaselineTemplate,
+  stillViewpointClause,
+  openingStillLead,
+  constructionTravelClause,
+  directorGrammarResearchPrinciple,
+  cinematographerGrammarInstruction,
+} from "./cinematographer/camera-grammar.ts";
+export {
+  CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
+  cinematographerAssessmentSystemInstruction,
+  cinematographerAssessmentUserPrompt,
+} from "./cinematographer/assessment-prompts.ts";
 export { plan as planDirectorStoryboard, parseDirectorPlan, buildDirectorRequest, subsequentDirectorBeats } from "./director/plan-storyboard.ts";
 export type {
   DirectorAgency,
@@ -234,4 +248,4 @@ export type {
   DirectorPlanResult,
   DirectorRequestPayload,
 } from "./director/plan-storyboard.ts";
-export { DIRECTOR_SYSTEM_INSTRUCTION, directorUserPrompt } from "./director/prompts.ts";
+export { DIRECTOR_SYSTEM_INSTRUCTION, directorSystemInstruction, directorUserPrompt } from "./director/prompts.ts";

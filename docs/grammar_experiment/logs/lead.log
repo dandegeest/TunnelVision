@@ -1,0 +1,48 @@
+2026-09-18T06:35:52.829Z grammar=lead name=Grammar Test - LEAD Canyon Run
+2026-09-18T06:35:52.831Z [ESTABLISHING_START] generating opening destination A
+2026-09-18T06:35:52.831Z Generating opening still A
+2026-09-18T06:36:04.535Z [DIRECTING] directing journey
+2026-09-18T06:36:04.535Z Director planning destinations
+2026-09-18T06:36:22.126Z Director planned 4 subsequent destination(s)
+2026-09-18T06:36:22.131Z [CONSTRUCTING] generating destination B
+2026-09-18T06:36:22.131Z Constructing destination B
+2026-09-18T06:36:36.766Z [PLANNING_MOTION] evaluating A→B
+2026-09-18T06:36:36.766Z Cinematographer assessing A-B
+2026-09-18T06:37:19.658Z [PLANNING_MOTION] evaluated A→B
+2026-09-18T06:37:19.658Z [PLANNING_MOTION] planning A→B
+2026-09-18T06:37:19.658Z Staging motion plan A-B
+2026-09-18T06:37:24.485Z [SHOOTING] creating A→B TAKE 1
+2026-09-18T06:37:24.485Z Shooting A-B
+2026-09-18T06:37:24.485Z [CONSTRUCTING] generating destination C
+2026-09-18T06:37:24.485Z Constructing destination C
+2026-09-18T06:37:39.136Z [PLANNING_MOTION] evaluating B→C
+2026-09-18T06:37:39.136Z Cinematographer assessing B-C
+2026-09-18T06:38:25.230Z [PLANNING_MOTION] evaluated B→C
+2026-09-18T06:38:25.230Z [PLANNING_MOTION] planning B→C
+2026-09-18T06:38:25.230Z Staging motion plan B-C
+2026-09-18T06:38:29.512Z [SHOOTING] creating B→C TAKE 1
+2026-09-18T06:38:29.512Z Shooting B-C
+2026-09-18T06:38:29.512Z [CONSTRUCTING] generating destination D
+2026-09-18T06:38:29.512Z Constructing destination D
+2026-09-18T06:38:42.486Z [PLANNING_MOTION] evaluating C→D
+2026-09-18T06:38:42.486Z Cinematographer assessing C-D
+2026-09-18T06:39:34.984Z [PLANNING_MOTION] evaluated C→D
+2026-09-18T06:39:34.984Z [PLANNING_MOTION] planning C→D
+2026-09-18T06:39:34.984Z Staging motion plan C-D
+2026-09-18T06:39:39.255Z [SHOOTING] creating C→D TAKE 1
+2026-09-18T06:39:39.255Z Shooting C-D
+2026-09-18T06:39:39.255Z [CONSTRUCTING] generating destination E
+2026-09-18T06:39:39.255Z Constructing destination E
+2026-09-18T06:39:51.499Z [PLANNING_MOTION] evaluating D→E
+2026-09-18T06:39:51.499Z Cinematographer assessing D-E
+2026-09-18T06:40:16.317Z [PLANNING_MOTION] evaluated D→E
+2026-09-18T06:40:16.317Z [PLANNING_MOTION] planning D→E
+2026-09-18T06:40:16.317Z Staging motion plan D-E
+2026-09-18T06:40:22.617Z [SHOOTING] creating D→E TAKE 1
+2026-09-18T06:40:22.617Z Shooting D-E
+2026-09-18T06:42:31.093Z [ASSEMBLING] assembling journey
+2026-09-18T06:42:31.093Z Exporting combined movie
+2026-09-18T06:42:35.544Z [FAILED] Image is too large.
+status=FAILED
+projectRoot=/Users/ddegeest/Source/tunnelvision/projects/GrammarTest-LEADCanyonRun
+error=Image is too large.

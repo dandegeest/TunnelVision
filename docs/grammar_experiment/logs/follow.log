@@ -1,0 +1,46 @@
+2026-09-18T06:30:19.581Z grammar=follow name=Grammar Test - FOLLOW Canyon Run
+2026-09-18T06:30:19.582Z [ESTABLISHING_START] generating opening destination A
+2026-09-18T06:30:19.582Z Generating opening still A
+2026-09-18T06:30:30.964Z [DIRECTING] directing journey
+2026-09-18T06:30:30.964Z Director planning destinations
+2026-09-18T06:30:48.279Z Director planned 4 subsequent destination(s)
+2026-09-18T06:30:48.281Z [CONSTRUCTING] generating destination B
+2026-09-18T06:30:48.281Z Constructing destination B
+2026-09-18T06:31:02.244Z [PLANNING_MOTION] evaluating A→B
+2026-09-18T06:31:02.244Z Cinematographer assessing A-B
+2026-09-18T06:31:21.520Z [PLANNING_MOTION] evaluated A→B
+2026-09-18T06:31:21.520Z [PLANNING_MOTION] planning A→B
+2026-09-18T06:31:21.520Z Staging motion plan A-B
+2026-09-18T06:31:28.049Z [SHOOTING] creating A→B TAKE 1
+2026-09-18T06:31:28.049Z Shooting A-B
+2026-09-18T06:31:28.050Z [CONSTRUCTING] generating destination C
+2026-09-18T06:31:28.050Z Constructing destination C
+2026-09-18T06:31:41.799Z [PLANNING_MOTION] evaluating B→C
+2026-09-18T06:31:41.799Z Cinematographer assessing B-C
+2026-09-18T06:32:04.593Z [PLANNING_MOTION] evaluated B→C
+2026-09-18T06:32:04.593Z [PLANNING_MOTION] planning B→C
+2026-09-18T06:32:04.593Z Staging motion plan B-C
+2026-09-18T06:32:09.090Z [SHOOTING] creating B→C TAKE 1
+2026-09-18T06:32:09.090Z Shooting B-C
+2026-09-18T06:32:09.090Z [CONSTRUCTING] generating destination D
+2026-09-18T06:32:09.090Z Constructing destination D
+2026-09-18T06:32:21.303Z [PLANNING_MOTION] evaluating C→D
+2026-09-18T06:32:21.303Z Cinematographer assessing C-D
+2026-09-18T06:33:09.727Z [PLANNING_MOTION] evaluated C→D
+2026-09-18T06:33:09.727Z [PLANNING_MOTION] planning C→D
+2026-09-18T06:33:09.727Z Staging motion plan C-D
+2026-09-18T06:33:14.177Z [SHOOTING] creating C→D TAKE 1
+2026-09-18T06:33:14.177Z Shooting C-D
+2026-09-18T06:33:14.177Z [CONSTRUCTING] generating destination E
+2026-09-18T06:33:14.177Z Constructing destination E
+2026-09-18T06:33:28.132Z [PLANNING_MOTION] evaluating D→E
+2026-09-18T06:33:28.132Z Cinematographer assessing D-E
+2026-09-18T06:33:49.775Z [PLANNING_MOTION] evaluated D→E
+2026-09-18T06:33:49.775Z [PLANNING_MOTION] planning D→E
+2026-09-18T06:33:49.775Z Staging motion plan D-E
+2026-09-18T06:33:54.125Z [SHOOTING] creating D→E TAKE 1
+2026-09-18T06:33:54.125Z Shooting D-E
+2026-09-18T06:35:51.608Z [FAILED] Prediction failed: 
+status=FAILED
+projectRoot=/Users/ddegeest/Source/tunnelvision/projects/GrammarTest-FOLLOWCanyonRun
+error=Prediction failed: 

@@ -73,6 +73,7 @@ describe("Cinematographer actual-set assessment", () => {
       startIntent: project.storyboard[0]?.intent,
       endIntent: project.storyboard[1]?.intent,
       story: project.story,
+      cameraGrammar: "pov",
     });
     expect(journeysReadyToBlock(project).some((journey) => journey.id === "A-B")).toBe(true);
     expect(

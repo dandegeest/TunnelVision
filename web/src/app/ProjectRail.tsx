@@ -10,12 +10,13 @@ import {
   storyDurationFieldValue,
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import { durationModeFromProject, fixedDurationSecondsFromProject, MAX_FIXED_DURATION_SECONDS, MIN_FIXED_DURATION_SECONDS } from "../project/shot-duration";
 import {
-  durationModeFromProject,
-  fixedDurationSecondsFromProject,
-  MAX_FIXED_DURATION_SECONDS,
-  MIN_FIXED_DURATION_SECONDS,
-} from "../project/shot-duration";
+  CAMERA_GRAMMARS,
+  CAMERA_GRAMMAR_LABEL,
+  cameraGrammarFromProject,
+  isCameraGrammar,
+} from "../project/camera-grammar";
 import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
 import type { Agency, Project } from "../project/types";
 import {
@@ -782,6 +783,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     setAutoGenerateAllDestinations,
     setAutoShoot,
     setGenerateAudio,
+    setCameraGrammar,
     setDurationMode,
     setFixedDurationSeconds,
     directorStatus,
@@ -935,6 +937,25 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 />
                 Generate audio
               </label>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera grammar</span>
+                <OptionMenu
+                  ariaLabel="Camera grammar"
+                  title="Whole-journey camera relationship. POV, FOLLOW, LEAD, or MOUNTED. Applies to every traversal in this project."
+                  disabled={busy}
+                  triggerClassName="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]"
+                  value={cameraGrammarFromProject(project)}
+                  options={CAMERA_GRAMMARS.map((grammar) => ({
+                    value: grammar,
+                    label: CAMERA_GRAMMAR_LABEL[grammar],
+                  }))}
+                  onChange={(next) => {
+                    if (isCameraGrammar(next)) {
+                      setCameraGrammar(next);
+                    }
+                  }}
+                />
+              </div>
               <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
                 <input
                   type="checkbox"

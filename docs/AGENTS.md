@@ -648,14 +648,12 @@ names the physical pass-through — approach and open a door, pass around
 a corner, move through vegetation, enter and emerge from an arch —
 so camera locomotion causes the reveal and scene geometry stays fixed.
 Do not describe the environment as parting or opening to reveal the
-destination. Skip those mechanics on already clear open-space travel. The frozen
-locomotion baseline only enforces continuous travel, unembodied POV,
-and cinematic-cheat / invented-passageway prohibitions. It does not
-enumerate tunnels, thresholds, openings, paths, or FPS-style objects.
-
-The frozen locomotion baseline now lives in
-`media/src/cinematographer/shooting-prompt.ts` as
-`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`. `{pace}` is a per-segment
+destination. Skip those mechanics on already clear open-space travel. Locomotion
+baselines are grammar-specific (POV / FOLLOW / LEAD / MOUNTED). POV still
+enforces continuous unembodied first-person travel and cinematic-cheat /
+invented-passageway prohibitions. FOLLOW, LEAD, and MOUNTED use dedicated
+baselines so forward-only POV conditioning cannot rewrite those relationships.
+The templates live in `media/src/cinematographer/camera-grammar.ts`. `{pace}` is a per-segment
 macro: BLOCK sets `slow-motion`, `slow`, `moderate`, `fast`,
 `hyperspeed`, or `variable` from the geography;
 SHOOT fills the template with the matching speed phrase and concatenates an extreme-pace lead-in when the pace is `slow-motion` or `hyperspeed`, then `segmentPromptAddition`, then the filled baseline, via
@@ -673,5 +671,5 @@ baseline from the 15 September 2026 Journey Prompt steering test.
 That finding is backlog evidence
 ([BACKLOG.md — Directional steering experiment](BACKLOG.md#directional-steering-experiment);
 [Observational beats](BACKLOG.md#observational-beats--look-pause-choreography)).
-FORWARD remains the current locomotion invariant. Agent mode is
-the next implementation priority.
+FORWARD remains the POV locomotion invariant. Selected Project camera grammar
+governs FOLLOW / LEAD / MOUNTED. Agent mode is a current product path.

@@ -68,6 +68,14 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.match(request.prompt, /attic bedroom/);
 });
 
+test("Director LEAD request does not use the forward-only POV locomotion principle", () => {
+  const request = buildDirectorRequest({ ...input, cameraGrammar: "lead" });
+  assert.match(request.systemInstruction, /LEAD grammar/);
+  assert.doesNotMatch(request.systemInstruction, /Continuous forward locomotion matters/);
+  assert.match(request.prompt, /Camera grammar: LEAD/);
+  assert.match(request.prompt, /Do not switch grammar between beats/);
+});
+
 test("Director request omits opening-beat intent when the starting frame has none", () => {
   const request = buildDirectorRequest({
     story: "Travel forward through a quiet abandoned greenhouse at night.",

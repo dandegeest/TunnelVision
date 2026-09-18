@@ -107,7 +107,8 @@ import {
   runJourneyAgent,
   type JourneyAgentSnapshot,
 } from "./journey-agent";
-import { storyboardFrameById, type Agency, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
+import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
+import { projectWithCameraGrammar } from "./camera-grammar";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function suggestedProjectName(project: Project): string {
@@ -170,6 +171,7 @@ type ProjectContextValue = {
   setAutoBlockShots: (enabled: boolean) => void;
   setAutoShoot: (enabled: boolean) => void;
   setGenerateAudio: (enabled: boolean) => void;
+  setCameraGrammar: (grammar: CameraGrammar) => void;
   setDurationMode: (mode: DurationMode) => void;
   setFixedDurationSeconds: (seconds: number) => void;
   conversation: ConversationEntry[];
@@ -470,6 +472,10 @@ export function ProjectProvider({
 
   const setGenerateAudio = useCallback((enabled: boolean) => {
     setProject((current) => projectWithGenerateAudio(current, enabled));
+  }, []);
+
+  const setCameraGrammar = useCallback((grammar: CameraGrammar) => {
+    setProject((current) => projectWithCameraGrammar(current, grammar));
   }, []);
 
   const setDurationMode = useCallback((mode: DurationMode) => {
@@ -1895,6 +1901,7 @@ export function ProjectProvider({
       setAutoBlockShots,
       setAutoShoot,
       setGenerateAudio,
+      setCameraGrammar,
       setDurationMode,
       setFixedDurationSeconds,
       conversation,
@@ -1983,6 +1990,7 @@ export function ProjectProvider({
       setAutoBlockShots,
       setAutoShoot,
       setGenerateAudio,
+      setCameraGrammar,
       setDurationMode,
       setFixedDurationSeconds,
       conversation,

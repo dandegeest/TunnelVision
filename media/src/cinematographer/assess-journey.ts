@@ -3,9 +3,10 @@ import { parseJsonObject } from "../reasoning/json.ts";
 import type { ReasoningProvider, ReasoningRequest } from "../reasoning/types.ts";
 import type { MediaInput } from "../types.ts";
 import {
-  CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
+  cinematographerAssessmentSystemInstruction,
   cinematographerAssessmentUserPrompt,
 } from "./assessment-prompts.ts";
+import { cameraGrammarFromUnknown, type CameraGrammar } from "./camera-grammar.ts";
 import { isLocomotionPace, type LocomotionPace } from "./shooting-prompt.ts";
 
 export type CinematographerShootability = "shootable" | "needs_review" | "not_shootable";
@@ -84,6 +85,7 @@ export type CinematographerAssessmentInput = {
     readonly image: MediaInput;
   };
   readonly story?: string;
+  readonly cameraGrammar?: CameraGrammar;
 };
 
 export type CinematographerAssessmentRequestPayload = {
@@ -93,6 +95,7 @@ export type CinematographerAssessmentRequestPayload = {
   readonly startIntent?: string;
   readonly endIntent?: string;
   readonly story?: string;
+  readonly cameraGrammar?: CameraGrammar;
   readonly startImage: MediaInput;
   readonly endImage: MediaInput;
   readonly systemInstruction: string;
@@ -140,6 +143,8 @@ export function buildCinematographerAssessmentRequest(
   const story = input.story?.trim() || undefined;
   const startIntent = input.start.intent?.trim() || undefined;
   const endIntent = input.end.intent?.trim() || undefined;
+  const cameraGrammar = cameraGrammarFromUnknown(input.cameraGrammar);
+  const systemInstruction = cinematographerAssessmentSystemInstruction(cameraGrammar);
   const prompt = cinematographerAssessmentUserPrompt({
     journeyId,
     startId,
@@ -147,6 +152,7 @@ export function buildCinematographerAssessmentRequest(
     story,
     startIntent,
     endIntent,
+    cameraGrammar,
   });
   const payload: CinematographerAssessmentRequestPayload = {
     journeyId,
@@ -155,13 +161,14 @@ export function buildCinematographerAssessmentRequest(
     ...(startIntent ? { startIntent } : {}),
     ...(endIntent ? { endIntent } : {}),
     ...(story ? { story } : {}),
+    cameraGrammar,
     startImage: input.start.image,
     endImage: input.end.image,
-    systemInstruction: CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
+    systemInstruction,
     prompt,
   };
   return {
-    systemInstruction: CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
+    systemInstruction,
     prompt,
     images: [input.start.image, input.end.image],
     payload,

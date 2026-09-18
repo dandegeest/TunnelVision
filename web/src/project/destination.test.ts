@@ -104,7 +104,7 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/Move forward into the cleft/);
     expect(prompt).toMatch(/narrow stone corridor with orange light/);
     expect(prompt).toMatch(/spatial continuation/i);
-    expect(prompt).toMatch(/camera viewpoint must physically advance/i);
+    expect(prompt).toMatch(/camera viewpoint must physically travel along the route/i);
     expect(prompt).toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
     expect(prompt).toMatch(/substantially progressed camera viewpoint/);
     expect(prompt).toMatch(/Do not render it from the source camera position/);
@@ -605,6 +605,7 @@ describe("opening frame generation", () => {
       imageModel: "nano-banana-2",
       imageOutputFormat: "png",
       imageResolution: "1K",
+      cameraGrammar: "pov",
     });
     expect(openingFrameIntent(withStory.story)).toBe(
       "Travel forward through an imagined interior at night.",
@@ -634,6 +635,7 @@ describe("opening frame generation", () => {
       imageModel: "nano-banana-2",
       imageOutputFormat: "png",
       imageResolution: "1K",
+      cameraGrammar: "pov",
     });
     const keptIntent = projectWithGeneratedOpeningFrame(
       {
@@ -763,6 +765,7 @@ describe("destination inspector copy", () => {
       imageModel: "nano-banana-2",
       imageOutputFormat: "jpg",
       imageResolution: "4K",
+      cameraGrammar: "pov",
     });
     const lite = projectWithImageModel(hq, "nano-banana-2-lite");
     expect(lite.imageOutputFormat).toBe("jpg");
@@ -830,5 +833,53 @@ describe("canonical repair request", () => {
     expect(prompt).toMatch(/Do not make the two images look alike/);
     expect(prompt).toMatch(/contradicts the immediate environment/);
     expect(prompt).not.toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
+  });
+});
+
+describe("camera grammar still conditioning", () => {
+  it("keeps POV stills unembodied", () => {
+    const prompt = openingFrameGenerationPrompt("Travel the canyon.", "pov");
+    expect(prompt).toMatch(/first-person POV journey/);
+    expect(prompt).toMatch(/unembodied first-person POV/);
+  });
+
+  it("conditions FOLLOW stills on a persistent subject rather than first-person POV", () => {
+    const prompt = openingFrameGenerationPrompt("Follow the red car through the canyon.", "follow");
+    expect(prompt).toMatch(/FOLLOW journey/);
+    expect(prompt).toMatch(/invisible objective camera is already in pursuit/);
+    expect(prompt).not.toMatch(/first-person POV journey/);
+    const constructed = destinationConstructionPrompt({
+      intent: "Continue along the canyon road.",
+      visualDescription: "The red car ahead on the twisting road.",
+      cameraGrammar: "follow",
+    });
+    expect(constructed).toMatch(/FOLLOW viewpoint/);
+    expect(constructed).toMatch(/Do not overtake the subject/);
+  });
+
+  it("conditions LEAD stills to stay ahead and facing the subject", () => {
+    const prompt = openingFrameGenerationPrompt("Stay ahead of the red car.", "lead");
+    expect(prompt).toMatch(/LEAD journey/);
+    expect(prompt).toMatch(/already ahead of the persistent subject and facing them/);
+    const constructed = destinationConstructionPrompt({
+      intent: "Retreat along the canyon road while facing the car.",
+      visualDescription: "The red car approaching across the bridge.",
+      cameraGrammar: "lead",
+    });
+    expect(constructed).toMatch(/LEAD viewpoint/);
+    expect(constructed).toMatch(/Do not convert this into a forward POV looking away from the subject/);
+  });
+
+  it("allows persistent mount geometry on MOUNTED stills", () => {
+    const prompt = openingFrameGenerationPrompt("Hood-mounted canyon run.", "mounted");
+    expect(prompt).toMatch(/MOUNTED journey/);
+    expect(prompt).toMatch(/physically attached/);
+    const constructed = destinationConstructionPrompt({
+      intent: "The car continues into the tunnel.",
+      visualDescription: "Hood and canyon walls rushing past.",
+      cameraGrammar: "mounted",
+    });
+    expect(constructed).toMatch(/MOUNTED viewpoint/);
+    expect(constructed).toMatch(/Mount geometry may persist/);
   });
 });

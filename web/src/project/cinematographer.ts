@@ -1,6 +1,8 @@
+import { cameraGrammarFromProject } from "./camera-grammar";
 import { projectWithResolvedUnshotDurations } from "./shot-duration";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type {
+  CameraGrammar,
   CinematographerAssessment,
   CinematographerShootability,
   JourneyShot,
@@ -17,6 +19,7 @@ export type CinematographerAssessmentRequest = {
   startIntent?: string;
   endIntent?: string;
   story?: string;
+  cameraGrammar?: CameraGrammar;
 };
 
 export type CinematographerAssessmentResponse = {
@@ -308,6 +311,7 @@ export function cinematographerRequestFromProject(
     ...(startIntent ? { startIntent } : {}),
     ...(endIntent ? { endIntent } : {}),
     ...(story ? { story } : {}),
+    cameraGrammar: cameraGrammarFromProject(project),
   };
 }
 

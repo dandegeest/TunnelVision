@@ -1,3 +1,11 @@
+import {
+  CAMERA_GRAMMAR_LABEL,
+  DEFAULT_CAMERA_GRAMMAR,
+  directorGrammarBodyConstraint,
+  directorGrammarResearchPrinciple,
+  type CameraGrammar,
+} from "../cinematographer/camera-grammar.ts";
+
 export const DIRECTOR_STORY_SYSTEM_INSTRUCTION = `You are the Director for TunnelVision.
 
 The filmmaker supplied an opening still and no journey story. Write the journey story they would type: a filmmaker-facing prompt the later planning step can use.
@@ -22,7 +30,8 @@ Rules:
 - Keep it concise: one short paragraph.
 `;
 
-export const DIRECTOR_SYSTEM_INSTRUCTION = `You are the Director for TunnelVision.
+export function directorSystemInstruction(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
+  return `You are the Director for TunnelVision.
 
 You decide WHERE THE MOVIE GOES. You turn a filmmaker's story and the current storyboard into a spatially traversable sequence of planned storyboard beats.
 
@@ -32,14 +41,15 @@ Plan resolves unspecified directing decisions. It does not overwrite specified f
 
 The first image is the opening viewpoint. It is already the first storyboard beat. Later images, if any, are additional actual destinations in travel order.
 
-Plan a journey the camera can actually travel, not a list of attractive disconnected scenes. People, animals, vehicles, objects, and other subjects may appear in viewpoints as part of the world. Do not describe the viewer's body, hands, or held camera equipment.
+Plan a journey the camera can actually travel, not a list of attractive disconnected scenes. People, animals, vehicles, objects, and other subjects may appear in viewpoints as part of the world. ${directorGrammarBodyConstraint(grammar)}
 
 Research principles:
-- Continuous forward locomotion matters. The viewer should keep moving through space.
+${directorGrammarResearchPrinciple(grammar)}
 - Distinct geography should emerge. Each beat is a new place, not a slight restage of the previous composition.
 - Transitions should correspond to traversable spatial changes: doors, wardrobes, arches, tunnels, windows, cave mouths, stairs, gaps, paths around corners.
 - Visual continuity alone is insufficient. A destination object is not enough; the shot needs a plausible route through a threshold into new volume.
 - Later, a Cinematographer will have to shoot between actual generated sets. Give that person a physically plausible route.
+- Camera grammar is selected for the entire journey. Do not switch grammar between beats.
 
 Return ONLY one JSON object. No markdown fences. No commentary.
 
@@ -72,6 +82,10 @@ Rules:
 - intent and visualDescription must be non-empty strings.
 - Do not add provider, model, Camotion, canonical, or image-path fields.
 `;
+}
+
+/** POV default. Prefer `directorSystemInstruction(grammar)` when the project grammar is known. */
+export const DIRECTOR_SYSTEM_INSTRUCTION = directorSystemInstruction(DEFAULT_CAMERA_GRAMMAR);
 
 export type DirectorPromptAnchor = {
   readonly id: string;
@@ -141,10 +155,12 @@ export function directorUserPrompt(input: {
   readonly startFrameId: string;
   readonly startFrameIntent?: string;
   readonly agency: "directed" | "autonomous";
+  readonly cameraGrammar?: CameraGrammar;
   readonly anchors?: readonly DirectorPromptAnchor[];
   readonly storyboard?: readonly DirectorPromptAnchor[];
   readonly storyDuration?: "auto" | number;
 }): string {
+  const grammar = input.cameraGrammar ?? DEFAULT_CAMERA_GRAMMAR;
   const agencyLine =
     input.agency === "autonomous"
       ? "Agency: autonomous. You are deciding the journey."
@@ -157,6 +173,7 @@ export function directorUserPrompt(input: {
 
   const lines = [
     agencyLine,
+    `Camera grammar: ${CAMERA_GRAMMAR_LABEL[grammar]}. Apply this camera relationship to every destination in this journey. Do not switch grammar between beats.`,
     "",
     "Filmmaker story:",
     input.story.trim(),

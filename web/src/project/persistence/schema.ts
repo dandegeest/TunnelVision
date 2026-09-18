@@ -25,6 +25,7 @@ export type ProjectSettingsSnapshot = {
   autoBlockShots: boolean;
   autoShoot: boolean;
   generateAudio?: boolean;
+  cameraGrammar?: Project["cameraGrammar"];
   durationMode?: Project["durationMode"];
   fixedDurationSeconds?: number;
   storyDuration: StoryDuration;
