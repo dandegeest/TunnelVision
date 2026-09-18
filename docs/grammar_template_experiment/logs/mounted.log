@@ -1,0 +1,48 @@
+2026-09-18T18:52:42.421Z grammar=mounted name=Grammar Template Test - MOUNTED Canyon Run takeIntent=quality duration=adaptive
+2026-09-18T18:52:42.431Z [ESTABLISHING_START] generating opening destination A
+2026-09-18T18:52:42.431Z Generating opening still A
+2026-09-18T18:52:54.464Z [DIRECTING] directing journey
+2026-09-18T18:52:54.464Z Director planning destinations
+2026-09-18T18:53:14.023Z Director planned 4 subsequent destination(s)
+2026-09-18T18:53:14.029Z [CONSTRUCTING] generating destination B
+2026-09-18T18:53:14.029Z Constructing destination B
+2026-09-18T18:53:26.826Z [PLANNING_MOTION] evaluating A→B
+2026-09-18T18:53:26.826Z Cinematographer assessing A-B
+2026-09-18T18:53:45.551Z [PLANNING_MOTION] evaluated A→B
+2026-09-18T18:53:45.551Z [PLANNING_MOTION] planning A→B
+2026-09-18T18:53:45.551Z Staging motion plan A-B
+2026-09-18T18:53:50.488Z [SHOOTING] creating A→B TAKE 1
+2026-09-18T18:53:50.488Z Shooting A-B
+2026-09-18T18:53:50.488Z [CONSTRUCTING] generating destination C
+2026-09-18T18:53:50.488Z Constructing destination C
+2026-09-18T18:54:04.622Z [PLANNING_MOTION] evaluating B→C
+2026-09-18T18:54:04.622Z Cinematographer assessing B-C
+2026-09-18T18:54:34.239Z [PLANNING_MOTION] evaluated B→C
+2026-09-18T18:54:34.239Z [PLANNING_MOTION] planning B→C
+2026-09-18T18:54:34.239Z Staging motion plan B-C
+2026-09-18T18:54:38.569Z [SHOOTING] creating B→C TAKE 1
+2026-09-18T18:54:38.570Z Shooting B-C
+2026-09-18T18:54:38.570Z [CONSTRUCTING] generating destination D
+2026-09-18T18:54:38.570Z Constructing destination D
+2026-09-18T18:54:51.085Z [PLANNING_MOTION] evaluating C→D
+2026-09-18T18:54:51.085Z Cinematographer assessing C-D
+2026-09-18T18:55:44.227Z [PLANNING_MOTION] evaluated C→D
+2026-09-18T18:55:44.227Z [PLANNING_MOTION] planning C→D
+2026-09-18T18:55:44.227Z Staging motion plan C-D
+2026-09-18T18:55:48.681Z [SHOOTING] creating C→D TAKE 1
+2026-09-18T18:55:48.681Z Shooting C-D
+2026-09-18T18:55:48.681Z [CONSTRUCTING] generating destination E
+2026-09-18T18:55:48.681Z Constructing destination E
+2026-09-18T18:56:02.681Z [PLANNING_MOTION] evaluating D→E
+2026-09-18T18:56:02.681Z Cinematographer assessing D-E
+2026-09-18T18:56:32.979Z [PLANNING_MOTION] evaluated D→E
+2026-09-18T18:56:32.979Z [PLANNING_MOTION] planning D→E
+2026-09-18T18:56:32.979Z Staging motion plan D-E
+2026-09-18T18:56:38.364Z [SHOOTING] creating D→E TAKE 1
+2026-09-18T18:56:38.364Z Shooting D-E
+2026-09-18T18:58:37.366Z [ASSEMBLING] assembling journey
+2026-09-18T18:58:37.366Z Exporting combined movie
+2026-09-18T18:58:42.870Z [COMPLETE] complete
+status=COMPLETE
+projectRoot=/Users/ddegeest/Source/tunnelvision/projects/GrammarTemplateTest-MOUNTEDCanyonRun
+export=GrammarTemplateTestMOUNTEDCanyon_v1.mp4 complete=true
