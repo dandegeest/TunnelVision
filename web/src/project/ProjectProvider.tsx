@@ -52,6 +52,8 @@ import {
   projectWithLatestJourneyTakes,
   projectWithDeletedTake,
   projectWithSelectedTake,
+  projectWithSelectedTakeRow,
+  projectWithDeletedTakeRow,
 } from "./takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
 import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from "./current-cut";
@@ -190,12 +192,16 @@ type ProjectContextValue = {
   shootJourney: (journeyId: string, intent?: GenerationIntent) => Promise<void>;
   shootAllJourneys: (intent: GenerationIntent) => Promise<void>;
   selectTake: (journeyId: string, takeId: string) => void;
+  selectTakeRow: (rowIndex: number) => void;
   deleteTake: (journeyId: string, takeId: string) => void;
+  deleteTakeRow: (rowIndex: number) => void;
   cutPlaybackJourneyId: string | null;
   cutStartOffset: number;
+  cutSeekNonce: number;
   playCurrentCut: () => void;
   playCurrentCutFromStart: () => void;
   pauseCurrentCut: () => void;
+  seekCutStart: () => void;
   seekCutPrevious: () => void;
   seekCutNext: () => void;
   advanceCutClip: () => void;
@@ -288,6 +294,7 @@ export function ProjectProvider({
   const [playing, setPlaying] = useState(initialPlaying);
   const [cutPlaybackJourneyId, setCutPlaybackJourneyId] = useState<string | null>(initialCutPlaybackJourneyId);
   const [cutStartOffset, setCutStartOffset] = useState(0);
+  const [cutSeekNonce, setCutSeekNonce] = useState(0);
   const [downloadingCut, setDownloadingCut] = useState(false);
   const assembledCutRef = useRef<{ fingerprint: string; result: MovieExportResult } | null>(null);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>(initialDirectorStatus);
@@ -1148,8 +1155,21 @@ export function ProjectProvider({
     [applyProject],
   );
 
+  const selectTakeRow = useCallback(
+    (rowIndex: number) => {
+      applyProject(projectWithSelectedTakeRow(projectRef.current, rowIndex));
+    },
+    [applyProject],
+  );
+
   const deleteTake = useCallback((journeyId: string, takeId: string) => {
     const next = projectWithDeletedTake(projectRef.current, journeyId, takeId);
+    projectRef.current = next;
+    setProject(next);
+  }, []);
+
+  const deleteTakeRow = useCallback((rowIndex: number) => {
+    const next = projectWithDeletedTakeRow(projectRef.current, rowIndex);
     projectRef.current = next;
     setProject(next);
   }, []);
@@ -1191,6 +1211,18 @@ export function ProjectProvider({
   const pauseCurrentCut = useCallback(() => {
     setPlaying(false);
   }, []);
+
+  const seekCutStart = useCallback(() => {
+    const clips = laidClipsForCut(projectRef.current);
+    if (clips.length === 0) {
+      return;
+    }
+    const first = clips[0]!;
+    setCutPlaybackJourneyId(first.clip.journeyId);
+    setCutStartOffset(0);
+    setPlayheadTime(first.laid.startTime);
+    setCutSeekNonce((nonce) => nonce + 1);
+  }, [laidClipsForCut]);
 
   const seekCutPrevious = useCallback(() => {
     const clips = laidClipsForCut(projectRef.current);
@@ -1920,12 +1952,16 @@ export function ProjectProvider({
       shootJourney,
       shootAllJourneys,
       selectTake,
+      selectTakeRow,
       deleteTake,
+      deleteTakeRow,
       cutPlaybackJourneyId,
       cutStartOffset,
+      cutSeekNonce,
       playCurrentCut,
       playCurrentCutFromStart,
       pauseCurrentCut,
+      seekCutStart,
       seekCutPrevious,
       seekCutNext,
       advanceCutClip,
@@ -2009,12 +2045,16 @@ export function ProjectProvider({
       shootJourney,
       shootAllJourneys,
       selectTake,
+      selectTakeRow,
       deleteTake,
+      deleteTakeRow,
       cutPlaybackJourneyId,
       cutStartOffset,
+      cutSeekNonce,
       playCurrentCut,
       playCurrentCutFromStart,
       pauseCurrentCut,
+      seekCutStart,
       seekCutPrevious,
       seekCutNext,
       advanceCutClip,

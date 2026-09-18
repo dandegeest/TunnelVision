@@ -99,7 +99,11 @@ describe("Shell header chrome", () => {
     expect(createAt).toBeGreaterThan(storyAt);
     expect(settingsAt).toBeGreaterThan(createAt);
     expect(project).toContain(">Journey prompt<");
+    expect(project).toContain(">Camera<");
     expect(project).toContain(">Destinations<");
+    expect(project.indexOf(">Camera<")).toBeLessThan(project.indexOf(">Destinations<"));
+    expect(project).toContain('aria-label="Camera"');
+    expect(project).not.toContain(">Camera grammar<");
     expect(project).toContain(">Options<");
     expect(project).not.toContain("Generate start destination");
     expect(project).toContain("Generate all destinations");
@@ -118,6 +122,15 @@ describe("Shell header chrome", () => {
     expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Agency"'));
     expect(project).toContain("text-[13px] font-semibold");
     expect(project).toContain('title="Hide project"');
+  });
+
+  it("puts skip-to-start on the playback transport", () => {
+    const html = renderShell({ view: "shoot" });
+    expect(html).toContain('aria-label="Current cut start"');
+    expect(html).toContain("Start of sequence");
+    expect(html).toContain("|◀◀");
+    expect(html).toContain("|◀");
+    expect(html).toContain("▶|");
   });
 
   it("swaps the Project panel to settings for Video and Debug mode", () => {

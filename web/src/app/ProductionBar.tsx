@@ -28,6 +28,7 @@ export function ProductionBar() {
     shootAllJourneys,
     playCurrentCut,
     pauseCurrentCut,
+    seekCutStart,
     seekCutPrevious,
     seekCutNext,
     downloadCurrentCut,
@@ -79,6 +80,16 @@ export function ProductionBar() {
         />
       </div>
       <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
+        <button
+          type="button"
+          className={`${transportButtonClass} min-w-10 w-10`}
+          disabled={!canPlay}
+          aria-label="Current cut start"
+          title="Start of sequence"
+          onClick={seekCutStart}
+        >
+          |◀◀
+        </button>
         <button
           type="button"
           className={transportButtonClass}

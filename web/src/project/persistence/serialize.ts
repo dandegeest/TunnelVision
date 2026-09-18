@@ -23,7 +23,7 @@ import type {
   ShootingFrameRef,
   StoryboardFrame,
 } from "../types";
-import { ensureDurableProjectId } from "./ids";
+import { ensureDurableProjectId, persistedTakeVideoMediaId } from "./ids";
 import {
   canonicalEntityPath,
   conversationEventsPath,
@@ -230,14 +230,9 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
     const persistedTakes = takes.map((take) => {
       const asset = take.videoUrl || take.providerOutputUrl ? takeAssetName(take.number ?? 1, extensionFromVideo(take)) : undefined;
       const relativePath = asset ? relativePosix("traversals", journey.id, asset) : undefined;
-      const fromPreview =
-        take.videoUrl?.startsWith("/api/runtime-media/")
-          ? take.videoUrl.slice("/api/runtime-media/".length)
-          : undefined;
-      const videoMediaId =
-        take.videoMediaId ??
-        fromPreview ??
-        (relativePath ? `video-${journey.id.toLowerCase()}-take-${take.number ?? 1}` : undefined);
+      const videoMediaId = relativePath
+        ? persistedTakeVideoMediaId(id, journey.id, take.number ?? 1)
+        : undefined;
       if (relativePath && videoMediaId) {
         rememberCopy(copies, seen, videoMediaId, relativePath, take.videoUrl ?? take.providerOutputUrl);
       }
@@ -494,11 +489,12 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       }
       const start = restoreShootingFrame(take.startShootingFrame as ShootingFrameRef | undefined, missingAssets, present);
       const end = restoreShootingFrame(take.endShootingFrame as ShootingFrameRef | undefined, missingAssets, present);
-      const videoMediaId = typeof take.videoMediaId === "string" ? take.videoMediaId : undefined;
+      const takeNumber = Number(take.number) || 1;
+      const videoMediaId = asset ? persistedTakeVideoMediaId(input.manifest.id, index.id, takeNumber) : undefined;
       return [
         {
           id: String(take.id ?? ""),
-          number: Number(take.number) || 1,
+          number: takeNumber,
           videoUrl: videoMediaId ? runtimeMediaPreviewUrl(videoMediaId) : undefined,
           videoMediaId,
           startCanonicalMediaId: typeof take.startCanonicalMediaId === "string" ? take.startCanonicalMediaId : undefined,

@@ -13,3 +13,9 @@ export function ensureDurableProjectId(id: string | undefined): string {
   }
   return createDurableProjectId();
 }
+
+/** Take video identities must be unique per Project. `video-a-b-take-2` collides across projects. */
+export function persistedTakeVideoMediaId(projectId: string, journeyId: string, takeNumber: number): string {
+  const durable = projectId && projectId !== UNSAVED_PROJECT_ID ? projectId : "unsaved";
+  return `video-${durable}-${journeyId.toLowerCase()}-take-${takeNumber}`;
+}

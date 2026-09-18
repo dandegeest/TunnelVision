@@ -78,6 +78,15 @@ describe("current cut", () => {
     expect(filled.slots[0]).toEqual(third);
   });
 
+  it("reloads a slot when the same take identity points at a different clip URL", () => {
+    const first = { key: "A-B:A-B:take:2", url: "/api/runtime-media/video-one" };
+    const swapped = { key: "A-B:A-B:take:2", url: "/api/runtime-media/video-two" };
+    const next = emptyCutPlaybackSlot();
+    const loaded = reconcileCutPlaybackSlots(0, [first, next], swapped, next);
+    expect(loaded.front).toBe(0);
+    expect(loaded.slots[0]).toEqual(swapped);
+  });
+
   it("formats a compact cut clock", () => {
     expect(formatCutClock(0)).toBe("0:00");
     expect(formatCutClock(75)).toBe("1:15");

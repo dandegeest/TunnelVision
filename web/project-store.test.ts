@@ -8,6 +8,7 @@ import { createRuntimeMediaRegistry, setActiveRuntimeMediaRegistry } from "./run
 import { createProjectStore } from "./project-store.ts";
 import { createNewProject } from "./src/project/new-project.ts";
 import { frameWithAppendedCanonicalTake } from "./src/project/canonical-takes.ts";
+import { persistedTakeVideoMediaId } from "./src/project/persistence/ids.ts";
 import { parseConversationEvents } from "./src/project/persistence/serialize.ts";
 import type { CameraMotionPlanV1, JourneyShotTake, Project } from "./src/project/types.ts";
 
@@ -241,13 +242,14 @@ describe("project store round-trip", () => {
         },
       ],
     };
-    await store.saveProject({ projectRoot, project, conversation: [] });
+    const saved = await store.saveProject({ projectRoot, project, conversation: [] });
     expect(existsSync(join(projectRoot, "traversals", "A-B", "take-01.mp4"))).toBe(true);
     expect(existsSync(join(projectRoot, "traversals", "A-B", "take-02.mp4"))).toBe(true);
     await store.saveProject({
       projectRoot,
       project: {
         ...project,
+        id: saved.project.id,
         journeys: [
           {
             ...project.journeys[0]!,
@@ -260,7 +262,62 @@ describe("project store round-trip", () => {
     });
     expect(existsSync(join(projectRoot, "traversals", "A-B", "take-01.mp4"))).toBe(true);
     expect(existsSync(join(projectRoot, "traversals", "A-B", "take-02.mp4"))).toBe(false);
-    expect(registry.get(take2.mediaId)).toBeUndefined();
+    expect(registry.get(persistedTakeVideoMediaId(saved.project.id, "A-B", 2))).toBeUndefined();
+  });
+
+  it("copies a new Take from its source clip, not a colliding same-name registry entry", async () => {
+    const root = await tempDir("tv-projects-video-identity-");
+    const runtimeDir = await tempDir("tv-runtime-video-identity-");
+    const registry = createRuntimeMediaRegistry(runtimeDir);
+    setActiveRuntimeMediaRegistry(registry);
+    const stillA = registry.register(PNG);
+    const stillB = registry.register(PNG);
+    const wrongBytes = Buffer.from("wrong-take-bytes");
+    const rightBytes = Buffer.from("right-take-bytes");
+    const wrongPath = join(runtimeDir, "wrong.mp4");
+    const rightPath = join(runtimeDir, "right.mp4");
+    await writeFile(wrongPath, wrongBytes);
+    await writeFile(rightPath, rightBytes);
+    const projectId = "tv-cccccccccccccccc";
+    const uniqueId = persistedTakeVideoMediaId(projectId, "A-B", 1);
+    registry.adopt({ mediaId: uniqueId, filePath: wrongPath, mimeType: "video/mp4" });
+    const right = registry.adopt({
+      mediaId: "upload-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      filePath: rightPath,
+      mimeType: "video/mp4",
+    });
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(root, "UniqueTakes");
+    await store.saveProject({
+      projectRoot,
+      project: {
+        ...createNewProject(),
+        id: projectId,
+        title: "UniqueTakes",
+        storyboard: [
+          { id: "A", label: "A", imageOrigin: "user", mediaId: stillA.mediaId, image: stillA.imageUrl },
+          { id: "B", label: "B", imageOrigin: "generated", mediaId: stillB.mediaId, image: stillB.imageUrl },
+        ],
+        journeys: [
+          {
+            id: "A-B",
+            startDestinationId: "A",
+            endDestinationId: "B",
+            durationSeconds: 5,
+            status: "rendered",
+            takes: [videoTake(1, uniqueId, right.imageUrl)],
+            selectedTakeId: "A-B:take:1",
+          },
+        ],
+      },
+      conversation: [],
+    });
+    const saved = await readFile(join(projectRoot, "traversals", "A-B", "take-01.mp4"));
+    expect(saved.equals(rightBytes)).toBe(true);
+    expect(saved.equals(wrongBytes)).toBe(false);
+    const opened = await store.openProject(projectRoot);
+    expect(opened.project.journeys[0]?.takes?.[0]?.videoMediaId).toBe(uniqueId);
+    expect(opened.project.journeys[0]?.takes?.[0]?.videoUrl).toBe(`/api/runtime-media/${uniqueId}`);
   });
 });
 

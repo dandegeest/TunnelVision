@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Plugin } from "vite";
 
-import { STARTING_FRAME_MAX_BYTES } from "./runtime-media-limits.ts";
+import { STARTING_FRAME_MAX_BYTES, runtimeMediaIdFromUrl } from "./runtime-media-limits.ts";
 import { isTrustedMediaIdShape } from "./src/project/trusted-media-id.ts";
 import {
   createRuntimeMediaRegistry,
@@ -48,10 +48,7 @@ export function readBodyWithLimit(req: IncomingMessage, maxBytes: number): Promi
   });
 }
 
-export function runtimeMediaIdFromUrl(url: string): string | undefined {
-  const match = /^\/api\/runtime-media\/([^/]+)$/.exec(url);
-  return match?.[1];
-}
+export { runtimeMediaIdFromUrl } from "./runtime-media-limits.ts";
 
 export async function handleRuntimeMediaRequest(
   req: IncomingMessage,

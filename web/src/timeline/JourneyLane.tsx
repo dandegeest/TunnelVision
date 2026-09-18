@@ -14,6 +14,7 @@ import {
   takeClipDurationSeconds,
   takeHasShootingFrames,
   takeMatchesCurrentCanonicals,
+  takesInRow,
 } from "../project/takes";
 import { requestedDurationSeconds } from "../project/shot-duration";
 import { useProject } from "../project/ProjectProvider";
@@ -158,11 +159,15 @@ function TakeRow({
 export function DeleteTakeDialog({
   journeyId,
   takeNumber,
+  title = "Delete take",
+  copy,
   onCancel,
   onConfirm,
 }: {
-  journeyId: string;
-  takeNumber: number;
+  journeyId?: string;
+  takeNumber?: number;
+  title?: string;
+  copy?: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -176,6 +181,10 @@ export function DeleteTakeDialog({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onCancel]);
+
+  const body =
+    copy ??
+    `Delete TAKE ${takeNumber} on ${journeyId}? This removes the take and its clip from the project.`;
 
   return (
     <div
@@ -194,11 +203,10 @@ export function DeleteTakeDialog({
           id="delete-take-title"
           className="text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase"
         >
-          Delete take
+          {title}
         </p>
         <p id="delete-take-copy" className="mt-2 text-sm leading-6 text-[#ece7df]">
-          Delete TAKE {takeNumber} on {journeyId}? This removes the take and its clip from the
-          project.
+          {body}
         </p>
         <div className="mt-4 flex justify-end gap-2">
           <button
@@ -274,16 +282,60 @@ export function JourneyLane({
   shootingJourneyIds?: readonly string[];
   onSelect: (journeyId: string, band: "motion" | "footage") => void;
 }) {
-  const { project, shootJourney, selectTake, deleteTake, zoom, shootingIntents } = useProject();
-  const [pendingDelete, setPendingDelete] = useState<{
-    journeyId: string;
-    takeId: string;
-    number: number;
-  } | null>(null);
+  const { project, shootJourney, selectTake, selectTakeRow, deleteTake, deleteTakeRow, zoom, shootingIntents } =
+    useProject();
+  const [pendingDelete, setPendingDelete] = useState<
+    | { kind: "take"; journeyId: string; takeId: string; number: number }
+    | { kind: "row"; rowIndex: number; count: number }
+    | null
+  >(null);
   const laneHeight = journeyLaneHeight(projectJourneys, selection, shootingJourneyIds ?? []);
+  const takeRowCount = projectJourneys.reduce(
+    (max, journey) => Math.max(max, journeyTakes(journey).length),
+    0,
+  );
   return (
     <>
     <div className="absolute inset-x-0 z-[1]" style={{ top: JOURNEY_LANE_TOP, height: laneHeight }}>
+      {Array.from({ length: takeRowCount }, (_, rowIndex) => (
+        <div
+          key={`take-row-${rowIndex}`}
+          className="absolute z-[4] flex h-7 items-center"
+          style={{ top: takeRowTop(rowIndex), left: 4 }}
+        >
+          <button
+            type="button"
+            className="flex h-7 w-3.5 items-center justify-center rounded text-[#7d7466] outline-none hover:bg-[#1c1a16] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+            aria-label={`Select take ${rowIndex + 1} on every segment`}
+            title="Select this take on every segment"
+            onClick={() => selectTakeRow(rowIndex)}
+          >
+            <span aria-hidden className="grid grid-cols-2 gap-[2px]">
+              <span className="h-[3px] w-[3px] rounded-full bg-current" />
+              <span className="h-[3px] w-[3px] rounded-full bg-current" />
+              <span className="h-[3px] w-[3px] rounded-full bg-current" />
+              <span className="h-[3px] w-[3px] rounded-full bg-current" />
+              <span className="h-[3px] w-[3px] rounded-full bg-current" />
+              <span className="h-[3px] w-[3px] rounded-full bg-current" />
+            </span>
+          </button>
+          <button
+            type="button"
+            className="flex h-[18px] w-[18px] items-center justify-center rounded text-[12px] leading-none text-[#9a8f7e] outline-none hover:bg-[#2a2620] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+            aria-label={`Delete take ${rowIndex + 1} on every segment`}
+            title="Delete this take on every segment"
+            onClick={() => {
+              const count = takesInRow(project, rowIndex).length;
+              if (count === 0) {
+                return;
+              }
+              setPendingDelete({ kind: "row", rowIndex, count });
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
       {journeys.map((laid) => {
         const journey = projectJourneys.find((item) => item.id === laid.journeyId);
         if (!journey) {
@@ -350,6 +402,7 @@ export function JourneyLane({
                     ? () => {
                         if (take.id === current?.id) {
                           setPendingDelete({
+                            kind: "take",
                             journeyId: journey.id,
                             takeId: take.id!,
                             number: take.number ?? 1,
@@ -402,13 +455,23 @@ export function JourneyLane({
         );
       })}
     </div>
-    {pendingDelete ? (
+    {pendingDelete?.kind === "take" ? (
       <DeleteTakeDialog
         journeyId={pendingDelete.journeyId}
         takeNumber={pendingDelete.number}
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           deleteTake(pendingDelete.journeyId, pendingDelete.takeId);
+          setPendingDelete(null);
+        }}
+      />
+    ) : pendingDelete?.kind === "row" ? (
+      <DeleteTakeDialog
+        title="Delete take"
+        copy={`Delete this take on every segment? This removes ${pendingDelete.count} take${pendingDelete.count === 1 ? "" : "s"} and ${pendingDelete.count === 1 ? "its clip" : "their clips"} from the project.`}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          deleteTakeRow(pendingDelete.rowIndex);
           setPendingDelete(null);
         }}
       />

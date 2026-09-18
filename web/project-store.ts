@@ -4,6 +4,7 @@ import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { downloadClipToFile } from "./export-movie.ts";
+import { runtimeMediaIdFromUrl } from "./runtime-media-limits.ts";
 import {
   getActiveRuntimeMediaRegistry,
   type RuntimeMediaRecord,
@@ -21,7 +22,7 @@ import {
   TRAVERSALS_DIR,
   uniqueProjectFolderName,
 } from "./src/project/persistence/paths.ts";
-import { ensureDurableProjectId } from "./src/project/persistence/ids.ts";
+import { ensureDurableProjectId, persistedTakeVideoMediaId } from "./src/project/persistence/ids.ts";
 import { parseManifest, ProjectSchemaError } from "./src/project/persistence/schema.ts";
 import {
   conversationEventsText,
@@ -165,7 +166,11 @@ async function copyMediaIntoProject(
     return;
   }
   await mkdir(dirname(dest), { recursive: true });
-  const runtime = getActiveRuntimeMediaRegistry()?.get(mediaId);
+  const registry = getActiveRuntimeMediaRegistry();
+  const sourceRuntimeId = sourceUrl ? runtimeMediaIdFromUrl(sourceUrl) : undefined;
+  const fromSource = sourceRuntimeId ? registry?.get(sourceRuntimeId) : undefined;
+  const fromName = registry?.get(mediaId);
+  const runtime = fromSource ?? fromName;
   if (runtime) {
     await copyFile(runtime.filePath, dest);
     return;
@@ -222,6 +227,27 @@ function adoptProjectMedia(projectRoot: string, mediaId: string, relativePath: s
     mimeType: mimeForPath(filePath),
   };
   registry.adopt(record);
+}
+
+function adoptManifestMedia(projectRoot: string, projectId: string, media: Record<string, string> | undefined) {
+  for (const [mediaId, relativePath] of Object.entries(media ?? {})) {
+    if (!isSafeProjectRelativePath(relativePath)) {
+      continue;
+    }
+    const abs = join(projectRoot, relativePath);
+    if (!existsSync(abs)) {
+      continue;
+    }
+    adoptProjectMedia(projectRoot, mediaId, relativePath);
+    const takeMatch = /^traversals\/([^/]+)\/take-(\d+)\.[^.]+$/i.exec(relativePath);
+    if (!takeMatch) {
+      continue;
+    }
+    const uniqueId = persistedTakeVideoMediaId(projectId, takeMatch[1], Number(takeMatch[2]));
+    if (uniqueId !== mediaId) {
+      adoptProjectMedia(projectRoot, uniqueId, relativePath);
+    }
+  }
 }
 
 export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
@@ -330,11 +356,7 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
         projectRoot,
         new Set(documents.mediaCopies.map((copy) => copy.relativePath)),
       );
-      for (const [mediaId, relativePath] of Object.entries(documents.manifest.media)) {
-        if (await pathExists(join(projectRoot, relativePath))) {
-          adoptProjectMedia(projectRoot, mediaId, relativePath);
-        }
-      }
+      adoptManifestMedia(projectRoot, documents.manifest.id, documents.manifest.media);
       return {
         path: projectRoot,
         project: { ...input.project, id: documents.manifest.id, title: documents.manifest.name },
@@ -375,14 +397,7 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
         traversals,
         assetExists: (relativePath) => existsSync(join(root, relativePath)),
       });
-      for (const [mediaId, relativePath] of Object.entries(manifest.media ?? {})) {
-        if (!isSafeProjectRelativePath(relativePath)) {
-          continue;
-        }
-        if (await pathExists(join(root, relativePath))) {
-          adoptProjectMedia(root, mediaId, relativePath);
-        }
-      }
+      adoptManifestMedia(root, manifest.id, manifest.media);
       let conversation: ConversationEntry[] = [];
       try {
         conversation = parseConversationEvents(await readFile(join(root, conversationEventsPath()), "utf8"));

@@ -414,6 +414,37 @@ export function projectWithSelectedTake(project: Project, journeyId: string, tak
   };
 }
 
+/** Select the Take at `rowIndex` on every journey that has one. Playhead stays put. */
+export function projectWithSelectedTakeRow(project: Project, rowIndex: number): Project {
+  let next = project;
+  for (const journey of project.journeys) {
+    const take = journeyTakes(journey)[rowIndex];
+    if (take?.id) {
+      next = projectWithSelectedTake(next, journey.id, take.id);
+    }
+  }
+  return next;
+}
+
+export function takesInRow(
+  project: Project,
+  rowIndex: number,
+): { journeyId: string; takeId: string }[] {
+  return project.journeys.flatMap((journey) => {
+    const take = journeyTakes(journey)[rowIndex];
+    return take?.id ? [{ journeyId: journey.id, takeId: take.id }] : [];
+  });
+}
+
+/** Delete the Take at `rowIndex` on every journey that has one. */
+export function projectWithDeletedTakeRow(project: Project, rowIndex: number): Project {
+  let next = project;
+  for (const { journeyId, takeId } of takesInRow(project, rowIndex)) {
+    next = projectWithDeletedTake(next, journeyId, takeId);
+  }
+  return next;
+}
+
 export function patchSelectedTake(
   journey: JourneyShot,
   patch: Partial<JourneyShotTake>,

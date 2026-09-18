@@ -27,6 +27,7 @@ import {
 } from "./CamotionOverlay";
 import type { OverlayLayers } from "../project/camotion-overlay";
 import {
+  currentCutClips,
   cutPlaybackSlotFromClip,
   nextCurrentCutClip,
   reconcileCutPlaybackSlots,
@@ -263,6 +264,7 @@ function CutPlaybackVideos({
   currentUrl,
   nextClip,
   startOffset,
+  seekNonce,
   playing,
   poster,
   journeyId,
@@ -275,6 +277,7 @@ function CutPlaybackVideos({
   currentUrl: string;
   nextClip: ReturnType<typeof nextCurrentCutClip>;
   startOffset: number;
+  seekNonce: number;
   playing: boolean;
   poster?: string;
   journeyId: string;
@@ -298,7 +301,8 @@ function CutPlaybackVideos({
     if (reconciled.front !== front) {
       setFront(reconciled.front);
     }
-    if (reconciled.slots[0].key !== slots[0].key || reconciled.slots[1].key !== slots[1].key) {
+    if (reconciled.slots[0].key !== slots[0].key || reconciled.slots[1].key !== slots[1].key
+      || reconciled.slots[0].url !== slots[0].url || reconciled.slots[1].url !== slots[1].url) {
       setSlots(reconciled.slots);
     }
   }, [currentKey, currentUrl, front, nextSlot.key, nextSlot.url, slots]);
@@ -315,6 +319,17 @@ function CutPlaybackVideos({
       visible.pause();
     }
   }, [front, playing, currentKey]);
+
+  useEffect(() => {
+    if (seekNonce === 0) {
+      return;
+    }
+    const visible = refs[front].current;
+    if (!visible) {
+      return;
+    }
+    visible.currentTime = startOffset;
+  }, [front, seekNonce, startOffset]);
 
   useEffect(() => {
     const hidden = refs[front === 0 ? 1 : 0].current;
@@ -389,6 +404,7 @@ export function Preview() {
     syncJourneyClipDuration,
     cutPlaybackJourneyId,
     cutStartOffset,
+    cutSeekNonce,
     advanceCutClip,
     select,
   } = useProject();
@@ -430,6 +446,10 @@ export function Preview() {
   const currentTake = playbackJourney ? selectedTake(playbackJourney) : undefined;
   const videoUrl = playbackJourney ? selectedTakeVideoUrl(playbackJourney) : undefined;
   const showVideo = Boolean(showFootage && playable && videoUrl && playbackJourney);
+  const currentCutClip = playbackJourney
+    ? currentCutClips(project).find((clip) => clip.journeyId === playbackJourney.id)
+    : undefined;
+  const currentCutSlot = cutPlaybackSlotFromClip(currentCutClip);
   const showStills = showMotion && canShowStills;
   const destination = startDestination;
   const shootEmpty = layout.occurrences.length === 0;
@@ -481,6 +501,14 @@ export function Preview() {
       video.pause();
     }
   }, [playing, showVideo, playbackJourney?.id, videoUrl]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || cutSeekNonce === 0) {
+      return;
+    }
+    video.currentTime = cutStartOffset;
+  }, [cutSeekNonce, cutStartOffset]);
 
   const title = shootEmpty
     ? "Preview"
@@ -589,10 +617,12 @@ export function Preview() {
         >
         {showVideo && videoUrl && playbackJourney && cutPlaybackJourneyId ? (
           <CutPlaybackVideos
-            currentKey={`${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}`}
-            currentUrl={videoUrl}
+            key={project.id}
+            currentKey={currentCutSlot.key}
+            currentUrl={currentCutSlot.url || videoUrl}
             nextClip={nextCurrentCutClip(project, cutPlaybackJourneyId)}
             startOffset={cutStartOffset}
+            seekNonce={cutSeekNonce}
             playing={playing}
             poster={destinationById(project.destinations, playbackJourney.startDestinationId)?.image}
             journeyId={playbackJourney.id}
@@ -604,7 +634,7 @@ export function Preview() {
         ) : showVideo && videoUrl && playbackJourney ? (
           <video
             ref={videoRef}
-            key={`${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}:${cutStartOffset}`}
+            key={`${project.id}:${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}:${videoUrl}:${cutStartOffset}`}
             className="rounded bg-black"
             src={videoUrl}
             poster={destinationById(project.destinations, playbackJourney.startDestinationId)?.image}

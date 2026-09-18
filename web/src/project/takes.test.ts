@@ -19,6 +19,8 @@ import {
   projectWithDeletedTake,
   projectWithLatestJourneyTakes,
   projectWithSelectedTake,
+  projectWithSelectedTakeRow,
+  projectWithDeletedTakeRow,
   selectedTake,
   selectedTakeVideoUrl,
   TAKE_PREVIOUS_CANONICALS_COPY,
@@ -361,6 +363,45 @@ describe("selection changes current footage", () => {
     expect(journey.take?.videoUrl).toBe("https://example.test/take-1.mp4");
     expect(journey.durationSeconds).toBe(6);
     expect(journeyTakes(journey)[1]?.videoUrl).toBe("https://example.test/take-2.mp4");
+  });
+
+  it("selects the same take row on every journey that has that row", () => {
+    let project = createForestProject();
+    project = projectWithAppendedTake(project, "A-B", {
+      take,
+      videoUrl: "https://example.test/ab-2.mp4",
+    });
+    project = projectWithAppendedTake(project, "B-C", {
+      take,
+      videoUrl: "https://example.test/bc-2.mp4",
+    });
+    project = projectWithSelectedTake(project, "A-B", takeId("A-B", 1));
+    const selected = projectWithSelectedTakeRow(project, 1);
+    expect(selectedTake(selected.journeys.find((journey) => journey.id === "A-B")!)?.number).toBe(2);
+    expect(selectedTake(selected.journeys.find((journey) => journey.id === "B-C")!)?.number).toBe(2);
+    expect(selectedTake(selected.journeys.find((journey) => journey.id === "C-D")!)?.number).toBe(1);
+  });
+
+  it("deletes the same take row on every journey that has that row", () => {
+    let project = createForestProject();
+    project = projectWithAppendedTake(project, "A-B", {
+      take,
+      videoUrl: "https://example.test/ab-2.mp4",
+    });
+    project = projectWithAppendedTake(project, "B-C", {
+      take,
+      videoUrl: "https://example.test/bc-2.mp4",
+    });
+    const deleted = projectWithDeletedTakeRow(project, 1);
+    expect(journeyTakes(deleted.journeys.find((journey) => journey.id === "A-B")!).map((item) => item.number)).toEqual([
+      1,
+    ]);
+    expect(journeyTakes(deleted.journeys.find((journey) => journey.id === "B-C")!).map((item) => item.number)).toEqual([
+      1,
+    ]);
+    expect(journeyTakes(deleted.journeys.find((journey) => journey.id === "C-D")!).map((item) => item.number)).toEqual([
+      1,
+    ]);
   });
 
   it("reads Kling 5s and Pruna 5s from the Take, or from the generator when duration is missing", () => {

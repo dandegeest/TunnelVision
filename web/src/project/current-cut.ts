@@ -108,10 +108,14 @@ export function reconcileCutPlaybackSlots(
 ): { front: 0 | 1; slots: [CutPlaybackSlot, CutPlaybackSlot] } {
   const back = (front === 0 ? 1 : 0) as 0 | 1;
   if (current.key && slots[back].key === current.key) {
-    return { front: back, slots: [slots[0], slots[1]] };
+    const nextSlots: [CutPlaybackSlot, CutPlaybackSlot] = [slots[0], slots[1]];
+    if (nextSlots[back].url !== current.url) {
+      nextSlots[back] = current;
+    }
+    return { front: back, slots: nextSlots };
   }
   const nextSlots: [CutPlaybackSlot, CutPlaybackSlot] = [slots[0], slots[1]];
-  if (nextSlots[front].key !== current.key) {
+  if (nextSlots[front].key !== current.key || nextSlots[front].url !== current.url) {
     nextSlots[front] = current;
     nextSlots[back] = next;
     return { front, slots: nextSlots };

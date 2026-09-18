@@ -116,6 +116,40 @@ describe("project persistence schema", () => {
     expect(documents.manifest.settings.cameraGrammar).toBe("pov");
     expect(hydrated.project.cameraGrammar).toBe("pov");
     expect(hydrated.warnings.missingAssets).toEqual([]);
+    expect(journey.takes?.[0]?.videoMediaId).toBe(
+      `video-${documents.manifest.id}-a-b-take-1`,
+    );
+    expect(journey.takes?.[1]?.videoMediaId).toBe(
+      `video-${documents.manifest.id}-a-b-take-2`,
+    );
+  });
+
+  it("does not reuse video-a-b-take-N identities across Projects", () => {
+    const takeOne = take(1, "upload-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+    const projectA = {
+      ...createNewProject(),
+      id: "tv-aaaaaaaaaaaaaaaa",
+      journeys: [
+        {
+          id: "A-B",
+          startDestinationId: "A",
+          endDestinationId: "B",
+          durationSeconds: 5,
+          status: "rendered" as const,
+          takes: [takeOne],
+        },
+      ],
+    };
+    const projectB = { ...projectA, id: "tv-bbbbbbbbbbbbbbbb" };
+    const idA = serializeProjectDocuments({ project: projectA }).traversals["A-B"] as {
+      takes: { videoMediaId: string }[];
+    };
+    const idB = serializeProjectDocuments({ project: projectB }).traversals["A-B"] as {
+      takes: { videoMediaId: string }[];
+    };
+    expect(idA.takes[0]?.videoMediaId).toBe("video-tv-aaaaaaaaaaaaaaaa-a-b-take-1");
+    expect(idB.takes[0]?.videoMediaId).toBe("video-tv-bbbbbbbbbbbbbbbb-a-b-take-1");
+    expect(idA.takes[0]?.videoMediaId).not.toBe(idB.takes[0]?.videoMediaId);
   });
 
   it("opens when optional event history is missing and reports a missing asset", () => {

@@ -1035,6 +1035,10 @@ describe("Shoot footage inspector", () => {
     expect(html).toContain("+ NEW TAKE");
     expect(html).toContain('aria-label="Take 1 A-B"');
     expect(html).toContain('aria-label="Take 2 A-B"');
+    expect(html).toContain('aria-label="Select take 1 on every segment"');
+    expect(html).toContain('aria-label="Select take 2 on every segment"');
+    expect(html).toContain('aria-label="Delete take 1 on every segment"');
+    expect(html).toContain('aria-label="Delete take 2 on every segment"');
     expect(html).toContain('aria-label="Delete take 1 A-B"');
     expect(html).toContain('aria-label="Delete take 2 A-B"');
     expect(html).toContain("group-hover:opacity-100");
@@ -1050,6 +1054,22 @@ describe("Shoot footage inspector", () => {
     );
     expect(html).toContain('role="alertdialog"');
     expect(html).toContain("Delete TAKE 2 on A-B?");
+    expect(html).toContain("Cancel");
+    expect(html).toContain("Delete");
+  });
+
+  it("asks before deleting a take on every segment", () => {
+    const html = renderToStaticMarkup(
+      <DeleteTakeDialog
+        title="Delete take"
+        copy="Delete this take on every segment? This removes 5 takes and their clips from the project."
+        onCancel={() => undefined}
+        onConfirm={() => undefined}
+      />,
+    );
+    expect(html).toContain('role="alertdialog"');
+    expect(html).toContain("Delete this take on every segment?");
+    expect(html).toContain("5 takes and their clips");
     expect(html).toContain("Cancel");
     expect(html).toContain("Delete");
   });
