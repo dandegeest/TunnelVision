@@ -216,6 +216,7 @@ export {
   locomotionPaceList,
   locomotionBaseline,
   composeShootingPrompt,
+  composeJourneyShootingPrompt,
   splitShootingPrompt,
   extremePaceLeadIn,
   EXTREME_PACE_LEAD_INS,

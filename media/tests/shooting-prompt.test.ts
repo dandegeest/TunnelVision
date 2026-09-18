@@ -8,6 +8,7 @@ import {
   LOCOMOTION_PACE_PHRASES,
   TUNNELVISION_LOCOMOTION_BASELINE,
   TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
+  composeJourneyShootingPrompt,
   composeShootingPrompt,
   locomotionBaseline,
   splitShootingPrompt,
@@ -157,4 +158,14 @@ test("composeShootingPrompt leads with extreme slow-motion and hyper-speed instr
     addition: "",
     baseline: slowMo,
   });
+});
+
+test("composeJourneyShootingPrompt uses the selected grammar baseline, not POV by default for FOLLOW", () => {
+  const addition = "Stay behind the receding silver train.";
+  const follow = composeJourneyShootingPrompt(addition, "fast", "follow");
+  assert.equal(follow, `${addition}\n${locomotionBaseline("fast", "follow")}`);
+  assert.match(follow, /Invisible objective camera continuously following/);
+  assert.doesNotMatch(follow, /First person POV camera continuously moving forward/);
+  const pov = composeJourneyShootingPrompt(addition, "fast", "pov");
+  assert.match(pov, /First person POV camera continuously moving forward/);
 });

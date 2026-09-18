@@ -15,6 +15,7 @@ import {
   CANONICAL_CONSTRUCTION_SECTION_ORDER,
   WORLD_CONTINUITY,
   assembleCanonicalConstructionPrompt,
+  assembleCanonicalRepairPrompt,
   assembleOpeningFramePrompt,
   canonicalConstructionSectionStarts,
 } from "../src/prompts/canonical-destination.ts";
@@ -50,14 +51,20 @@ test("canonical construction sections follow destination → spatial → route �
         `${grammar} section ${CANONICAL_CONSTRUCTION_SECTION_ORDER[index]} must precede ${CANONICAL_CONSTRUCTION_SECTION_ORDER[index + 1]}`,
       );
     }
-    assert.ok(prompt.trim().endsWith("or adopt its overall lighting or style."));
+    assert.ok(
+      prompt
+        .trim()
+        .endsWith(
+          "or drive the composition, lighting, or style of the current destination.",
+        ),
+    );
   }
 });
 
 test("each grammar injects its still law once and keeps filmmaker subject/beats intact", () => {
   const constraints: Record<CameraGrammar, RegExp> = {
     pov: /Maintain an unembodied first-person POV/,
-    follow: /invisible objective camera in pursuit of a persistent subject/,
+    follow: /invisible objective camera behind a persistent subject/,
     lead: /ahead of a persistent subject, facing that subject/,
     mounted: /physically attached to the moving subject, vehicle, or object/,
   };
@@ -84,10 +91,10 @@ test("mixed-grammar wording is not introduced into a single construction prompt"
   assert.doesNotMatch(follow, /This is a MOUNTED viewpoint/);
   assert.doesNotMatch(follow, /unembodied first-person POV/);
   const lead = assembleCanonicalConstructionPrompt({ ...CANYON_CONSTRUCT, cameraGrammar: "lead" });
-  assert.doesNotMatch(lead, /This is a FOLLOW viewpoint from an invisible objective camera in pursuit/);
+  assert.doesNotMatch(lead, /This is a FOLLOW viewpoint from an invisible objective camera behind/);
   assert.doesNotMatch(lead, /This is a MOUNTED viewpoint/);
   const mounted = assembleCanonicalConstructionPrompt({ ...CANYON_CONSTRUCT, cameraGrammar: "mounted" });
-  assert.doesNotMatch(mounted, /This is a FOLLOW viewpoint from an invisible objective camera in pursuit/);
+  assert.doesNotMatch(mounted, /This is a FOLLOW viewpoint from an invisible objective camera behind/);
   assert.doesNotMatch(mounted, /This is a LEAD viewpoint from an invisible objective camera/);
 });
 
@@ -109,4 +116,18 @@ test("representative canyon construction snapshots", () => {
     });
     assert.equal(prompt, loadSnapshot(`canonical-construct-${grammar}.txt`));
   }
+});
+
+test("FOLLOW canonical repair keeps pursuit geometry over far-field or aesthetic fixes", () => {
+  const prompt = assembleCanonicalRepairPrompt({
+    role: "end",
+    intent: "Keep following the train through the industrial corridor.",
+    visualDescription: "The silver train receding through the industrial yard.",
+    instruction: "Restore a continuously shootable route from the station.",
+    cameraGrammar: "follow",
+  });
+  assert.match(prompt, /Preserve FOLLOW geometry/);
+  assert.match(prompt, /Do not convert a pursuit still into a lead facing the front/);
+  assert.match(prompt, /behind a persistent subject/);
+  assert.doesNotMatch(prompt, /SPATIAL PROGRESSION IS PRIMARY/);
 });

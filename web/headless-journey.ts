@@ -249,10 +249,11 @@ export function createHeadlessJourneyOperations(input: {
         request.startMediaId,
         request.endMediaId,
         journey.cinematographer,
+        { cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar) },
       );
       const staged = await stagePreparedMotionPlan({
         repoRoot: input.repoRoot,
-        body: { ...body, cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar) },
+        body,
         renderFrame,
       });
       return projectWithMotionPlan(project, journeyId, {

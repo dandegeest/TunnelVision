@@ -148,6 +148,15 @@ describe("per-segment Motion Plan", () => {
     expect(request.endPlan?.exposure.strength).toBe(0.06);
     expect(request.startPlan?.exposure.strength).toBe(0.06);
     expect(request.endPlan?.exposure.samples).toBe(16);
+    expect(request.cameraGrammar).toBe("pov");
+  });
+
+  it("forwards the project camera grammar so staging does not fall back to POV", () => {
+    const request = motionPlanStageRequestFromAssessment("A-B", "upload-a", "upload-b", assessment, {
+      cameraGrammar: "follow",
+    });
+    expect(request.cameraGrammar).toBe("follow");
+    expect(request.segmentPromptAddition).toBe(assessment.segmentPromptAddition);
   });
 
   it("maps every CM pace onto CameraMotionPlan exposure strength", () => {

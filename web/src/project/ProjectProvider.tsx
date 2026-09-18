@@ -110,7 +110,7 @@ import {
   type JourneyAgentSnapshot,
 } from "./journey-agent";
 import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
-import { projectWithCameraGrammar } from "./camera-grammar";
+import { cameraGrammarFromProject, projectWithCameraGrammar } from "./camera-grammar";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function suggestedProjectName(project: Project): string {
@@ -900,7 +900,10 @@ export function ProjectProvider({
               request.startMediaId,
               request.endMediaId,
               assessment,
-              debugOnRef.current,
+              {
+                cameraGrammar: cameraGrammarFromProject(current),
+                debug: debugOnRef.current,
+              },
             ),
           );
           if (projectSessionRef.current !== session) {

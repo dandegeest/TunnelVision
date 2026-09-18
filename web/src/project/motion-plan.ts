@@ -1,4 +1,8 @@
 import { cameraMotionPlansFromAssessment } from "../../../media/src/cinematographer/camera-motion-plan.ts";
+import {
+  cameraGrammarFromUnknown,
+  type CameraGrammar,
+} from "../../../media/src/cinematographer/camera-grammar.ts";
 import { unshotDurationSeconds } from "./shot-duration";
 import {
   actualFrameForDestination,
@@ -6,6 +10,7 @@ import {
   hasCurrentMotionPlan,
   hasStagedMotionPlan,
 } from "./cinematographer";
+import { cameraGrammarFromProject } from "./camera-grammar";
 import { journeyTakes, selectedTake } from "./takes";
 import type { CinematographerAssessment, JourneyShot, Project, SegmentMotionPlan } from "./types";
 
@@ -19,6 +24,7 @@ export type StageMotionPlanRequest = {
   pace: SegmentMotionPlan["pace"];
   startPlan?: SegmentMotionPlan["startPlan"];
   endPlan?: SegmentMotionPlan["endPlan"];
+  cameraGrammar?: CameraGrammar;
   debug?: boolean;
 };
 
@@ -77,6 +83,7 @@ export function motionPlanRequestFromProject(
     start.mediaId,
     end.mediaId,
     journey.cinematographer,
+    { cameraGrammar: cameraGrammarFromProject(project) },
   );
 }
 
@@ -86,7 +93,7 @@ export function motionPlanStageRequestFromAssessment(
   startMediaId: string,
   endMediaId: string,
   assessment: CinematographerAssessment,
-  debug?: boolean,
+  options?: { cameraGrammar?: CameraGrammar; debug?: boolean },
 ): StageMotionPlanRequest {
   const plans = cameraMotionPlansFromAssessment(assessment);
   return {
@@ -97,7 +104,8 @@ export function motionPlanStageRequestFromAssessment(
     pace: assessment.pace,
     startPlan: plans.start,
     endPlan: plans.end,
-    ...(debug ? { debug: true } : {}),
+    cameraGrammar: cameraGrammarFromUnknown(options?.cameraGrammar),
+    ...(options?.debug ? { debug: true } : {}),
   };
 }
 

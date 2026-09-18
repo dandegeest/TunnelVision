@@ -17,4 +17,4 @@ This is a spatial continuation of the same world, not a restyle and not an in-pl
 
 Far-field continuity:
 A narrow rock tunnel blasted through the canyon wall, with a bright opening at the far end.
-This is distant environmental information only. It may appear through an opening, path, or far field if physically appropriate. Do not arrive there, replace this destination with it, or adopt its overall lighting or style.
+This is optional distant environmental information only. Include it only if it fits naturally and spatially from the current destination viewpoint. It is acceptable for no far-field preview to appear. Do not force the next destination into the frame, and do not let it dominate, replace, or drive the composition, lighting, or style of the current destination.

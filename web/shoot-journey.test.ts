@@ -270,8 +270,32 @@ describe("shootPreparedJourney", () => {
       renderFrame: async () => PNG,
     });
     expect(staged.effectivePrompt.startsWith(addition)).toBe(true);
+    expect(staged.effectivePrompt).toMatch(/First person POV camera continuously moving forward/);
     expect(staged.startShootingFrame.mediaId).not.toBe(staged.endShootingFrame.mediaId);
     expect(registry.get(staged.startShootingFrame.mediaId)?.filePath).toBeDefined();
+  });
+
+  it("stages FOLLOW locomotion instead of falling back to POV", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-follow-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const addition = "Stay behind the receding silver train.";
+    const staged = await stagePreparedMotionPlan({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        segmentPromptAddition: addition,
+        pace: "fast",
+        cameraGrammar: "follow",
+      },
+      renderFrame: async () => PNG,
+    });
+    expect(staged.effectivePrompt).toBe(composeShootingPrompt(locomotionBaseline("fast", "follow"), addition, "fast"));
+    expect(staged.effectivePrompt).toMatch(/Invisible objective camera continuously following/);
+    expect(staged.effectivePrompt).not.toMatch(/First person POV camera continuously moving forward/);
   });
 
   it("executes Camotion with the mapped exposure for every CM pace", async () => {

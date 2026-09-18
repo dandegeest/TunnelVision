@@ -159,10 +159,10 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/Create this destination viewpoint:\nA dark cobblestone alley with warm lanterns/);
     expect(prompt).toMatch(/Move the camera from the source viewpoint:\nTrack forward through the lantern alley/);
     expect(prompt).toMatch(/Far-field continuity:/);
-    expect(prompt).toMatch(/distant environmental information only/);
-    expect(prompt).toMatch(/opening, path, or far field/);
+    expect(prompt).toMatch(/optional distant environmental information only/);
+    expect(prompt).toMatch(/acceptable for no far-field preview to appear/);
     expect(prompt).toMatch(/iron gates/);
-    expect(prompt).toMatch(/Do not arrive there, replace this destination with it, or adopt its overall lighting or style/);
+    expect(prompt).toMatch(/Do not force the next destination into the frame/);
     expect(prompt).not.toMatch(/following destination/i);
     expect(prompt).not.toMatch(/Look ahead only/);
     expect(prompt).not.toMatch(/The next viewpoint should look like this:/);
@@ -179,7 +179,9 @@ describe("destination construction prompt", () => {
     expect(intentAt).toBeLessThan(grammarAt);
     expect(grammarAt).toBeLessThan(worldAt);
     expect(worldAt).toBeLessThan(lookAt);
-    expect(prompt.trim().endsWith("or adopt its overall lighting or style.")).toBe(true);
+    expect(
+      prompt.trim().endsWith("or drive the composition, lighting, or style of the current destination."),
+    ).toBe(true);
   });
 
   it("keeps useful next-place visual detail as far-field without treating it as a second target", () => {
@@ -843,6 +845,21 @@ describe("canonical repair request", () => {
     expect(prompt).toMatch(/Do not make the two images look alike/);
     expect(prompt).toMatch(/contradicts the immediate environment/);
     expect(prompt).not.toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
+    expect(prompt).toMatch(/Preserve this destination's camera grammar/);
+  });
+
+  it("locks FOLLOW geometry on canonical repair instead of trading it for far-field or lighting", () => {
+    const prompt = canonicalRepairPrompt({
+      role: "end",
+      intent: "Keep following the train through the industrial corridor.",
+      visualDescription: "The silver train receding through the industrial yard.",
+      instruction: "Restore a continuously shootable route from the station.",
+      cameraGrammar: "follow",
+    });
+    expect(prompt).toMatch(/Preserve FOLLOW geometry/);
+    expect(prompt).toMatch(/Do not convert a pursuit still into a lead/);
+    expect(prompt).toMatch(/behind a persistent subject/);
+    expect(prompt).not.toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
   });
 });
 
@@ -856,7 +873,7 @@ describe("camera grammar still conditioning", () => {
   it("conditions FOLLOW stills on a persistent subject rather than first-person POV", () => {
     const prompt = openingFrameGenerationPrompt("Follow the red car through the canyon.", "follow");
     expect(prompt).toMatch(/FOLLOW journey/);
-    expect(prompt).toMatch(/invisible objective camera is already in pursuit/);
+    expect(prompt).toMatch(/already behind the persistent subject/);
     expect(prompt).not.toMatch(/first-person POV journey/);
     const constructed = destinationConstructionPrompt({
       intent: "Continue along the canyon road.",
@@ -864,7 +881,7 @@ describe("camera grammar still conditioning", () => {
       cameraGrammar: "follow",
     });
     expect(constructed).toMatch(/FOLLOW viewpoint/);
-    expect(constructed).toMatch(/Do not overtake the subject/);
+    expect(constructed).toMatch(/Do not overtake the subject into a lead/);
   });
 
   it("conditions LEAD stills to stay ahead and facing the subject", () => {

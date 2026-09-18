@@ -39,15 +39,25 @@ test("POV baseline remains unembodied forward travel and follows the physical pa
 test("FOLLOW baseline preserves relationship, not a fixed distance", () => {
   const follow = locomotionBaselineTemplate("follow");
   assert.match(follow, /Invisible objective camera continuously following a persistent subject/);
+  assert.match(follow, /Stay behind the subject's travel/);
+  assert.match(follow, /keep the subject ahead of the camera, receding/);
   assert.match(follow, /Following distance may expand and contract naturally/);
   assert.match(follow, /subject may pull farther ahead/);
   assert.match(follow, /lag, catch up, drift, or bank/);
+  assert.match(follow, /Do not overtake into a lead facing the front, nose, or headlights/);
   assert.doesNotMatch(follow, /First person POV camera continuously moving forward/);
   assert.doesNotMatch(follow, /fixed distance of/);
   assert.match(follow, /Do not lock a fixed distance/);
   assert.match(follow, /Do not introduce a visible camera operator or a second traveler/);
   assert.match(directorGrammarResearchPrinciple("follow"), /not a fixed following distance/);
+  assert.match(directorGrammarResearchPrinciple("follow"), /from behind/);
   assert.match(cinematographerGrammarInstruction("follow"), /preserves the relationship, not a fixed distance/i);
+  assert.match(cinematographerGrammarInstruction("follow"), /LEAD, not elastic FOLLOW/);
+  assert.match(stillViewpointClause("follow"), /behind a persistent subject/);
+  assert.match(stillViewpointClause("follow"), /rear, aft, or trailing side/);
+  assert.match(stillViewpointClause("follow"), /Do not convert this into a lead facing the front/);
+  assert.match(constructionTravelClause("follow"), /remains behind the same persistent subject/);
+  assert.match(constructionTravelClause("follow"), /Do not overtake the subject into a lead/);
 });
 
 test("LEAD baseline is not rewritten by forward-only POV conditioning", () => {

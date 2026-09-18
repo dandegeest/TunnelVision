@@ -3,12 +3,12 @@ The same bright red sports car on a twisting canyon road, red-rock walls closing
 
 SPATIAL PROGRESSION IS PRIMARY.
 Render this canonical from a substantially progressed camera viewpoint. Do not render it from the source camera position. Nearby foreground geometry from the source must have passed behind the camera or be substantially repositioned. Reveal new terrain and environment ahead as a consequence of that movement.
-The destination is a spatially progressed FOLLOW viewpoint along the same route. The camera remains in pursuit of the same persistent subject. Framing and distance may breathe. Do not overtake the subject or lose the follow relationship. The required change is camera viewpoint displacement along the route, not a change of world.
+The destination is a spatially progressed FOLLOW viewpoint along the same route. The camera remains behind the same persistent subject, who remains ahead and receding. Framing and distance may breathe. Do not overtake the subject into a lead, face the front or headlights as the primary view, or lose the follow relationship. The required change is camera viewpoint displacement along the route, not a change of world.
 
 Move the camera from the source viewpoint:
 Advance along the twisting canyon road toward the rock tunnel.
 
-This is a FOLLOW viewpoint from an invisible objective camera in pursuit of a persistent subject. The subject is the visual and continuity anchor and should remain visible. Do not show a camera operator, a second traveler, or first-person through the subject's eyes. People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.
+This is a FOLLOW viewpoint from an invisible objective camera behind a persistent subject, in pursuit along the route. The subject is the visual and continuity anchor and should remain visible ahead of the camera, receding along the route. The readable cue is the rear, aft, or trailing side of the subject. Do not show a camera operator, a second traveler, or first-person through the subject's eyes. Do not convert this into a lead facing the front, nose, or headlights, or into a mounted bumper or hood. People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.
 
 Preserve the same physical world, materials, lighting character, and visual identity of the source image.
 Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene.
@@ -17,4 +17,4 @@ This is a spatial continuation of the same world, not a restyle and not an in-pl
 
 Far-field continuity:
 A narrow rock tunnel blasted through the canyon wall, with a bright opening at the far end.
-This is distant environmental information only. It may appear through an opening, path, or far field if physically appropriate. Do not arrive there, replace this destination with it, or adopt its overall lighting or style.
+This is optional distant environmental information only. Include it only if it fits naturally and spatially from the current destination viewpoint. It is acceptable for no far-field preview to appear. Do not force the next destination into the frame, and do not let it dominate, replace, or drive the composition, lighting, or style of the current destination.

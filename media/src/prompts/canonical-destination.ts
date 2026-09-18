@@ -51,7 +51,7 @@ export const WORLD_CONTINUITY = [
 export const FAR_FIELD_CONTINUITY_LEAD = "Far-field continuity:";
 
 export const FAR_FIELD_CONTINUITY_RULE =
-  "This is distant environmental information only. It may appear through an opening, path, or far field if physically appropriate. Do not arrive there, replace this destination with it, or adopt its overall lighting or style.";
+  "This is optional distant environmental information only. Include it only if it fits naturally and spatially from the current destination viewpoint. It is acceptable for no far-field preview to appear. Do not force the next destination into the frame, and do not let it dominate, replace, or drive the composition, lighting, or style of the current destination.";
 
 export function farFieldContinuitySection(details: string): string {
   const trimmed = details.replace(/\s+/g, " ").trim();
@@ -148,6 +148,10 @@ export function assembleCanonicalRepairPrompt(input: {
     input.role === "start"
       ? "Regenerate this START destination so it still depicts the same intended place, while establishing a plausible continuous route toward the opposite canonical."
       : "Regenerate this END destination so it still depicts the same intended arrival, while creating a stronger continuously shootable route from the established START.";
+  const grammarLock =
+    grammar === "follow"
+      ? "Preserve FOLLOW geometry: camera behind the subject, subject ahead and receding, rear/aft/trailing side readable. Do not convert a pursuit still into a lead facing the front, nose, or headlights in order to reduce far-field, change lighting, or improve aesthetics."
+      : "Preserve this destination's camera grammar. Do not sacrifice the camera–subject relationship to reduce far-field, change lighting, or improve aesthetics.";
   return joinPromptSections(
     [
       roleLine,
@@ -157,6 +161,7 @@ export function assembleCanonicalRepairPrompt(input: {
     ["Camera / spatial intent:", intent].join("\n"),
     [
       "The stills must belong to one continuously shootable physical space. Do not make the two images look alike. Do not replace this destination with the opposite place. Do not repair merely to improve aesthetics.",
+      grammarLock,
       `CM spatial repair: ${instruction}`,
       "The established START still, when supplied, is a spatial/geographic reference for the route, not a style match.",
     ].join("\n"),

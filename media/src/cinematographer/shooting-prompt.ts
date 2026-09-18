@@ -105,6 +105,15 @@ export function composeShootingPrompt(
   return [lead, addition, frozen].filter(Boolean).join("\n");
 }
 
+/** Shot choreography plus the grammar-specific filled locomotion baseline. */
+export function composeJourneyShootingPrompt(
+  segmentPromptAddition: string,
+  pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE,
+  grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR,
+): string {
+  return composeShootingPrompt(locomotionBaseline(pace, grammar), segmentPromptAddition, pace);
+}
+
 /** Split a composed video prompt for inspector display. Prefers the stored CM addition. */
 export function splitShootingPrompt(
   effectivePrompt: string,

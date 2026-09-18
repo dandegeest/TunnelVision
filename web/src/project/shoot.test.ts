@@ -159,6 +159,8 @@ describe("SHOOT gate and JourneyShot take", () => {
       generateAudio: false,
       startShootingMediaId: take.startShootingFrame.mediaId,
       endShootingMediaId: take.endShootingFrame.mediaId,
+      cameraGrammar: "pov",
+      effectivePrompt: motionPlan.effectivePrompt,
     });
     expect(shootRequestFromProject(prepared, "A-B").targetDurationSeconds).toBe(5);
     expect(shootRequestFromProject({ ...prepared, generateAudio: true }, "A-B").generateAudio).toBe(true);
