@@ -275,27 +275,64 @@ describe("shootPreparedJourney", () => {
     expect(registry.get(staged.startShootingFrame.mediaId)?.filePath).toBeDefined();
   });
 
-  it("stages FOLLOW locomotion instead of falling back to POV", async () => {
-    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-follow-")));
+  it("stages each camera grammar's locomotion instead of falling back to POV", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-grammar-")));
     setActiveRuntimeMediaRegistry(registry);
     const start = registry.register(PNG, "image/png");
     const end = registry.register(PNG, "image/png");
-    const addition = "Stay behind the receding silver train.";
-    const staged = await stagePreparedMotionPlan({
-      repoRoot,
-      body: {
-        journeyId: "A-B",
-        startMediaId: start.mediaId,
-        endMediaId: end.mediaId,
-        segmentPromptAddition: addition,
-        pace: "fast",
-        cameraGrammar: "follow",
+    const addition = "Continue along the visible route.";
+    const cases = [
+      {
+        grammar: "pov" as const,
+        law: /First person POV camera continuously moving forward/,
+        forbid: [] as RegExp[],
       },
-      renderFrame: async () => PNG,
-    });
-    expect(staged.effectivePrompt).toBe(composeShootingPrompt(locomotionBaseline("fast", "follow"), addition, "fast"));
-    expect(staged.effectivePrompt).toMatch(/Invisible objective camera continuously following/);
-    expect(staged.effectivePrompt).not.toMatch(/First person POV camera continuously moving forward/);
+      {
+        grammar: "follow" as const,
+        law: /Invisible objective camera continuously following/,
+        forbid: [
+          /First person POV camera continuously moving forward/,
+          /Maintain an unembodied first-person POV/,
+        ],
+      },
+      {
+        grammar: "lead" as const,
+        law: /Invisible objective camera traveling continuously ahead of a persistent subject while facing that subject/,
+        forbid: [
+          /First person POV camera continuously moving forward/,
+          /Maintain an unembodied first-person POV/,
+        ],
+      },
+      {
+        grammar: "mounted" as const,
+        law: /Camera physically mounted to a moving subject/,
+        forbid: [
+          /First person POV camera continuously moving forward/,
+          /Maintain an unembodied first-person POV/,
+        ],
+      },
+    ];
+    for (const { grammar, law, forbid } of cases) {
+      const staged = await stagePreparedMotionPlan({
+        repoRoot,
+        body: {
+          journeyId: "A-B",
+          startMediaId: start.mediaId,
+          endMediaId: end.mediaId,
+          segmentPromptAddition: addition,
+          pace: "fast",
+          cameraGrammar: grammar,
+        },
+        renderFrame: async () => PNG,
+      });
+      expect(staged.effectivePrompt).toBe(
+        composeShootingPrompt(locomotionBaseline("fast", grammar), addition, "fast"),
+      );
+      expect(staged.effectivePrompt).toMatch(law);
+      for (const pattern of forbid) {
+        expect(staged.effectivePrompt).not.toMatch(pattern);
+      }
+    }
   });
 
   it("executes Camotion with the mapped exposure for every CM pace", async () => {
@@ -412,6 +449,50 @@ describe("shootPreparedJourney", () => {
     expect(take.startShootingFrame.mediaId).toBe(primedStart.mediaId);
     expect(take.endShootingFrame.mediaId).toBe(primedEnd.mediaId);
     expect(take.videoUrl).toBe("https://example.test/staged.mp4");
+  });
+
+  it("sends the stored Motion Plan effectivePrompt to video unchanged", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stored-prompt-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const primedStart = registry.register(PNG, "image/png");
+    const primedEnd = registry.register(PNG, "image/png");
+    const stored = "STORED_MOTION_PLAN_PROMPT_MUST_PASS_THROUGH_UNCHANGED";
+    let videoPrompt: string | undefined;
+    const take = await shootPreparedJourney({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        startShootingMediaId: primedStart.mediaId,
+        endShootingMediaId: primedEnd.mediaId,
+        segmentPromptAddition: "Would be recomposed if SHOOT rebuilt the prompt.",
+        pace: "fast",
+        cameraGrammar: "pov",
+        effectivePrompt: stored,
+      },
+      renderFrame: async () => PNG,
+      generateVideo: async (request) => {
+        videoPrompt = request.prompt;
+        return {
+          provider: "replicate",
+          model: "prunaai/p-video",
+          modelVersion: "test",
+          predictionId: "pred-stored",
+          status: "succeeded",
+          outputUrl: "https://example.test/stored.mp4",
+          metadata: {},
+          startedAt: "2026-09-10T00:00:00.000Z",
+          completedAt: "2026-09-10T00:00:06.000Z",
+          elapsedMs: 6000,
+        };
+      },
+    });
+    expect(videoPrompt).toBe(stored);
+    expect(take.effectivePrompt).toBe(stored);
+    expect(take.effectivePrompt).not.toMatch(/First person POV camera continuously moving forward/);
   });
 
   it("accepts a catalog video model id or Replicate slug", () => {

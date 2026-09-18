@@ -127,7 +127,8 @@ test("FOLLOW canonical repair keeps pursuit geometry over far-field or aesthetic
     cameraGrammar: "follow",
   });
   assert.match(prompt, /Preserve FOLLOW geometry/);
-  assert.match(prompt, /Do not convert a pursuit still into a lead facing the front/);
+  assert.match(prompt, /Do not convert a pursuit still into a lead-facing view of the subject/);
+  assert.doesNotMatch(prompt, /nose|headlights|bumper|hood/);
   assert.match(prompt, /behind a persistent subject/);
   assert.doesNotMatch(prompt, /SPATIAL PROGRESSION IS PRIMARY/);
 });

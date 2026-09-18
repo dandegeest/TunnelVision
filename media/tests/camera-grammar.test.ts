@@ -8,8 +8,12 @@ import {
   LEAD_LOCOMOTION_BASELINE_TEMPLATE,
   MOUNTED_LOCOMOTION_BASELINE_TEMPLATE,
   cameraGrammarFromUnknown,
+  cinematographerBaselineDescription,
   cinematographerGrammarInstruction,
+  cinematographerNotShootableCaveat,
+  cinematographerPairUserLines,
   constructionTravelClause,
+  directorGrammarBodyConstraint,
   directorGrammarResearchPrinciple,
   isCameraGrammar,
   locomotionBaselineTemplate,
@@ -44,7 +48,8 @@ test("FOLLOW baseline preserves relationship, not a fixed distance", () => {
   assert.match(follow, /Following distance may expand and contract naturally/);
   assert.match(follow, /subject may pull farther ahead/);
   assert.match(follow, /lag, catch up, drift, or bank/);
-  assert.match(follow, /Do not overtake into a lead facing the front, nose, or headlights/);
+  assert.match(follow, /Do not overtake into a lead-facing view of the subject/);
+  assert.doesNotMatch(follow, /nose|headlights|bumper|hood/);
   assert.doesNotMatch(follow, /First person POV camera continuously moving forward/);
   assert.doesNotMatch(follow, /fixed distance of/);
   assert.match(follow, /Do not lock a fixed distance/);
@@ -55,9 +60,17 @@ test("FOLLOW baseline preserves relationship, not a fixed distance", () => {
   assert.match(cinematographerGrammarInstruction("follow"), /LEAD, not elastic FOLLOW/);
   assert.match(stillViewpointClause("follow"), /behind a persistent subject/);
   assert.match(stillViewpointClause("follow"), /rear, aft, or trailing side/);
-  assert.match(stillViewpointClause("follow"), /Do not convert this into a lead facing the front/);
+  assert.match(stillViewpointClause("follow"), /Do not convert this into a lead-facing view of the subject/);
+  assert.doesNotMatch(stillViewpointClause("follow"), /nose|headlights|bumper|hood/);
   assert.match(constructionTravelClause("follow"), /remains behind the same persistent subject/);
-  assert.match(constructionTravelClause("follow"), /Do not overtake the subject into a lead/);
+  assert.match(constructionTravelClause("follow"), /Do not overtake the subject into a lead-facing view/);
+  assert.doesNotMatch(directorGrammarResearchPrinciple("follow"), /nose|headlights|bumper|hood/);
+  assert.doesNotMatch(directorGrammarBodyConstraint("follow"), /nose|headlights|bumper|hood/);
+  assert.doesNotMatch(cinematographerGrammarInstruction("follow"), /nose|headlights|bumper|hood/);
+  assert.doesNotMatch(cinematographerBaselineDescription("follow"), /nose|headlights|bumper|hood/);
+  assert.doesNotMatch(cinematographerPairUserLines("follow").join("\n"), /nose|headlights|bumper|hood/);
+  assert.doesNotMatch(cinematographerNotShootableCaveat("follow"), /nose|headlights|bumper|hood/);
+  assert.doesNotMatch(constructionTravelClause("follow"), /nose|headlights|bumper|hood/);
 });
 
 test("LEAD baseline is not rewritten by forward-only POV conditioning", () => {

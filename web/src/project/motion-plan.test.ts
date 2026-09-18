@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { motionPlanAutoKey, projectWithCinematographerAssessment } from "./cinematographer";
-import { projectWithMotionPlan, motionPlanStageRequestFromAssessment } from "./motion-plan";
+import { projectWithCameraGrammar } from "./camera-grammar";
+import { projectWithMotionPlan, motionPlanRequestFromProject, motionPlanStageRequestFromAssessment } from "./motion-plan";
 import { projectWithJourneyShotTake } from "./shoot";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { CinematographerAssessment, SegmentMotionPlan } from "./types";
@@ -151,12 +152,22 @@ describe("per-segment Motion Plan", () => {
     expect(request.cameraGrammar).toBe("pov");
   });
 
-  it("forwards the project camera grammar so staging does not fall back to POV", () => {
-    const request = motionPlanStageRequestFromAssessment("A-B", "upload-a", "upload-b", assessment, {
-      cameraGrammar: "follow",
-    });
-    expect(request.cameraGrammar).toBe("follow");
-    expect(request.segmentPromptAddition).toBe(assessment.segmentPromptAddition);
+  it("forwards each project camera grammar so staging does not fall back to POV", () => {
+    for (const grammar of ["pov", "follow", "lead", "mounted"] as const) {
+      const request = motionPlanStageRequestFromAssessment("A-B", "upload-a", "upload-b", assessment, {
+        cameraGrammar: grammar,
+      });
+      expect(request.cameraGrammar).toBe(grammar);
+      expect(request.segmentPromptAddition).toBe(assessment.segmentPromptAddition);
+    }
+  });
+
+  it("reads camera grammar from the project when building a Motion Plan request", () => {
+    const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", assessment);
+    for (const grammar of ["pov", "follow", "lead", "mounted"] as const) {
+      const request = motionPlanRequestFromProject(projectWithCameraGrammar(assessed, grammar), "A-B");
+      expect(request.cameraGrammar).toBe(grammar);
+    }
   });
 
   it("maps every CM pace onto CameraMotionPlan exposure strength", () => {

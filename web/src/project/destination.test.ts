@@ -857,8 +857,9 @@ describe("canonical repair request", () => {
       cameraGrammar: "follow",
     });
     expect(prompt).toMatch(/Preserve FOLLOW geometry/);
-    expect(prompt).toMatch(/Do not convert a pursuit still into a lead/);
+    expect(prompt).toMatch(/Do not convert a pursuit still into a lead-facing view of the subject/);
     expect(prompt).toMatch(/behind a persistent subject/);
+    expect(prompt).not.toMatch(/nose|headlights|bumper|hood/);
     expect(prompt).not.toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
   });
 });
@@ -881,7 +882,8 @@ describe("camera grammar still conditioning", () => {
       cameraGrammar: "follow",
     });
     expect(constructed).toMatch(/FOLLOW viewpoint/);
-    expect(constructed).toMatch(/Do not overtake the subject into a lead/);
+    expect(constructed).toMatch(/Do not overtake the subject into a lead-facing view/);
+    expect(constructed).not.toMatch(/nose|headlights|bumper|hood/);
   });
 
   it("conditions LEAD stills to stay ahead and facing the subject", () => {

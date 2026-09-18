@@ -59,10 +59,10 @@ export const POV_LOCOMOTION_BASELINE_TEMPLATE =
 /**
  * FOLLOW locomotion: invisible objective camera stays behind the subject
  * and preserves the pursuit relationship, not a fixed distance. Elastic
- * 3/4 rear / lag / bank is cinematic. Facing the front is LEAD.
+ * 3/4 rear / lag / bank is cinematic. A lead-facing view is LEAD.
  */
 export const FOLLOW_LOCOMOTION_BASELINE_TEMPLATE =
-  `Invisible objective camera continuously following a persistent subject through a spatially-contiguous environment ${LOCOMOTION_PACE_MACRO}, physically traveling from the supplied starting location to the supplied ending location along the route described above. Stay behind the subject's travel; keep the subject ahead of the camera, receding along the route. Preserve the follow relationship: stay in pursuit of the same subject without arbitrarily overtaking them or losing them. Following distance may expand and contract naturally — the subject may pull farther ahead, and the camera may lag, catch up, drift, or bank with the route. Do not lock a fixed distance or a mechanically bolted-behind framing. Do not overtake into a lead facing the front, nose, or headlights. Do not introduce a visible camera operator or a second traveler. Nearby foreground objects pass beside the camera through strong natural parallax as new space is continuously revealed. ${CONTINUOUS_TRAVEL_PROHIBITIONS} Do not convert this shot into first-person POV through the subject's eyes, a lead facing the subject, or a camera physically mounted on the subject.`;
+  `Invisible objective camera continuously following a persistent subject through a spatially-contiguous environment ${LOCOMOTION_PACE_MACRO}, physically traveling from the supplied starting location to the supplied ending location along the route described above. Stay behind the subject's travel; keep the subject ahead of the camera, receding along the route. Preserve the follow relationship: stay in pursuit of the same subject without arbitrarily overtaking them or losing them. Following distance may expand and contract naturally — the subject may pull farther ahead, and the camera may lag, catch up, drift, or bank with the route. Do not lock a fixed distance or a mechanically bolted-behind framing. Do not overtake into a lead-facing view of the subject. Do not introduce a visible camera operator or a second traveler. Nearby foreground objects pass beside the camera through strong natural parallax as new space is continuously revealed. ${CONTINUOUS_TRAVEL_PROHIBITIONS} Do not convert this shot into first-person POV through the subject's eyes, a lead-facing view of the subject, or a camera physically mounted on the subject.`;
 
 /**
  * LEAD locomotion: camera stays ahead of the subject while facing them.
@@ -95,7 +95,7 @@ export function stillViewpointClause(grammar: CameraGrammar = DEFAULT_CAMERA_GRA
       return [
         "This is a FOLLOW viewpoint from an invisible objective camera behind a persistent subject, in pursuit along the route.",
         "The subject is the visual and continuity anchor and should remain visible ahead of the camera, receding along the route. The readable cue is the rear, aft, or trailing side of the subject.",
-        "Do not show a camera operator, a second traveler, or first-person through the subject's eyes. Do not convert this into a lead facing the front, nose, or headlights, or into a mounted bumper or hood.",
+        "Do not show a camera operator, a second traveler, or first-person through the subject's eyes. Do not convert this into a lead-facing view of the subject, or into a camera physically mounted on the subject.",
         WORLD_SUBJECTS_MAY_APPEAR,
       ].join(" ");
     case "lead":
@@ -135,7 +135,7 @@ export function openingStillLead(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR
 export function constructionTravelClause(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
-      return "The destination is a spatially progressed FOLLOW viewpoint along the same route. The camera remains behind the same persistent subject, who remains ahead and receding. Framing and distance may breathe. Do not overtake the subject into a lead, face the front or headlights as the primary view, or lose the follow relationship. The required change is camera viewpoint displacement along the route, not a change of world.";
+      return "The destination is a spatially progressed FOLLOW viewpoint along the same route. The camera remains behind the same persistent subject, who remains ahead and receding. Framing and distance may breathe. Do not overtake the subject into a lead-facing view, or lose the follow relationship. The required change is camera viewpoint displacement along the route, not a change of world.";
     case "lead":
       return "The destination is a spatially progressed LEAD viewpoint along the same route. The camera remains ahead of the same persistent subject while facing them, having retreated with the route. Do not convert this into a forward POV looking away from the subject, a follow from behind, or a push past the subject. The required change is camera viewpoint displacement along the route, not a change of world.";
     case "mounted":
@@ -149,7 +149,7 @@ export function constructionTravelClause(grammar: CameraGrammar = DEFAULT_CAMERA
 export function directorGrammarResearchPrinciple(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
-      return "- FOLLOW grammar: an invisible objective camera pursues a persistent subject from behind for the entire journey. Plan destinations as progressed pursuit viewpoints with the subject still ahead of the camera, receding; the rear, aft, or trailing side is the readable cue. Preserve the camera–subject relationship, not a fixed following distance. Distance may expand and contract; the camera may lag, catch up, or bank with the route. Do not plan overtaking into a lead (facing the front, nose, or headlights), a second traveler, first-person through the subject's eyes, or a bolted-behind mounted look.";
+      return "- FOLLOW grammar: an invisible objective camera pursues a persistent subject from behind for the entire journey. Plan destinations as progressed pursuit viewpoints with the subject still ahead of the camera, receding; the rear, aft, or trailing side is the readable cue. Preserve the camera–subject relationship, not a fixed following distance. Distance may expand and contract; the camera may lag, catch up, or bank with the route. Do not plan overtaking into a lead-facing view of the subject, a second traveler, first-person through the subject's eyes, or a bolted-behind mounted look.";
     case "lead":
       return "- LEAD grammar: an invisible objective camera travels ahead of a persistent subject while facing them, typically retreating as they advance. Plan destinations as progressed lead viewpoints looking at the approaching subject. Do not rewrite lead into forward POV, a follow from behind, or a push past the subject. Continuous forward camera travel is not this grammar.";
     case "mounted":
@@ -163,7 +163,7 @@ export function directorGrammarResearchPrinciple(grammar: CameraGrammar = DEFAUL
 export function directorGrammarBodyConstraint(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
-      return "Keep the persistent subject as the continuity anchor in destinations, seen from behind and remaining ahead of the camera. Do not describe a visible camera operator, a second traveler, first-person through the subject's eyes, or a lead facing the subject's front.";
+      return "Keep the persistent subject as the continuity anchor in destinations, seen from behind and remaining ahead of the camera. Do not describe a visible camera operator, a second traveler, first-person through the subject's eyes, or a lead-facing view of the subject.";
     case "lead":
       return "Keep the persistent subject as the continuity anchor, seen from ahead. Do not describe a visible camera operator. Do not plan viewpoints that look away from the subject along a forward POV.";
     case "mounted":
@@ -177,11 +177,11 @@ export function directorGrammarBodyConstraint(grammar: CameraGrammar = DEFAULT_C
 export function cinematographerGrammarInstruction(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
-      return `This journey uses FOLLOW grammar. Both stills are pursuit viewpoints from an invisible objective camera behind a persistent subject along the same route. The subject remains ahead of the camera, receding; the readable cue is the rear, aft, or trailing side. Image 2 is the next FOLLOW viewpoint, not first-person through the subject's eyes, not a lead facing the front, nose, or headlights, and not a mounted rig bolted to the subject.
+      return `This journey uses FOLLOW grammar. Both stills are pursuit viewpoints from an invisible objective camera behind a persistent subject along the same route. The subject remains ahead of the camera, receding; the readable cue is the rear, aft, or trailing side. Image 2 is the next FOLLOW viewpoint, not first-person through the subject's eyes, not a lead-facing view of the subject, and not a camera physically mounted on the subject.
 
 The camera operator is never a visible character. The subject is the continuity anchor. People, animals, vehicles, objects, and other world subjects in the stills may appear; preserve the intended follow subject when it is visible.
 
-FOLLOW preserves the relationship, not a fixed distance. Choreograph natural cinematic elasticity: the subject may pull farther ahead; the camera may lag, catch up, drift, or bank with the route. 3/4 rear, high rear, and lagged pursuit are FOLLOW. Do not lock an exact offset. Do not arbitrarily overtake. Do not lose the follow relationship. A rigidly bolted-behind look is closer to MOUNTED than cinematic FOLLOW. A still whose primary view is the front, nose, or headlights, or that shows the subject advancing toward the lens, is LEAD, not elastic FOLLOW.
+FOLLOW preserves the relationship, not a fixed distance. Choreograph natural cinematic elasticity: the subject may pull farther ahead; the camera may lag, catch up, drift, or bank with the route. 3/4 rear, high rear, and lagged pursuit are FOLLOW. Do not lock an exact offset. Do not arbitrarily overtake. Do not lose the follow relationship. A rigidly bolted-behind look is closer to MOUNTED than cinematic FOLLOW. A still whose primary view is a lead-facing view of the subject, or that shows the subject advancing toward the lens, is LEAD, not elastic FOLLOW.
 
 A landmark ahead in the start is typically space the pursuit will travel into, with the subject remaining the anchor ahead of the camera. Do not treat a shared landmark as evidence that Image 2 is a reverse angle of Image 1.`;
     case "lead":
@@ -211,7 +211,7 @@ A landmark that appears ahead in the start (a doorway, light, pool edge, corrido
 export function cinematographerBaselineDescription(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
-      return "It enforces continuous FOLLOW travel — pursuit from behind a persistent subject who remains ahead and receding, with elastic distance — and forbids cinematic cheats (dissolve, morph, cut, teleport, invented passageways). It does not lock a fixed following distance. It does not license converting the shot into a lead facing the front.";
+      return "It enforces continuous FOLLOW travel — pursuit from behind a persistent subject who remains ahead and receding, with elastic distance — and forbids cinematic cheats (dissolve, morph, cut, teleport, invented passageways). It does not lock a fixed following distance. It does not license converting the shot into a lead-facing view of the subject.";
     case "lead":
       return "It enforces continuous LEAD travel — remaining ahead of and facing the subject while retreating along the route — and forbids cinematic cheats (dissolve, morph, cut, teleport, invented passageways). It does not license converting the shot into forward POV.";
     case "mounted":
@@ -226,7 +226,7 @@ export function cinematographerPairUserLines(grammar: CameraGrammar = DEFAULT_CA
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
       return [
-        "Both stills are FOLLOW viewpoints from an invisible objective camera behind the same persistent subject, who remains ahead and receding. Image 2 is the next pursuit viewpoint, not a lead facing the front, not a reverse shot, and not first-person through the subject's eyes.",
+        "Both stills are FOLLOW viewpoints from an invisible objective camera behind the same persistent subject, who remains ahead and receding. Image 2 is the next pursuit viewpoint, not a lead-facing view of the subject, not a reverse shot, and not first-person through the subject's eyes.",
       ];
     case "lead":
       return [

@@ -150,7 +150,7 @@ export function assembleCanonicalRepairPrompt(input: {
       : "Regenerate this END destination so it still depicts the same intended arrival, while creating a stronger continuously shootable route from the established START.";
   const grammarLock =
     grammar === "follow"
-      ? "Preserve FOLLOW geometry: camera behind the subject, subject ahead and receding, rear/aft/trailing side readable. Do not convert a pursuit still into a lead facing the front, nose, or headlights in order to reduce far-field, change lighting, or improve aesthetics."
+      ? "Preserve FOLLOW geometry: camera behind the subject, subject ahead and receding, rear/aft/trailing side readable. Do not convert a pursuit still into a lead-facing view of the subject in order to reduce far-field, change lighting, or improve aesthetics."
       : "Preserve this destination's camera grammar. Do not sacrifice the camera–subject relationship to reduce far-field, change lighting, or improve aesthetics.";
   return joinPromptSections(
     [

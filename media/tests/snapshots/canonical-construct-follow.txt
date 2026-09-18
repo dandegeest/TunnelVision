@@ -3,12 +3,12 @@ The same bright red sports car on a twisting canyon road, red-rock walls closing
 
 SPATIAL PROGRESSION IS PRIMARY.
 Render this canonical from a substantially progressed camera viewpoint. Do not render it from the source camera position. Nearby foreground geometry from the source must have passed behind the camera or be substantially repositioned. Reveal new terrain and environment ahead as a consequence of that movement.
-The destination is a spatially progressed FOLLOW viewpoint along the same route. The camera remains behind the same persistent subject, who remains ahead and receding. Framing and distance may breathe. Do not overtake the subject into a lead, face the front or headlights as the primary view, or lose the follow relationship. The required change is camera viewpoint displacement along the route, not a change of world.
+The destination is a spatially progressed FOLLOW viewpoint along the same route. The camera remains behind the same persistent subject, who remains ahead and receding. Framing and distance may breathe. Do not overtake the subject into a lead-facing view, or lose the follow relationship. The required change is camera viewpoint displacement along the route, not a change of world.
 
 Move the camera from the source viewpoint:
 Advance along the twisting canyon road toward the rock tunnel.
 
-This is a FOLLOW viewpoint from an invisible objective camera behind a persistent subject, in pursuit along the route. The subject is the visual and continuity anchor and should remain visible ahead of the camera, receding along the route. The readable cue is the rear, aft, or trailing side of the subject. Do not show a camera operator, a second traveler, or first-person through the subject's eyes. Do not convert this into a lead facing the front, nose, or headlights, or into a mounted bumper or hood. People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.
+This is a FOLLOW viewpoint from an invisible objective camera behind a persistent subject, in pursuit along the route. The subject is the visual and continuity anchor and should remain visible ahead of the camera, receding along the route. The readable cue is the rear, aft, or trailing side of the subject. Do not show a camera operator, a second traveler, or first-person through the subject's eyes. Do not convert this into a lead-facing view of the subject, or into a camera physically mounted on the subject. People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.
 
 Preserve the same physical world, materials, lighting character, and visual identity of the source image.
 Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene.

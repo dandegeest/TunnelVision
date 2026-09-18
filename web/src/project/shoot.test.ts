@@ -162,6 +162,12 @@ describe("SHOOT gate and JourneyShot take", () => {
       cameraGrammar: "pov",
       effectivePrompt: motionPlan.effectivePrompt,
     });
+    const uniquePrompt = "STORED_MOTION_PLAN_PROMPT_MUST_PASS_THROUGH_UNCHANGED";
+    const stored = projectWithMotionPlan(projectWithLeg(), "A-B", {
+      ...motionPlan,
+      effectivePrompt: uniquePrompt,
+    });
+    expect(shootRequestFromProject(stored, "A-B").effectivePrompt).toBe(uniquePrompt);
     expect(shootRequestFromProject(prepared, "A-B").targetDurationSeconds).toBe(5);
     expect(shootRequestFromProject({ ...prepared, generateAudio: true }, "A-B").generateAudio).toBe(true);
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);

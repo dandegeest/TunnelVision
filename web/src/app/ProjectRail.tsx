@@ -889,7 +889,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
               <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera</span>
               <OptionMenu
                 ariaLabel="Camera"
-                title="Whole-journey camera relationship. POV and FOLLOW are the primary grammars; LEAD and MOUNTED are speciality. Applies to every traversal in this project."
+                title="Whole-journey camera relationship. POV, FOLLOW, LEAD, or MOUNTED. Applies to every traversal in this project."
                 disabled={busy}
                 triggerClassName="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]"
                 value={cameraGrammarFromProject(project)}
