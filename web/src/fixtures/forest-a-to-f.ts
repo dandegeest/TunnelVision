@@ -11,7 +11,6 @@ import videoDE from "../../../camotion/integration/forest-a-to-f/videos/D-E.mp4"
 import videoEF from "../../../camotion/integration/forest-a-to-f/videos/E-F.mp4";
 import type { BoundaryAnalysisRecord, Project, StoryboardMediaInfo } from "../project/types";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
-import { DEFAULT_DURATION_SECONDS } from "../timeline/geometry";
 
 /** Fixture initialization only. Not runtime Director authority. */
 export const FOREST_USER_PROMPT =
@@ -177,7 +176,7 @@ export function createForestProject(): Project {
         id: "A-B",
         startDestinationId: "A",
         endDestinationId: "B",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoAB,
       },
@@ -185,7 +184,7 @@ export function createForestProject(): Project {
         id: "B-C",
         startDestinationId: "B",
         endDestinationId: "C",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoBC,
       },
@@ -193,7 +192,7 @@ export function createForestProject(): Project {
         id: "C-D",
         startDestinationId: "C",
         endDestinationId: "D",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoCD,
       },
@@ -201,7 +200,7 @@ export function createForestProject(): Project {
         id: "D-E",
         startDestinationId: "D",
         endDestinationId: "E",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoDE,
       },
@@ -209,7 +208,7 @@ export function createForestProject(): Project {
         id: "E-F",
         startDestinationId: "E",
         endDestinationId: "F",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoEF,
       },

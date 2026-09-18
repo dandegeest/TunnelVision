@@ -24,6 +24,8 @@ export function createNewProject(): Project {
     autoBlockShots: false,
     autoShoot: false,
     generateAudio: false,
+    durationMode: "adaptive",
+    fixedDurationSeconds: 5,
     videoModel: DEFAULT_VIDEO_MODEL_ID,
     videoModelsByIntent: defaultVideoModelsByIntent(),
     defaultTakeIntent: DEFAULT_GENERATION_INTENT,

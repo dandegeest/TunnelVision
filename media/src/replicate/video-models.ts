@@ -50,7 +50,7 @@ export const VIDEO_MODELS: readonly VideoModelOption[] = [
     label: "Pruna",
     tier: "dev",
     cost: "$",
-    durationSeconds: 6,
+    durationSeconds: 5,
     supportsAudio: true,
   },
   {
@@ -117,6 +117,60 @@ export function videoModelSlug(id: VideoModelId): string {
 
 export function videoModelDurationSeconds(id: VideoModelId): number {
   return videoModelOption(id).durationSeconds;
+}
+
+/**
+ * Durations this catalog model can be asked for. CM never sees this.
+ * Seedance 2.0 Fast's Replicate field is an integer plus -1; 4–15 is the
+ * family range TV will map into (do not send -1 for a CM/fixed target).
+ * Pruna's Replicate schema is 1–20.
+ */
+export type VideoModelDurationSupport =
+  | { readonly kind: "enum"; readonly values: readonly number[] }
+  | { readonly kind: "range"; readonly min: number; readonly max: number };
+
+export function videoModelDurationSupport(id: VideoModelId): VideoModelDurationSupport {
+  switch (id) {
+    case "kling-v2.5-turbo-pro":
+      return { kind: "enum", values: [5, 10] };
+    case "veo-3.1-fast":
+      return { kind: "enum", values: [4, 6, 8] };
+    case "pruna-p-video":
+      return { kind: "range", min: 1, max: 20 };
+    case "kling-v3-video":
+      return { kind: "range", min: 3, max: 15 };
+    case "seedance-2.0-fast":
+      return { kind: "range", min: 4, max: 15 };
+    case "seedance-2.5":
+      return { kind: "range", min: 4, max: 30 };
+  }
+}
+
+/** Map a cinematic target onto a duration this model actually accepts. */
+export function mapDurationToVideoModel(id: VideoModelId, targetSeconds: number): number {
+  const fallback = videoModelDurationSeconds(id);
+  if (!Number.isFinite(targetSeconds)) {
+    return fallback;
+  }
+  const target = Math.round(targetSeconds);
+  const support = videoModelDurationSupport(id);
+  if (support.kind === "range") {
+    return Math.min(support.max, Math.max(support.min, target));
+  }
+  let best = support.values[0] ?? fallback;
+  let bestDist = Math.abs(best - target);
+  for (const value of support.values) {
+    const dist = Math.abs(value - target);
+    if (dist < bestDist) {
+      best = value;
+      bestDist = dist;
+      continue;
+    }
+    if (dist === bestDist && (value === fallback || (best !== fallback && value < best))) {
+      best = value;
+    }
+  }
+  return best;
 }
 
 export function videoModelSupportsAudio(id: VideoModelId): boolean {

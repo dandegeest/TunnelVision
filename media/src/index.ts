@@ -85,6 +85,8 @@ export {
   parseVideoModelId,
   videoModelSlug,
   videoModelDurationSeconds,
+  videoModelDurationSupport,
+  mapDurationToVideoModel,
   videoModelOption,
   videoModelMenuLabel,
   isKlingV3Mode,
@@ -94,7 +96,7 @@ export {
   KLING_V3_MODE_LABEL,
   DEFAULT_KLING_V3_MODE,
 } from "./replicate/video-models.ts";
-export type { VideoModelId, VideoModelOption, VideoModelCost, VideoModelTier, KlingV3Mode } from "./replicate/video-models.ts";
+export type { VideoModelId, VideoModelOption, VideoModelCost, VideoModelTier, KlingV3Mode, VideoModelDurationSupport } from "./replicate/video-models.ts";
 export {
   IMAGE_MODEL_IDS,
   IMAGE_MODELS,

@@ -1,3 +1,4 @@
+import { projectWithResolvedUnshotDurations } from "./shot-duration";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type {
   CinematographerAssessment,
@@ -325,7 +326,7 @@ export function projectWithCinematographerAssessment(
     evaluatedPair?.startCanonicalMediaId ?? pair?.startMediaId ?? journey.cinematographerStartMediaId;
   const endCanonicalMediaId =
     evaluatedPair?.endCanonicalMediaId ?? pair?.endMediaId ?? journey.cinematographerEndMediaId;
-  return {
+  return projectWithResolvedUnshotDurations({
     ...project,
     journeys: project.journeys.map((item) =>
       item.id === journeyId
@@ -337,7 +338,7 @@ export function projectWithCinematographerAssessment(
           }
         : item,
     ),
-  };
+  });
 }
 
 export function projectWithoutCinematographerAssessment(project: Project, journeyId: string): Project {

@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { movieExportSlug, nextMovieExportFilename } from "./export-movie";
+import { movieDownloadFilename, movieExportSlug, nextMovieExportFilename } from "./export-movie";
 
 describe("movie export filename", () => {
   it("compacts the project name and starts at v1", () => {
     expect(movieExportSlug("Feather Flight")).toBe("FeatherFlight");
     expect(movieExportSlug("Chernobyl")).toBe("Chernobyl");
     expect(nextMovieExportFilename("Chernobyl")).toBe("Chernobyl_v1.mp4");
+  });
+
+  it("treats untitled titles as one slug", () => {
+    expect(movieExportSlug("UNTITLED")).toBe("Untitled");
+    expect(movieExportSlug("Untitled")).toBe("Untitled");
+    expect(nextMovieExportFilename("UNTITLED", "Untitled_v3.mp4")).toBe("Untitled_v4.mp4");
   });
 
   it("increments vN for the same slug", () => {
@@ -15,6 +21,9 @@ describe("movie export filename", () => {
 
   it("restarts at v1 when the project name changes", () => {
     expect(nextMovieExportFilename("Pripyat", "Chernobyl_v3.mp4")).toBe("Pripyat_v1.mp4");
+    expect(nextMovieExportFilename("Backstage", "Untitled_v3.mp4")).toBe("Backstage_v1.mp4");
+    expect(movieDownloadFilename("Backstage", "Untitled_v3.mp4", "Untitled_v3.mp4")).toBe("Backstage_v1.mp4");
+    expect(movieDownloadFilename("Untitled", "Untitled_v3.mp4", "Untitled_v3.mp4")).toBe("Untitled_v3.mp4");
   });
 
   it("truncates a long name to 32 characters", () => {

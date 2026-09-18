@@ -1462,9 +1462,12 @@ baseline can override valid Director backward-travel intent. That
 is a **HACKATHON / DISCOVERY** camera-grammar research exhibit, not
 a current prompt-tweak. Do not retune this single baseline to make
 LEAD succeed. Pre-hackathon grammar work is the planned exception:
-four whole-journey grammars (POV, FOLLOW, LEAD, MOUNTED). See
-[BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification)
-and [HACKATHON.md](HACKATHON.md#camera-grammar--hackathon-decision).
+four whole-journey grammars (POV, FOLLOW, LEAD, MOUNTED). FOLLOW
+preserves the camera–subject relationship, not a fixed following
+distance. See
+[BACKLOG.md — Camera grammar classification](BACKLOG.md#camera-grammar-classification),
+[HACKATHON.md](HACKATHON.md#camera-grammar--hackathon-decision),
+and [PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
 
 A 15 September 2026 Journey Prompt test found LEFT / RIGHT / UP /
 DOWN can steer that continuing forward travel (turns, not

@@ -336,9 +336,12 @@ mapping chosen in Project settings (Fast / Balanced / Quality → catalog
 model). Fast defaults to Pruna (`prunaai/p-video`); Balanced to Kling 2.5
 Turbo Pro; Quality to Veo 3.1 Fast (`google/veo-3.1-fast`). Those mappings stay
 provider-neutral so a later router can fulfill the intents. Clip duration
-follows the generator (Pruna / Seedance / Kling 3 / Veo 3.1 Fast are 6s; Kling 2.5
-Turbo Pro is 5s). Kling 3 also exposes Standard / Pro / 4K in Project
-settings. Take rows and
+is Adaptive (CM `desiredDurationSeconds`, default) or Fixed (project
+`fixedDurationSeconds`, default 5s). Generation maps that original target
+onto the selected model's supported durations; a retry with another model
+remaps from the same target, not the previous clip length. Pace stays
+camera-movement speed and is independent of shot length. Kling 3 also
+exposes Standard / Pro / 4K in Project settings. Take rows and
 the selected MOTION tile use that clip's duration, so a Fast pass is
 longer than a Kling pass on the same destinations.
 After replacement, that destination
@@ -656,8 +659,9 @@ The frozen locomotion baseline now lives in
 macro: BLOCK sets `slow-motion`, `slow`, `moderate`, `fast`,
 `hyperspeed`, or `variable` from the geography;
 SHOOT fills the template with the matching speed phrase and concatenates an extreme-pace lead-in when the pace is `slow-motion` or `hyperspeed`, then `segmentPromptAddition`, then the filled baseline, via
-`composeShootingPrompt`. Clip duration stays fixed; pace is apparent
-camera speed, not runtime. Do not LLM-merge the baseline and addition.
+`composeShootingPrompt`. Pace is apparent camera speed / kinetic feel,
+not shot length. CM also returns `desiredDurationSeconds` as an
+independent cinematic judgment. Do not LLM-merge the baseline and addition.
 Preserve Terran
 Boylan / original TunnelVision provenance for the baseline's
 continuous-travel grammar. Do not

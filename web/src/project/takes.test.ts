@@ -363,11 +363,11 @@ describe("selection changes current footage", () => {
     expect(journeyTakes(journey)[1]?.videoUrl).toBe("https://example.test/take-2.mp4");
   });
 
-  it("reads Kling 5s and Pruna 6s from the Take, or from the generator when duration is missing", () => {
+  it("reads Kling 5s and Pruna 5s from the Take, or from the generator when duration is missing", () => {
     expect(takeClipDurationSeconds({ durationSeconds: 6, model: "prunaai/p-video" }, 8)).toBe(6);
     expect(takeClipDurationSeconds({ durationSeconds: 5, model: "kwaivgi/kling-v2.5-turbo-pro" }, 8)).toBe(5);
     expect(takeClipDurationSeconds({ durationSeconds: 0, model: "kwaivgi/kling-v2.5-turbo-pro" }, 8)).toBe(5);
-    expect(takeClipDurationSeconds({ durationSeconds: 0, model: "prunaai/p-video" }, 8)).toBe(6);
+    expect(takeClipDurationSeconds({ durationSeconds: 0, model: "prunaai/p-video" }, 8)).toBe(5);
     expect(takeClipDurationSeconds({ durationSeconds: 0, model: "kwaivgi/kling-v3-video" }, 8)).toBe(6);
   });
 });

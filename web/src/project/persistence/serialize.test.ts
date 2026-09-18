@@ -109,6 +109,10 @@ describe("project persistence schema", () => {
     expect(journey.selectedTakeId).toBe("A-B:take:1");
     expect(hydrated.project.story).toBe("Follow the koi.");
     expect(hydrated.project.imageModel).toBe("nano-banana-2-lite");
+    expect(documents.manifest.settings.durationMode).toBe("adaptive");
+    expect(documents.manifest.settings.fixedDurationSeconds).toBe(5);
+    expect(hydrated.project.durationMode).toBe("adaptive");
+    expect(hydrated.project.fixedDurationSeconds).toBe(5);
     expect(hydrated.warnings.missingAssets).toEqual([]);
   });
 

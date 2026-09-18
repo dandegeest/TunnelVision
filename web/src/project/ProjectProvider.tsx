@@ -59,6 +59,7 @@ import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } 
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { projectWithDurationMode, projectWithFixedDurationSeconds } from "./shot-duration";
 import {
   requestConstructDestination,
   projectWithConstructedDestination,
@@ -88,7 +89,7 @@ import {
   resolveShootingEntry,
   type ConversationEntry,
 } from "./conversation";
-import { requestDownloadCurrentCut, requestExportMovie, type MovieExportResult } from "./export-movie";
+import { movieDownloadFilename, requestDownloadCurrentCut, requestExportMovie, type MovieExportResult } from "./export-movie";
 import {
   chooseProjectsFolder as requestChooseProjectsFolder,
   createPersistedProject,
@@ -106,7 +107,7 @@ import {
   runJourneyAgent,
   type JourneyAgentSnapshot,
 } from "./journey-agent";
-import { storyboardFrameById, type Agency, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
+import { storyboardFrameById, type Agency, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function suggestedProjectName(project: Project): string {
@@ -169,6 +170,8 @@ type ProjectContextValue = {
   setAutoBlockShots: (enabled: boolean) => void;
   setAutoShoot: (enabled: boolean) => void;
   setGenerateAudio: (enabled: boolean) => void;
+  setDurationMode: (mode: DurationMode) => void;
+  setFixedDurationSeconds: (seconds: number) => void;
   conversation: ConversationEntry[];
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
@@ -180,6 +183,7 @@ type ProjectContextValue = {
   cinematographerError: string | null;
   retryMotionPlan: (journeyId: string) => Promise<void>;
   shootingJourneyIds: readonly string[];
+  shootingIntents: Readonly<Record<string, GenerationIntent>>;
   shootError: string | null;
   shootJourney: (journeyId: string, intent?: GenerationIntent) => Promise<void>;
   shootAllJourneys: (intent: GenerationIntent) => Promise<void>;
@@ -297,6 +301,7 @@ export function ProjectProvider({
   const [shootingJourneyIds, setShootingJourneyIds] = useState<string[]>(() => [
     ...initialShootingJourneyIds,
   ]);
+  const [shootingIntents, setShootingIntents] = useState<Record<string, GenerationIntent>>({});
   const [shootError, setShootError] = useState<string | null>(null);
   const [startingFrameError, setStartingFrameError] = useState<string | null>(null);
   const [replacingStart, setReplacingStart] = useState(false);
@@ -435,6 +440,7 @@ export function ProjectProvider({
     setReplacingStart(false);
     setExportingMovie(false);
     setDownloadingCut(false);
+    assembledCutRef.current = null;
     return next;
   }, []);
 
@@ -464,6 +470,14 @@ export function ProjectProvider({
 
   const setGenerateAudio = useCallback((enabled: boolean) => {
     setProject((current) => projectWithGenerateAudio(current, enabled));
+  }, []);
+
+  const setDurationMode = useCallback((mode: DurationMode) => {
+    setProject((current) => projectWithDurationMode(current, mode));
+  }, []);
+
+  const setFixedDurationSeconds = useCallback((seconds: number) => {
+    setProject((current) => projectWithFixedDurationSeconds(current, seconds));
   }, []);
 
   const replaceDestinationImage = useCallback(async (
@@ -990,6 +1004,11 @@ export function ProjectProvider({
         throw error;
       } finally {
         setShootingJourneyIds((ids) => withoutId(ids, journeyId));
+        setShootingIntents((current) => {
+          const next = { ...current };
+          delete next[journeyId];
+          return next;
+        });
       }
     },
     [applyProject],
@@ -1008,6 +1027,7 @@ export function ProjectProvider({
       const entryId = nextConversationId("shooting");
       setShootError(null);
       setShootingJourneyIds((ids) => withId(ids, journeyId));
+      setShootingIntents((current) => ({ ...current, [journeyId]: resolvedIntent }));
       applyProject(projectWithJourneyShooting(projectRef.current, journeyId));
       setConversation((entries) =>
         appendConversationEntry(entries, {
@@ -1220,32 +1240,48 @@ export function ProjectProvider({
     }
     const fingerprint = currentCutFingerprint(current);
     const cached = assembledCutRef.current;
-    const result =
-      cached && cached.fingerprint === fingerprint
-        ? cached.result
-        : await (async () => {
-            setDownloadingCut(true);
-            setExportMovieError(null);
-            try {
-              const assembled = await requestDownloadCurrentCut(current, movieExport?.filename);
-              assembledCutRef.current = { fingerprint, result: assembled };
-              setMovieExport(assembled);
-              return assembled;
-            } catch (error) {
-              setExportMovieError(error instanceof Error ? error.message : "Download failed");
-              throw error;
-            } finally {
-              setDownloadingCut(false);
-            }
-          })();
-    const link = document.createElement("a");
-    link.href = result.videoUrl;
-    link.download = result.filename;
-    link.rel = "noopener";
-    document.body.append(link);
-    link.click();
-    link.remove();
-  }, [movieExport?.filename]);
+    let result: MovieExportResult;
+    if (cached && cached.fingerprint === fingerprint) {
+      result = {
+        ...cached.result,
+        filename: movieDownloadFilename(current.title, movieExport?.filename, cached.result.filename),
+      };
+    } else {
+      setDownloadingCut(true);
+      setExportMovieError(null);
+      try {
+        const assembled = await requestDownloadCurrentCut(current, movieExport?.filename);
+        result = assembled;
+        assembledCutRef.current = { fingerprint, result: assembled };
+      } catch (error) {
+        setExportMovieError(error instanceof Error ? error.message : "Download failed");
+        throw error;
+      } finally {
+        setDownloadingCut(false);
+      }
+    }
+    assembledCutRef.current = { fingerprint, result };
+    if (movieExport?.filename !== result.filename || movieExport?.videoUrl !== result.videoUrl) {
+      setMovieExport(result);
+    }
+    const response = await fetch(result.videoUrl);
+    if (!response.ok) {
+      setExportMovieError("Download failed");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(await response.blob());
+    try {
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = result.filename;
+      link.rel = "noopener";
+      document.body.append(link);
+      link.click();
+      link.remove();
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+  }, [movieExport?.filename, movieExport?.videoUrl]);
 
   const writeStoryFromOpeningOn = useCallback(
     async (current: Project): Promise<Project> => {
@@ -1362,6 +1398,7 @@ export function ProjectProvider({
               throw new Error("Project switched");
             }
             setMovieExport(exported);
+            assembledCutRef.current = { fingerprint: currentCutFingerprint(current), result: exported };
             setConversation((entries) =>
               appendConversationEntry(entries, {
                 id: nextConversationId("assembly"),
@@ -1704,6 +1741,20 @@ export function ProjectProvider({
   const setProjectTitle = useCallback((title: string) => {
     const next = sanitizeProjectFolderName(title.trim() || "UNTITLED");
     setProject((current) => (current.title === next ? current : { ...current, title: next }));
+    setMovieExport((current) => {
+      if (!current) {
+        return current;
+      }
+      const filename = movieDownloadFilename(next, current.filename, current.filename);
+      if (filename === current.filename) {
+        return current;
+      }
+      const retitled = { ...current, filename };
+      if (assembledCutRef.current) {
+        assembledCutRef.current = { ...assembledCutRef.current, result: retitled };
+      }
+      return retitled;
+    });
   }, []);
 
   const renameProject = useCallback(
@@ -1735,6 +1786,20 @@ export function ProjectProvider({
         persistedCreatedAtRef.current = renamed.createdAt;
         setPersistedProjectPath(renamed.path);
         adoptSavedProject({ ...projectRef.current, id: renamed.project.id, title: renamed.project.title });
+        setMovieExport((current) => {
+          if (!current) {
+            return current;
+          }
+          const filename = movieDownloadFilename(renamed.project.title, current.filename, current.filename);
+          if (filename === current.filename) {
+            return current;
+          }
+          const retitled = { ...current, filename };
+          if (assembledCutRef.current) {
+            assembledCutRef.current = { ...assembledCutRef.current, result: retitled };
+          }
+          return retitled;
+        });
         if (renamed.missingAssets.length > 0) {
           setPersistenceError(`Saved with missing assets: ${renamed.missingAssets.join(", ")}`);
         }
@@ -1830,6 +1895,8 @@ export function ProjectProvider({
       setAutoBlockShots,
       setAutoShoot,
       setGenerateAudio,
+      setDurationMode,
+      setFixedDurationSeconds,
       conversation,
       selectedJourney,
       directorStatus,
@@ -1841,6 +1908,7 @@ export function ProjectProvider({
       cinematographerError,
       retryMotionPlan,
       shootingJourneyIds,
+      shootingIntents,
       shootError,
       shootJourney,
       shootAllJourneys,
@@ -1915,6 +1983,8 @@ export function ProjectProvider({
       setAutoBlockShots,
       setAutoShoot,
       setGenerateAudio,
+      setDurationMode,
+      setFixedDurationSeconds,
       conversation,
       selectedJourney,
       directorStatus,
@@ -1926,6 +1996,7 @@ export function ProjectProvider({
       cinematographerError,
       retryMotionPlan,
       shootingJourneyIds,
+      shootingIntents,
       shootError,
       shootJourney,
       shootAllJourneys,

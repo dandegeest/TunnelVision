@@ -266,9 +266,31 @@ names consistently:
 | Grammar | Meaning | Retired / related name |
 | --- | --- | --- |
 | **POV** | Camera is the traveler. Unembodied unless the filmmaker explicitly asks otherwise. Persistent FPS-style foreground objects are generally undesirable. | FPOV / first-person POV |
-| **FOLLOW** | Invisible **objective** camera follows the subject. **Not** true first-person. Better understood as an invisible third-person objective follow shot. The subject is the continuity anchor. | FP Follow / FP_FOLLOW / first-person follow |
+| **FOLLOW** | Invisible **objective** camera follows the subject. **Not** true first-person. The subject is the continuity anchor. **FOLLOW preserves the camera–subject relationship, not a fixed following distance.** Distance may expand and contract; the camera may lag, catch up, or allow the subject to pull ahead. Do not lock an exact offset or full-body frame unless the story requires it. Do not overtake or lose the follow relationship. A rigidly bolted-behind look is closer to **MOUNTED** than cinematic FOLLOW. | FP Follow / FP_FOLLOW / first-person follow |
 | **LEAD** | Invisible objective camera retreats **ahead of** the subject while facing them. Must preserve backward travel; must not rewrite the shot into forward POV. | Reverse Lead / REVERSE_LEAD |
 | **MOUNTED** | Camera is physically attached to the subject or vehicle (hood, handlebars, boat bow, aircraft, dashboard). Persistent foreground geometry is **expected** and can be a continuity anchor. This conflicts with POV’s “no FPS foreground” rule — the reason grammar-specific baselines matter. | — |
+
+**FOLLOW principle.** FOLLOW preserves the relationship, not the
+distance. It keeps the subject as the continuity anchor while
+allowing natural cinematic variation in distance and framing.
+
+Observed in a high-quality FOLLOW skier test: a longer Kling shot
+(~10s) produced more natural pursuit — the horse/rider pulled
+ahead, the camera continued following, and the relationship held
+without a bolted-behind rig feel. Treat that elasticity as a
+**success**, not a failure. Do **not** claim longer duration
+automatically improves FOLLOW; it is an experimental observation
+that longer shots may give distance room to breathe. That is
+another reason CM `desiredDurationSeconds` is potentially
+valuable. Full Prompt Coach wording:
+[PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
+
+When FOLLOW grammar is implemented before hack day, its baseline
+should encourage persistent subject continuity, an invisible
+objective camera, natural pursuit, dynamic following distance, no
+overtaking unless requested, no visible camera operator / second
+traveler, and no rigid mounted-rig feel. Do not over-constrain
+framing.
 
 Retire **FP Follow** and **Reverse Lead** as names in favor of
 **FOLLOW** and **LEAD**.
@@ -425,9 +447,17 @@ duration for that model. Anticipate remapping if Model Router or
 manual model changes are involved.
 
 Current product already maps CM `pace` onto Camotion
-`exposure.strength` and shooting-prompt speed phrases; clip
-duration stays fixed per model. Do not confuse that with this
-optional duration-mapping layer.
+`exposure.strength` and shooting-prompt speed phrases, and
+Adaptive / Fixed duration maps a target onto the selected model.
+Do not confuse that product mapping with this optional grammar
+duration note.
+
+**FOLLOW duration observation (experimental, not a rule).** A
+~10s high-quality FOLLOW skier generation showed more spatial and
+framing variation than shorter, more rigid-feeling clips. Longer
+duration may allow subject distance to breathe, lag and catch-up,
+and a more organic pursuit relationship. Do not claim longer
+duration automatically causes better FOLLOW.
 
 #### Camera-grammar priorities
 
@@ -462,6 +492,8 @@ Explicitly **post-hackathon**:
 Camera Grammar Hackathon Rule:
 - TunnelVision will support four whole-journey camera grammars:
   POV, FOLLOW, LEAD, MOUNTED.
+- FOLLOW preserves the camera–subject relationship, not a fixed
+  following distance.
 - A single journey uses one grammar only.
 - Prompt Coach, Director, and Cinematographer should all align
   to that selected grammar.
@@ -734,7 +766,7 @@ genesis/      Research site (not the hackathon app)
 | Explicit FOOTAGE shoot | **Exists.** `shootJourney` / `web/shoot-journey.ts`. |
 | Directed auto-shoot | **Exists** as Option `autoShoot` (default **off**). Shoots including CM hold / no-go. |
 | Export Movie concat | **Exists.** Deterministic ffmpeg concat of rendered takes. |
-| Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Directed-only Options (generate all, shoot all segments) and keeps Generate audio. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
+| Agency toggle DIRECTED / AGENT | **Exists.** AGENT hides Directed-only Options (generate all destinations, generate all segments) and keeps Generate audio. CREATE JOURNEY in AGENT mode runs JourneyAgent (`web/src/project/journey-agent.ts`) on the shared Project. Validate and extend it here before the event. |
 | `JourneyAgent` orchestrator | **Exists (happy path + experimental sequential canonical repair).** Shared module: establish A, DIRECT, then GENERATE → CM → REPAIR END → ESTABLISH → launch NEW TAKE → ADVANCE per destination. Footage may overlap later canonical work. Export Movie after all Takes. Hackathon day **reuses** it; do not reimplement the filmmaking Agent in the 5–6 hour window. |
 | LOOP (close on exact canonical A) | **Does not exist.** BACKLOG. Explicit Agent/project option; not inferred from the Journey Prompt. Reuse opening A’s media as the final destination so N→A is a normal CM / Camotion / Take. Not event-day. See [BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option). |
 | Parallel segment filming | **Partial.** JourneyAgent launches NEW TAKE as soon as a segment is established and awaits all Takes before concat in storyboard order. Provider-aware concurrent filming (Runway THROTTLED/PENDING is wait, not fail; other adapters may bound locally) remains BACKLOG. JourneyAgent must not assume a universal 2/3 cap. Not event-day. See [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming). |

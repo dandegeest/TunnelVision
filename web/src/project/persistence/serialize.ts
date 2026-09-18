@@ -4,6 +4,14 @@ import type { ConversationEntry } from "../conversation";
 import type { MovieExportResult } from "../export-movie";
 import { createNewProject } from "../new-project";
 import { projectWithSyncedProductionLegs } from "../production-legs";
+import {
+  DEFAULT_DURATION_MODE,
+  DEFAULT_FIXED_DURATION_SECONDS,
+  clampDurationSeconds,
+  durationModeFromProject,
+  fixedDurationSecondsFromProject,
+  isDurationMode,
+} from "../shot-duration";
 import { journeyTakes } from "../takes";
 import type {
   CanonicalTake,
@@ -95,6 +103,8 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     autoBlockShots: project.autoBlockShots,
     autoShoot: project.autoShoot,
     generateAudio: project.generateAudio,
+    durationMode: durationModeFromProject(project),
+    fixedDurationSeconds: fixedDurationSecondsFromProject(project),
     storyDuration: project.storyDuration,
     storyDurationLocked: project.storyDurationLocked,
   };
@@ -554,6 +564,11 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     autoBlockShots: settings.autoBlockShots,
     autoShoot: settings.autoShoot,
     generateAudio: settings.generateAudio === true,
+    durationMode: isDurationMode(settings.durationMode) ? settings.durationMode : DEFAULT_DURATION_MODE,
+    fixedDurationSeconds:
+      typeof settings.fixedDurationSeconds === "number"
+        ? clampDurationSeconds(settings.fixedDurationSeconds)
+        : DEFAULT_FIXED_DURATION_SECONDS,
     videoModel: settings.videoModel,
     videoModelsByIntent: settings.videoModelsByIntent,
     defaultTakeIntent: settings.defaultTakeIntent,

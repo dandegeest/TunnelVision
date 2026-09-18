@@ -12,6 +12,7 @@ import {
 import {
   DEFAULT_VIDEO_MODEL_ID,
   parseVideoModelId,
+  mapDurationToVideoModel,
   videoModelDurationSeconds,
   videoModelSlug,
   type VideoModelId,
@@ -36,6 +37,7 @@ export type ShootJourneyBody = {
   generationIntent?: unknown;
   klingV3Mode?: unknown;
   generateAudio?: unknown;
+  targetDurationSeconds?: unknown;
   debug?: unknown;
   startShootingMediaId?: unknown;
   endShootingMediaId?: unknown;
@@ -239,7 +241,11 @@ export async function shootPreparedJourney(input: {
       : await stagePreparedMotionPlan(input);
   const seed = optionalSeed();
   const videoModelId = videoModelIdFromBody(input.body.videoModel);
-  const durationSeconds = videoModelDurationSeconds(videoModelId);
+  const targetDuration =
+    typeof input.body.targetDurationSeconds === "number" && Number.isFinite(input.body.targetDurationSeconds)
+      ? input.body.targetDurationSeconds
+      : videoModelDurationSeconds(videoModelId);
+  const durationSeconds = mapDurationToVideoModel(videoModelId, targetDuration);
   const startPath = shootingFrameFromRegistry(staged.startShootingFrame.mediaId).filePath;
   const endPath = shootingFrameFromRegistry(staged.endShootingFrame.mediaId).filePath;
   const startCanonicalMediaId =

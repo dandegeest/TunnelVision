@@ -740,9 +740,13 @@ permissive.
 
 **Hackathon vocabulary.** POV, FOLLOW, LEAD, MOUNTED. Retire
 **FP Follow** and **Reverse Lead** as names. FOLLOW is an
-invisible objective follow, not true first-person. One journey =
-one grammar. Mixed-grammar / per-traversal switching is
-**post-hackathon**.
+invisible objective follow, not true first-person. **FOLLOW
+preserves the relationship, not the distance** — the subject is
+the continuity anchor; following distance may expand and contract.
+A rigidly bolted-behind lock is closer to MOUNTED than cinematic
+FOLLOW. One journey = one grammar. Mixed-grammar / per-traversal
+switching is **post-hackathon**. See
+[PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
 
 Human-facing camera-intent language vs internal grammar:
 [PROMPT_COACH.md](PROMPT_COACH.md). Do not leak current locomotion

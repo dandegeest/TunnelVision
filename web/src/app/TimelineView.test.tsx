@@ -300,6 +300,16 @@ describe("Shoot Cinematographer journey assessment", () => {
       expect(html).toContain(`data-journey-pace="${pace}"`);
       expect(html).toContain('data-pace-gutter="A-B"');
     }
+    const withDesired = renderShoot(
+      projectWithCinematographerAssessment(createForestProject(), "A-B", {
+        ...shootableAB,
+        desiredDurationSeconds: 8,
+      }),
+      { journeyId: "A-B" },
+    );
+    expect(withDesired).toContain('data-pace-desired-duration="8"');
+    expect(withDesired).toContain('data-pace-duration-mark="8"');
+    expect(withDesired).toContain('data-inspector-desired-duration="8"');
   });
 
   it("paints hold as a solid gold filled band and no-go as a rust outline", () => {
@@ -343,6 +353,7 @@ describe("Shoot Cinematographer journey assessment", () => {
   it("keeps Motion Inspector scores, concerns, and path without a Shot disclosure", () => {
     const project = projectWithCinematographerAssessment(createForestProject(), "D-E", {
       ...shootableAB,
+      desiredDurationSeconds: 4,
       summary: "Pass through the remaining opening toward the portal corridor.",
       route: "Move forward as the next space becomes visible through the threshold.",
       threshold: "The tall vertical portal remaining in the corridor.",
@@ -363,6 +374,9 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Pace");
     expect(html).toContain('data-inspector-pace="fast"');
     expect(html).toContain("Fast");
+    expect(html).toContain(">Duration<");
+    expect(html).toContain('data-inspector-desired-duration="4"');
+    expect(html).toContain("data-inspector-resolved-duration");
     expect(html).not.toContain("Pace.");
     expect(html).not.toContain(">Shot<");
     expect(html).not.toContain("Route.");

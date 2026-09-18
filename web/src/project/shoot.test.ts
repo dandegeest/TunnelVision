@@ -160,6 +160,7 @@ describe("SHOOT gate and JourneyShot take", () => {
       startShootingMediaId: take.startShootingFrame.mediaId,
       endShootingMediaId: take.endShootingFrame.mediaId,
     });
+    expect(shootRequestFromProject(prepared, "A-B").targetDurationSeconds).toBe(5);
     expect(shootRequestFromProject({ ...prepared, generateAudio: true }, "A-B").generateAudio).toBe(true);
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);
     const kling = shootRequestFromProject({ ...prepared, videoModel: "kling-v2.5-turbo-pro" }, "A-B");
@@ -288,7 +289,7 @@ describe("SHOOT gate and JourneyShot take", () => {
 
   it("resizes a rendered leg to the take's clip length", () => {
     const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
-    expect(prepared.journeys[0]?.durationSeconds).toBe(6);
+    expect(prepared.journeys[0]?.durationSeconds).toBe(5);
     const klingTake: JourneyShotTake = { ...take, model: "kwaivgi/kling-v2.5-turbo-pro", durationSeconds: 5 };
     const rendered = projectWithJourneyShotTake(prepared, "A-B", {
       take: klingTake,

@@ -18,7 +18,9 @@ Each construction is explicit. There is no filmmaker look-ahead
 control. DOWNLOAD
 assembles the current cut from the Takes selected on the timeline.
 A cached assembly is reused only while that selection fingerprint
-matches; changing selected Takes rebuilds the file. Concat keeps
+matches; changing selected Takes rebuilds the file. The download name
+uses the current project title, so renaming after untitled assemblies
+starts that name at v1. Concat keeps
 audio when those Takes have it.
 
 ## Primary interaction
@@ -35,7 +37,7 @@ panel holds the project selector, then Directed | Agent, Journey prompt
 (creative intent — [PROMPT_COACH.md](PROMPT_COACH.md); philosophy
 only, not a new control), destination count (AUTO or a
 number, typed or stepped), and, in Directed, Options (Generate all destinations,
-Shoot). Blocking is not a user automation option.
+Generate all segments, Generate audio, Adaptive duration). Blocking is not a user automation option.
 CREATE JOURNEY is the primary action. Video, Default Take Intent, and Debug mode live in Project
 settings, opened from the gear. Agent hides Options. The panel can collapse to the right
 like conversation collapses to the left. Director, Project, and Inspector
@@ -130,8 +132,10 @@ slots so they never open Plan.
 After a Motion Plan exists, the gutter
 between destination stills shows a chevron pace mark: sparse for slow, denser
 for fast and hyperspeed, a trailing hold for slow-motion, and a swell
-for variable. Motion Inspector lists Pace under Traversal conf. with that
-same chevron mark plus the pace label. **NEW TAKE** sits under the Take stack when MOTION
+for variable. Desired (or Fixed) seconds sit in a gold badge above those chevrons, number only.
+Motion Inspector lists Pace under Traversal conf. with that
+same chevron mark plus the pace label, and Duration as `4s | 4s`
+(intent | model). **NEW TAKE** sits under the Take stack when MOTION
 or either endpoint of that segment is selected. The main control starts a
 Take with the Default Take Intent. The arrow offers Fast /
 Balanced / Quality. Clicking an intent appends another
@@ -389,7 +393,7 @@ can hide to the left. The project selector, Directed | Agent, Journey prompt, de
 which can hide to the right. The selector offers New, Rename, Open, and Save.
 New names the project and creates its folder in the Projects Folder so
 the session autosaves. Rename changes the current project's title and
-folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Shoot all segments. Generate audio is available in Directed and Agent; it asks audio-capable video models for sound on NEW TAKE.
+folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Generate all segments. Generate audio is available in Directed and Agent; it asks audio-capable video models for sound on NEW TAKE. Adaptive duration is also in Directed and Agent; when off, Fixed duration targets that many seconds for every traversal.
 Video, Default Take Intent, and Debug mode are in Project settings. Those
 model, format, and resolution controls are in-app menus, not native OS
 selects. Clicking outside a popup menu closes it; opening one menu closes any

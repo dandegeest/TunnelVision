@@ -1,6 +1,6 @@
 import type { Destination, JourneyShot } from "../project/types";
 
-export const DEFAULT_DURATION_SECONDS = 6;
+export const DEFAULT_DURATION_SECONDS = 5;
 export const BASE_PX_PER_SECOND = 38;
 export const MIN_ZOOM = 0.5;
 export const MAX_ZOOM = 3;

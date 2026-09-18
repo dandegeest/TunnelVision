@@ -14,8 +14,8 @@ import {
   takeClipDurationSeconds,
   takeHasShootingFrames,
   takeMatchesCurrentCanonicals,
-  unshotClipDurationSeconds,
 } from "../project/takes";
+import { requestedDurationSeconds } from "../project/shot-duration";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, type JourneyShot, type JourneyShotTake, type Project, type Selection } from "../project/types";
 import { GenerationIntentMenu } from "../ui/GenerationIntentMenu";
@@ -274,14 +274,13 @@ export function JourneyLane({
   shootingJourneyIds?: readonly string[];
   onSelect: (journeyId: string, band: "motion" | "footage") => void;
 }) {
-  const { project, shootJourney, selectTake, deleteTake, zoom } = useProject();
+  const { project, shootJourney, selectTake, deleteTake, zoom, shootingIntents } = useProject();
   const [pendingDelete, setPendingDelete] = useState<{
     journeyId: string;
     takeId: string;
     number: number;
   } | null>(null);
   const laneHeight = journeyLaneHeight(projectJourneys, selection, shootingJourneyIds ?? []);
-  const generatingDuration = unshotClipDurationSeconds(project);
   return (
     <>
     <div className="absolute inset-x-0 z-[1]" style={{ top: JOURNEY_LANE_TOP, height: laneHeight }}>
@@ -369,7 +368,11 @@ export function JourneyLane({
                 journey={journey}
                 number={nextTakeNumber(takes)}
                 zoom={zoom}
-                durationSeconds={generatingDuration}
+                durationSeconds={requestedDurationSeconds(
+                  project,
+                  journey,
+                  shootingIntents[journey.id] ?? defaultTakeIntentFromProject(project),
+                )}
                 rowIndex={takes.length}
               />
             ) : null}

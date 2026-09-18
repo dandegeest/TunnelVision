@@ -87,11 +87,11 @@ describe("shootPreparedJourney", () => {
       CAMOTION_EXPOSURE_STRENGTH_BY_PACE.slow,
       CAMOTION_EXPOSURE_STRENGTH_BY_PACE.slow,
     ]);
-    expect(take.durationSeconds).toBe(6);
+    expect(take.durationSeconds).toBe(5);
     expect(take.model).toBe("prunaai/p-video");
     expect(take.seed).toBe(70);
     expect(videoRequest.hasEnd).toBe(true);
-    expect(videoRequest.duration).toBe(6);
+    expect(videoRequest.duration).toBe(5);
     expect(videoRequest.prompt).toBe(take.effectivePrompt);
     expect(videoRequest.startPath).toBe(registry.get(take.startShootingFrame.mediaId)?.filePath);
     expect(videoRequest.endPath).toBe(registry.get(take.endShootingFrame.mediaId)?.filePath);
@@ -138,6 +138,44 @@ describe("shootPreparedJourney", () => {
     expect(staged.camotion.startDepthPath).toBe(`/tmp/depth-${start.mediaId}.png`);
     expect(staged.camotion.endDepthPath).toBe(`/tmp/depth-${end.mediaId}.png`);
     expect(staged.startShootingFrame.mediaId).not.toBe(staged.endShootingFrame.mediaId);
+  });
+
+  it("maps an original target onto the selected model's supported duration", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-shoot-duration-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    let duration: number | undefined;
+    const take = await shootPreparedJourney({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        videoModel: "veo-3.1-fast",
+        targetDurationSeconds: 7,
+        pace: "fast",
+      },
+      renderFrame: async () => PNG,
+      generateVideo: async (request) => {
+        duration = request.durationSeconds;
+        return {
+          provider: "replicate",
+          model: "google/veo-3.1-fast",
+          modelVersion: "test",
+          predictionId: "pred-veo-duration",
+          status: "succeeded",
+          outputUrl: "https://example.test/veo.mp4",
+          metadata: {},
+          startedAt: "2026-09-17T00:00:00.000Z",
+          completedAt: "2026-09-17T00:00:06.000Z",
+          elapsedMs: 6000,
+        };
+      },
+    });
+    expect(duration).toBe(6);
+    expect(take.durationSeconds).toBe(6);
+    expect(take.pace).toBe("fast");
   });
 
   it("requests and records Kling's 5s clip length", async () => {

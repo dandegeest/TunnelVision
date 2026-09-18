@@ -110,6 +110,12 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.match(request.systemInstruction, /Do not invent people, animals, vehicles, or other subjects merely to populate/);
   assert.match(request.systemInstruction, /Omit subject guidance entirely when none is needed/);
   assert.match(request.systemInstruction, /Pace is a first-class temporal choice/);
+  assert.match(request.systemInstruction, /apparent camera speed \/ kinetic feel, not shot length/);
+  assert.match(request.systemInstruction, /Separately choose desiredDurationSeconds/);
+  assert.match(request.systemInstruction, /Pace and desiredDurationSeconds are independent/);
+  assert.match(request.systemInstruction, /Do not consult model duration menus/);
+  assert.match(request.systemInstruction, /desiredDurationSeconds must be an integer from 1 to 30, independent of pace/);
+  assert.doesNotMatch(request.systemInstruction, /Clip duration is fixed/);
   assert.match(request.systemInstruction, /Perform the entire traversal in extreme cinematic slow motion/);
   assert.match(request.systemInstruction, /Perform the entire traversal at extreme hyper-speed/);
   assert.match(request.systemInstruction, /Do not write pace, slow motion, or hyper-speed wording into segmentPromptAddition/);
@@ -212,6 +218,23 @@ test("Cinematographer pace accepts slow-motion, hyperspeed, and variable", () =>
   assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "slow-motion" })).pace, "slow-motion");
   assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "hyperspeed" })).pace, "hyperspeed");
   assert.equal(parseCinematographerAssessment(validAssessmentJson({ pace: "variable" })).pace, "variable");
+});
+
+test("Cinematographer desiredDurationSeconds is optional and independent of pace", () => {
+  const omitted = parseCinematographerAssessment(validAssessmentJson());
+  assert.equal(omitted.pace, "fast");
+  assert.equal(omitted.desiredDurationSeconds, undefined);
+  const chosen = parseCinematographerAssessment(validAssessmentJson({ pace: "fast", desiredDurationSeconds: 8 }));
+  assert.equal(chosen.pace, "fast");
+  assert.equal(chosen.desiredDurationSeconds, 8);
+  const rounded = parseCinematographerAssessment(validAssessmentJson({ desiredDurationSeconds: 7.4 }));
+  assert.equal(rounded.desiredDurationSeconds, 7);
+  const invalid = parseCinematographerAssessment(validAssessmentJson({ desiredDurationSeconds: 0 }));
+  assert.equal(invalid.desiredDurationSeconds, undefined);
+  assert.equal(invalid.pace, "fast");
+  const tooLong = parseCinematographerAssessment(validAssessmentJson({ desiredDurationSeconds: 31 }));
+  assert.equal(tooLong.desiredDurationSeconds, undefined);
+  assert.equal(tooLong.pace, "fast");
 });
 
 test("CM segment prompt can name a visible doorway, open traversal, or positive boundary", () => {

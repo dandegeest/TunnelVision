@@ -16,7 +16,7 @@ export const WORLD_SUBJECTS_MAY_APPEAR =
 
 /**
  * Apparent camera speed in the frozen locomotion baseline.
- * Clip duration is unchanged; this is linguistic conditioning, not runtime.
+ * Pace does not set clip duration; this is linguistic conditioning, not runtime.
  * BLOCK sets it per segment. Default remains fast.
  *
  * `{pace}` is a full adverbial phrase, not an adjective inside "constant speed",

@@ -93,7 +93,7 @@ Examples:
 
 When people, animals, vehicles, or other subjects are visually or narratively relevant to this pair or the journey, you may add concise subject guidance: how they persist or behave during the traversal. Examples: pedestrians and traffic continue naturally through the street; an existing animal remains visible as the camera passes; figures visible in the destination become clearer during the approach. Preserve subjects that are already relevant. Describe their behavior only when useful to the traversal. Do not invent people, animals, vehicles, or other subjects merely to populate an otherwise empty scene. Omit subject guidance entirely when none is needed.
 
-Pace is a first-class temporal choice for this shot. Clip duration is fixed; pace is apparent camera speed / temporal rate, not runtime. Always choose one:
+Pace is a first-class temporal choice for this shot. Pace is apparent camera speed / kinetic feel, not shot length. Always choose one:
 - slow-motion: time feels stretched; close geometry or a threshold linger while travel continues. The composed shooting prompt will OPEN with: "${EXTREME_PACE_LEAD_INS["slow-motion"]}"
 - slow: deliberate physical travel through a tight or intricate route, or a large spatial change that would feel rushed faster
 - moderate: the camera must negotiate a threshold, turn, or close geometry while still covering the route in one shot
@@ -101,6 +101,8 @@ Pace is a first-class temporal choice for this shot. Clip duration is fixed; pac
 - hyperspeed: extreme apparent speed through space. Still physical travel. Not a warp, dissolve, or teleport. The composed shooting prompt will OPEN with: "${EXTREME_PACE_LEAD_INS.hyperspeed}"
 - variable: the route asks for both rush and ease — open then tight, drop then settle, accelerate then negotiate
 Do not write pace, slow motion, or hyper-speed wording into segmentPromptAddition. Slow, moderate, fast, and variable remain physical camera-travel speed in the frozen baseline. Slow-motion and hyperspeed are first-class temporal treatments placed at the beginning of the shooting prompt from your pace field. Do not add scene-specific pace examples. Do not add provider- or model-specific prompting. Do not pick slow-motion or slow merely because the shot is interesting. Do not pick hyperspeed if it would license morphing.
+
+Separately choose desiredDurationSeconds: how many seconds this shot should last to communicate the story beat and physically traverse from A to B. Story intent is the primary signal. Visual/spatial complexity, distance, obstacles, thresholds, subject action, and dramatic build/reveal may justify more or less time. Pace and desiredDurationSeconds are independent — a fast camera can still need a long shot, and a slow camera can still need a short one. Do not consult model duration menus. Do not write duration into segmentPromptAddition.
 
 shootability (advisory actionable summary; keep it consistent with setConsistency, traversalConfidence, and the diagnosis):
 - shootable: a plausible continuous physical traversal exists (direct, actionable, threshold/generative, or choreographed), even when the worlds look different
@@ -131,6 +133,7 @@ Use this shape:
   "transitionStrategy": "<how the shot should use available geography so the transition reads as continuous travel>",
   "segmentPromptAddition": "<concise natural-language instruction naming THIS SHOT's visible route and, when relevant, subject persistence; it follows any extreme-pace lead-in and precedes the frozen locomotion baseline>",
   "pace": "fast",
+  "desiredDurationSeconds": 6,
   "concerns": ["<concrete spatial or shooting concern>"],
   "repairRecommendation": "SHOOT",
   "repairInstruction": "<omit or empty when SHOOT; otherwise a concise spatial repair instruction>",
@@ -178,6 +181,7 @@ Rules:
 - summary, route, threshold, camera, parallax, transitionStrategy, and segmentPromptAddition must be non-empty strings
 - segmentPromptAddition must name the visible physical route for this pair and must not repeat the frozen locomotion baseline
 - pace must be slow-motion, slow, moderate, fast, hyperspeed, or variable
+- desiredDurationSeconds must be an integer from 1 to 30, independent of pace
 - concerns must be an array of strings; use [] when there are no concerns
 - travel.start and travel.end should be included when a target is visible
 - repairRecommendation must be SHOOT or RESHOOT_END
@@ -213,6 +217,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Do not let a low setConsistency score force traversalConfidence lower.",
     "Set consistency is how strongly the stills belong to the same visually/spatially consistent environment. Low is a diagnostic, not an automatic filming failure.",
     "Traversal confidence is whether a video model can depict continuous physical camera travel from START to END in the available shot duration, without a cut, dissolve, crossfade, teleport, or scene replacement.",
+    "Choose desiredDurationSeconds independently of pace: how long the shot needs to communicate the story beat and physically traverse from START to END.",
     "Closed doors, visible thresholds into surreal worlds, and invented intermediate geography during the shot can still be high traversalConfidence.",
     "Choose repairRecommendation. START is established and must not be rewritten. If there is no plausible continuous shot, recommend RESHOOT_END with a concise instruction for regenerating the END from the established START. Do not repair for aesthetics, world-match, or resemblance. Do not make the images merely resemble each other.",
     "Report travel geometry for each still when a target is visible. Do not default to image center unless that is actually where travel goes.",

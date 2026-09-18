@@ -96,7 +96,10 @@ const MOVIE_EXPORT_FILENAME = /^[A-Za-z0-9]{1,32}_v\d+\.mp4$/;
 export function movieExportSlug(title: string): string {
   const compact = title.replace(/[^A-Za-z0-9]+/g, "");
   const clipped = compact.slice(0, MOVIE_EXPORT_SLUG_MAX);
-  return clipped || "Untitled";
+  if (!clipped || /^untitled$/i.test(clipped)) {
+    return "Untitled";
+  }
+  return clipped;
 }
 
 export function isMovieExportFilename(value: unknown): value is string {
@@ -106,8 +109,23 @@ export function isMovieExportFilename(value: unknown): value is string {
 export function nextMovieExportFilename(title: string, previousFilename?: string): string {
   const slug = movieExportSlug(title);
   const match = previousFilename?.match(/^([A-Za-z0-9]{1,32})_v(\d+)\.mp4$/);
-  const nextVersion = match && match[1] === slug ? Number(match[2]) + 1 : 1;
+  const previousSlug = match ? movieExportSlug(match[1]) : undefined;
+  const nextVersion = match && previousSlug === slug ? Number(match[2]) + 1 : 1;
   return `${slug}_v${nextVersion}.mp4`;
+}
+
+/** Keep a cached assembly's name when the project slug is unchanged; retitle after rename. */
+export function movieDownloadFilename(
+  title: string,
+  previousFilename?: string,
+  cachedFilename?: string,
+): string {
+  const slug = movieExportSlug(title);
+  const cachedMatch = cachedFilename?.match(/^([A-Za-z0-9]{1,32})_v(\d+)\.mp4$/);
+  if (cachedMatch && movieExportSlug(cachedMatch[1]) === slug && cachedFilename) {
+    return cachedFilename;
+  }
+  return nextMovieExportFilename(title, previousFilename);
 }
 
 export async function requestExportMovie(

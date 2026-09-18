@@ -1695,13 +1695,18 @@ describe("new-project Plan", () => {
       "After PLAN JOURNEY plans the journey, generate each remaining destination in order.",
     );
     expect(html).not.toContain('aria-label="Auto blocking"');
-    expect(html).toContain('aria-label="Shoot all segments"');
+    expect(html).toContain('aria-label="Generate all segments"');
     expect(html).toContain('aria-label="Generate audio"');
+    expect(html).toContain('aria-label="Adaptive duration"');
+    expect(html).toMatch(
+      /checked[^>]*aria-label="Adaptive duration"|aria-label="Adaptive duration"[^>]*checked/,
+    );
+    expect(html).not.toContain('aria-label="Fixed duration seconds"');
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Generate all destinations"|aria-label="Generate all destinations"[^>]*checked/,
     );
     expect(html).not.toMatch(
-      /checked[^>]*aria-label="Shoot all segments"|aria-label="Shoot all segments"[^>]*checked/,
+      /checked[^>]*aria-label="Generate all segments"|aria-label="Generate all segments"[^>]*checked/,
     );
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Generate audio"|aria-label="Generate audio"[^>]*checked/,

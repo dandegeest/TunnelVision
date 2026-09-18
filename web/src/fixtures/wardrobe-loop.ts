@@ -10,7 +10,6 @@ import videoDE from "../../../camotion/integration/wardrobe-loop-01/videos/D-E.m
 import story from "../../../camotion/integration/wardrobe-loop-01/story.json";
 import type { Project } from "../project/types";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
-import { DEFAULT_DURATION_SECONDS } from "../timeline/geometry";
 
 export { ARRIVAL_BLOCKED_COPY as LOOP_ARRIVAL_COPY } from "../project/policy";
 
@@ -66,7 +65,7 @@ export function createWardrobeProject(): Project {
         id: "A-B",
         startDestinationId: "A",
         endDestinationId: "B",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoAB,
       },
@@ -74,7 +73,7 @@ export function createWardrobeProject(): Project {
         id: "B-C",
         startDestinationId: "B",
         endDestinationId: "C",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoBC,
       },
@@ -82,7 +81,7 @@ export function createWardrobeProject(): Project {
         id: "C-D",
         startDestinationId: "C",
         endDestinationId: "D",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoCD,
         shootabilityNote: "This rendered shot needs review: the forest-to-ruins passage reads mixed or dissolve-like.",
@@ -91,7 +90,7 @@ export function createWardrobeProject(): Project {
         id: "D-E",
         startDestinationId: "D",
         endDestinationId: "E",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "rendered",
         videoUrl: videoDE,
       },
@@ -99,7 +98,7 @@ export function createWardrobeProject(): Project {
         id: "E-A",
         startDestinationId: "E",
         endDestinationId: "A",
-        durationSeconds: DEFAULT_DURATION_SECONDS,
+        durationSeconds: 6,
         status: "ready",
         shootabilityNote: EA_SHOOTABILITY_NOTE,
       },

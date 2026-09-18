@@ -10,6 +10,7 @@ import type { GenerationIntent, VideoModelsByIntent } from "./generation-intent"
 export type { ImageModelId, ImageOutputFormat, ImageResolution, KlingV3Mode, LocomotionPace, VideoModelId };
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
+export type DurationMode = "adaptive" | "fixed";
 
 export type DestinationStatus =
   | "planned"
@@ -65,8 +66,13 @@ export type CinematographerAssessment = {
   parallax: string;
   transitionStrategy: string;
   segmentPromptAddition: string;
-  /** Apparent camera speed for this shot. Fills {pace} in the locomotion baseline. */
+  /** Apparent camera speed for this shot. Fills {pace} in the locomotion baseline. Independent of shot length. */
   pace: LocomotionPace;
+  /**
+   * Cinematic shot length in seconds. Independent of `pace`.
+   * Absent on older assessments.
+   */
+  desiredDurationSeconds?: number;
   concerns: string[];
   /**
    * Semantic travel geometry from the same CM assessment turn.
@@ -217,6 +223,7 @@ export type JourneyShotTake = {
    * Not a rating of the resulting footage. Absent on legacy Takes.
    */
   generationIntent?: GenerationIntent;
+  /** Actual seconds sent to the selected generator after model mapping. */
   durationSeconds: number;
   seed?: number;
   providerOutputUrl?: string;
@@ -374,6 +381,17 @@ export type Project = {
   autoShoot: boolean;
   /** When true, NEW TAKE asks audio-capable generators (Veo, Seedance, Kling 3, Pruna) for sound. */
   generateAudio: boolean;
+  /**
+   * Adaptive: map CM `desiredDurationSeconds` onto the selected generator.
+   * Fixed: map `fixedDurationSeconds` onto the selected generator.
+   * Missing on older projects means adaptive.
+   */
+  durationMode?: DurationMode;
+  /**
+   * Target seconds used when `durationMode` is fixed. Mapped per model.
+   * Missing on older projects means 5.
+   */
+  fixedDurationSeconds?: number;
   /**
    * Fast generation-intent mapping. Prefer `videoModelsByIntent`.
    * Unshot duration preview and Agent NEW TAKE follow `defaultTakeIntent`.

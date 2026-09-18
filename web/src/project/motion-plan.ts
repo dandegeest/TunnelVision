@@ -1,6 +1,5 @@
 import { cameraMotionPlansFromAssessment } from "../../../media/src/cinematographer/camera-motion-plan.ts";
-import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
-import { unshotVideoModel } from "./generation-intent";
+import { unshotDurationSeconds } from "./shot-duration";
 import {
   actualFrameForDestination,
   canAssessJourney,
@@ -122,7 +121,7 @@ export function projectWithMotionPlan(
     startCanonicalMediaId: start?.mediaId ?? motionPlan.startCanonicalMediaId,
     endCanonicalMediaId: end?.mediaId ?? motionPlan.endCanonicalMediaId,
   };
-  const durationSeconds = videoModelDurationSeconds(unshotVideoModel(project));
+  const durationSeconds = unshotDurationSeconds(project, { cinematographer: stamped.cinematographer });
   return {
     ...project,
     journeys: project.journeys.map((item) => {

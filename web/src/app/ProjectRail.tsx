@@ -10,6 +10,12 @@ import {
   storyDurationFieldValue,
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import {
+  durationModeFromProject,
+  fixedDurationSecondsFromProject,
+  MAX_FIXED_DURATION_SECONDS,
+  MIN_FIXED_DURATION_SECONDS,
+} from "../project/shot-duration";
 import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
 import type { Agency, Project } from "../project/types";
 import {
@@ -776,6 +782,8 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     setAutoGenerateAllDestinations,
     setAutoShoot,
     setGenerateAudio,
+    setDurationMode,
+    setFixedDurationSeconds,
     directorStatus,
     planStartError,
     journeyAgent,
@@ -906,12 +914,12 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                       type="checkbox"
                       checked={project.autoShoot}
                       disabled={busy}
-                      aria-label="Shoot all segments"
+                      aria-label="Generate all segments"
                       title="After destinations exist, shoot every actual adjacent segment, including those with CM warnings."
                       className="mt-0.5 accent-[#ece7df]"
                       onChange={(event) => setAutoShoot(event.target.checked)}
                     />
-                    Shoot all segments
+                    Generate all segments
                   </label>
                 </>
               ) : null}
@@ -927,6 +935,36 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 />
                 Generate audio
               </label>
+              <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                <input
+                  type="checkbox"
+                  checked={durationModeFromProject(project) === "adaptive"}
+                  disabled={busy}
+                  aria-label="Adaptive duration"
+                  title="When on, each traversal uses the Cinematographer's desired duration. When off, every traversal targets the fixed duration."
+                  className="mt-0.5 accent-[#ece7df]"
+                  onChange={(event) => setDurationMode(event.target.checked ? "adaptive" : "fixed")}
+                />
+                Adaptive duration
+              </label>
+              {durationModeFromProject(project) === "fixed" ? (
+                <label className="flex items-center gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                  Fixed duration
+                  <input
+                    type="number"
+                    min={MIN_FIXED_DURATION_SECONDS}
+                    max={MAX_FIXED_DURATION_SECONDS}
+                    step={1}
+                    value={fixedDurationSecondsFromProject(project)}
+                    disabled={busy}
+                    aria-label="Fixed duration seconds"
+                    title="Target this duration for every traversal. The selected video model maps it to a supported clip length."
+                    className="w-14 rounded border border-[#3a342c] bg-transparent px-1.5 py-0.5 text-[11px] tracking-[0.08em] text-[#ece7df]"
+                    onChange={(event) => setFixedDurationSeconds(Number(event.target.value))}
+                  />
+                  s
+                </label>
+              ) : null}
             </div>
             <div className="flex flex-col gap-2">
               <button

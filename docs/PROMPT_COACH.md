@@ -304,7 +304,7 @@ product classification). Four whole-journey grammars only:
 | Grammar | Relationship |
 | --- | --- |
 | **POV** | Camera **is** the traveler. Unembodied unless explicitly requested otherwise. |
-| **FOLLOW** | Camera follows the traveler. Invisible objective / third-person follow. **Not** true first-person. |
+| **FOLLOW** | Invisible objective camera pursues a persistent subject. **Not** true first-person. Preserves the **camera–subject relationship**, not a fixed following distance. |
 | **LEAD** | Camera travels **ahead of** the traveler while facing them, usually retreating as they advance. Also objective / invisible. |
 | **MOUNTED** | Camera is physically attached to the traveler, vehicle, or moving object. |
 
@@ -391,9 +391,10 @@ Camera grammar is the persistent relationship between camera and
 traveler/subject. It is **not** the same as every local movement.
 Within one grammar the camera may still turn, bank, climb, descend,
 accelerate, decelerate, pass through thresholds, and follow curved
-paths. POV can still turn through a maze. FOLLOW can still bank
-behind a skier. MOUNTED can still climb and roll with a vehicle.
-The grammar stays constant while local movement changes.
+paths. POV can still turn through a maze. FOLLOW can still bank,
+lag, catch up, and let the subject pull ahead. MOUNTED can still
+climb and roll with a vehicle. The grammar stays constant while
+local movement changes.
 
 ### Segment duration / pace
 
@@ -415,8 +416,20 @@ Retry on Model B (4s / 6s / 8s) → remap again for Model B
 
 Do not document exact mapping as live behavior. Current product
 already maps CM `pace` onto Camotion exposure and shooting-prompt
-speed phrases; clip duration stays fixed per model. That is not
-this optional duration-mapping layer.
+speed phrases. Product Adaptive / Fixed duration now maps a target
+onto the selected model's supported clip lengths; remapping on
+retry uses the original target, not the previous clip. That
+mapping is not Prompt Coach's job.
+
+**FOLLOW duration observation (experimental, not a rule).** A
+high-quality FOLLOW skier test at ~10s (Kling) showed more natural
+cinematic pursuit than shorter rigid-feeling generations: the
+subject pulled farther ahead, the camera continued following, and
+distance closed again. Longer duration *may* give FOLLOW room for
+breathing distance, acceleration/deceleration, lag and catch-up,
+and more varied framing. Do **not** claim longer duration
+automatically improves FOLLOW. This is another reason
+CM-controlled `desiredDurationSeconds` is potentially valuable.
 
 **Current.** Product locomotion law is forward unembodied POV
 (`TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE`). The Director can
@@ -465,11 +478,59 @@ baseline.
 **Experimental / discovery.** FOLLOW is a researched grammar, not
 a current CM classifier.
 
+**FOLLOW preserves the relationship, not the distance.**
+
 FOLLOW means an **invisible objective** camera follows a persistent
-subject through space. A persistent subject is visible ahead or
-within the frame and is the continuity anchor. The camera travels
-through the environment with them and itself remains invisible. It
-should not become another visible participant by accident.
+subject through space. The subject remains the primary continuity
+anchor and stays visually and narratively dominant enough to
+preserve continuity. The camera remains in pursuit. It should not
+become another visible participant by accident (no camera operator,
+no second traveler).
+
+Following distance may **naturally expand and contract**. The
+camera may lag, catch up, drift, bank, settle, or allow the
+subject to pull ahead. The camera should **not** feel mechanically
+locked at one exact distance, **not** arbitrarily overtake the
+subject, and **not** lose the intended follow relationship.
+
+Do **not** define FOLLOW as “camera stays exactly X feet behind
+the subject” or “camera maintains identical full-body framing at
+all times” unless the story explicitly requires that.
+Over-constraining distance risks a rigid camera-rig feeling.
+Prefer natural cinematic elasticity:
+
+``` text
+subject pulls ahead
+→ camera continues pursuit
+→ distance closes again
+→ subject remains the anchor
+```
+
+Conceptually:
+
+``` text
+Good Journey prompt:
+"Continuously follow the same rider through the landscape."
+
+Better internal interpretation:
+"Maintain the rider as the persistent subject and continuity
+anchor while allowing natural cinematic variation in following
+distance."
+
+Avoid automatically adding:
+"maintain exactly the same distance behind the rider"
+```
+
+unless the filmmaker specifically asks for a locked offset.
+
+**Observed (FOLLOW skier / horse-and-rider, high-quality Kling
+~10s).** The camera did not stay rigidly locked immediately behind
+the subject. At times the horse pulled farther ahead; the camera
+continued pursuing while preserving FOLLOW. That felt more
+cinematic and less like a physical rig bolted directly behind the
+subject. Capture this as a **positive** behavior, not a failure.
+Longer duration *may* have given that elasticity more room. Do not
+generalize it into a duration rule.
 
 Subjects discussed in sessions and discovery notes: skier, koi,
 tornado, roller coaster, paper airplane.
@@ -479,8 +540,22 @@ operator's skis should **not** automatically be visible. That would
 imply a different camera relationship (embodied POV or a second
 skier).
 
-**Future.** That distinction should live in a FOLLOW baseline
-rather than requiring every Journey prompt to explain it.
+**FOLLOW vs MOUNTED.** FOLLOW is an invisible objective camera
+that dynamically pursues a subject ahead / within the scene;
+distance may vary. MOUNTED is physically attached; camera–subject
+geometry is much more rigid, and persistent vehicle/body geometry
+may be expected. If a shot looks bolted directly behind the
+subject with almost no relational variation, that may visually
+resemble **MOUNTED** more than cinematic FOLLOW.
+
+**Future / pre-hackathon implementation.** That distinction should
+live in a FOLLOW baseline rather than requiring every Journey
+prompt to explain it. When FOLLOW is implemented, the baseline
+should encourage: persistent subject continuity; invisible
+objective camera; natural pursuit; dynamic following distance; no
+overtaking unless explicitly requested; no visible camera operator
+/ second traveler; no rigid mounted-rig feel. Do not over-constrain
+framing.
 
 ---
 
@@ -512,6 +587,10 @@ persistent foreground objects" rule blindly to MOUNTED shots. This
 is why one universal camera baseline is insufficient.
 [HACKATHON.md](HACKATHON.md#camera-grammar--hackathon-decision)
 records the same conflict.
+
+A FOLLOW shot that never lets distance breathe can look more like
+MOUNTED (bolted behind the subject) than cinematic FOLLOW. See
+§10.
 
 ---
 
@@ -957,7 +1036,7 @@ prompting, camera strategies, and models actually worked.
 | Kind | What is true now |
 | --- | --- |
 | **Current observed practice** | Journey prompt → PLAN JOURNEY / CREATE JOURNEY → sequential Derived Construct → CM on actual pairs → Camotion A′/B′ → NEW TAKE. Unembodied POV baseline. Discover is unwired. Camera grammar is not implemented. |
-| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons. |
+| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons; FOLLOW skier ~10s Kling: elastic following distance is cinematic, not a failure. |
 | **Current / pre-hackathon target (not done)** | POV, FOLLOW, LEAD, MOUNTED. One grammar per entire journey. Prompt Coach helps keep the journey compatible with that grammar. Segment pace/duration mapping is nice-to-have if easy. |
 | **Post-hackathon** | Mixed grammar within one journey; grammar switching between adjacent traversals; multiple camera interpretations of the same canonical; explicit camera cuts at grammar changes; continuous transitions between grammars; coverage planning; richer shot-duration planning. |
 | **Future direction** | Prompt Coach / Intent Conditioning; structured creative intent; Project-level Creative Direction; agentic Runway Model Router control; Discover as a second construction strategy. |

@@ -1,7 +1,6 @@
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type { Destination, JourneyShot, Project, StoryboardFrame } from "./types";
-import { videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
-import { unshotVideoModel } from "./generation-intent";
+import { projectWithResolvedUnshotDurations, unshotDurationSeconds } from "./shot-duration";
 import { journeyTakes } from "./takes";
 
 export type ProductionEndpoint = StoryboardFrame & { image: string; mediaId: string };
@@ -214,7 +213,7 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     }
   }
 
-  const defaultDuration = videoModelDurationSeconds(unshotVideoModel(project));
+  const defaultDuration = unshotDurationSeconds(project);
   const nextDestinationsById = new Map(destinations.map((destination) => [destination.id, destination]));
   const pairIds: string[] = [];
   const journeys: JourneyShot[] = pairs.map((pair) => {
@@ -254,10 +253,10 @@ export function projectWithSyncedProductionLegs(project: Project): Project {
     return { ...frame, destinationId: frame.id };
   });
 
-  return {
+  return projectWithResolvedUnshotDurations({
     ...project,
     storyboard,
     destinations,
     journeys,
-  };
+  });
 }

@@ -11,6 +11,7 @@ import { canAssessJourney, cinematographerScoreTone, locomotionPaceLabel } from 
 import { canReshootDestinationFrame } from "../project/destination";
 import { defaultTakeIntentFromProject, takeIntentTooltip, type GenerationIntent } from "../project/generation-intent";
 import { canShootJourney } from "../project/shoot";
+import { durationModeFromProject, intentDurationSeconds, unshotDurationSeconds } from "../project/shot-duration";
 import {
   selectedTake,
   TAKE_PREVIOUS_CANONICALS_COPY,
@@ -545,6 +546,7 @@ function CinematographerLegDetail({
         </span>
         <span>Pace</span>
         <PaceReadout pace={assessment.pace} />
+        <ShotDurationReadout assessment={assessment} layout="grid" />
       </div>
       {assessment.concerns.length > 0 ? (
         <div className="space-y-1">
@@ -560,6 +562,82 @@ function CinematographerLegDetail({
         {assessment.camera}
       </p>
     </div>
+  );
+}
+
+function DurationPair({
+  intentSeconds,
+  resolvedSeconds,
+  fixed,
+}: {
+  intentSeconds?: number;
+  resolvedSeconds: number;
+  fixed: boolean;
+}) {
+  const intentTitle = fixed ? "Fixed duration" : "Desired duration";
+  const pair = (
+    <span className="inline-flex items-center gap-1.5 tabular-nums tracking-[0.12em] text-[#ece7df] uppercase">
+      {intentSeconds !== undefined ? (
+        <>
+          <span
+            className="text-[#ece7df]"
+            title={intentTitle}
+            data-inspector-desired-duration={fixed ? undefined : intentSeconds}
+            data-inspector-fixed-duration={fixed ? intentSeconds : undefined}
+          >
+            {intentSeconds}s
+          </span>
+          <span className="text-[#5c564c]" aria-hidden>
+            |
+          </span>
+        </>
+      ) : null}
+      <span className="text-[#9a8f7e]" title="Model duration" data-inspector-resolved-duration={resolvedSeconds}>
+        {resolvedSeconds}s
+      </span>
+    </span>
+  );
+  return pair;
+}
+
+function ShotDurationReadout({
+  assessment,
+  take,
+  layout,
+}: {
+  assessment?: CinematographerAssessment;
+  take?: JourneyShotTake;
+  layout: "grid" | "stack";
+}) {
+  const { project, selectedJourney } = useProject();
+  const journey = selectedJourney;
+  const resolved =
+    take && Number.isFinite(take.durationSeconds) && take.durationSeconds > 0
+      ? take.durationSeconds
+      : journey
+        ? unshotDurationSeconds(project, journey)
+        : unshotDurationSeconds(project);
+  const intentSeconds = intentDurationSeconds(project, journey ?? { cinematographer: assessment });
+  const pair = (
+    <DurationPair
+      intentSeconds={intentSeconds}
+      resolvedSeconds={resolved}
+      fixed={durationModeFromProject(project) === "fixed"}
+    />
+  );
+  if (layout === "stack") {
+    return (
+      <div>
+        <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Duration</p>
+        {pair}
+      </div>
+    );
+  }
+  return (
+    <>
+      <span>Duration</span>
+      {pair}
+    </>
   );
 }
 
@@ -656,6 +734,7 @@ function TakeInspector({
           <PaceReadout pace={pace} />
         </div>
       ) : null}
+      <ShotDurationReadout assessment={assessment} take={take} layout="stack" />
       {direction ? <InspectorMeta label="Shot direction" value={direction} /> : null}
       {intentLabel ? <InspectorMeta label="Generation" value={intentLabel} /> : null}
       {effectivePrompt ? (

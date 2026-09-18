@@ -67,9 +67,9 @@ export function toPVideoInput(
   if (!request.prompt.trim()) {
     throw new MediaGenerationError("invalid_input", "prompt is required");
   }
-  const duration = request.durationSeconds ?? 6;
-  if (!Number.isInteger(duration) || duration < 1 || duration > 10) {
-    throw new MediaGenerationError("invalid_input", "durationSeconds must be an integer from 1 to 10");
+  const duration = request.durationSeconds ?? 5;
+  if (!Number.isInteger(duration) || duration < 1 || duration > 20) {
+    throw new MediaGenerationError("invalid_input", "durationSeconds must be an integer from 1 to 20");
   }
   const merged = mergePVideoSettings(settings);
   const seed = request.seed ?? merged.seed;
@@ -99,7 +99,7 @@ export function describePVideoInput(
     prompt: request.prompt,
     image: startLabel,
     ...(endLabel ? { last_frame_image: endLabel } : {}),
-    duration: request.durationSeconds ?? 6,
+    duration: request.durationSeconds ?? 5,
     resolution: merged.resolution,
     fps: merged.fps,
     draft: merged.draft,

@@ -130,7 +130,7 @@ describe("consecutive production pairs", () => {
         id: "A-B",
         startDestinationId: "A",
         endDestinationId: "B",
-        durationSeconds: 6,
+        durationSeconds: 5,
         status: "ready",
       },
     ]);

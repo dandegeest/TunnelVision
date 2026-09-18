@@ -54,6 +54,11 @@ export type CinematographerAssessment = {
   readonly transitionStrategy: string;
   readonly segmentPromptAddition: string;
   readonly pace: LocomotionPace;
+  /**
+   * Cinematic shot length in seconds. Independent of `pace`.
+   * Absent on older assessments.
+   */
+  readonly desiredDurationSeconds?: number;
   readonly concerns: readonly string[];
   readonly travel?: CinematographerTravel;
   /**
@@ -182,6 +187,20 @@ function asPace(value: unknown): LocomotionPace {
     throw new MediaGenerationError("generation_failed", "Cinematographer pace is invalid");
   }
   return value;
+}
+
+const MIN_DESIRED_DURATION_SECONDS = 1;
+const MAX_DESIRED_DURATION_SECONDS = 30;
+
+function optionalDesiredDurationSeconds(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return undefined;
+  }
+  const seconds = Math.round(value);
+  if (seconds < MIN_DESIRED_DURATION_SECONDS || seconds > MAX_DESIRED_DURATION_SECONDS) {
+    return undefined;
+  }
+  return seconds;
 }
 
 function asScore100(value: unknown, name: string): number {
@@ -324,6 +343,7 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
   const concerns = record.concerns.map((item, index) => asNonEmptyString(item, `concerns[${index}]`));
   const travel = parseTravel(record.travel);
   const repair = parseRepairRecommendation(record);
+  const desiredDurationSeconds = optionalDesiredDurationSeconds(record.desiredDurationSeconds);
   return {
     shootability: record.shootability as CinematographerShootability,
     setConsistency,
@@ -336,6 +356,7 @@ export function parseCinematographerAssessment(text: string): CinematographerAss
     transitionStrategy: asNonEmptyString(record.transitionStrategy, "transitionStrategy"),
     segmentPromptAddition: asNonEmptyString(record.segmentPromptAddition, "segmentPromptAddition"),
     pace: asPace(record.pace),
+    ...(desiredDurationSeconds !== undefined ? { desiredDurationSeconds } : {}),
     concerns,
     ...(travel ? { travel } : {}),
     ...repair,

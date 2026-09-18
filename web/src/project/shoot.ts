@@ -1,13 +1,8 @@
 import { actualFrameForDestination, canAssessJourney, hasCurrentMotionPlan } from "./cinematographer";
-import {
-  resolveKlingV3Mode,
-  type KlingV3Mode,
-  type VideoModelId,
-  videoModelDurationSeconds,
-} from "../../../media/src/replicate/video-models.ts";
+import { resolveKlingV3Mode, type KlingV3Mode, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
+import { projectWithResolvedUnshotDurations, targetDurationSeconds } from "./shot-duration";
 import {
   defaultTakeIntentFromProject,
-  unshotVideoModel,
   videoModelForIntent,
   videoModelsByIntentFromProject,
   type GenerationIntent,
@@ -30,6 +25,8 @@ export type ShootJourneyRequest = {
   generationIntent?: GenerationIntent;
   klingV3Mode?: KlingV3Mode;
   generateAudio?: boolean;
+  /** Original Adaptive/Fixed target. Generation maps this onto the selected model. */
+  targetDurationSeconds?: number;
   startShootingMediaId?: string;
   endShootingMediaId?: string;
   startPlan?: CameraMotionPlanV1;
@@ -68,12 +65,6 @@ export function journeysReadyToTakeAll(project: Project): JourneyShot[] {
   return project.journeys.filter((journey) => canShootJourney(project, journey));
 }
 
-function withUnshotDurations(project: Project, durationSeconds: number): Project["journeys"] {
-  return project.journeys.map((journey) =>
-    journeyTakes(journey).length > 0 ? journey : { ...journey, durationSeconds },
-  );
-}
-
 /** Switch the Fast mapping. Unshot legs preview the default Take intent's clip length. */
 export function projectWithVideoModel(project: Project, videoModel: VideoModelId): Project {
   return projectWithVideoModelForIntent(project, "fast", videoModel);
@@ -101,12 +92,7 @@ export function projectWithVideoModelForIntent(
     videoModel: nextVideoModel,
     videoModelsByIntent,
   };
-  const prevDuration = videoModelDurationSeconds(unshotVideoModel(project));
-  const nextDuration = videoModelDurationSeconds(unshotVideoModel(next));
-  if (prevDuration === nextDuration) {
-    return next;
-  }
-  return { ...next, journeys: withUnshotDurations(next, nextDuration) };
+  return projectWithResolvedUnshotDurations(next);
 }
 
 export function klingV3ModeFromProject(project: Pick<Project, "klingV3Mode">): KlingV3Mode {
@@ -126,12 +112,7 @@ export function projectWithDefaultTakeIntent(project: Project, intent: Generatio
     return project;
   }
   const next: Project = { ...project, defaultTakeIntent: intent };
-  const prevDuration = videoModelDurationSeconds(unshotVideoModel(project));
-  const nextDuration = videoModelDurationSeconds(unshotVideoModel(next));
-  if (prevDuration === nextDuration) {
-    return next;
-  }
-  return { ...next, journeys: withUnshotDurations(next, nextDuration) };
+  return projectWithResolvedUnshotDurations(next);
 }
 
 export function shootRequestFromProject(
@@ -166,6 +147,7 @@ export function shootRequestFromProject(
       ? { klingV3Mode: resolveKlingV3Mode(project.klingV3Mode) }
       : {}),
     generateAudio: project.generateAudio === true,
+    targetDurationSeconds: targetDurationSeconds(project, journey, videoModelForIntent(project, intent)),
     startShootingMediaId: journey.motionPlan.startShootingFrame.mediaId,
     endShootingMediaId: journey.motionPlan.endShootingFrame.mediaId,
     startPlan: journey.motionPlan.startPlan,

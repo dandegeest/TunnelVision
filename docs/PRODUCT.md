@@ -133,7 +133,7 @@ in flight, **Stop** sits under CREATE JOURNEY and aborts the loop at
 the next step; destinations and Takes already made stay, and the run
 is STOPPED rather than FAILED. In-flight NEW TAKE calls finish so
 those clips are not discarded. Stop does not change the repair loop.
-Directed Options (generate all destinations, shoot all segments) remain Directed-only click
+Directed Options (generate all destinations, generate all segments) remain Directed-only click
 automation, not Agent. Generate audio is a Project option in both
 modes and is passed to audio-capable video models on NEW TAKE. LOOP (append exact opening A as the final
 canonical so the last segment is N→A) is backlog, not current
@@ -149,7 +149,7 @@ See
 [BACKLOG.md — Parallel segment filming](BACKLOG.md#parallel-segment-filming).
 Conversation is turn history; the Project panel
 holds the JOURNEY PROMPT, destination count, Options
-(generate all destinations and shoot all segments in Directed; generate audio in both modes), and CREATE JOURNEY.
+(generate all destinations and generate all segments in Directed; generate audio in both modes), and CREATE JOURNEY.
 Video and Debug mode live in Project settings. Opening A can be
 uploaded before a story is entered. Uploading A when a story already exists fills
 empty opening intent from that story and leaves visual description empty (there is
@@ -252,10 +252,13 @@ NEW TAKE. Fast defaults to Pruna; Balanced to Kling 2.5 Turbo Pro; Quality to
 Veo 3.1 Fast. Kling 3 is an opt-in Quality catalog model: product shots
 are 6s, and Project settings expose Standard (720p) / Pro (1080p) / 4K
 while it is mapped. Each adapter maps
-A′/B′ onto that model's start and last-frame fields. Clip duration
-follows the generator: Pruna, Veo 3.1 Fast, Seedance, and Kling 3 product shots are 6s;
-Kling 2.5 Turbo Pro is 5s. The Shoot timeline tiles follow the selected
-Take. Fast 6s and Kling 5s Takes on the same segment keep those widths;
+A′/B′ onto that model's start and last-frame fields. Clip duration is
+Adaptive (Cinematographer `desiredDurationSeconds`) or Fixed (project
+`fixedDurationSeconds`, default 5s). The generation adapter maps that
+target onto the selected model's supported durations. Pace remains
+camera-movement speed and is independent of shot length. The Shoot
+timeline tiles follow the selected Take. Fast 6s and Kling 5s Takes on
+the same segment keep those widths;
 the cut clock is the selected Takes (18s for three Fast Takes, 15s for
 three Kling Takes).
 Shootability remains advisory set analysis; it does not

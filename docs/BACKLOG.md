@@ -151,6 +151,9 @@ switch grammar mid-journey before hack day.
     POV)
 -   **FOLLOW** — invisible objective camera follows the subject.
     **Not** true first-person. Formerly FP Follow / FP_FOLLOW.
+    **Preserves the camera–subject relationship, not a fixed
+    following distance.** Distance may expand and contract; a
+    bolted-behind lock is closer to MOUNTED than cinematic FOLLOW.
 -   **LEAD** — invisible objective camera retreats ahead of the
     subject while facing them. Formerly Reverse Lead /
     REVERSE_LEAD.
@@ -179,6 +182,11 @@ FPOV baseline more permissive.
 -   persist selected journey grammar on the Project when
     implemented
 -   keep grammar stable for the entire journey
+-   FOLLOW baseline (when implemented): persistent subject,
+    invisible objective camera, natural pursuit, dynamic
+    following distance, no overtaking unless requested, no second
+    traveler, no rigid mounted-rig feel. Do not over-constrain
+    framing. See [PROMPT_COACH.md — FOLLOW](PROMPT_COACH.md#10-follow).
 
 Canonicals stay pristine story-space destinations. Because grammar
 does not switch, they do not yet need incoming/outgoing camera
@@ -189,6 +197,10 @@ or shot-length intent over precise duration. If CM returns a
 pace/duration hint, map it to the nearest duration the selected
 video model supports. Remap if the model changes. See
 [HACKATHON.md — Camera grammar](HACKATHON.md#camera-grammar--hackathon-decision).
+**FOLLOW observation:** a ~10s high-quality FOLLOW skier clip
+showed more natural pursuit elasticity than shorter rigid-feeling
+generations. Do not treat longer duration as an automatic FOLLOW
+fix; it is another reason CM `desiredDurationSeconds` may help.
 
 **Constraints / invariants.**
 
@@ -2317,7 +2329,8 @@ No Editor agent.
 **Constraints / invariants.**
 
 -   Incomplete exports report missing legs; do not invent bridges.
--   Clip duration follows the generator (already: 6s vs Kling 5s).
+-   Clip duration is Adaptive (CM desired) or Fixed (project target),
+    then mapped onto the selected generator.
 -   Do not require every advisory CM hold to block export unless
     Agent flagged the leg.
 -   Provider concat stays ffmpeg/local; not a video-model restitch.

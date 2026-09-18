@@ -11,7 +11,9 @@ import { SEEDANCE_25_MODEL } from "../src/replicate/seedance-2.5.ts";
 import {
   DEFAULT_VIDEO_MODEL_ID,
   parseVideoModelId,
+  mapDurationToVideoModel,
   videoModelDurationSeconds,
+  videoModelDurationSupport,
   videoModelMenuLabel,
   videoModelSlug,
   VIDEO_MODELS,
@@ -28,6 +30,24 @@ const request = {
 const start = { kind: "url" as const, url: "https://example.com/a-prime.png" };
 const end = { kind: "url" as const, url: "https://example.com/b-prime.png" };
 
+test("catalog maps a cinematic target onto each model's supported durations", () => {
+  assert.deepEqual(videoModelDurationSupport("kling-v2.5-turbo-pro"), { kind: "enum", values: [5, 10] });
+  assert.deepEqual(videoModelDurationSupport("veo-3.1-fast"), { kind: "enum", values: [4, 6, 8] });
+  assert.equal(mapDurationToVideoModel("pruna-p-video", 7), 7);
+  assert.equal(mapDurationToVideoModel("pruna-p-video", 15), 15);
+  assert.equal(mapDurationToVideoModel("pruna-p-video", 21), 20);
+  assert.equal(mapDurationToVideoModel("kling-v2.5-turbo-pro", 7), 5);
+  assert.equal(mapDurationToVideoModel("kling-v2.5-turbo-pro", 8), 10);
+  assert.equal(mapDurationToVideoModel("kling-v2.5-turbo-pro", 5), 5);
+  assert.equal(mapDurationToVideoModel("veo-3.1-fast", 7), 6);
+  assert.equal(mapDurationToVideoModel("veo-3.1-fast", 5), 6);
+  assert.equal(mapDurationToVideoModel("veo-3.1-fast", 4), 4);
+  assert.equal(mapDurationToVideoModel("kling-v3-video", 7), 7);
+  assert.equal(mapDurationToVideoModel("seedance-2.0-fast", 3), 4);
+  assert.equal(mapDurationToVideoModel("seedance-2.5", 31), 30);
+  assert.equal(mapDurationToVideoModel("pruna-p-video", Number.NaN), 5);
+});
+
 test("catalog keeps Pruna as the development default and labels cost tiers", () => {
   assert.equal(DEFAULT_VIDEO_MODEL_ID, "pruna-p-video");
   assert.equal(videoModelSlug("pruna-p-video"), P_VIDEO_MODEL);
@@ -36,7 +56,7 @@ test("catalog keeps Pruna as the development default and labels cost tiers", () 
   assert.equal(videoModelSlug("veo-3.1-fast"), VEO_31_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.0-fast"), SEEDANCE_20_FAST_MODEL);
   assert.equal(videoModelSlug("seedance-2.5"), SEEDANCE_25_MODEL);
-  assert.equal(videoModelDurationSeconds("pruna-p-video"), 6);
+  assert.equal(videoModelDurationSeconds("pruna-p-video"), 5);
   assert.equal(videoModelDurationSeconds("kling-v2.5-turbo-pro"), 5);
   assert.equal(videoModelDurationSeconds("kling-v3-video"), 6);
   assert.equal(videoModelDurationSeconds("veo-3.1-fast"), 6);

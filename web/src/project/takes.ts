@@ -1,5 +1,6 @@
 import { parseVideoModelId, videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
-import { GENERATION_INTENT_MARK, unshotVideoModel } from "./generation-intent";
+import { unshotDurationSeconds } from "./shot-duration";
+import { GENERATION_INTENT_MARK } from "./generation-intent";
 import type { JourneyShot, JourneyShotTake, Project } from "./types";
 
 export function takeId(journeyId: string, number: number): string {
@@ -196,8 +197,11 @@ export function selectedTakeVideoUrl(journey: JourneyShot): string | undefined {
   return take?.videoUrl || journey.videoUrl || undefined;
 }
 
-export function unshotClipDurationSeconds(project: Project): number {
-  return videoModelDurationSeconds(unshotVideoModel(project));
+export function unshotClipDurationSeconds(
+  project: Project,
+  journey?: Pick<JourneyShot, "cinematographer">,
+): number {
+  return unshotDurationSeconds(project, journey);
 }
 
 /** Clip length for a Take: stored duration, else that generator's catalog length. */
@@ -215,17 +219,14 @@ export function takeClipDurationSeconds(
   return fallbackSeconds;
 }
 
-/** Cut / MOTION length for this segment: the selected Take, else the unshot preview. */
+/** Cut / MOTION length for this segment: the selected Take, else the live mapped request. */
 export function journeyClipDurationSeconds(project: Project, journey: JourneyShot): number {
-  const fallback = unshotClipDurationSeconds(project);
+  const resolved = unshotClipDurationSeconds(project, journey);
   const selected = selectedTake(journey);
   if (selected) {
-    return takeClipDurationSeconds(selected, fallback);
+    return takeClipDurationSeconds(selected, resolved);
   }
-  if (Number.isFinite(journey.durationSeconds) && journey.durationSeconds > 0) {
-    return journey.durationSeconds;
-  }
-  return fallback;
+  return resolved;
 }
 
 export function journeysWithClipDurations(project: Project): JourneyShot[] {
@@ -351,7 +352,7 @@ function journeyWithoutTakes(project: Project, journey: JourneyShot): JourneySho
     selectedTakeId: undefined,
     take: undefined,
     videoUrl: undefined,
-    durationSeconds: unshotClipDurationSeconds(project),
+    durationSeconds: unshotDurationSeconds(project, journey),
     status: journey.status === "shooting" ? "shooting" : journey.motionPlan ? "ready" : "planned",
   };
 }
