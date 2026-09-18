@@ -1,0 +1,20 @@
+Create this destination viewpoint:
+The same bright red sports car on a twisting canyon road, red-rock walls closing in.
+
+SPATIAL PROGRESSION IS PRIMARY.
+Render this canonical from a substantially progressed camera viewpoint. Do not render it from the source camera position. Nearby foreground geometry from the source must have passed behind the camera or be substantially repositioned. Reveal new terrain and environment ahead as a consequence of that movement.
+The destination is a spatially progressed MOUNTED viewpoint. The camera remains attached to the same moving subject and inherits its travel along the route. Mount geometry may persist. The required change is the mount's displacement through the environment, not a change of world.
+
+Move the camera from the source viewpoint:
+Advance along the twisting canyon road toward the rock tunnel.
+
+This is a MOUNTED viewpoint: the camera is physically attached to the moving subject, vehicle, or object. Persistent foreground geometry belonging to the mount may remain visible when natural to this perspective. Do not convert this into an unembodied POV that hides the mount, or into a detached follow/lead camera. People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.
+
+Preserve the same physical world, materials, lighting character, and visual identity of the source image.
+Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene.
+Environmental activity, subject motion, and stylistic changes are secondary to viewpoint displacement. Include them when called for by the Journey, but only with clear physical travel of the camera along the route.
+This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically travel along the route. Keeping the source composition and substituting new content is a failure.
+
+Far-field continuity:
+A narrow rock tunnel blasted through the canyon wall, with a bright opening at the far end.
+This is distant environmental information only. It may appear through an opening, path, or far field if physically appropriate. Do not arrive there, replace this destination with it, or adopt its overall lighting or style.

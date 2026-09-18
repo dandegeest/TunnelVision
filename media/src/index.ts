@@ -235,6 +235,15 @@ export {
   cinematographerGrammarInstruction,
 } from "./cinematographer/camera-grammar.ts";
 export {
+  assembleCanonicalConstructionPrompt,
+  assembleCanonicalRepairPrompt,
+  assembleOpeningFramePrompt,
+  CANONICAL_CONSTRUCTION_SECTION_ORDER,
+  WORLD_CONTINUITY,
+  farFieldContinuitySection,
+} from "./prompts/canonical-destination.ts";
+export { joinPromptSections, countPromptOccurrences } from "./prompts/assemble.ts";
+export {
   CINEMATOGRAPHER_ASSESSMENT_SYSTEM_INSTRUCTION,
   cinematographerAssessmentSystemInstruction,
   cinematographerAssessmentUserPrompt,

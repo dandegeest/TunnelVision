@@ -112,8 +112,9 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/Reveal new terrain and environment ahead/);
     expect(prompt).toMatch(/same kind of place as the source/);
     expect(prompt).toMatch(/Do not invent a new type of location to prove progress/);
-    expect(prompt).toMatch(/do not preserve the source composition/);
     expect(prompt).toMatch(/Keeping the source composition and substituting new content is a failure/);
+    expect(prompt).not.toMatch(/Do not keep the source framing/);
+    expect(prompt).not.toMatch(/do not preserve the source composition/);
     expect(prompt).toMatch(/Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene/);
     expect(prompt).toMatch(/secondary to viewpoint displacement/);
     expect(prompt).not.toMatch(/camera position must change/i);
@@ -133,6 +134,12 @@ describe("destination construction prompt", () => {
     );
     expect(prompt.indexOf("SPATIAL PROGRESSION IS PRIMARY.")).toBeLessThan(
       prompt.indexOf("Move the camera from the source viewpoint:"),
+    );
+    expect(prompt.indexOf("Move the camera from the source viewpoint:")).toBeLessThan(
+      prompt.indexOf("unembodied first-person POV"),
+    );
+    expect(prompt.indexOf("unembodied first-person POV")).toBeLessThan(
+      prompt.indexOf("Preserve the same physical world"),
     );
     expect(prompt.indexOf("A narrow stone corridor with orange light.")).toBeLessThan(
       prompt.indexOf("Move forward into the cleft."),
@@ -163,13 +170,16 @@ describe("destination construction prompt", () => {
     const visualAt = prompt.indexOf(visual);
     const spatialAt = prompt.indexOf("SPATIAL PROGRESSION IS PRIMARY.");
     const intentAt = prompt.indexOf("Track forward through the lantern alley.");
+    const grammarAt = prompt.indexOf("unembodied first-person POV");
+    const worldAt = prompt.indexOf("Preserve the same physical world");
     const lookAt = prompt.indexOf("Far-field continuity:");
-    const povAt = prompt.indexOf("unembodied first-person POV");
     expect(visualAt).toBeGreaterThan(-1);
     expect(visualAt).toBeLessThan(spatialAt);
     expect(spatialAt).toBeLessThan(intentAt);
-    expect(intentAt).toBeLessThan(lookAt);
-    expect(lookAt).toBeLessThan(povAt);
+    expect(intentAt).toBeLessThan(grammarAt);
+    expect(grammarAt).toBeLessThan(worldAt);
+    expect(worldAt).toBeLessThan(lookAt);
+    expect(prompt.trim().endsWith("or adopt its overall lighting or style.")).toBe(true);
   });
 
   it("keeps useful next-place visual detail as far-field without treating it as a second target", () => {

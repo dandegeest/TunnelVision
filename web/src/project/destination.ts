@@ -1,10 +1,9 @@
+import { cameraGrammarFromUnknown, type CameraGrammar } from "../../../media/src/cinematographer/camera-grammar.ts";
 import {
-  constructionTravelClause,
-  stillViewpointClause,
-  openingStillLead,
-  cameraGrammarFromUnknown,
-  type CameraGrammar,
-} from "../../../media/src/cinematographer/camera-grammar.ts";
+  assembleCanonicalConstructionPrompt,
+  assembleCanonicalRepairPrompt,
+  assembleOpeningFramePrompt,
+} from "../../../media/src/prompts/canonical-destination.ts";
 import {
   DEFAULT_IMAGE_MODEL_ID,
   DEFAULT_IMAGE_OUTPUT_FORMAT,
@@ -133,25 +132,12 @@ export function farFieldVisualDetails(visual: string): string {
   return assembled || sentences[0]!;
 }
 
-function farFieldContinuity(next: DestinationLookAhead): string {
-  const details = farFieldVisualDetails(next.visualDescription || next.intent);
-  return [
-    "Far-field continuity:",
-    details,
-    "This is distant environmental information only. It may appear through an opening, path, or far field if physically appropriate. Do not arrive there, replace this destination with it, or adopt its overall lighting or style.",
-  ].join("\n");
-}
-
 /**
  * Provider-neutral destination-construction prompt. Spatial intent and the
  * resulting viewpoint are both required. Not a shooting-geometry prompt.
- * Order: this destination (highest priority), camera move from the source
- * image, subordinate far-field continuity, unembodied POV. Look-ahead is
- * distant environment only; this viewpoint stays this destination.
- * Spatial progression from the source viewpoint is the primary construction
- * requirement: the camera must physically advance. Same-environment journeys
- * still require viewpoint displacement. Activity, weather, lighting, and
- * style changes are secondary.
+ * Order: destination intent, spatial progression, local route from source,
+ * camera grammar law, world/subject/style continuity, far-field last.
+ * Look-ahead is distant environment only; this viewpoint stays this destination.
  */
 export function destinationConstructionPrompt(input: {
   intent: string;
@@ -159,31 +145,13 @@ export function destinationConstructionPrompt(input: {
   nextDestination?: DestinationLookAhead;
   cameraGrammar?: CameraGrammar;
 }): string {
-  const intent = input.intent.trim();
-  const visualDescription = input.visualDescription.trim();
-  if (!intent || !visualDescription) {
-    throw new Error("Destination construction requires intent and visual description");
-  }
-  const grammar = cameraGrammarFromUnknown(input.cameraGrammar);
   const next = optionalDestinationLookAhead(input.nextDestination);
-  return [
-    "Create this destination viewpoint:",
-    visualDescription,
-    "",
-    "SPATIAL PROGRESSION IS PRIMARY.",
-    "Render this canonical from a substantially progressed camera viewpoint. Do not render it from the source camera position. Nearby foreground geometry from the source must have passed behind the camera or be substantially repositioned. Reveal new terrain and environment ahead as a consequence of that movement.",
-    constructionTravelClause(grammar),
-    "Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene. Preserve world and style continuity, but do not preserve the source composition.",
-    "Environmental activity, subject motion, and stylistic changes are secondary to viewpoint displacement. Include them when called for by the Journey, but only with clear physical travel of the camera along the route.",
-    "",
-    "Preserve the same physical world, materials, lighting character, and visual identity of the source image. Do not keep the source framing.",
-    "Move the camera from the source viewpoint:",
-    intent,
-    "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically travel along the route. Keeping the source composition and substituting new content is a failure.",
-    "",
-    ...(next ? [farFieldContinuity(next), ""] : []),
-    stillViewpointClause(grammar),
-  ].join("\n");
+  return assembleCanonicalConstructionPrompt({
+    intent: input.intent,
+    visualDescription: input.visualDescription,
+    nextDestinationVisual: next ? farFieldVisualDetails(next.visualDescription || next.intent) : undefined,
+    cameraGrammar: cameraGrammarFromUnknown(input.cameraGrammar),
+  });
 }
 
 /** Agent canonical repair. Preserve the destination beat; fix shootable space. */
@@ -194,33 +162,7 @@ export function canonicalRepairPrompt(input: {
   instruction: string;
   cameraGrammar?: CameraGrammar;
 }): string {
-  const intent = input.intent.trim();
-  const visualDescription = input.visualDescription.trim();
-  const instruction = input.instruction.trim();
-  if (!intent || !visualDescription || !instruction) {
-    throw new Error("Canonical repair requires intent, visual description, and a repair instruction");
-  }
-  const grammar = cameraGrammarFromUnknown(input.cameraGrammar);
-  const roleLine =
-    input.role === "start"
-      ? "Regenerate this START destination so it still depicts the same intended place, while establishing a plausible continuous route toward the opposite canonical."
-      : "Regenerate this END destination so it still depicts the same intended arrival, while creating a stronger continuously shootable route from the established START.";
-  const referenceLine =
-    "The established START still, when supplied, is a spatial/geographic reference for the route, not a style match.";
-  return [
-    roleLine,
-    "Preserve this destination's semantic intent and story beat.",
-    visualDescription,
-    "",
-    "Camera / spatial intent:",
-    intent,
-    "",
-    "The stills must belong to one continuously shootable physical space. Do not make the two images look alike. Do not replace this destination with the opposite place. Do not repair merely to improve aesthetics.",
-    `CM spatial repair: ${instruction}`,
-    referenceLine,
-    "",
-    stillViewpointClause(grammar),
-  ].join("\n");
+  return assembleCanonicalRepairPrompt(input);
 }
 
 /** Immediately preceding actual destination. Construction of N uses N-1. */
@@ -440,18 +382,7 @@ export function openingFrameIntent(story: string): string | undefined {
 }
 
 export function openingFrameGenerationPrompt(story: string, cameraGrammar?: CameraGrammar): string {
-  const trimmed = story.trim();
-  if (!trimmed) {
-    throw new Error("Opening frame requires a journey story");
-  }
-  const grammar = cameraGrammarFromUnknown(cameraGrammar);
-  return [
-    `${openingStillLead(grammar)} Use the Journey to determine the specific physical viewpoint, orientation, environment, and situation at the instant the journey begins. Show only that opening moment; do not anticipate, combine, or depict later destinations or events from the Journey.`,
-    "",
-    `The camera is already in the world, oriented along the journey's intended direction of travel. ${stillViewpointClause(grammar)} Do not show text.`,
-    "",
-    `Journey: ${trimmed}`,
-  ].join("\n");
+  return assembleOpeningFramePrompt(story, cameraGrammar);
 }
 
 /**

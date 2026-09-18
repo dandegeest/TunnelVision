@@ -1,6 +1,10 @@
 /**
  * Whole-journey camera relationship. One project / one journey / one grammar.
  * Mixed-grammar journeys, ORBIT, SIDE TRACK, and grammar transitions are out of scope.
+ *
+ * These clauses are product-injected camera law. Filmmaker journey prompts
+ * supply subject, beats, and style; they should not restate this wording.
+ * Canonical still assembly lives in `media/src/prompts/canonical-destination.ts`.
  */
 export const CAMERA_GRAMMARS = ["pov", "follow", "lead", "mounted"] as const;
 export type CameraGrammar = (typeof CAMERA_GRAMMARS)[number];

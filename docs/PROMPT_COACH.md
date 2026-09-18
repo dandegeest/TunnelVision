@@ -37,14 +37,21 @@ video-model prompting, Camotion, canonical construction, traversal
 geometry, or the internal Director / Cinematographer architecture in
 order to describe a journey.
 
-The filmmaker's job is primarily to describe:
+The filmmaker's job is primarily to describe three things:
 
--   where they want to go
--   what happens along the way
--   what is visually and narratively important
--   how the journey should feel
--   important continuity anchors
--   broad camera intent when it matters
+-   **Subject** — who/what matters visually and should persist
+-   **Beats** — where the journey goes and what happens along the way
+-   **Style** — look, tone, scale, genre, photographic/cinematic intent
+
+Camera grammar (POV / FOLLOW / LEAD / MOUNTED) is a Project setting.
+TunnelVision injects that law into Director, stills, Cinematographer, and
+the locomotion baseline. Prompt Coach should **not** teach filmmakers to
+restate invisible-objective, elastic-follow, lead-retreat, unembodied-POV,
+or mount-geometry rules already encoded by CAMERA.
+
+Naming a grammar in the story ("FOLLOW skier") is optional once CAMERA is
+set. Continuity anchors that are the *subject* (the same red car, the same
+skier) remain filmmaker-owned.
 
 TunnelVision's job is to translate that creative intent into
 something that can actually be constructed and filmed.
@@ -345,6 +352,12 @@ The human may **state** a grammar directly:
 ``` text
 Photorealistic FOLLOW journey chasing a downhill skier.
 ```
+
+That name is optional once CAMERA is set. Prompt Coach must **not** expand
+the story with camera-law already injected by TunnelVision (invisible
+objective camera, stay behind, elastic distance, do not overtake, retreat
+while facing, mount geometry, unembodied traveler). Subject, beats, and
+style stay in the filmmaker prompt.
 
 Prompt Coach may also **infer or clarify** a grammar when intent
 strongly implies one:
@@ -998,7 +1011,8 @@ Prompt Coach and Camera Grammar solve different problems.
 | **Model Router** (discovery) | Which generation strategy / model is appropriate? |
 | **Generation model** (current adapters) | Actually creates the media. |
 
-Do not collapse these responsibilities into one giant prompt.
+Do not collapse these responsibilities into one giant prompt. Prompt Coach
+does not author camera-grammar law; CAMERA already owns that.
 
 ---
 
