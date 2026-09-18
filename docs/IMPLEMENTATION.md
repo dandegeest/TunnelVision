@@ -335,6 +335,8 @@ Product Slice 11 Takes:
 [`genesis/research/22-product-slice-11.html`](../genesis/research/22-product-slice-11.html).
 Product Slice 12 Agent CREATE JOURNEY:
 [`genesis/research/23-product-slice-12.html`](../genesis/research/23-product-slice-12.html).
+Product Slice 13 camera grammar:
+[`genesis/research/24-product-slice-13.html`](../genesis/research/24-product-slice-13.html).
 Plan media preflight reads storyboard `mediaInfo` (aspect warning;
 resolution/format informational) and does not rewrite source media.
 Aspect warnings appear on the affected thumbnail; media facts appear

@@ -1,6 +1,6 @@
 # Grammar experiment report
 
-Generated: 2026-09-18 (overnight Veo pass + morning Kling recut)
+Generated: 2026-09-18 (overnight Veo pass + morning Kling recut + afternoon unique retakes)
 
 ## HEADLESS EXECUTION
 
@@ -14,7 +14,7 @@ The first assemble step failed for complete journeys because the concatenated MP
 
 FOLLOW and MOUNTED lost Veo takes to provider limits (Veo request cap / third-party content refusal), not to grammar conditioning.
 
-**Filmmaker morning recut (18 September 2026):** Balanced **Kling 2.5 Turbo Pro** NEW TAKEs on every traversal. The filmmaker judged those cuts better. Grammar is solid. Session playbook and archived MP4s: [sessions/canyon-grammar.md](sessions/canyon-grammar.md).
+**Filmmaker Kling recuts (18 September 2026):** Balanced **Kling 2.5 Turbo Pro** NEW TAKEs after overnight Veo. The first morning assemblies were not unique grammar cuts (shared persisted take video ids). Afternoon unique retakes are the archived MP4s. Grammar is solid. Session playbook: [sessions/canyon-grammar.md](sessions/canyon-grammar.md).
 
 Logs: `docs/grammar_experiment/logs` (`pov.log`, `follow.log`, `lead.log`, `mounted.log`).
 
@@ -36,14 +36,14 @@ Preflight save-only project: `GrammarTest-PreflightSave`
 
 | Grammar | Project directory | Downloads original | Archived MP4 | Kling cut length |
 | --- | --- | --- | --- | ---: |
-| POV | `projects/GrammarTest-POVCanyonRun2` | `~/Downloads/GrammarTestPOVCanyonRun_v2.mp4` | [kling-pov-canyon-run.mp4](sessions/canyon-grammar/kling-pov-canyon-run.mp4) | ~30.3s |
-| FOLLOW | `projects/GrammarTest-FOLLOWCanyonRun` | `~/Downloads/GrammarTestFOLLOWCanyonRun_v2.mp4` | [kling-follow-canyon-run.mp4](sessions/canyon-grammar/kling-follow-canyon-run.mp4) | ~30.3s |
-| LEAD | `projects/GrammarTest-LEADCanyonRun` | `~/Downloads/GrammarTestLEADCanyonRun_v2.mp4` | [kling-lead-canyon-run.mp4](sessions/canyon-grammar/kling-lead-canyon-run.mp4) | ~35.3s |
-| MOUNTED | `projects/GrammarTest-MOUNTEDCanyonRun` | `~/Downloads/GrammarTestMOUNTEDCanyonRun_v3.mp4` | [kling-mounted-canyon-run.mp4](sessions/canyon-grammar/kling-mounted-canyon-run.mp4) | ~30.3s |
+| POV | `projects/GrammarTest-POVCanyonRun2` | `~/Downloads/GrammarTestPOVCanyonRun_v3.mp4` | [kling-pov-canyon-run.mp4](sessions/canyon-grammar/kling-pov-canyon-run.mp4) | ~30.3s |
+| FOLLOW | `projects/GrammarTest-FOLLOWCanyonRun` | `~/Downloads/GrammarTestFOLLOWCanyonRun_v3.mp4` | [kling-follow-canyon-run.mp4](sessions/canyon-grammar/kling-follow-canyon-run.mp4) | ~30.3s |
+| LEAD | `projects/GrammarTest-LEADCanyonRun` | `~/Downloads/GrammarTestLEADCanyonRun_v3.mp4` | [kling-lead-canyon-run.mp4](sessions/canyon-grammar/kling-lead-canyon-run.mp4) | ~35.3s |
+| MOUNTED | `projects/GrammarTest-MOUNTEDCanyonRun` | `~/Downloads/GrammarTestMOUNTEDCanyonRun_v4.mp4` | [kling-mounted-canyon-run.mp4](sessions/canyon-grammar/kling-mounted-canyon-run.mp4) | ~30.3s |
 
-Selected traversal Takes are all `kwaivgi/kling-v2.5-turbo-pro` / `balanced`. Kling 2.5 mapped CM desired 4–8s onto 5s or 10s (10+5+5+10 except LEAD C→D/D→E at 10s).
+Selected traversal Takes (afternoon unique retakes) are all `kwaivgi/kling-v2.5-turbo-pro` / `balanced`. Kling 2.5 mapped CM desired 4–8s onto 5s or 10s (10+5+5+10 except LEAD C→D/D→E at 10s). POV take 3 every pair; FOLLOW take 3 every pair; LEAD take 3 on A→B/B→C/D→E and take 4 on C→D; MOUNTED take 2 on A→D and take 3 on D→E.
 
-LEAD’s git copy is transcoded under GitHub’s 100 MiB limit; the other three archives are byte copies of Downloads.
+LEAD’s git copy is transcoded under GitHub’s 100 MiB limit; the other three archives are byte copies of Downloads. Morning `*_v2` / MOUNTED `*_v3` assemblies are not archived.
 
 ---
 
@@ -67,7 +67,7 @@ Do not show a cockpit, vehicle body, driver, hands, hood, or other persistent fo
 ```
 
 - overnight status: generation COMPLETE (5 canonicals, 4 Veo takes); first headless assemble FAILED (`Image is too large.`); export recovered
-- morning status: Kling take 2 selected on A→B, B→C, C→D, D→E; export `GrammarTestPOVCanyonRun_v2.mp4`
+- morning status: first Kling take 2 assembly was not unique (collided media ids). Afternoon: take 3 selected on A→B, B→C, C→D, D→E; export `GrammarTestPOVCanyonRun_v3.mp4`
 - number of canonicals: 5
 - number of traversals: 4
 - canonical reshoots: 0
@@ -78,7 +78,7 @@ Do not show a cockpit, vehicle body, driver, hands, hood, or other persistent fo
   - C-D: desired 5s / Veo 6s / Kling 5s / pace hyperspeed / set 95 / trav 95
   - D-E: desired 8s / Veo 8s / Kling 10s / pace fast / set 95 / trav 85
 - models: overnight `google/veo-3.1-fast` (quality); selected `kwaivgi/kling-v2.5-turbo-pro` (balanced)
-- final export path (filmmaker): `~/Downloads/GrammarTestPOVCanyonRun_v2.mp4`
+- final export path (filmmaker): `~/Downloads/GrammarTestPOVCanyonRun_v3.mp4`
 - total final journey duration: ~30.3s (Kling)
 - errors/warnings: overnight assemble `Image is too large.` (stills-registry). Grammar/stills/CM succeeded.
 
@@ -104,7 +104,7 @@ High-end live-action automotive cinematography, realistic terrain, natural light
 ```
 
 - overnight status: FAILED (`Prediction failed:` empty Replicate error / Veo request cap). A-B and D-E Veo takes preserved; B-C and C-D missing until morning.
-- morning status: Kling take 2 on A→B, B→C, C→D; Kling take 3 on D→E (after a second Veo take); export `GrammarTestFOLLOWCanyonRun_v2.mp4`
+- morning status: first Kling take 2 assembly was not unique (collided media ids). Afternoon: take 3 selected on A→B, B→C, C→D, D→E; export `GrammarTestFOLLOWCanyonRun_v3.mp4`
 - number of canonicals: 5
 - number of traversals: 4
 - canonical reshoots: 0
@@ -114,7 +114,7 @@ High-end live-action automotive cinematography, realistic terrain, natural light
   - C-D: desired 6s / Veo 6s then Kling 5s / pace fast / set 90 / trav 90
   - D-E: desired 8s / Veo 8s (takes 1–2) / Kling 10s / pace fast / set 85 / trav 90
 - models: overnight Veo quality (partial); selected Kling 2.5 turbo pro balanced
-- final export path (filmmaker): `~/Downloads/GrammarTestFOLLOWCanyonRun_v2.mp4`
+- final export path (filmmaker): `~/Downloads/GrammarTestFOLLOWCanyonRun_v3.mp4`
 - total final journey duration: ~30.3s (Kling, complete A→E)
 - errors/warnings: overnight `Prediction failed:` while B-C / C-D were in flight. Not a FOLLOW-baseline failure.
 
@@ -140,7 +140,7 @@ High-end live-action automotive cinematography, realistic terrain, natural light
 ```
 
 - overnight status: generation COMPLETE (5 canonicals, 4 Veo takes); first headless assemble FAILED (`Image is too large.`); export recovered
-- morning status: Kling take 2 selected on every pair; export `GrammarTestLEADCanyonRun_v2.mp4`
+- morning status: first Kling take 2 assembly was not unique (collided media ids). Afternoon: take 3 on A→B, B→C, D→E; take 4 on C→D; export `GrammarTestLEADCanyonRun_v3.mp4`
 - number of canonicals: 5
 - number of traversals: 4
 - canonical reshoots: 0
@@ -150,7 +150,7 @@ High-end live-action automotive cinematography, realistic terrain, natural light
   - C-D: desired 8s / Veo 8s / Kling 10s / pace fast / set 95 / trav 95
   - D-E: desired 8s / Veo 8s / Kling 10s / pace fast / set 95 / trav 90
 - models: overnight Veo quality; selected Kling 2.5 turbo pro balanced
-- final export path (filmmaker): `~/Downloads/GrammarTestLEADCanyonRun_v2.mp4`
+- final export path (filmmaker): `~/Downloads/GrammarTestLEADCanyonRun_v3.mp4`
 - total final journey duration: ~35.3s (Kling)
 - errors/warnings: overnight assemble `Image is too large.` CM stayed in lead language (retreat / facing the subject), including the weaker A→B pair.
 
@@ -174,7 +174,7 @@ High-end live-action automotive cinematography, realistic terrain, natural light
 ```
 
 - overnight status: FAILED on D-E (Veo third-party content-provider refusal, `code: 3`). A-B, B-C, C-D Veo takes preserved.
-- morning status: Kling take 2 selected on every pair (D-E never had a Veo take); export `GrammarTestMOUNTEDCanyonRun_v3.mp4`
+- morning status: take 2 on A→D was already unique Kling; D-E never had a Veo take. Afternoon: take 3 on D→E; export `GrammarTestMOUNTEDCanyonRun_v4.mp4`
 - number of canonicals: 5
 - number of traversals: 4
 - canonical reshoots: 0
@@ -184,7 +184,7 @@ High-end live-action automotive cinematography, realistic terrain, natural light
   - C-D: desired 5s / Veo 6s / Kling 5s / pace fast / set 95 / trav 95
   - D-E: desired 8s / Veo missing / Kling 8s then 10s / pace fast / set 92 / trav 85
 - models: overnight Veo quality (A→D); selected Kling 2.5 turbo pro balanced
-- final export path (filmmaker): `~/Downloads/GrammarTestMOUNTEDCanyonRun_v3.mp4`
+- final export path (filmmaker): `~/Downloads/GrammarTestMOUNTEDCanyonRun_v4.mp4`
 - total final journey duration: ~30.3s (Kling, complete A→E)
 - errors/warnings: overnight Veo D-E content-policy refusal. Not a MOUNTED-baseline failure. Persistent hood/decklid geometry is present in opening A as intended.
 

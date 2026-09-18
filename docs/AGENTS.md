@@ -367,6 +367,8 @@ Product Slice 11 Takes:
 [genesis/research/22-product-slice-11.html](../genesis/research/22-product-slice-11.html).
 Product Slice 12 Agent CREATE JOURNEY:
 [genesis/research/23-product-slice-12.html](../genesis/research/23-product-slice-12.html).
+Product Slice 13 camera grammar:
+[genesis/research/24-product-slice-13.html](../genesis/research/24-product-slice-13.html).
 Do not implement a complete
 Screenwriter or conversation-persistence
 system now. Every subsequent MVP milestone should advance a real user

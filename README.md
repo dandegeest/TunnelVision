@@ -4,9 +4,9 @@
 
 # TunnelVision
 
-**An AI filmmaking system for directing continuous first-person journeys through imagined worlds.**
+**An AI filmmaking system for directing continuous journeys through imagined worlds.**
 
-TunnelVision orchestrates image models, Cinematographer planning, Camotion, and video generation so the filmmaker can specify a journey and the system can film traversals between canonical destinations. It is a directing pipeline, not a prompt wrapper around a video model. Current product overview: [`genesis/research/19-product-slice-8.html`](genesis/research/19-product-slice-8.html).
+TunnelVision orchestrates image models, Cinematographer planning, Camotion, and video generation so the filmmaker can specify a journey and the system can film traversals between canonical destinations. It is a directing pipeline, not a prompt wrapper around a video model. Current product overview: [`genesis/research/19-product-slice-8.html`](genesis/research/19-product-slice-8.html). Camera grammar: [`genesis/research/24-product-slice-13.html`](genesis/research/24-product-slice-13.html).
 
 The goal is a system that can decide where to go next, learn from human creative choices, maintain the visual and spatial logic of the world, and generate convincing continuous camera movement between selected viewpoints.
 
@@ -288,6 +288,8 @@ Product Slice 11 Takes:
 [`genesis/research/22-product-slice-11.html`](genesis/research/22-product-slice-11.html).
 Product Slice 12 Agent CREATE JOURNEY:
 [`genesis/research/23-product-slice-12.html`](genesis/research/23-product-slice-12.html).
+Product Slice 13 camera grammar:
+[`genesis/research/24-product-slice-13.html`](genesis/research/24-product-slice-13.html).
 See `docs/PRODUCT.md`. Journey-prompting philosophy:
 `docs/PROMPT_COACH.md`.
 

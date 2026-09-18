@@ -175,10 +175,13 @@ LEAD A→B is the weakest pair (set 80 / traversal 65) and still shootable. CM s
    - FOLLOW: empty `Prediction failed:` while B→C / C→D were in flight (Veo request cap).
    - MOUNTED D→E: Veo third-party content-provider refusal (`code: 3`).
    - POV / LEAD: all four Veo takes landed; first headless concat hit a stills-registry size bug, later recovered.
-3. **Filmmaker morning recut:** Balanced Kling 2.5 Turbo Pro NEW TAKEs on every traversal. Selected Takes:
-   - POV / FOLLOW / LEAD: Kling take 2 on A→B, B→C, C→D; FOLLOW D→E Kling take 3 (two earlier Veo takes exist).
-   - MOUNTED: Kling take 2 on every pair (D→E never had a Veo take).
-4. **Export** from the product (Downloads filenames below). Kling 2.5 mapped CM desired 4–8s onto **5s or 10s**.
+3. **Filmmaker morning recut:** Balanced Kling 2.5 Turbo Pro NEW TAKEs on every traversal. Those first selected assemblies (`*_v2.mp4` / MOUNTED `*_v3.mp4`) were **not unique grammar cuts** — persisted take video ids collided across projects (`video-a-b-take-2`, …), so opening another project could copy the wrong clip into FOLLOW / LEAD / POV. Those files are not archived.
+4. **Filmmaker afternoon unique retakes:** new Kling 2.5 Turbo Pro takes with unique files, then export. Selected Takes:
+   - POV (`GrammarTest-POVCanyonRun2`): take 3 on every pair.
+   - FOLLOW: take 3 on every pair (D→E take 3 is the morning unique 10s clip).
+   - LEAD: take 3 on A→B, B→C, D→E; take 4 on C→D.
+   - MOUNTED: take 2 on A→B, B→C, C→D (original unique Kling); take 3 on D→E.
+5. **Export** from the product (Downloads filenames below). Kling 2.5 mapped CM desired 4–8s onto **5s or 10s**.
 
 Kling selected-take durations:
 
@@ -193,16 +196,16 @@ Kling selected-take durations:
 
 ## Kling outputs (filmmaker-selected cuts)
 
-Copied from `~/Downloads/` on 18 September 2026. These are the recuts the filmmaker judged better than the overnight Veo takes.
+Copied from `~/Downloads/` on 18 September 2026 afternoon. These are the unique recuts after the morning assemblies proved to share clips. Genesis Slice 13 movies are 1280-wide web encodes of the same four files.
 
 | Grammar | Downloads original | Archived here |
 | --- | --- | --- |
-| POV | `GrammarTestPOVCanyonRun_v2.mp4` | [kling-pov-canyon-run.mp4](canyon-grammar/kling-pov-canyon-run.mp4) |
-| FOLLOW | `GrammarTestFOLLOWCanyonRun_v2.mp4` | [kling-follow-canyon-run.mp4](canyon-grammar/kling-follow-canyon-run.mp4) |
-| LEAD | `GrammarTestLEADCanyonRun_v2.mp4` | [kling-lead-canyon-run.mp4](canyon-grammar/kling-lead-canyon-run.mp4) |
-| MOUNTED | `GrammarTestMOUNTEDCanyonRun_v3.mp4` | [kling-mounted-canyon-run.mp4](canyon-grammar/kling-mounted-canyon-run.mp4) |
+| POV | `GrammarTestPOVCanyonRun_v3.mp4` | [kling-pov-canyon-run.mp4](canyon-grammar/kling-pov-canyon-run.mp4) |
+| FOLLOW | `GrammarTestFOLLOWCanyonRun_v3.mp4` | [kling-follow-canyon-run.mp4](canyon-grammar/kling-follow-canyon-run.mp4) |
+| LEAD | `GrammarTestLEADCanyonRun_v3.mp4` | [kling-lead-canyon-run.mp4](canyon-grammar/kling-lead-canyon-run.mp4) |
+| MOUNTED | `GrammarTestMOUNTEDCanyonRun_v4.mp4` | [kling-mounted-canyon-run.mp4](canyon-grammar/kling-mounted-canyon-run.mp4) |
 
-LEAD’s GitHub copy is an H.264 transcode of the Downloads original (104 963 152 bytes, over GitHub’s 100 MiB file limit). Picture and duration match; bitrate is lower. POV / FOLLOW / MOUNTED archives are byte copies of Downloads.
+LEAD’s GitHub copy is an H.264 transcode of the Downloads original (105 795 547 bytes, over GitHub’s 100 MiB file limit). Picture and duration match; bitrate is lower. POV / FOLLOW / MOUNTED archives are byte copies of Downloads.
 
 Live Projects (gitignored `projects/`):
 
@@ -246,6 +249,7 @@ How to judge pairs:
 - **Do not treat elastic FOLLOW distance as a miss.** FOLLOW E is a wider, higher view with the car farther ahead. That is the FOLLOW principle, not MOUNTED.
 - **Do not “fix” LEAD by restoring a universal forward baseline.** LEAD A→B scored lower than the other grammars and still stayed in lead language.
 - **Do not register concatenated MP4s in the stills runtime registry.** That 12 MB image path failed headless export overnight; local-file copy is the fix.
+- **Do not reuse a take video media id across projects.** Morning FOLLOW / LEAD / POV selected takes collided on `video-a-b-take-2` and exported as the same clip. Unique retakes (and unique persisted media ids) are required before a four-grammar comparison is real.
 
 ---
 
@@ -260,6 +264,6 @@ How to judge pairs:
 
 - Overnight runner: `web/journey-cli.ts --experiment-canyon`, logs under `docs/grammar_experiment/logs/`.
 - Headless execution of the **Veo** pass: PARTIAL (provider caps + export-registry bug). Headless execution of **Director / stills / CM**: SUCCESS.
-- Filmmaker Kling recuts: product UI, 18 September 2026 morning. Downloads timestamps ~10:52–11:06.
+- Filmmaker Kling recuts: product UI, 18 September 2026. Morning first pass (~10:52–11:06, `*_v2` / MOUNTED `*_v3`) was not unique. Afternoon unique retakes (~12:21–12:46) are the archived cuts (`*_v3` / MOUNTED `*_v4`).
 - Canonical JPEGs here are 70-quality conversions of each Project’s `canonicals/<letter>/take-01.png`.
 - No scores were guessed. CM numbers are from each Project’s `traversals/*/traversal.json`.
