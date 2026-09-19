@@ -115,6 +115,30 @@ The Director interprets this intent and constructs a journey.
 The Cinematographer determines how local traversals can actually be
 shot.
 
+**Experimental / observed practice.** Put a short project / story
+title on the **first line** of the filmmaker prompt. Then the story,
+style, and route.
+
+``` text
+Title
+
+Story / journey intent
+
+Style
+
+Route / beats
+```
+
+This is a lightweight naming convention, not a prompt template.
+It gives the journey immediate identity, reads as a film / project
+rather than a raw generation instruction, and flows into Project
+Save As without a separate naming step. **Paper Chase** (19
+September 2026) demonstrated this especially well. See
+[2026-09-18-long-journey-findings.md](experiments/2026-09-18-long-journey-findings.md).
+
+Do **not** expand this into a verbose Prompt Coach form. Title first;
+keep the rest compact.
+
 ---
 
 ## 2. Destinations matter more than micro-choreography
@@ -632,9 +656,13 @@ per Destination.
 
 **Experimental.** Visual quality can suffer when the Journey prompt
 provides no meaningful aesthetic direction. The red paper airplane
-session produced some of the strongest-looking canonicals so far and
-reinforced compact cinematic intent. See
+session produced some of the strongest-looking photoreal canonicals
+so far and reinforced compact cinematic intent. See
 [sessions/red-paper-airplane.md](sessions/red-paper-airplane.md).
+**Paper Chase** later showed that a compact *stylized* direction
+(hand-drawn / rotoscoped music-video look) can also hold across a
+journey and a later continuation. That is a standout example, not a
+claim that stylized output is categorically better than photoreal.
 
 Filmmakers should **not** be expected to write long image-model
 style prompts. A compact direction may be enough:
@@ -650,7 +678,9 @@ Photorealistic cinematic FOLLOW.
 
 **Future.** Prompt Coach / Intent Conditioning should expand compact
 creative style language into appropriate downstream model-specific
-conditioning. Do not make the filmmaker write that expansion.
+conditioning. Do not make the filmmaker write that expansion. The
+human prompt stays subject / story, beats, and style. Internal
+camera grammar and shooting law stay internal.
 
 ---
 
@@ -708,6 +738,12 @@ SETUP → DEVELOPMENT → ESCALATION → CLIMAX → RELEASE / REVEAL
 
 **Future.** Prompt Coach should strengthen that structure when it is
 already present in the filmmaker's idea — smallest useful change.
+
+**Experimental.** Paper Chase escalated desk → hallway → subway →
+rooftop → sky → moon while remaining one journey; paper became
+origami birds without feeling like unrelated subject drift. Useful
+as a contrast with uncontrolled identity drift, not as a template
+to copy.
 
 ---
 
@@ -972,10 +1008,16 @@ scenario. Extract the structure.
 
 ## 26. Prompt Coach as intent compiler
 
-**Future.** Think of Prompt Coach less as "make the prompt longer"
-and more as:
+**Future / reinforced by experiment.** Think of Prompt Coach less as
+"make the prompt longer" and more as:
 
 > Compile human creative intent into structured filmmaking intent.
+
+Prompt Coach = **intent compiler**, not verbosity engine. Concise
+human creative intent is enough. **Paper Chase** was a compact
+title-first prompt; the Director expanded it into useful destinations
+and later continued it into four additional beats. Do not stuff the
+human prompt with raw geometry or video-model instructions.
 
 Conceptual structured output (not a schema to add now):
 
@@ -1049,7 +1091,7 @@ prompting, camera strategies, and models actually worked.
 | Kind | What is true now |
 | --- | --- |
 | **Current observed practice** | Journey prompt → PLAN JOURNEY / CREATE JOURNEY → sequential Derived Construct → CM on actual pairs → Camotion A′/B′ → NEW TAKE. Selected whole-journey camera grammar (POV / FOLLOW / LEAD / MOUNTED) conditions Director, stills, CM, and the locomotion baseline. Discover is unwired. |
-| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons; FOLLOW skier ~10s Kling: elastic following distance is cinematic, not a failure. Canyon grammar experiment (18 September 2026): four Projects, same route, POV / FOLLOW / LEAD / MOUNTED; grammar held in stills and CM; filmmaker Kling 2.5 Turbo Pro recuts. |
+| **Experimental findings** | Path-relative forward-motion wording; turn / heading-change weakness; Chernobyl / Pac-Man / Pripyat / paper-airplane session lessons; FOLLOW skier ~10s Kling: elastic following distance is cinematic, not a failure. Canyon grammar experiment (18 September 2026): four Projects, same route, POV / FOLLOW / LEAD / MOUNTED; grammar held in stills and CM; filmmaker Kling 2.5 Turbo Pro recuts. Paper Chase (19 September 2026): title-first compact stylized POV prompt; Director expanded beats; a second agent run filled E–H without rewriting A–D. |
 | **Current / pre-hackathon** | POV, FOLLOW, LEAD, MOUNTED. One grammar per entire journey. Prompt Coach remains documentation, not a product agent. Segment Adaptive/Fixed duration mapping is live. |
 | **Post-hackathon** | Mixed grammar within one journey; grammar switching between adjacent traversals; multiple camera interpretations of the same canonical; explicit camera cuts at grammar changes; continuous transitions between grammars; coverage planning; richer shot-duration planning. |
 | **Future direction** | Prompt Coach / Intent Conditioning; structured creative intent; Project-level Creative Direction; agentic Runway Model Router control; Discover as a second construction strategy. |
