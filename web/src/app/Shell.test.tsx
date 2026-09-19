@@ -51,6 +51,8 @@ describe("default product project", () => {
     expect(html).not.toContain("Not yet planned");
     expect(html).not.toContain("Provide starting frame");
     expect(html).toContain('placeholder="Describe the journey…"');
+    expect(html).toContain('aria-label="Camera"');
+    expect(html).not.toMatch(/aria-label="Camera"[^>]*disabled|disabled[^>]*aria-label="Camera"/);
     expect(html).toMatch(/disabled[^>]*>Shoot<|>Shoot<[^>]*disabled/);
   });
 });
@@ -103,6 +105,8 @@ describe("Shell header chrome", () => {
     expect(project).toContain(">Destinations<");
     expect(project.indexOf(">Camera<")).toBeLessThan(project.indexOf(">Destinations<"));
     expect(project).toContain('aria-label="Camera"');
+    expect(project).toMatch(/aria-label="Camera"[^>]*disabled|disabled[^>]*aria-label="Camera"/);
+    expect(project).toContain("Camera is fixed after the story is planned.");
     expect(project).not.toContain(">Camera grammar<");
     expect(project).toContain(">Options<");
     expect(project).not.toContain("Generate start destination");

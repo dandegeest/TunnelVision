@@ -210,6 +210,8 @@ export function cinematographerAssessmentUserPrompt(input: {
   readonly startIntent?: string;
   readonly endIntent?: string;
   readonly cameraGrammar?: CameraGrammar;
+  readonly filmmakerPace?: string;
+  readonly filmmakerDurationSeconds?: number;
 }): string {
   const story = input.story?.trim();
   const startIntent = input.startIntent?.trim();
@@ -223,6 +225,13 @@ export function cinematographerAssessmentUserPrompt(input: {
     ...(startIntent ? [`Start-set intent already on the destination: ${startIntent}`] : []),
     ...(endIntent ? [`End-set intent already on the destination: ${endIntent}`] : []),
     ...(startIntent || endIntent ? [""] : []),
+    ...(input.filmmakerPace
+      ? [`Filmmaker locked pace: ${input.filmmakerPace}. Use this exact pace field.`]
+      : []),
+    ...(typeof input.filmmakerDurationSeconds === "number"
+      ? [`Filmmaker locked duration: ${input.filmmakerDurationSeconds} seconds. Use this exact desiredDurationSeconds.`]
+      : []),
+    ...(input.filmmakerPace || typeof input.filmmakerDurationSeconds === "number" ? [""] : []),
     "Image 1 is the START canonical set. Image 2 is the END canonical set.",
     ...cinematographerPairUserLines(grammar),
     "Treat them as physical sets. Intent text is context only; do not override what the stills actually show.",

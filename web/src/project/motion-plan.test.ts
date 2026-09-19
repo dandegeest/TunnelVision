@@ -170,6 +170,15 @@ describe("per-segment Motion Plan", () => {
     }
   });
 
+  it("stages filmmaker pace instead of the CM assessment pace", () => {
+    const request = motionPlanStageRequestFromAssessment("A-B", "upload-a", "upload-b", assessment, {
+      pace: "slow",
+    });
+    expect(request.pace).toBe("slow");
+    expect(request.startPlan?.exposure.strength).toBe(0.025);
+    expect(request.endPlan?.exposure.strength).toBe(0.025);
+  });
+
   it("maps every CM pace onto CameraMotionPlan exposure strength", () => {
     const expected = {
       "slow-motion": 0.015,

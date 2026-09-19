@@ -1,5 +1,6 @@
 import { mapDurationToVideoModel } from "../../../media/src/replicate/video-models.ts";
 import { defaultTakeIntentFromProject, unshotVideoModel, videoModelForIntent, type GenerationIntent } from "./generation-intent";
+import { effectiveJourneyDurationSeconds } from "./journey-overrides";
 import type { DurationMode, JourneyShot, Project, VideoModelId } from "./types";
 
 export const DEFAULT_DURATION_MODE: DurationMode = "adaptive";
@@ -39,15 +40,18 @@ export function fixedDurationSecondsFromProject(project: Pick<Project, "fixedDur
  */
 export function targetDurationSeconds(
   project: Pick<Project, "durationMode" | "fixedDurationSeconds">,
-  journey: Pick<JourneyShot, "cinematographer"> | undefined,
+  journey: Pick<JourneyShot, "cinematographer" | "filmmakerDurationSeconds"> | undefined,
   _videoModelId: VideoModelId,
 ): number {
+  const filmmaker = journey ? effectiveJourneyDurationSeconds(journey) : undefined;
+  if (typeof filmmaker === "number" && journey?.filmmakerDurationSeconds !== undefined) {
+    return filmmaker;
+  }
   if (durationModeFromProject(project) === "fixed") {
     return fixedDurationSecondsFromProject(project);
   }
-  const desired = journey?.cinematographer?.desiredDurationSeconds;
-  if (typeof desired === "number" && Number.isFinite(desired)) {
-    return clampDurationSeconds(desired);
+  if (typeof filmmaker === "number") {
+    return filmmaker;
   }
   return DEFAULT_FIXED_DURATION_SECONDS;
 }
@@ -55,34 +59,36 @@ export function targetDurationSeconds(
 export function actualDurationSecondsForModel(
   project: Pick<Project, "durationMode" | "fixedDurationSeconds">,
   videoModelId: VideoModelId,
-  journey?: Pick<JourneyShot, "cinematographer">,
+  journey?: Pick<JourneyShot, "cinematographer" | "filmmakerDurationSeconds">,
 ): number {
   return mapDurationToVideoModel(videoModelId, targetDurationSeconds(project, journey, videoModelId));
 }
 
-export function unshotDurationSeconds(project: Project, journey?: Pick<JourneyShot, "cinematographer">): number {
+export function unshotDurationSeconds(
+  project: Project,
+  journey?: Pick<JourneyShot, "cinematographer" | "filmmakerDurationSeconds">,
+): number {
   return actualDurationSecondsForModel(project, unshotVideoModel(project), journey);
 }
 
 /** Adaptive desired, or Fixed target. Undefined when Adaptive has no CM duration yet. */
 export function intentDurationSeconds(
   project: Pick<Project, "durationMode" | "fixedDurationSeconds">,
-  journey?: Pick<JourneyShot, "cinematographer">,
+  journey?: Pick<JourneyShot, "cinematographer" | "filmmakerDurationSeconds">,
 ): number | undefined {
+  if (journey?.filmmakerDurationSeconds !== undefined) {
+    return effectiveJourneyDurationSeconds(journey);
+  }
   if (durationModeFromProject(project) === "fixed") {
     return fixedDurationSecondsFromProject(project);
   }
-  const desired = journey?.cinematographer?.desiredDurationSeconds;
-  if (typeof desired === "number" && Number.isFinite(desired)) {
-    return clampDurationSeconds(desired);
-  }
-  return undefined;
+  return journey ? effectiveJourneyDurationSeconds(journey) : undefined;
 }
 
 /** Duration that will be sent for this journey and take intent. */
 export function requestedDurationSeconds(
   project: Project,
-  journey?: Pick<JourneyShot, "cinematographer">,
+  journey?: Pick<JourneyShot, "cinematographer" | "filmmakerDurationSeconds">,
   intent: GenerationIntent = defaultTakeIntentFromProject(project),
 ): number {
   return actualDurationSecondsForModel(project, videoModelForIntent(project, intent), journey);

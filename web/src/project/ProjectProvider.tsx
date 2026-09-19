@@ -63,6 +63,11 @@ import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, proj
 import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import { projectWithDurationMode, projectWithFixedDurationSeconds } from "./shot-duration";
 import {
+  effectiveJourneyPace,
+  projectWithJourneyFilmmakerDuration,
+  projectWithJourneyFilmmakerPace,
+} from "./journey-overrides";
+import {
   requestConstructDestination,
   projectWithConstructedDestination,
   destinationConstructionRequestFromProject,
@@ -109,8 +114,8 @@ import {
   runJourneyAgent,
   type JourneyAgentSnapshot,
 } from "./journey-agent";
-import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type Project, type Selection, type VideoModelId } from "./types";
-import { cameraGrammarFromProject, projectWithCameraGrammar } from "./camera-grammar";
+import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type LocomotionPace, type Project, type Selection, type VideoModelId } from "./types";
+import { cameraGrammarFromProject, cameraGrammarIsLocked, projectWithCameraGrammar } from "./camera-grammar";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function suggestedProjectName(project: Project): string {
@@ -176,6 +181,8 @@ type ProjectContextValue = {
   setCameraGrammar: (grammar: CameraGrammar) => void;
   setDurationMode: (mode: DurationMode) => void;
   setFixedDurationSeconds: (seconds: number) => void;
+  setJourneyPace: (journeyId: string, pace: LocomotionPace) => Promise<void>;
+  setJourneyDurationSeconds: (journeyId: string, seconds: number) => void;
   conversation: ConversationEntry[];
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
@@ -482,7 +489,9 @@ export function ProjectProvider({
   }, []);
 
   const setCameraGrammar = useCallback((grammar: CameraGrammar) => {
-    setProject((current) => projectWithCameraGrammar(current, grammar));
+    setProject((current) =>
+      cameraGrammarIsLocked(current) ? current : projectWithCameraGrammar(current, grammar),
+    );
   }, []);
 
   const setDurationMode = useCallback((mode: DurationMode) => {
@@ -492,6 +501,78 @@ export function ProjectProvider({
   const setFixedDurationSeconds = useCallback((seconds: number) => {
     setProject((current) => projectWithFixedDurationSeconds(current, seconds));
   }, []);
+
+  const restageJourneyMotionPlan = useCallback(
+    async (journeyId: string) => {
+      const current = projectRef.current;
+      const journey = current.journeys.find((item) => item.id === journeyId);
+      if (!journey?.cinematographer || !hasCurrentMotionPlan(current, journey)) {
+        return;
+      }
+      const request = cinematographerRequestFromProject(current, journeyId);
+      const session = projectSessionRef.current;
+      try {
+        const staged = await requestMotionPlan(
+          motionPlanStageRequestFromAssessment(
+            journeyId,
+            request.startMediaId,
+            request.endMediaId,
+            journey.cinematographer,
+            {
+              cameraGrammar: cameraGrammarFromProject(current),
+              debug: debugOnRef.current,
+              pace: effectiveJourneyPace(journey),
+            },
+          ),
+        );
+        if (projectSessionRef.current !== session) {
+          return;
+        }
+        applyProject(
+          projectWithMotionPlan(projectRef.current, journeyId, {
+            cinematographer: journey.cinematographer,
+            startCanonicalMediaId: request.startMediaId,
+            endCanonicalMediaId: request.endMediaId,
+            startShootingFrame: staged.startShootingFrame,
+            endShootingFrame: staged.endShootingFrame,
+            startPlan: staged.startPlan,
+            endPlan: staged.endPlan,
+            segmentPromptAddition: staged.segmentPromptAddition,
+            effectivePrompt: staged.effectivePrompt,
+            pace: staged.pace,
+          }),
+        );
+      } catch (error) {
+        if (projectSessionRef.current !== session) {
+          return;
+        }
+        applyProject(
+          projectWithMotionPlanError(
+            projectRef.current,
+            journeyId,
+            error instanceof Error ? error.message : "Motion Plan failed",
+          ),
+        );
+      }
+    },
+    [applyProject],
+  );
+
+  const setJourneyPace = useCallback(
+    async (journeyId: string, pace: LocomotionPace) => {
+      const next = projectWithJourneyFilmmakerPace(projectRef.current, journeyId, pace);
+      applyProject(next);
+      const journey = next.journeys.find((item) => item.id === journeyId);
+      if (journey && hasCurrentMotionPlan(next, journey)) {
+        await restageJourneyMotionPlan(journeyId);
+      }
+    },
+    [applyProject, restageJourneyMotionPlan],
+  );
+
+  const setJourneyDurationSeconds = useCallback((journeyId: string, seconds: number) => {
+    applyProject(projectWithJourneyFilmmakerDuration(projectRef.current, journeyId, seconds));
+  }, [applyProject]);
 
   const replaceDestinationImage = useCallback(async (
     frameId: string,
@@ -903,6 +984,7 @@ export function ProjectProvider({
               {
                 cameraGrammar: cameraGrammarFromProject(current),
                 debug: debugOnRef.current,
+                pace: effectiveJourneyPace({ ...journey, cinematographer: assessment }),
               },
             ),
           );
@@ -1939,6 +2021,8 @@ export function ProjectProvider({
       setCameraGrammar,
       setDurationMode,
       setFixedDurationSeconds,
+      setJourneyPace,
+      setJourneyDurationSeconds,
       conversation,
       selectedJourney,
       directorStatus,
@@ -2032,6 +2116,8 @@ export function ProjectProvider({
       setCameraGrammar,
       setDurationMode,
       setFixedDurationSeconds,
+      setJourneyPace,
+      setJourneyDurationSeconds,
       conversation,
       selectedJourney,
       directorStatus,

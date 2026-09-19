@@ -49,6 +49,7 @@ import {
 } from "./src/project/export-movie.ts";
 import { isGenerationIntent, type GenerationIntent } from "./src/project/generation-intent.ts";
 import { runJourneyAgent, type JourneyAgentOperations, type JourneyAgentSnapshot } from "./src/project/journey-agent.ts";
+import { effectiveJourneyPace } from "./src/project/journey-overrides.ts";
 import { motionPlanStageRequestFromAssessment, projectWithMotionPlan } from "./src/project/motion-plan.ts";
 import { createNewProject } from "./src/project/new-project.ts";
 import { projectWithDefaultTakeIntent, projectWithJourneyShotTake, shootRequestFromProject } from "./src/project/shoot.ts";
@@ -249,7 +250,10 @@ export function createHeadlessJourneyOperations(input: {
         request.startMediaId,
         request.endMediaId,
         journey.cinematographer,
-        { cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar) },
+        {
+          cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
+          pace: effectiveJourneyPace(journey),
+        },
       );
       const staged = await stagePreparedMotionPlan({
         repoRoot: input.repoRoot,

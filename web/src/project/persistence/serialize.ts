@@ -4,6 +4,7 @@ import type { ConversationEntry } from "../conversation";
 import type { MovieExportResult } from "../export-movie";
 import { createNewProject } from "../new-project";
 import { projectWithSyncedProductionLegs } from "../production-legs";
+import { isLocomotionPace } from "../../../../media/src/cinematographer/shooting-prompt.ts";
 import { cameraGrammarFromProject, cameraGrammarFromUnknown } from "../camera-grammar";
 import {
   DEFAULT_DURATION_MODE,
@@ -277,6 +278,8 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
       cinematographer: journey.cinematographer,
       cinematographerStartMediaId: journey.cinematographerStartMediaId,
       cinematographerEndMediaId: journey.cinematographerEndMediaId,
+      filmmakerPace: journey.filmmakerPace,
+      filmmakerDurationSeconds: journey.filmmakerDurationSeconds,
       motionPlan: shootingFrames[journey.id],
       motionPlanError: journey.motionPlanError,
       selectedTakeId: selected?.id,
@@ -535,6 +538,11 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       cinematographerEndMediaId: typeof raw.cinematographerEndMediaId === "string" ? raw.cinematographerEndMediaId : undefined,
       motionPlan,
       motionPlanError: typeof raw.motionPlanError === "string" ? raw.motionPlanError : undefined,
+      filmmakerPace: isLocomotionPace(raw.filmmakerPace) ? raw.filmmakerPace : undefined,
+      filmmakerDurationSeconds:
+        typeof raw.filmmakerDurationSeconds === "number" && Number.isFinite(raw.filmmakerDurationSeconds)
+          ? clampDurationSeconds(raw.filmmakerDurationSeconds)
+          : undefined,
       takes,
       selectedTakeId: selected?.id,
       shootError: typeof raw.shootError === "string" ? raw.shootError : undefined,

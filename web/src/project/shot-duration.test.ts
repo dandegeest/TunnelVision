@@ -12,6 +12,7 @@ import {
   fixedDurationSecondsFromProject,
   projectWithDurationMode,
   projectWithFixedDurationSeconds,
+  intentDurationSeconds,
   requestedDurationSeconds,
   targetDurationSeconds,
 } from "./shot-duration";
@@ -112,6 +113,20 @@ describe("shot duration", () => {
     expect(actualDurationSecondsForModel(prepared, "pruna-p-video", prepared.journeys[0])).toBe(7);
     expect(actualDurationSecondsForModel(prepared, "kling-v2.5-turbo-pro", prepared.journeys[0])).toBe(5);
     expect(actualDurationSecondsForModel(prepared, "veo-3.1-fast", prepared.journeys[0])).toBe(6);
+  });
+
+  it("lets a filmmaker duration lock beat Adaptive CM and Fixed project duration", () => {
+    const prepared = projectWithCinematographerAssessment(projectWithLeg(), "A-B", assessment);
+    const locked = {
+      ...prepared,
+      journeys: prepared.journeys.map((journey) =>
+        journey.id === "A-B" ? { ...journey, filmmakerDurationSeconds: 12 } : journey,
+      ),
+    };
+    expect(targetDurationSeconds(locked, locked.journeys[0], "pruna-p-video")).toBe(12);
+    expect(intentDurationSeconds(locked, locked.journeys[0])).toBe(12);
+    const fixed = { ...locked, durationMode: "fixed" as const, fixedDurationSeconds: 5 };
+    expect(targetDurationSeconds(fixed, fixed.journeys[0], "pruna-p-video")).toBe(12);
   });
 
   it("uses a 5s product base when Adaptive has no CM desired duration", () => {

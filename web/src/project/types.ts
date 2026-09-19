@@ -345,6 +345,16 @@ export type JourneyShot = {
   /** Present after automatic Motion Planning fails for this pair. Cleared on retry or success. */
   motionPlanError?: string;
   /**
+   * Filmmaker pace lock for this traversal. Wins over CM `pace` for staging,
+   * shooting, and display. Missing means use the Cinematographer value.
+   */
+  filmmakerPace?: LocomotionPace;
+  /**
+   * Filmmaker duration lock in seconds. Wins over Adaptive CM desired
+   * duration and over project Fixed duration for this traversal.
+   */
+  filmmakerDurationSeconds?: number;
+  /**
    * Generated traversals for this leg. Never overwritten on NEW TAKE.
    * Absent or empty until the first take exists. Legacy `take` / `videoUrl`
    * load as Take 1 via journeyTakes().

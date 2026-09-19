@@ -1,4 +1,5 @@
 import { parseVideoModelId, videoModelDurationSeconds } from "../../../media/src/replicate/video-models.ts";
+import { effectiveJourneyPace } from "./journey-overrides";
 import { unshotDurationSeconds } from "./shot-duration";
 import { GENERATION_INTENT_MARK } from "./generation-intent";
 import type { JourneyShot, JourneyShotTake, Project } from "./types";
@@ -169,7 +170,7 @@ export function journeyTakes(journey: JourneyShot): JourneyShotTake[] {
           },
           segmentPromptAddition: "",
           effectivePrompt: "",
-          pace: journey.cinematographer?.pace ?? "moderate",
+          pace: effectiveJourneyPace(journey) ?? "moderate",
           provider: "replicate",
           model: "",
           modelVersion: null,

@@ -372,9 +372,11 @@ describe("Shoot Cinematographer journey assessment", () => {
     expect(html).toContain("Keep the previous space from disappearing too early.");
     expect(html).toContain("Camera path.");
     expect(html).toContain("Pace");
+    expect(html).toContain('aria-label="Pace"');
     expect(html).toContain('data-inspector-pace="fast"');
     expect(html).toContain("Fast");
     expect(html).toContain(">Duration<");
+    expect(html).toContain('aria-label="Desired duration seconds"');
     expect(html).toContain('data-inspector-desired-duration="4"');
     expect(html).toContain("data-inspector-resolved-duration");
     expect(html).not.toContain("Pace.");

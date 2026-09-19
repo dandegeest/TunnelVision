@@ -8,10 +8,19 @@ import {
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import { canAssessJourney, cinematographerScoreTone, locomotionPaceLabel } from "../project/cinematographer";
+import { effectiveJourneyPace } from "../project/journey-overrides";
+import { LOCOMOTION_PACES, type LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import { OptionMenu } from "../ui/OptionMenu";
 import { canReshootDestinationFrame } from "../project/destination";
 import { defaultTakeIntentFromProject, takeIntentTooltip, type GenerationIntent } from "../project/generation-intent";
 import { canShootJourney } from "../project/shoot";
-import { durationModeFromProject, intentDurationSeconds, unshotDurationSeconds } from "../project/shot-duration";
+import {
+  durationModeFromProject,
+  intentDurationSeconds,
+  MAX_FIXED_DURATION_SECONDS,
+  MIN_FIXED_DURATION_SECONDS,
+  unshotDurationSeconds,
+} from "../project/shot-duration";
 import {
   selectedTake,
   TAKE_PREVIOUS_CANONICALS_COPY,
@@ -383,14 +392,23 @@ function MotionInspectorFields({
         ) : null}
         {assessment ? (
           <CinematographerLegDetail assessment={assessment} />
-        ) : assessing ? (
-          <p className="text-[#cfc6b8]">Planning this traversal…</p>
-        ) : canAssess ? (
-          <p className="text-[#cfc6b8]">
-            Motion Plan is created automatically from this actual adjacent pair.
-          </p>
         ) : (
-          <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
+          <>
+            <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+              <span>Pace</span>
+              <PaceControl pace="moderate" />
+              <ShotDurationReadout layout="grid" />
+            </div>
+            {assessing ? (
+              <p className="text-[#cfc6b8]">Planning this traversal…</p>
+            ) : canAssess ? (
+              <p className="text-[#cfc6b8]">
+                Motion Plan is created automatically from this actual adjacent pair.
+              </p>
+            ) : (
+              <p className="text-[#9a8f7e]">Cinematographer needs two actual destinations.</p>
+            )}
+          </>
         )}
         {motionPlanError ? (
           <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-[#f0c2a8]">
@@ -545,7 +563,7 @@ function CinematographerLegDetail({
           {assessment.traversalConfidence}
         </span>
         <span>Pace</span>
-        <PaceReadout pace={assessment.pace} />
+        <PaceControl pace={assessment.pace} />
         <ShotDurationReadout assessment={assessment} layout="grid" />
       </div>
       {assessment.concerns.length > 0 ? (
@@ -609,8 +627,9 @@ function ShotDurationReadout({
   take?: JourneyShotTake;
   layout: "grid" | "stack";
 }) {
-  const { project, selectedJourney } = useProject();
+  const { project, selectedJourney, setJourneyDurationSeconds, shootingJourneyIds } = useProject();
   const journey = selectedJourney;
+  const [draft, setDraft] = useState<string | null>(null);
   const resolved =
     take && Number.isFinite(take.durationSeconds) && take.durationSeconds > 0
       ? take.durationSeconds
@@ -618,12 +637,65 @@ function ShotDurationReadout({
         ? unshotDurationSeconds(project, journey)
         : unshotDurationSeconds(project);
   const intentSeconds = intentDurationSeconds(project, journey ?? { cinematographer: assessment });
+  const disabled = !journey || shootingJourneyIds.includes(journey.id);
+  const editableSeconds = journey ? intentSeconds ?? 5 : intentSeconds;
+  const commitDraft = () => {
+    if (!journey || draft === null) {
+      setDraft(null);
+      return;
+    }
+    const next = Number(draft);
+    if (Number.isFinite(next)) {
+      setJourneyDurationSeconds(journey.id, next);
+    }
+    setDraft(null);
+  };
   const pair = (
-    <DurationPair
-      intentSeconds={intentSeconds}
-      resolvedSeconds={resolved}
-      fixed={durationModeFromProject(project) === "fixed"}
-    />
+    <span className="inline-flex items-center gap-1.5">
+      {editableSeconds !== undefined && journey ? (
+        <label className="inline-flex items-center gap-1">
+          <input
+            type="number"
+            min={MIN_FIXED_DURATION_SECONDS}
+            max={MAX_FIXED_DURATION_SECONDS}
+            step={1}
+            value={draft ?? String(editableSeconds)}
+            disabled={disabled}
+            aria-label="Desired duration seconds"
+            title="Filmmaker duration for this traversal. Updates the stored plan and the next take."
+            className="w-10 rounded border border-[#3a342c] bg-transparent px-1 py-0.5 text-right text-[11px] tabular-nums tracking-[0.12em] text-[#ece7df] outline-none focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:opacity-50"
+            data-inspector-desired-duration={durationModeFromProject(project) === "fixed" && journey.filmmakerDurationSeconds === undefined ? undefined : editableSeconds}
+            data-inspector-fixed-duration={durationModeFromProject(project) === "fixed" && journey.filmmakerDurationSeconds === undefined ? editableSeconds : undefined}
+            onChange={(event) => {
+              setDraft(event.target.value);
+            }}
+            onBlur={commitDraft}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          <span className="text-[11px] tracking-[0.12em] text-[#ece7df] uppercase">s</span>
+        </label>
+      ) : (
+        <DurationPair
+          intentSeconds={intentSeconds}
+          resolvedSeconds={resolved}
+          fixed={durationModeFromProject(project) === "fixed"}
+        />
+      )}
+      {editableSeconds !== undefined && journey ? (
+        <>
+          <span className="text-[#5c564c]" aria-hidden>
+            |
+          </span>
+          <span className="text-[#9a8f7e]" title="Model duration" data-inspector-resolved-duration={resolved}>
+            {resolved}s
+          </span>
+        </>
+      ) : null}
+    </span>
   );
   if (layout === "stack") {
     return (
@@ -641,17 +713,29 @@ function ShotDurationReadout({
   );
 }
 
-function PaceReadout({ pace }: { pace: CinematographerAssessment["pace"] }) {
+function PaceControl({ pace }: { pace: CinematographerAssessment["pace"] }) {
+  const { selectedJourney, setJourneyPace, shootingJourneyIds } = useProject();
+  const current = selectedJourney ? effectiveJourneyPace(selectedJourney) ?? pace : pace;
+  const disabled = !selectedJourney || shootingJourneyIds.includes(selectedJourney.id);
   return (
-    <span
-      className="inline-flex items-center gap-2 text-[#d4b36a]"
-      data-inspector-pace={pace}
-      title={locomotionPaceLabel(pace)}
-    >
-      <JourneyPaceMark pace={pace} />
-      <span className="text-[11px] tracking-[0.16em] text-[#ece7df] uppercase">
-        {locomotionPaceLabel(pace)}
-      </span>
+    <span className="inline-flex items-center gap-2 text-[#d4b36a]" data-inspector-pace={current}>
+      <JourneyPaceMark pace={current} />
+      <OptionMenu
+        ariaLabel="Pace"
+        title="Filmmaker pace for this traversal. Restages the Motion Plan so the stored shooting prompt matches."
+        value={current}
+        disabled={disabled}
+        options={LOCOMOTION_PACES.map((value) => ({
+          value,
+          label: locomotionPaceLabel(value),
+        }))}
+        onChange={(next) => {
+          if (selectedJourney) {
+            void setJourneyPace(selectedJourney.id, next as LocomotionPace);
+          }
+        }}
+        triggerClassName="h-7 min-w-[7.5rem] rounded border border-[#3a342c] bg-[#161410] px-2 text-[11px] tracking-[0.16em] text-[#ece7df] uppercase outline-none focus-visible:border-[#ece7df]"
+      />
     </span>
   );
 }
@@ -728,12 +812,10 @@ function TakeInspector({
           onSelectEnd={onSelectEnd}
         />
       ) : null}
-      {pace ? (
-        <div>
-          <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Pace</p>
-          <PaceReadout pace={pace} />
-        </div>
-      ) : null}
+      <div>
+        <p className="text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Pace</p>
+        <PaceControl pace={pace ?? "moderate"} />
+      </div>
       <ShotDurationReadout assessment={assessment} take={take} layout="stack" />
       {direction ? <InspectorMeta label="Shot direction" value={direction} /> : null}
       {intentLabel ? <InspectorMeta label="Generation" value={intentLabel} /> : null}

@@ -1,5 +1,6 @@
 import type { JourneyShot } from "../project/types";
 import { locomotionPaceLabel } from "../project/cinematographer";
+import { effectiveJourneyPace } from "../project/journey-overrides";
 import { useProject } from "../project/ProjectProvider";
 import { intentDurationSeconds } from "../project/shot-duration";
 import { journeyThumbGutter, type LaidOutJourney } from "./geometry";
@@ -17,7 +18,7 @@ export function JourneyPaceLane({
     <div className="pointer-events-none absolute inset-x-0 top-7 z-[2] h-[100px]">
       {journeys.map((laid) => {
         const journey = projectJourneys.find((item) => item.id === laid.journeyId);
-        const pace = journey?.cinematographer?.pace;
+        const pace = journey ? effectiveJourneyPace(journey) : undefined;
         const gutter = journeyThumbGutter(laid);
         if (!journey || !pace || !gutter) {
           return null;

@@ -154,6 +154,16 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.equal(request.payload.endId, "B");
 });
 
+test("Cinematographer assessment prompt includes filmmaker pace and duration locks", () => {
+  const request = buildCinematographerAssessmentRequest({
+    ...input,
+    filmmakerPace: "slow",
+    filmmakerDurationSeconds: 12,
+  });
+  assert.match(request.prompt, /Filmmaker locked pace: slow/);
+  assert.match(request.prompt, /Filmmaker locked duration: 12 seconds/);
+});
+
 test("structured Cinematographer assessment JSON includes segment choreography", () => {
   const assessment = parseCinematographerAssessment(`\`\`\`json\n${validAssessmentJson()}\n\`\`\``);
   assert.equal(assessment.shootability, "shootable");

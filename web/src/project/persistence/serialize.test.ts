@@ -82,6 +82,8 @@ describe("project persistence schema", () => {
           status: "rendered",
           takes: [take(1, "upload-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"), take(2, "upload-wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")],
           selectedTakeId: "A-B:take:1",
+          filmmakerPace: "slow",
+          filmmakerDurationSeconds: 12,
         },
       ],
     };
@@ -107,6 +109,8 @@ describe("project persistence schema", () => {
     const journey = hydrated.project.journeys.find((item) => item.id === "A-B")!;
     expect(journey.takes).toHaveLength(2);
     expect(journey.selectedTakeId).toBe("A-B:take:1");
+    expect(journey.filmmakerPace).toBe("slow");
+    expect(journey.filmmakerDurationSeconds).toBe(12);
     expect(hydrated.project.story).toBe("Follow the koi.");
     expect(hydrated.project.imageModel).toBe("nano-banana-2-lite");
     expect(documents.manifest.settings.durationMode).toBe("adaptive");

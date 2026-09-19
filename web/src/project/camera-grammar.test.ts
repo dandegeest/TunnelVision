@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createNewProject } from "./new-project";
 import {
   cameraGrammarFromProject,
   cameraGrammarFromUnknown,
+  cameraGrammarIsLocked,
   projectWithCameraGrammar,
 } from "./camera-grammar";
 import { hydrateProject, serializeProjectDocuments } from "./persistence/serialize";
@@ -12,6 +14,8 @@ describe("project camera grammar", () => {
     const project = createNewProject();
     expect(project.cameraGrammar).toBe("pov");
     expect(cameraGrammarFromProject(project)).toBe("pov");
+    expect(cameraGrammarIsLocked(project)).toBe(false);
+    expect(cameraGrammarIsLocked(createForestProject())).toBe(true);
   });
 
   it("treats missing grammar on older projects as POV without requiring stored data", () => {

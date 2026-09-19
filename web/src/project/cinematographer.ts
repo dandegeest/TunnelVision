@@ -1,4 +1,6 @@
+import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { cameraGrammarFromProject } from "./camera-grammar";
+import { assessmentWithFilmmakerLocks, effectiveJourneyDurationSeconds, effectiveJourneyPace } from "./journey-overrides";
 import { projectWithResolvedUnshotDurations } from "./shot-duration";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type {
@@ -20,6 +22,8 @@ export type CinematographerAssessmentRequest = {
   endIntent?: string;
   story?: string;
   cameraGrammar?: CameraGrammar;
+  filmmakerPace?: LocomotionPace;
+  filmmakerDurationSeconds?: number;
 };
 
 export type CinematographerAssessmentResponse = {
@@ -312,6 +316,12 @@ export function cinematographerRequestFromProject(
     ...(endIntent ? { endIntent } : {}),
     ...(story ? { story } : {}),
     cameraGrammar: cameraGrammarFromProject(project),
+    ...(effectiveJourneyPace(journey) && journey.filmmakerPace
+      ? { filmmakerPace: journey.filmmakerPace }
+      : {}),
+    ...(typeof journey.filmmakerDurationSeconds === "number"
+      ? { filmmakerDurationSeconds: effectiveJourneyDurationSeconds(journey) }
+      : {}),
   };
 }
 
@@ -325,6 +335,7 @@ export function projectWithCinematographerAssessment(
   if (!journey) {
     throw new Error("Unknown journey");
   }
+  const locked = assessmentWithFilmmakerLocks(assessment, journey);
   const pair = cinematographerPairMediaIds(project, journey);
   const startCanonicalMediaId =
     evaluatedPair?.startCanonicalMediaId ?? pair?.startMediaId ?? journey.cinematographerStartMediaId;
@@ -336,7 +347,7 @@ export function projectWithCinematographerAssessment(
       item.id === journeyId
         ? {
             ...item,
-            cinematographer: assessment,
+            cinematographer: locked,
             ...(startCanonicalMediaId ? { cinematographerStartMediaId: startCanonicalMediaId } : {}),
             ...(endCanonicalMediaId ? { cinematographerEndMediaId: endCanonicalMediaId } : {}),
           }

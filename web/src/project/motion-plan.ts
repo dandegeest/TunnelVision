@@ -11,8 +11,9 @@ import {
   hasStagedMotionPlan,
 } from "./cinematographer";
 import { cameraGrammarFromProject } from "./camera-grammar";
+import { effectiveJourneyPace } from "./journey-overrides";
 import { journeyTakes, selectedTake } from "./takes";
-import type { CinematographerAssessment, JourneyShot, Project, SegmentMotionPlan } from "./types";
+import type { CinematographerAssessment, JourneyShot, LocomotionPace, Project, SegmentMotionPlan } from "./types";
 
 export { hasStagedMotionPlan };
 
@@ -83,7 +84,10 @@ export function motionPlanRequestFromProject(
     start.mediaId,
     end.mediaId,
     journey.cinematographer,
-    { cameraGrammar: cameraGrammarFromProject(project) },
+    {
+      cameraGrammar: cameraGrammarFromProject(project),
+      pace: effectiveJourneyPace(journey),
+    },
   );
 }
 
@@ -93,15 +97,16 @@ export function motionPlanStageRequestFromAssessment(
   startMediaId: string,
   endMediaId: string,
   assessment: CinematographerAssessment,
-  options?: { cameraGrammar?: CameraGrammar; debug?: boolean },
+  options?: { cameraGrammar?: CameraGrammar; debug?: boolean; pace?: LocomotionPace },
 ): StageMotionPlanRequest {
-  const plans = cameraMotionPlansFromAssessment(assessment);
+  const assessmentForPlans = options?.pace ? { ...assessment, pace: options.pace } : assessment;
+  const plans = cameraMotionPlansFromAssessment(assessmentForPlans);
   return {
     journeyId,
     startMediaId,
     endMediaId,
     segmentPromptAddition: assessment.segmentPromptAddition,
-    pace: assessment.pace,
+    pace: options?.pace ?? assessment.pace,
     startPlan: plans.start,
     endPlan: plans.end,
     cameraGrammar: cameraGrammarFromUnknown(options?.cameraGrammar),

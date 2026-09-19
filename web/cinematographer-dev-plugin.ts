@@ -74,6 +74,9 @@ export function cinematographerDevPlugin(repoRoot: string): Plugin {
             start: pair.start,
             end: pair.end,
             cameraGrammar: cameraGrammarFromUnknown(body.cameraGrammar),
+            filmmakerPace: typeof body.filmmakerPace === "string" ? body.filmmakerPace : undefined,
+            filmmakerDurationSeconds:
+              typeof body.filmmakerDurationSeconds === "number" ? body.filmmakerDurationSeconds : undefined,
           });
           sendJson(res, 200, {
             assessment: result.assessment,

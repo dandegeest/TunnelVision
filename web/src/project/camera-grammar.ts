@@ -21,6 +21,11 @@ export function cameraGrammarFromProject(project: Pick<Project, "cameraGrammar">
   return cameraGrammarFromUnknown(project.cameraGrammar);
 }
 
+/** Camera is chosen before DIRECT. After the storyboard is planned it stays put. */
+export function cameraGrammarIsLocked(project: Pick<Project, "storyDurationLocked">): boolean {
+  return project.storyDurationLocked === true;
+}
+
 export function projectWithCameraGrammar(project: Project, grammar: CameraGrammar): Project {
   const next = cameraGrammarFromUnknown(grammar);
   if (cameraGrammarFromProject(project) === next && project.cameraGrammar === next) {

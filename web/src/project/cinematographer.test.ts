@@ -22,6 +22,7 @@ import {
   projectWithMotionPlanError,
   requestCinematographerAssessment,
 } from "./cinematographer";
+import { projectWithJourneyFilmmakerDuration, projectWithJourneyFilmmakerPace } from "./journey-overrides";
 import { directorPlanRequestFromProject } from "./director";
 import { projectWithMotionPlan } from "./motion-plan";
 import { journeyIsPlayable } from "./policy";
@@ -76,6 +77,15 @@ describe("Cinematographer actual-set assessment", () => {
       cameraGrammar: "pov",
     });
     expect(journeysReadyToBlock(project).some((journey) => journey.id === "A-B")).toBe(true);
+    const locked = projectWithJourneyFilmmakerDuration(
+      projectWithJourneyFilmmakerPace(project, "A-B", "slow"),
+      "A-B",
+      12,
+    );
+    expect(cinematographerRequestFromProject(locked, "A-B")).toMatchObject({
+      filmmakerPace: "slow",
+      filmmakerDurationSeconds: 12,
+    });
     expect(
       journeysReadyToBlock(projectWithCinematographerAssessment(project, "A-B", shootableAB)).some(
         (journey) => journey.id === "A-B",
