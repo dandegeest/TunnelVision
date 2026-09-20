@@ -104,6 +104,7 @@ import {
   listPersistedProjects,
   openPersistedProject,
   renamePersistedProject,
+  revealPersistedProject,
   savePersistedProject,
   type ListedProject,
 } from "./project-persistence-client";
@@ -238,6 +239,7 @@ type ProjectContextValue = {
   saveProject: (name?: string) => Promise<void>;
   renameProject: (name?: string) => Promise<void>;
   openProject: (path: string) => Promise<void>;
+  revealProject: () => Promise<void>;
   chooseProjectsFolder: () => Promise<string | null>;
   setProjectTitle: (title: string) => void;
   refreshProjectList: () => Promise<void>;
@@ -267,6 +269,8 @@ export function ProjectProvider({
   initialJourneyAgent,
   initialCutPlaybackJourneyId = null,
   initialPlaying = false,
+  initialPersistedProjectPath = null,
+  initialProjectsFolder = null,
 }: {
   children: ReactNode;
   initialProject?: Project;
@@ -286,6 +290,8 @@ export function ProjectProvider({
   initialJourneyAgent?: JourneyAgentSnapshot;
   initialCutPlaybackJourneyId?: string | null;
   initialPlaying?: boolean;
+  initialPersistedProjectPath?: string | null;
+  initialProjectsFolder?: string | null;
 }) {
   const [project, setProject] = useState(() => initialProject ?? createNewProject());
   const projectRef = useRef(project);
@@ -327,8 +333,10 @@ export function ProjectProvider({
   const [movieExport, setMovieExport] = useState<MovieExportResult | null>(null);
   const [exportingMovie, setExportingMovie] = useState(false);
   const [exportMovieError, setExportMovieError] = useState<string | null>(null);
-  const [projectsFolder, setProjectsFolder] = useState<string | null>(null);
-  const [persistedProjectPath, setPersistedProjectPath] = useState<string | null>(null);
+  const [projectsFolder, setProjectsFolder] = useState<string | null>(initialProjectsFolder);
+  const [persistedProjectPath, setPersistedProjectPath] = useState<string | null>(
+    initialPersistedProjectPath,
+  );
   const persistedProjectPathRef = useRef<string | null>(null);
   persistedProjectPathRef.current = persistedProjectPath;
   const persistedCreatedAtRef = useRef<string | undefined>(undefined);
@@ -1825,6 +1833,18 @@ export function ProjectProvider({
     [refreshProjectList, replaceProject],
   );
 
+  const revealProject = useCallback(async () => {
+    if (!persistedProjectPath) {
+      return;
+    }
+    setPersistenceError(null);
+    try {
+      await revealPersistedProject(persistedProjectPath);
+    } catch (error) {
+      setPersistenceError(error instanceof Error ? error.message : "Could not open the project folder.");
+    }
+  }, [persistedProjectPath]);
+
   const newProject = useCallback(
     async (name?: string) => {
       const title = sanitizeProjectFolderName(name?.trim() || "UNTITLED");
@@ -2078,6 +2098,7 @@ export function ProjectProvider({
       saveProject,
       renameProject,
       openProject,
+      revealProject,
       chooseProjectsFolder,
       setProjectTitle,
       refreshProjectList,
@@ -2173,6 +2194,7 @@ export function ProjectProvider({
       saveProject,
       renameProject,
       openProject,
+      revealProject,
       chooseProjectsFolder,
       setProjectTitle,
       refreshProjectList,

@@ -62,6 +62,31 @@ export function relativePosix(...parts: string[]): string {
   return parts.join("/").replaceAll("\\", "/");
 }
 
+function normalizeFsPath(value: string): string {
+  return value.replaceAll("\\", "/").replace(/\/+$/, "");
+}
+
+/** Folder name under the Projects Folder, or the absolute path when it is not inside. */
+export function displayProjectPath(projectPath: string, projectsFolder?: string | null): string {
+  const project = normalizeFsPath(projectPath.trim());
+  const folder = projectsFolder?.trim() ? normalizeFsPath(projectsFolder) : "";
+  if (!project) {
+    return projectPath.trim();
+  }
+  if (!folder) {
+    return project;
+  }
+  if (project === folder) {
+    return project;
+  }
+  const prefix = `${folder}/`;
+  if (!project.startsWith(prefix)) {
+    return project;
+  }
+  const relative = project.slice(prefix.length);
+  return isSafeProjectRelativePath(relative) ? relative : project;
+}
+
 /** Reject `..` and absolute paths so a project cannot escape its root. */
 export function isSafeProjectRelativePath(value: string): boolean {
   if (!value || value.startsWith("/") || value.startsWith("\\") || /^[a-zA-Z]:/.test(value)) {

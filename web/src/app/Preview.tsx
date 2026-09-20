@@ -111,6 +111,8 @@ function DestinationCamotionPreview({
   previousOccurrence,
   nextOccurrence,
   onSelectOccurrence,
+  mode,
+  onModeChange,
 }: {
   destination: Destination;
   records: readonly DestinationCamotionRecord[];
@@ -120,8 +122,9 @@ function DestinationCamotionPreview({
   previousOccurrence?: LaidOutOccurrence;
   nextOccurrence?: LaidOutOccurrence;
   onSelectOccurrence: (occurrence: LaidOutOccurrence) => void;
+  mode: "canonical" | "primed";
+  onModeChange: (mode: "canonical" | "primed") => void;
 }) {
-  const [mode, setMode] = useState<"canonical" | "primed">("canonical");
   const [recordKey, setRecordKey] = useState<string | null>(null);
   const [overlay, setOverlay] = useState(true);
   const [layers, setLayers] = useState<OverlayLayers>(DEFAULT_OVERLAY_LAYERS);
@@ -151,7 +154,7 @@ function DestinationCamotionPreview({
             destinationLabel={destination.label}
             primedLabel={`${destination.label}′`}
             mode={mode}
-            onChange={setMode}
+            onChange={onModeChange}
           />
         }
       />
@@ -538,6 +541,8 @@ export function Preview() {
         aspect={previewFrameAspectRatio(project, destination.id)}
         previousOccurrence={previousDest}
         nextOccurrence={nextDest}
+        mode={motionMode}
+        onModeChange={setMotionMode}
         onSelectOccurrence={(item) => {
           select({
             kind: "destination",

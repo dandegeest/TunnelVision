@@ -246,6 +246,8 @@ export function DestinationInspectorFields({
   onOpenReel,
   debugOn = false,
   initialPane = "source",
+  pane: paneProp,
+  onPaneChange,
 }: {
   frame: StoryboardFrame;
   project: Project;
@@ -269,18 +271,19 @@ export function DestinationInspectorFields({
   onOpenReel?: () => void;
   debugOn?: boolean;
   initialPane?: DestinationInspectorPane;
+  pane?: DestinationInspectorPane;
+  onPaneChange?: (pane: DestinationInspectorPane) => void;
 }) {
   const records = camotionRecords ?? camotionRecordsForCanonical(project, frame.destinationId ?? frame.id);
   const showShoot = canShoot || canUploadStoryboardFrame(frame);
-  const [pane, setPane] = useState<DestinationInspectorPane>(initialPane);
-
-  useEffect(() => {
-    setPane(initialPane);
-    onStillModeChange?.(initialPane === "motion" ? "primed" : "canonical");
-  }, [frame.id]);
+  const [localPane, setLocalPane] = useState<DestinationInspectorPane>(initialPane);
+  const pane = paneProp ?? localPane;
 
   const selectPane = (next: DestinationInspectorPane) => {
-    setPane(next);
+    if (paneProp === undefined) {
+      setLocalPane(next);
+    }
+    onPaneChange?.(next);
     if (next === "source") {
       onStillModeChange?.("canonical");
     }
@@ -395,6 +398,8 @@ export function DestinationInspectorPanel({
   onStillModeChange,
   camotionKey,
   onCamotionKeyChange,
+  pane,
+  onPaneChange,
 }: {
   frame: StoryboardFrame;
   project: Project;
@@ -407,6 +412,8 @@ export function DestinationInspectorPanel({
   onStillModeChange?: (mode: "canonical" | "primed") => void;
   camotionKey?: string;
   onCamotionKeyChange?: (key: string) => void;
+  pane?: DestinationInspectorPane;
+  onPaneChange?: (pane: DestinationInspectorPane) => void;
 }) {
   return (
     <aside
@@ -439,6 +446,8 @@ export function DestinationInspectorPanel({
           onStillModeChange={onStillModeChange}
           camotionKey={camotionKey}
           onCamotionKeyChange={onCamotionKeyChange}
+          pane={pane}
+          onPaneChange={onPaneChange}
         />
       </div>
     </aside>

@@ -160,3 +160,16 @@ export async function openPersistedProject(path: string): Promise<OpenedProjectR
   }
   return body as OpenedProjectResponse;
 }
+
+export async function revealPersistedProject(path: string): Promise<{ path: string }> {
+  const response = await fetch("/api/projects/reveal", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ path }),
+  });
+  const body = await readJson(response);
+  if (!response.ok) {
+    throw new Error(errorMessage(body, "Could not open the project folder."));
+  }
+  return body as { path: string };
+}

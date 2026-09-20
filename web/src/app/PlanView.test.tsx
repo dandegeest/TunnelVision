@@ -23,6 +23,7 @@ import {
   STARTING_FRAME_ACCEPT,
   projectWithReplacedStartImage,
 } from "../project/starting-frame";
+import { projectWithCinematographerAssessment } from "../project/cinematographer";
 import { nextStoryboardSlot, projectWithAddedDestination, projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "../project/storyboard";
 import { projectWithJourneyShotTake } from "../project/shoot";
 import { TRUSTED_MEDIA_IDS } from "../project/trusted-media-id";
@@ -558,13 +559,46 @@ describe("Plan conversation thread", () => {
     expect(html).not.toContain("creating C→D TAKE");
   });
 
-  it("shows a compact journey progress rail once a journey exists", () => {
+  it("shows a compact journey progress rail under Plan journey once a journey exists", () => {
     expect(renderPlan(createNewProject(), { composerDraft: "" })).not.toContain('aria-label="Journey progress"');
     const html = renderPlan(createWardrobeProject(), { composerDraft: "" });
-    expect(html).toContain('aria-label="Journey progress"');
-    expect(html).toContain('aria-label="Canonical A constructed"');
-    expect(html).toContain('aria-label="Footage A to B accepted"');
-    expect(html).toContain(">");
+    const project = html.slice(html.indexOf('id="project-panel"'));
+    expect(project).toContain('aria-label="Journey progress"');
+    expect(project).toContain('aria-label="Canonical A constructed"');
+    expect(project).toContain('aria-label="Footage A to B accepted"');
+    expect(project).toContain('data-progress-line="complete"');
+    expect(project).not.toContain(">&gt;<");
+    expect(project.indexOf('aria-label="Plan journey"')).toBeLessThan(project.indexOf('aria-label="Journey progress"'));
+    expect(project).toContain("flex-wrap");
+    expect(project.slice(project.indexOf('aria-label="Journey progress"'), project.indexOf('aria-label="Journey progress"') + 200)).not.toContain("overflow-y-auto");
+    expect(project.slice(project.indexOf('aria-label="Journey progress"'), project.indexOf('aria-label="Journey progress"') + 200)).not.toContain("overflow-x-auto");
+  });
+
+  it("shows a project Score under the journey prompt, pending until segments are assessed", () => {
+    const pending = renderPlan(createWardrobeProject(), { composerDraft: "" });
+    expect(pending).toContain('aria-label="Project score pending"');
+    expect(pending).toContain("—");
+    const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", {
+      shootability: "shootable",
+      summary: "Walk through the root gateway into the darker mouth.",
+      route: "Advance along the forest path and pass through the trunk opening.",
+      threshold: "The dark root-mouth opening slightly right of center.",
+      camera: "Track forward along the path, passing between near trunks toward the opening.",
+      parallax: "Near trunks the camera can pass beside.",
+      transitionStrategy: "Pass through the visible gateway so near trunks sweep past the lens.",
+      segmentPromptAddition: "Track forward.",
+      pace: "fast",
+      setConsistency: 87,
+      traversalConfidence: 74,
+      concerns: [],
+    });
+    const html = renderPlan(assessed, { composerDraft: "" });
+    const project = html.slice(html.indexOf('id="project-panel"'));
+    expect(project).toContain('aria-label="Project score 81"');
+    expect(project).toContain(">Score<");
+    expect(project).toContain(">81<");
+    expect(project.indexOf('id="project-story"')).toBeLessThan(project.indexOf('aria-label="Project score 81"'));
+    expect(project.indexOf('aria-label="Project score 81"')).toBeLessThan(project.indexOf('aria-label="Camera"'));
   });
 
   it("groups cinematographer evaluation and blocking into one card", () => {
@@ -1208,6 +1242,48 @@ describe("Plan storyboard reel", () => {
       shootingFrame: take.startShootingFrame,
       plan: take.startPlan,
     })).toBe("/a-prime.png");
+  });
+
+  it("keeps Motion stills when stepping to another destination on Motion", () => {
+    const take: JourneyShotTake = {
+      startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "/a-prime.png" },
+      endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b-prime.png" },
+      startPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+        destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+        exposure: { strength: 0.08, samples: 16 },
+      },
+      endPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.4, 0.6], forward: 1 },
+        destination: { point: [0.4, 0.6], protect: false, bbox: [0.1, 0.1, 0.9, 0.9] },
+        exposure: { strength: 0.04, samples: 16 },
+      },
+      segmentPromptAddition: "Track forward.",
+      effectivePrompt: "Track forward.",
+      pace: "fast",
+      provider: "replicate",
+      model: "prunaai/p-video",
+      modelVersion: "test",
+      durationSeconds: 6,
+      videoInputs: { startShootingFrame: true, endShootingFrame: true },
+    };
+    const shot = projectWithJourneyShotTake(createForestProject(), "A-B", { take, videoUrl: "/a-b.mp4" });
+    const html = renderToStaticMarkup(
+      <StoryboardReel
+        frames={shot.storyboard}
+        currentId="B"
+        project={shot}
+        initialInspectorPane="motion"
+        onClose={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    expect(html).toContain('aria-pressed="true" aria-label="Inspector motion"');
+    expect(html).toContain('aria-pressed="false" aria-label="Inspector source"');
+    expect(html).toContain('alt="Destination B′"');
+    expect(html).not.toContain('alt="Destination B"');
   });
 });
 

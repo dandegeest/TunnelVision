@@ -30,7 +30,11 @@ import {
   camotionRecordsForCanonical,
   preferredCamotionRecord,
 } from "../project/camotion-diagnostics";
-import { destinationDisplayedStillUrl, DestinationInspectorPanel } from "./DestinationInspector";
+import {
+  destinationDisplayedStillUrl,
+  DestinationInspectorPanel,
+  type DestinationInspectorPane,
+} from "./DestinationInspector";
 import { DestinationChevron } from "./DestinationChevron";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
 
@@ -770,6 +774,7 @@ export function StoryboardReel({
   onShoot,
   onDropFile,
   reshooting = false,
+  initialInspectorPane = "source",
 }: {
   frames: readonly StoryboardFrame[];
   currentId: string;
@@ -782,12 +787,14 @@ export function StoryboardReel({
   onShoot?: (frameId: string) => void;
   onDropFile?: (file: File) => void;
   reshooting?: boolean;
+  initialInspectorPane?: DestinationInspectorPane;
 }) {
   const current = frames.find((frame) => frame.id === currentId);
   const prev = neighboringReelFrame(frames, currentId, -1);
   const next = neighboringReelFrame(frames, currentId, 1);
-  const [stillMode, setStillMode] = useState<"canonical" | "primed">("canonical");
+  const [inspectorPane, setInspectorPane] = useState<DestinationInspectorPane>(initialInspectorPane);
   const [camotionKey, setCamotionKey] = useState<string | undefined>();
+  const stillMode = inspectorPane === "motion" ? "primed" : "canonical";
   const destinationId = current?.destinationId ?? current?.id;
   const camotionRecords = destinationId ? camotionRecordsForCanonical(project, destinationId) : [];
   const activeCamotion =
@@ -800,7 +807,6 @@ export function StoryboardReel({
   const backdropPointerRef = useRef(false);
 
   useEffect(() => {
-    setStillMode("canonical");
     setCamotionKey(undefined);
   }, [currentId]);
 
@@ -961,7 +967,8 @@ export function StoryboardReel({
         onReshoot={onReshoot ? () => onReshoot(current.id) : undefined}
         onShoot={onShoot ? () => onShoot(current.id) : undefined}
         stillMode={stillMode}
-        onStillModeChange={setStillMode}
+        pane={inspectorPane}
+        onPaneChange={setInspectorPane}
         camotionKey={camotionKey}
         onCamotionKeyChange={setCamotionKey}
       />

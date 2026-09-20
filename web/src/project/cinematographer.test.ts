@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
+import { createNewProject } from "./new-project";
 import {
   canAssessJourney,
   cinematographerRequestFromProject,
@@ -18,6 +19,7 @@ import {
   motionBandAriaLabel,
   journeysReadyToBlock,
   motionPlanAutoKey,
+  projectScoreFromProject,
   projectWithCinematographerAssessment,
   projectWithMotionPlanError,
   requestCinematographerAssessment,
@@ -362,5 +364,38 @@ describe("Cinematographer actual-set assessment", () => {
     expect(directorPlanRequestFromProject(createWardrobeProject()).startMediaId).toBe(
       TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
     );
+  });
+
+  it("averages Set Consistency and Traversal Confidence into a 0–100 project score", () => {
+    expect(projectScoreFromProject(createForestProject())).toEqual({
+      score: null,
+      setConsistency: null,
+      traversalConfidence: null,
+      segments: 0,
+    });
+    expect(projectScoreFromProject(createNewProject())).toEqual({
+      score: null,
+      setConsistency: null,
+      traversalConfidence: null,
+      segments: 0,
+    });
+    const one = projectWithCinematographerAssessment(createForestProject(), "A-B", shootableAB);
+    expect(projectScoreFromProject(one)).toEqual({
+      score: 81,
+      setConsistency: 87,
+      traversalConfidence: 74,
+      segments: 1,
+    });
+    const two = projectWithCinematographerAssessment(one, "B-C", {
+      ...shootableAB,
+      setConsistency: 61,
+      traversalConfidence: 44,
+    });
+    expect(projectScoreFromProject(two)).toEqual({
+      score: 67,
+      setConsistency: 74,
+      traversalConfidence: 59,
+      segments: 2,
+    });
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  displayProjectPath,
   isSafeProjectRelativePath,
   sanitizeProjectFolderName,
   uniqueProjectFolderName,
@@ -30,5 +31,24 @@ describe("project folder names", () => {
     expect(isSafeProjectRelativePath("canonicals/A/take-01.png")).toBe(true);
     expect(isSafeProjectRelativePath("../secret")).toBe(false);
     expect(isSafeProjectRelativePath("/etc/passwd")).toBe(false);
+  });
+
+  it("shows a project path relative to the Projects Folder when it is inside", () => {
+    expect(displayProjectPath("/Users/me/Projects/PaperChase", "/Users/me/Projects")).toBe("PaperChase");
+    expect(displayProjectPath("/Users/me/Projects/PaperChase/", "/Users/me/Projects/")).toBe("PaperChase");
+    expect(displayProjectPath("/Users/me/Projects/nested/PaperChase", "/Users/me/Projects")).toBe(
+      "nested/PaperChase",
+    );
+  });
+
+  it("keeps the absolute path when the project is not under the Projects Folder", () => {
+    expect(displayProjectPath("/Users/me/Other/PaperChase", "/Users/me/Projects")).toBe(
+      "/Users/me/Other/PaperChase",
+    );
+    expect(displayProjectPath("/Users/me/Projects-other/X", "/Users/me/Projects")).toBe(
+      "/Users/me/Projects-other/X",
+    );
+    expect(displayProjectPath("/Users/me/Projects/PaperChase", null)).toBe("/Users/me/Projects/PaperChase");
+    expect(displayProjectPath("/Users/me/Projects", "/Users/me/Projects")).toBe("/Users/me/Projects");
   });
 });

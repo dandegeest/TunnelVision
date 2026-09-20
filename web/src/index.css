@@ -276,6 +276,35 @@ body,
   }
 }
 
+.journey-progress-line-pending {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #3a342c 0 2px,
+    transparent 2px 4px
+  );
+  background-size: 8px 2px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+}
+
+.journey-progress-line-active {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #c8d4a8 0 3px,
+    transparent 3px 6px
+  );
+  background-size: 12px 2px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  animation: journey-progress-dash 0.55s linear infinite;
+}
+
+@keyframes journey-progress-dash {
+  to {
+    background-position: 12px 50%;
+  }
+}
+
 @keyframes storyboard-pulse {
   0%,
   100% {
@@ -304,7 +333,8 @@ body,
 
 @media (prefers-reduced-motion: reduce) {
   .storyboard-generating::before,
-  .storyboard-generating-label {
+  .storyboard-generating-label,
+  .journey-progress-line-active {
     animation: none;
   }
 }

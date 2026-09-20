@@ -878,6 +878,16 @@ describe("Camotion destination diagnostic", () => {
     expect(html).toContain('aria-pressed="false" aria-label="Preview motion"');
     expect(html).toContain(">Source<");
     expect(html).toContain(">Motion<");
+    const motion = renderToStaticMarkup(
+      <CamotionFrameSwitch
+        destinationLabel="B"
+        primedLabel="B′"
+        mode="primed"
+        onChange={() => undefined}
+      />,
+    );
+    expect(motion).toContain('aria-pressed="true" aria-label="Preview motion"');
+    expect(motion).toContain('aria-pressed="false" aria-label="Preview source"');
   });
 
   it("offers a read-only Camotion switch on Forest destination A before any take", () => {

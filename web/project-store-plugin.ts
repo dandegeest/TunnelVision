@@ -4,6 +4,7 @@ import type { Plugin } from "vite";
 
 import { createAppSettingsStore } from "./app-settings.ts";
 import { chooseNativeDirectory } from "./choose-directory.ts";
+import { openPathInFileManager, revealableProjectPath } from "./open-path.ts";
 import { createProjectStore } from "./project-store.ts";
 import type { ConversationEntry } from "./src/project/conversation.ts";
 import type { MovieExportResult } from "./src/project/export-movie.ts";
@@ -190,6 +191,22 @@ export async function handleProjectStoreRequest(
       }
       const opened = await deps.store.openProject(body.path);
       sendJson(res, 200, opened);
+      return true;
+    }
+    if (req.method === "POST" && url === "/api/projects/reveal") {
+      const body = (await readJsonBody(req)) as { path?: unknown };
+      if (typeof body.path !== "string" || !body.path.trim()) {
+        sendJson(res, 400, { error: "Missing project path." });
+        return true;
+      }
+      const current = await deps.settings.read();
+      const revealed = revealableProjectPath(body.path, current.projectsFolder);
+      if (!revealed) {
+        sendJson(res, 400, { error: "That project folder is not available." });
+        return true;
+      }
+      await openPathInFileManager(revealed);
+      sendJson(res, 200, { path: revealed });
       return true;
     }
   } catch (error) {

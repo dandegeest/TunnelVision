@@ -20,6 +20,10 @@ import {
   isCameraGrammar,
 } from "../project/camera-grammar";
 import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
+import { projectScoreFromProject } from "../project/cinematographer";
+import { displayProjectPath } from "../project/persistence/paths";
+import { journeyProgressFromProject } from "./conversation-console";
+import { JourneyProgressRail, ProjectScoreReadout } from "./JourneyProgressRail";
 import type { Agency, Project } from "../project/types";
 import {
   IMAGE_MODELS,
@@ -559,9 +563,31 @@ function DebugModeToggle() {
 }
 
 function ProjectSettingsView({ busy }: { busy: boolean }) {
-  const { projectsFolder, chooseProjectsFolder } = useProject();
+  const { persistedProjectPath, persistenceError, projectsFolder, chooseProjectsFolder, revealProject } =
+    useProject();
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Current project</span>
+        {persistedProjectPath ? (
+          <button
+            type="button"
+            aria-label="Open project folder"
+            title={persistedProjectPath}
+            className="truncate text-left text-[12px] text-[#ece7df] underline decoration-[#3a342c] underline-offset-2 outline-none hover:text-[#fff] hover:decoration-[#7a7266] focus-visible:text-[#fff] focus-visible:ring-1 focus-visible:ring-[#ece7df]"
+            onClick={() => {
+              void revealProject();
+            }}
+          >
+            {displayProjectPath(persistedProjectPath, projectsFolder)}
+          </button>
+        ) : (
+          <p className="truncate text-[12px] text-[#9a8f7e]">Not saved</p>
+        )}
+        {persistenceError ? (
+          <p className="text-[11px] leading-snug text-[#f0c2a8]">{persistenceError}</p>
+        ) : null}
+      </div>
       <div className="flex flex-col gap-1.5">
         <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Projects Folder</span>
         <p className="truncate text-[12px] text-[#ece7df]" title={projectsFolder ?? undefined}>
@@ -809,6 +835,13 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     assessingJourneyIds.length > 0 ||
     shootingJourneyIds.length > 0;
   const canPlan = canPlanMovie(project) && !busy;
+  const progress = journeyProgressFromProject(project, {
+    constructingBeatId,
+    assessingJourneyIds,
+    shootingJourneyIds,
+    journeyAgent,
+  });
+  const score = projectScoreFromProject(project);
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
   const directed = project.agency === "directed";
   const actionLabel = planActionLabel({
@@ -894,6 +927,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
               />
+              <ProjectScoreReadout score={score} />
             </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera</span>
@@ -1030,6 +1064,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   Stop
                 </button>
               ) : null}
+              {progress ? <JourneyProgressRail progress={progress} /> : null}
             </div>
           </div>
           <div className="flex shrink-0 items-center justify-end px-3 pb-3">

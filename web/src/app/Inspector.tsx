@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   boundaryContinuitiesForProject,
   boundaryContinuityAtSeam,
@@ -116,14 +116,10 @@ export function Inspector() {
   } = useProject();
   const layout = useMemo(() => layoutShootTimeline(project, 1), [project]);
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
-  const destPaneIntent = useRef<{ key: string; pane: DestinationInspectorPane } | null>(null);
+  const [destinationPane, setDestinationPane] = useState<DestinationInspectorPane>("source");
+  const [motionPane, setMotionPane] = useState<"motion" | "details">("motion");
   const destSelectionKey =
     selection.kind === "destination" ? `${selection.destinationId}:${selection.occurrenceIndex}` : "";
-  useEffect(() => {
-    if (selection.kind === "destination") {
-      destPaneIntent.current = null;
-    }
-  }, [destSelectionKey, selection.kind]);
   const shootEmpty = layout.occurrences.length === 0;
 
   if (shootEmpty) {
@@ -170,9 +166,6 @@ export function Inspector() {
       occurrence?.outboundJourneyId ?? null,
     );
 
-    const destPane =
-      destPaneIntent.current?.key === destSelectionKey ? destPaneIntent.current.pane : "source";
-
     return (
       <InspectorShell title="Inspector - Destination">
         {frame ? (
@@ -197,7 +190,8 @@ export function Inspector() {
             canReshoot={canReshoot}
             reshooting={reshooting}
             debugOn={debugOn}
-            initialPane={destPane}
+            pane={destinationPane}
+            onPaneChange={setDestinationPane}
             onOpenReel={frame.image ? () => setStoryboardReelId(frame.id) : undefined}
             onReshoot={() => {
               void reshootDestination(frame.id);
@@ -241,13 +235,8 @@ export function Inspector() {
   const startLabel = startDestination?.label ?? journey.startDestinationId;
   const endLabel = endDestination?.label ?? journey.endDestinationId ?? "?";
   const selectEndpoint = (endpoint: "start" | "end", pane: DestinationInspectorPane) => {
+    setDestinationPane(pane);
     const occurrence = occurrenceForJourneyEndpoint(layout.occurrences, journey.id, endpoint);
-    if (occurrence) {
-      destPaneIntent.current = {
-        key: `${occurrence.destinationId}:${occurrence.occurrenceIndex}`,
-        pane,
-      };
-    }
     selectShootOccurrence(occurrence, {
       select,
       openStoryboardInPlan,
@@ -276,6 +265,8 @@ export function Inspector() {
           debugOn={debugOn}
           startLabel={startLabel}
           endLabel={endLabel}
+          pane={motionPane}
+          onPaneChange={setMotionPane}
           onSelectStart={() => selectEndpoint("start", "motion")}
           onSelectEnd={() => selectEndpoint("end", "motion")}
           onSelectCanonicalStart={() => selectEndpoint("start", "source")}
@@ -334,6 +325,8 @@ function MotionInspectorFields({
   onSelectEnd,
   onSelectCanonicalStart,
   onSelectCanonicalEnd,
+  pane: paneProp,
+  onPaneChange,
 }: {
   journeyId: string;
   startDestination?: { label: string; image?: string };
@@ -355,11 +348,17 @@ function MotionInspectorFields({
   onSelectEnd: () => void;
   onSelectCanonicalStart: () => void;
   onSelectCanonicalEnd: () => void;
+  pane?: "motion" | "details";
+  onPaneChange?: (pane: "motion" | "details") => void;
 }) {
-  const [pane, setPane] = useState<"motion" | "details">("motion");
-  useEffect(() => {
-    setPane("motion");
-  }, [journeyId]);
+  const [localPane, setLocalPane] = useState<"motion" | "details">("motion");
+  const pane = paneProp ?? localPane;
+  const setPane = (next: "motion" | "details") => {
+    if (paneProp === undefined) {
+      setLocalPane(next);
+    }
+    onPaneChange?.(next);
+  };
   const camotionCopy = camotionRecordsCopyText(motionRecords, project, debugOn);
 
   return (

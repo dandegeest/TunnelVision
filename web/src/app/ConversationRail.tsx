@@ -20,13 +20,10 @@ import {
   formatJourneyCompact,
   groupConversationEntries,
   journeyCompleteCardCopy,
-  journeyProgressFromProject,
   repairCardCopy,
   shootingCardCopy,
   type CinematographerBlock,
   type ConversationBlock,
-  type JourneyProgress,
-  type JourneyProgressSegment,
 } from "./conversation-console";
 import { PanelHeader } from "./PanelHeader";
 import { ShootingPromptText } from "./ShootingPromptText";
@@ -143,91 +140,6 @@ function ScoreMeter({ label, value }: { label: string; value: number }) {
         <span className="w-7 text-right text-[12px] tabular-nums text-[#ece7df]">{score}</span>
       </div>
     </div>
-  );
-}
-
-function progressStatusLabel(kind: "canonical" | "footage", status: JourneyProgressSegment["status"]): string {
-  if (kind === "canonical") {
-    if (status === "complete") {
-      return "constructed";
-    }
-    if (status === "active") {
-      return "constructing";
-    }
-    return "planned";
-  }
-  if (status === "complete") {
-    return "accepted";
-  }
-  if (status === "active") {
-    return "shooting";
-  }
-  return "pending";
-}
-
-function CanonicalBadge({
-  letter,
-  status,
-}: {
-  letter: string;
-  status: JourneyProgressSegment["status"];
-}) {
-  const done = status === "complete";
-  const active = status === "active";
-  return (
-    <span
-      className={`inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[10px] font-semibold tracking-[0.06em] ${
-        done
-          ? "bg-[#5c6b3d] text-[#ece7df]"
-          : "border border-[#3a342c] bg-transparent text-[#7a7266]"
-      } ${active ? "animate-pulse ring-1 ring-[#ece7df]" : ""}`}
-      aria-label={`Canonical ${letter} ${progressStatusLabel("canonical", status)}`}
-    >
-      {letter}
-    </span>
-  );
-}
-
-function FootageChevron({
-  from,
-  to,
-  status,
-}: {
-  from: string;
-  to: string;
-  status: JourneyProgressSegment["status"];
-}) {
-  const done = status === "complete";
-  const active = status === "active";
-  return (
-    <span
-      className={`shrink-0 px-0.5 text-[11px] ${
-        active ? "animate-pulse text-[#c8d4a8]" : done ? "text-[#8fa36a]" : "text-[#3a342c]"
-      }`}
-      aria-label={`Footage ${from} to ${to} ${progressStatusLabel("footage", status)}`}
-    >
-      {">"}
-    </span>
-  );
-}
-
-function JourneyProgressRail({ progress }: { progress: JourneyProgress }) {
-  return (
-    <nav aria-label="Journey progress" className="shrink-0 border-b border-[#2a2620] px-3 py-2">
-      <div className="flex items-center gap-px overflow-x-auto">
-        {progress.nodes.map((node, index) => {
-          const segment = progress.segments[index];
-          return (
-            <div key={node.id} className="flex shrink-0 items-center">
-              <CanonicalBadge letter={node.letter} status={node.status} />
-              {segment ? (
-                <FootageChevron from={segment.from} to={segment.to} status={segment.status} />
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    </nav>
   );
 }
 
@@ -610,22 +522,9 @@ function ConversationBlockView({
 }
 
 export function ConversationRail() {
-  const {
-    conversation,
-    project,
-    constructingBeatId,
-    assessingJourneyIds,
-    shootingJourneyIds,
-    journeyAgent,
-  } = useProject();
+  const { conversation, project } = useProject();
   const threadRef = useRef<HTMLDivElement>(null);
   const followThread = useRef(true);
-  const progress = journeyProgressFromProject(project, {
-    constructingBeatId,
-    assessingJourneyIds,
-    shootingJourneyIds,
-    journeyAgent,
-  });
   const blocks = groupConversationEntries(conversation);
 
   useEffect(() => {
@@ -645,7 +544,6 @@ export function ConversationRail() {
       <PanelHeader className="conversation-rail-header" title="Director">
         <ConversationRailToggle />
       </PanelHeader>
-      {progress ? <JourneyProgressRail progress={progress} /> : null}
       <div
         ref={threadRef}
         className="min-h-0 flex-1 overflow-auto px-4 py-3"

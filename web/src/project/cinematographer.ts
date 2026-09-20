@@ -414,3 +414,42 @@ export async function requestCinematographerAssessment(
   }
   return body;
 }
+
+export type ProjectScore = {
+  score: number | null;
+  setConsistency: number | null;
+  traversalConfidence: number | null;
+  segments: number;
+};
+
+function journeyAssessment(journey: JourneyShot): CinematographerAssessment | undefined {
+  return journey.motionPlan?.cinematographer ?? journey.cinematographer;
+}
+
+const EMPTY_PROJECT_SCORE: ProjectScore = {
+  score: null,
+  setConsistency: null,
+  traversalConfidence: null,
+  segments: 0,
+};
+
+/** Mean of Set Consistency and Traversal Confidence across assessed segments. 0–100. */
+export function projectScoreFromProject(project: Project): ProjectScore {
+  const assessments = project.journeys
+    .filter((journey) => Boolean(journey.endDestinationId))
+    .map(journeyAssessment)
+    .filter((item): item is CinematographerAssessment => Boolean(item));
+  if (assessments.length === 0) {
+    return EMPTY_PROJECT_SCORE;
+  }
+  const setConsistency =
+    assessments.reduce((sum, item) => sum + item.setConsistency, 0) / assessments.length;
+  const traversalConfidence =
+    assessments.reduce((sum, item) => sum + item.traversalConfidence, 0) / assessments.length;
+  return {
+    score: Math.round((setConsistency + traversalConfidence) / 2),
+    setConsistency: Math.round(setConsistency),
+    traversalConfidence: Math.round(traversalConfidence),
+    segments: assessments.length,
+  };
+}

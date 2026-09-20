@@ -99,6 +99,7 @@ describe("Shell header chrome", () => {
     expect(project.indexOf('aria-label="Current project:')).toBeLessThan(agencyAt);
     expect(agencyAt).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
+    expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(createAt);
     expect(settingsAt).toBeGreaterThan(createAt);
     expect(project).toContain(">Journey prompt<");
     expect(project).toContain(">Camera<");
@@ -178,6 +179,41 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain('aria-label="Plan journey"');
     expect(html).not.toContain('aria-label="Create journey"');
     expect(html).not.toContain('aria-label="Current project:');
+    expect(html).toContain(">Current project<");
+    expect(html).toContain(">Not saved<");
+    expect(html).not.toContain('aria-label="Open project folder"');
+  });
+
+  it("shows the open project path in settings and offers to reveal it", () => {
+    const inside = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={createForestProject()}
+        initialPersistedProjectPath="/Users/me/Projects/Forest"
+        initialProjectsFolder="/Users/me/Projects"
+        initialDebug={false}
+      >
+        <ProjectRail initialSettingsOpen />
+      </ProjectProvider>,
+    );
+    expect(inside).toContain(">Current project<");
+    expect(inside).toContain('aria-label="Open project folder"');
+    expect(inside).toContain('title="/Users/me/Projects/Forest"');
+    expect(inside).toContain(">Forest<");
+    expect(inside).not.toContain(">/Users/me/Projects/Forest<");
+    expect(inside).not.toContain(">Not saved<");
+
+    const outside = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={createForestProject()}
+        initialPersistedProjectPath="/Users/me/Other/Forest"
+        initialProjectsFolder="/Users/me/Projects"
+        initialDebug={false}
+      >
+        <ProjectRail initialSettingsOpen />
+      </ProjectProvider>,
+    );
+    expect(outside).toContain(">/Users/me/Other/Forest<");
+    expect(outside).toContain('title="/Users/me/Other/Forest"');
   });
 
   it("offers Kling 3 resolution when Quality is mapped to Kling 3", () => {
