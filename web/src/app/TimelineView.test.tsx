@@ -13,7 +13,7 @@ import { CamotionFrameSwitch } from "./CamotionDiagnostic";
 import { CamotionOverlayToggles, CamotionPlanOverlay } from "./CamotionOverlay";
 import { DEFAULT_OVERLAY_LAYERS } from "../project/camotion-overlay";
 import { GENERATION_INTENT_MARK } from "../project/generation-intent";
-import { TAKE_PREVIOUS_CANONICALS_COPY } from "../project/takes";
+import { projectWithSelectedTake, TAKE_PREVIOUS_CANONICALS_COPY, takeId } from "../project/takes";
 import { JourneyCanonicalPair } from "./Preview";
 import { DeleteTakeDialog } from "../timeline/JourneyLane";
 
@@ -1099,8 +1099,19 @@ describe("Shoot footage inspector", () => {
     const html = renderShoot(shot, { journeyId: "A-B", band: "footage" });
     expect(html).toContain('data-take-duration="6"');
     expect(html).toContain('data-take-duration="5"');
-    expect(html).toContain("width:228px");
+    expect(html).toContain('data-take-truncated="true"');
+    expect(html).toContain("Take 1 A-B truncated");
+    expect(html).toContain("clipped to 5s cut");
     expect(html).toContain("width:190px");
+
+    const selectedLonger = renderShoot(projectWithSelectedTake(shot, "A-B", takeId("A-B", 1)), {
+      journeyId: "A-B",
+      band: "footage",
+    });
+    expect(selectedLonger).toContain("width:228px");
+    expect(selectedLonger).toContain("width:190px");
+    expect(selectedLonger).not.toContain("data-take-truncated");
+    expect(selectedLonger).not.toContain("Take 1 A-B truncated");
   });
 
   it("uses a single arrow heading, collapsed prompt, and debug-only model", () => {

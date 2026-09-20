@@ -126,6 +126,21 @@ export function durationBarWidth(
   return Math.max(durationSeconds * pxPerSecond * zoom, 8);
 }
 
+/**
+ * Inactive takes longer than the selected cut are clipped to the segment.
+ * The selected take is never truncated: the timeline already follows it.
+ */
+export function visibleTakeBarSeconds(
+  takeDurationSeconds: number,
+  segmentDurationSeconds: number,
+  selected: boolean,
+): { visibleSeconds: number; truncated: boolean } {
+  if (!selected && takeDurationSeconds > segmentDurationSeconds) {
+    return { visibleSeconds: segmentDurationSeconds, truncated: true };
+  }
+  return { visibleSeconds: takeDurationSeconds, truncated: false };
+}
+
 export function timeToX(
   timeSeconds: number,
   zoom: number,

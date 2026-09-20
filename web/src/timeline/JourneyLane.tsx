@@ -20,7 +20,7 @@ import { requestedDurationSeconds } from "../project/shot-duration";
 import { useProject } from "../project/ProjectProvider";
 import { destinationById, type JourneyShot, type JourneyShotTake, type Project, type Selection } from "../project/types";
 import { GenerationIntentMenu } from "../ui/GenerationIntentMenu";
-import { durationBarWidth, type LaidOutJourney } from "./geometry";
+import { durationBarWidth, visibleTakeBarSeconds, type LaidOutJourney } from "./geometry";
 import {
   JourneyItem,
   journeyBandSelected,
@@ -68,6 +68,26 @@ function TakeNumberBadge({
   );
 }
 
+function TruncatedTakeMark() {
+  return (
+    <span
+      className="pointer-events-none absolute inset-y-[-1px] right-[-1px] z-[1] w-3 text-[#9a8f7e]"
+      aria-hidden
+    >
+      <svg viewBox="0 0 12 24" className="h-full w-full" preserveAspectRatio="none">
+        <path d="M12 0 H5 L10 4 L2 8 L10 12 L2 16 L10 20 L5 24 H12 Z" fill="#0c0c0a" />
+        <path
+          d="M5 0 L10 4 L2 8 L10 12 L2 16 L10 20 L5 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="miter"
+        />
+      </svg>
+    </span>
+  );
+}
+
 function TakeRow({
   laid,
   project,
@@ -95,6 +115,12 @@ function TakeRow({
   const stale = takeMatchesCurrentCanonicals(project, journey, take) === false;
   const intentMark = take.generationIntent ? GENERATION_INTENT_MARK[take.generationIntent] : undefined;
   const durationSeconds = takeClipDurationSeconds(take, laid.endTime - laid.startTime);
+  const segmentDurationSeconds = laid.endTime - laid.startTime;
+  const { visibleSeconds, truncated } = visibleTakeBarSeconds(
+    durationSeconds,
+    segmentDurationSeconds,
+    selected,
+  );
   const ring = selected
     ? "z-[3] border-[#ece7df] bg-[#1c2418] ring-2 ring-inset ring-[#ece7df] text-[#ece7df]"
     : stale
@@ -103,24 +129,28 @@ function TakeRow({
   const titleParts = [
     take.generationIntent ? takeIntentTooltip(take) : undefined,
     `${durationSeconds}s`,
+    truncated ? `clipped to ${visibleSeconds}s cut` : undefined,
     stale ? TAKE_PREVIOUS_CANONICALS_COPY : undefined,
   ].filter(Boolean);
   return (
     <div
-      className={`group absolute box-border flex items-center gap-1 rounded border px-1.5 text-[#cfc6b8] ${ring}`}
+      className={`group absolute box-border flex items-center gap-1 border px-1.5 text-[#cfc6b8] ${
+        truncated ? "rounded-l border-r-0" : "rounded"
+      } ${ring}`}
       style={{
         top: takeRowTop(rowIndex),
         left: laid.left,
-        width: durationBarWidth(durationSeconds, zoom),
+        width: durationBarWidth(visibleSeconds, zoom),
         height: TAKE_ROW_HEIGHT,
       }}
       data-canonical-stale={stale || undefined}
       data-take-duration={durationSeconds}
+      data-take-truncated={truncated || undefined}
     >
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-1 text-left outline-none"
-        aria-label={`Take ${number} ${journey.id}${stale ? " previous canonicals" : ""}`}
+        aria-label={`Take ${number} ${journey.id}${truncated ? " truncated" : ""}${stale ? " previous canonicals" : ""}`}
         aria-pressed={selected}
         title={titleParts.length > 0 ? titleParts.join(" · ") : undefined}
         onClick={onSelectTake}
@@ -152,6 +182,7 @@ function TakeRow({
           ×
         </button>
       ) : null}
+      {truncated ? <TruncatedTakeMark /> : null}
     </div>
   );
 }

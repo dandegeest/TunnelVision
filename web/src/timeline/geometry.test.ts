@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Destination, JourneyShot } from "../project/types";
-import { DESTINATION_THUMB_PX, MIN_PACE_GUTTER_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, durationBarWidth, journeyBoundaryTimes, journeyThumbGutter, layoutTimeline, wholeSecondMarkTimes } from "./geometry";
+import { DESTINATION_THUMB_PX, MIN_PACE_GUTTER_PX, TRACK_PAD_PX, VIEWER_GUTTER_PX, durationBarWidth, journeyBoundaryTimes, journeyThumbGutter, layoutTimeline, visibleTakeBarSeconds, wholeSecondMarkTimes } from "./geometry";
 
 const destinations: Destination[] = ["A", "B", "C", "D", "E"].map((id) => ({
   id,
@@ -86,6 +86,13 @@ describe("timeline geometry", () => {
     expect(durationBarWidth(6, 1)).toBe(6 * 38);
     expect(durationBarWidth(5, 1)).toBe(5 * 38);
     expect(durationBarWidth(6, 1)).not.toBe(durationBarWidth(5, 1));
+  });
+
+  it("clips an inactive take that is longer than the selected cut", () => {
+    expect(visibleTakeBarSeconds(6, 5, false)).toEqual({ visibleSeconds: 5, truncated: true });
+    expect(visibleTakeBarSeconds(6, 5, true)).toEqual({ visibleSeconds: 6, truncated: false });
+    expect(visibleTakeBarSeconds(5, 6, false)).toEqual({ visibleSeconds: 5, truncated: false });
+    expect(visibleTakeBarSeconds(5, 5, false)).toEqual({ visibleSeconds: 5, truncated: false });
   });
 
   it("lays out an empty journey without inventing destinations", () => {
