@@ -10,6 +10,7 @@
     "experiment": "tsx experiments/cli.ts",
     "benchmark": "tsx experiments/batch-cli.ts",
     "config:check": "tsx src/cli/config-check.ts",
+    "runway:enhance-frame-rate": "tsx src/cli/enhance-frame-rate.ts",
     "wardrobe-loop": "tsx experiments/wardrobe-loop/run.ts",
     "wardrobe-ab-2x2": "tsx experiments/wardrobe-loop/ab-2x2.ts",
     "wardrobe-scene-aware-strength": "tsx experiments/wardrobe-loop/scene-aware-strength.ts",

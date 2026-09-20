@@ -27,6 +27,7 @@ not in the repo.
 | Python | **≥ 3.11** | `camotion/pyproject.toml`. Do **not** use an old Xcode `python3` |
 | ffmpeg + ffprobe | on `PATH` | Product Export Movie and `web` concat tests |
 | Replicate token | `REPLICATE_API_TOKEN` | Live Director / CM / stills / video |
+| Runway Dev token | `RUNWAY_DEV_TOKEN` | Optional. Enhance Frame Rate and later Runway ops |
 | Hugging Face download | first depth estimate | Optional; public `Depth-Anything-V2-Small-hf` |
 
 Homebrew is the practical way to get Node, Python 3.11+, and ffmpeg.

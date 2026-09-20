@@ -90,6 +90,7 @@ export function describeEnv(
 }
 
 export const MEDIA_CREDENTIAL_NAMES = ["REPLICATE_API_TOKEN"] as const;
+export const OPTIONAL_MEDIA_CREDENTIAL_NAMES = ["RUNWAY_DEV_TOKEN"] as const;
 
 export function formatConfigCheck(
   source: EnvSource = process.env,
@@ -102,6 +103,9 @@ export function formatConfigCheck(
       ok = false;
     }
     lines.push(`${name}: ${status}`);
+  }
+  for (const name of OPTIONAL_MEDIA_CREDENTIAL_NAMES) {
+    lines.push(`${name}: ${describeEnv(name, source)}`);
   }
   if (!ok) {
     lines.push("");

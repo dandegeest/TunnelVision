@@ -32,6 +32,23 @@ export {
   MissingEnvironmentVariableError,
 } from "./config/environment.ts";
 export { ReplicateMediaProvider } from "./replicate/provider.ts";
+export { RunwayDevProvider } from "./runway/provider.ts";
+export { downloadRunwayOutput } from "./runway/download.ts";
+export {
+  ENHANCE_FRAME_RATE_MODEL,
+  DEFAULT_ENHANCE_FRAME_RATE,
+  RUNWAY_TARGET_FRAMERATES,
+  parseRunwayTargetFramerate,
+  toEnhanceFrameRateBody,
+} from "./runway/enhance-frame-rate.ts";
+export type { RunwayTargetFramerate, EnhanceFrameRateBody } from "./runway/enhance-frame-rate.ts";
+export type { RunwayEnhancedVideo, EnhanceFrameRateRequest } from "./runway/provider.ts";
+export {
+  RUNWAY_DEV_TOKEN_NAME,
+  MISSING_RUNWAY_TOKEN_MESSAGE,
+  RUNWAY_API_BASE_URL,
+  RUNWAY_API_VERSION,
+} from "./runway/client.ts";
 export {
   P_VIDEO_MODEL,
   DEFAULT_P_VIDEO_SETTINGS,

@@ -28,8 +28,9 @@ platform.
 | CI / deployment | environment or secret-manager injection |
 | Tracked template | repo-root `.env.example` (names only) |
 
-Current variable: `REPLICATE_API_TOKEN`. Full machine bootstrap:
-[FRESH_MACHINE_SETUP.md](../FRESH_MACHINE_SETUP.md).
+Current variables: `REPLICATE_API_TOKEN` (required for live generation)
+and optional `RUNWAY_DEV_TOKEN` (Runway Dev Enhance Frame Rate). Full
+machine bootstrap: [FRESH_MACHINE_SETUP.md](../FRESH_MACHINE_SETUP.md).
 
 Shell and deployment environment win. `.env.local` only fills keys that
 are not already set. Provider classes do not parse env files.
@@ -37,6 +38,7 @@ are not already set. Provider classes do not parse env files.
 ``` bash
 npm --prefix media run config:check
 npm --prefix media test
+npm --prefix media run runway:enhance-frame-rate -- <input.mp4> <output.mp4>
 npm --prefix media run experiment -- --manifest media/experiments/manifests/01.5.json
 ```
 
@@ -69,6 +71,19 @@ That command is dry-run by default. `--execute` is required for paid
 calls. Successful existing runs are skipped unless `--rerun-existing`
 is passed. Failures stop the batch. Do not overwrite historical Krea
 videos.
+
+Runway Dev is a separate adapter (`RunwayDevProvider`), not on the
+product shoot path. The first operation is
+`enhanceFrameRate(video, { fps: 120 })`. It talks to official
+`POST /v1/video_upscale` with `model: "enhance_frame_rate"`. The
+published `@runwayml/sdk` VideoUpscale types do not yet include that
+model, so the HTTP contract is used behind the same client/task layer.
+
+``` bash
+npm --prefix media run runway:enhance-frame-rate -- <input.mp4> <output.mp4>
+```
+
+That command consumes Runway credits. Automated tests mock the API.
 
 The official Replicate JS SDK auto-uploads `Blob`, `File`, or `Buffer`.
 Local files are read as bytes. Node `ReadStream`s are not uploaded and

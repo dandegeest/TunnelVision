@@ -58,10 +58,20 @@ test("config check reports presence without values", () => {
   const missing = formatConfigCheck({});
   assert.equal(missing.ok, false);
   assert.match(missing.text, /REPLICATE_API_TOKEN: missing/);
+  assert.match(missing.text, /RUNWAY_DEV_TOKEN: missing/);
   assert.equal(missing.text.includes("from-file"), false);
 
-  const configured = formatConfigCheck({ REPLICATE_API_TOKEN: "secret-value" });
+  const replicateOnly = formatConfigCheck({ REPLICATE_API_TOKEN: "secret-value" });
+  assert.equal(replicateOnly.ok, true);
+  assert.match(replicateOnly.text, /RUNWAY_DEV_TOKEN: missing/);
+
+  const configured = formatConfigCheck({
+    REPLICATE_API_TOKEN: "secret-value",
+    RUNWAY_DEV_TOKEN: "runway-secret",
+  });
   assert.equal(configured.ok, true);
   assert.match(configured.text, /REPLICATE_API_TOKEN: configured/);
+  assert.match(configured.text, /RUNWAY_DEV_TOKEN: configured/);
   assert.equal(configured.text.includes("secret-value"), false);
+  assert.equal(configured.text.includes("runway-secret"), false);
 });
