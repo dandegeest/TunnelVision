@@ -15,9 +15,18 @@ import { joinPromptSections } from "./assemble.ts";
  * Camera grammar law is injected here from `camera-grammar.ts` and must not
  * be restated in the journey prompt.
  *
+ * Pull Forward Reference (`pullForwardReferenceEnabled`, default true) is a
+ * reversible experiment. ON keeps the current world-continuity clause and
+ * the previous canonical as the image-edit source. OFF replaces only that
+ * visual-inheritance language so Ghost Library / Courtyard-style journeys
+ * can change architecture between destinations; continuity then relies on
+ * forward travel, thresholds, camera grammar, and traversal. The same flag
+ * also swaps the locomotion-baseline "do not invent passageways" sentence
+ * for threshold-connective travel. OFF is not the preferred product default.
+ *
  * TODO: future persistent subject/object reference images can plug into this
- * assembler as an extra structured part after world continuity. Do not add
- * schema or persistence for that here.
+ * assembler as an extra structured part after pull-forward continuity. Do not
+ * add schema or persistence for that here.
  */
 
 export const CANONICAL_CONSTRUCTION_SECTION_ORDER = [
@@ -25,7 +34,7 @@ export const CANONICAL_CONSTRUCTION_SECTION_ORDER = [
   "spatialProgression",
   "localRoute",
   "cameraGrammarLaw",
-  "worldContinuity",
+  "pullForwardContinuity",
   "farFieldContinuity",
 ] as const;
 
@@ -46,6 +55,35 @@ export const WORLD_CONTINUITY = [
   "Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene.",
   "Environmental activity, subject motion, and stylistic changes are secondary to viewpoint displacement. Include them when called for by the Journey, but only with clear physical travel of the camera along the route.",
   "This is a spatial continuation of the same world, not a restyle and not an in-place edit of the existing composition. The camera viewpoint must physically travel along the route. Keeping the source composition and substituting new content is a failure.",
+].join("\n");
+
+export const DEFAULT_PULL_FORWARD_REFERENCE_ENABLED = true;
+
+/**
+ * Missing / unknown values stay ON so older projects keep current behavior.
+ * Only an explicit `false` disables pull-forward visual inheritance.
+ */
+export function pullForwardReferenceEnabledFromUnknown(value: unknown): boolean {
+  return value !== false;
+}
+
+/**
+ * Pull-forward continuity for the next canonical.
+ *
+ * ON: existing source-image world preservation (current product behavior).
+ * OFF: route / threshold / grammar continuity only. Destinations may differ
+ * visually when the Journey asks for it. Does not weaken spatial progression
+ * or camera grammar; those stay in their own sections.
+ */
+export function pullForwardContinuityClause(input: { enabled?: boolean } = {}): string {
+  return pullForwardReferenceEnabledFromUnknown(input.enabled)
+    ? WORLD_CONTINUITY
+    : PULL_FORWARD_CONTINUITY_OFF;
+}
+
+export const PULL_FORWARD_CONTINUITY_OFF = [
+  "Do not preserve the previous composition merely for visual continuity. The new destination may differ substantially in architecture, materials, lighting, environment, and visual content when the Journey calls for it.",
+  "Continuity should come from forward travel, route logic, thresholds, and camera grammar rather than visual similarity to the previous canonical.",
 ].join("\n");
 
 export const FAR_FIELD_CONTINUITY_LEAD = "Far-field continuity:";
@@ -83,6 +121,8 @@ export type CanonicalConstructionPromptInput = {
   visualDescription: string;
   nextDestinationVisual?: string;
   cameraGrammar?: CameraGrammar;
+  /** Missing means ON (current behavior). */
+  pullForwardReferenceEnabled?: boolean;
 };
 
 export function assembleCanonicalConstructionPrompt(input: CanonicalConstructionPromptInput): string {
@@ -93,14 +133,23 @@ export function assembleCanonicalConstructionPrompt(input: CanonicalConstruction
   }
   const grammar = cameraGrammarFromUnknown(input.cameraGrammar);
   const farField = farFieldContinuitySection(input.nextDestinationVisual ?? "");
+  const pullForwardEnabled = pullForwardReferenceEnabledFromUnknown(input.pullForwardReferenceEnabled);
   return joinPromptSections(
     destinationIntentSection(visualDescription),
     spatialProgressionSection(grammar),
     localRouteSection(intent),
     cameraGrammarLawSection(grammar),
-    WORLD_CONTINUITY,
+    pullForwardContinuityClause({ enabled: pullForwardEnabled }),
     farField || undefined,
   );
+}
+
+function pullForwardContinuityStart(prompt: string): number {
+  const worldAt = prompt.indexOf("Preserve the same physical world");
+  if (worldAt >= 0) {
+    return worldAt;
+  }
+  return prompt.indexOf("Do not preserve the previous composition merely for visual continuity");
 }
 
 export function canonicalConstructionSectionStarts(
@@ -112,7 +161,7 @@ export function canonicalConstructionSectionStarts(
     spatialProgression: prompt.indexOf("SPATIAL PROGRESSION IS PRIMARY."),
     localRoute: prompt.indexOf(LOCAL_ROUTE_LEAD),
     cameraGrammarLaw: prompt.indexOf(stillViewpointClause(grammar)),
-    worldContinuity: prompt.indexOf("Preserve the same physical world"),
+    pullForwardContinuity: pullForwardContinuityStart(prompt),
     farFieldContinuity: prompt.indexOf(FAR_FIELD_CONTINUITY_LEAD),
   };
 }

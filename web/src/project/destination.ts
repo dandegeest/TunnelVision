@@ -3,6 +3,7 @@ import {
   assembleCanonicalConstructionPrompt,
   assembleCanonicalRepairPrompt,
   assembleOpeningFramePrompt,
+  pullForwardReferenceEnabledFromUnknown,
 } from "../../../media/src/prompts/canonical-destination.ts";
 import {
   DEFAULT_IMAGE_MODEL_ID,
@@ -52,6 +53,8 @@ export type DestinationConstructionRequest = {
   repairInstruction?: string;
   repairRole?: "start" | "end";
   cameraGrammar?: CameraGrammar;
+  /** Missing means ON. Repair ignores this and keeps its own image inputs. */
+  pullForwardReferenceEnabled?: boolean;
 };
 
 export type DestinationConstructionResult = {
@@ -136,14 +139,21 @@ export function farFieldVisualDetails(visual: string): string {
  * Provider-neutral destination-construction prompt. Spatial intent and the
  * resulting viewpoint are both required. Not a shooting-geometry prompt.
  * Order: destination intent, spatial progression, local route from source,
- * camera grammar law, world/subject/style continuity, far-field last.
+ * camera grammar law, pull-forward continuity, far-field last.
  * Look-ahead is distant environment only; this viewpoint stays this destination.
  */
+export function pullForwardReferenceEnabledFromProject(
+  project: Pick<Project, "pullForwardReferenceEnabled">,
+): boolean {
+  return pullForwardReferenceEnabledFromUnknown(project.pullForwardReferenceEnabled);
+}
+
 export function destinationConstructionPrompt(input: {
   intent: string;
   visualDescription: string;
   nextDestination?: DestinationLookAhead;
   cameraGrammar?: CameraGrammar;
+  pullForwardReferenceEnabled?: boolean;
 }): string {
   const next = optionalDestinationLookAhead(input.nextDestination);
   return assembleCanonicalConstructionPrompt({
@@ -151,6 +161,7 @@ export function destinationConstructionPrompt(input: {
     visualDescription: input.visualDescription,
     nextDestinationVisual: next ? farFieldVisualDetails(next.visualDescription || next.intent) : undefined,
     cameraGrammar: cameraGrammarFromUnknown(input.cameraGrammar),
+    pullForwardReferenceEnabled: pullForwardReferenceEnabledFromUnknown(input.pullForwardReferenceEnabled),
   });
 }
 
@@ -263,6 +274,7 @@ export function destinationGeneratedPrompt(project: Project, frame: StoryboardFr
     ...plan,
     nextDestination: followingDestinationPlan(project, frame),
     cameraGrammar: project.cameraGrammar,
+    pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
   });
 }
 
@@ -506,6 +518,7 @@ export function destinationConstructionRequestFromProject(
     ...(aspectRatio ? { aspectRatio } : {}),
     ...imageGenerationKnobsFromProject(project),
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
+    pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
   };
 }
 

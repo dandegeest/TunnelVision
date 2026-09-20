@@ -74,6 +74,7 @@ export function cinematographerDevPlugin(repoRoot: string): Plugin {
             start: pair.start,
             end: pair.end,
             cameraGrammar: cameraGrammarFromUnknown(body.cameraGrammar),
+            pullForwardReferenceEnabled: body.pullForwardReferenceEnabled !== false,
             filmmakerPace: typeof body.filmmakerPace === "string" ? body.filmmakerPace : undefined,
             filmmakerDurationSeconds:
               typeof body.filmmakerDurationSeconds === "number" ? body.filmmakerDurationSeconds : undefined,

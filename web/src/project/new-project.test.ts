@@ -21,6 +21,7 @@ describe("new product project", () => {
     expect(project.autoBlockShots).toBe(false);
     expect(project.autoShoot).toBe(false);
     expect(project.generateAudio).toBe(false);
+    expect(project.pullForwardReferenceEnabled).toBe(true);
     expect(project.cameraGrammar).toBe("pov");
     expect(project.durationMode).toBe("adaptive");
     expect(project.fixedDurationSeconds).toBe(5);

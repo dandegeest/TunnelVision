@@ -217,7 +217,9 @@ still the same way so it can later be resolved as provider input.
 Generated A requests 16:9. Uploaded A stores its pixel aspect as the project
 canonical aspect. Construct passes that ratio as an explicit provider
 aspect_ratio, not match_input_image, while still using the previous
-canonical as the reference image.
+canonical as the reference image by default. Pull Forward Reference
+(`pullForwardReferenceEnabled`) can disable that previous-canonical
+image input for an experiment; default remains on.
 When a following beat already has a plan, Construct injects that plan's
 visual description as demoted far-field continuity after this destination
 and the camera move from the source still. Spatial progression from the

@@ -212,6 +212,7 @@ export function cinematographerAssessmentUserPrompt(input: {
   readonly cameraGrammar?: CameraGrammar;
   readonly filmmakerPace?: string;
   readonly filmmakerDurationSeconds?: number;
+  readonly pullForwardReferenceEnabled?: boolean;
 }): string {
   const story = input.story?.trim();
   const startIntent = input.startIntent?.trim();
@@ -249,7 +250,7 @@ export function cinematographerAssessmentUserPrompt(input: {
     "Do not predict whether a specific video provider call will succeed.",
     "",
     "Frozen locomotion baseline (already applied later; {pace} is replaced from your pace field; slow-motion and hyperspeed also add a strong opening temporal instruction; do not repeat either):",
-    locomotionBaselineTemplate(grammar),
+    locomotionBaselineTemplate(grammar, input.pullForwardReferenceEnabled),
     "",
     "Emit the JSON object specified in the system instruction. Return JSON only.",
   ].join("\n");

@@ -11,6 +11,7 @@ import {
   storyDurationFieldValue,
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import { pullForwardReferenceEnabledFromProject } from "../project/destination";
 import { durationModeFromProject, fixedDurationSecondsFromProject, MAX_FIXED_DURATION_SECONDS, MIN_FIXED_DURATION_SECONDS } from "../project/shot-duration";
 import {
   CAMERA_GRAMMARS,
@@ -562,6 +563,32 @@ function DebugModeToggle() {
   );
 }
 
+const PULL_FORWARD_ON_COPY =
+  "Use the previous canonical as a visual reference when constructing the next destination.";
+const PULL_FORWARD_OFF_COPY =
+  "Allow the next canonical to differ visually; continuity relies more on route, thresholds, and traversal.";
+
+function PullForwardReferenceToggle() {
+  const { project, setPullForwardReferenceEnabled } = useProject();
+  const enabled = pullForwardReferenceEnabledFromProject(project);
+  return (
+    <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+      <input
+        type="checkbox"
+        checked={enabled}
+        aria-label="Pull Forward Reference"
+        title={enabled ? PULL_FORWARD_ON_COPY : PULL_FORWARD_OFF_COPY}
+        className="mt-0.5 accent-[#ece7df]"
+        onChange={(event) => setPullForwardReferenceEnabled(event.target.checked)}
+      />
+      <span className="flex min-w-0 flex-col gap-1 normal-case tracking-normal">
+        <span className="tracking-[0.08em] uppercase">Pull Forward Reference</span>
+        <span className="text-[10px] leading-snug text-[#7a7266]">{enabled ? PULL_FORWARD_ON_COPY : PULL_FORWARD_OFF_COPY}</span>
+      </span>
+    </label>
+  );
+}
+
 function ProjectSettingsView({ busy }: { busy: boolean }) {
   const { persistedProjectPath, persistenceError, projectsFolder, chooseProjectsFolder, revealProject } =
     useProject();
@@ -607,6 +634,7 @@ function ProjectSettingsView({ busy }: { busy: boolean }) {
       <ImageModelSelect disabled={busy} />
       <VideoModelSelect disabled={busy} />
       <DebugModeToggle />
+      <PullForwardReferenceToggle />
     </div>
   );
 }

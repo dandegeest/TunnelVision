@@ -290,6 +290,14 @@ export function projectWithGenerateAudio(project: Project, enabled: boolean): Pr
   return { ...project, generateAudio: enabled };
 }
 
+export function projectWithPullForwardReference(project: Project, enabled: boolean): Project {
+  const current = project.pullForwardReferenceEnabled !== false;
+  if (current === enabled && project.pullForwardReferenceEnabled === enabled) {
+    return project;
+  }
+  return { ...project, pullForwardReferenceEnabled: enabled };
+}
+
 /** Updates Director plan fields on a beat. Does not invoke the Director or regenerate media. */
 export function projectWithStoryboardBeatPlan(
   project: Project,

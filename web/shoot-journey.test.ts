@@ -328,11 +328,40 @@ describe("shootPreparedJourney", () => {
       expect(staged.effectivePrompt).toBe(
         composeShootingPrompt(locomotionBaseline("fast", grammar), addition, "fast"),
       );
+      expect(staged.effectivePrompt).toMatch(/Do not invent intermediate structures or passageways/);
       expect(staged.effectivePrompt).toMatch(law);
       for (const pattern of forbid) {
         expect(staged.effectivePrompt).not.toMatch(pattern);
       }
     }
+  });
+
+  it("stages threshold-connective travel when pull-forward is off", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-stage-pf-off-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    const addition = "Travel through the implied doorway into the courtyard.";
+    const staged = await stagePreparedMotionPlan({
+      repoRoot,
+      body: {
+        journeyId: "A-B",
+        startMediaId: start.mediaId,
+        endMediaId: end.mediaId,
+        segmentPromptAddition: addition,
+        pace: "fast",
+        pullForwardReferenceEnabled: false,
+      },
+      renderFrame: async () => PNG,
+    });
+    expect(staged.effectivePrompt).toBe(
+      composeShootingPrompt(locomotionBaseline("fast", "pov", false), addition, "fast"),
+    );
+    expect(staged.effectivePrompt).toMatch(/connective threshold implied by the Journey/);
+    expect(staged.effectivePrompt).toMatch(/necessary connective geometry/);
+    expect(staged.effectivePrompt).not.toMatch(/Do not invent intermediate structures or passageways/);
+    expect(staged.effectivePrompt).toMatch(/Do not dissolve, morph, crossfade, cut, teleport/);
+    expect(staged.effectivePrompt).toMatch(/First person POV camera continuously moving forward/);
   });
 
   it("executes Camotion with the mapped exposure for every CM pace", async () => {

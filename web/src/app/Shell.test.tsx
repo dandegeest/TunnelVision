@@ -161,6 +161,11 @@ describe("Shell header chrome", () => {
     expect(html).toContain("Kling 3");
     expect(html).not.toContain('aria-label="Kling 3 resolution"');
     expect(html).toContain('aria-label="Debug mode"');
+    expect(html).toContain('aria-label="Pull Forward Reference"');
+    expect(html).toMatch(
+      /checked[^>]*aria-label="Pull Forward Reference"|aria-label="Pull Forward Reference"[^>]*checked/,
+    );
+    expect(html).toContain("Use the previous canonical as a visual reference");
     expect(html.indexOf('aria-label="Default take intent"')).toBeLessThan(
       html.indexOf('aria-label="Fast video model"'),
     );

@@ -46,6 +46,7 @@ export type ShootJourneyBody = {
   endPlan?: unknown;
   effectivePrompt?: unknown;
   cameraGrammar?: unknown;
+  pullForwardReferenceEnabled?: unknown;
 };
 
 export type StagedMotionPlanResult = {
@@ -189,7 +190,7 @@ export async function stagePreparedMotionPlan(input: {
     typeof input.body.effectivePrompt === "string" && input.body.effectivePrompt.trim()
       ? input.body.effectivePrompt.trim()
       : composeShootingPrompt(
-          locomotionBaseline(pace, cameraGrammarFromUnknown(input.body.cameraGrammar)),
+          locomotionBaselineFromBody(input.body, pace),
           segmentPromptAddition,
           pace,
         );
@@ -311,7 +312,7 @@ function stagedMotionPlanFromShootingFrames(
     typeof body.effectivePrompt === "string" && body.effectivePrompt.trim()
       ? body.effectivePrompt.trim()
       : composeShootingPrompt(
-          locomotionBaseline(pace, cameraGrammarFromUnknown(body.cameraGrammar)),
+          locomotionBaselineFromBody(body, pace),
           segmentPromptAddition,
           pace,
         );
@@ -332,6 +333,14 @@ function stagedMotionPlanFromShootingFrames(
       workDirRetained: false,
     },
   };
+}
+
+function locomotionBaselineFromBody(body: ShootJourneyBody, pace: LocomotionPace): string {
+  return locomotionBaseline(
+    pace,
+    cameraGrammarFromUnknown(body.cameraGrammar),
+    body.pullForwardReferenceEnabled !== false,
+  );
 }
 
 export function videoModelIdFromBody(value: unknown): VideoModelId {

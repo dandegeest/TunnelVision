@@ -13,11 +13,14 @@ import {
 import { countPromptOccurrences } from "../src/prompts/assemble.ts";
 import {
   CANONICAL_CONSTRUCTION_SECTION_ORDER,
+  PULL_FORWARD_CONTINUITY_OFF,
   WORLD_CONTINUITY,
   assembleCanonicalConstructionPrompt,
   assembleCanonicalRepairPrompt,
   assembleOpeningFramePrompt,
   canonicalConstructionSectionStarts,
+  pullForwardContinuityClause,
+  pullForwardReferenceEnabledFromUnknown,
 } from "../src/prompts/canonical-destination.ts";
 
 const snapshotDir = join(dirname(fileURLToPath(import.meta.url)), "snapshots");
@@ -36,7 +39,7 @@ function loadSnapshot(name: string): string {
   return readFileSync(join(snapshotDir, name), "utf8").replace(/\n$/, "");
 }
 
-test("canonical construction sections follow destination → spatial → route → grammar → world → far-field", () => {
+test("canonical construction sections follow destination → spatial → route → grammar → pull-forward → far-field", () => {
   for (const grammar of CAMERA_GRAMMARS) {
     const prompt = assembleCanonicalConstructionPrompt({
       ...CANYON_CONSTRUCT,
@@ -115,6 +118,46 @@ test("representative canyon construction snapshots", () => {
       cameraGrammar: grammar,
     });
     assert.equal(prompt, loadSnapshot(`canonical-construct-${grammar}.txt`));
+  }
+});
+
+test("pull-forward defaults ON and keeps source-image world continuity", () => {
+  assert.equal(pullForwardReferenceEnabledFromUnknown(undefined), true);
+  assert.equal(pullForwardReferenceEnabledFromUnknown(true), true);
+  assert.equal(pullForwardReferenceEnabledFromUnknown(false), false);
+  assert.equal(pullForwardContinuityClause({}), WORLD_CONTINUITY);
+  const prompt = assembleCanonicalConstructionPrompt(CANYON_CONSTRUCT);
+  assert.ok(prompt.includes(WORLD_CONTINUITY));
+  assert.equal(prompt.includes(PULL_FORWARD_CONTINUITY_OFF), false);
+});
+
+test("pull-forward OFF replaces only visual-inheritance language and keeps grammar, spatial, far-field", () => {
+  for (const grammar of CAMERA_GRAMMARS) {
+    const prompt = assembleCanonicalConstructionPrompt({
+      ...CANYON_CONSTRUCT,
+      cameraGrammar: grammar,
+      pullForwardReferenceEnabled: false,
+    });
+    const law = stillViewpointClause(grammar);
+    assert.equal(countPromptOccurrences(prompt, law), 1, `${grammar} still law must appear once`);
+    assert.ok(prompt.includes(constructionTravelClause(grammar)));
+    assert.match(prompt, /SPATIAL PROGRESSION IS PRIMARY/);
+    assert.ok(prompt.includes(CANYON_CONSTRUCT.visualDescription));
+    assert.ok(prompt.includes(CANYON_CONSTRUCT.intent));
+    assert.match(prompt, /Far-field continuity:/);
+    assert.ok(prompt.includes(PULL_FORWARD_CONTINUITY_OFF));
+    assert.equal(prompt.includes(WORLD_CONTINUITY), false);
+    assert.doesNotMatch(prompt, /Preserve the same physical world, materials, lighting character/);
+    assert.doesNotMatch(prompt, /Keeping the source composition and substituting new content is a failure/);
+    const starts = canonicalConstructionSectionStarts(prompt, grammar);
+    assert.ok(starts.destinationIntent >= 0);
+    assert.ok(starts.spatialProgression >= 0);
+    assert.ok(starts.cameraGrammarLaw >= 0);
+    assert.ok(starts.pullForwardContinuity >= 0);
+    assert.ok(starts.farFieldContinuity >= 0);
+    assert.ok(starts.spatialProgression < starts.cameraGrammarLaw);
+    assert.ok(starts.cameraGrammarLaw < starts.pullForwardContinuity);
+    assert.ok(starts.pullForwardContinuity < starts.farFieldContinuity);
   }
 });
 

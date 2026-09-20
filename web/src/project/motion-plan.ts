@@ -11,6 +11,7 @@ import {
   hasStagedMotionPlan,
 } from "./cinematographer";
 import { cameraGrammarFromProject } from "./camera-grammar";
+import { pullForwardReferenceEnabledFromProject } from "./destination";
 import { effectiveJourneyPace } from "./journey-overrides";
 import { journeyTakes, selectedTake } from "./takes";
 import type { CinematographerAssessment, JourneyShot, LocomotionPace, Project, SegmentMotionPlan } from "./types";
@@ -26,6 +27,7 @@ export type StageMotionPlanRequest = {
   startPlan?: SegmentMotionPlan["startPlan"];
   endPlan?: SegmentMotionPlan["endPlan"];
   cameraGrammar?: CameraGrammar;
+  pullForwardReferenceEnabled?: boolean;
   debug?: boolean;
 };
 
@@ -87,6 +89,7 @@ export function motionPlanRequestFromProject(
     {
       cameraGrammar: cameraGrammarFromProject(project),
       pace: effectiveJourneyPace(journey),
+      pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
     },
   );
 }
@@ -97,7 +100,12 @@ export function motionPlanStageRequestFromAssessment(
   startMediaId: string,
   endMediaId: string,
   assessment: CinematographerAssessment,
-  options?: { cameraGrammar?: CameraGrammar; debug?: boolean; pace?: LocomotionPace },
+  options?: {
+    cameraGrammar?: CameraGrammar;
+    debug?: boolean;
+    pace?: LocomotionPace;
+    pullForwardReferenceEnabled?: boolean;
+  },
 ): StageMotionPlanRequest {
   const assessmentForPlans = options?.pace ? { ...assessment, pace: options.pace } : assessment;
   const plans = cameraMotionPlansFromAssessment(assessmentForPlans);
@@ -110,6 +118,7 @@ export function motionPlanStageRequestFromAssessment(
     startPlan: plans.start,
     endPlan: plans.end,
     cameraGrammar: cameraGrammarFromUnknown(options?.cameraGrammar),
+    pullForwardReferenceEnabled: options?.pullForwardReferenceEnabled !== false,
     ...(options?.debug ? { debug: true } : {}),
   };
 }

@@ -60,7 +60,7 @@ import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from ".
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
-import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import { projectWithDurationMode, projectWithFixedDurationSeconds } from "./shot-duration";
 import {
   effectiveJourneyPace,
@@ -179,6 +179,7 @@ type ProjectContextValue = {
   setAutoBlockShots: (enabled: boolean) => void;
   setAutoShoot: (enabled: boolean) => void;
   setGenerateAudio: (enabled: boolean) => void;
+  setPullForwardReferenceEnabled: (enabled: boolean) => void;
   setCameraGrammar: (grammar: CameraGrammar) => void;
   setDurationMode: (mode: DurationMode) => void;
   setFixedDurationSeconds: (seconds: number) => void;
@@ -494,6 +495,10 @@ export function ProjectProvider({
 
   const setGenerateAudio = useCallback((enabled: boolean) => {
     setProject((current) => projectWithGenerateAudio(current, enabled));
+  }, []);
+
+  const setPullForwardReferenceEnabled = useCallback((enabled: boolean) => {
+    setProject((current) => projectWithPullForwardReference(current, enabled));
   }, []);
 
   const setCameraGrammar = useCallback((grammar: CameraGrammar) => {
@@ -2038,6 +2043,7 @@ export function ProjectProvider({
       setAutoBlockShots,
       setAutoShoot,
       setGenerateAudio,
+      setPullForwardReferenceEnabled,
       setCameraGrammar,
       setDurationMode,
       setFixedDurationSeconds,
@@ -2134,6 +2140,7 @@ export function ProjectProvider({
       setAutoBlockShots,
       setAutoShoot,
       setGenerateAudio,
+      setPullForwardReferenceEnabled,
       setCameraGrammar,
       setDurationMode,
       setFixedDurationSeconds,

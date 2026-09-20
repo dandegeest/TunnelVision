@@ -34,7 +34,7 @@ import {
   toNanoBananaGenerateInput,
   type NanoBananaSettings,
 } from "./nano-banana.ts";
-import { extractOutputUrl } from "./output.ts";
+import { extractPredictionOutputUrl } from "./output.ts";
 import type { KlingV3Settings } from "./kling-v3-video.ts";
 import type { PVideoSettings } from "./p-video.ts";
 import {
@@ -238,7 +238,7 @@ export class ReplicateMediaProvider implements MediaProvider, ImageEditProvider 
       );
     }
 
-    const outputUrl = extractOutputUrl(prediction.output);
+    const outputUrl = extractPredictionOutputUrl(prediction);
     if (!outputUrl) {
       throw new MediaGenerationError(
         "generation_failed",

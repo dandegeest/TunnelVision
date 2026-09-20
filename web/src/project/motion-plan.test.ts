@@ -162,6 +162,15 @@ describe("per-segment Motion Plan", () => {
     }
   });
 
+  it("forwards pull-forward reference onto the Motion Plan request", () => {
+    const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", assessment);
+    expect(motionPlanRequestFromProject(assessed, "A-B").pullForwardReferenceEnabled).toBe(true);
+    expect(
+      motionPlanRequestFromProject({ ...assessed, pullForwardReferenceEnabled: false }, "A-B")
+        .pullForwardReferenceEnabled,
+    ).toBe(false);
+  });
+
   it("reads camera grammar from the project when building a Motion Plan request", () => {
     const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", assessment);
     for (const grammar of ["pov", "follow", "lead", "mounted"] as const) {

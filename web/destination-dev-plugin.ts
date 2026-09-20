@@ -101,6 +101,7 @@ export function destinationDevPlugin(repoRoot: string): Plugin {
                   repoRoot,
                   body,
                   editImage: (request) => provider.editImage(request),
+                  generateImage: (request) => provider.generateImage(request),
                 });
           sendJson(res, 200, constructed);
         } catch (error) {

@@ -163,7 +163,7 @@ Planning docs in `docs/` describe current architecture.
 `camotion/` is the Python renderer. `media/` is the MediaProvider
 package (image + video), ReasoningProvider, and a thin cinematographer
 pair planner used by Integration Test 01. Credentials are environment
-variables (`REPLICATE_API_TOKEN` today), filled locally from gitignored
+variables (`REPLICATE_API_TOKEN`, optional `RUNWAY_DEV_TOKEN`), filled locally from gitignored
 `.env.local` and injected by the deployment platform in CI. New-machine
 bootstrap: [`FRESH_MACHINE_SETUP.md`](../FRESH_MACHINE_SETUP.md). See
 `media/README.md`. [`web/`](../web/) exists as the Product Slice 3
@@ -180,8 +180,12 @@ requests 16:9. The same project image model generates opening A and
 later B…N stills. Flux Ultra is not a product still generator.
 Uploaded A stores its pixel aspect as `Project.canonicalAspectRatio`.
 Construct maps that ratio onto an explicit provider aspect_ratio and
-does not send match_input_image. The previous canonical remains the
-reference image. If a following beat already has
+does not send match_input_image. By default (`pullForwardReferenceEnabled`)
+the previous canonical remains the reference image. That experimental
+setting can be turned off so B…N generate without the previous still as
+an image input, and the locomotion baseline then allows necessary
+connective thresholds instead of forbidding invented passageways. OFF is
+not the product default. If a following beat already has
 a Director plan, that plan's visual description is demoted far-field
 continuity after this destination and the camera move from the source
 still; spatial progression from the source viewpoint is primary — the

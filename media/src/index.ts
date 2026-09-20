@@ -246,6 +246,9 @@ export {
   isCameraGrammar,
   cameraGrammarFromUnknown,
   locomotionBaselineTemplate,
+  applyPullForwardTraversalContinuity,
+  INVENT_INTERMEDIATE_STRUCTURES_CLAUSE,
+  THRESHOLD_CONNECTIVE_CLAUSE,
   stillViewpointClause,
   openingStillLead,
   constructionTravelClause,
@@ -258,6 +261,10 @@ export {
   assembleOpeningFramePrompt,
   CANONICAL_CONSTRUCTION_SECTION_ORDER,
   WORLD_CONTINUITY,
+  PULL_FORWARD_CONTINUITY_OFF,
+  DEFAULT_PULL_FORWARD_REFERENCE_ENABLED,
+  pullForwardContinuityClause,
+  pullForwardReferenceEnabledFromUnknown,
   farFieldContinuitySection,
 } from "./prompts/canonical-destination.ts";
 export { joinPromptSections, countPromptOccurrences } from "./prompts/assemble.ts";

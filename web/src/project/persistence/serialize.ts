@@ -105,6 +105,7 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     autoBlockShots: project.autoBlockShots,
     autoShoot: project.autoShoot,
     generateAudio: project.generateAudio,
+    pullForwardReferenceEnabled: project.pullForwardReferenceEnabled !== false,
     cameraGrammar: cameraGrammarFromProject(project),
     durationMode: durationModeFromProject(project),
     fixedDurationSeconds: fixedDurationSecondsFromProject(project),
@@ -570,6 +571,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     autoBlockShots: settings.autoBlockShots,
     autoShoot: settings.autoShoot,
     generateAudio: settings.generateAudio === true,
+    pullForwardReferenceEnabled: settings.pullForwardReferenceEnabled !== false,
     cameraGrammar: cameraGrammarFromUnknown(settings.cameraGrammar),
     durationMode: isDurationMode(settings.durationMode) ? settings.durationMode : DEFAULT_DURATION_MODE,
     fixedDurationSeconds:

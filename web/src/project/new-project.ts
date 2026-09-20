@@ -24,6 +24,7 @@ export function createNewProject(): Project {
     autoBlockShots: false,
     autoShoot: false,
     generateAudio: false,
+    pullForwardReferenceEnabled: true,
     cameraGrammar: "pov",
     durationMode: "adaptive",
     fixedDurationSeconds: 5,

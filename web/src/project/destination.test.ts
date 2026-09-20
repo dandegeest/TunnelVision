@@ -19,6 +19,7 @@ import {
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
   destinationRepairRequestFromProject,
+  pullForwardReferenceEnabledFromProject,
   canonicalRepairPrompt,
   imageModelIdFromBody,
   imageOutputFormatFromBody,
@@ -232,6 +233,72 @@ describe("destination construction prompt", () => {
   });
 });
 
+describe("pull-forward reference experiment", () => {
+  const nextDestination = {
+    intent: "Cross the threshold into the desert.",
+    visualDescription: "A bright sunlit desert with iron gates.",
+  };
+
+  it("keeps current continuity wording when the setting is absent or true", () => {
+    for (const enabled of [undefined, true] as const) {
+      const prompt = destinationConstructionPrompt({
+        intent: "Move forward into the cleft.",
+        visualDescription: "A narrow stone corridor with orange light.",
+        nextDestination,
+        pullForwardReferenceEnabled: enabled,
+      });
+      expect(prompt).toMatch(/Preserve the same physical world, materials, lighting character/);
+      expect(prompt).toMatch(/Keeping the source composition and substituting new content is a failure/);
+      expect(prompt).not.toMatch(/Do not preserve the previous composition merely for visual continuity/);
+    }
+  });
+
+  it("drops source-image preservation wording when OFF and keeps destination, grammar, spatial, and far-field", () => {
+    const grammars = ["pov", "follow", "lead", "mounted"] as const;
+    const grammarCue = {
+      pov: /unembodied first-person POV/,
+      follow: /FOLLOW viewpoint/,
+      lead: /LEAD viewpoint/,
+      mounted: /MOUNTED viewpoint/,
+    };
+    for (const grammar of grammars) {
+      const prompt = destinationConstructionPrompt({
+        intent: "Advance through the threshold into the courtyard.",
+        visualDescription: "A sunlit Mediterranean courtyard beyond the doorway.",
+        nextDestination,
+        cameraGrammar: grammar,
+        pullForwardReferenceEnabled: false,
+      });
+      expect(prompt).toMatch(/Create this destination viewpoint:\nA sunlit Mediterranean courtyard/);
+      expect(prompt).toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
+      expect(prompt).toMatch(/Advance through the threshold into the courtyard/);
+      expect(prompt).toMatch(grammarCue[grammar]);
+      expect(prompt).toMatch(/Far-field continuity:/);
+      expect(prompt).toMatch(/iron gates/);
+      expect(prompt).toMatch(/Do not preserve the previous composition merely for visual continuity/);
+      expect(prompt).toMatch(/forward travel, route logic, thresholds, and camera grammar/);
+      expect(prompt).not.toMatch(/Preserve the same physical world, materials, lighting character/);
+      expect(prompt).not.toMatch(/Keeping the source composition and substituting new content is a failure/);
+      expect(prompt).not.toMatch(/spatial continuation of the same world/);
+    }
+  });
+
+  it("carries the project setting onto the construct request and inspector prompt", () => {
+    const planned = plannedFrom();
+    expect(destinationConstructionRequestFromProject(planned, "B").pullForwardReferenceEnabled).toBe(true);
+    const off = { ...planned, pullForwardReferenceEnabled: false };
+    const request = destinationConstructionRequestFromProject(off, "B");
+    expect(request.pullForwardReferenceEnabled).toBe(false);
+    expect(request.sourceMediaId).toBe(planned.storyboard[0]?.mediaId);
+    const generated = destinationGeneratedPrompt(off, off.storyboard[1]!);
+    expect(generated).toMatch(/Do not preserve the previous composition merely for visual continuity/);
+    expect(generated).not.toMatch(/Preserve the same physical world/);
+    expect(destinationGeneratedPrompt(planned, planned.storyboard[1]!)).toMatch(
+      /Preserve the same physical world/,
+    );
+  });
+});
+
 describe("construct B from current Project state", () => {
   it("uses current authoritative A.mediaId, including after replacement", () => {
     const wardrobePlanned = plannedFrom();
@@ -254,6 +321,9 @@ describe("construct B from current Project state", () => {
     expect(request.imageModel).toBe("nano-banana-2-lite");
     expect(request.imageOutputFormat).toBe("png");
     expect(request.imageResolution).toBeUndefined();
+    expect(request.pullForwardReferenceEnabled).toBe(true);
+    expect(pullForwardReferenceEnabledFromProject(planned)).toBe(true);
+    expect(pullForwardReferenceEnabledFromProject({})).toBe(true);
   });
 
   it("exposes construction only for planned B until B is actual", () => {

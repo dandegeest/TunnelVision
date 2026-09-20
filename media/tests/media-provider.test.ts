@@ -170,6 +170,43 @@ test("provider fetch failures include the undici cause", () => {
   );
 });
 
+test("successful Kling prediction with a null output uses urls.stream", async () => {
+  const stream = "https://stream.replicate.com/v1/files/jbxs-walonuadhqfa7suiapt6aablclidv2g44mf67pncq5mlc7d4lpuq";
+  const provider = new ReplicateMediaProvider({
+    token: "r8_testtokenvalue",
+    model: "kwaivgi/kling-v2.5-turbo-pro",
+    client: {
+      async create() {
+        return { id: "j30kned3snrmt0d0qwca6rept8", status: "starting", model: "kwaivgi/kling-v2.5-turbo-pro" };
+      },
+      async wait() {
+        return {
+          id: "j30kned3snrmt0d0qwca6rept8",
+          status: "succeeded",
+          model: "kwaivgi/kling-v2.5-turbo-pro",
+          output: null,
+          urls: {
+            stream,
+            get: "https://api.replicate.com/v1/predictions/j30kned3snrmt0d0qwca6rept8",
+            cancel: "https://api.replicate.com/v1/predictions/j30kned3snrmt0d0qwca6rept8/cancel",
+            web: "https://replicate.com/p/j30kned3snrmt0d0qwca6rept8",
+          },
+          metrics: { video_output_duration_seconds: 5 },
+        };
+      },
+    },
+  });
+  const result = await provider.generateVideo({
+    startImage: { kind: "url", url: "https://example.com/a.png" },
+    endImage: { kind: "url", url: "https://example.com/b.png" },
+    prompt: "go",
+    durationSeconds: 5,
+  });
+  assert.equal(result.status, "succeeded");
+  assert.equal(result.outputUrl, stream);
+  assert.equal(result.predictionId, "j30kned3snrmt0d0qwca6rept8");
+});
+
 test("successful prediction returns structured GeneratedVideo without secrets", async () => {
   const client: ReplicatePredictionClient = {
     async create() {

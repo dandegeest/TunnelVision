@@ -154,6 +154,20 @@ test("Cinematographer assessment request asks how to shoot actual stills, not wh
   assert.equal(request.payload.endId, "B");
 });
 
+test("Cinematographer frozen baseline follows pull-forward OFF connective travel", () => {
+  const on = buildCinematographerAssessmentRequest(input);
+  assert.ok(on.prompt.includes(TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE));
+  assert.match(on.prompt, /Do not invent intermediate structures or passageways/);
+  const off = buildCinematographerAssessmentRequest({
+    ...input,
+    pullForwardReferenceEnabled: false,
+  });
+  assert.doesNotMatch(off.prompt, /Do not invent intermediate structures or passageways/);
+  assert.match(off.prompt, /connective threshold implied by the Journey/);
+  assert.match(off.prompt, /necessary connective geometry/);
+  assert.match(off.prompt, /Do not dissolve, morph, crossfade, cut, teleport/);
+});
+
 test("Cinematographer assessment prompt includes filmmaker pace and duration locks", () => {
   const request = buildCinematographerAssessmentRequest({
     ...input,

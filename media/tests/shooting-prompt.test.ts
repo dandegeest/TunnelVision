@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import {
+  CAMERA_GRAMMARS,
+  INVENT_INTERMEDIATE_STRUCTURES_CLAUSE,
+  THRESHOLD_CONNECTIVE_CLAUSE,
+} from "../src/cinematographer/camera-grammar.ts";
+import {
   UNEMBODIED_FIRST_PERSON_POV,
   WORLD_SUBJECTS_MAY_APPEAR,
   LOCOMOTION_PACE_MACRO,
@@ -168,4 +173,37 @@ test("composeJourneyShootingPrompt uses the selected grammar baseline, not POV b
   assert.doesNotMatch(follow, /First person POV camera continuously moving forward/);
   const pov = composeJourneyShootingPrompt(addition, "fast", "pov");
   assert.match(pov, /First person POV camera continuously moving forward/);
+});
+
+test("pull-forward OFF replaces only the invent-passageways sentence in every grammar baseline", () => {
+  for (const grammar of CAMERA_GRAMMARS) {
+    const on = locomotionBaseline("fast", grammar);
+    const off = locomotionBaseline("fast", grammar, false);
+    assert.ok(on.includes(INVENT_INTERMEDIATE_STRUCTURES_CLAUSE));
+    assert.doesNotMatch(off, /Do not invent intermediate structures or passageways/);
+    assert.ok(off.includes(THRESHOLD_CONNECTIVE_CLAUSE));
+    assert.match(off, /Do not dissolve, morph, crossfade, cut, teleport/);
+    assert.doesNotMatch(off, /replace one scene with another in place/);
+    assert.match(on, /spatially-contiguous environment/);
+    assert.match(off, /spatially-contiguous environment/);
+    const withoutInvent = on.replace(INVENT_INTERMEDIATE_STRUCTURES_CLAUSE, THRESHOLD_CONNECTIVE_CLAUSE);
+    assert.equal(off, withoutInvent);
+    if (grammar === "pov") {
+      assert.match(off, /retreat, reverse direction/);
+      assert.match(off, /First person POV camera continuously moving forward/);
+    }
+    if (grammar === "follow") {
+      assert.match(off, /Invisible objective camera continuously following/);
+    }
+    if (grammar === "lead") {
+      assert.match(off, /physically retreating/);
+      assert.match(off, /Continuous forward camera travel is not this grammar/);
+    }
+    if (grammar === "mounted") {
+      assert.match(off, /Camera motion follows the mounted subject's acceleration, turns, banking, and vibration/);
+    }
+  }
+  const composed = composeJourneyShootingPrompt("Advance through the implied doorway.", "fast", "pov", false);
+  assert.ok(composed.includes(THRESHOLD_CONNECTIVE_CLAUSE));
+  assert.doesNotMatch(composed, /Do not invent intermediate structures or passageways/);
 });

@@ -5,12 +5,28 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { constructDestinationImage, generateOpeningFrameImage } from "./destination-construct.ts";
 import { canonicalRepairPrompt, destinationConstructionPrompt, openingFrameGenerationPrompt } from "./src/project/destination.ts";
+import type { GeneratedImage } from "../media/src/types.ts";
 import {
   createRuntimeMediaRegistry,
   setActiveRuntimeMediaRegistry,
 } from "./runtime-media.ts";
 import { resolveTrustedMedia, UntrustedMediaError } from "./trusted-media.ts";
 import { TRUSTED_MEDIA_IDS } from "./src/project/trusted-media-id.ts";
+
+function fakeGenerated(outputUrl: string): GeneratedImage {
+  return {
+    provider: "replicate",
+    model: "google/nano-banana-2-lite",
+    modelVersion: "test",
+    predictionId: "pred-pf",
+    status: "succeeded",
+    outputUrl,
+    metadata: {},
+    startedAt: "2026-09-07T00:00:00.000Z",
+    completedAt: "2026-09-07T00:00:02.000Z",
+    elapsedMs: 2000,
+  };
+}
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PNG = Buffer.from(
@@ -172,6 +188,146 @@ describe("destination construction server path", () => {
       }),
     );
     expect(edited.referenceCount).toBe(1);
+  });
+
+  it("defaults to pulling the previous canonical into ImageEditRequest", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-pf-on-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const uploaded = registry.register(PNG, "image/png");
+    let edited: { usedSource?: boolean; referenceCount?: number; prompt?: string } = {};
+    let generated = false;
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: uploaded.mediaId,
+        beatId: "B",
+        intent: "Move forward into the cleft.",
+        visualDescription: "A narrow stone corridor with orange light.",
+      },
+      editImage: async (request) => {
+        edited = {
+          usedSource: request.sourceImage.kind === "file" && request.sourceImage.path === uploaded.filePath,
+          referenceCount: request.referenceImages?.length ?? 0,
+          prompt: request.prompt,
+        };
+        return fakeGenerated("https://example.test/pf-on.png");
+      },
+      generateImage: async () => {
+        generated = true;
+        throw new Error("generateImage should not run when pull-forward is on");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(edited.usedSource).toBe(true);
+    expect(edited.referenceCount).toBe(0);
+    expect(edited.prompt).toMatch(/Preserve the same physical world/);
+    expect(generated).toBe(false);
+  });
+
+  it("keeps an extra reference image when pull-forward is on", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-pf-extra-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const source = registry.register(PNG, "image/png");
+    const extra = registry.register(PNG, "image/png");
+    let edited: { sourcePath?: string; referencePath?: string } = {};
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: source.mediaId,
+        beatId: "B",
+        intent: "Move forward into the cleft.",
+        visualDescription: "A narrow stone corridor with orange light.",
+        referenceMediaId: extra.mediaId,
+      },
+      editImage: async (request) => {
+        edited = {
+          sourcePath: request.sourceImage.kind === "file" ? request.sourceImage.path : undefined,
+          referencePath:
+            request.referenceImages?.[0]?.kind === "file" ? request.referenceImages[0].path : undefined,
+        };
+        return fakeGenerated("https://example.test/pf-extra.png");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(edited.sourcePath).toBe(source.filePath);
+    expect(edited.referencePath).toBe(extra.filePath);
+  });
+
+  it("omits the previous-canonical source when pull-forward is off", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-pf-off-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const uploaded = registry.register(PNG, "image/png");
+    let edited = false;
+    let generated: { prompt?: string; hasSource?: boolean } = {};
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: uploaded.mediaId,
+        beatId: "B",
+        intent: "Advance through the threshold into the courtyard.",
+        visualDescription: "A sunlit Mediterranean courtyard beyond the doorway.",
+        nextDestination: {
+          intent: "Cross the gate.",
+          visualDescription: "A greenhouse of iron and glass.",
+        },
+        pullForwardReferenceEnabled: false,
+      },
+      editImage: async () => {
+        edited = true;
+        throw new Error("editImage should not run when pull-forward is off");
+      },
+      generateImage: async (request) => {
+        generated = { prompt: request.prompt, hasSource: "sourceImage" in request };
+        return fakeGenerated("https://example.test/pf-off.png");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(edited).toBe(false);
+    expect(generated.hasSource).toBe(false);
+    expect(generated.prompt).toMatch(/Do not preserve the previous composition merely for visual continuity/);
+    expect(generated.prompt).toMatch(/SPATIAL PROGRESSION IS PRIMARY/);
+    expect(generated.prompt).toMatch(/Far-field continuity:/);
+    expect(generated.prompt).not.toMatch(/Preserve the same physical world/);
+  });
+
+  it("does not drop the Agent repair opposite-canonical extra reference when pull-forward is off", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-dest-pf-repair-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const start = registry.register(PNG, "image/png");
+    const end = registry.register(PNG, "image/png");
+    let edited: { sourcePath?: string; referenceCount?: number; referencePath?: string } = {};
+    let generated = false;
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: start.mediaId,
+        beatId: "B",
+        intent: "Enter the next volume.",
+        visualDescription: "A continuing corridor.",
+        repairRole: "end",
+        repairInstruction: "The corridor beyond A does not connect to B.",
+        referenceMediaId: end.mediaId,
+        pullForwardReferenceEnabled: false,
+      },
+      editImage: async (request) => {
+        edited = {
+          sourcePath: request.sourceImage.kind === "file" ? request.sourceImage.path : undefined,
+          referenceCount: request.referenceImages?.length ?? 0,
+          referencePath:
+            request.referenceImages?.[0]?.kind === "file" ? request.referenceImages[0].path : undefined,
+        };
+        return fakeGenerated("https://example.test/pf-repair.png");
+      },
+      generateImage: async () => {
+        generated = true;
+        throw new Error("repair must stay on editImage");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(generated).toBe(false);
+    expect(edited.sourcePath).toBe(start.filePath);
+    expect(edited.referenceCount).toBe(1);
+    expect(edited.referencePath).toBe(end.filePath);
   });
 
   it("resolves catalog A, not a Wardrobe filesystem path sent by the browser", async () => {

@@ -119,6 +119,8 @@ describe("project persistence schema", () => {
     expect(hydrated.project.fixedDurationSeconds).toBe(5);
     expect(documents.manifest.settings.cameraGrammar).toBe("pov");
     expect(hydrated.project.cameraGrammar).toBe("pov");
+    expect(documents.manifest.settings.pullForwardReferenceEnabled).toBe(true);
+    expect(hydrated.project.pullForwardReferenceEnabled).toBe(true);
     expect(hydrated.warnings.missingAssets).toEqual([]);
     expect(journey.takes?.[0]?.videoMediaId).toBe(
       `video-${documents.manifest.id}-a-b-take-1`,
@@ -176,5 +178,29 @@ describe("project persistence schema", () => {
     expect(hydrated.warnings.missingAssets.length).toBeGreaterThan(0);
     expect(parseConversationEvents("")).toEqual([]);
     expect(conversationEventsText([])).toBe("");
+  });
+
+  it("persists pull-forward reference and treats a missing setting as ON", () => {
+    const off = serializeProjectDocuments({
+      project: { ...createNewProject(), pullForwardReferenceEnabled: false },
+    });
+    expect(off.manifest.settings.pullForwardReferenceEnabled).toBe(false);
+    const hydratedOff = hydrateProject({
+      manifest: off.manifest,
+      canonicals: off.canonicals,
+      traversals: off.traversals,
+      assetExists: () => true,
+    });
+    expect(hydratedOff.project.pullForwardReferenceEnabled).toBe(false);
+
+    const documents = serializeProjectDocuments({ project: createNewProject() });
+    const { pullForwardReferenceEnabled: _omitted, ...settings } = documents.manifest.settings;
+    const hydratedMissing = hydrateProject({
+      manifest: { ...documents.manifest, settings },
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: () => true,
+    });
+    expect(hydratedMissing.project.pullForwardReferenceEnabled).toBe(true);
   });
 });

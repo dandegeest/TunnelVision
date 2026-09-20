@@ -81,11 +81,12 @@ export const TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE = locomotionBaselineTempl
 export function locomotionBaseline(
   pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE,
   grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR,
+  pullForwardReferenceEnabled?: boolean,
 ): string {
   if (!isLocomotionPace(pace)) {
     throw new Error(`Locomotion pace must be ${locomotionPaceList()}`);
   }
-  return locomotionBaselineTemplate(grammar).replaceAll(
+  return locomotionBaselineTemplate(grammar, pullForwardReferenceEnabled).replaceAll(
     LOCOMOTION_PACE_MACRO,
     LOCOMOTION_PACE_PHRASES[pace],
   );
@@ -110,8 +111,13 @@ export function composeJourneyShootingPrompt(
   segmentPromptAddition: string,
   pace: LocomotionPace = DEFAULT_LOCOMOTION_PACE,
   grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR,
+  pullForwardReferenceEnabled?: boolean,
 ): string {
-  return composeShootingPrompt(locomotionBaseline(pace, grammar), segmentPromptAddition, pace);
+  return composeShootingPrompt(
+    locomotionBaseline(pace, grammar, pullForwardReferenceEnabled),
+    segmentPromptAddition,
+    pace,
+  );
 }
 
 /** Split a composed video prompt for inspector display. Prefers the stored CM addition. */

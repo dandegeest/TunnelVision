@@ -77,6 +77,7 @@ describe("Cinematographer actual-set assessment", () => {
       endIntent: project.storyboard[1]?.intent,
       story: project.story,
       cameraGrammar: "pov",
+      pullForwardReferenceEnabled: true,
     });
     expect(journeysReadyToBlock(project).some((journey) => journey.id === "A-B")).toBe(true);
     const locked = projectWithJourneyFilmmakerDuration(

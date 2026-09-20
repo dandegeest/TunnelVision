@@ -1,5 +1,44 @@
+const PREDICTION_FILE_URL_KEYS = ["output", "video", "file", "stream"] as const;
+
+function isHttpUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+/** Control endpoints on a prediction, not generated media. */
+function isPredictionControlUrl(url: string): boolean {
+  return (
+    /\/predictions\/[^/?#]+(?:\/cancel)?$/i.test(url) ||
+    /replicate\.com\/p\//i.test(url)
+  );
+}
+
+/**
+ * Prefer `prediction.output`. Kling (and some other video models) can
+ * succeed with `output: null` and put the file on `urls.stream`.
+ */
+export function extractPredictionOutputUrl(prediction: {
+  readonly output?: unknown;
+  readonly urls?: Readonly<Record<string, string>> | null;
+}): string | null {
+  const fromOutput = extractOutputUrl(prediction.output);
+  if (fromOutput) {
+    return fromOutput;
+  }
+  const urls = prediction.urls;
+  if (!urls) {
+    return null;
+  }
+  for (const key of PREDICTION_FILE_URL_KEYS) {
+    const url = extractOutputUrl(urls[key]);
+    if (url && !isPredictionControlUrl(url)) {
+      return url;
+    }
+  }
+  return null;
+}
+
 export function extractOutputUrl(output: unknown): string | null {
-  if (typeof output === "string" && /^https?:\/\//i.test(output)) {
+  if (typeof output === "string" && isHttpUrl(output)) {
     return output;
   }
   if (Array.isArray(output)) {

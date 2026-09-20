@@ -47,6 +47,32 @@ export function cameraGrammarFromUnknown(value: unknown): CameraGrammar {
 const CONTINUOUS_TRAVEL_PROHIBITIONS =
   "Maintain continuous physical travel through the visible environment. Do not invent intermediate structures or passageways. Do not dissolve, morph, crossfade, cut, teleport, or replace one scene with another.";
 
+/** Default / Pull Forward ON. Exact current anti-invention sentence. */
+export const INVENT_INTERMEDIATE_STRUCTURES_CLAUSE =
+  "Do not invent intermediate structures or passageways.";
+
+/**
+ * Pull Forward OFF only. Threshold-mediated world change is allowed;
+ * dissolve / morph / cut / teleport / in-place replacement are not.
+ * Coupled to `pullForwardReferenceEnabled === false`. Not the product default.
+ */
+export const THRESHOLD_CONNECTIVE_CLAUSE =
+  "When the source and destination environments differ, the change must occur through physical travel across the doorway, tunnel, passage, gate, opening, corner, shaft, or other connective threshold implied by the Journey. You may construct necessary connective geometry when required to make that route physically continuous, but do not invent unrelated detours or arbitrary intermediate destinations.";
+
+/**
+ * Pull Forward ON keeps the baked locomotion templates exactly.
+ * OFF replaces only the sentence that forbids connective thresholds.
+ */
+export function applyPullForwardTraversalContinuity(
+  baseline: string,
+  pullForwardReferenceEnabled?: boolean,
+): string {
+  if (pullForwardReferenceEnabled !== false) {
+    return baseline;
+  }
+  return baseline.replace(INVENT_INTERMEDIATE_STRUCTURES_CLAUSE, THRESHOLD_CONNECTIVE_CLAUSE);
+}
+
 /**
  * POV locomotion: camera IS the traveler. Path-relative forward travel.
  * Turns/banks with the route. Unembodied. No persistent foreground rig.
@@ -85,8 +111,14 @@ export const LOCOMOTION_BASELINE_TEMPLATES: Record<CameraGrammar, string> = {
   mounted: MOUNTED_LOCOMOTION_BASELINE_TEMPLATE,
 };
 
-export function locomotionBaselineTemplate(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
-  return LOCOMOTION_BASELINE_TEMPLATES[cameraGrammarFromUnknown(grammar)];
+export function locomotionBaselineTemplate(
+  grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR,
+  pullForwardReferenceEnabled?: boolean,
+): string {
+  return applyPullForwardTraversalContinuity(
+    LOCOMOTION_BASELINE_TEMPLATES[cameraGrammarFromUnknown(grammar)],
+    pullForwardReferenceEnabled,
+  );
 }
 
 export function stillViewpointClause(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {

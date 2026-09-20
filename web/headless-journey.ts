@@ -199,6 +199,7 @@ export function createHeadlessJourneyOperations(input: {
         repoRoot: input.repoRoot,
         body: request,
         editImage: (imageRequest) => provider.editImage(imageRequest),
+        generateImage: (imageRequest) => provider.generateImage(imageRequest),
       });
       return projectWithConstructedDestination(project, {
         beatId: request.beatId,
@@ -217,6 +218,7 @@ export function createHeadlessJourneyOperations(input: {
         start: pair.start,
         end: pair.end,
         cameraGrammar: cameraGrammarFromUnknown(request.cameraGrammar),
+        pullForwardReferenceEnabled: request.pullForwardReferenceEnabled,
       });
       return projectWithCinematographerAssessment(project, journeyId, result.assessment, {
         startCanonicalMediaId: request.startMediaId,

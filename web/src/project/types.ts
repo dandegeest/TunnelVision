@@ -393,6 +393,14 @@ export type Project = {
   /** When true, NEW TAKE asks audio-capable generators (Veo, Seedance, Kling 3, Pruna) for sound. */
   generateAudio: boolean;
   /**
+   * Experimental. When true (default), construct N image-edits the previous
+   * canonical and uses source-image world-continuity language. When false,
+   * construct N is text-to-image with a lighter route/threshold continuity
+   * clause so successive destinations may differ visually. Missing on older
+   * projects means true. OFF is not the preferred product default.
+   */
+  pullForwardReferenceEnabled?: boolean;
+  /**
    * Whole-journey camera relationship. Missing on older projects means POV.
    */
   cameraGrammar?: CameraGrammar;

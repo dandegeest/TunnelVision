@@ -1,5 +1,6 @@
 import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { cameraGrammarFromProject } from "./camera-grammar";
+import { pullForwardReferenceEnabledFromProject } from "./destination";
 import { assessmentWithFilmmakerLocks, effectiveJourneyDurationSeconds, effectiveJourneyPace } from "./journey-overrides";
 import { projectWithResolvedUnshotDurations } from "./shot-duration";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
@@ -24,6 +25,7 @@ export type CinematographerAssessmentRequest = {
   cameraGrammar?: CameraGrammar;
   filmmakerPace?: LocomotionPace;
   filmmakerDurationSeconds?: number;
+  pullForwardReferenceEnabled?: boolean;
 };
 
 export type CinematographerAssessmentResponse = {
@@ -316,6 +318,7 @@ export function cinematographerRequestFromProject(
     ...(endIntent ? { endIntent } : {}),
     ...(story ? { story } : {}),
     cameraGrammar: cameraGrammarFromProject(project),
+    pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
     ...(effectiveJourneyPace(journey) && journey.filmmakerPace
       ? { filmmakerPace: journey.filmmakerPace }
       : {}),
