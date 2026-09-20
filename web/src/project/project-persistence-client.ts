@@ -161,6 +161,18 @@ export async function openPersistedProject(path: string): Promise<OpenedProjectR
   return body as OpenedProjectResponse;
 }
 
+export async function deletePersistedProject(path: string): Promise<void> {
+  const response = await fetch("/api/projects/delete", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ path }),
+  });
+  const body = await readJson(response);
+  if (!response.ok) {
+    throw new Error(errorMessage(body, "Could not delete the project."));
+  }
+}
+
 export async function revealPersistedProject(path: string): Promise<{ path: string }> {
   const response = await fetch("/api/projects/reveal", {
     method: "POST",

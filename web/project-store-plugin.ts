@@ -183,6 +183,24 @@ export async function handleProjectStoreRequest(
       sendJson(res, 200, renamed);
       return true;
     }
+    if (req.method === "POST" && url === "/api/projects/delete") {
+      const body = (await readJsonBody(req)) as { path?: unknown };
+      if (typeof body.path !== "string" || !body.path.trim()) {
+        sendJson(res, 400, { error: "Missing project path." });
+        return true;
+      }
+      const current = await deps.settings.read();
+      if (!current.projectsFolder) {
+        sendJson(res, 409, { error: "Choose a Projects Folder first.", code: "projects_folder_required" });
+        return true;
+      }
+      await deps.store.deleteProject({
+        projectRoot: body.path,
+        projectsFolder: current.projectsFolder,
+      });
+      sendJson(res, 200, { deleted: true, path: body.path });
+      return true;
+    }
     if (req.method === "POST" && url === "/api/projects/open") {
       const body = (await readJsonBody(req)) as { path?: unknown };
       if (typeof body.path !== "string" || !body.path.trim()) {

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import type { ConversationEntry } from "../project/conversation";
 import { ProjectProvider } from "../project/ProjectProvider";
-import { ProjectRail } from "./ProjectRail";
+import { DeleteProjectDialog, ProjectRail } from "./ProjectRail";
 import { Shell } from "./Shell";
 
 function renderShell(options?: {
@@ -96,6 +96,8 @@ describe("Shell header chrome", () => {
     const settingsAt = project.indexOf('aria-label="Project settings"');
     const agencyAt = project.indexOf('aria-label="Agency"');
     expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Current project:'));
+    expect(project.indexOf('aria-label="Current project:')).toBeLessThan(project.indexOf('aria-label="Delete project"'));
+    expect(project.indexOf('aria-label="Delete project"')).toBeLessThan(agencyAt);
     expect(project.indexOf('aria-label="Current project:')).toBeLessThan(agencyAt);
     expect(agencyAt).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
@@ -449,5 +451,29 @@ describe("Project rail", () => {
     expect(closed).toContain('title="Show project"');
     expect(closed).not.toContain('aria-label="Resize project panel"');
     expect(closed).toContain("border-l border-[#2a2620]");
+  });
+
+  it("puts a delete control on the project selector line", () => {
+    const html = renderShell();
+    expect(html).toContain('aria-label="Delete project"');
+    expect(html).toContain('title="Delete this project"');
+  });
+
+  it("confirms deleting a saved project folder", () => {
+    const html = renderToStaticMarkup(
+      <DeleteProjectDialog title="Marbles" persisted onCancel={() => undefined} onConfirm={() => undefined} />,
+    );
+    expect(html).toContain('role="alertdialog"');
+    expect(html).toContain("Delete project");
+    expect(html).toContain("Delete Marbles? This permanently removes the project folder and its media.");
+    expect(html).toContain(">Cancel<");
+    expect(html).toContain(">Delete<");
+  });
+
+  it("confirms discarding an unsaved session", () => {
+    const html = renderToStaticMarkup(
+      <DeleteProjectDialog title="UNTITLED" persisted={false} onCancel={() => undefined} onConfirm={() => undefined} />,
+    );
+    expect(html).toContain("Discard UNTITLED? This clears the current unsaved session.");
   });
 });

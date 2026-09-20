@@ -100,6 +100,7 @@ import { movieDownloadFilename, requestDownloadCurrentCut, requestExportMovie, t
 import {
   chooseProjectsFolder as requestChooseProjectsFolder,
   createPersistedProject,
+  deletePersistedProject,
   fetchAppSettings,
   listPersistedProjects,
   openPersistedProject,
@@ -239,6 +240,7 @@ type ProjectContextValue = {
   newProject: (name?: string) => Promise<void>;
   saveProject: (name?: string) => Promise<void>;
   renameProject: (name?: string) => Promise<void>;
+  deleteProject: () => Promise<void>;
   openProject: (path: string) => Promise<void>;
   revealProject: () => Promise<void>;
   chooseProjectsFolder: () => Promise<string | null>;
@@ -1850,6 +1852,32 @@ export function ProjectProvider({
     }
   }, [persistedProjectPath]);
 
+  const deleteProject = useCallback(async () => {
+    setPersistenceError(null);
+    if (autosaveTimerRef.current) {
+      clearTimeout(autosaveTimerRef.current);
+      autosaveTimerRef.current = null;
+    }
+    const path = persistedProjectPathRef.current;
+    if (path) {
+      try {
+        await deletePersistedProject(path);
+      } catch (error) {
+        setPersistenceError(error instanceof Error ? error.message : "Could not delete the project.");
+        throw error;
+      }
+    }
+    persistedCreatedAtRef.current = undefined;
+    setPersistedProjectPath(null);
+    replaceProject(createNewProject());
+    setComposerDraftState("");
+    setConversation([]);
+    setMovieExport(null);
+    setViewState("plan");
+    setSelection({ kind: "storyboard", frameId: "A" });
+    await refreshProjectList();
+  }, [refreshProjectList, replaceProject]);
+
   const newProject = useCallback(
     async (name?: string) => {
       const title = sanitizeProjectFolderName(name?.trim() || "UNTITLED");
@@ -2103,6 +2131,7 @@ export function ProjectProvider({
       newProject,
       saveProject,
       renameProject,
+      deleteProject,
       openProject,
       revealProject,
       chooseProjectsFolder,
@@ -2200,6 +2229,7 @@ export function ProjectProvider({
       newProject,
       saveProject,
       renameProject,
+      deleteProject,
       openProject,
       revealProject,
       chooseProjectsFolder,

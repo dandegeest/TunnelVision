@@ -382,8 +382,12 @@ reel. Plan no longer opens an
 intent/prompt popup
 under the tile. A full-width app header keeps
 TunnelVision on the left and Plan | Shoot centered. The project selector lives
-in the Project panel under the Project header and offers New, Rename, Open, and
-Save. Rename updates the title and the on-disk folder. Projects Folder is chosen in Project settings. The
+in the Project panel under the Project header and offers New, Rename, Open,
+Save, and a trash control that deletes the active project after confirmation.
+Rename updates the title and the on-disk folder. Delete removes a saved project
+folder that is a direct child of the Projects Folder, or discards an unsaved
+session. After delete the app returns to an in-memory UNTITLED project without
+creating a new folder. Projects Folder is chosen in Project settings. The
 Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY

@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
-import { isAbsolute, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 
 import { PROJECT_MANIFEST_NAME } from "./src/project/persistence/paths.ts";
@@ -32,6 +32,25 @@ export function revealableProjectPath(
     return null;
   }
   return root;
+}
+
+/** Only a saved project that is a direct child of the Projects Folder may be deleted. */
+export function deletableProjectPath(
+  path: string,
+  projectsFolder?: string | null,
+): string | null {
+  const revealed = revealableProjectPath(path, projectsFolder);
+  if (!revealed || !projectsFolder?.trim()) {
+    return null;
+  }
+  const folder = resolve(projectsFolder);
+  if (revealed === folder) {
+    return null;
+  }
+  if (resolve(dirname(revealed)) !== folder) {
+    return null;
+  }
+  return revealed;
 }
 
 export async function openPathInFileManager(path: string): Promise<void> {

@@ -391,3 +391,53 @@ describe("project store rename", () => {
     expect(manifest.missingAssets ?? []).not.toContain("exports/ExportLocal_v1.mp4");
   });
 });
+
+describe("project store delete", () => {
+  it("removes a saved project that is a direct child of the Projects Folder", async () => {
+    const root = await tempDir("tv-projects-delete-");
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(root, "Disposable");
+    await store.saveProject({
+      projectRoot,
+      project: { ...createNewProject(), title: "Disposable" },
+      conversation: [],
+    });
+    expect(existsSync(join(projectRoot, "project.json"))).toBe(true);
+
+    await store.deleteProject({ projectRoot, projectsFolder: root });
+    expect(existsSync(projectRoot)).toBe(false);
+    expect(existsSync(root)).toBe(true);
+  });
+
+  it("refuses a path outside the Projects Folder", async () => {
+    const root = await tempDir("tv-projects-delete-ok-");
+    const other = await tempDir("tv-projects-delete-other-");
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(other, "KeepMe");
+    await store.saveProject({
+      projectRoot,
+      project: { ...createNewProject(), title: "KeepMe" },
+      conversation: [],
+    });
+
+    await expect(store.deleteProject({ projectRoot, projectsFolder: root })).rejects.toThrow(
+      "That project folder cannot be deleted.",
+    );
+    expect(existsSync(projectRoot)).toBe(true);
+  });
+
+  it("refuses the Projects Folder itself", async () => {
+    const root = await tempDir("tv-projects-delete-self-");
+    const store = createProjectStore({ repoRoot: root });
+    await store.saveProject({
+      projectRoot: root,
+      project: { ...createNewProject(), title: "Folder" },
+      conversation: [],
+    });
+
+    await expect(store.deleteProject({ projectRoot: root, projectsFolder: root })).rejects.toThrow(
+      "That project folder cannot be deleted.",
+    );
+    expect(existsSync(join(root, "project.json"))).toBe(true);
+  });
+});

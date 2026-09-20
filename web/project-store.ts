@@ -4,6 +4,7 @@ import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { downloadClipToFile } from "./export-movie.ts";
+import { deletableProjectPath } from "./open-path.ts";
 import { runtimeMediaIdFromUrl } from "./runtime-media-limits.ts";
 import {
   getActiveRuntimeMediaRegistry,
@@ -149,6 +150,7 @@ export type ProjectStore = {
     createdAt?: string;
   }): Promise<SavedProjectResult>;
   openProject(projectRoot: string): Promise<OpenedProjectResult>;
+  deleteProject(input: { projectRoot: string; projectsFolder: string }): Promise<void>;
 };
 
 async function copyMediaIntoProject(
@@ -457,6 +459,14 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
         projectRoot: nextRoot,
         project: { ...input.project, title },
       });
+    },
+
+    async deleteProject(input) {
+      const target = deletableProjectPath(input.projectRoot, input.projectsFolder);
+      if (!target) {
+        throw new Error("That project folder cannot be deleted.");
+      }
+      await rm(target, { recursive: true, force: false });
     },
   };
   return store;

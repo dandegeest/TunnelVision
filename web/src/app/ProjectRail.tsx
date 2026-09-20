@@ -299,8 +299,10 @@ function ProjectChooser() {
     openProject,
     saveProject,
     renameProject,
+    deleteProject,
   } = useProject();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [nameDialog, setNameDialog] = useState<"new" | "save" | "rename" | null>(null);
   const [nameDraft, setNameDraft] = useState(project.title === "UNTITLED" ? "" : project.title);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -313,7 +315,8 @@ function ProjectChooser() {
 
   return (
     <div className="relative min-w-0 w-full">
-      <div ref={menuRef} className="relative min-w-0 w-full">
+      <div className="flex min-w-0 w-full items-center gap-2">
+      <div ref={menuRef} className="relative min-w-0 flex-1">
         <button
         type="button"
         aria-haspopup="menu"
@@ -405,6 +408,28 @@ function ProjectChooser() {
         </div>
       ) : null}
       </div>
+      <button
+        type="button"
+        aria-label="Delete project"
+        title="Delete this project"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[#9a8f7e] outline-none hover:bg-[#2a2620] hover:text-[#ece7df] focus-visible:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+        onClick={() => {
+          setMenuOpen(false);
+          setDeleteOpen(true);
+        }}
+      >
+        <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden>
+          <path
+            d="M2.25 3.25h7.5M4.25 3.25V2.4c0-.3.2-.55.5-.55h2.5c.3 0 .5.25.5.55v.85M3.15 3.25l.35 6.1c.03.5.4.9.9.9h3.2c.5 0 .87-.4.9-.9l.35-6.1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.15"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      </div>
       {persistenceError ? (
         <p className="mt-2 text-[11px] leading-snug text-[#f0c2a8]">{persistenceError}</p>
       ) : null}
@@ -437,6 +462,85 @@ function ProjectChooser() {
           }}
         />
       ) : null}
+      {deleteOpen ? (
+        <DeleteProjectDialog
+          title={project.title}
+          persisted={Boolean(persistedProjectPath)}
+          onCancel={() => setDeleteOpen(false)}
+          onConfirm={() => {
+            setDeleteOpen(false);
+            void deleteProject();
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+export function DeleteProjectDialog({
+  title,
+  persisted,
+  onCancel,
+  onConfirm,
+}: {
+  title: string;
+  persisted: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  useEffect(() => {
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCancel();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onCancel]);
+  const copy = persisted
+    ? `Delete ${title}? This permanently removes the project folder and its media.`
+    : `Discard ${title}? This clears the current unsaved session.`;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-project-title"
+      aria-describedby="delete-project-copy"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md rounded border border-[#3a342c] bg-[#141210] px-5 py-4 shadow-[0_18px_48px_rgba(0,0,0,0.45)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p
+          id="delete-project-title"
+          className="text-[11px] tracking-[0.16em] text-[#9a8f7e] uppercase"
+        >
+          Delete project
+        </p>
+        <p id="delete-project-copy" className="mt-2 text-sm leading-6 text-[#ece7df]">
+          {copy}
+        </p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1.5 text-[11px] tracking-[0.14em] text-[#9a8f7e] uppercase outline-none hover:border-[#7a7266] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
+            onClick={onCancel}
+            autoFocus
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="rounded border border-[#ece7df] bg-[#ece7df] px-3 py-1.5 text-[11px] tracking-[0.14em] text-[#141210] uppercase outline-none hover:bg-[#fff] focus-visible:ring-1 focus-visible:ring-[#d4b36a]"
+            onClick={onConfirm}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
