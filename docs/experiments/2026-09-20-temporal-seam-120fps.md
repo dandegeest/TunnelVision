@@ -15,7 +15,7 @@ This note documents a completed, failed-for-purpose experiment thoroughly enough
 
 **Do not productize Temporal Seam. Do not continue tuning this technique.**
 
-All videos, graphs, measurements, and scripts remain in place under [`media/experiments/temporal-seam/FPSTEST/`](../../media/experiments/temporal-seam/FPSTEST/). This report references those files by repo-relative path. It does not copy, move, duplicate, embed, or re-encode any of them.
+Local working files lived under `media/experiments/temporal-seam/FPSTEST/` during the experiment. That tree was deleted from the working copy on 20 September 2026 and was never committed. Filenames below are a historical index, not live links.
 
 ---
 
@@ -108,7 +108,7 @@ The idea was plausible for three reasons:
 2. TunnelVision already concatenates independently generated takes; any join-time treatment would be export-side, not a change to Director, Cinematographer, Camotion, or generation.
 3. If it worked, it would address a real finishing problem without asking the video model to generate longer, velocity-matched shots.
 
-The experiment was isolated under `media/experiments/temporal-seam/FPSTEST/`. It was never integrated into the production journey/export path, Director, Cinematographer, UI, or take-selection.
+The experiment was isolated under `media/experiments/temporal-seam/FPSTEST/` (now deleted). It was never integrated into the production journey/export path, Director, Cinematographer, UI, or take-selection.
 
 ---
 
@@ -176,7 +176,7 @@ This infrastructure remains in product as a reusable capability. The abandoned i
 
 A purpose-built TunnelVision journey called **FPSTEST** was generated specifically to create strong velocity changes. It was not a typical product story. It was a stress test.
 
-Project facts (from [`source.json`](../../media/experiments/temporal-seam/FPSTEST/source.json)):
+Project facts (from `source.json`):
 
 | Field | Value |
 | --- | --- |
@@ -225,8 +225,8 @@ FPSTEST was **not** regenerated during later phases. After Phase 1, every treatm
 
 **Credits authorized. Isolated experiment. No production integration.**
 
-Runner: [`run_experiment.py`](../../media/experiments/temporal-seam/FPSTEST/run_experiment.py)  
-Machine record: [`report.json`](../../media/experiments/temporal-seam/FPSTEST/report.json)
+Runner: `run_experiment.py`  
+Machine record: `report.json`
 
 ### Enhancement
 
@@ -234,9 +234,9 @@ Three selected takes were copied into `media/experiments/temporal-seam/FPSTEST/s
 
 | Clip | Task id | Credits | Wall | Output | Duration | Frames | Size |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| A→B | `e962580a-629d-4f1e-b649-afa5a73a7b32` | 5 | ~58s | [`enhanced/A-B-120fps.mp4`](../../media/experiments/temporal-seam/FPSTEST/enhanced/A-B-120fps.mp4) | 10.050s | 1206 | 1928×1072 / 120fps |
-| B→C | `88d7d1c8-67af-4c34-a7e5-4ff45b950340` | 3 | ~41s | [`enhanced/B-C-120fps.mp4`](../../media/experiments/temporal-seam/FPSTEST/enhanced/B-C-120fps.mp4) | 5.050s | 606 | 1928×1072 / 120fps |
-| C→D | `b824e68c-82c9-44ec-bb38-46b627836b7e` | 3 | ~41s | [`enhanced/C-D-120fps.mp4`](../../media/experiments/temporal-seam/FPSTEST/enhanced/C-D-120fps.mp4) | 5.050s | 606 | 1928×1072 / 120fps |
+| A→B | `e962580a-629d-4f1e-b649-afa5a73a7b32` | 5 | ~58s | `enhanced/A-B-120fps.mp4` | 10.050s | 1206 | 1928×1072 / 120fps |
+| B→C | `88d7d1c8-67af-4c34-a7e5-4ff45b950340` | 3 | ~41s | `enhanced/B-C-120fps.mp4` | 5.050s | 606 | 1928×1072 / 120fps |
+| C→D | `b824e68c-82c9-44ec-bb38-46b627836b7e` | 3 | ~41s | `enhanced/C-D-120fps.mp4` | 5.050s | 606 | 1928×1072 / 120fps |
 
 Totals: **3 successful calls, 11 credits, ~140 seconds wall, no meaningful API failures.**
 
@@ -246,12 +246,12 @@ Runway trimmed a short tail (~33ms / 4 frames at 120fps) relative to the native 
 
 | # | Treatment | File | Duration |
 | --- | --- | --- | --- |
-| 1 | Control — hard join of original 24fps takes | [`01-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/01-control.mp4) | 20.250s |
-| 2 | 120fps Straight — enhance each traversal, join, conform to 24fps | [`02-120fps-straight.mp4`](../../media/experiments/temporal-seam/FPSTEST/02-120fps-straight.mp4) | 20.167s (−0.083s) |
-| 3 | 120fps + generic velocity ease | [`03-120fps-velocity-ease.mp4`](../../media/experiments/temporal-seam/FPSTEST/03-120fps-velocity-ease.mp4) | 20.167s (−0.083s) |
-| 4 | Optional soft-boundary crossfade (not a primary candidate) | [`04-120fps-soft-boundary.mp4`](../../media/experiments/temporal-seam/FPSTEST/04-120fps-soft-boundary.mp4) | 19.875s (−0.375s) |
+| 1 | Control — hard join of original 24fps takes | `01-control.mp4` | 20.250s |
+| 2 | 120fps Straight — enhance each traversal, join, conform to 24fps | `02-120fps-straight.mp4` | 20.167s (−0.083s) |
+| 3 | 120fps + generic velocity ease | `03-120fps-velocity-ease.mp4` | 20.167s (−0.083s) |
+| 4 | Optional soft-boundary crossfade (not a primary candidate) | `04-120fps-soft-boundary.mp4` | 19.875s (−0.375s) |
 
-Labeled sequential comparison: [`FPSTEST-temporal-seam-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/FPSTEST-temporal-seam-comparison.mp4) (66.6s).
+Labeled sequential comparison: `FPSTEST-temporal-seam-comparison.mp4` (66.6s).
 
 Encode convention for this experiment tree: libx264 CRF 18, preset medium, yuv420p, 1928×1072, 24fps delivery, no audio.
 
@@ -281,9 +281,9 @@ This phase established the working material and killed the simplest treatment. T
 
 No further Runway calls. Existing 120fps files only.
 
-Script: [`boundary2_motion_aware.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_motion_aware.py)  
-Measurements: [`boundary2-motion.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion.json), [`boundary2-motion.csv`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion.csv)  
-Graph: [`boundary2-motion-analysis.png`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-analysis.png)
+Script: `boundary2_motion_aware.py`  
+Measurements: `boundary2-motion.json`, `boundary2-motion.csv`  
+Graph: `boundary2-motion-analysis.png`
 
 Boundary #2 was selected for detailed study:
 
@@ -298,7 +298,7 @@ join:      B-C | C-D   (canonical C)
 - Farneback optical flow
 - Analysis width: 480px
 - Local venv: `media/experiments/temporal-seam/FPSTEST/.venv` (opencv-python-headless, numpy, matplotlib)
-- Diagnostic clips: last ~2s of outgoing + first ~2s of incoming, extracted as PNGs under [`intermediates/boundary2/`](../../media/experiments/temporal-seam/FPSTEST/intermediates/boundary2/)
+- Diagnostic clips: last ~2s of outgoing + first ~2s of incoming, extracted as PNGs under `intermediates/boundary2/`
 
 ### Methodological discovery: do not use median vector on forward POV
 
@@ -366,10 +366,10 @@ Treatment:
 
 Outputs:
 
-- Control window: [`boundary2-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-control.mp4)
-- Motion-aware: [`boundary2-motion-aware.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-aware.mp4)
-- Sequential comparison: [`boundary2-motion-aware-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-aware-comparison.mp4)
-- Sample dumps: [`boundary2-control-samples.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-control-samples.json), [`boundary2-motion-aware-samples.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-aware-samples.json)
+- Control window: `boundary2-control.mp4`
+- Motion-aware: `boundary2-motion-aware.mp4`
+- Sequential comparison: `boundary2-motion-aware-comparison.mp4`
+- Sample dumps: `boundary2-control-samples.json`, `boundary2-motion-aware-samples.json`
 
 ### Quantitative result (re-measured on the 24fps diagnostic clips)
 
@@ -400,7 +400,7 @@ Boundary step improved numerically by ~27%. That is the only number that moved i
 
 New hypothesis: preserve native generated motion and repair only the anomalous region around C.
 
-Anomaly from the existing 120fps series ([`boundary2-micro-motion.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-motion.json)):
+Anomaly from the existing 120fps series (`boundary2-micro-motion.json`):
 
 | Event | Time from C | mag24 |
 | --- | --- | --- |
@@ -423,9 +423,9 @@ Micro-repair window:
 
 The window sits mostly on the outgoing side. The spike begins before C and decays just after. Everything outside the window remained 1.0×.
 
-Script: [`boundary2_micro_repair.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_micro_repair.py)  
-Graph: [`boundary2-micro-motion-analysis.png`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-motion-analysis.png)  
-Comparison: [`boundary2-micro-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-comparison.mp4)
+Script: `boundary2_micro_repair.py`  
+Graph: `boundary2-micro-motion-analysis.png`  
+Comparison: `boundary2-micro-comparison.mp4`
 
 Three strategies, all using the same 120fps sources, all 1928×1072 / 24fps, ~1.5s before C and ~1.5s after:
 
@@ -441,7 +441,7 @@ Local playback-rate adjustment inside the 233ms window only. Extra time capped a
 
 Temporal cadence stayed relatively natural. The spike was only partly reduced. Max local step got worse. True velocity normalization would require a duration change large enough to feel like slow motion.
 
-File: [`boundary2-micro-remap.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-remap.mp4)
+File: `boundary2-micro-remap.mp4`
 
 ### Resample
 
@@ -455,7 +455,7 @@ Used 120fps temporal density to *choose different 24fps source samples*. The 28 
 
 Numerically excellent. Plateaus preserved. **Perceptually poor.** The video looked jerky because sequential temporal progression had been discarded. The 120fps source was being used as a pile of stills to cherry-pick, not as a continuous motion.
 
-File: [`boundary2-micro-resample.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-resample.mp4)
+File: `boundary2-micro-resample.mp4`
 
 This is the critical negative result of the entire experiment:
 
@@ -471,7 +471,7 @@ Dropped the 16–19 core (−50ms to +50ms, 12 frames) and applied mild remap on
 | Max step ±250ms | 7.51 | 2.62 |
 | Duration | 3.042s | 3.042s |
 
-Best numerical result. Perceptually inherited the temporal manipulation / jerkiness of resampling. File: [`boundary2-micro-hybrid.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-hybrid.mp4)
+Best numerical result. Perceptually inherited the temporal manipulation / jerkiness of resampling. File: `boundary2-micro-hybrid.mp4`
 
 ### Perceptual ranking after Phase 4
 
@@ -499,17 +499,17 @@ native generated motion
 
 The treatment was supposed to be difficult to consciously detect. Sequential fractional timing through the 120fps source was required. The previous Resample strategy was forbidden.
 
-Script: [`boundary2_final_cushion.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_final_cushion.py)  
-Public (non-secret) summary: [`boundary2-final-public.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-public.json)
+Script: `boundary2_final_cushion.py`  
+Public (non-secret) summary: `boundary2-final-public.json`
 
 Four versions, all 1928×1072, 24fps, 3.042s, no labels in the test footage:
 
 | Variant | Repair window | Minimum rate | Curve | File |
 | --- | --- | --- | --- | --- |
-| Control | none | 1.0× | identity | [`boundary2-final-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-control.mp4) |
-| Light | ~100ms | ~0.90× | 1.0 → 0.90 → 1.0 | [`boundary2-final-light.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-light.mp4) |
-| Medium | ~133ms | ~0.825× | 1.0 → ~0.825 → 1.0 | [`boundary2-final-medium.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-medium.mp4) |
-| Strong | ~167ms | ~0.725× | 1.0 → ~0.725 → 1.0 | [`boundary2-final-strong.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-strong.mp4) |
+| Control | none | 1.0× | identity | `boundary2-final-control.mp4` |
+| Light | ~100ms | ~0.90× | 1.0 → 0.90 → 1.0 | `boundary2-final-light.mp4` |
+| Medium | ~133ms | ~0.825× | 1.0 → ~0.825 → 1.0 | `boundary2-final-medium.mp4` |
+| Strong | ~167ms | ~0.725× | 1.0 → ~0.725 → 1.0 | `boundary2-final-strong.mp4` |
 
 Rates used a smooth parabolic bump centered on C (`r(u) = 1 − depth · 4u(1−u)`), not a curve derived from optical flow. Indices were required to be non-decreasing. No region skip.
 
@@ -517,9 +517,9 @@ Inherent duration extras *before* matching Control length: Light +8ms, Medium +2
 
 ### Blind comparison
 
-File: [`boundary2-final-blind-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-blind-comparison.mp4) (29.2s, 24fps, 1928×1072)
+File: `boundary2-final-blind-comparison.mp4` (29.2s, 24fps, 1928×1072)
 
-The four versions were presented in randomized order, labeled only **A / B / C / D**. Each version played twice consecutively. The mapping was stored only in [`boundary2-final-blind-key.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-blind-key.json) and was not revealed until after visual ranking.
+The four versions were presented in randomized order, labeled only **A / B / C / D**. Each version played twice consecutively. The mapping was stored only in `boundary2-final-blind-key.json` and was not revealed until after visual ranking.
 
 Mapping (revealed after ranking):
 
@@ -589,9 +589,9 @@ The reusable Runway Dev integration succeeded as infrastructure. Keep `media/src
 
 120fps enhancement is inexpensive, reliable, and technically useful. Three production-length clips enhanced cleanly for 11 credits. The motion signature of the source was preserved. That is a good primitive for *other* future experiments (inspection, slow-motion study, possible later finishing ideas that are not velocity matching).
 
-### 3. Optical-flow analysis tooling
+### 3. Optical-flow analysis lessons
 
-[`boundary2_motion_aware.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_motion_aware.py) and the Farneback measurement path may be useful later for Cinematographer evaluation or research. Treat optical flow as a **diagnostic signal**, not as a perceptual-quality objective function.
+The local Farneback scripts were deleted with the experiment tree. The methodological lessons remain. Treat optical flow as a **diagnostic signal**, not as a perceptual-quality objective function. If similar measurement is needed later, rebuild it; do not treat Temporal Seam as a library to restore.
 
 Durable methodological rules from this work:
 
@@ -602,7 +602,7 @@ Durable methodological rules from this work:
 
 ### 4. FPSTEST
 
-FPSTEST remains a useful stress-test journey for motion experiments. Do not regenerate it unless a later experiment needs a different story. The 120fps enhanced takes are the canonical working sources for any future re-inspection of this material.
+FPSTEST remains a useful stress-test journey for motion experiments. Do not regenerate it unless a later experiment needs a different story. The 120fps enhanced takes were local experiment copies and were deleted with the Temporal Seam tree; they were never the product source of truth. The original selected takes remain in the FPSTEST project.
 
 ---
 
@@ -656,76 +656,76 @@ Current export — flat concatenation of selected takes — remains an acceptabl
 
 ## Asset index
 
-All assets remain under [`media/experiments/temporal-seam/FPSTEST/`](../../media/experiments/temporal-seam/FPSTEST/). Paths are repo-relative. Nothing in this report embeds, copies, or re-packages them.
+Historical filenames from the deleted `media/experiments/temporal-seam/FPSTEST/` tree. These files are not in git.
 
 ### Sources and enhancement
 
 | Asset | Path |
 | --- | --- |
-| Project / take manifest | [`source.json`](../../media/experiments/temporal-seam/FPSTEST/source.json) |
-| Phase 1 machine report | [`report.json`](../../media/experiments/temporal-seam/FPSTEST/report.json) |
+| Project / take manifest | `source.json` |
+| Phase 1 machine report | `report.json` |
 | Native take copies | `source/A-B.mp4`, `source/B-C.mp4`, `source/C-D.mp4` |
-| Enhanced 120fps A→B | [`enhanced/A-B-120fps.mp4`](../../media/experiments/temporal-seam/FPSTEST/enhanced/A-B-120fps.mp4) |
-| Enhanced 120fps B→C | [`enhanced/B-C-120fps.mp4`](../../media/experiments/temporal-seam/FPSTEST/enhanced/B-C-120fps.mp4) |
-| Enhanced 120fps C→D | [`enhanced/C-D-120fps.mp4`](../../media/experiments/temporal-seam/FPSTEST/enhanced/C-D-120fps.mp4) |
+| Enhanced 120fps A→B | `enhanced/A-B-120fps.mp4` |
+| Enhanced 120fps B→C | `enhanced/B-C-120fps.mp4` |
+| Enhanced 120fps C→D | `enhanced/C-D-120fps.mp4` |
 | Runway CLI logs | `enhanced/A-B-120fps.log`, `enhanced/B-C-120fps.log`, `enhanced/C-D-120fps.log` |
 
 ### Phase 1 whole-journey treatments
 
 | Asset | Path |
 | --- | --- |
-| Control | [`01-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/01-control.mp4) |
-| 120fps Straight | [`02-120fps-straight.mp4`](../../media/experiments/temporal-seam/FPSTEST/02-120fps-straight.mp4) |
-| 120fps + generic ease | [`03-120fps-velocity-ease.mp4`](../../media/experiments/temporal-seam/FPSTEST/03-120fps-velocity-ease.mp4) |
-| Optional soft-boundary | [`04-120fps-soft-boundary.mp4`](../../media/experiments/temporal-seam/FPSTEST/04-120fps-soft-boundary.mp4) |
-| Labeled comparison | [`FPSTEST-temporal-seam-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/FPSTEST-temporal-seam-comparison.mp4) |
+| Control | `01-control.mp4` |
+| 120fps Straight | `02-120fps-straight.mp4` |
+| 120fps + generic ease | `03-120fps-velocity-ease.mp4` |
+| Optional soft-boundary | `04-120fps-soft-boundary.mp4` |
+| Labeled comparison | `FPSTEST-temporal-seam-comparison.mp4` |
 
 ### Phase 2–3 motion-aware (boundary #2)
 
 | Asset | Path |
 | --- | --- |
-| Measurements (JSON) | [`boundary2-motion.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion.json) |
-| Measurements (CSV) | [`boundary2-motion.csv`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion.csv) |
-| Analysis graph | [`boundary2-motion-analysis.png`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-analysis.png) |
-| Control diagnostic | [`boundary2-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-control.mp4) |
-| Motion-aware diagnostic | [`boundary2-motion-aware.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-aware.mp4) |
-| Sequential comparison | [`boundary2-motion-aware-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-aware-comparison.mp4) |
-| Control samples | [`boundary2-control-samples.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-control-samples.json) |
-| Motion-aware samples | [`boundary2-motion-aware-samples.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-motion-aware-samples.json) |
+| Measurements (JSON) | `boundary2-motion.json` |
+| Measurements (CSV) | `boundary2-motion.csv` |
+| Analysis graph | `boundary2-motion-analysis.png` |
+| Control diagnostic | `boundary2-control.mp4` |
+| Motion-aware diagnostic | `boundary2-motion-aware.mp4` |
+| Sequential comparison | `boundary2-motion-aware-comparison.mp4` |
+| Control samples | `boundary2-control-samples.json` |
+| Motion-aware samples | `boundary2-motion-aware-samples.json` |
 | PNG extracts / 120fps intermediates | `intermediates/boundary2/` |
 
 ### Phase 4 micro-repair
 
 | Asset | Path |
 | --- | --- |
-| Measurements | [`boundary2-micro-motion.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-motion.json) |
-| Analysis graph | [`boundary2-micro-motion-analysis.png`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-motion-analysis.png) |
-| Control | [`boundary2-micro-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-control.mp4) |
-| Remap | [`boundary2-micro-remap.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-remap.mp4) |
-| Resample | [`boundary2-micro-resample.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-resample.mp4) |
-| Hybrid | [`boundary2-micro-hybrid.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-hybrid.mp4) |
-| Sequential comparison | [`boundary2-micro-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-micro-comparison.mp4) |
+| Measurements | `boundary2-micro-motion.json` |
+| Analysis graph | `boundary2-micro-motion-analysis.png` |
+| Control | `boundary2-micro-control.mp4` |
+| Remap | `boundary2-micro-remap.mp4` |
+| Resample | `boundary2-micro-resample.mp4` |
+| Hybrid | `boundary2-micro-hybrid.mp4` |
+| Sequential comparison | `boundary2-micro-comparison.mp4` |
 
 ### Phase 5 kill test
 
 | Asset | Path |
 | --- | --- |
-| Control | [`boundary2-final-control.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-control.mp4) |
-| Light | [`boundary2-final-light.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-light.mp4) |
-| Medium | [`boundary2-final-medium.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-medium.mp4) |
-| Strong | [`boundary2-final-strong.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-strong.mp4) |
-| Blind comparison | [`boundary2-final-blind-comparison.mp4`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-blind-comparison.mp4) |
-| Blind key | [`boundary2-final-blind-key.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-blind-key.json) |
-| Public summary (no ranking) | [`boundary2-final-public.json`](../../media/experiments/temporal-seam/FPSTEST/boundary2-final-public.json) |
+| Control | `boundary2-final-control.mp4` |
+| Light | `boundary2-final-light.mp4` |
+| Medium | `boundary2-final-medium.mp4` |
+| Strong | `boundary2-final-strong.mp4` |
+| Blind comparison | `boundary2-final-blind-comparison.mp4` |
+| Blind key | `boundary2-final-blind-key.json` |
+| Public summary (no ranking) | `boundary2-final-public.json` |
 
 ### Scripts
 
 | Script | Role |
 | --- | --- |
-| [`run_experiment.py`](../../media/experiments/temporal-seam/FPSTEST/run_experiment.py) | Phase 1: enhance, generic ease, whole-journey comparison |
-| [`boundary2_motion_aware.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_motion_aware.py) | Shared probe / encode / Farneback / Phase 2–3 remap |
-| [`boundary2_micro_repair.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_micro_repair.py) | Phase 4 remap / resample / hybrid |
-| [`boundary2_final_cushion.py`](../../media/experiments/temporal-seam/FPSTEST/boundary2_final_cushion.py) | Phase 5 cushions + blind comparison |
+| `run_experiment.py` | Phase 1: enhance, generic ease, whole-journey comparison |
+| `boundary2_motion_aware.py` | Shared probe / encode / Farneback / Phase 2–3 remap |
+| `boundary2_micro_repair.py` | Phase 4 remap / resample / hybrid |
+| `boundary2_final_cushion.py` | Phase 5 cushions + blind comparison |
 
 Labeled cards and concat listings used to build comparisons live under `cards/` and `intermediates/`. They are build artifacts, not additional experimental conditions.
 
