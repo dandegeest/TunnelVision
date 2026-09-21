@@ -211,6 +211,23 @@ export async function handleProjectStoreRequest(
       sendJson(res, 200, opened);
       return true;
     }
+    if (req.method === "POST" && url === "/api/projects/choose-open") {
+      const current = await deps.settings.read();
+      const chosen = await chooseNativeDirectory("Open TunnelVision project", {
+        defaultPath: current.projectsFolder,
+      });
+      if (!chosen) {
+        sendJson(res, 200, { cancelled: true });
+        return true;
+      }
+      const path = revealableProjectPath(chosen);
+      if (!path) {
+        sendJson(res, 400, { error: "That folder is not a TunnelVision project." });
+        return true;
+      }
+      sendJson(res, 200, { path });
+      return true;
+    }
     if (req.method === "POST" && url === "/api/projects/reveal") {
       const body = (await readJsonBody(req)) as { path?: unknown };
       if (typeof body.path !== "string" || !body.path.trim()) {

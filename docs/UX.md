@@ -392,7 +392,9 @@ stretch or crop source media to fill the tile. Do not silently alter filmmaker m
 The storyboard remains
 the authoritative Plan artifact. Conversation is turn history only and
 can hide to the left. The project selector, Directed | Agent, Journey prompt, destination count, and PLAN JOURNEY (CREATE JOURNEY in Agent) live in the Project panel,
-which can hide to the right. The selector offers New, Rename, Open, and Save.
+which can hide to the right. The selector offers New, Rename, Save, the
+10 most recently updated projects (scroll that list), and Browse to pick
+another project folder in the system file manager.
 New names the project and creates its folder in the Projects Folder so
 the session autosaves. Rename changes the current project's title and
 folder. Projects Folder is chosen in Project settings. Directed Options are Generate all destinations and Generate all segments. Generate audio is available in Directed and Agent; it asks audio-capable video models for sound on NEW TAKE. Adaptive duration is also in Directed and Agent; when off, Fixed duration targets that many seconds for every traversal.
@@ -401,7 +403,12 @@ model, format, and resolution controls are in-app menus, not native OS
 selects. Clicking outside a popup menu closes it; opening one menu closes any
 other. When
 Kling 3 is mapped, settings also show Standard (720p) / Pro (1080p) / 4K.
-Helper copy does not sit under PLAN JOURNEY. Opening A can be uploaded before a journey
+Helper copy does not sit under PLAN JOURNEY. Score sits above the A–B–C
+progress rail under that button: mean Set Consistency and Traversal
+Confidence across assessed segments, pending as an em dash until the first
+assessment. The number ticks and the pill pulses as that average changes
+when destinations complete. Clicking a letter selects that destination in
+Plan. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.

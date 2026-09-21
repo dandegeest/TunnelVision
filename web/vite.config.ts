@@ -50,6 +50,7 @@ export default defineConfig({
       "project-store.test.ts",
       "app-settings.test.ts",
       "open-path.test.ts",
+      "choose-directory.test.ts",
       "headless-journey.test.ts",
     ],
   },

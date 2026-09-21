@@ -148,6 +148,15 @@ export async function renamePersistedProject(input: {
   return body as SavedProjectResponse;
 }
 
+export async function chooseOpenProject(): Promise<{ path?: string; cancelled?: boolean }> {
+  const response = await fetch("/api/projects/choose-open", { method: "POST" });
+  const body = await readJson(response);
+  if (!response.ok) {
+    throw new Error(errorMessage(body, "That folder is not a TunnelVision project."));
+  }
+  return body as { path?: string; cancelled?: boolean };
+}
+
 export async function openPersistedProject(path: string): Promise<OpenedProjectResponse> {
   const response = await fetch("/api/projects/open", {
     method: "POST",

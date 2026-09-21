@@ -315,7 +315,9 @@ write yet. After a project is on disk, meaningful project changes
 autosave. Canonical stills append takes rather than
 overwriting the previous PNG. Vite middleware
 (`web/project-store-plugin.ts`) owns filesystem I/O. The Project
-chooser offers New, Rename, Open, and Save; settings holds Choose Folder.
+chooser offers New, Rename, Save, the 10 most recently updated projects
+in a scrolling Open list, and Browse (native folder picker). Settings
+holds Choose Folder.
 
 Visual checkpoint for the frozen Plan shell:
 [`genesis/research/11-product-slice-2.html`](../genesis/research/11-product-slice-2.html).
@@ -386,8 +388,10 @@ reel. Plan no longer opens an
 intent/prompt popup
 under the tile. A full-width app header keeps
 TunnelVision on the left and Plan | Shoot centered. The project selector lives
-in the Project panel under the Project header and offers New, Rename, Open,
-Save, and a trash control that deletes the active project after confirmation.
+in the Project panel under the Project header and offers New, Rename, Save,
+a scrolling Open list of the 10 most recently updated projects, Browse
+(native folder picker), and a trash control that deletes the active project
+after confirmation.
 Rename updates the title and the on-disk folder. Delete removes a saved project
 folder that is a direct child of the Projects Folder, or discards an unsaved
 session. After delete the app returns to an in-memory UNTITLED project without
@@ -395,7 +399,9 @@ creating a new folder. Projects Folder is chosen in Project settings. The
 Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY
-and can hide to the right. In Agent, CREATE JOURNEY runs JourneyAgent
+and can hide to the right. Score sits above the A–B–C progress rail under
+PLAN JOURNEY / CREATE JOURNEY; letters open that destination in Plan, and
+the score ticks as assessed segments complete. In Agent, CREATE JOURNEY runs JourneyAgent
 on the same Project instead of Directed Options. Stop appears under
 CREATE JOURNEY while JourneyAgent is in flight. LOOP is backlog
 ([BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option));

@@ -305,6 +305,30 @@ body,
   }
 }
 
+.project-score-value {
+  display: inline-flex;
+  transform-origin: center;
+}
+
+.project-score-value-tick {
+  animation: project-score-tick 0.48s ease-out;
+}
+
+@keyframes project-score-tick {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  35% {
+    transform: scale(1.22);
+    filter: brightness(1.28);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
 @keyframes storyboard-pulse {
   0%,
   100% {
@@ -334,7 +358,8 @@ body,
 @media (prefers-reduced-motion: reduce) {
   .storyboard-generating::before,
   .storyboard-generating-label,
-  .journey-progress-line-active {
+  .journey-progress-line-active,
+  .project-score-value-tick {
     animation: none;
   }
 }

@@ -574,10 +574,20 @@ describe("Plan conversation thread", () => {
     expect(project.slice(project.indexOf('aria-label="Journey progress"'), project.indexOf('aria-label="Journey progress"') + 200)).not.toContain("overflow-x-auto");
   });
 
-  it("shows a project Score under the journey prompt, pending until segments are assessed", () => {
+  it("shows a project Score above the A–B progress rail, pending until segments are assessed", () => {
     const pending = renderPlan(createWardrobeProject(), { composerDraft: "" });
     expect(pending).toContain('aria-label="Project score pending"');
     expect(pending).toContain("—");
+    const pendingProject = pending.slice(pending.indexOf('id="project-panel"'));
+    expect(pendingProject.indexOf('aria-label="Plan journey"')).toBeLessThan(
+      pendingProject.indexOf('aria-label="Project score pending"'),
+    );
+    expect(pendingProject.indexOf('aria-label="Project score pending"')).toBeLessThan(
+      pendingProject.indexOf('aria-label="Journey progress"'),
+    );
+    expect(pendingProject.indexOf('aria-label="Project score pending"')).toBeGreaterThan(
+      pendingProject.indexOf('aria-label="Camera"'),
+    );
     const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", {
       shootability: "shootable",
       summary: "Walk through the root gateway into the darker mouth.",
@@ -597,8 +607,22 @@ describe("Plan conversation thread", () => {
     expect(project).toContain('aria-label="Project score 81"');
     expect(project).toContain(">Score<");
     expect(project).toContain(">81<");
-    expect(project.indexOf('id="project-story"')).toBeLessThan(project.indexOf('aria-label="Project score 81"'));
-    expect(project.indexOf('aria-label="Project score 81"')).toBeLessThan(project.indexOf('aria-label="Camera"'));
+    expect(project).toContain("aria-live");
+    expect(project).toContain("project-score-value");
+    expect(project.indexOf('aria-label="Plan journey"')).toBeLessThan(project.indexOf('aria-label="Project score 81"'));
+    expect(project.indexOf('aria-label="Project score 81"')).toBeLessThan(project.indexOf('aria-label="Journey progress"'));
+  });
+
+  it("makes progress letters buttons that select the matching Plan destination", () => {
+    const html = renderPlan(createWardrobeProject(), {
+      composerDraft: "",
+      selection: { kind: "storyboard", frameId: "C" },
+    });
+    const project = html.slice(html.indexOf('id="project-panel"'));
+    expect(project).toContain('title="Select destination A in Plan"');
+    expect(project).toContain('title="Select destination C in Plan"');
+    expect(project).toMatch(/<button[^>]*aria-label="Canonical A constructed"/);
+    expect(project).toMatch(/<button[^>]*aria-label="Canonical C constructed"[^>]*aria-pressed="true"|<button[^>]*aria-pressed="true"[^>]*aria-label="Canonical C constructed"/);
   });
 
   it("groups cinematographer evaluation and blocking into one card", () => {

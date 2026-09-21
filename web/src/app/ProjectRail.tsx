@@ -23,8 +23,10 @@ import {
 import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
 import { projectScoreFromProject } from "../project/cinematographer";
 import { displayProjectPath } from "../project/persistence/paths";
+import { recentListedProjects } from "../project/recent-projects";
+import type { ListedProject } from "../project/project-persistence-client";
 import { journeyProgressFromProject } from "./conversation-console";
-import { JourneyProgressRail, ProjectScoreReadout } from "./JourneyProgressRail";
+import { JourneyProgressRail, ProjectScoreReadout, progressSelectionId } from "./JourneyProgressRail";
 import type { Agency, Project } from "../project/types";
 import {
   IMAGE_MODELS,
@@ -289,6 +291,45 @@ function BackButton({ onBack }: { onBack: () => void }) {
   );
 }
 
+export function ProjectOpenMenuItems({
+  projects,
+  onOpen,
+  onBrowse,
+}: {
+  projects: readonly ListedProject[];
+  onOpen: (path: string) => void;
+  onBrowse: () => void;
+}) {
+  return (
+    <div className="mt-1 border-t border-[#2a2620] pt-1">
+      <p className="px-3 py-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Open</p>
+      {projects.length > 0 ? (
+        <div className="max-h-64 overflow-y-auto" data-project-open-list>
+          {projects.map((item) => (
+            <button
+              key={item.path}
+              type="button"
+              role="menuitem"
+              className="block w-full truncate px-3 py-1.5 text-left text-[12px] text-[#ece7df] hover:bg-[#1c1914]"
+              onClick={() => onOpen(item.path)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <button
+        type="button"
+        role="menuitem"
+        className="block w-full px-3 py-1.5 text-left text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:bg-[#1c1914]"
+        onClick={onBrowse}
+      >
+        Browse
+      </button>
+    </div>
+  );
+}
+
 function ProjectChooser() {
   const {
     project,
@@ -297,10 +338,12 @@ function ProjectChooser() {
     persistenceError,
     newProject,
     openProject,
+    browseAndOpenProject,
     saveProject,
     renameProject,
     deleteProject,
   } = useProject();
+  const recentProjects = recentListedProjects(availableProjects);
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [nameDialog, setNameDialog] = useState<"new" | "save" | "rename" | null>(null);
@@ -384,27 +427,17 @@ function ProjectChooser() {
           >
             {persistedProjectPath ? "Save Project" : "Save Project As"}
           </button>
-          {availableProjects.length > 0 ? (
-            <div className="mt-1 border-t border-[#2a2620] pt-1">
-              <p className="px-3 py-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Open</p>
-              {availableProjects.map((item) => (
-                <button
-                  key={item.path}
-                  type="button"
-                  role="menuitem"
-                  className="block w-full truncate px-3 py-1.5 text-left text-[12px] text-[#ece7df] hover:bg-[#1c1914]"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    void openProject(item.path);
-                  }}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="px-3 py-1.5 text-[11px] text-[#9a8f7e]">No saved projects yet.</p>
-          )}
+          <ProjectOpenMenuItems
+            projects={recentProjects}
+            onOpen={(path) => {
+              setMenuOpen(false);
+              void openProject(path);
+            }}
+            onBrowse={() => {
+              setMenuOpen(false);
+              void browseAndOpenProject();
+            }}
+          />
         </div>
       ) : null}
       </div>
@@ -954,6 +987,8 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     assessingJourneyIds,
     shootingJourneyIds,
     project,
+    selection,
+    openStoryboardInPlan,
     planWithDirector,
     stopJourneyAgent,
   } = useProject();
@@ -1059,7 +1094,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
               />
-              <ProjectScoreReadout score={score} />
             </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera</span>
@@ -1196,7 +1230,14 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   Stop
                 </button>
               ) : null}
-              {progress ? <JourneyProgressRail progress={progress} /> : null}
+              <ProjectScoreReadout score={score} />
+              {progress ? (
+                <JourneyProgressRail
+                  progress={progress}
+                  selectedId={progressSelectionId(selection)}
+                  onSelectDestination={openStoryboardInPlan}
+                />
+              ) : null}
             </div>
           </div>
           <div className="flex shrink-0 items-center justify-end px-3 pb-3">

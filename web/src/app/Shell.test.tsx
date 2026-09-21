@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import type { ConversationEntry } from "../project/conversation";
 import { ProjectProvider } from "../project/ProjectProvider";
-import { DeleteProjectDialog, ProjectRail } from "./ProjectRail";
+import { DeleteProjectDialog, ProjectOpenMenuItems, ProjectRail } from "./ProjectRail";
+import { recentListedProjects } from "../project/recent-projects";
 import { Shell } from "./Shell";
 
 function renderShell(options?: {
@@ -101,7 +102,8 @@ describe("Shell header chrome", () => {
     expect(project.indexOf('aria-label="Current project:')).toBeLessThan(agencyAt);
     expect(agencyAt).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
-    expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(createAt);
+    expect(project.indexOf('aria-label="Project score')).toBeGreaterThan(createAt);
+    expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(project.indexOf('aria-label="Project score'));
     expect(settingsAt).toBeGreaterThan(createAt);
     expect(project).toContain(">Journey prompt<");
     expect(project).toContain(">Camera<");
@@ -451,6 +453,31 @@ describe("Project rail", () => {
     expect(closed).toContain('title="Show project"');
     expect(closed).not.toContain('aria-label="Resize project panel"');
     expect(closed).toContain("border-l border-[#2a2620]");
+  });
+
+  it("caps the Open menu at 10 recent projects and offers Browse", () => {
+    const projects = Array.from({ length: 12 }, (_, index) => ({
+      id: `p${index}`,
+      name: `Project ${index}`,
+      path: `/projects/P${index}`,
+      updatedAt: `2026-09-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`,
+    }));
+    const html = renderToStaticMarkup(
+      <ProjectOpenMenuItems
+        projects={recentListedProjects(projects)}
+        onOpen={() => undefined}
+        onBrowse={() => undefined}
+      />,
+    );
+    expect(html).toContain(">Open<");
+    expect(html).toContain("data-project-open-list");
+    expect(html).toContain("overflow-y-auto");
+    expect(html).toContain(">Browse<");
+    expect(html).toContain(">Project 11<");
+    expect(html).toContain(">Project 2<");
+    expect(html).not.toContain(">Project 0<");
+    expect(html).not.toContain(">Project 1<");
+    expect(html.split("role=\"menuitem\"").length - 1).toBe(11);
   });
 
   it("puts a delete control on the project selector line", () => {

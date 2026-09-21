@@ -98,6 +98,7 @@ import {
 } from "./conversation";
 import { movieDownloadFilename, requestDownloadCurrentCut, requestExportMovie, type MovieExportResult } from "./export-movie";
 import {
+  chooseOpenProject as requestChooseOpenProject,
   chooseProjectsFolder as requestChooseProjectsFolder,
   createPersistedProject,
   deletePersistedProject,
@@ -242,6 +243,7 @@ type ProjectContextValue = {
   renameProject: (name?: string) => Promise<void>;
   deleteProject: () => Promise<void>;
   openProject: (path: string) => Promise<void>;
+  browseAndOpenProject: () => Promise<void>;
   revealProject: () => Promise<void>;
   chooseProjectsFolder: () => Promise<string | null>;
   setProjectTitle: (title: string) => void;
@@ -1840,6 +1842,19 @@ export function ProjectProvider({
     [refreshProjectList, replaceProject],
   );
 
+  const browseAndOpenProject = useCallback(async () => {
+    setPersistenceError(null);
+    try {
+      const chosen = await requestChooseOpenProject();
+      if (chosen.cancelled || !chosen.path) {
+        return;
+      }
+      await openProject(chosen.path);
+    } catch (error) {
+      setPersistenceError(error instanceof Error ? error.message : "Could not open the project.");
+    }
+  }, [openProject]);
+
   const revealProject = useCallback(async () => {
     if (!persistedProjectPath) {
       return;
@@ -2133,6 +2148,7 @@ export function ProjectProvider({
       renameProject,
       deleteProject,
       openProject,
+      browseAndOpenProject,
       revealProject,
       chooseProjectsFolder,
       setProjectTitle,
@@ -2231,6 +2247,7 @@ export function ProjectProvider({
       renameProject,
       deleteProject,
       openProject,
+      browseAndOpenProject,
       revealProject,
       chooseProjectsFolder,
       setProjectTitle,

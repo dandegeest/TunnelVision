@@ -1,8 +1,12 @@
+import { useEffect, useRef, useState } from "react";
 import { cinematographerScoreTone, type ProjectScore } from "../project/cinematographer";
+import type { Selection } from "../project/types";
 import {
   type JourneyProgress,
   type JourneyProgressSegment,
 } from "./conversation-console";
+
+const SCORE_TICK_MS = 480;
 
 function progressStatusLabel(kind: "canonical" | "footage", status: JourneyProgressSegment["status"]): string {
   if (kind === "canonical") {
@@ -23,26 +27,109 @@ function progressStatusLabel(kind: "canonical" | "footage", status: JourneyProgr
   return "pending";
 }
 
+export function progressSelectionId(selection: Selection): string | undefined {
+  if (selection.kind === "storyboard") {
+    return selection.frameId;
+  }
+  if (selection.kind === "destination") {
+    return selection.destinationId;
+  }
+  return undefined;
+}
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function useTickingScore(
+  score: number | null,
+  segments: number,
+): { shown: number | null; ticking: boolean } {
+  const [shown, setShown] = useState(score);
+  const [ticking, setTicking] = useState(false);
+  const shownRef = useRef(score);
+  const segmentsRef = useRef(segments);
+  const frameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const from = shownRef.current;
+    const to = score;
+    const segmentsChanged = segmentsRef.current !== segments;
+    segmentsRef.current = segments;
+    if (from === to && !segmentsChanged) {
+      return;
+    }
+    const reduce = prefersReducedMotion();
+    const pulseOnly = from === to || from == null || to == null || reduce;
+    const finish = (value: number | null) => {
+      shownRef.current = value;
+      setShown(value);
+      setTicking(false);
+    };
+    if (pulseOnly) {
+      shownRef.current = to;
+      setShown(to);
+      if (to == null || reduce) {
+        setTicking(false);
+        return;
+      }
+      setTicking(true);
+      const timeout = window.setTimeout(() => setTicking(false), SCORE_TICK_MS);
+      return () => window.clearTimeout(timeout);
+    }
+    setTicking(true);
+    const started = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - started) / SCORE_TICK_MS);
+      const eased = 1 - (1 - t) ** 3;
+      const next = Math.round(from + (to - from) * eased);
+      shownRef.current = next;
+      setShown(next);
+      if (t < 1) {
+        frameRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      finish(to);
+    };
+    frameRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (frameRef.current != null) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [score, segments]);
+
+  return { shown, ticking };
+}
+
 function CanonicalBadge({
   letter,
   status,
+  selected,
+  onSelect,
 }: {
   letter: string;
   status: JourneyProgressSegment["status"];
+  selected: boolean;
+  onSelect: () => void;
 }) {
   const done = status === "complete";
   const active = status === "active";
   return (
-    <span
-      className={`inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tracking-[0.06em] ${
-        done
-          ? "bg-[#5c6b3d] text-[#ece7df]"
-          : "border border-[#3a342c] bg-transparent text-[#7a7266]"
-      } ${active ? "animate-pulse ring-1 ring-[#ece7df]" : ""}`}
+    <button
+      type="button"
       aria-label={`Canonical ${letter} ${progressStatusLabel("canonical", status)}`}
+      aria-pressed={selected}
+      title={`Select destination ${letter} in Plan`}
+      onClick={onSelect}
+      className={`inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tracking-[0.06em] outline-none hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#ece7df] ${
+        done
+          ? "bg-[#5c6b3d] text-[#ece7df] hover:bg-[#6a7a4a]"
+          : "border border-[#3a342c] bg-transparent text-[#7a7266] hover:border-[#7a7266]"
+      } ${active ? "animate-pulse ring-1 ring-[#ece7df]" : selected ? "ring-1 ring-[#ece7df]" : ""}`}
     >
       {letter}
-    </span>
+    </button>
   );
 }
 
@@ -72,7 +159,15 @@ function FootageLine({
   );
 }
 
-export function JourneyProgressRail({ progress }: { progress: JourneyProgress }) {
+export function JourneyProgressRail({
+  progress,
+  selectedId,
+  onSelectDestination,
+}: {
+  progress: JourneyProgress;
+  selectedId?: string;
+  onSelectDestination: (destinationId: string) => void;
+}) {
   return (
     <nav aria-label="Journey progress" className="min-w-0 py-1">
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
@@ -80,7 +175,12 @@ export function JourneyProgressRail({ progress }: { progress: JourneyProgress })
           const segment = progress.segments[index];
           return (
             <div key={node.id} className="flex shrink-0 items-center gap-0.5">
-              <CanonicalBadge letter={node.letter} status={node.status} />
+              <CanonicalBadge
+                letter={node.letter}
+                status={node.status}
+                selected={selectedId === node.id}
+                onSelect={() => onSelectDestination(node.id)}
+              />
               {segment ? (
                 <FootageLine from={segment.from} to={segment.to} status={segment.status} />
               ) : null}
@@ -94,22 +194,25 @@ export function JourneyProgressRail({ progress }: { progress: JourneyProgress })
 
 export function ProjectScoreReadout({ score }: { score: ProjectScore }) {
   const pending = score.score == null;
+  const { shown, ticking } = useTickingScore(score.score, score.segments);
   const title = pending
     ? "No assessed segments yet."
     : `Average Set Consistency ${score.setConsistency} and Traversal Confidence ${score.traversalConfidence} across ${score.segments} ${score.segments === 1 ? "segment" : "segments"}.`;
+  const displayPending = shown == null;
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-between gap-2" aria-live="polite">
       <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Score</span>
       <span
-        className={
+        className={`${
           pending
             ? "rounded-full px-1.5 py-0 text-[9px] leading-[14px] tabular-nums tracking-[0.08em] text-[#7a7266]"
             : cinematographerScoreTone(score.score, true)
-        }
+        } project-score-value${ticking ? " project-score-value-tick" : ""}`}
         aria-label={pending ? "Project score pending" : `Project score ${score.score}`}
         title={title}
+        data-score-ticking={ticking || undefined}
       >
-        {pending ? "—" : score.score}
+        {displayPending ? "—" : shown}
       </span>
     </div>
   );
