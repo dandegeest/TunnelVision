@@ -23,6 +23,7 @@ import {
   parseStoryDurationInput,
   storyDurationFieldValue,
   canPlanMovie,
+  projectHasExistingJourney,
   canRemoveStoryboardDestination,
   projectWithStoryboardBeatPlan,
 } from "./storyboard";
@@ -827,5 +828,18 @@ describe("story duration", () => {
     expect(next.storyboard[1]?.visualDescription).toBe("A warmer corridor with an open doorway.");
     expect(next.storyboard[1]?.image).toBe(image);
     expect(next.storyboard[0]).toEqual(planned.storyboard[0]);
+  });
+
+  it("treats a loaded storyboard as an existing journey so Agent can start a new project", () => {
+    expect(projectHasExistingJourney(createNewProject())).toBe(false);
+    expect(projectHasExistingJourney(createForestProject())).toBe(true);
+    expect(
+      projectHasExistingJourney({
+        ...createNewProject(),
+        storyboard: [
+          { id: "A", label: "A", imageOrigin: "user", image: "/api/runtime-media/upload-a" },
+        ],
+      }),
+    ).toBe(false);
   });
 });

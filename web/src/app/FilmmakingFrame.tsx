@@ -27,7 +27,28 @@ function railLayout(
   projectOpen: boolean,
   conversationWidth: number,
   projectWidth: number,
+  hideConversation: boolean,
 ) {
+  if (hideConversation) {
+    if (projectOpen) {
+      return {
+        columns: `minmax(0, 1fr) 0.375rem ${projectWidth}px`,
+        conversation: null as number | null,
+        conversationResize: null as number | null,
+        main: 1,
+        projectResize: 2,
+        project: 3,
+      };
+    }
+    return {
+      columns: "minmax(0, 1fr) 2rem",
+      conversation: null as number | null,
+      conversationResize: null as number | null,
+      main: 1,
+      projectResize: null as number | null,
+      project: 2,
+    };
+  }
   if (conversationOpen && projectOpen) {
     return {
       columns: `${conversationWidth}px 0.375rem minmax(0, 1fr) 0.375rem ${projectWidth}px`,
@@ -72,11 +93,13 @@ export function FilmmakingFrame({
   brand,
   workspaceHeader,
   projectHeader,
+  hideConversationRail = false,
   children,
 }: {
   brand?: ReactNode;
   workspaceHeader?: ReactNode;
   projectHeader?: ReactNode;
+  hideConversationRail?: boolean;
   children: ReactNode;
 }) {
   const { conversationRailOpen, projectRailOpen } = useProject();
@@ -86,7 +109,13 @@ export function FilmmakingFrame({
   const [conversationWidth, setConversationWidth] = useState(RAIL_WIDTH_DEFAULT);
   const [projectWidth, setProjectWidth] = useState(RAIL_WIDTH_DEFAULT);
   const hasChrome = Boolean(brand || workspaceHeader || projectHeader);
-  const layout = railLayout(conversationRailOpen, projectRailOpen, conversationWidth, projectWidth);
+  const layout = railLayout(
+    conversationRailOpen,
+    projectRailOpen,
+    conversationWidth,
+    projectWidth,
+    hideConversationRail,
+  );
   const bodyRow = hasChrome ? 2 : 1;
 
   const containerWidth = () => frameRef.current?.getBoundingClientRect().width ?? 1200;
@@ -228,6 +257,7 @@ export function FilmmakingFrame({
           onKeyDown={onProjectResizeKeyDown}
         />
       ) : null}
+      {layout.conversation ? (
       <div
         className="h-full min-h-0 min-w-0"
         {...(conversationRailOpen ? {} : { hidden: true })}
@@ -242,14 +272,15 @@ export function FilmmakingFrame({
       >
         <ConversationRail />
       </div>
-      {conversationRailOpen ? null : (
+      ) : null}
+      {layout.conversation && !conversationRailOpen ? (
         <div
           className="conversation-rail-reopen flex h-9 items-center justify-center border-r border-[#2a2620]"
           style={{ gridColumn: layout.conversation, gridRow: bodyRow }}
         >
           <ConversationRailToggle compact />
         </div>
-      )}
+      ) : null}
       <div
         className="min-h-0 min-w-0 overflow-hidden"
         style={{ gridColumn: layout.main, gridRow: bodyRow }}

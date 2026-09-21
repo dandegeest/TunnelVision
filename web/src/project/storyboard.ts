@@ -3,7 +3,7 @@ import { destinationById, storyboardFrameById } from "./types";
 import type { DirectorPlan } from "./director";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 
-export type WorkspaceView = "plan" | "shoot";
+export type WorkspaceView = "plan" | "shoot" | "agent";
 
 export function nextStoryboardFrame(
   frames: StoryboardFrame[],
@@ -54,7 +54,7 @@ export function selectionForWorkspaceView(
   selection: Selection,
   project: Project,
 ): Selection {
-  if (view === "plan") {
+  if (view === "plan" || view === "agent") {
     if (selection.kind === "storyboard") {
       return selection;
     }
@@ -220,6 +220,14 @@ export function canAddStoryboardDestination(project: Project): boolean {
   }
   const start = storyboardFrameByLetter(project.storyboard, "A");
   return Boolean(start && isSpecifiedStoryboardDestination(start));
+}
+
+/** One project is one journey. A new Agent prompt must not continue this one. */
+export function projectHasExistingJourney(project: Project): boolean {
+  if (project.storyboard.length > 1 || project.journeys.length > 0) {
+    return true;
+  }
+  return project.destinations.some((destination) => destination.id !== "A");
 }
 
 export function canPlanMovie(project: Project): boolean {

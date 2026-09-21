@@ -1019,7 +1019,7 @@ export function StoryboardReelHost() {
       onSelect={(frameId) => {
         commitActiveTextEdit();
         setStoryboardReelId(frameId);
-        if (view === "plan") {
+        if (view === "plan" || view === "agent") {
           select({ kind: "storyboard", frameId });
           return;
         }

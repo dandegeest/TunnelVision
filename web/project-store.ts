@@ -348,7 +348,7 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
       for (const [journeyId, body] of Object.entries(documents.shootingFrames)) {
         await writeJsonAtomic(join(projectRoot, "shooting-frames", journeyId, "metadata.json"), body);
       }
-      if (input.conversation) {
+      if (input.conversation !== undefined) {
         const eventsPath = join(projectRoot, conversationEventsPath());
         await mkdir(dirname(eventsPath), { recursive: true });
         await writeFile(eventsPath, conversationEventsText(input.conversation), "utf8");

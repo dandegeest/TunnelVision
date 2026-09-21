@@ -364,6 +364,15 @@ body,
   }
 }
 
+.agent-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.agent-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   background: #0c0b0a;
   color: #ece7df;

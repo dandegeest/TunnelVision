@@ -9,7 +9,7 @@ import { Shell } from "./Shell";
 
 function renderShell(options?: {
   debug?: boolean;
-  view?: "plan" | "shoot";
+  view?: "plan" | "shoot" | "agent";
   conversationRailOpen?: boolean;
   projectRailOpen?: boolean;
   agency?: "directed" | "autonomous";
@@ -59,21 +59,24 @@ describe("default product project", () => {
 });
 
 describe("Shell header chrome", () => {
-  it("does not show a supervising caption beside the agency chooser", () => {
+  it("does not show a supervising caption beside the workspace switch", () => {
     const html = renderShell();
     expect(html).not.toContain("You are supervising");
     expect(html).not.toContain("YOU ARE SUPERVISING");
     expect(html).not.toContain("Live production monitor");
-    expect(html).toContain('aria-label="Agency"');
-    expect(html).toContain("Directed");
-    expect(html).toContain("Agent");
+    expect(html).not.toContain('aria-label="Agency"');
+    expect(html).not.toContain(">Directed<");
+    expect(html).toContain('aria-label="Workspace"');
+    expect(html).toContain(">Director<");
+    expect(html).toContain(">Agent<");
+    expect(html).toContain(">Shoot<");
     expect(html).not.toContain("Autonomous");
-    const agencyStart = html.indexOf('aria-label="Agency"');
-    const agency = html.slice(agencyStart, html.indexOf("</nav>", agencyStart) + "</nav>".length);
-    expect(agency).toContain('aria-pressed="true"');
-    expect(agency).toContain('aria-pressed="false"');
-    expect(agency).not.toContain("<select");
-    expect(agency).not.toContain("<option");
+    const workspaceStart = html.indexOf('aria-label="Workspace"');
+    const workspace = html.slice(workspaceStart, html.indexOf("</nav>", workspaceStart) + "</nav>".length);
+    expect(workspace).toContain('aria-pressed="true"');
+    expect(workspace).toContain('aria-pressed="false"');
+    expect(workspace).not.toContain("<select");
+    expect(workspace).not.toContain("<option");
   });
 
   it("does not place Debug, Agency, or Media Info in the workspace header toolbar", () => {
@@ -89,18 +92,17 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain(">MEDIA INFO<");
   });
 
-  it("places Agency at the top of the Project panel and settings behind the gear", () => {
+  it("places the journey prompt at the top of the Project panel and settings behind the gear", () => {
     const html = renderShell();
     const project = html.slice(html.indexOf('id="project-panel"'));
     const storyAt = project.indexOf('id="project-story"');
     const createAt = project.indexOf('aria-label="Plan journey"');
     const settingsAt = project.indexOf('aria-label="Project settings"');
-    const agencyAt = project.indexOf('aria-label="Agency"');
-    expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Current project:'));
+    expect(project).not.toContain('aria-label="Agency"');
+    expect(project).not.toContain(">Directed<");
+    expect(project.indexOf(">Project - Directed<")).toBeLessThan(project.indexOf('aria-label="Current project:'));
     expect(project.indexOf('aria-label="Current project:')).toBeLessThan(project.indexOf('aria-label="Delete project"'));
-    expect(project.indexOf('aria-label="Delete project"')).toBeLessThan(agencyAt);
-    expect(project.indexOf('aria-label="Current project:')).toBeLessThan(agencyAt);
-    expect(agencyAt).toBeLessThan(storyAt);
+    expect(project.indexOf('aria-label="Delete project"')).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
     expect(project.indexOf('aria-label="Set consistency')).toBeGreaterThan(createAt);
     expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(project.indexOf('aria-label="Set consistency'));
@@ -129,7 +131,6 @@ describe("Shell header chrome", () => {
     expect(project).not.toContain("DIRECT asks the Director");
     expect(project).toContain(">PLAN JOURNEY<");
     expect(project).toContain("project-rail-header");
-    expect(project.indexOf(">Project<")).toBeLessThan(project.indexOf('aria-label="Agency"'));
     expect(project).toContain("text-[13px] font-semibold");
     expect(project).toContain('title="Hide project"');
   });
@@ -253,7 +254,7 @@ describe("Shell header chrome", () => {
   it("keeps Generate audio in Agent and hides Directed-only Options", () => {
     const html = renderShell({ agency: "autonomous" });
     const project = html.slice(html.indexOf('id="project-panel"'));
-    expect(project).toContain(">Agent<");
+    expect(project).not.toContain(">Directed<");
     expect(project).toContain(">Options<");
     expect(project).toContain("Generate audio");
     expect(project).toContain("Adaptive durations");
@@ -284,17 +285,18 @@ describe("Shell header chrome", () => {
     expect(html).toContain(">Stop<");
   });
 
-  it("centers Plan/Shoot in the workspace toolbar grid, not as a viewport heading", () => {
+  it("centers Director/Agent/Shoot in the workspace toolbar grid, not as a viewport heading", () => {
     const html = renderShell();
     expect(html).toContain("workspace-toolbar");
     expect(html).toContain("grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]");
-    expect(html).toContain(">Plan<");
+    expect(html).toContain(">Director<");
+    expect(html).toContain(">Agent<");
     expect(html).toContain(">Shoot<");
     const toolbar = html.slice(html.indexOf("workspace-toolbar"), html.indexOf("conversation-rail-header"));
     const logoAt = toolbar.indexOf(">TunnelVision<");
-    const planAt = toolbar.indexOf(">Plan<");
+    const directorAt = toolbar.indexOf(">Director<");
     expect(logoAt).toBeGreaterThan(-1);
-    expect(logoAt).toBeLessThan(planAt);
+    expect(logoAt).toBeLessThan(directorAt);
     expect(toolbar).not.toContain('aria-label="Current project:');
     expect(toolbar).toContain("text-sm font-semibold");
     expect(html).toContain("workspace-app-header");
@@ -304,7 +306,8 @@ describe("Shell header chrome", () => {
   it("keeps the toolbar on Shoot without the supervising caption", () => {
     const html = renderShell({ view: "shoot" });
     expect(html).toContain("workspace-toolbar");
-    expect(html).toContain('aria-label="Agency"');
+    expect(html).toContain('aria-label="Workspace"');
+    expect(html).not.toContain('aria-label="Agency"');
     expect(html).not.toContain("You are supervising");
     expect(html).not.toContain("Live production monitor");
     expect(html).toContain('aria-label="Download"');
@@ -315,13 +318,17 @@ describe("Shell header chrome", () => {
     expect(html).not.toContain("Exported the rendered journey clips");
   });
 
-  it("opens the storyboard reel on Plan and Shoot", () => {
+  it("opens the storyboard reel on Plan, Agent, and Shoot", () => {
     const plan = renderShell({ storyboardReelId: "A" });
     expect(plan).toContain('aria-label="Storyboard reel, destination A"');
+    const agent = renderShell({ view: "agent", storyboardReelId: "A" });
+    expect(agent).toContain("storyboard-reel");
+    expect(agent).toContain('aria-label="Storyboard reel, destination A"');
+    expect(agent).toContain(">Agent<");
     const shoot = renderShell({ view: "shoot", storyboardReelId: "A" });
     expect(shoot).toContain("storyboard-reel");
     expect(shoot).toContain('aria-label="Storyboard reel, destination A"');
-    expect(shoot).toContain(">Plan<");
+    expect(shoot).toContain(">Director<");
     expect(shoot).toContain(">Shoot<");
   });
 });
@@ -445,7 +452,7 @@ describe("Project rail", () => {
     const open = renderShell();
     const closed = renderShell({ projectRailOpen: false });
     expect(open).toContain("project-rail-header");
-    expect(open).toContain('aria-label="Project"');
+    expect(open).toContain('aria-label="Project - Directed"');
     expect(open).toContain('title="Hide project"');
     expect(open).toContain('aria-label="Resize project panel"');
     expect(open).toContain('id="project-story"');
@@ -453,6 +460,11 @@ describe("Project rail", () => {
     expect(closed).toContain('title="Show project"');
     expect(closed).not.toContain('aria-label="Resize project panel"');
     expect(closed).toContain("border-l border-[#2a2620]");
+  });
+
+  it("names the Project panel after the current mode", () => {
+    expect(renderShell()).toContain(">Project - Directed<");
+    expect(renderShell({ view: "agent", agency: "autonomous" })).toContain(">Project - Agent<");
   });
 
   it("caps the Open menu at 10 recent projects and offers Browse", () => {

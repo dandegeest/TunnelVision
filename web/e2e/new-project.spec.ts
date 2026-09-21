@@ -338,7 +338,8 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Generate destination A")).toHaveCount(0);
   await expect(page.getByLabel("Plan journey")).toBeDisabled();
   await expect(page.getByLabel("Project settings")).toBeVisible();
-  await expect(page.getByLabel("Agency")).toBeVisible();
+  await expect(page.getByLabel("Workspace")).toBeVisible();
+  await expect(page.getByLabel("Workspace").getByRole("button", { name: "Director" })).toBeVisible();
   await expect(page.getByLabel("Add Destination")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Shoot", exact: true })).toBeDisabled();
   await expect(page.getByLabel("Auto blocking")).toHaveCount(0);
@@ -349,13 +350,13 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await expect(page.getByLabel("Image model")).toHaveCount(0);
   await expect(page.getByLabel("Video model")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Agent" }).click();
+  await page.getByLabel("Workspace").getByRole("button", { name: "Agent" }).click();
   await expect(page.getByLabel("Generate all destinations")).toHaveCount(0);
   await expect(page.getByLabel("Generate all segments")).toHaveCount(0);
   await expect(page.getByLabel("Generate audio")).toBeVisible();
   await expect(page.getByLabel("Adaptive durations")).toBeVisible();
   await expect(page.getByLabel("Create journey")).toBeVisible();
-  await page.getByRole("button", { name: "Directed" }).click();
+  await page.getByLabel("Workspace").getByRole("button", { name: "Director" }).click();
   await expect(page.getByLabel("Generate all destinations")).toBeVisible();
   await expect(page.getByLabel("Generate all segments")).toBeVisible();
   await expect(page.getByLabel("Generate audio")).toBeVisible();

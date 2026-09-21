@@ -25,6 +25,7 @@ import { projectScoreFromProject } from "../project/cinematographer";
 import { displayProjectPath } from "../project/persistence/paths";
 import { recentListedProjects } from "../project/recent-projects";
 import type { ListedProject } from "../project/project-persistence-client";
+import { suggestedProjectName } from "../project/project-name";
 import { journeyProgressFromProject } from "./conversation-console";
 import { JourneyProgressRail, ProjectScoreReadout, progressSelectionId } from "./JourneyProgressRail";
 import type { Agency, Project } from "../project/types";
@@ -351,10 +352,7 @@ function ProjectChooser() {
   const menuRef = useRef<HTMLDivElement>(null);
   useDismissableMenu(menuOpen, () => setMenuOpen(false), menuRef);
 
-  const suggested =
-    project.title.trim() && project.title !== "UNTITLED"
-      ? project.title.trim()
-      : project.story.trim().split("\n")[0]?.trim().slice(0, 60) || "Untitled";
+  const suggested = suggestedProjectName(project);
 
   return (
     <div className="relative min-w-0 w-full">
@@ -649,36 +647,6 @@ function ProjectNameDialog({
   );
 }
 
-function AgencySelect({ disabled = false }: { disabled?: boolean }) {
-  const { project, setAgency } = useProject();
-  const optionClass = (selected: boolean) =>
-    `h-full flex-1 rounded px-2 text-[11px] tracking-[0.16em] uppercase outline-none ${
-      selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
-    }`;
-  return (
-    <nav aria-label="Agency" className="flex h-7 w-full items-center rounded border border-[#3a342c] p-0.5">
-      <button
-        type="button"
-        aria-pressed={project.agency === "directed"}
-        disabled={disabled}
-        className={optionClass(project.agency === "directed")}
-        onClick={() => setAgency("directed")}
-      >
-        Directed
-      </button>
-      <button
-        type="button"
-        aria-pressed={project.agency === "autonomous"}
-        disabled={disabled}
-        className={optionClass(project.agency === "autonomous")}
-        onClick={() => setAgency("autonomous")}
-      >
-        Agent
-      </button>
-    </nav>
-  );
-}
-
 function DebugModeToggle() {
   const { debugOn, setDebugOn } = useProject();
   return (
@@ -967,6 +935,18 @@ export function planActionLabel(state: {
   return state.agency === "autonomous" ? "CREATE JOURNEY" : "PLAN JOURNEY";
 }
 
+export function projectRailHeading(
+  agency: Agency,
+  settingsOpen = false,
+  view?: "plan" | "shoot" | "agent",
+): string {
+  if (settingsOpen) {
+    return "Project settings";
+  }
+  const agent = view === "agent" || (view !== "plan" && agency === "autonomous");
+  return agent ? "Project - Agent" : "Project - Directed";
+}
+
 export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOpen?: boolean } = {}) {
   const {
     composerDraft,
@@ -987,6 +967,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     assessingJourneyIds,
     shootingJourneyIds,
     project,
+    view,
     selection,
     openStoryboardInPlan,
     planWithDirector,
@@ -1001,7 +982,8 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     Boolean(constructingBeatId) ||
     assessingJourneyIds.length > 0 ||
     shootingJourneyIds.length > 0;
-  const canPlan = canPlanMovie(project) && !busy;
+  const journeyStory = project.story.trim() || composerDraft.trim();
+  const canPlan = canPlanMovie({ ...project, story: journeyStory }) && !busy;
   const progress = journeyProgressFromProject(project, {
     constructingBeatId,
     assessingJourneyIds,
@@ -1019,10 +1001,10 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     agentLabel: formatJourneyAgentButtonLabel(journeyAgent),
     agency: project.agency,
   });
-  const planTitle = canPlanMovie(project)
+  const planTitle = canPlanMovie({ ...project, story: journeyStory })
     ? project.agency === "autonomous"
       ? "Run JourneyAgent: resolve the journey, construct unresolved destinations, shoot missing takes, and assemble the movie."
-      : !project.story.trim()
+      : !journeyStory
         ? "Write a journey story from starting frame A, then ask the Director to plan."
         : project.autoGenerateAllDestinations
           ? "Ask the Director to plan, then generate each remaining destination in order."
@@ -1034,16 +1016,17 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     journeyAgent.phase === "FAILED" && journeyAgent.failureReason && journeyAgent.failureReason !== planStartError
       ? journeyAgent.failureReason
       : null;
+  const railHeading = projectRailHeading(project.agency, settingsOpen, view);
 
   return (
     <aside
       id="project-panel"
       className="project-rail flex h-full min-h-0 min-w-0 flex-col bg-[#12100d]"
-      aria-label={settingsOpen ? "Project settings" : "Project"}
+      aria-label={railHeading}
     >
       <PanelHeader
         className="project-rail-header"
-        title={settingsOpen ? "Project settings" : "Project"}
+        title={railHeading}
       >
         <ProjectRailToggle />
       </PanelHeader>
@@ -1074,7 +1057,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 {agentFailure}
               </p>
             ) : null}
-            <AgencySelect disabled={busy} />
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <label

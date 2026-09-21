@@ -60,7 +60,7 @@ import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from ".
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
-import { canPlanMovie, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { canPlanMovie, projectHasExistingJourney, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import { projectWithDurationMode, projectWithFixedDurationSeconds } from "./shot-duration";
 import {
   effectiveJourneyPace,
@@ -86,9 +86,11 @@ import {
 } from "./destination";
 import {
   appendConversationEntry,
+  appendFilmmakerStory,
   agentConversationEntryFromEvent,
   conversationTimestamp,
   prepareDirectorPlan,
+  restoreConversationFromProject,
   resolveAgentEvaluationEntry,
   resolveBlockingEntry,
   resolveConstructionEntry,
@@ -111,6 +113,7 @@ import {
   type ListedProject,
 } from "./project-persistence-client";
 import { sanitizeProjectFolderName } from "./persistence/paths";
+import { isUntitledProjectTitle, suggestedProjectName, titleFromJourneyPrompt } from "./project-name";
 import {
   idleJourneyAgentSnapshot,
   journeyAgentIsBusy,
@@ -120,17 +123,6 @@ import {
 import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type LocomotionPace, type Project, type Selection, type VideoModelId } from "./types";
 import { cameraGrammarFromProject, cameraGrammarIsLocked, projectWithCameraGrammar } from "./camera-grammar";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
-
-function suggestedProjectName(project: Project): string {
-  if (project.title.trim() && project.title.trim() !== "UNTITLED") {
-    return project.title.trim();
-  }
-  const line = project.story.trim().split("\n")[0]?.trim() ?? "";
-  if (line) {
-    return sanitizeProjectFolderName(line);
-  }
-  return "Untitled";
-}
 
 function withId(ids: string[], id: string): string[] {
   return ids.includes(id) ? ids : [...ids, id];
@@ -175,6 +167,8 @@ type ProjectContextValue = {
   syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
+  agentComposerDraft: string;
+  setAgentComposerDraft: (draft: string) => void;
   setStoryDurationInput: (raw: string) => void;
   nudgeStoryDuration: (delta: 1 | -1) => void;
   setAutoGenerateAllDestinations: (enabled: boolean) => void;
@@ -193,6 +187,7 @@ type ProjectContextValue = {
   planStartError: string | null;
   journeyAgent: JourneyAgentSnapshot;
   planWithDirector: () => Promise<void>;
+  planAgentJourney: (story: string) => Promise<void>;
   stopJourneyAgent: () => void;
   assessingJourneyIds: readonly string[];
   cinematographerError: string | null;
@@ -260,6 +255,7 @@ export function ProjectProvider({
   initialProject,
   initialConversation,
   initialComposerDraft,
+  initialAgentComposerDraft = "",
   initialView = "plan",
   initialSelection,
   initialDebug = true, // temporary: retain Camotion work dirs by default
@@ -276,11 +272,13 @@ export function ProjectProvider({
   initialPlaying = false,
   initialPersistedProjectPath = null,
   initialProjectsFolder = null,
+  initialMovieExport = null,
 }: {
   children: ReactNode;
   initialProject?: Project;
   initialConversation?: ConversationEntry[];
   initialComposerDraft?: string;
+  initialAgentComposerDraft?: string;
   initialView?: WorkspaceView;
   initialSelection?: Selection;
   initialDebug?: boolean;
@@ -297,6 +295,7 @@ export function ProjectProvider({
   initialPlaying?: boolean;
   initialPersistedProjectPath?: string | null;
   initialProjectsFolder?: string | null;
+  initialMovieExport?: MovieExportResult | null;
 }) {
   const [project, setProject] = useState(() => initialProject ?? createNewProject());
   const projectRef = useRef(project);
@@ -335,7 +334,7 @@ export function ProjectProvider({
   const [constructingBeatId, setConstructingBeatId] = useState<string | null>(
     () => initialConstructingBeatId,
   );
-  const [movieExport, setMovieExport] = useState<MovieExportResult | null>(null);
+  const [movieExport, setMovieExport] = useState<MovieExportResult | null>(initialMovieExport);
   const [exportingMovie, setExportingMovie] = useState(false);
   const [exportMovieError, setExportMovieError] = useState<string | null>(null);
   const [projectsFolder, setProjectsFolder] = useState<string | null>(initialProjectsFolder);
@@ -358,9 +357,14 @@ export function ProjectProvider({
   const [composerDraft, setComposerDraftState] = useState(
     () => initialComposerDraft ?? initialProject?.story ?? "",
   );
+  const composerDraftRef = useRef(composerDraft);
+  composerDraftRef.current = composerDraft;
+  const [agentComposerDraft, setAgentComposerDraft] = useState(initialAgentComposerDraft);
   const [conversation, setConversation] = useState<ConversationEntry[]>(
     () => initialConversation ?? [],
   );
+  const conversationRef = useRef(conversation);
+  conversationRef.current = conversation;
   const conversationId = useRef(0);
   const agentConversationCursor = useRef(0);
 
@@ -392,6 +396,11 @@ export function ProjectProvider({
     setPlaying(false);
     setCutPlaybackJourneyId(null);
     setCutStartOffset(0);
+    if (next === "agent") {
+      setProject((current) => (current.agency === "autonomous" ? current : { ...current, agency: "autonomous" }));
+    } else if (next === "plan") {
+      setProject((current) => (current.agency === "directed" ? current : { ...current, agency: "directed" }));
+    }
   }, [project]);
 
   const setZoom = useCallback((next: number) => {
@@ -400,7 +409,12 @@ export function ProjectProvider({
 
   const setAgency = useCallback((agency: Agency) => {
     setProject((current) => ({ ...current, agency }));
-  }, []);
+    if (agency === "autonomous") {
+      setView("agent");
+      return;
+    }
+    setViewState((current) => (current === "agent" ? "plan" : current));
+  }, [setView]);
 
   const setVideoModel = useCallback((videoModel: VideoModelId) => {
     setProject((current) => projectWithVideoModel(current, videoModel));
@@ -435,8 +449,15 @@ export function ProjectProvider({
   }, []);
 
   const setComposerDraft = useCallback((draft: string) => {
+    composerDraftRef.current = draft;
     setComposerDraftState(draft);
-    setProject((current) => (current.story === draft ? current : { ...current, story: draft }));
+    const current = projectRef.current;
+    if (current.story === draft) {
+      return;
+    }
+    const next = { ...current, story: draft };
+    projectRef.current = next;
+    setProject(next);
   }, []);
 
   const setStoryDurationInput = useCallback((raw: string) => {
@@ -483,7 +504,11 @@ export function ProjectProvider({
   const adoptSavedProject = useCallback((persisted: Project): Project => {
     const current = projectRef.current;
     const incoming = current.id === persisted.id ? current : { ...current, id: persisted.id };
-    const merged = projectWithLatestJourneyTakes(persisted, incoming);
+    const mergedTakes = projectWithLatestJourneyTakes(persisted, incoming);
+    const merged = {
+      ...mergedTakes,
+      story: mergedTakes.story.trim() ? mergedTakes.story : incoming.story,
+    };
     projectRef.current = merged;
     setProject(merged);
     return merged;
@@ -1637,9 +1662,22 @@ export function ProjectProvider({
   }, []);
 
   const planWithDirector = useCallback(async () => {
-    if (!canPlanMovie(project)) {
+    const story = projectRef.current.story.trim()
+      ? projectRef.current.story
+      : composerDraftRef.current;
+    const planning =
+      story.trim() && projectRef.current.story !== story
+        ? { ...projectRef.current, story }
+        : projectRef.current;
+    if (planning !== projectRef.current) {
+      projectRef.current = planning;
+      setProject(planning);
+      composerDraftRef.current = planning.story;
+      setComposerDraftState(planning.story);
+    }
+    if (!canPlanMovie(planning)) {
       setPlanStartError(
-        project.story.trim()
+        planning.story.trim()
           ? "Add starting frame A before planning."
           : "Enter a journey story or add starting frame A.",
       );
@@ -1649,13 +1687,19 @@ export function ProjectProvider({
       return;
     }
     setPlanStartError(null);
-    if (project.agency === "autonomous") {
+    const submitted = planning.story.trim();
+    if (submitted) {
+      setConversation((entries) =>
+        appendFilmmakerStory(entries, submitted, nextConversationId("filmmaker"), conversationTimestamp()),
+      );
+    }
+    if (planning.agency === "autonomous") {
       setJourneyAgent(idleJourneyAgentSnapshot());
       await runAutonomousJourney();
       return;
     }
     setDirectorStatus("planning");
-    let current = project;
+    let current = planning;
     try {
       if (canGenerateOpeningFrame(current)) {
         current = await generateOpeningOn(current);
@@ -1704,8 +1748,8 @@ export function ProjectProvider({
     constructRemainingDestinationsOn,
     generateOpeningOn,
     journeyAgent,
+    nextConversationId,
     planDirectorOn,
-    project,
     runAutonomousJourney,
     shootJourneyOn,
     writeStoryFromOpeningOn,
@@ -1771,14 +1815,30 @@ export function ProjectProvider({
       setPersistenceError(null);
       const session = projectSessionRef.current;
       const current = projectRef.current;
-      const title = sanitizeProjectFolderName((name ?? suggestedProjectName(current)).trim() || "Untitled");
+      const story = current.story.trim() ? current.story : composerDraftRef.current;
+      const titled = { ...current, story };
+      const title = sanitizeProjectFolderName((name ?? suggestedProjectName(titled)).trim() || "Untitled");
+      const toPersist = { ...titled, title };
+      const conversationToPersist = restoreConversationFromProject(
+        conversationRef.current,
+        toPersist.story,
+        movieExport,
+      );
+      if (toPersist.story !== current.story || toPersist.title !== current.title) {
+        projectRef.current = toPersist;
+        setProject(toPersist);
+        if (toPersist.story !== composerDraftRef.current) {
+          composerDraftRef.current = toPersist.story;
+          setComposerDraftState(toPersist.story);
+        }
+      }
       try {
         if (!persistedProjectPathRef.current) {
           await ensureProjectsFolder();
           const created = await createPersistedProject({
             name: title,
-            project: { ...current, title },
-            conversation,
+            project: toPersist,
+            conversation: conversationToPersist,
           });
           if (projectSessionRef.current !== session) {
             return;
@@ -1792,8 +1852,8 @@ export function ProjectProvider({
         } else {
           const saved = await savePersistedProject({
             path: persistedProjectPathRef.current,
-            project: { ...current, title },
-            conversation,
+            project: toPersist,
+            conversation: conversationToPersist,
             movieExport,
             createdAt: persistedCreatedAtRef.current,
           });
@@ -1801,7 +1861,7 @@ export function ProjectProvider({
             return;
           }
           persistedCreatedAtRef.current = saved.createdAt;
-          if (saved.project.id !== current.id || saved.project.title !== current.title) {
+          if (saved.project.id !== toPersist.id || saved.project.title !== toPersist.title) {
             adoptSavedProject({ ...projectRef.current, id: saved.project.id, title: saved.project.title });
           }
           if (saved.missingAssets.length > 0) {
@@ -1826,7 +1886,14 @@ export function ProjectProvider({
         setPersistedProjectPath(opened.path);
         replaceProject(opened.project);
         setComposerDraftState(opened.project.story);
-        setConversation(opened.conversation);
+        setAgentComposerDraft("");
+        setConversation(
+          restoreConversationFromProject(
+            opened.conversation,
+            opened.project.story,
+            opened.movieExport,
+          ),
+        );
         setMovieExport(opened.movieExport ?? null);
         setViewState("plan");
         setSelection({ kind: "storyboard", frameId: opened.project.storyboard[0]?.id ?? "A" });
@@ -1886,6 +1953,7 @@ export function ProjectProvider({
     setPersistedProjectPath(null);
     replaceProject(createNewProject());
     setComposerDraftState("");
+    setAgentComposerDraft("");
     setConversation([]);
     setMovieExport(null);
     setViewState("plan");
@@ -1902,6 +1970,7 @@ export function ProjectProvider({
       replaceProject(next);
       const session = projectSessionRef.current;
       setComposerDraftState("");
+      setAgentComposerDraft("");
       setConversation([]);
       setMovieExport(null);
       setViewState("plan");
@@ -1967,7 +2036,11 @@ export function ProjectProvider({
           path: persistedProjectPathRef.current,
           name: title,
           project: { ...current, title },
-          conversation,
+          conversation: restoreConversationFromProject(
+            conversationRef.current,
+            current.story,
+            movieExport,
+          ),
           movieExport,
           createdAt: persistedCreatedAtRef.current,
         });
@@ -2003,6 +2076,81 @@ export function ProjectProvider({
     [adoptSavedProject, conversation, movieExport, refreshProjectList, setProjectTitle],
   );
 
+  const beginAgentJourney = useCallback(
+    async (story: string) => {
+      const text = story.trim();
+      if (!text) {
+        return;
+      }
+      const title = sanitizeProjectFolderName(titleFromJourneyPrompt(text) || "Untitled");
+      const next = {
+        ...createNewProject(),
+        title,
+        story: text,
+        agency: "autonomous" as const,
+      };
+      persistedCreatedAtRef.current = undefined;
+      setPersistedProjectPath(null);
+      replaceProject(next);
+      const session = projectSessionRef.current;
+      composerDraftRef.current = text;
+      setComposerDraftState(text);
+      setAgentComposerDraft("");
+      setConversation([]);
+      setMovieExport(null);
+      setViewState("agent");
+      setSelection({ kind: "storyboard", frameId: "A" });
+      setPersistenceError(null);
+      try {
+        await ensureProjectsFolder();
+        const created = await createPersistedProject({
+          name: title,
+          project: next,
+          conversation: [],
+        });
+        if (projectSessionRef.current !== session) {
+          return;
+        }
+        persistedCreatedAtRef.current = created.createdAt;
+        setPersistedProjectPath(created.path);
+        adoptSavedProject({ ...created.project, title: created.project.title, story: text });
+        await refreshProjectList();
+      } catch (error) {
+        setPersistenceError(error instanceof Error ? error.message : "Could not create the project.");
+      }
+    },
+    [adoptSavedProject, ensureProjectsFolder, refreshProjectList, replaceProject],
+  );
+
+  const planAgentJourney = useCallback(
+    async (story: string) => {
+      const text = story.trim();
+      if (!text) {
+        return;
+      }
+      if (projectHasExistingJourney(projectRef.current)) {
+        await beginAgentJourney(text);
+      } else {
+        setComposerDraft(text);
+        const name = titleFromJourneyPrompt(text);
+        try {
+          if (!persistedProjectPathRef.current) {
+            await saveProject(name);
+          } else if (isUntitledProjectTitle(projectRef.current.title)) {
+            await renameProject(name);
+          }
+        } catch {
+          // persistenceError is already recorded on the project.
+        }
+      }
+      if (!projectRef.current.story.trim()) {
+        return;
+      }
+      await planWithDirector();
+    },
+    [beginAgentJourney, planWithDirector, renameProject, saveProject, setComposerDraft],
+  );
+
   useEffect(() => {
     void fetchAppSettings()
       .then((settings) => {
@@ -2025,7 +2173,11 @@ export function ProjectProvider({
       void savePersistedProject({
         path: persistedProjectPath,
         project: projectRef.current,
-        conversation,
+        conversation: restoreConversationFromProject(
+          conversationRef.current,
+          projectRef.current.story,
+          movieExport,
+        ),
         movieExport,
         createdAt: persistedCreatedAtRef.current,
       }).catch((error) => {
@@ -2080,6 +2232,8 @@ export function ProjectProvider({
       syncJourneyClipDuration,
       composerDraft,
       setComposerDraft,
+      agentComposerDraft,
+      setAgentComposerDraft,
       setStoryDurationInput,
       nudgeStoryDuration,
       setAutoGenerateAllDestinations,
@@ -2098,6 +2252,7 @@ export function ProjectProvider({
       planStartError,
       journeyAgent,
       planWithDirector,
+      planAgentJourney,
       stopJourneyAgent,
       assessingJourneyIds,
       cinematographerError,
@@ -2179,6 +2334,8 @@ export function ProjectProvider({
       setImageResolution,
       syncJourneyClipDuration,
       composerDraft,
+      agentComposerDraft,
+      setAgentComposerDraft,
       setStoryDurationInput,
       nudgeStoryDuration,
       setAutoGenerateAllDestinations,
@@ -2197,6 +2354,7 @@ export function ProjectProvider({
       planStartError,
       journeyAgent,
       planWithDirector,
+      planAgentJourney,
       stopJourneyAgent,
       assessingJourneyIds,
       cinematographerError,

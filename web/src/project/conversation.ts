@@ -129,6 +129,85 @@ export function appendConversationEntry(
   return [...entries, entry];
 }
 
+const RESTORED_CONVERSATION_AT = "1970-01-01T00:00:00.000Z";
+
+export type RestoredMovieExport = {
+  videoUrl: string;
+  filename: string;
+  complete: boolean;
+};
+
+/** Rebuild a durable Agent journey transcript when events.jsonl is missing or incomplete. */
+export function restoreConversationFromProject(
+  conversation: readonly ConversationEntry[],
+  story: string,
+  movieExport?: RestoredMovieExport | null,
+): ConversationEntry[] {
+  const prompt = story.trim();
+  const exportUrl = movieExport?.videoUrl.trim() ?? "";
+  let entries = conversation.map((entry) => {
+    if (entry.kind === "assembly" && entry.status === "complete" && exportUrl && movieExport) {
+      return {
+        ...entry,
+        videoUrl: exportUrl,
+        filename: entry.filename || movieExport.filename,
+        complete: movieExport.complete,
+      };
+    }
+    return entry;
+  });
+  const hasFilmmaker = entries.some((entry) => entry.kind === "filmmaker" && entry.text.trim());
+  const hasAssembly = entries.some((entry) => entry.kind === "assembly" && entry.status === "complete");
+  if (!hasFilmmaker && prompt) {
+    entries = [
+      {
+        id: "restored-filmmaker",
+        createdAt: RESTORED_CONVERSATION_AT,
+        kind: "filmmaker",
+        text: prompt,
+      },
+      ...entries,
+    ];
+  }
+  if (!hasAssembly && exportUrl && movieExport) {
+    entries = [
+      ...entries,
+      {
+        id: "restored-assembly",
+        createdAt: RESTORED_CONVERSATION_AT,
+        kind: "assembly",
+        status: "complete",
+        videoUrl: exportUrl,
+        filename: movieExport.filename,
+        complete: movieExport.complete,
+      },
+    ];
+  }
+  return entries;
+}
+
+export function appendFilmmakerStory(
+  entries: ConversationEntry[],
+  story: string,
+  id: string,
+  createdAt: string,
+): ConversationEntry[] {
+  const text = story.trim();
+  if (!text) {
+    return entries;
+  }
+  const last = [...entries].reverse().find((entry) => entry.kind === "filmmaker");
+  if (last?.kind === "filmmaker" && last.text.trim() === text) {
+    return entries;
+  }
+  return appendConversationEntry(entries, {
+    id,
+    createdAt,
+    kind: "filmmaker",
+    text,
+  });
+}
+
 export function resolveDirectorEntry(
   entries: ConversationEntry[],
   id: string,

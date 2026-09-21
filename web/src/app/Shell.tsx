@@ -5,6 +5,7 @@ import { FilmmakingFrame } from "./FilmmakingFrame";
 import { PlanView } from "./PlanView";
 import { ProductionBar } from "./ProductionBar";
 import { TimelineView } from "./TimelineView";
+import { AgentWorkspace } from "./agent/AgentWorkspace";
 
 function Wordmark() {
   return (
@@ -17,24 +18,31 @@ function Wordmark() {
 function ViewSwitch() {
   const { view, setView, project } = useProject();
   const canOpenShoot = hasAuthoritativeStartingFrame(project);
+  const tab = (id: "plan" | "agent" | "shoot", label: string, disabled = false, title?: string) => (
+    <button
+      type="button"
+      className={`rounded-full px-4 py-1 ${view === id ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"} disabled:cursor-not-allowed disabled:opacity-50`}
+      disabled={disabled}
+      title={title}
+      aria-pressed={view === id}
+      onClick={() => setView(id)}
+    >
+      {label}
+    </button>
+  );
   return (
-    <nav className="relative z-10 flex shrink-0 items-center gap-1 rounded-full border border-[#3a342c] p-1 text-sm">
-      <button
-        type="button"
-        className={`rounded-full px-4 py-1 ${view === "plan" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"}`}
-        onClick={() => setView("plan")}
-      >
-        Plan
-      </button>
-      <button
-        type="button"
-        className={`rounded-full px-4 py-1 ${view === "shoot" ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#cfc6b8]"} disabled:cursor-not-allowed disabled:opacity-50`}
-        disabled={!canOpenShoot}
-        title={canOpenShoot ? "Shoot the current production legs." : "Add starting frame A before shooting."}
-        onClick={() => setView("shoot")}
-      >
-        Shoot
-      </button>
+    <nav
+      aria-label="Workspace"
+      className="relative z-10 flex shrink-0 items-center gap-1 rounded-full border border-[#3a342c] p-1 text-sm"
+    >
+      {tab("plan", "Director")}
+      {tab("agent", "Agent")}
+      {tab(
+        "shoot",
+        "Shoot",
+        !canOpenShoot,
+        canOpenShoot ? "Shoot the current production legs." : "Add starting frame A before shooting.",
+      )}
     </nav>
   );
 }
@@ -65,13 +73,16 @@ export function Shell() {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#0c0b0a] text-[#ece7df]">
       <FilmmakingFrame
+        hideConversationRail={view === "agent"}
         workspaceHeader={
           <HeaderFrame>
             <WorkspaceToolbar />
           </HeaderFrame>
         }
       >
-        {view === "plan" ? (
+        {view === "agent" ? (
+          <AgentWorkspace />
+        ) : view === "plan" ? (
           <PlanView />
         ) : (
           <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">

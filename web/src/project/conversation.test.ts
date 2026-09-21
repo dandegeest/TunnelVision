@@ -4,9 +4,11 @@ import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { createNewProject } from "./new-project";
 import {
   appendConversationEntry,
+  appendFilmmakerStory,
   conversationTimestamp,
   formatConversationClock,
   prepareDirectorPlan,
+  restoreConversationFromProject,
   resolveConstructionEntry,
   resolveDirectorEntry,
   resolveBlockingEntry,
@@ -232,6 +234,16 @@ describe("Plan conversation history", () => {
     expect((entries[3] as DirectorConversationEntry).evidence?.request.story).toBe("Revised story.");
   });
 
+  it("records a filmmaker story once per submitted prompt", () => {
+    const first = appendFilmmakerStory([], "  First story.  ", "f1", AT);
+    expect(first).toEqual([{ id: "f1", createdAt: AT, kind: "filmmaker", text: "First story." }]);
+    expect(appendFilmmakerStory(first, "First story.", "f2", AT2)).toEqual(first);
+    const second = appendFilmmakerStory(first, "Revised story.", "f2", AT2);
+    expect(second).toHaveLength(2);
+    expect(second[1]).toMatchObject({ id: "f2", kind: "filmmaker", text: "Revised story." });
+    expect(appendFilmmakerStory([], "   \n", "f0", AT)).toEqual([]);
+  });
+
   it("keeps Director evidence including existing-destination anchors when resolving in place", () => {
     const anchored = evidence("Keep traveling through this night forest.", "pred-anchors");
     anchored.request.anchors = [
@@ -415,6 +427,59 @@ describe("Plan conversation history", () => {
       journeyId: "A-B",
       setConsistency: 90,
       traversalConfidence: 80,
+    });
+  });
+});
+
+describe("restore conversation from a saved project", () => {
+  it("rebuilds the filmmaker prompt and assembly when events.jsonl is empty", () => {
+    const restored = restoreConversationFromProject([], "Gardens of the Current\n\nDive with turtles.", {
+      videoUrl: "/api/runtime-media/export-gardens",
+      filename: "GardensoftheCurrent.mp4",
+      complete: true,
+    });
+    expect(restored).toEqual([
+      {
+        id: "restored-filmmaker",
+        createdAt: "1970-01-01T00:00:00.000Z",
+        kind: "filmmaker",
+        text: "Gardens of the Current\n\nDive with turtles.",
+      },
+      {
+        id: "restored-assembly",
+        createdAt: "1970-01-01T00:00:00.000Z",
+        kind: "assembly",
+        status: "complete",
+        videoUrl: "/api/runtime-media/export-gardens",
+        filename: "GardensoftheCurrent.mp4",
+        complete: true,
+      },
+    ]);
+  });
+
+  it("keeps an existing transcript and remaps the assembled movie URL", () => {
+    const restored = restoreConversationFromProject(
+      [
+        { id: "f1", createdAt: AT, kind: "filmmaker", text: "Dive with turtles." },
+        {
+          id: "a1",
+          createdAt: AT,
+          kind: "assembly",
+          status: "complete",
+          videoUrl: "blob:old",
+          filename: "old.mp4",
+          complete: true,
+        },
+      ],
+      "Dive with turtles.",
+      { videoUrl: "/api/runtime-media/export-gardens", filename: "GardensoftheCurrent.mp4", complete: true },
+    );
+    expect(restored[0]?.kind).toBe("filmmaker");
+    expect(restored).toHaveLength(2);
+    expect(restored[1]).toMatchObject({
+      id: "a1",
+      videoUrl: "/api/runtime-media/export-gardens",
+      filename: "old.mp4",
     });
   });
 });

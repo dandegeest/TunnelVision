@@ -143,7 +143,8 @@ describe("Plan project story", () => {
     expect(html).not.toContain("Construction: planned. Discovery is not implemented.");
     expect(html).not.toContain("Turn on Debug mode in Project settings");
     expect(html).toContain('aria-label="Project settings"');
-    expect(html).toContain('aria-label="Agency"');
+    expect(html).not.toContain('aria-label="Agency"');
+    expect(html).not.toContain(">Directed<");
     expect(html).not.toContain('aria-label="Send"');
     expect(html).not.toContain("Send is not a filmmaking command yet");
     expect(html).toContain("Add Destination");
@@ -1786,8 +1787,8 @@ describe("new-project Plan", () => {
     const storyAt = html.indexOf('id="project-story"');
     const createAt = html.indexOf('aria-label="Plan journey"');
     const settingsAt = html.indexOf('aria-label="Project settings"');
-    const agencyAt = html.indexOf('aria-label="Agency"');
-    expect(agencyAt).toBeLessThan(storyAt);
+    expect(html).not.toContain('aria-label="Agency"');
+    expect(html.indexOf('aria-label="Delete project"')).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
     expect(settingsAt).toBeGreaterThan(createAt);
     expect(html).toContain(">Journey prompt<");
