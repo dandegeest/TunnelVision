@@ -399,9 +399,10 @@ creating a new folder. Projects Folder is chosen in Project settings. The
 Director conversation rail is history-only and can be hidden to the
 left; the Project panel holds the project selector, Directed | Agent, Journey prompt, destination count,
 Directed Options, and CREATE JOURNEY
-and can hide to the right. Score sits above the A–B–C progress rail under
-PLAN JOURNEY / CREATE JOURNEY; letters open that destination in Plan, and
-the score ticks as assessed segments complete. In Agent, CREATE JOURNEY runs JourneyAgent
+and can hide to the right. Right-justified Set and Travel sit above the A–B–C
+progress rail under PLAN JOURNEY / CREATE JOURNEY, using the same compact
+pills as MOTION; letters open that destination in Plan, and the scores tick
+as assessed segments complete. In Agent, CREATE JOURNEY runs JourneyAgent
 on the same Project instead of Directed Options. Stop appears under
 CREATE JOURNEY while JourneyAgent is in flight. LOOP is backlog
 ([BACKLOG.md — Agent LOOP option](BACKLOG.md#agent-loop-option));

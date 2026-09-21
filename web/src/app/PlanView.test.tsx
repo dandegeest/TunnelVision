@@ -574,18 +574,19 @@ describe("Plan conversation thread", () => {
     expect(project.slice(project.indexOf('aria-label="Journey progress"'), project.indexOf('aria-label="Journey progress"') + 200)).not.toContain("overflow-x-auto");
   });
 
-  it("shows a project Score above the A–B progress rail, pending until segments are assessed", () => {
+  it("shows project SC and TC scores above the A–B progress rail, pending until segments are assessed", () => {
     const pending = renderPlan(createWardrobeProject(), { composerDraft: "" });
-    expect(pending).toContain('aria-label="Project score pending"');
+    expect(pending).toContain('aria-label="Set consistency pending"');
+    expect(pending).toContain('aria-label="Traversal confidence pending"');
     expect(pending).toContain("—");
     const pendingProject = pending.slice(pending.indexOf('id="project-panel"'));
     expect(pendingProject.indexOf('aria-label="Plan journey"')).toBeLessThan(
-      pendingProject.indexOf('aria-label="Project score pending"'),
+      pendingProject.indexOf('aria-label="Set consistency pending"'),
     );
-    expect(pendingProject.indexOf('aria-label="Project score pending"')).toBeLessThan(
+    expect(pendingProject.indexOf('aria-label="Set consistency pending"')).toBeLessThan(
       pendingProject.indexOf('aria-label="Journey progress"'),
     );
-    expect(pendingProject.indexOf('aria-label="Project score pending"')).toBeGreaterThan(
+    expect(pendingProject.indexOf('aria-label="Set consistency pending"')).toBeGreaterThan(
       pendingProject.indexOf('aria-label="Camera"'),
     );
     const assessed = projectWithCinematographerAssessment(createForestProject(), "A-B", {
@@ -604,13 +605,18 @@ describe("Plan conversation thread", () => {
     });
     const html = renderPlan(assessed, { composerDraft: "" });
     const project = html.slice(html.indexOf('id="project-panel"'));
-    expect(project).toContain('aria-label="Project score 81"');
-    expect(project).toContain(">Score<");
-    expect(project).toContain(">81<");
+    expect(project).toContain('aria-label="Set consistency 87"');
+    expect(project).toContain('aria-label="Traversal confidence 74"');
+    expect(project).toContain(">Set<");
+    expect(project).toContain(">Travel<");
+    expect(project).toContain(">87<");
+    expect(project).toContain(">74<");
+    expect(project).not.toContain('aria-label="Project score 81"');
     expect(project).toContain("aria-live");
     expect(project).toContain("project-score-value");
-    expect(project.indexOf('aria-label="Plan journey"')).toBeLessThan(project.indexOf('aria-label="Project score 81"'));
-    expect(project.indexOf('aria-label="Project score 81"')).toBeLessThan(project.indexOf('aria-label="Journey progress"'));
+    expect(project.indexOf('aria-label="Plan journey"')).toBeLessThan(project.indexOf('aria-label="Set consistency 87"'));
+    expect(project.indexOf('aria-label="Set consistency 87"')).toBeLessThan(project.indexOf('aria-label="Journey progress"'));
+    expect(project.indexOf('aria-label="Traversal confidence 74"')).toBeLessThan(project.indexOf('aria-label="Journey progress"'));
   });
 
   it("makes progress letters buttons that select the matching Plan destination", () => {

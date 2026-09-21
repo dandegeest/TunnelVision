@@ -192,28 +192,68 @@ export function JourneyProgressRail({
   );
 }
 
-export function ProjectScoreReadout({ score }: { score: ProjectScore }) {
-  const pending = score.score == null;
-  const { shown, ticking } = useTickingScore(score.score, score.segments);
-  const title = pending
-    ? "No assessed segments yet."
-    : `Average Set Consistency ${score.setConsistency} and Traversal Confidence ${score.traversalConfidence} across ${score.segments} ${score.segments === 1 ? "segment" : "segments"}.`;
-  const displayPending = shown == null;
+const SCORE_CHIP_PENDING =
+  "rounded-full px-1.5 py-0 text-[9px] leading-[14px] tabular-nums tracking-[0.08em] text-[#7a7266]";
+
+function ProjectScoreChip({
+  label,
+  name,
+  value,
+  shown,
+  ticking,
+  pendingTitle,
+  assessedTitle,
+}: {
+  label: string;
+  name: string;
+  value: number | null;
+  shown: number | null;
+  ticking: boolean;
+  pendingTitle: string;
+  assessedTitle: string;
+}) {
+  const pending = value == null;
   return (
-    <div className="flex items-center justify-between gap-2" aria-live="polite">
-      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Score</span>
+    <span className="flex items-center gap-1">
+      <span className="text-[10px] tracking-[0.08em] text-[#9a8f7e]">{label}</span>
       <span
         className={`${
-          pending
-            ? "rounded-full px-1.5 py-0 text-[9px] leading-[14px] tabular-nums tracking-[0.08em] text-[#7a7266]"
-            : cinematographerScoreTone(score.score, true)
+          pending ? SCORE_CHIP_PENDING : cinematographerScoreTone(value, true)
         } project-score-value${ticking ? " project-score-value-tick" : ""}`}
-        aria-label={pending ? "Project score pending" : `Project score ${score.score}`}
-        title={title}
+        aria-label={pending ? `${name} pending` : `${name} ${value}`}
+        title={pending ? pendingTitle : assessedTitle}
         data-score-ticking={ticking || undefined}
       >
-        {displayPending ? "—" : shown}
+        {shown == null ? "—" : shown}
       </span>
+    </span>
+  );
+}
+
+export function ProjectScoreReadout({ score }: { score: ProjectScore }) {
+  const setTick = useTickingScore(score.setConsistency, score.segments);
+  const traversalTick = useTickingScore(score.traversalConfidence, score.segments);
+  const across = `${score.segments} ${score.segments === 1 ? "segment" : "segments"}`;
+  return (
+    <div className="flex items-center justify-end gap-2" aria-live="polite">
+      <ProjectScoreChip
+        label="Set"
+        name="Set consistency"
+        value={score.setConsistency}
+        shown={setTick.shown}
+        ticking={setTick.ticking}
+        pendingTitle="No assessed segments yet."
+        assessedTitle={`Average Set Consistency ${score.setConsistency} across ${across}.`}
+      />
+      <ProjectScoreChip
+        label="Travel"
+        name="Traversal confidence"
+        value={score.traversalConfidence}
+        shown={traversalTick.shown}
+        ticking={traversalTick.ticking}
+        pendingTitle="No assessed segments yet."
+        assessedTitle={`Average Traversal Confidence ${score.traversalConfidence} across ${across}.`}
+      />
     </div>
   );
 }

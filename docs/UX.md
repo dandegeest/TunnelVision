@@ -403,12 +403,12 @@ model, format, and resolution controls are in-app menus, not native OS
 selects. Clicking outside a popup menu closes it; opening one menu closes any
 other. When
 Kling 3 is mapped, settings also show Standard (720p) / Pro (1080p) / 4K.
-Helper copy does not sit under PLAN JOURNEY. Score sits above the A–B–C
-progress rail under that button: mean Set Consistency and Traversal
-Confidence across assessed segments, pending as an em dash until the first
-assessment. The number ticks and the pill pulses as that average changes
-when destinations complete. Clicking a letter selects that destination in
-Plan. Opening A can be uploaded before a journey
+Helper copy does not sit under PLAN JOURNEY. Set and Travel sit above the A–B–C
+progress rail under that button, right-justified: mean Set Consistency and Traversal
+Confidence across assessed segments, same compact pills as MOTION. Pending
+as em dashes until the first assessment. Each number ticks and the pill
+pulses as that average changes when destinations complete. Clicking a
+letter selects that destination in Plan. Opening A can be uploaded before a journey
 story is entered; later destinations still need a story. AUTO sizes later beats by Director choice; a number, typed or stepped,
 adds that many FPO
 slots. After the first DIRECT response the count is read-only.
