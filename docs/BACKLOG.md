@@ -89,8 +89,9 @@ work.
 
 ### Dedicated hackathon UI surface
 
-**Status:** HACKATHON / DISCOVERY — do not implement from a normal
-product session.
+**Status:** HACKATHON / DISCOVERY for a *dedicated* full-screen
+event entry. The Agent **chat journey** already lives in the
+product Agent tab — do not rebuild that as a second surface.
 
 **Goal.** A purpose-built, nearly full-screen autonomous experience:
 one prompt → CREATE JOURNEY → hands off → watch the film crew →
@@ -114,6 +115,12 @@ creation, not “AI video generation” and not a restyled Plan | Shoot.
 Standard TV stays the detailed creative environment. Both surfaces
 read/write the same Project. Details:
 [HACKATHON.md](HACKATHON.md).
+
+**Landed in Agent (21 September 2026):** journey as a rich chat
+turn. Header Director | Agent | Shoot. A later prompt starts a new
+project. Open rebuilds Agent history from the saved conversation or
+story + export. Note:
+[Next experiments and hackathon UI](hackathon/next-experiments-and-ui.md#3-hackathon-ui-journey-as-a-rich-chat-turn).
 
 **Constraints / invariants.**
 

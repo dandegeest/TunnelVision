@@ -19,6 +19,10 @@ Related current-code docs (do not treat them as optional):
 -   [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md) — GWM Worlds 2 notes;
     LEAD (formerly Reverse Lead) exhibit; hypothesis only; closed
     120fps Temporal Seam note
+-   [Next experiments and hackathon UI](hackathon/next-experiments-and-ui.md)
+    — color continuity (R&D), CM OG vs Pull Forward (**next active
+    idea**; do not implement), journey-as-chat-turn (**landed in
+    Agent**).
 -   [PROMPT_COACH.md](PROMPT_COACH.md) — Journey-prompting philosophy;
     Prompt Coach is **future**, not a product agent. Hackathon camera
     grammar (POV / FOLLOW / LEAD / MOUNTED, one journey = one
@@ -1487,6 +1491,14 @@ record:
 Keep Enhance Frame Rate as a reusable primitive for other future
 uses, not as the hackathon claim.
 
+**Successor investigation (not event-day, do not implement yet):**
+automatic **color** continuity / finishing instead of velocity
+smoothing. Two operations: restrained boundary color matching
+(canonical B as possible reference) and an optional journey-level
+grade. Start with OpenCV / FFmpeg / statistics, not another
+generative model. Full note:
+[Next experiments — Automatic Color Continuity](hackathon/next-experiments-and-ui.md#1-automatic-color-continuity--finishing).
+
 ### 14.1 Verified public API (14 September 2026)
 
 The public [Runway Dev API](https://docs.dev.runwayml.com/) is now
@@ -1889,6 +1901,14 @@ User presses CREATE JOURNEY.
 User watches the film crew work.
 The movie plays in the same surface.
 ```
+
+**Agent is that conversation now.** Each journey is a rich chat
+turn (spatial left→right inside the turn; history down the thread).
+Play the movie in place. A later prompt starts a **new** project
+(one project = one journey). No separate “Previous Journeys”
+dashboard; Open is how you return to an older movie. Full note:
+[Next experiments — Journey as a Rich Chat Turn](hackathon/next-experiments-and-ui.md#3-hackathon-ui-journey-as-a-rich-chat-turn).
+Event-day hero path: Agent tab, one prompt, send, watch, play.
 
 ---
 

@@ -20,6 +20,17 @@ Not a roadmap. Not schemas. Not UI. Do not implement from this list.
 **Next major question:** How should the Cinematographer reason about
 actual adjacent sets before attempting to shoot them?
 
+**Next active idea to investigate (do not implement yet):** let CM
+choose OG vs Pull Forward **per traversal**, including changing
+technique after a failed shot instead of retrying the same method.
+Currently `pullForwardReferenceEnabled` is a project-level toggle,
+not agent-controlled. Full note:
+[Next experiments — CM OG vs Pull Forward](hackathon/next-experiments-and-ui.md#2-cinematographer-controlled-og-vs-pull-forward).
+
+Journey-as-chat is **not** research anymore. It landed in Agent.
+See
+[Next experiments — Journey as a Rich Chat Turn](hackathon/next-experiments-and-ui.md#3-hackathon-ui-journey-as-a-rich-chat-turn).
+
 Relevant inspection concerns, from evidence, not a CM contract:
 
 -   route / traversable corridor
@@ -706,6 +717,13 @@ technique is **abandoned for velocity smoothing**. Keep the Runway
 Dev provider and Enhance Frame Rate capability. Do not continue
 tuning. Not hackathon-day work. Full record:
 [2026-09-20 Temporal Seam / 120fps](experiments/2026-09-20-temporal-seam-120fps.md).
+
+**Unvalidated follow-on, color not velocity (do not implement yet):**
+automatic color continuity / finishing — restrained boundary matching
+and optional journey-level grade. Start deterministic (OpenCV /
+FFmpeg / statistics), not another generative model. Blind compare
+CONTROL / AUTO COLOR MATCH / AUTO COLOR MATCH + GLOBAL GRADE.
+[Next experiments — Automatic Color Continuity](hackathon/next-experiments-and-ui.md#1-automatic-color-continuity--finishing).
 
 **Unvalidated follow-on, not now:** a local temporal cushion on
 FPSTEST Strong appeared to change how destination mountains revealed
