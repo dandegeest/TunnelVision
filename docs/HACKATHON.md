@@ -17,11 +17,15 @@ Related current-code docs (do not treat them as optional):
     Model Router / dedicated hackathon UI (HACKATHON / DISCOVERY)
 -   [DATA_MODEL.md](DATA_MODEL.md) — CameraMotionPlan v1 only
 -   [RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md) — GWM Worlds 2 notes;
-    LEAD (formerly Reverse Lead) exhibit; hypothesis only
+    LEAD (formerly Reverse Lead) exhibit; hypothesis only; closed
+    120fps Temporal Seam note
 -   [PROMPT_COACH.md](PROMPT_COACH.md) — Journey-prompting philosophy;
     Prompt Coach is **future**, not a product agent. Hackathon camera
     grammar (POV / FOLLOW / LEAD / MOUNTED, one journey = one
     grammar) is decided in this file.
+-   [2026-09-20 Temporal Seam / 120fps](experiments/2026-09-20-temporal-seam-120fps.md)
+    — Enhance Frame Rate was proven live; velocity-smoothing joins
+    were **abandoned**. Not event-day work.
 
 Public Runway Dev documentation (source of truth for the API;
 reopen on event day):
@@ -108,6 +112,8 @@ invention):**
 -   Camotion, shooting, Takes, assembly / export
 -   JourneyAgent happy path (derive, CM repair, overlapping NEW TAKE)
 -   Plan | Shoot workstation
+-   Runway Dev HTTP client, task polling, upload/download, and
+    Enhance Frame Rate (`media/src/runway/`, `RUNWAY_DEV_TOKEN`)
 
 **Hackathon-day discoveries / implementation:**
 
@@ -732,7 +738,7 @@ genesis/      Research site (not the hackathon app)
 | Trusted media | `web/runtime-media.ts`, `web/runtime-media-plugin.ts` |
 | Image / video contracts | `media/src/types.ts` — `MediaProvider`, `ImageEditProvider` |
 | Reasoning contract | `media/src/reasoning/types.ts` — `ReasoningProvider` |
-| Current adapters | `media/src/replicate/*` only. **No Runway package exists.** Event-day work adds `media/src/runway/` behind the same contracts, with **Model Router as the primary generation path** and direct model calls as fallback. |
+| Current adapters | Replicate is the **product shoot path** (`media/src/replicate/*`). Runway Dev plumbing exists at `media/src/runway/` (HTTP client, task poll, ephemeral upload, download, Enhance Frame Rate only). Event-day work **extends** that package into Model Router `generate.image` / `generate.video` behind the same `MediaProvider` / `ImageEditProvider` contracts, with named-model fallback. Do not recreate auth, polling, or uploads. |
 | Image catalog | `media/src/replicate/image-models.ts` — Nano Banana 2 Lite default; Nano Banana 2 opt-in |
 | Video catalog | `media/src/replicate/video-models.ts` — Pruna default; Kling / Veo / Seedance opt-in |
 
@@ -769,7 +775,7 @@ genesis/      Research site (not the hackathon app)
 | Opposite-canonical visual reference on repair | **Exists (experimental).** Agent END repair uses the established START still as the image/spatial source (and extra Nano Banana `image_input` when that still is not already the source). Flux ignores extra refs. Not event-day. |
 | Footage evaluation / Agent take selection | **Retired exploration.** Experimental Shot Evaluator remains isolated research under `media/experiments/forest-a-to-f/`. Do not promote it. The filmmaker reviews footage and selects Takes. JourneyAgent does not automatically judge artistic clip quality. |
 | Movie-evaluation preprocessor | **Does not exist** as product. Not planned. |
-| Runway adapters | **Do not exist.** `GeneratedVideo.provider` / `GeneratedImage.provider` / `ReasoningResult.provider` are currently the literal `"replicate"`. Event-day work adds `media/src/runway/` with **Model Router as the primary generation path** and named direct-model calls as fallback. |
+| Runway adapters | **Partial (20 September 2026).** `media/src/runway/` exists and Enhance Frame Rate @ 120fps is live-proven (`RUNWAY_DEV_TOKEN`). It is **not** a product `MediaProvider`. JourneyAgent still writes `"replicate"`. Event-day work: Model Router image + video on the existing client, visible `routing.model`, named-model fallback. 120fps Temporal Seam velocity smoothing was tested and **abandoned** — do not productize or spend event-day time on it. |
 | Camera grammar (POV / FOLLOW / LEAD / MOUNTED) | **Exists (hackathon scope).** One grammar per journey, grammar-specific baselines, persisted as Project `cameraGrammar`. Canyon control experiment 18 September 2026. Mixed-grammar journeys are post-hackathon. See Camera grammar decision above. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. Do not expose it. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
@@ -1301,8 +1307,9 @@ browser, then `whoami`. Then re-read
 and [`api.md`](https://docs.dev.runwayml.com/api.md) — do not invent
 fields from memory.
 
-This pass does **not** build `media/src/runway/` or the hackathon
-app. It freezes verified capabilities vs event-day assumptions.
+This pass (14 September 2026) did **not** build `media/src/runway/`
+or the hackathon app. It froze verified capabilities vs event-day
+assumptions. A later dedicated PR **did** land the client; see §14.0a.
 
 **Agent guidance (verified).**
 [dev.runwayml.com/agents](https://dev.runwayml.com/agents) tells
@@ -1401,15 +1408,20 @@ onto a latency or quality `configId`. Router picks the eligible
 model. If S/E is mandatory and the routed choice is wrong, skip
 Router for that retry.
 
-**Provider readiness (this pass).**
+**Provider readiness (14 September 2026 pass, still true).**
 `GeneratedVideo.provider` / `GeneratedImage.provider` /
-`ReasoningResult.provider` are now `string` so a Runway adapter
+`ReasoningResult.provider` are `string` so a Runway adapter
 can emit `"runway"` without a domain rewrite. Replicate adapters
-still write `"replicate"`. Do **not** add `@runwayml/sdk` or
-`media/src/runway/` until hack day (or a dedicated integration
-PR). Keep Director/CM/Camotion free of `configId`. Map Runway
-task `id` onto today’s `predictionId`. Persist `routing.model`,
-`optimizeFor`, and credits in `metadata` only.
+still write `"replicate"`. Keep Director/CM/Camotion free of
+`configId`. Map Runway task `id` onto today’s `predictionId`.
+Persist `routing.model`, `optimizeFor`, and credits in `metadata`
+only.
+
+Do **not** add `@runwayml/sdk` as the generation path unless event-day
+docs show it covers Model Router `generate.image` / `generate.video`.
+The existing TV Runway client is HTTP; that is the proven pattern
+(the published SDK VideoUpscale types did not include
+`enhance_frame_rate`).
 
 **Docs caveats / corrections vs earlier plan language.**
 
@@ -1426,6 +1438,55 @@ task `id` onto today’s `predictionId`. Persist `routing.model`,
 -   No Runway LLM / reasoning endpoint in the catalog. Keep Gemini
     3.1 Pro on Replicate for Director and CM.
 
+### 14.0a Current code (20 September 2026)
+
+A dedicated integration PR landed before the event. Inspect
+`media/src/runway/` before writing anything new. Do not recreate
+auth, task polling, local upload, or download.
+
+**Exists (keep; extend):**
+
+| Piece | Role |
+| --- | --- |
+| [`media/src/runway/client.ts`](../media/src/runway/client.ts) | HTTP to `https://api.dev.runwayml.com`; Bearer `RUNWAY_DEV_TOKEN`; `X-Runway-Version: 2024-11-06`; ephemeral `POST /v1/uploads`; `POST /v1/video_upscale`; `GET /v1/tasks/{id}` |
+| [`media/src/runway/tasks.ts`](../media/src/runway/tasks.ts) | Poll no faster than 5s; PENDING / THROTTLED / RUNNING wait; SUCCEEDED / FAILED / CANCELLED |
+| [`media/src/runway/download.ts`](../media/src/runway/download.ts) | Fetch expiring output URLs |
+| [`media/src/runway/enhance-frame-rate.ts`](../media/src/runway/enhance-frame-rate.ts) | `enhance_frame_rate` body; field is **`targetFramerate`** |
+| [`media/src/runway/provider.ts`](../media/src/runway/provider.ts) | `RunwayDevProvider.enhanceFrameRate` only — not `MediaProvider` |
+| CLI | `npm --prefix media run runway:enhance-frame-rate -- <input.mp4> <output.mp4>` |
+
+**Live-proven.** Enhance Frame Rate @ 120fps on TunnelVision MP4s
+(smoke test plus three FPSTEST clips: 11 credits, ~140s wall, no
+meaningful API failures). Official `@runwayml/sdk` VideoUpscale
+types did not include `enhance_frame_rate`; HTTP is the working
+pattern.
+
+**Does not exist yet (this is the event-day Runway work):**
+
+-   Model Router `POST /v1/generate/image` and `/v1/generate/video`
+-   Named-model `text_to_image` / `image_to_video` fallback
+-   Runway behind `MediaProvider` / `ImageEditProvider`
+-   JourneyAgent / construct / shoot emitting `"runway"`
+-   Visible `routing.model` in a hackathon UI
+-   Agentic Router policy (grammar / CM scores choosing a pool)
+
+Product stills and traversals still generate through Replicate.
+
+**Token name.** TunnelVision reads `RUNWAY_DEV_TOKEN`
+([`.env.example`](../.env.example),
+[FRESH_MACHINE_SETUP.md](../FRESH_MACHINE_SETUP.md)). The official
+SDK default is `RUNWAYML_API_SECRET`. Same secret; alias on event
+day if the packet uses the SDK name. Commented `RUNWAY_ROUTER_DRAFT`
+/ `RUNWAY_ROUTER_FINAL` already exist in `.env.example`.
+
+**120fps Temporal Seam: abandoned.** Do not productize velocity
+smoothing. Do not enhance every take. Do not spend the 5–6 hour
+window on join remapping. Export remains flat concatenation. Full
+record:
+[2026-09-20 Temporal Seam / 120fps](experiments/2026-09-20-temporal-seam-120fps.md).
+Keep Enhance Frame Rate as a reusable primitive for other future
+uses, not as the hackathon claim.
+
 ### 14.1 Verified public API (14 September 2026)
 
 The public [Runway Dev API](https://docs.dev.runwayml.com/) is now
@@ -1439,7 +1500,7 @@ event.
 
 | Surface | What exists |
 | --- | --- |
-| Auth / version | Bearer `RUNWAYML_API_SECRET`; header `X-Runway-Version: 2024-11-06` |
+| Auth / version | TV: Bearer `RUNWAY_DEV_TOKEN` (live). Official SDK / some docs: `RUNWAYML_API_SECRET`. Header `X-Runway-Version: 2024-11-06`. Alias the env names on event day; do not treat them as two secrets. |
 | SDK | Node `@runwayml/sdk` (`generate.video.create`, `generate.image.create`, `imageToVideo.create`, `textToImage.create`, `waitForTaskOutput`); Python `runwayml` |
 | Tasks | Async tasks; poll `GET /v1/tasks/:id`; `TaskFailedError` |
 | Direct image | `POST /v1/text_to_image` — named `model` + `ratio` + optional `referenceImages` |
@@ -1634,17 +1695,20 @@ Desired hackathon configuration:
 Do not compromise Agent architecture merely to claim every call uses
 Runway. Director and CM are reasoning jobs.
 
-Implement Runway as adapters:
+Implement Runway generation as **extensions** of the existing package.
+Do not create a second client.
 
 ``` text
-media/src/runway/                 NEW
-media/src/runway/provider.ts      MediaProvider / ImageEditProvider
-media/src/runway/router.ts        configId + generate.image/video
+media/src/runway/                 EXISTS — client, tasks, download, enhance-frame-rate
+media/src/runway/provider.ts      EXISTS — Enhance Frame Rate only; extend toward MediaProvider / ImageEditProvider
+media/src/runway/router.ts        NEW — configId + generate.image / generate.video
 ```
 
 Env (same pattern as `media/src/config/environment.ts`):
 
--   `RUNWAYML_API_SECRET`
+-   `RUNWAY_DEV_TOKEN` — current TV name; already used by the client
+-   `RUNWAYML_API_SECRET` — official SDK name; accept as an alias if
+    the event packet uses it
 -   `RUNWAY_ROUTER_DRAFT` — default `tv-draft` (latency/cost pool)
 -   `RUNWAY_ROUTER_FINAL` — default `tv-final` (quality pool)
 
@@ -1691,7 +1755,8 @@ re-derive “which APIs exist” from scratch.
     for anything newer than this file
 3.  Developer Portal: can this hackathon org create Model Router
     configs? Note the actual `configId` slugs
-4.  credentials (`RUNWAYML_API_SECRET`), rate limits, credit budget
+4.  credentials (`RUNWAY_DEV_TOKEN`; alias `RUNWAYML_API_SECRET` if
+    the packet uses the SDK name), rate limits, credit budget
 5.  models enabled on *this* account vs the public catalog
 6.  any hackathon-only model, world-model, or LLM endpoint
 7.  Cursor **Runway Dev MCP** connected (`whoami` works); re-read
@@ -1866,7 +1931,7 @@ web/                 both apps (second HTML entry)
 web/src/project/     shared operations + pre-hackathon JourneyAgent
                      (developed in existing AGENT mode)
 web/src/agent/       hackathon autonomous UI only
-media/               shared engine + new media/src/runway/
+media/               shared engine + media/src/runway/ (extend; do not recreate)
 camotion/            unchanged
 ```
 
@@ -1899,8 +1964,9 @@ Concentrate that day on:
     surfaces (foundational; do not invent a second format)
 2.  credentials, org access, newly announced models, and Router
     availability / config IDs (public API is already in §14)
-3.  Runway **Model Router** adapters and visible routing decisions
-    (direct-model fallback)
+3.  Runway **Model Router** generation adapters (extend existing
+    `media/src/runway/`; do not rebuild the client) and visible
+    routing decisions (direct-model fallback)
 4.  new full-screen autonomous Agent surface (not Plan | Shoot
     restyled)
 5.  live visualization of Director / CM / grammar / route / shoot /
@@ -1928,12 +1994,15 @@ Do **not** implement JourneyAgent on event day.
 Treat this as a hard timebox.
 
 Assume pre-hackathon JourneyAgent already executes the unattended
-workflow in existing AGENT mode. Event-day risk is Runway adapters
-and the new autonomous surface, not the filmmaking Agent. If Runway
-or the new UI slips, drop Discover, unneeded camera-grammar UI
-chrome, and chat first. Do not start implementing JourneyAgent
-during this window. Do not invent mixed-grammar journeys or “fix”
-LEAD by making the single FPOV baseline more permissive.
+workflow in existing AGENT mode. Event-day risk is Runway **generation**
+adapters (Model Router image + video on the existing client) and the
+new autonomous surface, not the filmmaking Agent and not Runway
+auth/polling. If Runway generation or the new UI slips, drop Discover,
+unneeded camera-grammar UI chrome, and chat first. Do not start
+implementing JourneyAgent during this window. Do not invent
+mixed-grammar journeys or “fix” LEAD by making the single FPOV
+baseline more permissive. Do **not** reopen 120fps Temporal Seam /
+velocity smoothing.
 
 ### 0:00–0:30 — Event / API reconnaissance
 
@@ -1945,7 +2014,10 @@ public API from scratch.
 
 Confirm:
 
--   `RUNWAYML_API_SECRET` and credit / rate limits
+-   `RUNWAY_DEV_TOKEN` (alias `RUNWAYML_API_SECRET` if needed) and
+    credit / rate limits. Enhance Frame Rate already proved this
+    token talks to `api.dev.runwayml.com`; recon is Router access
+    and org-enabled models, not “does Runway work.”
 -   Model Router access; create or note `tv-draft` / `tv-final`
     (`optimizeFor: latency` vs `quality`)
 -   which models this org actually enables
@@ -1959,10 +2031,16 @@ strategy.
 
 ### 0:30–1:30 — Runway integration
 
-Implement / configure Runway adapters behind `MediaProvider` /
-`ImageEditProvider`. Primary path: `client.generate.image.create`
-/ `client.generate.video.create` with `configId`. Fallback: named
-`textToImage` / `imageToVideo`.
+**Extend** `media/src/runway/`. Do not recreate the client, task
+poller, upload, or download. Do not implement Enhance Frame Rate
+again. Do not implement Temporal Seam.
+
+Add Model Router generation behind `MediaProvider` /
+`ImageEditProvider`. Primary path: `POST /v1/generate/image` and
+`POST /v1/generate/video` with `configId` (HTTP on the existing
+client, or SDK `generate.image.create` / `generate.video.create` if
+event-day docs confirm they wrap the same Router endpoints).
+Fallback: named `text_to_image` / `image_to_video`.
 
 Verify independently (prefer `dryRun` HTTP first, then one live
 call each):

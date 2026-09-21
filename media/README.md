@@ -84,6 +84,10 @@ npm --prefix media run runway:enhance-frame-rate -- <input.mp4> <output.mp4>
 ```
 
 That command consumes Runway credits. Automated tests mock the API.
+Hackathon-day Model Router `generate.image` / `generate.video` should
+extend this client; do not recreate auth or polling. 120fps Temporal
+Seam velocity smoothing was abandoned and must not be wired into
+export.
 
 The official Replicate JS SDK auto-uploads `Blob`, `File`, or `Buffer`.
 Local files are read as bytes. Node `ReadStream`s are not uploaded and

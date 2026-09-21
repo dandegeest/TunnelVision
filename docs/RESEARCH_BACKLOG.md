@@ -704,7 +704,7 @@ independently generated traversals. Technical processing worked.
 Perceptual gain over untreated Control was not compelling. The
 technique is **abandoned for velocity smoothing**. Keep the Runway
 Dev provider and Enhance Frame Rate capability. Do not continue
-tuning. Full record:
+tuning. Not hackathon-day work. Full record:
 [2026-09-20 Temporal Seam / 120fps](experiments/2026-09-20-temporal-seam-120fps.md).
 
 **Unvalidated follow-on, not now:** a local temporal cushion on

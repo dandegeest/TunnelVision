@@ -772,20 +772,26 @@ or AI upscaling of adjacent clips is not Phase 1. See
 
 ## Provider strategy
 
-Development initially uses **Replicate**. If accepted to the Runway
-hackathon, add/swap a native **Runway** provider according to event
-rules. **Krea** may be evaluated as another provider. Provider-specific
+Development uses **Replicate** as the product shoot path. A Runway
+Dev client exists (`media/src/runway/`, `RUNWAY_DEV_TOKEN`) for
+shared task plumbing and Enhance Frame Rate. Hackathon-day work
+extends that client to Model Router image/video behind the same
+MediaProvider contract ([HACKATHON.md](HACKATHON.md) §14.0a).
+**Krea** may be evaluated as another provider. Provider-specific
 structures must not leak into Director, Cinematographer, storyboard, or
 Camotion state. Agent roles must not hardcode provider or model IDs. A
 reasoning provider should support configurable model routing by role
 or profile so Director and Cinematographer may use different models.
 
-The MediaProvider contract in `media/` now covers **video and image
-generation** (Seedance 2.5 and Nano Banana 2 Lite adapters). Director
-code must depend on that contract, not on a raw Replicate client. Do
-not implement Runway or Krea adapters in this slice. A thin
-Cinematographer pair planner also exists in `media/` for Integration
-Test 01; it is not a finished product package.
+The MediaProvider contract in `media/` covers **video and image
+generation** on Replicate (Seedance 2.5 and Nano Banana 2 Lite
+adapters). Director code must depend on that contract, not on a
+raw Replicate or Runway client. Runway Model Router generation is
+not yet on the product path. 120fps Temporal Seam velocity smoothing
+was tested and abandoned
+([experiment record](experiments/2026-09-20-temporal-seam-120fps.md)).
+A thin Cinematographer pair planner also exists in `media/` for
+Integration Test 01; it is not a finished product package.
 
 **Development media (decided strategy, not a user-facing mode):**
 use cheap/fast models to construct a complete journey quickly; the

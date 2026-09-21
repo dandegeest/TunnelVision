@@ -230,7 +230,9 @@ planning across multiple grammars.
 
 **Status:** HACKATHON / DISCOVERY — major Runway research. Adapter
 plumbing is the related [Runway hackathon integration](#runway-hackathon-integration)
-item. Do not start routing policy from a normal product session.
+item (`media/src/runway/` client + Enhance Frame Rate already
+landed; Model Router generation still event-day). Do not start
+routing policy from a normal product session.
 
 **Goal.** Can an autonomous filmmaking agent use camera intent,
 geometry, Traversal Confidence, and previous generation results to
@@ -645,7 +647,8 @@ must be exportable, and assembly must succeed.
 -   `ProjectProvider` `shootJourneyOn` / in-flight maps —
     concurrent Project updates and Take appends on different
     journeys
--   Video adapter (`media/src/runway/` on hackathon day; other
+-   Video adapter (`media/src/runway/` — extend the existing client
+    on hackathon day; other
     MediaProvider adapters as needed) — submit vs local bound vs
     treat THROTTLED / PENDING as wait, not fail
 -   Activity events: several “creating A→B TAKE 1” /
@@ -1281,8 +1284,9 @@ JOURNEY, get a new opening that rhymes with the guide.
 
 ### Runway hackathon integration
 
-**Status:** BACKLOG (adapters) + HACKATHON / DISCOVERY (agentic
-routing policy). Event-day plan: [HACKATHON.md](HACKATHON.md).
+**Status:** PARTIAL (client + Enhance Frame Rate, 20 September 2026)
++ HACKATHON / DISCOVERY (Model Router generation and agentic
+routing policy). Event-day plan: [HACKATHON.md](HACKATHON.md) §14.0a.
 
 **Goal.** At the hackathon, integrate Runway **Model Router** (with
 direct-model fallback) into the existing TunnelVision provider
@@ -1340,18 +1344,23 @@ UI. Advanced chat must not jeopardize the hero demo.
 
 **Likely implementation areas.**
 
--   New `media/src/runway/` adapters (`generate.image` /
-    `generate.video` + optional named-model fallback)
+-   Extend existing `media/src/runway/` (client / tasks / download
+    already landed). Add Model Router `generate.image` /
+    `generate.video` + optional named-model fallback. Do not
+    recreate auth or polling. Do not productize 120fps Temporal
+    Seam ([experiment record](experiments/2026-09-20-temporal-seam-120fps.md)).
 -   `web/src/project` video model id parsing / duration
 -   Thin Agent UI shell; existing project state underneath
 -   [Provider / model abstraction](#provider--model-abstraction)
 
 **Open questions.**
 
--   Event-day credentials, Router availability, enabled models,
-    and any newly announced capability — not “does Runway have
-    image/video APIs?” (public Dev API is already documented in
-    [HACKATHON.md](HACKATHON.md) §14–15).
+-   Event-day credentials already have a live `RUNWAY_DEV_TOKEN`
+    against Enhance Frame Rate. Remaining: Router availability,
+    `configId` slugs, enabled models, and any newly announced
+    capability — not “does Runway have image/video APIs?” and not
+    “can we authenticate?” (public Dev API is already documented in
+    [HACKATHON.md](HACKATHON.md) §14–15; current client in §14.0a).
 -   Whether hackathon UI hides Directed entirely or keeps a
     developer escape hatch (Debug).
 

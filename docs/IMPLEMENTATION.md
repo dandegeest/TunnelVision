@@ -164,7 +164,11 @@ Planning docs in `docs/` describe current architecture.
 package (image + video), ReasoningProvider, and a thin cinematographer
 pair planner used by Integration Test 01. Credentials are environment
 variables (`REPLICATE_API_TOKEN`, optional `RUNWAY_DEV_TOKEN`), filled locally from gitignored
-`.env.local` and injected by the deployment platform in CI. New-machine
+`.env.local` and injected by the deployment platform in CI. `media/src/runway/`
+is a Runway Dev HTTP client plus Enhance Frame Rate
+(`RunwayDevProvider`). It is not the product shoot path. Model Router
+image/video generation remains event-day work
+([HACKATHON.md](HACKATHON.md) §14.0a). New-machine
 bootstrap: [`FRESH_MACHINE_SETUP.md`](../FRESH_MACHINE_SETUP.md). See
 `media/README.md`. [`web/`](../web/) exists as the Product Slice 3
 Plan | Shoot shell. A thin Director in `media/src/director/` plans
@@ -794,8 +798,11 @@ The video request, when designed, should represent:
 Do **not** fully design that schema in this Camotion pass. Extra
 pristine reference images are not current architecture.
 
-Then implement **ReplicateProvider** first. Add RunwayProvider if/when
-the hackathon requires it. KreaProvider remains optional. Do not
+Then implement **ReplicateProvider** first. Current code (20 September
+2026): Replicate remains the product MediaProvider. A Runway Dev
+client exists for Enhance Frame Rate and shared task plumbing;
+Model Router generation is hackathon-day, not a Camotion-pass
+scaffold. KreaProvider remains optional. Do not
 scaffold unused adapters.
 
 Director work must depend on the MediaProvider contract, not on a
