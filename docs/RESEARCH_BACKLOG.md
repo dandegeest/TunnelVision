@@ -698,6 +698,21 @@ A later observational look/pause exception is recorded in
 do not change CM or locomotion from this research note.
 No schema.
 
+**Closed experiment (20 September 2026):** Runway 120fps Temporal Seam
+was tested as a way to smooth velocity discontinuities between
+independently generated traversals. Technical processing worked.
+Perceptual gain over untreated Control was not compelling. The
+technique is **abandoned for velocity smoothing**. Keep the Runway
+Dev provider and Enhance Frame Rate capability. Do not continue
+tuning. Full record:
+[2026-09-20 Temporal Seam / 120fps](experiments/2026-09-20-temporal-seam-120fps.md).
+
+**Unvalidated follow-on, not now:** a local temporal cushion on
+FPSTEST Strong appeared to change how destination mountains revealed
+after a bridge. Possible later research on arrival quality /
+destination reveal / environmental emergence — not velocity
+smoothing. Do not pursue from this note.
+
 ## Directional steering (Journey Prompt)
 
 Unvalidated product-adjacent evidence, 15 September 2026. Not a
