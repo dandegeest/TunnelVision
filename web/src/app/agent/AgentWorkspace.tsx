@@ -8,14 +8,13 @@ import { ProgressSpinner } from "../../ui/ProgressSpinner";
 import { journeyProgressFromProject } from "../conversation-console";
 import { ProjectScoreReadout } from "../JourneyProgressRail";
 import { StoryboardReelHost } from "../PlanView";
+import { splitJourneyPrompt } from "../../project/project-name";
+import { resolveReferenced, sessionCardsFromTurns } from "../../project/session";
 import { AgentCollapsedStrip, AgentJourneyPath } from "./AgentJourneyPath";
 import {
   agentGeneratingLabel,
   beatText,
-  restoreAgentJourneyTurns,
   locationCaption,
-  repairScanLine,
-  turnPrompt,
 } from "./journey-turns";
 
 function TurnRule() {
@@ -69,16 +68,43 @@ function HistoryTurn({
   );
 }
 
-function JourneyPrompt({ text }: { text: string }) {
-  if (!text.trim()) {
+function JourneyPrompt({
+  text,
+  expanded,
+  onToggle,
+}: {
+  text: string;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const { title, body } = splitJourneyPrompt(text);
+  if (!title) {
     return null;
   }
-  return <p className="max-w-3xl whitespace-pre-wrap text-[15px] leading-relaxed text-[#cfc6b8]">{text}</p>;
+  if (!body) {
+    return <p className="max-w-3xl whitespace-pre-wrap text-[15px] leading-relaxed text-[#cfc6b8]">{title}</p>;
+  }
+  return (
+    <div className="max-w-3xl">
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-label={expanded ? `Collapse ${title}` : `Open ${title}`}
+        className="flex items-center gap-1.5 text-left text-[15px] leading-relaxed text-[#cfc6b8] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
+        onClick={onToggle}
+      >
+        {title}
+        <DisclosureChevron open={expanded} />
+      </button>
+      {expanded ? (
+        <p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed text-[#cfc6b8]">{body}</p>
+      ) : null}
+    </div>
+  );
 }
 
 export function AgentWorkspace() {
   const {
-    conversation,
     movieExport,
     project,
     selection,
@@ -87,6 +113,9 @@ export function AgentWorkspace() {
     composerDraft,
     agentComposerDraft,
     setAgentComposerDraft,
+    agentSession,
+    agentSessionProjects,
+    startNewAgentSession,
     planAgentJourney,
     stopJourneyAgent,
     constructingBeatId,
@@ -96,13 +125,9 @@ export function AgentWorkspace() {
     directorStatus,
   } = useProject();
   const [openIds, setOpenIds] = useState(() => new Set<string>());
+  const [promptOpen, setPromptOpen] = useState<Record<string, boolean>>({});
+  const completedPromptIds = useRef(new Set<string>());
   const threadRef = useRef<HTMLDivElement>(null);
-  const progress = journeyProgressFromProject(project, {
-    constructingBeatId,
-    assessingJourneyIds,
-    shootingJourneyIds,
-    journeyAgent,
-  });
   const score = projectScoreFromProject(project);
   const agentBusy = journeyAgentIsBusy(journeyAgent);
   const busy =
@@ -118,19 +143,13 @@ export function AgentWorkspace() {
     shootingJourneyIds,
     directorPlanning: directorStatus === "planning",
   });
-  const turns = restoreAgentJourneyTurns(conversation, project, movieExport, {
-    idle: !busy && !generating,
-  });
+  const cards = sessionCardsFromTurns(agentSession?.turns ?? []);
   const repairingId =
     journeyAgent?.phase === "REPAIRING_CANONICALS" ? journeyAgent.activity?.destinationId : undefined;
-  const captions = Object.fromEntries(project.storyboard.map((frame) => [frame.id, locationCaption(project, frame.id)]));
-  const beats = Object.fromEntries(project.storyboard.map((frame) => [frame.id, beatText(project, frame.id)]));
   const selectedId = selection.kind === "storyboard" ? selection.frameId : undefined;
-  const lastTurn = turns[turns.length - 1];
-  const liveTurn = lastTurn && !lastTurn.complete ? lastTurn : null;
-  const duration = currentCutDurationSeconds(project);
-  const locationCount = project.storyboard.length;
-  const traversalCount = Math.max(0, locationCount - 1);
+  const lastCard = cards[cards.length - 1];
+  const lastJourneyLive =
+    lastCard?.journey?.status === "planning" || lastCard?.journey?.status === "generating";
 
   useEffect(() => {
     if (!busy && !generating) {
@@ -140,7 +159,31 @@ export function AgentWorkspace() {
     if (thread) {
       thread.scrollTop = thread.scrollHeight;
     }
-  }, [busy, conversation, generating]);
+  }, [agentSession, busy, generating]);
+
+  useEffect(() => {
+    const newly: string[] = [];
+    for (const card of cards) {
+      if (card.journey?.status !== "completed") {
+        continue;
+      }
+      if (completedPromptIds.current.has(card.id)) {
+        continue;
+      }
+      completedPromptIds.current.add(card.id);
+      newly.push(card.id);
+    }
+    if (newly.length === 0) {
+      return;
+    }
+    setPromptOpen((current) => {
+      const next = { ...current };
+      for (const id of newly) {
+        next[id] = false;
+      }
+      return next;
+    });
+  }, [cards]);
 
   const toggle = (id: string) => {
     setOpenIds((current) => {
@@ -175,25 +218,75 @@ export function AgentWorkspace() {
     <div className="relative flex h-full min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-hidden bg-[#0c0b0a]" aria-label="Agent">
       <div ref={threadRef} className="agent-scroll min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-8 pb-48 pt-10">
         <div className="mx-auto flex min-w-0 max-w-5xl flex-col">
-          {turns.map((turn, index) => {
-            const live = liveTurn?.id === turn.id;
-            const currentComplete = Boolean(!liveTurn && lastTurn?.id === turn.id && turn.complete);
-            const expanded = openIds.has(turn.id);
-            const prompt = turnPrompt(turn, live || currentComplete ? project.story : "");
+          {cards.map((card, index) => {
+            const resolved = resolveReferenced(
+              card.journey?.projectId,
+              project.id,
+              { project, movieExport },
+              agentSessionProjects,
+            );
+            const active = Boolean(card.journey && card.journey.projectId === project.id);
+            const live =
+              card.journey?.status === "planning" ||
+              card.journey?.status === "generating" ||
+              (active && lastJourneyLive && (busy || Boolean(generating)));
+            const complete = card.journey?.status === "completed";
+            const expanded = openIds.has(card.id);
+            const prompt = card.prompt;
+            const promptExpanded = promptOpen[card.id] ?? !complete;
+            const referenced = resolved?.project;
+            const exportReady = resolved?.movieExport;
+            const cardScore = referenced ? projectScoreFromProject(referenced) : score;
+            const cardProgress =
+              active && referenced
+                ? journeyProgressFromProject(referenced, {
+                    constructingBeatId,
+                    assessingJourneyIds,
+                    shootingJourneyIds,
+                    journeyAgent,
+                  })
+                : referenced
+                  ? journeyProgressFromProject(referenced, {})
+                  : null;
+            const captions = referenced
+              ? Object.fromEntries(referenced.storyboard.map((frame) => [frame.id, locationCaption(referenced, frame.id)]))
+              : {};
+            const beats = referenced
+              ? Object.fromEntries(referenced.storyboard.map((frame) => [frame.id, beatText(referenced, frame.id)]))
+              : {};
+            const duration = referenced ? currentCutDurationSeconds(referenced) : 0;
+            const locationCount = referenced?.storyboard.length ?? 0;
+            const traversalCount = Math.max(0, locationCount - 1);
+            const videoUrl = exportReady?.videoUrl?.trim() ?? "";
+            const reelOk = Boolean(
+              referenced?.storyboard.some((frame) => project.storyboard.some((item) => item.id === frame.id)),
+            );
+            const interact = reelOk
+              ? { selectedId, onSelect, onOpenReel }
+              : { selectedId: undefined, onSelect: () => undefined, onOpenReel: undefined };
             return (
-              <div key={turn.id}>
+              <div key={card.id}>
                 {index > 0 ? <TurnRule /> : null}
                 <article className="min-w-0 py-10">
-                  <JourneyPrompt text={prompt} />
+                  <JourneyPrompt
+                    text={prompt}
+                    expanded={promptExpanded}
+                    onToggle={() => {
+                      setPromptOpen((current) => ({
+                        ...current,
+                        [card.id]: !(current[card.id] ?? !complete),
+                      }));
+                    }}
+                  />
                   <div className={prompt ? "mt-5" : undefined}>
-                    {live ? (
+                    {live && card.journey ? (
                       <>
                         <div className="flex items-start justify-between gap-3">
                           <p className="flex items-center gap-2 text-[15px] text-[#cfc6b8]" aria-busy={busy || undefined}>
                             {busy || generating ? <ProgressSpinner className="h-3.5 w-3.5 text-[#9a8f7e]" /> : null}
-                            {generating ?? (busy ? "Planning…" : "Journey")}
+                            {active ? generating ?? (busy ? "Planning…" : "Journey") : "Journey"}
                           </p>
-                          {score.segments > 0 ? (
+                          {active && score.segments > 0 ? (
                             <div className="flex shrink-0 items-center gap-3 pt-0.5">
                               {score.setConsistency != null ? (
                                 <span className="flex items-center gap-1">
@@ -217,53 +310,52 @@ export function AgentWorkspace() {
                             </div>
                           ) : null}
                         </div>
-                        {progress ? (
+                        {active && cardProgress ? (
                           <div className="mt-8 min-w-0">
                             <AgentJourneyPath
-                              frames={project.storyboard}
-                              progress={progress}
+                              frames={referenced?.storyboard ?? project.storyboard}
+                              progress={cardProgress}
                               captions={captions}
                               beats={beats}
-                              selectedId={selectedId}
+                              selectedId={interact.selectedId}
                               constructingId={constructingBeatId}
                               repairingId={repairingId}
-                              repairTravel={repairScanLine(turn.entries)?.travel}
-                              onSelect={onSelect}
-                              onOpenReel={onOpenReel}
+                              onSelect={interact.onSelect}
+                              onOpenReel={interact.onOpenReel}
                             />
                           </div>
                         ) : null}
                       </>
-                    ) : (
+                    ) : card.journey ? (
                       <>
                         <HistoryTurn
-                          title={turn.complete ? "Journey complete" : "Journey"}
+                          title={complete ? "Journey complete" : card.journey.status === "failed" ? "Journey failed" : "Journey"}
                           expanded={expanded}
-                          onToggle={() => toggle(turn.id)}
+                          onToggle={() => toggle(card.id)}
                         >
-                          {currentComplete ? (
+                          {complete && referenced ? (
                             <div className="min-w-0">
                               <AgentCollapsedStrip
-                                frames={project.storyboard}
-                                selectedId={selectedId}
-                                onSelect={onSelect}
-                                onOpenReel={onOpenReel}
+                                frames={referenced.storyboard}
+                                selectedId={interact.selectedId}
+                                onSelect={interact.onSelect}
+                                onOpenReel={interact.onOpenReel}
                               />
                               <div className="mt-4 flex items-center justify-between gap-2">
                                 <p className="text-[13px] text-[#7a7266]">
                                   {locationCount} locations · {traversalCount} traversals
                                   {duration > 0 ? ` · ${formatCutClock(duration)}` : ""}
                                 </p>
-                                {score.segments > 0 ? <ProjectScoreReadout score={score} /> : null}
+                                {cardScore.segments > 0 ? <ProjectScoreReadout score={cardScore} /> : null}
                               </div>
                             </div>
                           ) : null}
                         </HistoryTurn>
-                        {turn.videoUrl ? (
+                        {videoUrl ? (
                           <div className="mt-4 mb-28">
                             <div className="relative aspect-video overflow-hidden bg-black">
                               <video
-                                src={turn.videoUrl}
+                                src={videoUrl}
                                 className="block h-full w-full"
                                 controls
                                 playsInline
@@ -271,8 +363,8 @@ export function AgentWorkspace() {
                               />
                             </div>
                             <a
-                              href={turn.videoUrl}
-                              download={turn.filename ?? "journey.mp4"}
+                              href={videoUrl}
+                              download={exportReady?.filename ?? "journey.mp4"}
                               aria-label="Download journey movie"
                               className="mt-2 inline-flex rounded border border-[#3a342c] px-3 py-1 text-[13px] tracking-[0.14em] text-[#ece7df] uppercase"
                             >
@@ -281,62 +373,12 @@ export function AgentWorkspace() {
                           </div>
                         ) : null}
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </article>
               </div>
             );
           })}
-          {turns.length === 0 && progress ? (
-            <article className="min-w-0 py-10">
-              <JourneyPrompt text={project.story} />
-              <div className={project.story.trim() ? "mt-5" : undefined}>
-                {busy || generating ? (
-                  <>
-                    <p className="flex items-center gap-2 text-[15px] text-[#cfc6b8]" aria-busy="true">
-                      <ProgressSpinner className="h-3.5 w-3.5 text-[#9a8f7e]" />
-                      {generating ?? "Planning…"}
-                    </p>
-                    <div className="mt-8 min-w-0">
-                      <AgentJourneyPath
-                        frames={project.storyboard}
-                        progress={progress}
-                        captions={captions}
-                        beats={beats}
-                        selectedId={selectedId}
-                        constructingId={constructingBeatId}
-                        repairingId={repairingId}
-                        onSelect={onSelect}
-                        onOpenReel={onOpenReel}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <HistoryTurn
-                    title="Journey complete"
-                    expanded={openIds.has("current")}
-                    onToggle={() => toggle("current")}
-                  >
-                    <div className="min-w-0">
-                      <AgentCollapsedStrip
-                        frames={project.storyboard}
-                        selectedId={selectedId}
-                        onSelect={onSelect}
-                        onOpenReel={onOpenReel}
-                      />
-                      <div className="mt-4 flex items-center justify-between gap-2">
-                        <p className="text-[13px] text-[#7a7266]">
-                          {locationCount} locations · {traversalCount} traversals
-                          {duration > 0 ? ` · ${formatCutClock(duration)}` : ""}
-                        </p>
-                        {score.segments > 0 ? <ProjectScoreReadout score={score} /> : null}
-                      </div>
-                    </div>
-                  </HistoryTurn>
-                )}
-              </div>
-            </article>
-          ) : null}
         </div>
       </div>
 
@@ -351,6 +393,19 @@ export function AgentWorkspace() {
           className="pointer-events-auto mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-[#3a342c] px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.65)]"
           style={{ backgroundColor: "#161410" }}
         >
+          <button
+            type="button"
+            aria-label="New Session"
+            title="New Session"
+            className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#9a8f7e] hover:text-[#ece7df]"
+            onClick={() => {
+              void startNewAgentSession();
+            }}
+          >
+            <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
+              <path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
           <label className="sr-only" htmlFor="agent-composer">
             Where should we go next?
           </label>

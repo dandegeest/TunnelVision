@@ -6,8 +6,10 @@ import { createAppSettingsStore } from "./app-settings.ts";
 import { chooseNativeDirectory } from "./choose-directory.ts";
 import { openPathInFileManager, revealableProjectPath } from "./open-path.ts";
 import { createProjectStore } from "./project-store.ts";
+import { createSessionStore, type SessionStore } from "./session-store.ts";
 import type { ConversationEntry } from "./src/project/conversation.ts";
 import type { MovieExportResult } from "./src/project/export-movie.ts";
+import { parseAgentSession } from "./src/project/session.ts";
 import type { Project } from "./src/project/types.ts";
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
@@ -40,6 +42,7 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
 
 export function projectStorePlugin(repoRoot: string): Plugin {
   const settings = createAppSettingsStore();
+  const sessions = createSessionStore();
   let origin = "http://127.0.0.1:5173";
   let store = createProjectStore({ repoRoot: resolve(repoRoot), origin });
 
@@ -55,7 +58,7 @@ export function projectStorePlugin(repoRoot: string): Plugin {
             store = createProjectStore({ repoRoot: resolve(repoRoot), origin });
           }
         }
-        void handleProjectStoreRequest(req, res, { origin, settings, store }).then((handled) => {
+        void handleProjectStoreRequest(req, res, { origin, settings, store, sessions }).then((handled) => {
           if (!handled) {
             next();
           }
@@ -72,10 +75,21 @@ export async function handleProjectStoreRequest(
     origin: string;
     settings: ReturnType<typeof createAppSettingsStore>;
     store: ReturnType<typeof createProjectStore>;
+    sessions?: SessionStore;
   },
 ): Promise<boolean> {
   const url = req.url?.split("?")[0] ?? "";
+  const sessions = deps.sessions ?? createSessionStore();
   try {
+    if (req.method === "POST" && url === "/api/sessions") {
+      sendJson(res, 200, await sessions.createSession());
+      return true;
+    }
+    if (req.method === "PUT" && url === "/api/sessions") {
+      const session = parseAgentSession(await readJsonBody(req));
+      sendJson(res, 200, await sessions.writeSession(session));
+      return true;
+    }
     if (req.method === "GET" && url === "/api/app-settings") {
       sendJson(res, 200, await deps.settings.read());
       return true;

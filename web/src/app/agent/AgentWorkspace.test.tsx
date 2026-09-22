@@ -3,59 +3,39 @@ import { describe, expect, it } from "vitest";
 import { createForestProject, FOREST_USER_PROMPT } from "../../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../../fixtures/wardrobe-loop";
 import { createNewProject } from "../../project/new-project";
-import type { ConversationEntry } from "../../project/conversation";
+import type { AgentSession, SessionTurn } from "../../project/session";
 import { ProjectProvider } from "../../project/ProjectProvider";
+import { AgentCollapsedStrip } from "./AgentJourneyPath";
 import { AgentWorkspace } from "./AgentWorkspace";
 import { Shell } from "../Shell";
 
 const AT = "2026-09-21T15:00:00.000Z";
 
-const liveConversation: ConversationEntry[] = [
-  { id: "f1", createdAt: AT, kind: "filmmaker", text: "Travel the forest." },
-  { id: "d1", createdAt: AT, kind: "director", status: "complete", summary: "Root-tunnel mouth." },
-  {
-    id: "cm1",
+function testSession(turns: SessionTurn[]): AgentSession {
+  return {
+    id: "tvs-0123456789abcdef",
     createdAt: AT,
-    kind: "blocking",
-    journeyId: "B-C",
-    status: "blocked",
-    assessment: {
-      shootability: "needs_review",
-      setConsistency: 87,
-      traversalConfidence: 62,
-      summary: "Spatially coherent, but travel stalls in the tunnel.",
-      route: "",
-      threshold: "",
-      camera: "",
-      parallax: "",
-      transitionStrategy: "",
-      segmentPromptAddition: "",
-      pace: "walk",
-      concerns: [],
-      repairRecommendation: "RESHOOT_END",
-      repairInstruction: "Insufficient forward progression.",
-    },
-  },
-  {
-    id: "r1",
-    createdAt: AT,
-    kind: "agent",
-    status: "repairing",
-    destinationIds: ["C"],
-    journeyId: "B-C",
-    recommendation: "RESHOOT_END",
-    instruction: "Insufficient forward progression.",
-    setConsistency: 87,
-    traversalConfidence: 62,
-  },
-];
+    updatedAt: AT,
+    turns,
+  };
+}
 
-function renderAgent(conversation: ConversationEntry[] = liveConversation) {
+const forestLiveSession = testSession([
+  { type: "user", id: "user-1", timestamp: AT, text: "Travel the forest." },
+  { type: "journey", id: "journey-1", timestamp: AT, projectId: "forest-a-to-f", status: "generating" },
+]);
+
+const forestCompleteSession = testSession([
+  { type: "user", id: "user-1", timestamp: AT, text: "Travel the forest." },
+  { type: "journey", id: "journey-1", timestamp: AT, projectId: "forest-a-to-f", status: "completed" },
+]);
+
+function renderAgent(session: AgentSession = forestLiveSession) {
   return renderToStaticMarkup(
     <ProjectProvider
       initialProject={{ ...createForestProject(), agency: "autonomous" }}
       initialView="agent"
-      initialConversation={conversation}
+      initialAgentSession={session}
       initialComposerDraft=""
       initialJourneyAgent={{
         phase: "REPAIRING_CANONICALS",
@@ -68,8 +48,34 @@ function renderAgent(conversation: ConversationEntry[] = liveConversation) {
   );
 }
 
+describe("Agent completed still strip", () => {
+  it("packs thumbs instead of stretching them across the chat width", () => {
+    const html = renderToStaticMarkup(
+      <AgentCollapsedStrip frames={createForestProject().storyboard} onSelect={() => undefined} />,
+    );
+    expect(html).toContain("data-collapsed-path");
+    expect(html).toContain("w-max");
+    expect(html).toContain("w-[3.5rem]");
+    expect(html).not.toContain("flex-1");
+  });
+
+  it("makes each completed still a control that can open the destination viewer", () => {
+    const html = renderToStaticMarkup(
+      <AgentCollapsedStrip
+        frames={createForestProject().storyboard}
+        selectedId="C"
+        onSelect={() => undefined}
+        onOpenReel={() => undefined}
+      />,
+    );
+    expect(html).toContain('aria-label="Storyboard A"');
+    expect(html).toContain('aria-label="Storyboard C"');
+    expect(html).toContain("View still");
+  });
+});
+
 describe("Agent workspace", () => {
-  it("renders an active journey turn from conversation and project stills", () => {
+  it("renders an active journey turn from the session and referenced project stills", () => {
     const html = renderAgent();
     expect(html).toContain("Travel the forest.");
     expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf("Generating C′…"));
@@ -82,12 +88,13 @@ describe("Agent workspace", () => {
     expect(html).toContain("View still");
     expect(html).toContain("max-w-[10.5rem]");
     expect(html).toContain("Night forest path toward the tree-trunk / root gateway in mist.");
-    expect(html).toContain('data-path-fit="scale"');
+    expect(html).toContain('data-path-fit="pack"');
     expect(html).toContain("agent-scroll");
     expect(html).toContain("overflow-x-hidden");
     expect(html).not.toContain('aria-label="Previous locations"');
     expect(html).toContain("Where should we go next?");
     expect(html).toContain('aria-label="Create journey"');
+    expect(html).toContain('aria-label="New Session"');
     expect(html).not.toContain("Switching OG");
     expect(html).not.toContain("Plan | Shoot");
     expect(html).toContain("resize-y");
@@ -97,23 +104,29 @@ describe("Agent workspace", () => {
   });
 
   it("keeps completed journeys in history above a later prompt", () => {
+    const wardrobe = createWardrobeProject();
     const html = renderToStaticMarkup(
       <ProjectProvider
-        initialProject={{ ...createWardrobeProject(), agency: "autonomous" }}
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
-        initialConversation={[
-          { id: "f0", createdAt: AT, kind: "filmmaker", text: "Through the wardrobe." },
-          {
-            id: "a0",
-            createdAt: AT,
-            kind: "assembly",
-            status: "complete",
-            videoUrl: "/wardrobe.mp4",
-            filename: "wardrobe.mp4",
-            complete: true,
+        initialAgentSession={testSession([
+          { type: "user", id: "user-1", timestamp: AT, text: "Through the wardrobe." },
+          { type: "journey", id: "journey-1", timestamp: AT, projectId: wardrobe.id, status: "completed" },
+          { type: "user", id: "user-2", timestamp: AT, text: "Travel the forest." },
+          { type: "journey", id: "journey-2", timestamp: AT, projectId: "forest-a-to-f", status: "generating" },
+        ])}
+        initialAgentSessionProjects={{
+          [wardrobe.id]: {
+            project: wardrobe,
+            movieExport: {
+              videoUrl: "/wardrobe.mp4",
+              filename: "wardrobe.mp4",
+              complete: true,
+              includedJourneyIds: [],
+              missingJourneyIds: [],
+            },
           },
-          ...liveConversation,
-        ]}
+        }}
       >
         <AgentWorkspace />
       </ProjectProvider>,
@@ -130,21 +143,15 @@ describe("Agent workspace", () => {
       <ProjectProvider
         initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
-        initialConversation={[
-          { id: "f0", createdAt: AT, kind: "filmmaker", text: "Travel the forest." },
-          { id: "d0", createdAt: AT, kind: "director", status: "complete", summary: "A continuous POV descent through the root tunnels." },
-          { id: "c0", createdAt: AT, kind: "construction", beatId: "B", status: "constructed" },
-          {
-            id: "a0",
-            createdAt: AT,
-            kind: "assembly",
-            status: "complete",
-            videoUrl: "/forest.mp4",
-            filename: "forest.mp4",
-            complete: true,
-          },
-        ]}
+        initialAgentSession={forestCompleteSession}
         initialComposerDraft=""
+        initialMovieExport={{
+          videoUrl: "/forest.mp4",
+          filename: "forest.mp4",
+          complete: true,
+          includedJourneyIds: [],
+          missingJourneyIds: [],
+        }}
       >
         <AgentWorkspace />
       </ProjectProvider>,
@@ -163,6 +170,54 @@ describe("Agent workspace", () => {
     expect(composer).not.toContain("Travel the forest.");
   });
 
+  it("keeps a titled prompt collapsed after the journey completes", () => {
+    const prompt =
+      "The Linking Isle\n\nArrive in first-person on the rocky shore of a mysterious deserted island.";
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialView="agent"
+        initialAgentSession={testSession([
+          { type: "user", id: "user-1", timestamp: AT, text: prompt },
+          { type: "journey", id: "journey-1", timestamp: AT, projectId: "forest-a-to-f", status: "completed" },
+        ])}
+        initialMovieExport={{
+          videoUrl: "/forest.mp4",
+          filename: "forest.mp4",
+          complete: true,
+          includedJourneyIds: [],
+          missingJourneyIds: [],
+        }}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("The Linking Isle");
+    expect(html).toContain("Open The Linking Isle");
+    expect(html).not.toContain("Collapse The Linking Isle");
+    expect(html).not.toContain("Arrive in first-person on the rocky shore");
+    expect(html).toContain("Journey complete");
+  });
+
+  it("shows a titled prompt body while the journey is still generating", () => {
+    const prompt =
+      "The Linking Isle\n\nArrive in first-person on the rocky shore of a mysterious deserted island.";
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialView="agent"
+        initialAgentSession={testSession([
+          { type: "user", id: "user-1", timestamp: AT, text: prompt },
+          { type: "journey", id: "journey-1", timestamp: AT, projectId: "forest-a-to-f", status: "generating" },
+        ])}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("Collapse The Linking Isle");
+    expect(html).toContain("Arrive in first-person on the rocky shore");
+  });
+
   it("uses location chevrons when a journey has 10 or more stops", () => {
     const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
     const html = renderToStaticMarkup(
@@ -173,7 +228,7 @@ describe("Agent workspace", () => {
           storyboard: letters.map((id) => ({ id, label: id, imageOrigin: "none" as const })),
         }}
         initialView="agent"
-        initialConversation={liveConversation}
+        initialAgentSession={forestLiveSession}
         initialComposerDraft=""
         initialJourneyAgent={{
           phase: "CONSTRUCTING",
@@ -191,11 +246,12 @@ describe("Agent workspace", () => {
     expect(html).toContain("overflow-x-auto");
   });
 
-  it("keeps unsent Agent composer text on the project so leaving Agent does not clear it", () => {
+  it("keeps unsent Agent composer text so leaving Agent does not clear it", () => {
     const html = renderToStaticMarkup(
       <ProjectProvider
         initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
+        initialAgentSession={null}
         initialComposerDraft=""
         initialAgentComposerDraft={"Keep walking toward the river."}
       >
@@ -204,14 +260,15 @@ describe("Agent workspace", () => {
     );
     const composer = html.slice(html.indexOf('id="agent-composer"'));
     expect(composer).toContain("Keep walking toward the river.");
-    expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf('id="agent-composer"'));
+    expect(html).not.toContain(FOREST_USER_PROMPT);
   });
 
-  it("shows journey history after reload when conversation was not persisted", () => {
+  it("does not reconstruct Agent history from a loaded Project", () => {
     const html = renderToStaticMarkup(
       <ProjectProvider
         initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
+        initialAgentSession={null}
         initialConversation={[]}
         initialComposerDraft=""
         initialMovieExport={{
@@ -225,13 +282,11 @@ describe("Agent workspace", () => {
         <AgentWorkspace />
       </ProjectProvider>,
     );
-    expect(html).toContain(FOREST_USER_PROMPT);
-    expect(html).toContain("Open Journey complete");
-    expect(html).toContain('aria-label="Journey movie"');
-    expect(html).toContain('src="/forest.mp4"');
-    expect(html).toContain('aria-label="Download journey movie"');
-    const composer = html.slice(html.indexOf('id="agent-composer"'));
-    expect(composer).not.toContain(FOREST_USER_PROMPT);
+    expect(html).not.toContain(FOREST_USER_PROMPT);
+    expect(html).not.toContain("Journey complete");
+    expect(html).not.toContain('aria-label="Journey movie"');
+    expect(html).toContain("Where should we go next?");
+    expect(html).toContain('aria-label="New Session"');
   });
 
   it("can create a journey from the Project prompt after Agent chat was cleared", () => {
@@ -239,6 +294,7 @@ describe("Agent workspace", () => {
       <ProjectProvider
         initialProject={{ ...createNewProject(), agency: "autonomous" }}
         initialView="agent"
+        initialAgentSession={null}
         initialComposerDraft={"Gardens of the Current\n\nDive alongside a small group of sea turtles."}
         initialAgentComposerDraft=""
       >
@@ -255,6 +311,7 @@ describe("Agent workspace", () => {
       <ProjectProvider
         initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
+        initialAgentSession={forestCompleteSession}
         initialStoryboardReelId="B"
       >
         <AgentWorkspace />
@@ -270,6 +327,7 @@ describe("Agent workspace", () => {
       <ProjectProvider
         initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
+        initialAgentSession={null}
         initialAgentComposerDraft={"Walk the redline at dusk."}
       >
         <AgentWorkspace />
@@ -283,7 +341,7 @@ describe("Agent workspace", () => {
 describe("Agent surface in Shell", () => {
   it("keeps Director and Shoot while Agent is a workspace view", () => {
     const html = renderToStaticMarkup(
-      <ProjectProvider initialProject={createForestProject()} initialView="agent">
+      <ProjectProvider initialProject={createForestProject()} initialView="agent" initialAgentSession={null}>
         <Shell />
       </ProjectProvider>,
     );
@@ -299,12 +357,12 @@ describe("Agent surface in Shell", () => {
 
   it("still opens Plan storyboard and Shoot timeline", () => {
     const plan = renderToStaticMarkup(
-      <ProjectProvider initialProject={createForestProject()} initialView="plan">
+      <ProjectProvider initialProject={createForestProject()} initialView="plan" initialAgentSession={null}>
         <Shell />
       </ProjectProvider>,
     );
     const shoot = renderToStaticMarkup(
-      <ProjectProvider initialProject={createForestProject()} initialView="shoot">
+      <ProjectProvider initialProject={createForestProject()} initialView="shoot" initialAgentSession={null}>
         <Shell />
       </ProjectProvider>,
     );
@@ -320,6 +378,7 @@ describe("Agent surface in Shell", () => {
       <ProjectProvider
         initialProject={{ ...createForestProject(), agency: "autonomous" }}
         initialView="agent"
+        initialAgentSession={null}
         initialAgentComposerDraft={unsent}
       >
         <Shell />
@@ -329,6 +388,7 @@ describe("Agent surface in Shell", () => {
       <ProjectProvider
         initialProject={createForestProject()}
         initialView="plan"
+        initialAgentSession={null}
         initialAgentComposerDraft={unsent}
       >
         <Shell />

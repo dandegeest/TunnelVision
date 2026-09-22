@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { suggestedProjectName, titleFromJourneyPrompt } from "./project-name";
+import { splitJourneyPrompt, suggestedProjectName, titleFromJourneyPrompt } from "./project-name";
 
 describe("title from journey prompt", () => {
   it("uses a short first line as the title when the story follows", () => {
@@ -19,6 +19,20 @@ describe("title from journey prompt", () => {
     );
     expect(titleFromJourneyPrompt("Travel the forest.")).toBe("Travel the forest");
     expect(titleFromJourneyPrompt("")).toBe("Untitled");
+  });
+
+  it("splits a titled prompt so the body can collapse under the title", () => {
+    expect(
+      splitJourneyPrompt("The Linking Isle\n\nArrive in first-person on the rocky shore."),
+    ).toEqual({
+      title: "The Linking Isle",
+      body: "Arrive in first-person on the rocky shore.",
+    });
+    expect(splitJourneyPrompt("Travel the forest.")).toEqual({
+      title: "Travel the forest.",
+      body: "",
+    });
+    expect(splitJourneyPrompt("")).toEqual({ title: "", body: "" });
   });
 
   it("keeps an existing project title", () => {

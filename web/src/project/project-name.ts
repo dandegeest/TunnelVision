@@ -31,6 +31,21 @@ export function titleFromJourneyPrompt(story: string): string {
   return words.join(" ") || "Untitled";
 }
 
+/** Title line plus optional body when the prompt starts with a title. */
+export function splitJourneyPrompt(story: string): { title: string; body: string } {
+  const normalized = story.replace(/\r\n/g, "\n").trim();
+  if (!normalized) {
+    return { title: "", body: "" };
+  }
+  const lines = normalized.split("\n");
+  const first = lines[0]?.trim() ?? "";
+  const rest = lines.slice(1).join("\n").trim();
+  if (rest && first === titleFromJourneyPrompt(normalized)) {
+    return { title: first, body: rest };
+  }
+  return { title: normalized, body: "" };
+}
+
 export function suggestedProjectName(project: Pick<Project, "title" | "story">): string {
   if (!isUntitledProjectTitle(project.title)) {
     return project.title.trim();

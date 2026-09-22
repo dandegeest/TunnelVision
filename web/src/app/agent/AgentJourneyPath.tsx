@@ -166,32 +166,29 @@ function LetterNode({
 
 function PathStop({
   id,
-  fit,
   media,
   caption,
   extra,
   connector,
 }: {
   id: string;
-  fit: boolean;
   media: ReactNode;
   caption: ReactNode;
   extra?: ReactNode;
   connector: ReactNode;
 }) {
   return (
-    <li
-      data-stop={id}
-      className={`grid items-center gap-x-3 ${fit ? "min-w-0 flex-1" : "shrink-0"} ${
-        connector ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1"
-      }`}
-    >
-      <div className={fit ? "min-w-0 w-full max-w-[10.5rem]" : "w-[10.5rem]"}>{media}</div>
-      {connector}
-      <div className="col-start-1 self-start">
+    <li data-stop={id} className="flex shrink-0 items-start">
+      <div className="w-[10.5rem] max-w-[10.5rem]">
+        {media}
         {caption}
         {extra}
       </div>
+      {connector ? (
+        <div className="flex aspect-video w-5 shrink-0 items-center justify-center">
+          {connector}
+        </div>
+      ) : null}
     </li>
   );
 }
@@ -248,7 +245,7 @@ function JourneyPathTrack({
   };
 
   return (
-    <div className="relative min-w-0" data-path-fit={fit ? "scale" : "scroll"}>
+    <div className="relative min-w-0" data-path-fit={fit ? "pack" : "scroll"}>
       {showChevrons ? (
         <>
           <button
@@ -271,11 +268,11 @@ function JourneyPathTrack({
       ) : null}
       <div
         ref={scrollerRef}
-        className={`agent-scroll min-w-0 overscroll-x-contain ${fit ? "overflow-x-hidden" : "overflow-x-auto"} ${
-          showChevrons ? "px-9" : ""
+        className={`agent-scroll min-w-0 overscroll-x-contain ${
+          showChevrons ? "overflow-x-auto px-9" : "overflow-x-hidden"
         }`}
       >
-        <ol aria-label={label} className={`flex items-start gap-0 ${fit ? "w-full min-w-0" : "w-max"}`}>
+        <ol aria-label={label} className="flex w-max items-start gap-0">
           {children}
         </ol>
       </div>
@@ -307,7 +304,6 @@ export function AgentJourneyPath({
   onOpenReel?: (id: string) => void;
 }) {
   const frameById = new Map(frames.map((frame) => [frame.id, frame]));
-  const fit = progress.nodes.length < AGENT_PATH_FIT_LIMIT;
   const followId = constructingId ?? repairingId ?? progress.nodes.find((node) => node.status === "active")?.id;
   return (
     <JourneyPathTrack stopCount={progress.nodes.length} followId={followId} label="Journey path">
@@ -371,7 +367,6 @@ export function AgentJourneyPath({
           <PathStop
             key={node.id}
             id={node.id}
-            fit={fit}
             media={media}
             caption={<NodeCaption caption={caption} beat={beat} selected={selected} />}
             extra={
@@ -408,15 +403,15 @@ export function AgentCollapsedStrip({
   const fit = frames.length < AGENT_PATH_FIT_LIMIT;
   return (
     <ol
-      className={`mt-2 flex min-w-0 items-center ${fit ? "w-full" : "agent-scroll w-max overflow-x-auto"}`}
+      className={`mt-2 flex w-max items-center ${fit ? "" : "agent-scroll overflow-x-auto"}`}
       aria-label="Journey stills"
       data-collapsed-path
     >
       {frames.map((frame, index) => {
         const next = frames[index + 1];
         return (
-          <li key={frame.id} className={`flex items-center ${fit ? "min-w-0 flex-1" : "shrink-0"}`}>
-            <div className={fit ? "min-w-0 w-full max-w-[3.5rem]" : "w-[3.5rem]"}>
+          <li key={frame.id} className="flex shrink-0 items-center">
+            <div className="w-[3.5rem]">
               <StoryboardFrameMedia
                 frame={frame}
                 selected={selectedId === frame.id}
@@ -448,7 +443,6 @@ export function AgentCompletedStrip({
   onSelect: (id: string) => void;
   onOpenReel?: (id: string) => void;
 }) {
-  const fit = frames.length < AGENT_PATH_FIT_LIMIT;
   return (
     <JourneyPathTrack stopCount={frames.length} label="Journey path">
       {frames.map((frame, index) => {
@@ -458,7 +452,6 @@ export function AgentCompletedStrip({
           <PathStop
             key={frame.id}
             id={frame.id}
-            fit={fit}
             media={
               <StoryboardFrameMedia
                 frame={frame}

@@ -47,3 +47,57 @@ export function createNewProject(): Project {
     journeys: [],
   };
 }
+
+/** Filmmaker settings that roll forward to the next Agent-session project. */
+export type SessionProjectSettings = Pick<
+  Project,
+  | "construction"
+  | "storyDuration"
+  | "autoGenerateOpening"
+  | "autoGenerateAllDestinations"
+  | "autoBlockShots"
+  | "autoShoot"
+  | "generateAudio"
+  | "pullForwardReferenceEnabled"
+  | "cameraGrammar"
+  | "durationMode"
+  | "fixedDurationSeconds"
+  | "videoModel"
+  | "videoModelsByIntent"
+  | "defaultTakeIntent"
+  | "klingV3Mode"
+  | "imageModel"
+  | "imageOutputFormat"
+  | "imageResolution"
+>;
+
+export function sessionProjectSettings(project: Project): SessionProjectSettings {
+  return {
+    construction: project.construction,
+    storyDuration: project.storyDuration,
+    autoGenerateOpening: project.autoGenerateOpening,
+    autoGenerateAllDestinations: project.autoGenerateAllDestinations,
+    autoBlockShots: project.autoBlockShots,
+    autoShoot: project.autoShoot,
+    generateAudio: project.generateAudio,
+    pullForwardReferenceEnabled: project.pullForwardReferenceEnabled,
+    cameraGrammar: project.cameraGrammar,
+    durationMode: project.durationMode,
+    fixedDurationSeconds: project.fixedDurationSeconds,
+    videoModel: project.videoModel,
+    videoModelsByIntent: project.videoModelsByIntent ? { ...project.videoModelsByIntent } : undefined,
+    defaultTakeIntent: project.defaultTakeIntent,
+    klingV3Mode: project.klingV3Mode,
+    imageModel: project.imageModel,
+    imageOutputFormat: project.imageOutputFormat,
+    imageResolution: project.imageResolution,
+  };
+}
+
+/** Blank project that inherits the previous Agent project's settings, not its journey. */
+export function createNewProjectFromSession(previous: Project): Project {
+  return {
+    ...createNewProject(),
+    ...sessionProjectSettings(previous),
+  };
+}

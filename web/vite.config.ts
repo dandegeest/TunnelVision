@@ -48,6 +48,7 @@ export default defineConfig({
       "camotion-depth.test.ts",
       "export-movie.test.ts",
       "project-store.test.ts",
+      "session-store.test.ts",
       "app-settings.test.ts",
       "open-path.test.ts",
       "choose-directory.test.ts",
