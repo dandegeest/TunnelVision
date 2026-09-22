@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import type { ConversationEntry } from "../project/conversation";
 import { ProjectProvider } from "../project/ProjectProvider";
-import { DeleteProjectDialog, ProjectOpenMenuItems, ProjectRail } from "./ProjectRail";
+import { DeleteProjectDialog, ProjectOpenMenuItems, ProjectRail, startJourneyFromProjectPanel } from "./ProjectRail";
 import { recentListedProjects } from "../project/recent-projects";
 import { Shell } from "./Shell";
 
@@ -264,6 +264,29 @@ describe("Shell header chrome", () => {
     expect(project).not.toContain("Generate start destination");
     expect(project).toContain('aria-label="Create journey"');
     expect(project).not.toContain('aria-label="Stop agent"');
+  });
+
+  it("starts Agent CREATE JOURNEY through the Session the same way as composer Send", () => {
+    const agentCalls: string[] = [];
+    const directorCalls: string[] = [];
+    startJourneyFromProjectPanel("autonomous", "Descend into the city.", {
+      planAgentJourney: (story) => {
+        agentCalls.push(story);
+      },
+      planWithDirector: () => {
+        directorCalls.push("director");
+      },
+    });
+    startJourneyFromProjectPanel("directed", "Descend into the city.", {
+      planAgentJourney: (story) => {
+        agentCalls.push(`unexpected:${story}`);
+      },
+      planWithDirector: () => {
+        directorCalls.push("director");
+      },
+    });
+    expect(agentCalls).toEqual(["Descend into the city."]);
+    expect(directorCalls).toEqual(["director"]);
   });
 
   it("shows Stop under Create journey while Agent is in flight", () => {

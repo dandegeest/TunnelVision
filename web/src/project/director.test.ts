@@ -9,6 +9,7 @@ import { createNewProject } from "./new-project";
 import {
   authoritativeStartFrame,
   directorPlanRequestFromProject,
+  directorStoryDurationForRequest,
   directorStoryRequestFromProject,
   requestDirectorPlan,
   requestDirectorStory,
@@ -138,6 +139,21 @@ describe("Director request from Project state", () => {
     expect(start?.imageOrigin).toBe("user");
     expect(start?.mediaId).toBe(TRUSTED_MEDIA_IDS.wardrobeLoopVisionA);
     expect(start?.image).toMatch(/canonical\/vision\/A\.jpg/i);
+  });
+
+  it("does not tell the Director a one-slot board is exactly one destination", () => {
+    const project: Project = {
+      ...createWardrobeProject(),
+      storyDuration: 6,
+      storyDurationLocked: false,
+    };
+    expect(project.storyboard).toHaveLength(1);
+    expect(directorStoryDurationForRequest(project)).toBe("auto");
+    expect(directorPlanRequestFromProject(project).storyDuration).toBe("auto");
+    const prompt = directorUserPrompt(directorPlanRequestFromProject(project));
+    expect(prompt).toMatch(/You may add subsequent destination ids needed for this story/);
+    expect(prompt).not.toMatch(/specified exactly 1 destination/);
+    expect(prompt).not.toMatch(/Do not add a destination after A/);
   });
 
   it("constructs the Director request from that starting-frame identity", () => {

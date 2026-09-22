@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -22,6 +22,7 @@ export function sessionFileName(id: string): string {
 
 export type SessionStore = {
   createSession(): Promise<AgentSession>;
+  readSession(id: string): Promise<AgentSession>;
   writeSession(session: AgentSession): Promise<AgentSession>;
 };
 
@@ -40,6 +41,10 @@ export function createSessionStore(sessionsDir = defaultSessionsDir()): SessionS
       const session = createEmptySession();
       await writeJsonAtomic(fileFor(session.id), session);
       return session;
+    },
+    async readSession(id) {
+      const raw = await readFile(fileFor(id), "utf8");
+      return parseAgentSession(JSON.parse(raw) as unknown);
     },
     async writeSession(input) {
       const session = parseAgentSession(input);

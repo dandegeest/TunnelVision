@@ -97,6 +97,17 @@ function directorAnchorFromFrame(frame: StoryboardFrame): DirectorAnchor {
   };
 }
 
+/** A one-slot board cannot mean "exactly one destination" — that forces empty beats. */
+export function directorStoryDurationForRequest(project: Project): "auto" | number {
+  if (project.storyboard.length <= 1) {
+    return "auto";
+  }
+  if (project.storyDuration === "auto" && !project.storyDurationLocked) {
+    return "auto";
+  }
+  return project.storyboard.length;
+}
+
 function directorSlotFromFrame(frame: StoryboardFrame): DirectorStoryboardSlot {
   const intent = frame.intent?.trim();
   const visualDescription = frame.visualDescription?.trim();
@@ -128,10 +139,7 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
     (frame) => frame.id.trim().toLowerCase() !== start.id.trim().toLowerCase(),
   );
   const storyboard = project.storyboard.map(directorSlotFromFrame);
-  const storyDuration =
-    project.storyDuration === "auto" && !project.storyDurationLocked
-      ? "auto"
-      : project.storyboard.length;
+  const storyDuration = directorStoryDurationForRequest(project);
   return {
     story: project.story,
     agency: project.agency,

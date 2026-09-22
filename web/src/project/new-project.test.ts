@@ -48,7 +48,7 @@ describe("new product project", () => {
     expect(project.storyboard.every((frame) => !frame.image && !frame.mediaId)).toBe(true);
   });
 
-  it("adopts the previous Agent project's settings without copying its journey", () => {
+  it("adopts previous image and video settings without copying grammar or journey", () => {
     const previous = {
       ...createNewProject(),
       id: "forest-a-to-f",
@@ -84,20 +84,20 @@ describe("new product project", () => {
     expect(next.story).toBe("");
     expect(next.storyboard).toEqual([{ id: "A", label: "A", imageOrigin: "none" }]);
     expect(next.journeys).toEqual([]);
+    expect(next.storyDuration).toBe("auto");
     expect(next.storyDurationLocked).toBe(false);
+    expect(next.cameraGrammar).toBe("pov");
+    expect(next.durationMode).toBe("fixed");
+    expect(next.fixedDurationSeconds).toBe(8);
+    expect(next.pullForwardReferenceEnabled).toBe(false);
+    expect(next.autoGenerateAllDestinations).toBe(false);
     expect(next.defaultTakeIntent).toBe("quality");
     expect(next.imageModel).toBe("nano-banana-2-lite");
     expect(next.imageOutputFormat).toBe("jpg");
     expect(next.imageResolution).toBe("2K");
-    expect(next.cameraGrammar).toBe("follow");
     expect(next.generateAudio).toBe(true);
-    expect(next.durationMode).toBe("fixed");
-    expect(next.fixedDurationSeconds).toBe(8);
     expect(next.videoModel).toBe("kling-v2.5-turbo-pro");
     expect(next.videoModelsByIntent).toEqual(previous.videoModelsByIntent);
     expect(next.videoModelsByIntent).not.toBe(previous.videoModelsByIntent);
-    expect(next.pullForwardReferenceEnabled).toBe(false);
-    expect(next.autoGenerateAllDestinations).toBe(true);
-    expect(next.storyDuration).toBe(6);
   });
 });

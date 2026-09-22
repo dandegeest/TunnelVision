@@ -43,4 +43,16 @@ describe("session store", () => {
     expect(raw).not.toMatch(/"storyboard"|"canonicals"|"traversals"|"videoUrl"|"events"/);
     expect(JSON.parse(raw).turns).toHaveLength(2);
   });
+
+  it("reads a previously written session by id", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "tv-sessions-"));
+    dirs.push(dir);
+    const store = createSessionStore(dir);
+    const created = await store.createSession();
+    const saved = await store.writeSession(appendUserTurn(created, "First Tracks: The Ascent"));
+    await expect(store.readSession(saved.id)).resolves.toMatchObject({
+      id: saved.id,
+      turns: [{ type: "user", text: "First Tracks: The Ascent" }],
+    });
+  });
 });

@@ -118,11 +118,12 @@ import {
   appendUserTurn,
   createEmptySession,
   rebindJourneyProjectId,
+  requestedSessionIdFromSearch,
   updateLastJourneyForProject,
   type AgentSession,
   type SessionJourneyStatus,
 } from "./session";
-import { createPersistedAgentSession, writePersistedAgentSession } from "./session-persistence-client";
+import { createPersistedAgentSession, fetchPersistedAgentSession, writePersistedAgentSession } from "./session-persistence-client";
 import {
   idleJourneyAgentSnapshot,
   journeyAgentIsBusy,
@@ -2269,17 +2270,55 @@ export function ProjectProvider({
       return;
     }
     bootstrappedAgentSessionRef.current = true;
-    void createPersistedAgentSession()
+    const requested = typeof window === "undefined" ? null : requestedSessionIdFromSearch(window.location.search);
+    void (requested ? fetchPersistedAgentSession(requested) : createPersistedAgentSession())
       .then((created) => {
         agentSessionRef.current = created;
         setAgentSession(created);
+        return created;
       })
       .catch(() => {
         const created = createEmptySession();
         agentSessionRef.current = created;
         setAgentSession(created);
+        return created;
+      })
+      .then(async (created) => {
+        if (!requested || created.turns.length === 0) {
+          return;
+        }
+        try {
+          const listed = await listPersistedProjects();
+          let openPath: string | null = null;
+          for (const turn of created.turns) {
+            if (turn.type !== "journey") {
+              continue;
+            }
+            const listedProject = listed.projects.find((item) => item.id === turn.projectId);
+            if (!listedProject) {
+              continue;
+            }
+            try {
+              const opened = await openPersistedProject(listedProject.path);
+              rememberSessionProject(opened.project, opened.movieExport ?? null);
+              if (turn.status === "completed") {
+                openPath = listedProject.path;
+              }
+            } catch {
+              // Referenced folder may have been moved.
+            }
+          }
+          if (openPath) {
+            await openProject(openPath);
+            setView("agent");
+          } else {
+            setView("agent");
+          }
+        } catch {
+          setView("agent");
+        }
       });
-  }, []);
+  }, [openProject, rememberSessionProject, setView]);
 
   useEffect(() => {
     const session = agentSession;

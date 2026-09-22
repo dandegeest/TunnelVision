@@ -85,6 +85,15 @@ export async function handleProjectStoreRequest(
       sendJson(res, 200, await sessions.createSession());
       return true;
     }
+    const sessionMatch = /^\/api\/sessions\/(tvs-[a-f0-9]{16})$/.exec(url);
+    if (req.method === "GET" && sessionMatch) {
+      try {
+        sendJson(res, 200, await sessions.readSession(sessionMatch[1]!));
+      } catch {
+        sendJson(res, 404, { error: "Session not found." });
+      }
+      return true;
+    }
     if (req.method === "PUT" && url === "/api/sessions") {
       const session = parseAgentSession(await readJsonBody(req));
       sendJson(res, 200, await sessions.writeSession(session));

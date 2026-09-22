@@ -9,7 +9,7 @@ import { journeyProgressFromProject } from "../conversation-console";
 import { ProjectScoreReadout } from "../JourneyProgressRail";
 import { StoryboardReelHost } from "../PlanView";
 import { splitJourneyPrompt } from "../../project/project-name";
-import { resolveReferenced, sessionCardsFromTurns } from "../../project/session";
+import { journeyCreationLabel, resolveReferenced, sessionCardsFromTurns } from "../../project/session";
 import { AgentCollapsedStrip, AgentJourneyPath } from "./AgentJourneyPath";
 import {
   agentGeneratingLabel,
@@ -42,11 +42,13 @@ function DisclosureChevron({ open }: { open: boolean }) {
 
 function HistoryTurn({
   title,
+  detail,
   expanded,
   onToggle,
   children,
 }: {
   title: string;
+  detail?: string | null;
   expanded: boolean;
   onToggle: () => void;
   children?: ReactNode;
@@ -61,6 +63,7 @@ function HistoryTurn({
         onClick={onToggle}
       >
         {title}
+        {detail ? <span className="tracking-normal text-[#7a7266]">{detail}</span> : null}
         <DisclosureChevron open={expanded} />
       </button>
       {expanded ? <div className="mt-4">{children}</div> : null}
@@ -330,6 +333,7 @@ export function AgentWorkspace() {
                       <>
                         <HistoryTurn
                           title={complete ? "Journey complete" : card.journey.status === "failed" ? "Journey failed" : "Journey"}
+                          detail={journeyCreationLabel(card.journey)}
                           expanded={expanded}
                           onToggle={() => toggle(card.id)}
                         >

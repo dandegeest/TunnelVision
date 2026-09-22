@@ -22,6 +22,12 @@ export type SessionJourneyTurn = {
   timestamp: string;
   projectId: string;
   status: SessionJourneyStatus;
+  /** Wall-clock start of this journey turn. Defaults to `timestamp` on new turns. */
+  startedAt?: string;
+  /** Wall-clock end when status becomes completed or failed. */
+  completedAt?: string;
+  /** `completedAt - startedAt`. Stored so we do not infer from session `updatedAt`. */
+  elapsedMs?: number;
   continuedFrom?: SessionContinuedFrom;
 };
 
@@ -54,6 +60,11 @@ export function createSessionId(): string {
 
 export function isSessionId(value: string): boolean {
   return SESSION_ID_PATTERN.test(value);
+}
+
+export function requestedSessionIdFromSearch(search: string): string | null {
+  const id = new URLSearchParams(search.startsWith("?") ? search : `?${search}`).get("session")?.trim() ?? "";
+  return isSessionId(id) ? id : null;
 }
 
 export function createEmptySession(now = new Date()): AgentSession {
@@ -103,6 +114,7 @@ export function appendJourneyTurn(
     return session;
   }
   const at = sessionTimestamp(now);
+  const terminal = status === "completed" || status === "failed";
   return {
     ...session,
     updatedAt: at,
@@ -114,6 +126,8 @@ export function appendJourneyTurn(
         timestamp: at,
         projectId: id,
         status,
+        startedAt: at,
+        ...(terminal ? { completedAt: at, elapsedMs: 0 } : {}),
         ...(continuedFrom ? { continuedFrom } : {}),
       },
     ],
@@ -141,19 +155,25 @@ export function updateJourneyTurn(
     if (turn.type !== "journey" || turn.id !== turnId) {
       return turn;
     }
-    const next: SessionJourneyTurn = {
-      ...turn,
-      ...(patch.projectId?.trim() ? { projectId: patch.projectId.trim() } : {}),
-      ...(patch.status ? { status: patch.status } : {}),
-      ...("continuedFrom" in patch
-        ? patch.continuedFrom
-          ? { continuedFrom: patch.continuedFrom }
-          : { continuedFrom: undefined }
-        : {}),
-    };
+    const next = stampJourneyTiming(
+      {
+        ...turn,
+        ...(patch.projectId?.trim() ? { projectId: patch.projectId.trim() } : {}),
+        ...(patch.status ? { status: patch.status } : {}),
+        ...("continuedFrom" in patch
+          ? patch.continuedFrom
+            ? { continuedFrom: patch.continuedFrom }
+            : { continuedFrom: undefined }
+          : {}),
+      },
+      now,
+    );
     if (
       next.projectId === turn.projectId &&
       next.status === turn.status &&
+      next.startedAt === turn.startedAt &&
+      next.completedAt === turn.completedAt &&
+      next.elapsedMs === turn.elapsedMs &&
       sameContinuedFrom(next.continuedFrom, turn.continuedFrom)
     ) {
       return turn;
@@ -297,12 +317,18 @@ function parseSessionTurn(value: unknown, index: number): SessionTurn {
       throw new Error(`Invalid journey turn status ${index}.`);
     }
     const continuedFrom = parseContinuedFrom(record.continuedFrom, index);
+    const startedAt = parseOptionalTimestamp(record.startedAt, index, "startedAt");
+    const completedAt = parseOptionalTimestamp(record.completedAt, index, "completedAt");
+    const elapsedMs = parseOptionalElapsedMs(record.elapsedMs, index);
     return {
       type: "journey",
       id: record.id,
       timestamp: record.timestamp,
       projectId: record.projectId.trim(),
       status: record.status,
+      ...(startedAt ? { startedAt } : {}),
+      ...(completedAt ? { completedAt } : {}),
+      ...(elapsedMs != null ? { elapsedMs } : {}),
       ...(continuedFrom ? { continuedFrom } : {}),
     };
   }
@@ -327,6 +353,90 @@ function parseContinuedFrom(value: unknown, index: number): SessionContinuedFrom
     projectId: record.projectId.trim(),
     canonicalId: record.canonicalId.trim(),
   };
+}
+
+function stampJourneyTiming(turn: SessionJourneyTurn, now: Date): SessionJourneyTurn {
+  const startedAt = turn.startedAt?.trim() || turn.timestamp;
+  const terminal = turn.status === "completed" || turn.status === "failed";
+  if (!terminal) {
+    return turn.startedAt === startedAt ? turn : { ...turn, startedAt };
+  }
+  if (turn.completedAt?.trim() && turn.elapsedMs != null && turn.startedAt === startedAt) {
+    return turn;
+  }
+  const completedAt = turn.completedAt?.trim() || sessionTimestamp(now);
+  const elapsedMs = turn.elapsedMs ?? elapsedBetween(startedAt, completedAt);
+  return {
+    ...turn,
+    startedAt,
+    completedAt,
+    ...(elapsedMs != null ? { elapsedMs } : {}),
+  };
+}
+
+export function journeyCreationElapsedMs(turn: SessionJourneyTurn): number | null {
+  if (typeof turn.elapsedMs === "number" && Number.isFinite(turn.elapsedMs) && turn.elapsedMs >= 0) {
+    return turn.elapsedMs;
+  }
+  const startedAt = turn.startedAt ?? turn.timestamp;
+  if (!turn.completedAt) {
+    return null;
+  }
+  return elapsedBetween(startedAt, turn.completedAt);
+}
+
+export function formatJourneyCreationDuration(elapsedMs: number): string {
+  const totalSeconds = Math.max(0, Math.round(elapsedMs / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  }
+  if (minutes > 0) {
+    return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  }
+  return `${seconds}s`;
+}
+
+export function journeyCreationLabel(turn: SessionJourneyTurn): string | null {
+  if (turn.status !== "completed" && turn.status !== "failed") {
+    return null;
+  }
+  const elapsedMs = journeyCreationElapsedMs(turn);
+  if (elapsedMs == null || elapsedMs < 500) {
+    return null;
+  }
+  return `Created in ${formatJourneyCreationDuration(elapsedMs)}`;
+}
+
+function elapsedBetween(startedAt: string, completedAt: string): number | null {
+  const start = Date.parse(startedAt);
+  const end = Date.parse(completedAt);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) {
+    return null;
+  }
+  return end - start;
+}
+
+function parseOptionalTimestamp(value: unknown, index: number, field: string): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`Invalid journey turn ${field} ${index}.`);
+  }
+  return value.trim();
+}
+
+function parseOptionalElapsedMs(value: unknown, index: number): number | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    throw new Error(`Invalid journey turn elapsedMs ${index}.`);
+  }
+  return value;
 }
 
 function isJourneyStatus(value: unknown): value is SessionJourneyStatus {

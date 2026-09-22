@@ -48,18 +48,11 @@ export function createNewProject(): Project {
   };
 }
 
-/** Filmmaker settings that roll forward to the next Agent-session project. */
+/** Image, video, duration, and pull-forward settings that roll forward. */
 export type SessionProjectSettings = Pick<
   Project,
-  | "construction"
-  | "storyDuration"
-  | "autoGenerateOpening"
-  | "autoGenerateAllDestinations"
-  | "autoBlockShots"
-  | "autoShoot"
   | "generateAudio"
   | "pullForwardReferenceEnabled"
-  | "cameraGrammar"
   | "durationMode"
   | "fixedDurationSeconds"
   | "videoModel"
@@ -73,15 +66,8 @@ export type SessionProjectSettings = Pick<
 
 export function sessionProjectSettings(project: Project): SessionProjectSettings {
   return {
-    construction: project.construction,
-    storyDuration: project.storyDuration,
-    autoGenerateOpening: project.autoGenerateOpening,
-    autoGenerateAllDestinations: project.autoGenerateAllDestinations,
-    autoBlockShots: project.autoBlockShots,
-    autoShoot: project.autoShoot,
     generateAudio: project.generateAudio,
     pullForwardReferenceEnabled: project.pullForwardReferenceEnabled,
-    cameraGrammar: project.cameraGrammar,
     durationMode: project.durationMode,
     fixedDurationSeconds: project.fixedDurationSeconds,
     videoModel: project.videoModel,
@@ -94,7 +80,7 @@ export function sessionProjectSettings(project: Project): SessionProjectSettings
   };
 }
 
-/** Blank project that inherits the previous Agent project's settings, not its journey. */
+/** Fresh project. Only previous image/video settings roll forward — not grammar or journey. */
 export function createNewProjectFromSession(previous: Project): Project {
   return {
     ...createNewProject(),

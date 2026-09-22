@@ -935,6 +935,22 @@ export function planActionLabel(state: {
   return state.agency === "autonomous" ? "CREATE JOURNEY" : "PLAN JOURNEY";
 }
 
+/** Agent CREATE JOURNEY is the same as composer Send: record the Session, then run JourneyAgent. */
+export function startJourneyFromProjectPanel(
+  agency: Agency,
+  story: string,
+  start: {
+    planAgentJourney: (story: string) => void | Promise<void>;
+    planWithDirector: () => void | Promise<void>;
+  },
+): void {
+  if (agency === "autonomous") {
+    void start.planAgentJourney(story);
+    return;
+  }
+  void start.planWithDirector();
+}
+
 export function projectRailHeading(
   agency: Agency,
   settingsOpen = false,
@@ -971,6 +987,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     selection,
     openStoryboardInPlan,
     planWithDirector,
+    planAgentJourney,
     stopJourneyAgent,
   } = useProject();
   const [settingsOpen, setSettingsOpen] = useState(initialSettingsOpen);
@@ -1191,7 +1208,10 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 disabled={!canPlan}
                 title={planTitle}
                 onClick={() => {
-                  void planWithDirector();
+                  startJourneyFromProjectPanel(project.agency, journeyStory, {
+                    planAgentJourney,
+                    planWithDirector,
+                  });
                 }}
                 className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
                   busy ? " storyboard-generating" : ""

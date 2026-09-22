@@ -903,7 +903,8 @@ Today, Agent Send already:
 
 1.  appends a UserTurn to the Session
 2.  creates a new Project when the current one already has a
-    journey (settings roll forward; conversation does not)
+    journey (image/video settings roll forward; camera grammar
+    and destination count do not; conversation does not)
 3.  generates unresolved A unless A is already actual
 4.  runs Director (`requestDirectorPlan` /
     `directorPlanRequestFromProject`) **after** A exists

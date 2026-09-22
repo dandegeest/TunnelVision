@@ -168,6 +168,41 @@ describe("Agent workspace", () => {
     expect(html).toContain('download="forest.mp4"');
     const composer = html.slice(html.indexOf('id="agent-composer"'));
     expect(composer).not.toContain("Travel the forest.");
+    expect(html).not.toContain("Created in");
+  });
+
+  it("shows wall-clock creation time on a completed journey", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialView="agent"
+        initialAgentSession={testSession([
+          { type: "user", id: "user-1", timestamp: AT, text: "Travel the forest." },
+          {
+            type: "journey",
+            id: "journey-1",
+            timestamp: AT,
+            projectId: "forest-a-to-f",
+            status: "completed",
+            startedAt: AT,
+            completedAt: "2026-09-21T15:18:40.000Z",
+            elapsedMs: 18 * 60 * 1000 + 40 * 1000,
+          },
+        ])}
+        initialMovieExport={{
+          videoUrl: "/forest.mp4",
+          filename: "forest.mp4",
+          complete: true,
+          includedJourneyIds: [],
+          missingJourneyIds: [],
+        }}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("Journey complete");
+    expect(html).toContain("Created in 18m 40s");
+    expect(html).toContain("Open Journey complete");
   });
 
   it("keeps a titled prompt collapsed after the journey completes", () => {

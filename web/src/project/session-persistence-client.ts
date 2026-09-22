@@ -11,6 +11,15 @@ function errorMessage(body: unknown, fallback: string): string {
   return fallback;
 }
 
+export async function fetchPersistedAgentSession(id: string): Promise<AgentSession> {
+  const response = await fetch(`/api/sessions/${id}`);
+  const body = await readJson(response);
+  if (!response.ok) {
+    throw new Error(errorMessage(body, "Could not load the Agent session."));
+  }
+  return parseAgentSession(body);
+}
+
 export async function createPersistedAgentSession(): Promise<AgentSession> {
   const response = await fetch("/api/sessions", { method: "POST" });
   const body = await readJson(response);
