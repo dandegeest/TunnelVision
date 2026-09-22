@@ -20,16 +20,19 @@ Not a roadmap. Not schemas. Not UI. Do not implement from this list.
 **Next major question:** How should the Cinematographer reason about
 actual adjacent sets before attempting to shoot them?
 
-**Next active idea to investigate (do not implement yet):** let CM
-choose OG vs Pull Forward **per traversal**, including changing
-technique after a failed shot instead of retrying the same method.
-Currently `pullForwardReferenceEnabled` is a project-level toggle,
-not agent-controlled. Full note:
-[Next experiments — CM OG vs Pull Forward](hackathon/next-experiments-and-ui.md#2-cinematographer-controlled-og-vs-pull-forward).
+**P0 hack-day (do not implement from a research or product
+session):** let CM choose OG vs Pull Forward **per traversal**,
+including changing technique after a failed shot instead of
+retrying the same method. Currently `pullForwardReferenceEnabled`
+is a project-level toggle, not agent-controlled. Full note:
+[Next experiments — CM OG vs Pull Forward](hackathon/next-experiments-and-ui.md#2-cinematographer-controlled-og-vs-pull-forward)
+and [HACKATHON.md](HACKATHON.md) §4b.
 
-Journey-as-chat is **not** research anymore. It landed in Agent.
-See
-[Next experiments — Journey as a Rich Chat Turn](hackathon/next-experiments-and-ui.md#3-hackathon-ui-journey-as-a-rich-chat-turn).
+Journey-as-chat and Session persistence are **not** research
+anymore. They landed in Agent. Continue Journey is **P1**
+hack-day, not a research brainstorm. See
+[Next experiments](hackathon/next-experiments-and-ui.md)
+and [HACKATHON.md](HACKATHON.md).
 
 Relevant inspection concerns, from evidence, not a CM contract:
 
@@ -562,11 +565,12 @@ destination thumbnails.
 
 ## Runway last-frame discovery
 
-Hackathon research branch, not current architecture. Investigate
-whether the actual final world-state of a generated shot can become
-the starting point for deciding where to go next. Not a replacement
-for pre-planned canonical journeys until validated. Do not
-restructure the application around it.
+Hackathon research branch, not current architecture. Discover
+harvest (P1) now has a locked first experiment: **latest usable
+late frame**, ≥720p source, lossless extract, then promote.
+See [HACKATHON.md](HACKATHON.md) §17. The literal last frame is
+the preferred candidate, not an automatic accept. Do not
+restructure the application around GWM Worlds.
 
 ## 2026-09-03 — Runway GWM Worlds 2
 

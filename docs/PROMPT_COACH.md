@@ -309,12 +309,16 @@ In Discover:
 
 ``` text
 current canonical
-→ traversal generation
-→ inspect late / generated frames
-→ promote a useful resulting frame
-→ next canonical
-→ continue
+→ traversal generation (≥720p)
+→ inspect late frames from the end backward
+→ latest usable frame (not the prettiest anywhere)
+→ lossless extract + promote / enhance
+→ next pristine canonical
+→ continue for the planned journey extent
 ```
+
+Harvest details live in [HACKATHON.md](HACKATHON.md) §17. Do not
+treat “useful” as an aesthetic search of the whole clip.
 
 Future Destinations emerge from what the generated journey discovers.
 

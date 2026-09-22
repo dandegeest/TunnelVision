@@ -287,14 +287,15 @@ weight its motion field with it.
 ### Project persistence architecture requirement
 
 TunnelVision must have **one project model and one canonical serialized
-project format shared by every filmmaking surface**. The full Plan |
-Shoot workstation and the dedicated hackathon autonomous surface
-must read and write the same format. The hackathon UI is another
-view / interaction model over that `Project`, not a second schema.
-JourneyAgent operates on the same domain model; it must not create
-a hackathon-specific project or session format, emit an isolated
-movie artifact, or require translation/import before workstation
-use. See [HACKATHON.md](HACKATHON.md) and
+project format shared by every filmmaking surface**. Director,
+Shoot, and the Agent tab must read and write the same format.
+Agent is another view / interaction model over that `Project`,
+not a second schema. A Session references Projects; it must not
+duplicate project state or reconstruct conversation from an
+opened Project. JourneyAgent operates on the same domain model;
+it must not create a hackathon-specific project format, emit an
+isolated movie artifact, or require translation/import before
+workstation use. See [HACKATHON.md](HACKATHON.md) and
 [BACKLOG.md — Durable project persistence](BACKLOG.md#durable-project-persistence).
 
 An Agent-created project must open normally in the workstation and

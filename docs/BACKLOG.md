@@ -52,9 +52,11 @@ Items below are **BACKLOG** unless a later edit changes the status.
 
 ## Pre-hackathon focus
 
-The core filmmaking Agent is proven. Freeze that pipeline. Treat
-existing generation, canonical-frame, traversal, Camotion, export,
-and JourneyAgent as a **library** the hackathon surface will call.
+The core filmmaking Agent, Agent chat workspace, and lightweight
+Session persistence are proven or in product. Freeze that pipeline.
+Treat existing generation, canonical-frame, traversal, Camotion,
+export, JourneyAgent, Agent UI, and Session JSON as a **library**
+event-day intelligence will call.
 
 Next workstation work, in order:
 
@@ -65,19 +67,18 @@ Next workstation work, in order:
 4.  Fresh-machine / config / secrets readiness
 5.  Freeze the core filmmaking pipeline before the event
 
-Do **not** implement camera-grammar baselines, “fix” the Reverse
-Lead astronaut override, Discover, or agentic Model Router policy
-before the event. Those are **HACKATHON / DISCOVERY**.
+Do **not** implement Continue Journey, Discover, CM OG vs Pull
+Forward per traversal, or agentic Model Router policy from a
+normal product session. Those are **HACKATHON / DISCOVERY**.
+Camera grammar (POV / FOLLOW / LEAD / MOUNTED) already landed.
 
-Hackathon-day work is a **new** one-prompt cinematic surface over
-that shared Project, plus Runway Model Router agentic control.
-Camera-grammar classification is a second discovery thread and
-must not displace the Router research. See
+Hackathon-day work is **agent intelligence and Runway API
+usage**, not a second UI. Canonical plan:
 [HACKATHON.md](HACKATHON.md).
 
 Do **not** spend pre-hackathon time inventing a Footage Evaluator,
-Agent take-selection, Draft/Final project modes, or a second
-movie representation.
+Agent take-selection, Draft/Final project modes, a second movie
+representation, session browsing, or chained Session export.
 
 ---
 
@@ -89,45 +90,90 @@ work.
 
 ### Dedicated hackathon UI surface
 
-**Status:** HACKATHON / DISCOVERY for a *dedicated* full-screen
-event entry. The Agent **chat journey** already lives in the
-product Agent tab — do not rebuild that as a second surface.
+**Status:** DONE / PRE-HACK — **abandoned as a second surface.**
+The existing Agent tab is the hackathon surface. Do not add
+`/agent.html` or a parallel Vite entry.
 
-**Goal.** A purpose-built, nearly full-screen autonomous experience:
-one prompt → CREATE JOURNEY → hands off → watch the film crew →
-play the movie in the same surface.
+**Goal.** One prompt → Send → hands off → watch the film crew →
+play the movie in the same journey card. A later Send may start a
+new Project or continue from the previous journey's final
+canonical (`Director.intent()`, P1).
 
 **Why it matters.** The claim is fully unattended agentic journey
-creation, not “AI video generation” and not a restyled Plan | Shoot.
+creation, not “AI video generation” and not a restyled Plan |
+Shoot.
 
-**Intended behavior / design.**
+**Landed in Agent:**
 
--   New route / Vite entry. Not a visual mode inside the editor.
--   Initial state: prompt + CREATE JOURNEY. Optional Open Project.
--   After CREATE JOURNEY: live cards for Director, destinations,
-    CM (scores + grammar when that discovery exists), model
-    routing, shooting, retry, and progress (`A ━━━✓━━━ B …`).
--   Completion: same surface becomes the player. Download / Open
-    in TunnelVision.
--   Chat / tool commands are architecturally important and
-    **later** than the unattended demo.
+-   Journey as a rich chat turn. Header Director | Agent | Shoot.
+-   Lightweight Session persistence. Session references Projects.
+    Refresh creates a new Session. Opening a Project does **not**
+    reconstruct Agent conversation history.
+-   A later prompt on a loaded journey leaves that Project saved
+    and currently always starts a **new** Project. Continue
+    Journey (inherit previous final canonical as A) is **P1**,
+    not shipped.
 
-Standard TV stays the detailed creative environment. Both surfaces
-read/write the same Project. Details:
-[HACKATHON.md](HACKATHON.md).
-
-**Landed in Agent (21 September 2026):** journey as a rich chat
-turn. Header Director | Agent | Shoot. A later prompt starts a new
-project. Open rebuilds Agent history from the saved conversation or
-story + export. Note:
-[Next experiments and hackathon UI](hackathon/next-experiments-and-ui.md#3-hackathon-ui-journey-as-a-rich-chat-turn).
+Note:
+[HACKATHON.md](HACKATHON.md),
+[Next experiments](hackathon/next-experiments-and-ui.md).
 
 **Constraints / invariants.**
 
 -   Do not replace or gut Plan | Shoot.
 -   Do not invent a hackathon-only project schema.
--   Do not require user clicks after CREATE JOURNEY for the hero
-    demo.
+-   Do not require user clicks after Send for the hero demo.
+-   Do not add New Journey / Continue Journey buttons.
+-   Do not build a session browser or chained Session MP4.
+
+---
+
+### Session vs Project (pre-hack)
+
+**Status:** DONE / PRE-HACK for lightweight persistence.
+Session browser / rehydration is **NOT HACK**.
+
+**Ownership.**
+
+-   Session = interaction / conversation history
+    (`~/.tunnelvision/sessions/<id>.json`)
+-   Project = current state of one generated journey
+
+A Session references Projects. Directed / Plan / Timeline edits
+modify the Project. Opening a Project must not reconstruct Agent
+history. Every app refresh creates a new Session; old JSON stays
+on disk.
+
+`continuedFrom` is on the JourneyTurn schema and is **not written
+yet** (Continue Journey, P1).
+
+---
+
+### Continue Journey
+
+**Status:** HACKATHON / DISCOVERY — **P1**. Do not implement from
+a normal product session. Canonical plan:
+[HACKATHON.md](HACKATHON.md) §4a.
+
+**Goal.** Same Send → `Director.intent()` → NEW | CONTINUE.
+Continuation creates a **new** Project whose A is the previous
+completed Project's **actual** final accepted canonical. Do not
+append to the previous Project. Do not stitch videos.
+
+**Bias.** NEW when continuation is ambiguous. No confirmation UX.
+
+---
+
+### Cinematographer OG vs Pull Forward
+
+**Status:** HACKATHON / DISCOVERY — **P0**. Do not implement from
+a normal product session. Full note:
+[Next experiments — CM OG vs Pull Forward](hackathon/next-experiments-and-ui.md#2-cinematographer-controlled-og-vs-pull-forward).
+
+**Goal.** CM chooses OG vs Pull Forward independently for each
+traversal **before** shooting, and can switch technique after a
+diagnosed failure. Today's `pullForwardReferenceEnabled` is a
+project-level toggle, not this feature.
 
 ---
 
@@ -278,9 +324,11 @@ hackathon cards. Persist those decisions on the shared Project.
 
 **Status:** Happy path, sequential canonical construction, Traversal
 Confidence repair, overlapping NEW TAKE, and assembly are in
-product. LOOP, provider-aware concurrent filming, and durable
-persistence remain BACKLOG. Footage Evaluator / Agent take
-selection are **retired explorations**, not planned Agent stages.
+product. LOOP, provider-aware concurrent filming, and autonomous
+stopping remain BACKLOG / post-hack. Footage Evaluator / Agent
+take selection are **retired explorations**, not planned Agent
+stages. Journey completion is the Director-planned destination
+count, not an LLM stop decision.
 
 **Goal.** Implement fully autonomous journey execution. AGENT
 executes the journey. It does not merely press the existing
@@ -416,11 +464,31 @@ control until those strategies exist as real behavior.
 
 ---
 
+### Agent stopping / completion judgment
+
+**Status:** BACKLOG — **OUT / DEFERRED** for hack day. Do not
+implement an LLM “should this journey continue / stop?” loop.
+
+**Goal (future product, not event-day).** Let the Agent decide
+when a journey is complete instead of always running a planned
+destination count.
+
+**Why it is out of the hack.** It does not strengthen the
+hackathon thesis (WHERE / HOW / technique / NEW vs CONTINUE /
+Discover harvest) and adds another decision loop that can
+destabilize the demo.
+
+For hackathon scope, the Director plans journey extent with the
+existing mechanism. JourneyAgent completes when the required
+planned canonicals and traversals are processed and assembled.
+
+---
+
 ### Agent LOOP option
 
 **Status:** BACKLOG — do not implement during the current
-JourneyAgent happy-path work. Happy-path completion stays the
-immediate priority.
+JourneyAgent happy-path work. **OUT / DEFERRED** for hack day.
+Happy-path completion stays the immediate priority.
 
 **Goal.** Let AGENT close a generated journey on the **exact
 opening canonical A** so the assembled movie can loop
@@ -1133,13 +1201,15 @@ to the complete B1 continuity and reselect its compatible Takes.
 
 ### Discover canonical strategy
 
-**Status:** HACKATHON / DISCOVERY — intended second journey
-strategy. Do not implement from a normal product session. Do not
-spend event-day time on it until the unattended Derive movie
-already plays.
+**Status:** HACKATHON / DISCOVERY — **P1** if P0 is healthy.
+Not a UI mode. Do not implement from a normal product session.
+Do not spend event-day time on it until unattended Derive and CM
+OG vs Pull Forward already work. Canonical harvest spec:
+[HACKATHON.md](HACKATHON.md) §17.
 
-**Goal.** Add a second strategy for creating the next canonical
-from what actually emerges in generated traversal footage.
+**Goal.** Create the next pristine canonical from what actually
+emerges in generated traversal footage — not from a predetermined
+constructed B.
 
 **Why it matters.** DERIVE follows the Director’s intended
 destination. DISCOVER lets the journey evolve from the world the
@@ -1148,32 +1218,50 @@ not a CM failure.
 
 **Intended behavior / design.**
 
-**DERIVE** (current Construct): next canonical from Director
-intent / plan, conditioned on the preceding actual still.
+``` text
+DERIVE
+  Director defines intended B
+    → construct pristine B
+    → prepare A′ / B′
+    → generate A→B
 
-**DISCOVER:** next canonical from the actual generated traversal.
+DISCOVER
+  pristine A
+    → generate A→? into the unknown  (≥720p)
+    → inspect the ending region
+    → latest usable late frame
+    → lossless extract (PNG)
+    → promote / enhance → pristine B
+    → inspect B / decide next exploratory intent
+    → generate B→?
+    → harvest C
+    → repeat for the planned journey extent
+```
+
+**Latest usable frame wins.** Start at the end and work backward.
+Do not search the whole clip for the prettiest frame. Prefer the
+literal final frame unless an earlier late-frame candidate is
+materially more usable.
+
+First experiment: one late-frame contact sheet + one CM
+evaluation (not N LLM calls). Then FFmpeg (or equivalent)
+extracts the exact selected frame to `B-source.png` with no
+resize / JPEG. A separate promote / enhance step produces
+canonical `B.png` at normal TunnelVision aspect (usually 16:9)
+as lossless PNG. Do not ask an image model to recreate the
+selected frame.
+
 Discover prompts may stay looser; do not force Derive-style
 Destination specification onto Discover. See
 [PROMPT_COACH.md](PROMPT_COACH.md).
 
-Likely flow:
+Director still owns journey **extent** (planned destination
+count). JourneyAgent completes when that extent is processed and
+assembled. Autonomous stopping is **out** for hack day.
 
-1.  Actual A exists.
-2.  Generate traversal from the current canonical. For a first
-    DISCOVER leg the “B” end condition may be weaker or absent;
-    do not assume today’s A′/B′ pair is mandatory.
-3.  Inspect the generated traversal.
-4.  Use the literal last frame **or** reverse / search backward
-    for the best usable late frame.
-5.  Extract that frame and upscale / promote it into canonical B
-    (canonical resolution rules apply).
-6.  Continue B→C, C→D, …
-
-DISCOVER must **not** use the Derive reshoot loop. Emergence is
-the point; the generated journey discovers where it goes. CM may
-still evaluate a later pair once two actuals exist, but a
-discovered endpoint that differs from a predetermined destination
-is not a repair trigger.
+DISCOVER must **not** use the Derive reshoot loop merely because
+a harvested B differs from a planned B. Emergence is the point.
+CM may still evaluate a later pair once two actuals exist.
 
 Canonical-generation strategy is architecturally independent from
 control mode:
@@ -1190,41 +1278,44 @@ modes.
 
 **Constraints / invariants.**
 
--   Discovered B is an actual canonical. It is not a storyboard
-    drawing and not a raw video frame left at provider resolution
-    without normalization.
+-   Discovered B is an actual canonical after promotion. It is
+    not a storyboard drawing and not a raw JPEG or draft-resolution
+    frame.
+-   Discover traversal generation is **minimum 720p**.
+-   Harvest provenance lives on the **Project** canonical
+    (`CanonicalTake.source` already includes `"discover"`). Session
+    does not own it. Do not invent a new schema in a docs-only pass.
 -   Agency stays orthogonal. Directed may later DISCOVER; AGENT
     may DERIVE.
 -   Do not silently replace a filmmaker-specified actual B with a
     discovered frame.
 -   Look-ahead and Director plan remain subordinate once a
     discovered still is accepted; the still wins.
--   Provider-specific video APIs stay in adapters (last-frame
-    extract, etc.).
+-   Provider-specific video APIs stay in adapters.
 
 **Likely implementation areas.**
 
 -   New discover path beside
     `destinationConstructionRequestFromProject` (do not overload
     Construct until the contract is clear)
--   Video output inspection (frame extract from take
-    `videoUrl` / provider artifacts)
--   Canonical normalization
-    (`web/src/project/canonical-aspect.ts`, runtime media)
+-   Local lossless frame extract from take `videoUrl`
+-   Late-frame contact sheet + one CM selection
+-   Canonical promotion / enhance into
+    `web/src/project/canonical-aspect.ts` / runtime media
 -   Agent runner strategy flag (internal, not a Project settings
     control)
 -   GWM / Discovery notes in RESEARCH_BACKLOG are hypothesis only;
     do not copy that schema
 
-**Open questions.**
+**Open questions (must answer before attempting Discover).**
 
--   First DISCOVER shot: video from A only, or A plus a weak
-    planned B that is allowed to lose?
--   How to pick the “best continuation frame” without a new
-    filmmaking role (Director critique? heuristic near end of
-    clip?).
--   After DISCOVER B, does Director replan C…N against the actual
-    world?
+-   First Discover shot: generate from pristine A alone (no B′),
+    or still require some end condition / Camotion pair?
+-   How OG vs Pull Forward applies when B is not predetermined.
+-   Which established enhance / upscale path, if any, promotes
+    `B-source.png` → `B.png`.
+-   Whether Director writes a destination count only, or a loose
+    arc that harvest overwrites.
 
 ---
 
@@ -1303,32 +1394,33 @@ choose a route from camera grammar / CM scores / prior results.
 Router executes generation. See [HACKATHON.md](HACKATHON.md) §14
 and [Agentic Runway Model Router control](#agentic-runway-model-router-control).
 
-**Why it matters.** Hackathon time is for a dedicated autonomous
-surface and adaptive Runway generation, not a rewrite of Plan |
-Shoot, CM, or Camotion, and not a one-for-one swap of Replicate
-model IDs. We are not claiming the whole application was built
-that day.
+**Why it matters.** Hackathon time is for **agent intelligence
+and Runway API usage**, not a rewrite of Plan | Shoot, CM, or
+Camotion, and not a one-for-one swap of Replicate model IDs. We
+are not claiming the whole application was built that day.
 
 **Intended behavior / design.**
 
-Hackathon-day focus:
+Hackathon-day focus (see [HACKATHON.md](HACKATHON.md) priority
+board):
 
--   Shared Project persistence used by both surfaces
--   Dedicated **minimal cinematic** UI (not a stripped editor)
+-   P0: unattended orchestration + CM OG vs Pull Forward
+    (including failure-driven technique switch)
+-   P1: Continue Journey, Discover ≥720p late-frame harvest,
+    Model Router **if** it shows useful intelligence
+-   OUT: autonomous Agent stopping
 -   Agent layer ([Agent mode](#agent-mode)) — **reused**, not
     implemented on event day
--   Runway **Model Router** behind adapters; named models only as
-    fallback; **visible** route / model decisions
--   [Camera grammar](#camera-grammar-classification) if the
-    unattended path already plays
--   [DISCOVER](#discover-canonical-strategy) only after that
--   Fully unattended first cut: prompt → CREATE JOURNEY → watch
-    agents work → play the movie in the same surface. Opening the
-    Project in standard TV later is how the filmmaker inspects
-    Takes.
+-   Shared Project persistence; Session references Projects
+-   Existing Agent tab (not a dedicated second surface)
+-   Fully unattended first cut: prompt → Send → watch agents
+    work → play the movie on the journey card. Opening the
+    Project in Director / Shoot later is how the filmmaker
+    inspects Takes. Opening a Project does **not** rebuild Agent
+    history.
 
-User-facing hackathon loop: one prompt, CREATE JOURNEY, hands
-off. No extra Agent options on event day. Product
+User-facing hackathon loop: one prompt, Send, hands off. No extra
+Agent options on event day. Product
 [Agent LOOP option](#agent-loop-option) is backlog, not hackathon
 UI. Advanced chat must not jeopardize the hero demo.
 
@@ -2385,14 +2477,13 @@ A real project cannot be handed to another machine or resumed
 tomorrow.
 
 **Architecture requirement: one project model, multiple filmmaking
-surfaces.** The full Plan | Shoot workstation and the dedicated
-hackathon surface must read and write the exact same TunnelVision
-project format. The hackathon UI is another VIEW / interaction
-model over that `Project`, not a second schema. It must not emit
-only an isolated movie artifact or require a later
-translation/import step. A project created autonomously in the
-hackathon UI must open normally in the full workstation, and an
-existing project may later be opened in the hackathon surface.
+surfaces.** Director, Shoot, and the Agent tab must read and
+write the exact same TunnelVision project format. Agent is
+another VIEW / interaction model over that `Project`, not a
+second schema. A Session references Projects; it must not
+duplicate project state. Opening a Project must not reconstruct
+Agent conversation. A project created autonomously in Agent must
+open normally in Director / Shoot.
 
 **Intended behavior / design.**
 
@@ -2420,8 +2511,8 @@ Persist enough to restore the actual workspace:
     grammar for hackathon scope
 -   retry / reshoot / reroute history
 -   Agent activity and results where useful for provenance/debugging
--   relevant agent conversation / history when it is project
-    provenance (chat is not the source of truth)
+-   do **not** persist Agent Session conversation on the Project
+    (Session JSON is the conversation store)
 -   final assembled movie/export references where appropriate
 -   relevant project settings (agency, video model, aspect,
     Directed options if still used)
@@ -2438,10 +2529,10 @@ state.
 **Constraints / invariants.**
 
 -   Session UI ≠ project persistence (already documented).
--   The workstation and hackathon surface use one canonical
-    serialized project format; no surface-specific schema.
--   A hackathon-created project must be directly openable and
-    continuable in the full workstation.
+-   Director, Shoot, and Agent use one canonical serialized
+    project format; no surface-specific schema.
+-   An Agent-created project must be directly openable in
+    Director / Shoot. Opening it must not rebuild Session history.
 -   Persist every generated Take, including non-selected alternatives.
 -   Takes remain reviewable and selectable after reopen; a different
     selection must support a different export.

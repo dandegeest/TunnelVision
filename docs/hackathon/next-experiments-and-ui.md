@@ -1,20 +1,22 @@
 # Next experiments and hackathon UI directions
 
-Items 1 and 2 are R&D only. **Do not implement them from this file.**
-Do not change production behavior, persistence, JourneyAgent,
-Cinematographer, or Plan | Shoot for those notes.
+Items 1, 2, 4, and 5 are **not** current product work. Do not
+implement them from this file. Canonical event-day plan:
+[HACKATHON.md](../HACKATHON.md).
 
-Item 3 landed in the existing Agent surface. The `/hackathon-mock`
-prototype was deleted. Plan and Timeline remain specialist views.
+Item 3 and Session persistence landed in the existing Agent
+surface. The `/hackathon-mock` prototype was deleted. Plan and
+Timeline remain specialist views.
 
-Related event-day plan: [HACKATHON.md](../HACKATHON.md). Related
-unvalidated research: [RESEARCH_BACKLOG.md](../RESEARCH_BACKLOG.md).
+Related unvalidated research: [RESEARCH_BACKLOG.md](../RESEARCH_BACKLOG.md).
 
 | # | Direction | Role |
 | --- | --- | --- |
-| 1 | Automatic color continuity / finishing | Unvalidated experiment after abandoned 120fps Temporal Seam velocity smoothing. Do not implement. |
-| 2 | Cinematographer-controlled OG vs Pull Forward | **Next active idea to investigate.** Do not implement. |
-| 3 | Journey as a rich chat turn | **Landed** in Agent (`web/src/app/agent/`). Header **Director \| Agent \| Shoot**. |
+| 1 | Automatic color continuity / finishing | **P2 optional.** After abandoned 120fps Temporal Seam. Do not implement from a product session. |
+| 2 | Cinematographer-controlled OG vs Pull Forward | **P0 hack-day.** Do not implement from a product session. |
+| 3 | Journey as a rich chat turn + Session | **Landed / pre-hack.** Agent tab. Session references Projects. |
+| 4 | Continue Journey | **P1 hack-day.** Same Send → `Director.intent()`. |
+| 5 | Discover late-frame harvest | **P1** if P0 is healthy. ≥720p A→?; latest usable frame. Spec: [HACKATHON.md](../HACKATHON.md) §17. |
 
 ---
 
@@ -88,14 +90,17 @@ AUTO COLOR MATCH
 AUTO COLOR MATCH + GLOBAL GRADE
 ```
 
-Do not implement yet. Do not spend event-day hours on this unless a
-later decision promotes it.
+Do not implement from a product session. **P2** on the hack
+board — below core agent behavior. Do not spend event-day hours
+on this unless P0 and Continue Journey are already green.
 
 ---
 
 ## 2. Cinematographer-Controlled OG vs Pull Forward
 
-**This is the next active idea to investigate.** Do not implement yet.
+**P0 hack-day.** Do not implement from a product session. This is
+one of the central event-day experiments. See
+[HACKATHON.md](../HACKATHON.md) §4b.
 
 Allow the **Cinematographer (CM)** to select the traversal-generation
 technique independently for each A→B shot. A journey would no longer
@@ -188,8 +193,9 @@ A ─────────▶ B ─────────▶ C
 The user should **not** need to select OG / PF during normal agentic
 generation.
 
-Do not implement yet. Do not fold this into the current project
-toggle. Do not expose a required filmmaker control.
+Do not implement from a product session. Do not fold this into
+the current project toggle. Do not expose a required filmmaker
+control.
 
 ---
 
@@ -323,11 +329,17 @@ and Set / Travel. Video and Download sit under the card either way.
 Click a still to select it; click the **selected** still to open the
 storyboard reel lightbox (same reel as Director / Shoot).
 
-A later Agent prompt on a project that already has a journey
-**leaves that project saved and starts a new one** (one project =
-one journey). Reload / Open rebuilds the Agent transcript from
-`conversation/events.jsonl`, or from the saved story + assembled
-movie when that file is empty.
+A later Agent prompt currently **leaves that project saved and
+starts a new one** (one project = one journey). Continue Journey
+(P1) will let `Director.intent()` choose NEW vs CONTINUE instead
+of always starting a fresh world. Continuation still creates a
+**new** Project; it does not append to the previous one.
+
+Opening a Project loads Plan / Timeline / player. It does **not**
+reconstruct Agent conversation history. Agent renders from the
+active Session + referenced Projects. Every refresh creates a
+**new** Session; old Session JSON stays on disk. Session browser
+/ rehydration is not hack scope.
 
 ### History
 
@@ -365,9 +377,10 @@ A → B → C → ◉ → ○
 There is no need for a separate “Previous Journeys” dashboard in the
 **primary** hackathon experience.
 
-The persistent `Project` remains the source of truth
-([HACKATHON.md](../HACKATHON.md) — chat is not the store). This UI
-direction changes how journeys **appear**, not where they persist.
+The persistent `Project` remains the source of truth for one
+journey's media, plan, scores, and video. The Session is the
+source of truth for conversation structure and project
+references. Do not reconstruct a Session from an opened Project.
 
 ### Composer
 
@@ -377,9 +390,11 @@ Keep a floating pill composer at the bottom of the canvas, Krea-like:
 Where should we go next?                              ⊕
 ```
 
-Unsent composer text survives Director / Shoot. On a **new** project
-the first send names and autosaves the folder. On a loaded journey,
-send starts a new project from that prompt.
+Unsent composer text survives Director / Shoot. On a **new**
+project the first send names and autosaves the folder. On a
+loaded journey, send currently starts a new project from that
+prompt. P1: the same Send asks `Director.intent()` whether the
+prompt is NEW or CONTINUE.
 
 ### Design principle
 
@@ -402,3 +417,39 @@ status only (`Planning…`, `Generating D…`, `Planning D→E…`); no
 verbose Director / Cinematographer / reshoot prose on the card; no
 green letter rail. Reshoot history still stacks under a destination
 when rejected stills exist.
+
+---
+
+## 4. Continue Journey
+
+**P1 hack-day.** Do not implement from a product session. Canonical
+write-up: [HACKATHON.md](../HACKATHON.md) §4a.
+
+Same composer. Same Send. No New Journey / Continue Journey
+buttons. `Director.intent()` returns `new` | `continue` **before**
+canonical A is resolved, because Director planning is grounded in
+actual A.
+
+Continue does **not** append to the previous Project. It creates a
+new Project whose A is the previous completed journey's **actual**
+final accepted canonical (do not assume letter `E`). Session
+JourneyTurn records `continuedFrom: { projectId, canonicalId }`.
+
+Bias NEW when ambiguous. Subtle UI only, e.g. “Continuing from
+the mountaintop sanctuary.” Do not stitch continued Projects into
+one MP4.
+
+---
+
+## 5. Discover late-frame harvest
+
+**P1 if P0 is healthy.** Do not implement from a product session.
+Canonical spec: [HACKATHON.md](../HACKATHON.md) §17.
+
+No predetermined pristine B. Generate A→? at **≥720p**, choose
+the **latest usable** late frame (not the prettiest frame in the
+clip), extract lossless PNG, then promote / enhance to canonical
+B.png. Repeat for the Director-planned journey extent.
+
+No Discover button. No autonomous stopping loop. No draft-resolution
+harvest.
