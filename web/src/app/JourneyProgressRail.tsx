@@ -21,8 +21,11 @@ function progressStatusLabel(kind: "canonical" | "footage", status: JourneyProgr
   if (status === "complete") {
     return "accepted";
   }
-  if (status === "active") {
+  if (status === "shooting" || status === "active") {
     return "shooting";
+  }
+  if (status === "planning") {
+    return "planning";
   }
   return "pending";
 }
@@ -143,17 +146,20 @@ function FootageLine({
   status: JourneyProgressSegment["status"];
 }) {
   const done = status === "complete";
-  const active = status === "active";
+  const shooting = status === "shooting" || status === "active";
+  const planning = status === "planning";
   return (
     <span
       aria-label={`Footage ${from} to ${to} ${progressStatusLabel("footage", status)}`}
       data-progress-line={status}
       className={`mx-1 h-0.5 w-4 shrink-0 ${
-        active
-          ? "journey-progress-line-active"
-          : done
-            ? "bg-[#8fa36a]"
-            : "journey-progress-line-pending"
+        shooting
+          ? "journey-progress-line-shooting"
+          : planning
+            ? "journey-progress-line-planning"
+            : done
+              ? "bg-[#8fa36a]"
+              : "journey-progress-line-pending"
       }`}
     />
   );

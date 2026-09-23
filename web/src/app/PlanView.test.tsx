@@ -134,7 +134,7 @@ describe("Plan project story", () => {
     expect(html).toContain("focus:bg-[#161410]");
     expect(html).toContain('aria-label="Resize director panel"');
     expect(html).toContain('aria-label="Resize project panel"');
-    expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:[\s>]|$)/);
+    expect(html).not.toMatch(/id="project-story"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).toContain(WARDROBE_USER_PROMPT);
     expect(html).toContain('aria-label="Plan journey"');
     expect(html).toContain("relative w-full overflow-hidden rounded");
@@ -1943,6 +1943,7 @@ describe("new-project Plan", () => {
     expect(shooting).toContain("Generating A→B…");
     expect(shooting).not.toContain("Shooting…");
     expect(shooting).toContain('data-destination-drop="append"');
+    expect(shooting).toMatch(/id="project-story"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
   });
 
   it("exposes Upload image on unresolved destinations added after A", () => {

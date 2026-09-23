@@ -22,6 +22,13 @@ describe("journey progress rail", () => {
     expect(journeyProgressFromProject(createNewProject())).toBeNull();
   });
 
+  it("shows opening A as soon as it is generating, before directing finishes", () => {
+    const opening = journeyProgressFromProject(createNewProject(), { constructingBeatId: "A" });
+    expect(opening?.nodes.map((node) => node.letter)).toEqual(["A"]);
+    expect(opening?.nodes[0]?.status).toBe("active");
+    expect(opening?.segments).toEqual([]);
+  });
+
   it("uses storyboard order when a planned journey exists", () => {
     const planned = projectWithDirectorPlan(
       { ...createWardrobeProject(), journeys: [] },
@@ -47,9 +54,13 @@ describe("journey progress rail", () => {
     expect(complete?.segments.every((segment) => segment.status === "complete")).toBe(true);
 
     const shooting = journeyProgressFromProject(forest, { shootingJourneyIds: ["C-D"] });
-    expect(shooting?.segments.find((segment) => segment.journeyId === "C-D")?.status).toBe("active");
+    expect(shooting?.segments.find((segment) => segment.journeyId === "C-D")?.status).toBe("shooting");
     expect(shooting?.segments.find((segment) => segment.journeyId === "B-C")?.status).toBe("complete");
     expect(shooting?.nodes.find((node) => node.id === "C")?.status).toBe("complete");
+
+    const planning = journeyProgressFromProject(forest, { assessingJourneyIds: ["C-D"] });
+    expect(planning?.segments.find((segment) => segment.journeyId === "C-D")?.status).toBe("planning");
+    expect(planning?.segments.find((segment) => segment.journeyId === "B-C")?.status).toBe("complete");
 
     const constructing = journeyProgressFromProject(forest, { constructingBeatId: "C" });
     expect(constructing?.nodes.find((node) => node.id === "C")?.status).toBe("active");

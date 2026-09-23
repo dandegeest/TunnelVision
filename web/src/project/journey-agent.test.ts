@@ -600,6 +600,25 @@ describe("JourneyAgent canonical repair", () => {
     expect(result.snapshot.phase).toBe("COMPLETE");
   });
 
+  it("retries a failed take before assembling so a reshot pair is not left empty", async () => {
+    let attempts = 0;
+    const { ops, calls } = recordingOps({
+      planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
+      createTake: async (project, journeyId) => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw new Error("Connection aborted");
+        }
+        return domainOps().createTake(project, journeyId);
+      },
+    });
+    const result = await runJourneyAgent(promptedProject(), ops);
+    expect(calls.filter((call) => call === "createTake:A-B")).toHaveLength(2);
+    expect(selectedTakeVideoUrl(result.project.journeys[0]!)).toBe("https://example.test/A-B.mp4");
+    expect(calls.at(-1)).toBe("assembleMovie");
+    expect(result.snapshot.phase).toBe("COMPLETE");
+  });
+
   it("proceeds directly to shooting when Traversal Confidence is at least 30, even if Set Consistency is low", async () => {
     const { ops, calls } = recordingOps(
       {

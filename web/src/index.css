@@ -287,6 +287,13 @@ body,
   background-position: 0 50%;
 }
 
+.journey-progress-line-active,
+.journey-progress-line-planning,
+.journey-progress-line-shooting {
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+}
+
 .journey-progress-line-active {
   background-image: repeating-linear-gradient(
     90deg,
@@ -294,9 +301,27 @@ body,
     transparent 3px 6px
   );
   background-size: 12px 2px;
-  background-repeat: repeat-x;
-  background-position: 0 50%;
   animation: journey-progress-dash 0.55s linear infinite;
+}
+
+.journey-progress-line-planning {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #d4b36a 0 2px,
+    transparent 2px 7px
+  );
+  background-size: 14px 2px;
+  animation: journey-progress-dash 1.15s linear infinite;
+}
+
+.journey-progress-line-shooting {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #ece7df 0 5px,
+    transparent 5px 8px
+  );
+  background-size: 16px 2px;
+  animation: journey-progress-dash 0.28s linear infinite;
 }
 
 @keyframes journey-progress-dash {
@@ -355,11 +380,227 @@ body,
   text-transform: uppercase;
 }
 
+.agent-stage[data-agent-stage] {
+  text-shadow: 0 0 18px rgba(236, 231, 223, 0.18);
+}
+
+.agent-stage-pip {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #ece7df;
+  box-shadow: 0 0 0 0 rgba(236, 231, 223, 0.55);
+  animation: agent-pip 1.15s ease-out infinite;
+}
+
+.agent-stage[data-agent-stage="directing"] .agent-stage-pip {
+  background: #d4b36a;
+  box-shadow: 0 0 0 0 rgba(212, 179, 106, 0.55);
+}
+
+.agent-stage[data-agent-stage="planning"] .agent-stage-pip {
+  background: #d4b36a;
+}
+
+.agent-stage[data-agent-stage="shooting"] .agent-stage-pip {
+  background: #e8c4a0;
+  animation-duration: 0.7s;
+}
+
+.agent-path-directing {
+  isolation: isolate;
+}
+
+.agent-directing-scan {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7.4rem;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(212, 179, 106, 0.1) 48%,
+    rgba(236, 231, 223, 0.16) 50%,
+    rgba(212, 179, 106, 0.1) 52%,
+    transparent 80%
+  );
+  background-size: 220% 100%;
+  animation: agent-directing-sweep 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.agent-letter-cast {
+  animation: agent-letter-cast 2.2s ease-in-out infinite;
+  animation-delay: calc(var(--cast-i, 0) * 0.16s);
+}
+
+.agent-generating-still {
+  box-shadow: 0 0 36px rgba(212, 179, 106, 0.22);
+}
+
+.agent-generating-fpo::before {
+  animation-duration: 1.15s;
+}
+
+.agent-generating-letter {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(236, 231, 223, 0.82);
+  text-shadow: 0 0 24px rgba(212, 179, 106, 0.45);
+  animation: agent-generating-letter 1.6s ease-in-out infinite;
+}
+
+.agent-generating-label {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.4rem;
+  z-index: 1;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: rgba(236, 231, 223, 0.78);
+  animation: storyboard-pulse 1.2s ease-in-out infinite;
+}
+
+.agent-path-bridge {
+  position: relative;
+  display: flex;
+  width: 5.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.agent-path-bridge-track {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+}
+
+.agent-path-bridge-plan .agent-path-bridge-track {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #d4b36a 0 3px,
+    transparent 3px 8px
+  );
+  background-size: 16px 3px;
+  animation: journey-progress-dash 0.9s linear infinite;
+  box-shadow: 0 0 10px rgba(212, 179, 106, 0.35);
+}
+
+.agent-path-bridge-shoot .agent-path-bridge-track {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #ece7df 18%,
+    #e8c4a0 50%,
+    #ece7df 82%,
+    transparent 100%
+  );
+  background-size: 180% 100%;
+  animation: agent-shoot-beam 0.7s linear infinite;
+  box-shadow: 0 0 14px rgba(232, 196, 160, 0.45);
+}
+
+.agent-path-bridge-mark {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+
+.agent-path-bridge-plan .agent-path-bridge-mark {
+  color: #d4b36a;
+  animation: storyboard-pulse 1.6s ease-in-out infinite;
+}
+
+.agent-path-bridge-shoot .agent-path-bridge-mark {
+  color: #ece7df;
+  animation: storyboard-pulse 0.85s ease-in-out infinite;
+}
+
+@keyframes agent-pip {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(236, 231, 223, 0.45);
+  }
+  70% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 8px rgba(236, 231, 223, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(236, 231, 223, 0);
+  }
+}
+
+@keyframes agent-directing-sweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
+}
+
+@keyframes agent-letter-cast {
+  0%,
+  100% {
+    border-color: #7a7266;
+    color: #cfc6b8;
+    box-shadow: none;
+  }
+  40% {
+    border-color: #d4b36a;
+    color: #ece7df;
+    box-shadow: 0 0 16px rgba(212, 179, 106, 0.35);
+  }
+}
+
+@keyframes agent-generating-letter {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes agent-shoot-beam {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .storyboard-generating::before,
   .storyboard-generating-label,
   .journey-progress-line-active,
-  .project-score-value-tick {
+  .journey-progress-line-planning,
+  .journey-progress-line-shooting,
+  .project-score-value-tick,
+  .agent-stage-pip,
+  .agent-directing-scan,
+  .agent-letter-cast,
+  .agent-generating-letter,
+  .agent-generating-label,
+  .agent-path-bridge-track,
+  .agent-path-bridge-mark {
     animation: none;
   }
 }

@@ -1092,6 +1092,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 value={composerDraft}
                 placeholder="Describe the journey…"
                 aria-label="Journey story"
+                disabled={busy}
                 className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
               />

@@ -116,8 +116,15 @@ describe("journey turns from conversation", () => {
         events: [],
       }),
     ).toBe("Planning B→C…");
+    expect(
+      agentGeneratingLabel(null, {
+        phase: "SHOOTING",
+        activity: { message: "shooting B-C", journeyId: "B-C" },
+        events: [],
+      }),
+    ).toBe("Shooting B→C…");
     expect(agentGeneratingLabel(null, { phase: "DIRECTING", activity: null, events: [] }, { directorPlanning: true })).toBe(
-      "Planning…",
+      "Directing",
     );
   });
 

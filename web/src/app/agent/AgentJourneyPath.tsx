@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { selectedCanonicalTake } from "../../project/canonical-takes";
 import { cinematographerScoreTone } from "../../project/cinematographer";
+import type { JourneyAgentPhase } from "../../project/journey-agent";
 import type { StoryboardFrame } from "../../project/types";
 import { StoryboardFrameMedia } from "../PlanView";
 import type { JourneyProgress, JourneyProgressStatus } from "../conversation-console";
@@ -8,6 +9,22 @@ import { previousCanonicals, rejectedCanonicals, type RejectedCanonical } from "
 
 /** Journeys shorter than this scale to the chat width instead of scrolling. */
 export const AGENT_PATH_FIT_LIMIT = 10;
+
+function footageLabel(status: JourneyProgressStatus): string {
+  if (status === "complete") {
+    return "complete";
+  }
+  if (status === "shooting") {
+    return "shooting";
+  }
+  if (status === "planning") {
+    return "planning";
+  }
+  if (status === "active") {
+    return "in progress";
+  }
+  return "pending";
+}
 
 function PathLine({
   from,
@@ -18,18 +35,30 @@ function PathLine({
   to: string;
   status: JourneyProgressStatus;
 }) {
+  const live = status === "planning" || status === "shooting";
   return (
     <span
-      aria-label={`Footage ${from} to ${to} ${status === "complete" ? "complete" : status === "active" ? "in progress" : "pending"}`}
+      aria-label={`Footage ${from} to ${to} ${footageLabel(status)}`}
       data-progress-line={status}
-      className={`h-1 w-5 shrink-0 ${
-        status === "active"
-          ? "journey-progress-line-active"
-          : status === "complete"
-            ? "bg-[#8fa36a]"
-            : "journey-progress-line-pending"
-      }`}
-    />
+      className={
+        live
+          ? `agent-path-bridge ${status === "shooting" ? "agent-path-bridge-shoot" : "agent-path-bridge-plan"}`
+          : `h-1 w-5 shrink-0 ${
+              status === "active"
+                ? "journey-progress-line-active"
+                : status === "complete"
+                  ? "bg-[#8fa36a]"
+                  : "journey-progress-line-pending"
+            }`
+      }
+    >
+      {live ? (
+        <>
+          <span className="agent-path-bridge-track" aria-hidden />
+          <span className="agent-path-bridge-mark">{status === "shooting" ? "SHOOT" : "PLAN"}</span>
+        </>
+      ) : null}
+    </span>
   );
 }
 
@@ -69,11 +98,15 @@ function GeneratingFpo({
       aria-pressed={selected}
       aria-busy="true"
       onClick={onSelect}
-      className={`relative block aspect-video w-full overflow-hidden ${
-        selected ? "border border-[#ece7df]" : "border border-[#2a2620]"
+      className={`agent-generating-still relative block aspect-video w-full overflow-hidden ${
+        selected ? "border border-[#ece7df]" : "border border-[#d4b36a]/70"
       }`}
     >
-      <span className="storyboard-fpo storyboard-generating absolute inset-0" />
+      <span className="storyboard-fpo storyboard-generating agent-generating-fpo absolute inset-0" />
+      <span className="agent-generating-letter" aria-hidden>
+        {letter}
+      </span>
+      <span className="agent-generating-label">GENERATING</span>
     </button>
   );
 }
@@ -140,22 +173,37 @@ function LetterNode({
   letter,
   status,
   selected,
+  directing,
+  castIndex,
   onSelect,
 }: {
   letter: string;
   status: JourneyProgressStatus;
   selected: boolean;
+  directing?: boolean;
+  castIndex?: number;
   onSelect: () => void;
 }) {
+  const style =
+    directing && castIndex != null
+      ? ({ ["--cast-i"]: String(castIndex) } as CSSProperties)
+      : undefined;
   return (
     <div className="flex aspect-video w-full items-center justify-center">
       <button
         type="button"
         aria-label={`Canonical ${letter} ${status === "active" ? "in progress" : "pending"}`}
         aria-pressed={selected}
+        style={style}
         onClick={onSelect}
         className={`inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full border border-[#7a7266] bg-transparent px-2 text-[12px] font-semibold tracking-[0.06em] text-[#cfc6b8] outline-none hover:border-[#ece7df] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#ece7df] ${
-          status === "active" ? "animate-pulse ring-1 ring-[#ece7df]" : selected ? "ring-1 ring-[#ece7df]" : ""
+          status === "active"
+            ? "animate-pulse ring-1 ring-[#ece7df]"
+            : directing
+              ? "agent-letter-cast"
+              : selected
+                ? "ring-1 ring-[#ece7df]"
+                : ""
         }`}
       >
         {letter}
@@ -170,25 +218,47 @@ function PathStop({
   caption,
   extra,
   connector,
+  live,
+  bridge,
 }: {
   id: string;
   media: ReactNode;
   caption: ReactNode;
   extra?: ReactNode;
   connector: ReactNode;
+  live?: boolean;
+  bridge?: "planning" | "shooting";
 }) {
   return (
-    <li data-stop={id} className="flex shrink-0 items-start">
-      <div className="w-[10.5rem] max-w-[10.5rem]">
+    <li
+      data-stop={id}
+      data-path-stop-live={live || undefined}
+      className="grid shrink-0 grid-cols-[auto_auto] grid-rows-[auto_auto] items-stretch"
+    >
+      <div
+        className={`col-start-1 row-start-1 transition-[width,max-width] duration-700 ease-out ${
+          live ? "w-[14.5rem] max-w-[14.5rem]" : "w-[10.5rem] max-w-[10.5rem]"
+        }`}
+      >
         {media}
-        {caption}
-        {extra}
       </div>
       {connector ? (
-        <div className="flex aspect-video w-5 shrink-0 items-center justify-center">
+        <div
+          className={`col-start-2 row-start-1 flex items-center justify-center self-stretch transition-[width] duration-500 ease-out ${
+            bridge ? "w-24" : "w-5"
+          }`}
+        >
           {connector}
         </div>
       ) : null}
+      <div
+        className={`col-start-1 row-start-2 ${
+          live ? "w-[14.5rem] max-w-[14.5rem]" : "w-[10.5rem] max-w-[10.5rem]"
+        }`}
+      >
+        {caption}
+        {extra}
+      </div>
     </li>
   );
 }
@@ -197,11 +267,13 @@ function JourneyPathTrack({
   stopCount,
   followId,
   label,
+  phase,
   children,
 }: {
   stopCount: number;
   followId?: string;
   label?: string;
+  phase?: JourneyAgentPhase | "DIRECTING";
   children: ReactNode;
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -245,7 +317,12 @@ function JourneyPathTrack({
   };
 
   return (
-    <div className="relative min-w-0" data-path-fit={fit ? "pack" : "scroll"}>
+    <div
+      className={`relative min-w-0${phase === "DIRECTING" ? " agent-path-directing" : ""}`}
+      data-path-fit={fit ? "pack" : "scroll"}
+      data-agent-phase={phase}
+    >
+      {phase === "DIRECTING" ? <div className="agent-directing-scan pointer-events-none" aria-hidden /> : null}
       {showChevrons ? (
         <>
           <button
@@ -289,6 +366,8 @@ export function AgentJourneyPath({
   constructingId,
   repairingId,
   repairTravel,
+  phase,
+  directorPlanning = false,
   onSelect,
   onOpenReel,
 }: {
@@ -300,13 +379,25 @@ export function AgentJourneyPath({
   constructingId?: string | null;
   repairingId?: string | null;
   repairTravel?: number;
+  phase?: JourneyAgentPhase;
+  directorPlanning?: boolean;
   onSelect: (id: string) => void;
   onOpenReel?: (id: string) => void;
 }) {
   const frameById = new Map(frames.map((frame) => [frame.id, frame]));
-  const followId = constructingId ?? repairingId ?? progress.nodes.find((node) => node.status === "active")?.id;
+  const followId =
+    constructingId ??
+    repairingId ??
+    progress.segments.find((segment) => segment.status === "planning" || segment.status === "shooting")?.from ??
+    progress.nodes.find((node) => node.status === "active")?.id;
+  const directing = phase === "DIRECTING" || directorPlanning;
   return (
-    <JourneyPathTrack stopCount={progress.nodes.length} followId={followId} label="Journey path">
+    <JourneyPathTrack
+      stopCount={progress.nodes.length}
+      followId={followId}
+      label="Journey path"
+      phase={directing ? "DIRECTING" : phase}
+    >
       {progress.nodes.map((node, index) => {
         const frame = frameById.get(node.id);
         const next = progress.nodes[index + 1];
@@ -354,6 +445,8 @@ export function AgentJourneyPath({
             letter={node.letter}
             status={node.status}
             selected={selected}
+            directing={directing && node.status === "pending"}
+            castIndex={index}
             onSelect={() => {
               if (selected && onOpenReel) {
                 onOpenReel(node.id);
@@ -363,10 +456,14 @@ export function AgentJourneyPath({
             }}
           />
         );
+        const bridge =
+          segment?.status === "planning" || segment?.status === "shooting" ? segment.status : undefined;
         return (
           <PathStop
             key={node.id}
             id={node.id}
+            live={generating}
+            bridge={bridge}
             media={media}
             caption={<NodeCaption caption={caption} beat={beat} selected={selected} />}
             extra={

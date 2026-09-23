@@ -15,7 +15,7 @@ import type {
   StoryboardFrame,
 } from "../project/types";
 
-export type JourneyProgressStatus = "complete" | "active" | "pending";
+export type JourneyProgressStatus = "complete" | "active" | "pending" | "planning" | "shooting";
 
 export type JourneyProgressNode = {
   id: string;
@@ -147,21 +147,26 @@ function liveTouchesCanonical(id: string, live: JourneyProgressLive | undefined)
   );
 }
 
-function liveTouchesSegment(
+function segmentLiveKind(
   journeyId: string,
   live: JourneyProgressLive | undefined,
-): boolean {
+): "planning" | "shooting" | null {
   if (live?.shootingJourneyIds?.includes(journeyId)) {
-    return true;
+    return "shooting";
   }
   if (live?.assessingJourneyIds?.includes(journeyId)) {
-    return true;
+    return "planning";
   }
+  const phase = live?.journeyAgent?.phase;
   const activity = live?.journeyAgent?.activity;
-  if (!activity) {
-    return false;
+  const touches = activity?.journeyId === journeyId || Boolean(activity?.journeyIds?.includes(journeyId));
+  if (!touches) {
+    return null;
   }
-  return activity.journeyId === journeyId || Boolean(activity.journeyIds?.includes(journeyId));
+  if (phase === "SHOOTING") {
+    return "shooting";
+  }
+  return "planning";
 }
 
 function canonicalStatus(
@@ -187,8 +192,12 @@ function segmentStatus(
   const journeyId = `${from}-${to}`;
   const journey = journeyByPair(project, from, to);
   const id = journey?.id ?? journeyId;
-  if (liveTouchesSegment(id, live) || journey?.status === "shooting") {
-    return "active";
+  if (journey?.status === "shooting") {
+    return "shooting";
+  }
+  const liveKind = segmentLiveKind(id, live);
+  if (liveKind) {
+    return liveKind;
   }
   if (journey && (journey.status === "rendered" || selectedTakeVideoUrl(journey))) {
     return "complete";
@@ -228,6 +237,24 @@ export function journeyProgressFromProject(
   const ids =
     project.storyboard.length >= 2 ? nodesFromStoryboard(project.storyboard) : nodesFromJourneys(project);
   if (ids.length < 2) {
+    const opening = project.storyboard[0];
+    if (
+      opening &&
+      (liveTouchesCanonical(opening.id, live) || canonicalHasStill(project, opening.id))
+    ) {
+      const caption = destinationLocationLabel(project, opening.id);
+      return {
+        nodes: [
+          {
+            id: opening.id,
+            letter: opening.id,
+            status: canonicalStatus(project, opening.id, live),
+            ...(caption ? { caption } : {}),
+          },
+        ],
+        segments: [],
+      };
+    }
     return null;
   }
   const nodes: JourneyProgressNode[] = ids.map((id) => {

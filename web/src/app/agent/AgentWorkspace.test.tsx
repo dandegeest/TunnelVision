@@ -80,6 +80,10 @@ describe("Agent workspace", () => {
     expect(html).toContain("Travel the forest.");
     expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf("Generating C′…"));
     expect(html).toContain("Generating C′…");
+    expect(html).toContain('data-agent-stage="generating"');
+    expect(html).toContain("data-path-stop-live");
+    expect(html).toContain("max-w-[14.5rem]");
+    expect(html).toContain("GENERATING");
     expect(html).not.toContain("Root-tunnel mouth.");
     expect(html).not.toContain("Spatially coherent, but travel stalls in the tunnel.");
     expect(html).not.toContain("Insufficient forward progression.");
@@ -93,7 +97,8 @@ describe("Agent workspace", () => {
     expect(html).toContain("overflow-x-hidden");
     expect(html).not.toContain('aria-label="Previous locations"');
     expect(html).toContain("Where should we go next?");
-    expect(html).toContain('aria-label="Create journey"');
+    expect(html).toContain('aria-label="Stop agent"');
+    expect(html).not.toContain('aria-label="Create journey"');
     expect(html).toContain('aria-label="New Session"');
     expect(html).not.toContain("Switching OG");
     expect(html).not.toContain("Plan | Shoot");
@@ -101,6 +106,7 @@ describe("Agent workspace", () => {
     expect(html).toContain("min-h-[7rem]");
     const composer = html.slice(html.indexOf('id="agent-composer"'));
     expect(composer).not.toContain("Travel the forest.");
+    expect(html).toMatch(/<textarea[^>]*id="agent-composer"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
   });
 
   it("keeps completed journeys in history above a later prompt", () => {
@@ -156,11 +162,15 @@ describe("Agent workspace", () => {
         <AgentWorkspace />
       </ProjectProvider>,
     );
-    expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf("Journey complete"));
+    expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf("data-collapsed-path"));
+    expect(html.indexOf("data-collapsed-path")).toBeLessThan(html.indexOf("Journey complete"));
+    expect(html.indexOf("Journey complete")).toBeLessThan(html.indexOf('aria-label="Journey movie"'));
+    expect(html.indexOf('aria-label="Journey movie"')).toBeLessThan(html.indexOf('aria-label="Download journey movie"'));
     expect(html).toContain("Open Journey complete");
     expect(html).not.toContain("Collapse Journey complete");
     expect(html).not.toContain("A continuous POV descent through the root tunnels.");
-    expect(html).not.toContain("data-collapsed-path");
+    expect(html).toContain("data-collapsed-path");
+    expect(html).toContain("w-[3.5rem]");
     expect(html).not.toContain("bg-[#5c6b3d]");
     expect(html).toContain('aria-label="Journey movie"');
     expect(html).toContain('aria-label="Download journey movie"');
@@ -168,6 +178,7 @@ describe("Agent workspace", () => {
     expect(html).toContain('download="forest.mp4"');
     const composer = html.slice(html.indexOf('id="agent-composer"'));
     expect(composer).not.toContain("Travel the forest.");
+    expect(html).not.toMatch(/<textarea[^>]*id="agent-composer"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
     expect(html).not.toContain("Created in");
   });
 
@@ -251,6 +262,111 @@ describe("Agent workspace", () => {
     );
     expect(html).toContain("Collapse The Linking Isle");
     expect(html).toContain("Arrive in first-person on the rocky shore");
+  });
+
+  it("shows an A FPO path as soon as opening generation starts", () => {
+    const project = { ...createNewProject(), agency: "autonomous" as const, story: "Memory Lane" };
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={project}
+        initialView="agent"
+        initialAgentSession={testSession([
+          { type: "user", id: "user-1", timestamp: AT, text: "Memory Lane" },
+          { type: "journey", id: "journey-1", timestamp: AT, projectId: project.id, status: "generating" },
+        ])}
+        initialConstructingBeatId="A"
+        initialJourneyAgent={{
+          phase: "ESTABLISHING_START",
+          activity: { message: "generating opening destination A", destinationId: "A" },
+          events: [],
+        }}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toContain("Generating A…");
+    expect(html).toContain('aria-label="Journey path"');
+    expect(html).toContain("data-path-stop-live");
+    expect(html).toContain("GENERATING");
+    expect(html).toContain('data-agent-stage="generating"');
+    expect(html).not.toContain(">Directing<");
+  });
+
+  it("casts pending destinations while the agent is directing", () => {
+    const forest = createForestProject();
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{
+          ...forest,
+          agency: "autonomous",
+          storyboard: forest.storyboard.map((frame, index) =>
+            index === 0 ? frame : { ...frame, image: undefined, imageOrigin: "none" as const, mediaId: undefined },
+          ),
+        }}
+        initialView="agent"
+        initialAgentSession={forestLiveSession}
+        initialJourneyAgent={{ phase: "DIRECTING", activity: { message: "directing journey" }, events: [] }}
+        initialDirectorStatus="planning"
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toContain(">Directing<");
+    expect(html).toContain('data-agent-stage="directing"');
+    expect(html).toContain('data-agent-phase="DIRECTING"');
+    expect(html).toContain("agent-directing-scan");
+    expect(html).toContain("agent-letter-cast");
+    expect(html).not.toContain(">PLAN<");
+    expect(html).not.toContain(">SHOOT<");
+  });
+
+  it("opens a PLAN bridge while motion planning, distinct from SHOOT", () => {
+    const planning = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialView="agent"
+        initialAgentSession={forestLiveSession}
+        initialJourneyAgent={{
+          phase: "PLANNING_MOTION",
+          activity: { message: "blocking C-D", journeyId: "C-D" },
+          events: [],
+        }}
+        initialAssessingJourneyIds={["C-D"]}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(planning).toContain("Planning C→D…");
+    expect(planning).toContain('data-agent-stage="planning"');
+    expect(planning).toContain('data-progress-line="planning"');
+    expect(planning).toContain("agent-path-bridge-plan");
+    expect(planning).toContain(">PLAN<");
+    expect(planning).not.toContain('data-progress-line="shooting"');
+    expect(planning).not.toContain(">SHOOT<");
+    expect(planning).not.toContain("data-path-stop-live");
+
+    const shooting = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialView="agent"
+        initialAgentSession={forestLiveSession}
+        initialJourneyAgent={{
+          phase: "SHOOTING",
+          activity: { message: "shooting C-D", journeyId: "C-D" },
+          events: [],
+        }}
+        initialShootingJourneyIds={["C-D"]}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(shooting).toContain("Shooting C→D…");
+    expect(shooting).toContain('data-agent-stage="shooting"');
+    expect(shooting).toContain('data-progress-line="shooting"');
+    expect(shooting).toContain("agent-path-bridge-shoot");
+    expect(shooting).toContain(">SHOOT<");
+    expect(shooting).not.toContain('data-progress-line="planning"');
+    expect(shooting).not.toContain(">PLAN<");
   });
 
   it("uses location chevrons when a journey has 10 or more stops", () => {
@@ -370,6 +486,24 @@ describe("Agent workspace", () => {
     );
     const send = html.match(/<button[^>]*aria-label="Create journey"[^>]*>/)?.[0] ?? "";
     expect(send).not.toMatch(/(?:^|\s)disabled(?:=|\s|>)/);
+    expect(html).not.toMatch(/<textarea[^>]*id="agent-composer"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+  });
+
+  it("disables the Agent composer while the current project is shooting", () => {
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), agency: "autonomous" }}
+        initialView="agent"
+        initialAgentSession={forestCompleteSession}
+        initialAgentComposerDraft={"Walk the redline at dusk."}
+        initialShootingJourneyIds={["A-B"]}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toMatch(/<textarea[^>]*id="agent-composer"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
+    const send = html.match(/<button[^>]*aria-label="Create journey"[^>]*>/)?.[0] ?? "";
+    expect(send).toMatch(/(?:^|\s)disabled(?:=|\s|>)/);
   });
 });
 

@@ -359,6 +359,7 @@ async function executeJourneyAgent(
         } catch (error) {
           const err = error instanceof Error ? error : new Error("JourneyAgent failed");
           footageFailure ??= err;
+          footageTasks.delete(journeyId);
           try {
             adoptProject(projectWithJourneyShotFailed(project, journeyId, err.message));
           } catch {
@@ -521,6 +522,7 @@ async function executeJourneyAgent(
           afterSetConsistency: after.setConsistency,
           afterTraversalConfidence: after.traversalConfidence,
         });
+        reshotDestinationIds.add(endId);
       }
     };
 
@@ -571,7 +573,14 @@ async function executeJourneyAgent(
       launchFootageFor(journeyId);
     }
 
-    await awaitFootage(true);
+    await awaitFootage(false);
+    throwIfJourneyAgentStopped(signal);
+    for (const journey of project.journeys) {
+      if (canShootJourney(project, journey) && !journeyHasTakes(journey)) {
+        launchFootageFor(journey.id);
+      }
+    }
+    await awaitFootage(false);
     throwIfJourneyAgentStopped(signal);
     adoptProject(project);
 
@@ -579,7 +588,7 @@ async function executeJourneyAgent(
       (journey) => canShootJourney(project, journey) && !journeyHasTakes(journey),
     );
     if (missingTake) {
-      throw new Error(`Missing take for ${journeyLabel(missingTake.id)}`);
+      throw footageFailure ?? new Error(`Missing take for ${journeyLabel(missingTake.id)}`);
     }
     const invalidTake = project.journeys.find(
       (journey) => journeyHasTakes(journey) && !selectedTakeVideoUrl(journey),

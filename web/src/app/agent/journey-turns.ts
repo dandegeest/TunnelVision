@@ -165,13 +165,13 @@ export function agentGeneratingLabel(
     return `Generating ${destinationId}${repairing ? "′" : ""}…`;
   }
   if (journeyAgent?.phase === "DIRECTING" || live?.directorPlanning) {
-    return "Planning…";
+    return "Directing";
   }
   if (journeyAgent?.phase === "PLANNING_MOTION") {
     return compact ? `Planning ${compact}…` : "Planning…";
   }
   if (journeyAgent?.phase === "SHOOTING") {
-    return compact ? `Generating ${compact}…` : "Generating footage…";
+    return compact ? `Shooting ${compact}…` : "Shooting…";
   }
   if (journeyAgent?.phase === "ASSEMBLING") {
     return "Assembling…";
