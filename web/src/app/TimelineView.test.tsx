@@ -13,7 +13,8 @@ import { CamotionFrameSwitch } from "./CamotionDiagnostic";
 import { CamotionOverlayToggles, CamotionPlanOverlay } from "./CamotionOverlay";
 import { DEFAULT_OVERLAY_LAYERS } from "../project/camotion-overlay";
 import { GENERATION_INTENT_MARK } from "../project/generation-intent";
-import { projectWithSelectedTake, TAKE_PREVIOUS_CANONICALS_COPY, takeId } from "../project/takes";
+import { projectWithOutgoingStartDrop } from "../project/outgoing-start-drop";
+import { projectWithSelectedTake, selectedTake, TAKE_PREVIOUS_CANONICALS_COPY, takeId } from "../project/takes";
 import { JourneyCanonicalPair } from "./Preview";
 import { DeleteTakeDialog } from "../timeline/JourneyLane";
 
@@ -1112,6 +1113,35 @@ describe("Shoot footage inspector", () => {
     expect(selectedLonger).toContain("width:190px");
     expect(selectedLonger).not.toContain("data-take-truncated");
     expect(selectedLonger).not.toContain("Take 1 A-B truncated");
+  });
+
+  it("marks later takes that start one frame later", () => {
+    const forest = createForestProject();
+    const incomingTake = selectedTake(forest.journeys.find((journey) => journey.id === "A-B")!)!;
+    const outgoingTake = selectedTake(forest.journeys.find((journey) => journey.id === "B-C")!)!;
+    const marked = projectWithOutgoingStartDrop(forest, "B-C", {
+      incomingJourneyId: "A-B",
+      incomingTakeId: incomingTake.id!,
+      outgoingTakeId: outgoingTake.id!,
+      dropped: true,
+      ssim: 0.94,
+      mae: 3.1,
+    });
+    const html = renderShoot(marked, { journeyId: "B-C", band: "footage" });
+    expect(html).toContain('data-outgoing-start-drop="true"');
+    expect(html).toContain('data-outgoing-start-drop-end="true"');
+    expect(html).toContain("starts one frame later");
+    expect(html).toContain("next take starts one frame later");
+    expect(html).not.toContain(">+1<");
+    expect(html).toContain("Take 1 B-C starts one frame later");
+    expect(html).toContain("Take 1 A-B next take starts one frame later");
+    expect(html).not.toContain("Take 1 A-B starts one frame later");
+    expect(html).toContain('data-take-lock-ssim="0.94"');
+    expect(html).toContain('data-take-lock-mae="3.1"');
+    expect(html).toContain('aria-label="Lock SSIM 0.94"');
+    expect(html).toContain('aria-label="Lock MAE 3.1"');
+    expect(html).toContain('title="SSIM 0.94"');
+    expect(html).toContain('title="MAE 3.1"');
   });
 
   it("uses a single arrow heading, collapsed prompt, and debug-only model", () => {

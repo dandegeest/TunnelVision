@@ -1,8 +1,11 @@
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { compareFrameFiles } from "./frame-metrics.ts";
+import { shouldDropOutgoingStart } from "./src/project/drop-outgoing-start.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -23,9 +26,17 @@ export type ConcatenateClipsInput = {
   execFileImpl?: typeof execFileAsync;
 };
 
+export type SeamDropDecision = {
+  outgoingIndex: number;
+  dropped: boolean;
+  ssim: number;
+  mae: number;
+};
+
 export type ConcatenateClipsResult = {
   method: "copy" | "transcode";
   outputPath: string;
+  seamDrops: SeamDropDecision[];
 };
 
 async function probeClip(
@@ -155,6 +166,166 @@ async function concatTranscode(
   ]);
 }
 
+async function extractFrame(
+  clipPath: string,
+  destPath: string,
+  which: "first" | "last",
+  exec: typeof execFileAsync,
+): Promise<boolean> {
+  try {
+    if (which === "first") {
+      await exec("ffmpeg", [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        clipPath,
+        "-vf",
+        "select=eq(n\\,0)",
+        "-frames:v",
+        "1",
+        destPath,
+      ]);
+    } else {
+      await exec("ffmpeg", [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-sseof",
+        "-0.05",
+        "-i",
+        clipPath,
+        "-update",
+        "1",
+        "-frames:v",
+        "1",
+        destPath,
+      ]);
+    }
+    return existsSync(destPath);
+  } catch {
+    return false;
+  }
+}
+
+async function trimOutgoingStart(
+  clipPath: string,
+  destPath: string,
+  durationSeconds: number,
+  exec: typeof execFileAsync,
+): Promise<boolean> {
+  const frameDuration = durationSeconds > 0 ? Math.min(1 / 24, durationSeconds / 2) : 1 / 24;
+  try {
+    await exec("ffmpeg", [
+      "-y",
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-i",
+      clipPath,
+      "-vf",
+      "select=gte(n\\,1),setpts=PTS-STARTPTS",
+      "-af",
+      `atrim=start=${frameDuration.toFixed(4)},asetpts=PTS-STARTPTS`,
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      destPath,
+    ]);
+    return existsSync(destPath);
+  } catch {
+    try {
+      await exec("ffmpeg", [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        clipPath,
+        "-vf",
+        "select=gte(n\\,1),setpts=PTS-STARTPTS",
+        "-an",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        destPath,
+      ]);
+      return existsSync(destPath);
+    } catch {
+      return false;
+    }
+  }
+}
+
+export async function measureOutgoingStartDrop(
+  incomingPath: string,
+  outgoingPath: string,
+  exec: typeof execFileAsync = execFileAsync,
+): Promise<{ ssim: number; mae: number; dropped: boolean } | null> {
+  const work = join(tmpdir(), `tunnelvision-seam-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  await mkdir(work, { recursive: true });
+  const lastPath = join(work, "be.png");
+  const firstPath = join(work, "bs.png");
+  if (!(await extractFrame(incomingPath, lastPath, "last", exec))) {
+    return null;
+  }
+  if (!(await extractFrame(outgoingPath, firstPath, "first", exec))) {
+    return null;
+  }
+  try {
+    const metrics = await compareFrameFiles(lastPath, firstPath);
+    return { ssim: metrics.ssim, mae: metrics.mae, dropped: shouldDropOutgoingStart(metrics) };
+  } catch {
+    return null;
+  }
+}
+
+async function applyOutgoingStartDrops(
+  clipPaths: string[],
+  clips: readonly ProbedClip[],
+  exec: typeof execFileAsync,
+): Promise<{ paths: string[]; seamDrops: SeamDropDecision[] }> {
+  const paths = [...clipPaths];
+  const seamDrops: SeamDropDecision[] = [];
+  if (paths.length < 2) {
+    return { paths, seamDrops };
+  }
+  const work = join(tmpdir(), `tunnelvision-drop0-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  await mkdir(work, { recursive: true });
+  for (let index = 1; index < paths.length; index += 1) {
+    const incoming = paths[index - 1]!;
+    const outgoing = paths[index]!;
+    const measured = await measureOutgoingStartDrop(incoming, outgoing, exec);
+    if (!measured) {
+      continue;
+    }
+    if (measured.dropped) {
+      const trimmed = join(work, `${index}-from1.mp4`);
+      const ok = await trimOutgoingStart(outgoing, trimmed, clips[index]?.durationSeconds ?? 0, exec);
+      if (ok) {
+        paths[index] = trimmed;
+        seamDrops.push({ outgoingIndex: index, dropped: true, ssim: measured.ssim, mae: measured.mae });
+        continue;
+      }
+    }
+    seamDrops.push({
+      outgoingIndex: index,
+      dropped: measured.dropped,
+      ssim: measured.ssim,
+      mae: measured.mae,
+    });
+  }
+  return { paths, seamDrops };
+}
+
 export async function concatenateClipFiles(input: ConcatenateClipsInput): Promise<ConcatenateClipsResult> {
   if (input.clipPaths.length < 1) {
     throw new Error("Export Movie needs at least one rendered journey clip.");
@@ -168,19 +339,26 @@ export async function concatenateClipFiles(input: ConcatenateClipsInput): Promis
     }
     clips.push(clip);
   }
+  const prepared = await applyOutgoingStartDrops(input.clipPaths, clips, exec);
   const sameSize = clips.every(
     (clip) => clip.size.width === clips[0]!.size.width && clip.size.height === clips[0]!.size.height,
   );
+  const dropped = prepared.seamDrops.some((seam) => seam.dropped);
   try {
-    if (sameSize) {
-      await concatCopy(input.clipPaths, input.outputPath, exec);
-      return { method: "copy", outputPath: input.outputPath };
+    if (sameSize && !dropped) {
+      await concatCopy(prepared.paths, input.outputPath, exec);
+      return { method: "copy", outputPath: input.outputPath, seamDrops: prepared.seamDrops };
     }
   } catch {
     // Mixed codecs or concat-demuxer failure: fall through to a narrow transcode.
   }
-  await concatTranscode(input.clipPaths, clips, input.outputPath, exec);
-  return { method: "transcode", outputPath: input.outputPath };
+  const transcodeClips = dropped
+    ? await Promise.all(
+        prepared.paths.map(async (path, index) => (await probeClip(path, exec)) ?? clips[index] ?? clips[0]!),
+      )
+    : clips;
+  await concatTranscode(prepared.paths, transcodeClips, input.outputPath, exec);
+  return { method: "transcode", outputPath: input.outputPath, seamDrops: prepared.seamDrops };
 }
 
 export async function downloadClipToFile(

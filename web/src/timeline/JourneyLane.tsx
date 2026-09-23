@@ -16,9 +16,16 @@ import {
   takeMatchesCurrentCanonicals,
   takesInRow,
 } from "../project/takes";
+import {
+  currentOutgoingStartDrop,
+  formatOutgoingStartDropMae,
+  formatOutgoingStartDropSsim,
+  selectedTakeJoinsOutgoingStartDrop,
+  selectedTakeShowsOutgoingStartDrop,
+} from "../project/outgoing-start-drop";
 import { requestedDurationSeconds } from "../project/shot-duration";
 import { useProject } from "../project/ProjectProvider";
-import { destinationById, type JourneyShot, type JourneyShotTake, type Project, type Selection } from "../project/types";
+import { destinationById, type JourneyShot, type JourneyShotTake, type OutgoingStartDrop, type Project, type Selection } from "../project/types";
 import { GenerationIntentMenu } from "../ui/GenerationIntentMenu";
 import { durationBarWidth, visibleTakeBarSeconds, type LaidOutJourney } from "./geometry";
 import {
@@ -88,6 +95,51 @@ function TruncatedTakeMark() {
   );
 }
 
+function takeBarRadiusClass(first: boolean, last: boolean, truncated: boolean): string {
+  if (truncated) {
+    return "rounded-l border-r-0";
+  }
+  if (first && last) {
+    return "rounded";
+  }
+  if (first) {
+    return "rounded-l";
+  }
+  if (last) {
+    return "rounded-r";
+  }
+  return "";
+}
+
+function TakeLockScores({ drop }: { drop: OutgoingStartDrop }) {
+  const ssim = formatOutgoingStartDropSsim(drop.ssim);
+  const mae = formatOutgoingStartDropMae(drop.mae);
+  const chrome = drop.dropped
+    ? "rounded-full px-1.5 py-0 text-[9px] leading-[14px] tabular-nums tracking-[0.08em] border border-[#3f5a3a] bg-[#0c140c] text-[#d7e7cf]"
+    : "rounded-full px-1.5 py-0 text-[9px] leading-[14px] tabular-nums tracking-[0.08em] border border-[#d4b36a] bg-[#2a2214] text-[#e4d2a4]";
+  return (
+    <span className="flex shrink-0 items-center gap-0.5">
+      <span className={chrome} aria-label={`Lock SSIM ${ssim}`} title={`SSIM ${ssim}`} data-take-lock-ssim={ssim}>
+        {ssim}
+      </span>
+      <span className={chrome} aria-label={`Lock MAE ${mae}`} title={`MAE ${mae}`} data-take-lock-mae={mae}>
+        {mae}
+      </span>
+    </span>
+  );
+}
+
+function SeamDropEdge({ side }: { side: "start" | "end" }) {
+  return (
+    <span
+      className={`pointer-events-none absolute inset-y-[-1px] z-[4] border-[#c45c38] ${
+        side === "start" ? "left-[-1px] border-l-[3px] border-dashed" : "right-[-1px] border-r-[3px] border-dashed"
+      }`}
+      aria-hidden
+    />
+  );
+}
+
 function TakeRow({
   laid,
   project,
@@ -97,6 +149,8 @@ function TakeRow({
   thumbSrc,
   zoom,
   rowIndex,
+  first,
+  last,
   onSelectTake,
   onDeleteTake,
 }: {
@@ -108,6 +162,8 @@ function TakeRow({
   thumbSrc?: string;
   zoom: number;
   rowIndex: number;
+  first: boolean;
+  last: boolean;
   onSelectTake: () => void;
   onDeleteTake?: () => void;
 }) {
@@ -121,6 +177,9 @@ function TakeRow({
     segmentDurationSeconds,
     selected,
   );
+  const dropStart = selectedTakeShowsOutgoingStartDrop(project, journey, take);
+  const dropEnd = selectedTakeJoinsOutgoingStartDrop(project, journey, take);
+  const lock = selected ? currentOutgoingStartDrop(project, journey) : undefined;
   const ring = selected
     ? "z-[3] border-[#ece7df] bg-[#1c2418] ring-2 ring-inset ring-[#ece7df] text-[#ece7df]"
     : stale
@@ -131,12 +190,12 @@ function TakeRow({
     `${durationSeconds}s`,
     truncated ? `clipped to ${visibleSeconds}s cut` : undefined,
     stale ? TAKE_PREVIOUS_CANONICALS_COPY : undefined,
+    dropStart ? "starts one frame later" : undefined,
+    dropEnd ? "next take starts one frame later" : undefined,
   ].filter(Boolean);
   return (
     <div
-      className={`group absolute box-border flex items-center gap-1 border px-1.5 text-[#cfc6b8] ${
-        truncated ? "rounded-l border-r-0" : "rounded"
-      } ${ring}`}
+      className={`group absolute box-border flex items-center gap-1 border px-1.5 text-[#cfc6b8] ${takeBarRadiusClass(first, last, truncated)} ${ring}`}
       style={{
         top: takeRowTop(rowIndex),
         left: laid.left,
@@ -146,11 +205,15 @@ function TakeRow({
       data-canonical-stale={stale || undefined}
       data-take-duration={durationSeconds}
       data-take-truncated={truncated || undefined}
+      data-outgoing-start-drop={dropStart || undefined}
+      data-outgoing-start-drop-end={dropEnd || undefined}
     >
+      {dropStart ? <SeamDropEdge side="start" /> : null}
+      {dropEnd ? <SeamDropEdge side="end" /> : null}
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-1 text-left outline-none"
-        aria-label={`Take ${number} ${journey.id}${truncated ? " truncated" : ""}${stale ? " previous canonicals" : ""}`}
+        aria-label={`Take ${number} ${journey.id}${truncated ? " truncated" : ""}${stale ? " previous canonicals" : ""}${dropStart ? " starts one frame later" : ""}${dropEnd ? " next take starts one frame later" : ""}`}
         aria-pressed={selected}
         title={titleParts.length > 0 ? titleParts.join(" · ") : undefined}
         onClick={onSelectTake}
@@ -163,6 +226,7 @@ function TakeRow({
         )}
         {intentMark ? <span className="truncate text-[9px] tracking-[0.16em] opacity-80">{intentMark}</span> : null}
       </button>
+      {lock ? <TakeLockScores drop={lock} /> : null}
       {onDeleteTake ? (
         <button
           type="button"
@@ -268,6 +332,8 @@ function GeneratingTakeRow({
   zoom,
   durationSeconds,
   rowIndex,
+  first,
+  last,
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
@@ -275,10 +341,12 @@ function GeneratingTakeRow({
   zoom: number;
   durationSeconds: number;
   rowIndex: number;
+  first: boolean;
+  last: boolean;
 }) {
   return (
     <div
-      className="absolute z-[2] box-border flex items-center gap-1 rounded border border-[#3a342c] bg-[#10100c] px-1.5 storyboard-generating"
+      className={`absolute z-[2] box-border flex items-center gap-1 border border-[#3a342c] bg-[#10100c] px-1.5 storyboard-generating ${takeBarRadiusClass(first, last, false)}`}
       style={{
         top: takeRowTop(rowIndex),
         left: laid.left,
@@ -325,6 +393,8 @@ export function JourneyLane({
     (max, journey) => Math.max(max, journeyTakes(journey).length),
     0,
   );
+  const firstJourneyId = journeys[0]?.journeyId;
+  const lastJourneyId = journeys[journeys.length - 1]?.journeyId;
   return (
     <>
     <div className="absolute inset-x-0 z-[1]" style={{ top: JOURNEY_LANE_TOP, height: laneHeight }}>
@@ -422,6 +492,8 @@ export function JourneyLane({
                 thumbSrc={takeThumbnailUrl(take, startImage)}
                 zoom={zoom}
                 rowIndex={rowIndex}
+                first={laid.journeyId === firstJourneyId}
+                last={laid.journeyId === lastJourneyId}
                 onSelectTake={() => {
                   onSelect(laid.journeyId, "footage");
                   if (take.id) {
@@ -458,6 +530,8 @@ export function JourneyLane({
                   shootingIntents[journey.id] ?? defaultTakeIntentFromProject(project),
                 )}
                 rowIndex={takes.length}
+                first={laid.journeyId === firstJourneyId}
+                last={laid.journeyId === lastJourneyId}
               />
             ) : null}
             {showNewTake ? (

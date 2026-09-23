@@ -84,6 +84,14 @@ describe("project persistence schema", () => {
           selectedTakeId: "A-B:take:1",
           filmmakerPace: "slow",
           filmmakerDurationSeconds: 12,
+          outgoingStartDrop: {
+            incomingJourneyId: "legacy",
+            incomingTakeId: "legacy-in",
+            outgoingTakeId: "A-B:take:1",
+            dropped: true,
+            ssim: 0.94,
+            mae: 3.1,
+          },
         },
       ],
     };
@@ -111,6 +119,14 @@ describe("project persistence schema", () => {
     expect(journey.selectedTakeId).toBe("A-B:take:1");
     expect(journey.filmmakerPace).toBe("slow");
     expect(journey.filmmakerDurationSeconds).toBe(12);
+    expect(journey.outgoingStartDrop).toEqual({
+      incomingJourneyId: "legacy",
+      incomingTakeId: "legacy-in",
+      outgoingTakeId: "A-B:take:1",
+      dropped: true,
+      ssim: 0.94,
+      mae: 3.1,
+    });
     expect(hydrated.project.story).toBe("Follow the koi.");
     expect(hydrated.project.imageModel).toBe("nano-banana-2-lite");
     expect(documents.manifest.settings.durationMode).toBe("adaptive");

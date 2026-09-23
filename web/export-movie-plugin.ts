@@ -2,12 +2,15 @@ import { randomBytes } from "node:crypto";
 import { createReadStream, existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 
-import { concatenateClipFiles, downloadClipToFile, prepareExportDirectory } from "./export-movie.ts";
+import { concatenateClipFiles, downloadClipToFile, measureOutgoingStartDrop, prepareExportDirectory } from "./export-movie.ts";
 import { isMovieExportFilename, nextMovieExportFilename } from "./src/project/export-movie.ts";
+import { runtimeMediaIdFromUrl } from "./runtime-media-limits.ts";
+import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 
 type ExportRecord = {
   filePath: string;
@@ -67,12 +70,59 @@ function localClipPath(videoUrl: string): string | undefined {
   return existsSync(candidate) ? candidate : undefined;
 }
 
+async function resolveMeasurableClipPath(videoUrl: string, origin: string): Promise<string | undefined> {
+  const local = localClipPath(videoUrl);
+  if (local) {
+    return local;
+  }
+  const mediaId = runtimeMediaIdFromUrl(videoUrl);
+  const runtime = mediaId ? getActiveRuntimeMediaRegistry()?.get(mediaId) : undefined;
+  if (runtime?.filePath && existsSync(runtime.filePath)) {
+    return runtime.filePath;
+  }
+  try {
+    const dest = join(
+      tmpdir(),
+      `tunnelvision-seam-src-${Date.now()}-${Math.random().toString(16).slice(2)}.mp4`,
+    );
+    await downloadClipToFile(clipUrl(origin, videoUrl), dest);
+    return dest;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function handleExportMovieRequest(
   req: IncomingMessage,
   res: ServerResponse,
   origin: string,
 ): Promise<boolean> {
   const url = req.url?.split("?")[0] ?? "";
+  if (req.method === "POST" && url === "/api/seam-drop") {
+    try {
+      const body = (await readJsonBody(req)) as { incomingVideoUrl?: string; outgoingVideoUrl?: string };
+      const incomingUrl = typeof body.incomingVideoUrl === "string" ? body.incomingVideoUrl.trim() : "";
+      const outgoingUrl = typeof body.outgoingVideoUrl === "string" ? body.outgoingVideoUrl.trim() : "";
+      if (!incomingUrl || !outgoingUrl) {
+        sendJson(res, 400, { error: "Seam drop needs incoming and outgoing clip URLs." });
+        return true;
+      }
+      const incomingPath = await resolveMeasurableClipPath(incomingUrl, origin);
+      const outgoingPath = await resolveMeasurableClipPath(outgoingUrl, origin);
+      if (!incomingPath || !outgoingPath) {
+        sendJson(res, 200, { dropped: false });
+        return true;
+      }
+      const measured = await measureOutgoingStartDrop(incomingPath, outgoingPath);
+      sendJson(res, 200, measured ?? { dropped: false });
+    } catch (error) {
+      sendJson(res, 502, {
+        error: error instanceof Error ? error.message : "Seam drop measure failed",
+      });
+    }
+    return true;
+  }
+
   if (req.method === "POST" && url === "/api/export-movie") {
     try {
       const body = (await readJsonBody(req)) as {

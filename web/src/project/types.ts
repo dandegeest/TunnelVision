@@ -316,6 +316,16 @@ export type StoryboardFrame = {
   selectedTakeId?: string;
 };
 
+/** Be ≈ Bs lock for the selected pair. First traversal never has this. */
+export type OutgoingStartDrop = {
+  incomingJourneyId: string;
+  incomingTakeId: string;
+  outgoingTakeId: string;
+  dropped: boolean;
+  ssim: number;
+  mae: number;
+};
+
 export type JourneyShot = {
   id: string;
   startDestinationId: string;
@@ -360,6 +370,11 @@ export type JourneyShot = {
    * load as Take 1 via journeyTakes().
    */
   takes?: JourneyShotTake[];
+  /**
+   * Measured for the current selected incoming/outgoing pair.
+   * When `dropped`, Export Movie skips this take's decoded frame 0.
+   */
+  outgoingStartDrop?: OutgoingStartDrop;
   /** Which take preview / playback / download use. Defaults to the newest. */
   selectedTakeId?: string;
   /**

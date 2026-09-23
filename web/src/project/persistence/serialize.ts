@@ -19,6 +19,7 @@ import type {
   CanonicalTake,
   JourneyShot,
   JourneyShotTake,
+  OutgoingStartDrop,
   Project,
   SegmentMotionPlan,
   ShootingFrameRef,
@@ -72,6 +73,31 @@ function extensionFromTake(take: CanonicalTake): string {
 
 function extensionFromVideo(take: JourneyShotTake): string {
   return extensionFromUrl(take.videoUrl ?? take.providerOutputUrl, "mp4");
+}
+
+function parseOutgoingStartDrop(raw: unknown): OutgoingStartDrop | undefined {
+  if (!raw || typeof raw !== "object") {
+    return undefined;
+  }
+  const drop = raw as Record<string, unknown>;
+  if (
+    typeof drop.incomingJourneyId !== "string" ||
+    typeof drop.incomingTakeId !== "string" ||
+    typeof drop.outgoingTakeId !== "string" ||
+    typeof drop.dropped !== "boolean" ||
+    typeof drop.ssim !== "number" ||
+    typeof drop.mae !== "number"
+  ) {
+    return undefined;
+  }
+  return {
+    incomingJourneyId: drop.incomingJourneyId,
+    incomingTakeId: drop.incomingTakeId,
+    outgoingTakeId: drop.outgoingTakeId,
+    dropped: drop.dropped,
+    ssim: drop.ssim,
+    mae: drop.mae,
+  };
 }
 
 function journeyStatus(project: Project): string {
@@ -285,6 +311,7 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
       motionPlanError: journey.motionPlanError,
       selectedTakeId: selected?.id,
       takes: persistedTakes,
+      outgoingStartDrop: journey.outgoingStartDrop,
       shootError: journey.shootError,
     };
     traversalIndex.push({
@@ -546,6 +573,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
           : undefined,
       takes,
       selectedTakeId: selected?.id,
+      outgoingStartDrop: parseOutgoingStartDrop(raw.outgoingStartDrop),
       shootError: typeof raw.shootError === "string" ? raw.shootError : undefined,
       shootabilityNote: typeof raw.shootabilityNote === "string" ? raw.shootabilityNote : undefined,
     };

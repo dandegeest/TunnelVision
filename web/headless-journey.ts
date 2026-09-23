@@ -326,7 +326,13 @@ export async function exportHeadlessMovie(project: Project): Promise<MovieExport
   }
   const filename = nextMovieExportFilename(project.title);
   const outputPath = join(directory, filename);
-  await concatenateClipFiles({ clipPaths, outputPath });
+  const assembled = await concatenateClipFiles({ clipPaths, outputPath });
+  const dropped = assembled.seamDrops.filter((seam) => seam.dropped);
+  if (dropped.length > 0) {
+    process.stderr.write(
+      `drop-0: removed outgoing frame 0 on ${dropped.length} later take${dropped.length === 1 ? "" : "s"}\n`,
+    );
+  }
   return {
     videoUrl: outputPath,
     filename,

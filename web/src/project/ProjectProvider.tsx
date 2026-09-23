@@ -56,6 +56,11 @@ import {
   projectWithDeletedTakeRow,
 } from "./takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
+import {
+  measureOutgoingStartDrops,
+  outgoingStartDropFingerprint,
+  projectWithOutgoingStartDrops,
+} from "./outgoing-start-drop";
 import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from "./current-cut";
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
@@ -2335,6 +2340,25 @@ export function ProjectProvider({
     }
     rememberSessionProject(project, movieExport);
   }, [agentSession, movieExport, project, rememberSessionProject]);
+
+  const seamDropFingerprint = useMemo(() => outgoingStartDropFingerprint(project), [project]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fingerprint = seamDropFingerprint;
+    void measureOutgoingStartDrops(projectRef.current).then((measured) => {
+      if (cancelled || measured.length === 0) {
+        return;
+      }
+      if (outgoingStartDropFingerprint(projectRef.current) !== fingerprint) {
+        return;
+      }
+      applyProject(projectWithOutgoingStartDrops(projectRef.current, measured));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [applyProject, seamDropFingerprint]);
 
   useEffect(() => {
     if (!persistedProjectPath) {
