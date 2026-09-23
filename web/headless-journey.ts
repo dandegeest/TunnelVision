@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 
 import { loadDotEnvLocal, getOptionalEnv } from "../media/src/config/environment.ts";
 import { assessJourney } from "../media/src/cinematographer/assess-journey.ts";
+import { chooseJourneyPace } from "../media/src/cinematographer/journey-pace.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
 import { deriveStory } from "../media/src/director/derive-story.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
@@ -28,6 +29,11 @@ import {
   directorStoryboardFromRequest,
 } from "./trusted-media.ts";
 import { projectWithCameraGrammar } from "./src/project/camera-grammar.ts";
+import {
+  adaptivePaceFromProject,
+  journeyPaceIsCurrent,
+  projectWithJourneyPace,
+} from "./src/project/adaptive-pace.ts";
 import { cinematographerRequestFromProject, projectWithCinematographerAssessment } from "./src/project/cinematographer.ts";
 import { prepareDirectorPlan } from "./src/project/conversation.ts";
 import {
@@ -209,6 +215,14 @@ export function createHeadlessJourneyOperations(input: {
     },
     async assessCinematographer(project, journeyId) {
       log(`Cinematographer assessing ${journeyId}`);
+      if (!adaptivePaceFromProject(project) && !journeyPaceIsCurrent(project)) {
+        const chosen = await chooseJourneyPace({
+          reasoning: new ReplicateReasoningProvider(),
+          story: project.story,
+        });
+        project = projectWithJourneyPace(project, chosen.pace);
+        log(`Cinematographer journey pace ${chosen.pace}`);
+      }
       const request = cinematographerRequestFromProject(project, journeyId);
       const pair = cinematographerPairFromRequest(input.repoRoot, request as unknown as Record<string, unknown>);
       const result = await assessJourney({
@@ -219,6 +233,9 @@ export function createHeadlessJourneyOperations(input: {
         end: pair.end,
         cameraGrammar: cameraGrammarFromUnknown(request.cameraGrammar),
         pullForwardReferenceEnabled: request.pullForwardReferenceEnabled,
+        filmmakerPace: request.filmmakerPace,
+        filmmakerDurationSeconds: request.filmmakerDurationSeconds,
+        journeyPace: request.journeyPace,
       });
       return projectWithCinematographerAssessment(project, journeyId, result.assessment, {
         startCanonicalMediaId: request.startMediaId,
@@ -254,7 +271,7 @@ export function createHeadlessJourneyOperations(input: {
         journey.cinematographer,
         {
           cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
-          pace: effectiveJourneyPace(journey),
+          pace: effectiveJourneyPace(journey, project),
         },
       );
       const staged = await stagePreparedMotionPlan({

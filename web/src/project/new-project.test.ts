@@ -25,6 +25,7 @@ describe("new product project", () => {
     expect(project.cameraGrammar).toBe("pov");
     expect(project.durationMode).toBe("adaptive");
     expect(project.fixedDurationSeconds).toBe(5);
+    expect(project.adaptivePace).toBe(true);
     expect(project.videoModel).toBe("pruna-p-video");
     expect(project.defaultTakeIntent).toBe("fast");
     expect(project.videoModelsByIntent).toEqual({
@@ -63,6 +64,8 @@ describe("new product project", () => {
       generateAudio: true,
       durationMode: "fixed" as const,
       fixedDurationSeconds: 8,
+      adaptivePace: false,
+      journeyPace: "slow" as const,
       videoModel: "kling-v2.5-turbo-pro" as const,
       videoModelsByIntent: {
         fast: "kling-v2.5-turbo-pro" as const,
@@ -89,6 +92,8 @@ describe("new product project", () => {
     expect(next.cameraGrammar).toBe("pov");
     expect(next.durationMode).toBe("fixed");
     expect(next.fixedDurationSeconds).toBe(8);
+    expect(next.adaptivePace).toBe(true);
+    expect(next.journeyPace).toBeUndefined();
     expect(next.pullForwardReferenceEnabled).toBe(false);
     expect(next.autoGenerateAllDestinations).toBe(false);
     expect(next.defaultTakeIntent).toBe("quality");

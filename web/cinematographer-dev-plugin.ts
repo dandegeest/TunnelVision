@@ -4,6 +4,7 @@ import type { Plugin } from "vite";
 import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { assessJourney } from "../media/src/cinematographer/assess-journey.ts";
+import { chooseJourneyPace } from "../media/src/cinematographer/journey-pace.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
 import { cinematographerPairFromRequest, UntrustedMediaError } from "./trusted-media.ts";
@@ -56,6 +57,25 @@ export function cinematographerDevPlugin(repoRoot: string): Plugin {
       loadDotEnvLocal(repoRoot);
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
+        if (url === "/api/cinematographer/journey-pace") {
+          if (req.method !== "POST") {
+            sendJson(res, 405, { error: "POST /api/cinematographer/journey-pace" });
+            return;
+          }
+          try {
+            const body = (await readJsonBody(req)) as Record<string, unknown>;
+            const result = await chooseJourneyPace({
+              reasoning: new ReplicateReasoningProvider(),
+              story: typeof body.story === "string" ? body.story : undefined,
+            });
+            sendJson(res, 200, { pace: result.pace });
+          } catch (error) {
+            const message =
+              error instanceof Error ? error.message : "Cinematographer journey pace failed";
+            sendJson(res, statusForError(error), { error: redactSecrets(message) });
+          }
+          return;
+        }
         if (url !== "/api/cinematographer/assess") {
           next();
           return;
@@ -78,6 +98,7 @@ export function cinematographerDevPlugin(repoRoot: string): Plugin {
             filmmakerPace: typeof body.filmmakerPace === "string" ? body.filmmakerPace : undefined,
             filmmakerDurationSeconds:
               typeof body.filmmakerDurationSeconds === "number" ? body.filmmakerDurationSeconds : undefined,
+            journeyPace: typeof body.journeyPace === "string" ? body.journeyPace : undefined,
           });
           sendJson(res, 200, {
             assessment: result.assessment,

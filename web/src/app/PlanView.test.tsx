@@ -1809,6 +1809,10 @@ describe("new-project Plan", () => {
     expect(html).toMatch(
       /checked[^>]*aria-label="Adaptive durations"|aria-label="Adaptive durations"[^>]*checked/,
     );
+    expect(html).toContain('aria-label="Adaptive Pace"');
+    expect(html).toMatch(
+      /checked[^>]*aria-label="Adaptive Pace"|aria-label="Adaptive Pace"[^>]*checked/,
+    );
     expect(html).not.toContain('aria-label="Fixed duration seconds"');
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Generate all destinations"|aria-label="Generate all destinations"[^>]*checked/,

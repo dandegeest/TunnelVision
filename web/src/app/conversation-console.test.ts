@@ -137,6 +137,22 @@ describe("conversation presentation grouping", () => {
     expect(cinematographerCardCopy(blocks[0] as Extract<(typeof blocks)[number], { kind: "cinematographer" }>)).toContain(
       "Track forward through the visible opening.",
     );
+    expect(
+      cinematographerCardCopy(blocks[0] as Extract<(typeof blocks)[number], { kind: "cinematographer" }>, {
+        ...createForestProject(),
+        adaptivePace: false,
+        journeyPace: "moderate",
+        journeyPaceStory: createForestProject().story.trim(),
+      }),
+    ).toContain("JOURNEY PACE: MODERATE");
+    expect(
+      cinematographerCardCopy(blocks[0] as Extract<(typeof blocks)[number], { kind: "cinematographer" }>, {
+        ...createForestProject(),
+        adaptivePace: false,
+        journeyPace: "moderate",
+        journeyPaceStory: createForestProject().story.trim(),
+      }),
+    ).toContain("ADAPTIVE PACE: OFF");
   });
 
   it("keeps repair cards and destination copy as distinct presentation", () => {

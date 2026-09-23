@@ -1,21 +1,16 @@
 import { isLocomotionPace, type LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import { authoritativeJourneyPace } from "./adaptive-pace";
 import { clampDurationSeconds, projectWithResolvedUnshotDurations } from "./shot-duration";
 import type { CinematographerAssessment, JourneyShot, Project } from "./types";
 
-/** Filmmaker lock wins. Otherwise the stored CM / Motion Plan pace. */
+export { authoritativeJourneyPace };
+
+/** Filmmaker lock, then journey pace when Adaptive Pace is OFF, then CM / Motion Plan. */
 export function effectiveJourneyPace(
   journey: Pick<JourneyShot, "filmmakerPace" | "cinematographer" | "motionPlan">,
+  project?: Pick<Project, "adaptivePace" | "journeyPace" | "journeyPaceStory" | "story">,
 ): LocomotionPace | undefined {
-  if (isLocomotionPace(journey.filmmakerPace)) {
-    return journey.filmmakerPace;
-  }
-  if (journey.cinematographer && isLocomotionPace(journey.cinematographer.pace)) {
-    return journey.cinematographer.pace;
-  }
-  if (journey.motionPlan && isLocomotionPace(journey.motionPlan.pace)) {
-    return journey.motionPlan.pace;
-  }
-  return undefined;
+  return authoritativeJourneyPace(journey, project);
 }
 
 /** Filmmaker lock wins. Otherwise CM desired duration. */

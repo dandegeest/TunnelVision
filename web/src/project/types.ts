@@ -426,6 +426,22 @@ export type Project = {
    */
   durationMode?: DurationMode;
   /**
+   * ON (default): CM chooses pace per traversal.
+   * OFF: CM chooses one journey-level pace, then every traversal uses it.
+   * Missing on older projects means true.
+   */
+  adaptivePace?: boolean;
+  /**
+   * CM journey-level pace while `adaptivePace` is false.
+   * Absent until CM has chosen it for the current story.
+   */
+  journeyPace?: LocomotionPace;
+  /**
+   * Story fingerprint the current `journeyPace` was chosen from.
+   * A later story edit makes the stored pace stale.
+   */
+  journeyPaceStory?: string;
+  /**
    * Target seconds used when `durationMode` is fixed. Mapped per model.
    * Missing on older projects means 5.
    */

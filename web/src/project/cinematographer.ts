@@ -1,4 +1,5 @@
-import type { LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import { isLocomotionPace, type LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import { adaptivePaceFromProject, journeyPaceIsCurrent, projectWithJourneyPace } from "./adaptive-pace";
 import { cameraGrammarFromProject } from "./camera-grammar";
 import { pullForwardReferenceEnabledFromProject } from "./destination";
 import { assessmentWithFilmmakerLocks, effectiveJourneyDurationSeconds, effectiveJourneyPace } from "./journey-overrides";
@@ -25,6 +26,7 @@ export type CinematographerAssessmentRequest = {
   cameraGrammar?: CameraGrammar;
   filmmakerPace?: LocomotionPace;
   filmmakerDurationSeconds?: number;
+  journeyPace?: LocomotionPace;
   pullForwardReferenceEnabled?: boolean;
 };
 
@@ -319,8 +321,11 @@ export function cinematographerRequestFromProject(
     ...(story ? { story } : {}),
     cameraGrammar: cameraGrammarFromProject(project),
     pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
-    ...(effectiveJourneyPace(journey) && journey.filmmakerPace
+    ...(effectiveJourneyPace(journey, project) && journey.filmmakerPace
       ? { filmmakerPace: journey.filmmakerPace }
+      : {}),
+    ...(!journey.filmmakerPace && journeyPaceIsCurrent(project) && project.journeyPace
+      ? { journeyPace: project.journeyPace }
       : {}),
     ...(typeof journey.filmmakerDurationSeconds === "number"
       ? { filmmakerDurationSeconds: effectiveJourneyDurationSeconds(journey) }
@@ -396,6 +401,34 @@ export function projectWithMotionPlanError(
         : journey,
     ),
   };
+}
+
+export type JourneyPaceResponse = {
+  pace: LocomotionPace;
+};
+
+export async function requestJourneyPace(input: { story?: string }): Promise<JourneyPaceResponse> {
+  const response = await fetch("/api/cinematographer/journey-pace", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ story: input.story?.trim() || undefined }),
+  });
+  const body = (await response.json()) as JourneyPaceResponse | { error?: string };
+  if (!response.ok) {
+    throw new Error("error" in body && body.error ? body.error : "Cinematographer journey pace failed");
+  }
+  if (!("pace" in body) || !isLocomotionPace(body.pace)) {
+    throw new Error("Cinematographer journey pace failed");
+  }
+  return { pace: body.pace };
+}
+
+export async function ensureProjectJourneyPace(project: Project): Promise<Project> {
+  if (adaptivePaceFromProject(project) || journeyPaceIsCurrent(project)) {
+    return project;
+  }
+  const result = await requestJourneyPace({ story: project.story });
+  return projectWithJourneyPace(project, result.pace);
 }
 
 export async function requestCinematographerAssessment(

@@ -131,8 +131,10 @@ describe("project persistence schema", () => {
     expect(hydrated.project.imageModel).toBe("nano-banana-2-lite");
     expect(documents.manifest.settings.durationMode).toBe("adaptive");
     expect(documents.manifest.settings.fixedDurationSeconds).toBe(5);
+    expect(documents.manifest.settings.adaptivePace).toBe(true);
     expect(hydrated.project.durationMode).toBe("adaptive");
     expect(hydrated.project.fixedDurationSeconds).toBe(5);
+    expect(hydrated.project.adaptivePace).toBe(true);
     expect(documents.manifest.settings.cameraGrammar).toBe("pov");
     expect(hydrated.project.cameraGrammar).toBe("pov");
     expect(documents.manifest.settings.pullForwardReferenceEnabled).toBe(true);

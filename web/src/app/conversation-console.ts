@@ -5,6 +5,8 @@ import { humanRepairRecommendation } from "../project/journey-agent-repair";
 import type { JourneyAgentSnapshot } from "../project/journey-agent";
 import { isProductionEndpoint } from "../project/production-legs";
 import { selectedTakeVideoUrl } from "../project/takes";
+import { adaptivePaceFromProject, journeyPaceIsCurrent } from "../project/adaptive-pace";
+import { locomotionPaceLabel } from "../project/cinematographer";
 import type {
   CinematographerAssessment,
   JourneyShot,
@@ -395,7 +397,7 @@ export function destinationCardCopy(
   return withClock(createdAt, lines.join("\n"));
 }
 
-export function cinematographerCardCopy(block: CinematographerBlock): string {
+export function cinematographerCardCopy(block: CinematographerBlock, project?: Project): string {
   const journeyId = block.blocking?.journeyId ?? block.evaluation?.journeyId ?? "";
   const segment = journeyId ? formatJourneyArrow(journeyId) : "";
   const reevaluating =
@@ -403,6 +405,10 @@ export function cinematographerCardCopy(block: CinematographerBlock): string {
   const lines = [
     reevaluating ? `CINEMATOGRAPHER REEVALUATION${segment ? ` · ${segment}` : ""}` : `CINEMATOGRAPHER${segment ? ` · ${segment}` : ""}`,
   ];
+  if (project && !adaptivePaceFromProject(project) && journeyPaceIsCurrent(project) && project.journeyPace) {
+    lines.push(`JOURNEY PACE: ${locomotionPaceLabel(project.journeyPace).toUpperCase()}`);
+    lines.push("ADAPTIVE PACE: OFF");
+  }
   const setConsistency =
     block.blocking?.assessment?.setConsistency ?? block.evaluation?.setConsistency;
   const traversalConfidence =

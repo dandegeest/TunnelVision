@@ -29,6 +29,9 @@ export type ProjectSettingsSnapshot = {
   cameraGrammar?: Project["cameraGrammar"];
   durationMode?: Project["durationMode"];
   fixedDurationSeconds?: number;
+  adaptivePace?: boolean;
+  journeyPace?: Project["journeyPace"];
+  journeyPaceStory?: string;
   storyDuration: StoryDuration;
   storyDurationLocked: boolean;
 };

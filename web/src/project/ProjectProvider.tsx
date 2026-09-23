@@ -20,6 +20,7 @@ import {
   journeyMotionPlanInputKey,
   journeysReadyToBlock,
   motionPlanAutoKey,
+  ensureProjectJourneyPace,
   projectWithCinematographerAssessment,
   projectWithMotionPlanError,
   requestCinematographerAssessment,
@@ -66,6 +67,7 @@ import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } 
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canPlanMovie, projectHasExistingJourney, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { projectWithAdaptivePace, projectWithStory } from "./adaptive-pace";
 import { projectWithDurationMode, projectWithFixedDurationSeconds } from "./shot-duration";
 import {
   effectiveJourneyPace,
@@ -202,6 +204,7 @@ type ProjectContextValue = {
   setCameraGrammar: (grammar: CameraGrammar) => void;
   setDurationMode: (mode: DurationMode) => void;
   setFixedDurationSeconds: (seconds: number) => void;
+  setAdaptivePace: (enabled: boolean) => void;
   setJourneyPace: (journeyId: string, pace: LocomotionPace) => Promise<void>;
   setJourneyDurationSeconds: (journeyId: string, seconds: number) => void;
   conversation: ConversationEntry[];
@@ -543,7 +546,7 @@ export function ProjectProvider({
     if (current.story === draft) {
       return;
     }
-    const next = { ...current, story: draft };
+    const next = projectWithStory(current, draft);
     projectRef.current = next;
     setProject(next);
   }, []);
@@ -643,6 +646,31 @@ export function ProjectProvider({
     setProject((current) => projectWithFixedDurationSeconds(current, seconds));
   }, []);
 
+  const ensureJourneyPaceOn = useCallback(async (current: Project): Promise<Project> => {
+    try {
+      const next = await ensureProjectJourneyPace(current);
+      if (next !== current) {
+        return applyProject(next);
+      }
+      return current;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Cinematographer journey pace failed";
+      setCinematographerError(message);
+      return current;
+    }
+  }, [applyProject]);
+
+  const setAdaptivePace = useCallback(
+    (enabled: boolean) => {
+      const next = projectWithAdaptivePace(projectRef.current, enabled);
+      applyProject(next);
+      if (!enabled) {
+        void ensureJourneyPaceOn(next);
+      }
+    },
+    [applyProject, ensureJourneyPaceOn],
+  );
+
   const restageJourneyMotionPlan = useCallback(
     async (journeyId: string) => {
       const current = projectRef.current;
@@ -662,7 +690,7 @@ export function ProjectProvider({
             {
               cameraGrammar: cameraGrammarFromProject(current),
               debug: debugOnRef.current,
-              pace: effectiveJourneyPace(journey),
+              pace: effectiveJourneyPace(journey, current),
             },
           ),
         );
@@ -1042,14 +1070,15 @@ export function ProjectProvider({
 
   const assessCinematographerOn = useCallback(
     async (current: Project, journeyId: string): Promise<Project> => {
-      const journey = current.journeys.find((item) => item.id === journeyId);
-      if (!journey || !canAssessJourney(current, journey) || cinematographerAssessmentIsCurrent(current, journey)) {
-        return current;
+      const paced = await ensureJourneyPaceOn(current);
+      const journey = paced.journeys.find((item) => item.id === journeyId);
+      if (!journey || !canAssessJourney(paced, journey) || cinematographerAssessmentIsCurrent(paced, journey)) {
+        return paced;
       }
       const session = projectSessionRef.current;
       setAssessingJourneyIds((ids) => withId(ids, journeyId));
       try {
-        const request = cinematographerRequestFromProject(current, journeyId);
+        const request = cinematographerRequestFromProject(paced, journeyId);
         const result = await requestCinematographerAssessment(request);
         if (projectSessionRef.current !== session) {
           return projectRef.current;
@@ -1074,18 +1103,19 @@ export function ProjectProvider({
         setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
       }
     },
-    [applyProject],
+    [applyProject, ensureJourneyPaceOn],
   );
 
   const assessJourneyOn = useCallback(
     async (current: Project, journeyId: string): Promise<Project> => {
-      const journey = current.journeys.find((item) => item.id === journeyId);
-      if (!journey || !canAssessJourney(current, journey) || hasCurrentMotionPlan(current, journey)) {
-        return current;
+      const paced = await ensureJourneyPaceOn(current);
+      const journey = paced.journeys.find((item) => item.id === journeyId);
+      if (!journey || !canAssessJourney(paced, journey) || hasCurrentMotionPlan(paced, journey)) {
+        return paced;
       }
-      const inputKey = journeyMotionPlanInputKey(current, journey);
+      const inputKey = journeyMotionPlanInputKey(paced, journey);
       if (!inputKey) {
-        return current;
+        return paced;
       }
       const pending = inFlightMotionPlans.get(inputKey);
       if (pending) {
@@ -1096,7 +1126,7 @@ export function ProjectProvider({
         const entryId = nextConversationId("blocking");
         setCinematographerError(null);
         if (journey.motionPlanError) {
-          applyProject(projectWithMotionPlanError(current, journeyId, undefined));
+          applyProject(projectWithMotionPlanError(paced, journeyId, undefined));
         }
         setAssessingJourneyIds((ids) => withId(ids, journeyId));
         setConversation((entries) =>
@@ -1109,9 +1139,9 @@ export function ProjectProvider({
           }),
         );
         try {
-          const request = cinematographerRequestFromProject(current, journeyId);
+          const request = cinematographerRequestFromProject(paced, journeyId);
           const reuseAssessment =
-            cinematographerAssessmentIsCurrent(current, journey) && journey.cinematographer
+            cinematographerAssessmentIsCurrent(paced, journey) && journey.cinematographer
               ? journey.cinematographer
               : undefined;
           const assessment =
@@ -1123,9 +1153,9 @@ export function ProjectProvider({
               request.endMediaId,
               assessment,
               {
-                cameraGrammar: cameraGrammarFromProject(current),
+                cameraGrammar: cameraGrammarFromProject(paced),
                 debug: debugOnRef.current,
-                pace: effectiveJourneyPace({ ...journey, cinematographer: assessment }),
+                pace: effectiveJourneyPace({ ...journey, cinematographer: assessment }, paced),
               },
             ),
           );
@@ -1195,7 +1225,7 @@ export function ProjectProvider({
       inFlightMotionPlans.set(inputKey, work);
       return work;
     },
-    [applyProject, nextConversationId],
+    [applyProject, ensureJourneyPaceOn, nextConversationId],
   );
 
   const completeJourneyShoot = useCallback(
@@ -2440,6 +2470,7 @@ export function ProjectProvider({
       setPullForwardReferenceEnabled,
       setCameraGrammar,
       setDurationMode,
+      setAdaptivePace,
       setFixedDurationSeconds,
       setJourneyPace,
       setJourneyDurationSeconds,
@@ -2544,6 +2575,7 @@ export function ProjectProvider({
       setPullForwardReferenceEnabled,
       setCameraGrammar,
       setDurationMode,
+      setAdaptivePace,
       setFixedDurationSeconds,
       setJourneyPace,
       setJourneyDurationSeconds,

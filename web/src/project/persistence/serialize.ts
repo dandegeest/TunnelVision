@@ -7,6 +7,11 @@ import { projectWithSyncedProductionLegs } from "../production-legs";
 import { isLocomotionPace } from "../../../../media/src/cinematographer/shooting-prompt.ts";
 import { cameraGrammarFromProject, cameraGrammarFromUnknown } from "../camera-grammar";
 import {
+  adaptivePaceFromProject,
+  journeyPaceIsCurrent,
+  storyFingerprint,
+} from "../adaptive-pace";
+import {
   DEFAULT_DURATION_MODE,
   DEFAULT_FIXED_DURATION_SECONDS,
   clampDurationSeconds,
@@ -135,6 +140,10 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     cameraGrammar: cameraGrammarFromProject(project),
     durationMode: durationModeFromProject(project),
     fixedDurationSeconds: fixedDurationSecondsFromProject(project),
+    adaptivePace: adaptivePaceFromProject(project),
+    ...(journeyPaceIsCurrent(project)
+      ? { journeyPace: project.journeyPace, journeyPaceStory: project.journeyPaceStory }
+      : {}),
     storyDuration: project.storyDuration,
     storyDurationLocked: project.storyDurationLocked,
   };
@@ -606,6 +615,19 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       typeof settings.fixedDurationSeconds === "number"
         ? clampDurationSeconds(settings.fixedDurationSeconds)
         : DEFAULT_FIXED_DURATION_SECONDS,
+    adaptivePace: settings.adaptivePace !== false,
+    journeyPace:
+      settings.adaptivePace === false &&
+      isLocomotionPace(settings.journeyPace) &&
+      (settings.journeyPaceStory ?? "") === storyFingerprint(input.manifest.journey.initialPrompt)
+        ? settings.journeyPace
+        : undefined,
+    journeyPaceStory:
+      settings.adaptivePace === false &&
+      isLocomotionPace(settings.journeyPace) &&
+      (settings.journeyPaceStory ?? "") === storyFingerprint(input.manifest.journey.initialPrompt)
+        ? settings.journeyPaceStory
+        : undefined,
     videoModel: settings.videoModel,
     videoModelsByIntent: settings.videoModelsByIntent,
     defaultTakeIntent: settings.defaultTakeIntent,

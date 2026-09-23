@@ -3,6 +3,9 @@ import { formatConversationClock, type ConversationEntry } from "../project/conv
 import type { DirectorEvidence } from "../project/director";
 import { humanRepairRecommendation } from "../project/journey-agent-repair";
 import { currentCutClips, currentCutDurationSeconds, formatCutClock } from "../project/current-cut";
+import { adaptivePaceFromProject, journeyPaceIsCurrent } from "../project/adaptive-pace";
+import { locomotionPaceLabel } from "../project/cinematographer";
+import { effectiveJourneyPace } from "../project/journey-overrides";
 import { useProject } from "../project/ProjectProvider";
 import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
 import { ProgressSpinner } from "../ui/ProgressSpinner";
@@ -249,6 +252,7 @@ function DestinationEntryView({
 }
 
 function CinematographerBlockView({ block }: { block: CinematographerBlock }) {
+  const { project } = useProject();
   const segment = cinematographerSegmentLabel(block);
   const scores = cinematographerScores(block);
   const reevaluating =
@@ -257,6 +261,11 @@ function CinematographerBlockView({ block }: { block: CinematographerBlock }) {
     block.evaluation?.status === "evaluating" || block.evaluation?.status === "reevaluating";
   const blockingBusy = block.blocking?.status === "blocking";
   const assessment = block.blocking?.assessment;
+  const journeyId = block.blocking?.journeyId ?? block.evaluation?.journeyId;
+  const journey = journeyId ? project.journeys.find((item) => item.id === journeyId) : undefined;
+  const consumedPace = journey ? effectiveJourneyPace(journey, project) : assessment?.pace;
+  const journeyPaceVisible =
+    !adaptivePaceFromProject(project) && journeyPaceIsCurrent(project) && project.journeyPace;
   const title = (
     <>
       Cinematographer
@@ -269,13 +278,18 @@ function CinematographerBlockView({ block }: { block: CinematographerBlock }) {
       className={`conversation-cinematographer${block.blocking ? " conversation-blocking" : " conversation-agent"}`}
       title={title}
       createdAt={block.createdAt}
-      copyText={cinematographerCardCopy(block)}
+      copyText={cinematographerCardCopy(block, project)}
       copyLabel={segment ? `Copy cinematographer ${segment}` : "Copy cinematographer"}
       active={evaluating || blockingBusy}
     >
       {block.blocking?.status === "failed" ? (
         <p className="mb-2 rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
           {block.blocking.error}
+        </p>
+      ) : null}
+      {journeyPaceVisible && project.journeyPace ? (
+        <p className="mb-2 text-[11px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+          Journey pace: {locomotionPaceLabel(project.journeyPace)} · Adaptive Pace: Off
         </p>
       ) : null}
       {scores.setConsistency != null || scores.traversalConfidence != null ? (
@@ -296,7 +310,7 @@ function CinematographerBlockView({ block }: { block: CinematographerBlock }) {
             <div className="mt-2 space-y-2 leading-relaxed text-[#cfc6b8]">
               <p>{assessment.shootability}</p>
               <p>{assessment.camera}</p>
-              <p>{assessment.pace}</p>
+              <p>{consumedPace ?? assessment.pace}</p>
               <p>{assessment.route}</p>
               <ShootingPromptText
                 effectivePrompt={assessment.segmentPromptAddition}

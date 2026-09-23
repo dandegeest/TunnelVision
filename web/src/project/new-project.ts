@@ -28,6 +28,7 @@ export function createNewProject(): Project {
     cameraGrammar: "pov",
     durationMode: "adaptive",
     fixedDurationSeconds: 5,
+    adaptivePace: true,
     videoModel: DEFAULT_VIDEO_MODEL_ID,
     videoModelsByIntent: defaultVideoModelsByIntent(),
     defaultTakeIntent: DEFAULT_GENERATION_INTENT,

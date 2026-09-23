@@ -88,6 +88,7 @@ export type CinematographerAssessmentInput = {
   readonly cameraGrammar?: CameraGrammar;
   readonly filmmakerPace?: string;
   readonly filmmakerDurationSeconds?: number;
+  readonly journeyPace?: string;
   readonly pullForwardReferenceEnabled?: boolean;
 };
 
@@ -158,6 +159,7 @@ export function buildCinematographerAssessmentRequest(
     cameraGrammar,
     filmmakerPace: input.filmmakerPace,
     filmmakerDurationSeconds: input.filmmakerDurationSeconds,
+    journeyPace: input.journeyPace,
     pullForwardReferenceEnabled: input.pullForwardReferenceEnabled,
   });
   const payload: CinematographerAssessmentRequestPayload = {

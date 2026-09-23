@@ -18,7 +18,7 @@ export function JourneyPaceLane({
     <div className="pointer-events-none absolute inset-x-0 top-7 z-[2] h-[100px]">
       {journeys.map((laid) => {
         const journey = projectJourneys.find((item) => item.id === laid.journeyId);
-        const pace = journey ? effectiveJourneyPace(journey) : undefined;
+        const pace = journey ? effectiveJourneyPace(journey, project) : undefined;
         const gutter = journeyThumbGutter(laid);
         if (!journey || !pace || !gutter) {
           return null;

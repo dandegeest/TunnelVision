@@ -88,7 +88,7 @@ export function motionPlanRequestFromProject(
     journey.cinematographer,
     {
       cameraGrammar: cameraGrammarFromProject(project),
-      pace: effectiveJourneyPace(journey),
+      pace: effectiveJourneyPace(journey, project),
       pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
     },
   );

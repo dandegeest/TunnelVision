@@ -713,8 +713,8 @@ function ShotDurationReadout({
 }
 
 function PaceControl({ pace }: { pace: CinematographerAssessment["pace"] }) {
-  const { selectedJourney, setJourneyPace, shootingJourneyIds } = useProject();
-  const current = selectedJourney ? effectiveJourneyPace(selectedJourney) ?? pace : pace;
+  const { project, selectedJourney, setJourneyPace, shootingJourneyIds } = useProject();
+  const current = selectedJourney ? effectiveJourneyPace(selectedJourney, project) ?? pace : pace;
   const disabled = !selectedJourney || shootingJourneyIds.includes(selectedJourney.id);
   return (
     <span className="inline-flex items-center gap-2 text-[#d4b36a]" data-inspector-pace={current}>

@@ -12,6 +12,7 @@ import {
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import { pullForwardReferenceEnabledFromProject } from "../project/destination";
+import { adaptivePaceFromProject } from "../project/adaptive-pace";
 import { durationModeFromProject, fixedDurationSecondsFromProject, MAX_FIXED_DURATION_SECONDS, MIN_FIXED_DURATION_SECONDS } from "../project/shot-duration";
 import {
   CAMERA_GRAMMARS,
@@ -975,6 +976,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     setCameraGrammar,
     setDurationMode,
     setFixedDurationSeconds,
+    setAdaptivePace,
     directorStatus,
     planStartError,
     journeyAgent,
@@ -1180,6 +1182,18 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   onChange={(event) => setDurationMode(event.target.checked ? "adaptive" : "fixed")}
                 />
                 Adaptive durations
+              </label>
+              <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+                <input
+                  type="checkbox"
+                  checked={adaptivePaceFromProject(project)}
+                  disabled={busy}
+                  aria-label="Adaptive Pace"
+                  title="ON: Cinematographer chooses pace per traversal. OFF: Cinematographer chooses one pace for the entire journey."
+                  className="mt-0.5 accent-[#ece7df]"
+                  onChange={(event) => setAdaptivePace(event.target.checked)}
+                />
+                Adaptive Pace
               </label>
               {durationModeFromProject(project) === "fixed" ? (
                 <label className="flex items-center gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
