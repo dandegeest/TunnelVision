@@ -52,25 +52,40 @@ Items below are **BACKLOG** unless a later edit changes the status.
 
 ## Pre-hackathon focus
 
-The core filmmaking Agent, Agent chat workspace, and lightweight
-Session persistence are proven or in product. Freeze that pipeline.
+**CODE FREEZE — 23 September 2026.** The core filmmaking Agent,
+Agent chat workspace, Session persistence, Adaptive Pace,
+Adaptive Durations, Pull Forward (project toggle), Camotion
+production path, gated +1 seam trim, camera grammar, and Project
+persistence are **frozen**. See
+[HACKATHON.md — PRE-HACKATHON FILMMAKING CODE FREEZE](HACKATHON.md#pre-hackathon-filmmaking-code-freeze--23-september-2026)
+and the MemoryLane baseline
+[experiment report](experiments/2026-09-23-memorylane-adaptive-pace-seams/REPORT.md).
+
 Treat existing generation, canonical-frame, traversal, Camotion,
 export, JourneyAgent, Agent UI, and Session JSON as a **library**
 event-day intelligence will call.
 
-Next workstation work, in order:
+Preferred frozen demo configuration:
 
-1.  Timeline / Takes UX polish
-2.  Project persistence / shared Project format — **in product**
-    (directory format under the configured Projects Folder)
-3.  Basic robustness and regression testing
-4.  Fresh-machine / config / secrets readiness
-5.  Freeze the core filmmaking pipeline before the event
+-   Kling 2.5 / balanced
+-   Adaptive Durations ON
+-   Adaptive Pace **OFF** (one CM journey-level pace)
+-   Pull Forward ON
+-   +1 seam trimming ON
+
+Next workstation work before the event (docs / readiness only —
+do not reopen frozen filmmaking systems):
+
+1.  Fresh-machine / config / secrets readiness
+2.  Confirm unattended DERIVE on the frozen baseline (validate)
+3.  Keep regression tests green
 
 Do **not** implement Continue Journey, Discover, CM OG vs Pull
 Forward per traversal, or agentic Model Router policy from a
 normal product session. Those are **HACKATHON / DISCOVERY**.
 Camera grammar (POV / FOLLOW / LEAD / MOUNTED) already landed.
+Continuous Camotion velocity trajectory is **post-hack research**
+— see [Continuous Camotion velocity trajectory](#continuous-camotion-velocity-trajectory-post-hack).
 
 Hackathon-day work is **agent intelligence and Runway API
 usage**, not a second UI. Canonical plan:
@@ -2063,6 +2078,71 @@ N→A is shootable. That is LOOP work, not this item.
 ---
 
 ## 3. Camotion / visual quality
+
+### Continuous Camotion velocity trajectory (POST-HACK)
+
+**Status:** DEFERRED — post-hackathon research. Do **not**
+implement before or during the Runway hackathon.
+
+**Goal.** Replace the long-term Adaptive Pace ON/OFF abstraction
+with a continuous **entry → accel/decel → exit** velocity
+trajectory across independently generated traversals, so
+
+``` text
+exitVelocity(A→B) ≈ entryVelocity(B→C)
+```
+
+**Why it matters.** MemoryLane (23 September 2026) showed that
+locking one journey-level pace (Adaptive Pace OFF) materially
+improved Kling endpoint compatibility and let gated +1 trimming
+DROP all three seams, including the hard A-B→B-C moderate→fast
+failure under Adaptive Pace ON. That is evidence that Camotion
+pace influences endpoint temporal state — not proof of a full
+velocity model. Adaptive Pace ON/OFF may be the wrong long-term
+knob; cinematic acceleration still wants different paces *across*
+the journey without resetting camera velocity at every cut.
+
+**Intended behavior / design (research only).**
+
+Example trajectory (not a product schema):
+
+``` text
+A→B  slow → slow
+B→C  slow → normal
+C→D  normal → fast
+D→E  fast → normal
+```
+
+Potential Camotion reading:
+
+-   A′ communicates traversal **entry** velocity
+-   B′ communicates traversal **exit** velocity
+-   Shared canonical B participates in continuous temporal state
+    across independently generated clips
+
+**Constraints / invariants.**
+
+-   Do not change Camotion math, Adaptive Pace, or +1 thresholds
+    under the 23 September 2026 code freeze.
+-   Do not productize from MemoryLane alone.
+-   Kling-specific responsiveness observed; do not claim universal
+    provider behavior.
+
+**Evidence.**
+[2026-09-23 MemoryLane Adaptive Pace vs +1 seams](experiments/2026-09-23-memorylane-adaptive-pace-seams/REPORT.md).
+
+**Likely implementation areas (later).**
+
+-   CM assessment / journey-pace reasoning
+-   CameraMotionPlan bridge (pace or future entry/exit fields)
+-   Camotion A′/B′ conditioning
+-   Interaction with gated +1 seam trim
+
+**Open questions.**
+
+-   Smallest velocity representation that beats one journeyPace?
+-   How does this interact with Adaptive Durations?
+-   Does Pruna ever respond, or is this Kling-class only?
 
 ### Destination-aware Camotion / non-radial motion fields
 

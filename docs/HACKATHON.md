@@ -30,6 +30,11 @@ Related current-code docs (do not treat them as optional):
 -   [2026-09-20 Temporal Seam / 120fps](experiments/2026-09-20-temporal-seam-120fps.md)
     — Enhance Frame Rate was proven live; velocity-smoothing joins
     were **abandoned**. Not event-day work.
+-   [2026-09-23 MemoryLane Adaptive Pace vs +1 seams](experiments/2026-09-23-memorylane-adaptive-pace-seams/REPORT.md)
+    — pre-hackathon SOTA / regression baseline (Kling · balanced ·
+    Adaptive Pace OFF · journeyPace slow · +1 ON).
+-   [Pre-hack code freeze audit](hackathon/PRE-HACK-CODE-FREEZE-AUDIT.md)
+    — 23 September 2026 read-only plan vs code audit.
 
 Public Runway Dev documentation (source of truth for the API;
 reopen on event day):
@@ -103,6 +108,54 @@ manual surfaces.
 The Agent UI is **pre-hack**. Event day is **agent intelligence
 and Runway API usage**, not UI construction.
 
+### PRE-HACKATHON FILMMAKING CODE FREEZE — 23 SEPTEMBER 2026
+
+The current filmmaking baseline is **frozen**.
+
+Preferred hackathon demo configuration (MemoryLane SOTA /
+regression baseline):
+
+| Knob | Frozen value |
+| --- | --- |
+| Video model | Kling 2.5 (`kling-v2.5-turbo-pro`) |
+| Intent | balanced |
+| Adaptive Durations | ON (`durationMode: adaptive`) |
+| Adaptive Pace | **OFF** — CM chooses **one** journey-level pace |
+| Pull Forward | ON (project toggle; not the P0 per-traversal CM decision) |
+| +1 seam trimming | ON (SSIM ≥ 0.89 and MAE ≤ 5) |
+| Camotion | existing production path |
+| Canonical construction | existing |
+| Camera grammar | existing whole-journey POV / FOLLOW / LEAD / MOUNTED |
+| Agent UI | existing Agent tab |
+| Session persistence | existing Session JSON |
+
+Evidence and take matrix:
+[2026-09-23 MemoryLane Adaptive Pace vs +1 seams](experiments/2026-09-23-memorylane-adaptive-pace-seams/REPORT.md).
+Read-only audit:
+[PRE-HACK-CODE-FREEZE-AUDIT.md](hackathon/PRE-HACK-CODE-FREEZE-AUDIT.md).
+
+**Do not change these systems before the event** unless a
+reproducible P0 regression is discovered:
+
+-   Director planning behavior
+-   canonical construction
+-   current CM assessment behavior
+-   current camera grammar
+-   Camotion math
+-   Pull Forward implementation (project-level toggle)
+-   adaptive-duration implementation
+-   journey-level Adaptive Pace implementation
+-   +1 seam trimming thresholds
+-   Agent UI
+-   Session persistence
+-   Project persistence
+-   existing provider implementations
+-   export / assembly behavior
+
+Hackathon-day work must build **on top of** this baseline rather
+than rewriting it. Continuous Camotion velocity / entry–exit pace
+is **post-hack research** — see BACKLOG.md — not event-day work.
+
 ### Priority board (lock this for event day)
 
 | Status | Item |
@@ -116,6 +169,9 @@ and Runway API usage**, not UI construction.
 | **DONE / PRE-HACK** | Lightweight Session persistence; Project / Session split |
 | **DONE / PRE-HACK** | Whole-journey camera grammar (POV / FOLLOW / LEAD / MOUNTED) |
 | **DONE / PRE-HACK** | Shared Project Save / Open (Projects Folder) |
+| **DONE / PRE-HACK** | Adaptive Pace (Project ON default; OFF = one CM journey-level pace) |
+| **DONE / PRE-HACK** | Adaptive Durations (`durationMode` adaptive \| fixed) |
+| **DONE / PRE-HACK** | Gated +1 seam trim (drop outgoing frame 0 when Be≈Bs) |
 | **P0 HACK** | Fully unattended end-to-end journey orchestration (validate) |
 | **P0 HACK** | CM chooses OG vs Pull Forward **per traversal** |
 | **P0 HACK** | Failure-driven technique switching (OG → PF after diagnosis) |
@@ -790,6 +846,9 @@ genesis/      Research site (not the hackathon app)
 | Movie-evaluation preprocessor | **Does not exist** as product. Not planned. |
 | Runway adapters | **Partial (20 September 2026).** `media/src/runway/` exists and Enhance Frame Rate @ 120fps is live-proven (`RUNWAY_DEV_TOKEN`). It is **not** a product `MediaProvider`. JourneyAgent still writes `"replicate"`. Event-day work: Model Router image + video on the existing client, visible `routing.model`, named-model fallback. 120fps Temporal Seam velocity smoothing was tested and **abandoned** — do not productize or spend event-day time on it. |
 | Camera grammar (POV / FOLLOW / LEAD / MOUNTED) | **Exists (hackathon scope).** One grammar per journey, grammar-specific baselines, persisted as Project `cameraGrammar`. Canyon control experiment 18 September 2026. Mixed-grammar journeys are post-hackathon. See Camera grammar decision above. |
+| Adaptive Pace | **Exists (pre-hack).** Project `adaptivePace` default ON (per-segment CM pace). OFF → one CM journey-pace call, persist `journeyPace` + story fingerprint, invalidate mismatched motion plans. No project Slow/Normal/Fast selector. MemoryLane baseline freezes demo at OFF / journeyPace chosen by CM. |
+| Adaptive Durations | **Exists.** Project `durationMode` adaptive \| fixed. Adaptive uses CM desired duration then model mapping. |
+| Gated +1 seam trim | **Exists (pre-hack).** Drop outgoing frame 0 when Be≈Bs (SSIM ≥ 0.89 and MAE ≤ 5). Measured on selected Takes; applied at export concat. Thresholds frozen. |
 | DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. **P1** if P0 is healthy: ≥720p A→? generation, latest-usable late-frame harvest, lossless PNG extract, then promote to pristine B. Do not expose a UI mode. Full spec: §17. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
 | Durable project persistence | **Exists.** Directory format under the app Projects Folder. Same `Project` for Director, Shoot, and Agent. Opening a Project does **not** reconstruct Agent Session history. |
