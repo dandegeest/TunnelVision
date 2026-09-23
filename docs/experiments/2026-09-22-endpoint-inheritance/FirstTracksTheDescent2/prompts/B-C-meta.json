@@ -1,0 +1,16 @@
+{
+  "leg": "B-C",
+  "durationSeconds": 6,
+  "desiredDurationSeconds": 6,
+  "pace": "fast",
+  "originalModel": "prunaai/p-video",
+  "startShootingFrame": "shooting-frames/B-C/start-upload-89d895baba5e463e37c1b4e775b23c9c.png",
+  "endShootingFrame": "shooting-frames/B-C/end-upload-c2cb797b74ebbea07cedc036095e217b.png",
+  "videoInputs": {
+    "startShootingFrame": true,
+    "endShootingFrame": true
+  },
+  "setConsistency": 70,
+  "traversalConfidence": 85,
+  "summary": "Follow the skier's downward trajectory to land and enter the rock chute."
+}

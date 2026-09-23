@@ -1,0 +1,51 @@
+{
+  "source": "projects/TheLongWayDown/shooting-frames/D-E/metadata.json",
+  "planDerivedFrom": "canonical pair + stored traversal intent (CM travel.start)",
+  "notDerivedFrom": "rendered endpoint",
+  "startPlan": {
+    "version": 1,
+    "camera": {
+      "vanishing_point": [
+        0.49,
+        0.49
+      ],
+      "forward": 1
+    },
+    "destination": {
+      "point": [
+        0.49,
+        0.49
+      ],
+      "protect": true,
+      "bbox": [
+        0.39,
+        0.35,
+        0.59,
+        0.63
+      ]
+    },
+    "exposure": {
+      "strength": 0.04,
+      "samples": 16
+    }
+  },
+  "travelStart": {
+    "vanishingPoint": [
+      0.49,
+      0.49
+    ],
+    "destinationPoint": [
+      0.49,
+      0.49
+    ],
+    "destinationBbox": [
+      0.39,
+      0.35,
+      0.59,
+      0.63
+    ],
+    "label": "brick archway revealing the station beyond"
+  },
+  "pace": "moderate",
+  "segmentPromptAddition": "Push continuously forward along the wet floor of the utility tunnel, passing between the wall cables and through the steam. Pass directly through the brick archway ahead and emerge onto the tiled platform of the vast vaulted underground station, continuing forward over the tiles parallel to the rusted tracks."
+}

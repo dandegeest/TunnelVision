@@ -1,0 +1,4 @@
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/A-B/A-B-to-star.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C-to-star.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/C-D-to-star.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/D-E/D-E-to-star.mp4'

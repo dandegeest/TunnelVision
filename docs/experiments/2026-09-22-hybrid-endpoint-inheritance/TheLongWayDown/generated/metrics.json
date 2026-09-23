@@ -1,0 +1,468 @@
+{
+  "experiment": "hybrid-endpoint-inheritance",
+  "model": "kwaivgi/kling-v2.5-turbo-pro",
+  "start_only_control": {
+    "B": {
+      "ssim": 0.932,
+      "mae": 3.14,
+      "psnr_db": 33.4,
+      "histogram_correlation": 0.945
+    },
+    "C": {
+      "ssim": 0.926,
+      "mae": 1.01,
+      "psnr_db": 42.9,
+      "histogram_correlation": 0.99
+    },
+    "D": {
+      "ssim": 0.927,
+      "mae": 2.62,
+      "psnr_db": 37.9,
+      "histogram_correlation": 0.973
+    }
+  },
+  "legs": {
+    "A-B": {
+      "wallMs": 205318,
+      "elapsedMs": 203690,
+      "predictionId": "czc7a0awfsrmr0d0sb8tjcwdnm",
+      "durationRequested": 9,
+      "camotionOnStart": true,
+      "startImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/A-prime.png",
+      "endImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/B.png",
+      "video": {
+        "width": 1928,
+        "height": 1072,
+        "duration": 10.083333,
+        "decoded_frames": 242,
+        "window": [
+          {
+            "index": 234,
+            "vs_prev_mae": null,
+            "luma": 61.56028161190933,
+            "sharpness": 4.326805996318618
+          },
+          {
+            "index": 235,
+            "vs_prev_mae": 5.89978901524535,
+            "luma": 61.16752950754526,
+            "sharpness": 4.487674970804502
+          },
+          {
+            "index": 236,
+            "vs_prev_mae": 5.63743539176524,
+            "luma": 61.38976522341611,
+            "sharpness": 4.492491176651366
+          },
+          {
+            "index": 237,
+            "vs_prev_mae": 5.314143429636052,
+            "luma": 61.29911209641626,
+            "sharpness": 4.626041899179292
+          },
+          {
+            "index": 238,
+            "vs_prev_mae": 4.556208196569022,
+            "luma": 61.60810944628517,
+            "sharpness": 4.613404534764479
+          },
+          {
+            "index": 239,
+            "vs_prev_mae": 3.784893285130365,
+            "luma": 60.90023801505956,
+            "sharpness": 4.685256677762574
+          },
+          {
+            "index": 240,
+            "vs_prev_mae": 2.9322931181746865,
+            "luma": 60.97578336275056,
+            "sharpness": 4.575981890703701
+          },
+          {
+            "index": 241,
+            "vs_prev_mae": 4.690217545570901,
+            "luma": 61.02352313897318,
+            "sharpness": 4.677446356304772
+          }
+        ]
+      }
+    },
+    "B-C": {
+      "wallMs": 160502,
+      "elapsedMs": 158813,
+      "predictionId": "b9jceck2w1rmy0d0sbavaqphmc",
+      "durationRequested": 8,
+      "camotionOnStart": false,
+      "startImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/Be.png",
+      "endImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/C.png",
+      "video": {
+        "width": 1932,
+        "height": 1072,
+        "duration": 10.083333,
+        "decoded_frames": 242,
+        "window": [
+          {
+            "index": 234,
+            "vs_prev_mae": null,
+            "luma": 68.45539255070403,
+            "sharpness": 5.655047213210015
+          },
+          {
+            "index": 235,
+            "vs_prev_mae": 4.125147425398885,
+            "luma": 67.99611575919575,
+            "sharpness": 5.710983810307814
+          },
+          {
+            "index": 236,
+            "vs_prev_mae": 3.6240560589907607,
+            "luma": 68.26529892591905,
+            "sharpness": 5.62629170500218
+          },
+          {
+            "index": 237,
+            "vs_prev_mae": 3.735630851951423,
+            "luma": 68.14826086312743,
+            "sharpness": 5.691165238164415
+          },
+          {
+            "index": 238,
+            "vs_prev_mae": 4.13827794258521,
+            "luma": 68.59133888657128,
+            "sharpness": 5.6116391458040775
+          },
+          {
+            "index": 239,
+            "vs_prev_mae": 3.664629749801716,
+            "luma": 67.87692538214723,
+            "sharpness": 5.692727874356367
+          },
+          {
+            "index": 240,
+            "vs_prev_mae": 3.0710242781949466,
+            "luma": 67.98047080204567,
+            "sharpness": 5.618460284409149
+          },
+          {
+            "index": 241,
+            "vs_prev_mae": 6.447773747721023,
+            "luma": 68.89593488947601,
+            "sharpness": 5.707089729310929
+          }
+        ]
+      }
+    },
+    "C-D": {
+      "wallMs": 165733,
+      "elapsedMs": 163950,
+      "predictionId": "4nvr2g5f0hrmr0d0sbc8ng7hyw",
+      "durationRequested": 8,
+      "camotionOnStart": false,
+      "startImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/Ce.png",
+      "endImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/D.png",
+      "video": {
+        "width": 1932,
+        "height": 1072,
+        "duration": 10.083333,
+        "decoded_frames": 242,
+        "window": [
+          {
+            "index": 234,
+            "vs_prev_mae": null,
+            "luma": 78.0581559400204,
+            "sharpness": 6.471454973931852
+          },
+          {
+            "index": 235,
+            "vs_prev_mae": 4.898460756517619,
+            "luma": 76.65791996281533,
+            "sharpness": 6.543885687537328
+          },
+          {
+            "index": 236,
+            "vs_prev_mae": 4.418963187427253,
+            "luma": 76.09797721408485,
+            "sharpness": 6.478878504672897
+          },
+          {
+            "index": 237,
+            "vs_prev_mae": 4.274763926228073,
+            "luma": 75.16293709377543,
+            "sharpness": 6.558865430245509
+          },
+          {
+            "index": 238,
+            "vs_prev_mae": 2.4034308916082114,
+            "luma": 74.7585244391397,
+            "sharpness": 6.457736509934951
+          },
+          {
+            "index": 239,
+            "vs_prev_mae": 2.7135511624074247,
+            "luma": 73.50758677497605,
+            "sharpness": 6.487286329959808
+          },
+          {
+            "index": 240,
+            "vs_prev_mae": 2.352406574786523,
+            "luma": 72.9299328602845,
+            "sharpness": 6.339191645279486
+          },
+          {
+            "index": 241,
+            "vs_prev_mae": 5.9810184970592175,
+            "luma": 73.06426121849346,
+            "sharpness": 6.46243555598599
+          }
+        ]
+      }
+    },
+    "D-E": {
+      "wallMs": 171831,
+      "elapsedMs": 169969,
+      "predictionId": "dgfw0ns1znrmw0d0sbeb07necg",
+      "durationRequested": 8,
+      "camotionOnStart": false,
+      "startImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/De.png",
+      "endImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/E.png",
+      "video": {
+        "width": 1932,
+        "height": 1072,
+        "duration": 10.083333,
+        "decoded_frames": 242,
+        "window": [
+          {
+            "index": 234,
+            "vs_prev_mae": null,
+            "luma": 62.419653801386445,
+            "sharpness": 8.112267041144094
+          },
+          {
+            "index": 235,
+            "vs_prev_mae": 1.0555046970118351,
+            "luma": 62.19664906574786,
+            "sharpness": 8.105926912336772
+          },
+          {
+            "index": 236,
+            "vs_prev_mae": 2.9601764727089193,
+            "luma": 62.05150586353945,
+            "sharpness": 8.0133217116201
+          },
+          {
+            "index": 237,
+            "vs_prev_mae": 1.8457663159358486,
+            "luma": 61.719016524520256,
+            "sharpness": 8.057080367375269
+          },
+          {
+            "index": 238,
+            "vs_prev_mae": 1.2364693741437738,
+            "luma": 61.62838402449451,
+            "sharpness": 8.070206123997224
+          },
+          {
+            "index": 239,
+            "vs_prev_mae": 0.9372101384897459,
+            "luma": 61.39272017886757,
+            "sharpness": 8.117972818104047
+          },
+          {
+            "index": 240,
+            "vs_prev_mae": 0.9380615362627854,
+            "luma": 61.36777454600703,
+            "sharpness": 8.104583958807483
+          },
+          {
+            "index": 241,
+            "vs_prev_mae": 3.954635788449059,
+            "luma": 61.61527249878969,
+            "sharpness": 8.253968815069488
+          }
+        ]
+      }
+    }
+  },
+  "seams": {
+    "B": {
+      "incoming": "A-B",
+      "outgoing": "B-C",
+      "comparison": "Be vs Bs_rendered",
+      "width": 1928,
+      "height": 1072,
+      "mae": 6.277310768512211,
+      "rmse": 11.0869265561907,
+      "psnr_db": 27.23458019638857,
+      "ssim": 0.7769026358568881,
+      "histogram_correlation": 0.7910091682251243,
+      "max_abs": 150,
+      "luma_a": 61.02352313897318,
+      "luma_b": 58.50257997486633
+    },
+    "C": {
+      "incoming": "B-C",
+      "outgoing": "C-D",
+      "comparison": "Ce vs Cs_rendered",
+      "width": 1932,
+      "height": 1072,
+      "mae": 3.5712090427778294,
+      "rmse": 4.670076920677204,
+      "psnr_db": 34.74432293118754,
+      "ssim": 0.9364050266836613,
+      "histogram_correlation": 0.9777930555327212,
+      "max_abs": 54,
+      "luma_a": 68.89593488947601,
+      "luma_b": 66.32766952633314
+    },
+    "D": {
+      "incoming": "C-D",
+      "outgoing": "D-E",
+      "comparison": "De vs Ds_rendered",
+      "width": 1932,
+      "height": 1072,
+      "mae": 3.745918279976927,
+      "rmse": 4.855747888246073,
+      "psnr_db": 34.40568100938573,
+      "ssim": 0.9333507915361977,
+      "histogram_correlation": 0.9844906877657489,
+      "max_abs": 49,
+      "luma_a": 73.06426121849346,
+      "luma_b": 70.27794001009445
+    }
+  },
+  "destinations": {
+    "B": {
+      "canonical": "stills/B.png",
+      "rendered": "generated/A-B/Be.png",
+      "note": "pixel metrics after cover-fit of canonical onto rendered size; semantic judgement is primary",
+      "width": 1928,
+      "height": 1072,
+      "mae": 4.792345488584051,
+      "rmse": 7.672622902076383,
+      "psnr_db": 30.43192653264011,
+      "ssim": 0.847102931957099,
+      "histogram_correlation": 0.8423880407057128,
+      "max_abs": 142,
+      "luma_a": 62.95130400254949,
+      "luma_b": 61.02352313897318
+    },
+    "C": {
+      "canonical": "stills/C.png",
+      "rendered": "generated/B-C/Ce.png",
+      "note": "pixel metrics after cover-fit of canonical onto rendered size; semantic judgement is primary",
+      "width": 1932,
+      "height": 1072,
+      "mae": 5.480396445567195,
+      "rmse": 8.126582670702536,
+      "psnr_db": 29.93264445389493,
+      "ssim": 0.8617651567909675,
+      "histogram_correlation": 0.8442746251764556,
+      "max_abs": 103,
+      "luma_a": 71.07760627504301,
+      "luma_b": 68.89593488947601
+    },
+    "D": {
+      "canonical": "stills/D.png",
+      "rendered": "generated/C-D/De.png",
+      "note": "pixel metrics after cover-fit of canonical onto rendered size; semantic judgement is primary",
+      "width": 1932,
+      "height": 1072,
+      "mae": 6.442555435812655,
+      "rmse": 10.058468561864073,
+      "psnr_db": 28.08016635165828,
+      "ssim": 0.820070762941846,
+      "histogram_correlation": 0.8223749524930136,
+      "max_abs": 129,
+      "luma_a": 75.21368764356272,
+      "luma_b": 73.06426121849346
+    },
+    "E": {
+      "canonical": "stills/E.png",
+      "rendered": "generated/D-E/Ee.png",
+      "note": "pixel metrics after cover-fit of canonical onto rendered size; semantic judgement is primary",
+      "width": 1932,
+      "height": 1072,
+      "mae": 9.183708463376698,
+      "rmse": 13.368400400795165,
+      "psnr_db": 25.60921471350424,
+      "ssim": 0.7525116989356434,
+      "histogram_correlation": 0.8564122588992803,
+      "max_abs": 124,
+      "luma_a": 63.79604114520565,
+      "luma_b": 61.61527249878969
+    }
+  },
+  "state_quality": {
+    "A-prime": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/A-prime.png",
+      "width": 1376,
+      "height": 768,
+      "luma": 66.58081464742813,
+      "sharpness": 8.614133801558978
+    },
+    "B-canonical": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/B.png",
+      "width": 1376,
+      "height": 768,
+      "luma": 62.88359286680394,
+      "sharpness": 12.109419557288598
+    },
+    "Be": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/Be.png",
+      "width": 1928,
+      "height": 1072,
+      "luma": 61.02352313897318,
+      "sharpness": 4.677446356304772
+    },
+    "C-canonical": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/C.png",
+      "width": 1376,
+      "height": 768,
+      "luma": 70.94394670037953,
+      "sharpness": 15.649153494653286
+    },
+    "Ce": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/Ce.png",
+      "width": 1932,
+      "height": 1072,
+      "luma": 68.89593488947601,
+      "sharpness": 5.707089729310929
+    },
+    "D-canonical": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/D.png",
+      "width": 1376,
+      "height": 768,
+      "luma": 75.12677080809917,
+      "sharpness": 18.13622724906032
+    },
+    "De": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/De.png",
+      "width": 1932,
+      "height": 1072,
+      "luma": 73.06426121849346,
+      "sharpness": 6.46243555598599
+    },
+    "E-canonical": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/stills/E.png",
+      "width": 1376,
+      "height": 768,
+      "luma": 63.74461975886224,
+      "sharpness": 29.25662242846447
+    },
+    "Ee": {
+      "path": "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/Ee.png",
+      "width": 1932,
+      "height": 1072,
+      "luma": 61.61527249878969,
+      "sharpness": 8.253968815069488
+    }
+  },
+  "outputs": {
+    "movie": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/experimental_A_B_C_D_E_hybrid_endpoint_inheritance.mp4",
+    "seams": [
+      "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/seam-clips/seam-B.mp4",
+      "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/seam-clips/seam-C.mp4",
+      "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/seam-clips/seam-D.mp4"
+    ]
+  }
+}

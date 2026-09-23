@@ -1,0 +1,8 @@
+{
+  "Be_literal": "frame 120/121",
+  "Be_selected": "same as literal",
+  "frames_from_end": 0,
+  "reason": "Continuous advance onto an unfinished open floor. Not a glitch. Luma/sharpness stable. This is the arrived-at B (construction level) rather than a lingering stairwell.",
+  "camotion": false,
+  "Bs_inherited": "copy of Be_selected; no resize, no Camotion"
+}

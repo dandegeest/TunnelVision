@@ -1,0 +1,37 @@
+{
+  "video": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E.mp4",
+  "dest": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/stills/E.png",
+  "meta": {
+    "width": 1932,
+    "height": 1072,
+    "fps": 24.0,
+    "duration": 10.083333,
+    "decoded_frames": 242
+  },
+  "peak_pair_mae": 21.084965016708438,
+  "heuristic_dest_established": {
+    "index": 213,
+    "t": 8.875,
+    "pair_mae": 5.639348370927318,
+    "dest_mae": 16.863677422723477,
+    "dest_ssim": 0.554977150615517,
+    "luma": 61.898763332663805
+  },
+  "heuristic_pose_lock_start": {
+    "index": 213,
+    "t": 8.875,
+    "pair_mae": 5.639348370927318,
+    "dest_mae": 16.863677422723477,
+    "dest_ssim": 0.554977150615517,
+    "luma": 61.898763332663805
+  },
+  "last": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 1.4518535923141187,
+    "dest_mae": 5.460860484544695,
+    "dest_ssim": 0.933373390384999,
+    "luma": 61.59682420583418
+  },
+  "note": "experiment-local diagnostic. Not production."
+}

@@ -1,0 +1,4 @@
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-full-scaled.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-full-scaled.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-full-scaled.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-full-scaled.mp4'

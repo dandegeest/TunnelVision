@@ -1,0 +1,16 @@
+{
+  "leg": "C-D",
+  "durationSeconds": 5,
+  "desiredDurationSeconds": 5,
+  "pace": "fast",
+  "originalModel": "prunaai/p-video",
+  "startShootingFrame": "shooting-frames/C-D/start-upload-c02b2662f4c7e8d2db0a72dba09da9bb.png",
+  "endShootingFrame": "shooting-frames/C-D/end-upload-956790d450b9c4b62b922d26745c5087.png",
+  "videoInputs": {
+    "startShootingFrame": true,
+    "endShootingFrame": true
+  },
+  "setConsistency": 95,
+  "traversalConfidence": 95,
+  "summary": "Follow the skier straight down the rock chute and into the forest visible at the bottom."
+}

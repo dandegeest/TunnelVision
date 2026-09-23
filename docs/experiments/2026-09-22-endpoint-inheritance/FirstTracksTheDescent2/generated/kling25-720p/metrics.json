@@ -1,0 +1,98 @@
+{
+  "experimental_video": {
+    "B-C": {
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "pix_fmt": "yuv420p",
+      "fps": "24/1",
+      "duration": 5.041667,
+      "nb_frames": "121"
+    },
+    "C-D": {
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "pix_fmt": "yuv420p",
+      "fps": "24/1",
+      "duration": 5.083333,
+      "nb_frames": "122"
+    },
+    "B-C_frames": 121,
+    "C-D_frames": 122
+  },
+  "Ce_vs_Cs_rendered": {
+    "width": 1920,
+    "height": 1080,
+    "exact_equal": false,
+    "mae": 2.0604292052469138,
+    "rmse": 2.908548335644758,
+    "max_abs": 49,
+    "psnr_db": 38.85727789853138,
+    "ssim": 0.9627241134520667,
+    "ncc_32": 0.9996180838260587,
+    "histogram_correlation": 0.9973263157859599,
+    "mean_luma_delta": 1.8178436667631175
+  },
+  "Ce_vs_Cs": {
+    "width": 1920,
+    "height": 1080,
+    "exact_equal": true,
+    "mae": 0.0,
+    "rmse": 0.0,
+    "max_abs": 0,
+    "psnr_db": Infinity,
+    "ssim": 1.0,
+    "ncc_32": 1.0,
+    "histogram_correlation": 1.0,
+    "mean_luma_delta": 0.0
+  },
+  "Cs_vs_Cs_rendered": {
+    "width": 1920,
+    "height": 1080,
+    "exact_equal": false,
+    "mae": 2.0604292052469138,
+    "rmse": 2.908548335644758,
+    "max_abs": 49,
+    "psnr_db": 38.85727789853138,
+    "ssim": 0.9627241134520667,
+    "ncc_32": 0.9996180838260587,
+    "histogram_correlation": 0.9973263157859599,
+    "mean_luma_delta": 1.8178436667631175
+  },
+  "original_video": {
+    "B-C": {
+      "width": 1280,
+      "height": 704,
+      "codec": "h264",
+      "pix_fmt": "yuv420p",
+      "fps": "24/1",
+      "duration": 6.041667,
+      "nb_frames": "145"
+    },
+    "C-D": {
+      "width": 1280,
+      "height": 704,
+      "codec": "h264",
+      "pix_fmt": "yuv420p",
+      "fps": "24/1",
+      "duration": 5.041667,
+      "nb_frames": "121"
+    },
+    "B-C_frames": 145,
+    "C-D_frames": 121
+  },
+  "original_Ce_vs_Cs_rendered": {
+    "width": 1280,
+    "height": 704,
+    "exact_equal": false,
+    "mae": 13.169793146306818,
+    "rmse": 19.91011216904131,
+    "max_abs": 245,
+    "psnr_db": 22.14932947366737,
+    "ssim": 0.7865899091502079,
+    "ncc_32": 0.9899693677432722,
+    "histogram_correlation": 0.5219820430752132,
+    "mean_luma_delta": -1.3395273097922313
+  }
+}

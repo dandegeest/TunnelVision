@@ -1,0 +1,37 @@
+{
+  "experiment": "camotion-50pct-C-test",
+  "leg": "C-D",
+  "model": "kwaivgi/kling-v2.5-turbo-pro",
+  "durationRequested": 8,
+  "startImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/C-D/Cs-prime-50.png",
+  "endImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/stills/D.png",
+  "camotionOnStart": "canonical-derived-plan-applied-to-rendered-endpoint",
+  "promptFile": "prompts/C-D.txt",
+  "wallMs": 211165,
+  "result": {
+    "provider": "replicate",
+    "model": "kwaivgi/kling-v2.5-turbo-pro",
+    "modelVersion": "hidden",
+    "predictionId": "hxcx3j2v4drmw0d0sddvhq1tdr",
+    "status": "succeeded",
+    "outputUrl": "https://replicate.delivery/xezq/YLwLpbVJJ760MZRy8RmFosd2CDOX43vE1E0UaPluows27C0F/tmph9d35mqu.mp4",
+    "metadata": {
+      "replicate_status": "succeeded",
+      "metrics": {
+        "model_variant": "pro",
+        "predict_time": 205.904202382,
+        "total_time": 205.942879394,
+        "video_output_duration_seconds": 10
+      },
+      "urls": {
+        "cancel": "https://api.replicate.com/v1/predictions/hxcx3j2v4drmw0d0sddvhq1tdr/cancel",
+        "get": "https://api.replicate.com/v1/predictions/hxcx3j2v4drmw0d0sddvhq1tdr",
+        "stream": "https://stream.replicate.com/v1/files/jbxs-ui22nidewx3qoaemotle6ubjwnq3ik3hspjt3bm24ysvykasitba",
+        "web": "https://replicate.com/p/hxcx3j2v4drmw0d0sddvhq1tdr"
+      }
+    },
+    "startedAt": "2026-09-22T23:02:33.640Z",
+    "completedAt": "2026-09-22T23:06:03.426Z",
+    "elapsedMs": 209786
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "source": "projects/TheLongWayDown/shooting-frames/C-D/metadata.json",
+  "planDerivedFrom": "canonical pair + stored traversal intent (CM travel.start)",
+  "notDerivedFrom": "rendered endpoint",
+  "startPlan": {
+    "version": 1,
+    "camera": {
+      "vanishing_point": [
+        0.5,
+        0.68
+      ],
+      "forward": 1
+    },
+    "destination": {
+      "point": [
+        0.5,
+        0.68
+      ],
+      "protect": true,
+      "bbox": [
+        0.42,
+        0.61,
+        0.58,
+        0.75
+      ]
+    },
+    "exposure": {
+      "strength": 0.04,
+      "samples": 16
+    }
+  },
+  "travelStart": {
+    "vanishingPoint": [
+      0.5,
+      0.68
+    ],
+    "destinationPoint": [
+      0.5,
+      0.68
+    ],
+    "destinationBbox": [
+      0.42,
+      0.61,
+      0.58,
+      0.75
+    ],
+    "vector": [
+      0,
+      0.3
+    ],
+    "label": "rectangular opening in the floor leading down"
+  },
+  "pace": "moderate",
+  "segmentPromptAddition": "Advance steadily forward across the concrete floor and approach the rectangular floor opening ahead. Descend smoothly through the open shaft, allowing the steel framing and floor edges to pass out of view. Once below, level out and continue moving forward into the circular concrete utility tunnel, advancing between the thick cables and pipes toward the distant brick archway."
+}

@@ -1,0 +1,4 @@
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B-scaled.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C-scaled.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D-scaled.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E-scaled.mp4'

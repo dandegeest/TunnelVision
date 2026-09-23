@@ -1,0 +1,324 @@
+{
+  "experiment": "smart-prelock-trim",
+  "kling_generations": 0,
+  "fps": 24.0,
+  "legs": {
+    "A-B": {
+      "full_duration": 10.083366666666667,
+      "literal": {
+        "index": 241,
+        "t": 10.0417,
+        "pair_mae": 13.37397,
+        "dest_ssim": 0.991394
+      },
+      "star": {
+        "index": 238,
+        "t": 9.9167,
+        "pair_mae": 13.635326,
+        "dest_ssim": 0.331836
+      },
+      "frames_before_literal": 3,
+      "seconds_before_literal": 0.125,
+      "trim_end": 9.958333333333334,
+      "full_end": 10.083333333333334,
+      "incoming_last_1s_to_star": {
+        "start": 214,
+        "end": 238,
+        "n": 25,
+        "mean_pair_mae": 9.868001583333333,
+        "min_pair_mae": 8.261616,
+        "max_pair_mae": 13.635326,
+        "mean_dest_ssim": 0.24602472000000003
+      },
+      "pose_lock_snap_onset": {
+        "index": 239,
+        "t": 9.9583,
+        "pair_mae": 13.564609,
+        "dest_ssim": 0.398652
+      },
+      "star_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 54.37224600543039,
+        "rmse": 73.91248262917385,
+        "psnr_db": 10.756447809883356,
+        "ssim": 0.332445046032366,
+        "histogram_correlation": 0.6379560369487768,
+        "max_abs": 250
+      },
+      "literal_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 50.56467802456799,
+        "rmse": 72.07443218256594,
+        "psnr_db": 10.975179016457815,
+        "ssim": 0.4255631555806789,
+        "histogram_correlation": 0.7333338074183954,
+        "max_abs": 252
+      },
+      "hard_cut": {
+        "star_vs_next_Bprime": {
+          "width": 1376,
+          "height": 768,
+          "mae": 54.40009191547561,
+          "rmse": 73.96200325990232,
+          "psnr_db": 10.750630298541788,
+          "ssim": 0.33133349228019443,
+          "histogram_correlation": 0.6404545303270089,
+          "max_abs": 255
+        },
+        "star_vs_next_first_rendered": {
+          "width": 1928,
+          "height": 1072,
+          "mae": 21.7947604753721,
+          "rmse": 32.403479665542726,
+          "psnr_db": 17.918970615410643,
+          "ssim": 0.4908111257371308,
+          "histogram_correlation": 0.8724108090007382,
+          "max_abs": 232
+        },
+        "literal_vs_next_first_rendered": {
+          "width": 1928,
+          "height": 1072,
+          "mae": 2.02051384029025,
+          "rmse": 4.063206279626145,
+          "psnr_db": 35.953426188341936,
+          "ssim": 0.9565337951001577,
+          "histogram_correlation": 0.9989078461655764,
+          "max_abs": 112
+        }
+      },
+      "selection_rule": "latest frame before dest_ssim snap (\u22650.05 jump toward lock in final second)"
+    },
+    "B-C": {
+      "full_duration": 10.083366666666667,
+      "literal": {
+        "index": 241,
+        "t": 10.0417,
+        "pair_mae": 15.846606,
+        "dest_ssim": 0.995627
+      },
+      "star": {
+        "index": 238,
+        "t": 9.9167,
+        "pair_mae": 14.116968,
+        "dest_ssim": 0.283892
+      },
+      "frames_before_literal": 3,
+      "seconds_before_literal": 0.125,
+      "trim_end": 9.958333333333334,
+      "full_end": 10.083333333333334,
+      "incoming_last_1s_to_star": {
+        "start": 214,
+        "end": 238,
+        "n": 25,
+        "mean_pair_mae": 12.806412958333334,
+        "min_pair_mae": 11.52834,
+        "max_pair_mae": 14.116968,
+        "mean_dest_ssim": 0.14915679999999998
+      },
+      "pose_lock_snap_onset": {
+        "index": 240,
+        "t": 10.0,
+        "pair_mae": 14.000929,
+        "dest_ssim": 0.471371
+      },
+      "star_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 43.98469074259125,
+        "rmse": 56.978305973727224,
+        "psnr_db": 13.016612947605037,
+        "ssim": 0.3443947984777717,
+        "histogram_correlation": 0.7805146365096977,
+        "max_abs": 249
+      },
+      "literal_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 41.61288034207445,
+        "rmse": 54.88671977186637,
+        "psnr_db": 13.341458077596318,
+        "ssim": 0.35060120874133527,
+        "histogram_correlation": 0.8138344809371064,
+        "max_abs": 248
+      },
+      "hard_cut": {
+        "star_vs_next_Bprime": {
+          "width": 1376,
+          "height": 768,
+          "mae": 43.99040533652293,
+          "rmse": 56.95341488279711,
+          "psnr_db": 13.020408225524205,
+          "ssim": 0.34753028835728017,
+          "histogram_correlation": 0.778350666763444,
+          "max_abs": 249
+        },
+        "star_vs_next_first_rendered": {
+          "width": 1928,
+          "height": 1072,
+          "mae": 25.345346658822073,
+          "rmse": 36.40680434891148,
+          "psnr_db": 16.907152410962773,
+          "ssim": 0.47219062663552824,
+          "histogram_correlation": 0.9776486406148299,
+          "max_abs": 226
+        },
+        "literal_vs_next_first_rendered": {
+          "width": 1928,
+          "height": 1072,
+          "mae": 3.3295592512024936,
+          "rmse": 5.158764581449975,
+          "psnr_db": 33.87988941992798,
+          "ssim": 0.9173183996794694,
+          "histogram_correlation": 0.9987437698242285,
+          "max_abs": 75
+        }
+      },
+      "selection_rule": "latest frame before dest_ssim snap (\u22650.05 jump toward lock in final second)"
+    },
+    "C-D": {
+      "full_duration": 10.083366666666667,
+      "literal": {
+        "index": 241,
+        "t": 10.0417,
+        "pair_mae": 14.966537,
+        "dest_ssim": 0.995842
+      },
+      "star": {
+        "index": 237,
+        "t": 9.875,
+        "pair_mae": 12.064456,
+        "dest_ssim": 0.324135
+      },
+      "frames_before_literal": 4,
+      "seconds_before_literal": 0.16666666666666666,
+      "trim_end": 9.916666666666666,
+      "full_end": 10.083333333333334,
+      "incoming_last_1s_to_star": {
+        "start": 213,
+        "end": 237,
+        "n": 25,
+        "mean_pair_mae": 9.487943916666666,
+        "min_pair_mae": 7.906541,
+        "max_pair_mae": 12.064456,
+        "mean_dest_ssim": 0.1820532
+      },
+      "pose_lock_snap_onset": {
+        "index": 238,
+        "t": 9.9167,
+        "pair_mae": 12.603506,
+        "dest_ssim": 0.377961
+      },
+      "star_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 51.26766013606266,
+        "rmse": 68.4459106299538,
+        "psnr_db": 11.423853491024333,
+        "ssim": 0.3289581106313426,
+        "histogram_correlation": 0.7932700141171134,
+        "max_abs": 250
+      },
+      "literal_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 48.4918783813792,
+        "rmse": 64.78854299831629,
+        "psnr_db": 11.900839340813263,
+        "ssim": 0.34079575926037586,
+        "histogram_correlation": 0.7773855705318019,
+        "max_abs": 252
+      },
+      "hard_cut": {
+        "star_vs_next_Bprime": {
+          "width": 1376,
+          "height": 768,
+          "mae": 51.346067443374515,
+          "rmse": 68.51113431634597,
+          "psnr_db": 11.41558044767937,
+          "ssim": 0.3286961972293119,
+          "histogram_correlation": 0.792180272647457,
+          "max_abs": 250
+        },
+        "star_vs_next_first_rendered": {
+          "width": 1928,
+          "height": 1072,
+          "mae": 26.77647066792593,
+          "rmse": 35.6669179379477,
+          "psnr_db": 17.08549195758512,
+          "ssim": 0.5073344046545868,
+          "histogram_correlation": 0.9798847639954719,
+          "max_abs": 196
+        },
+        "literal_vs_next_first_rendered": {
+          "width": 1928,
+          "height": 1072,
+          "mae": 2.4669627097912925,
+          "rmse": 3.5857364348523295,
+          "psnr_db": 37.03923632633068,
+          "ssim": 0.9517078707203747,
+          "histogram_correlation": 0.9977776884986412,
+          "max_abs": 55
+        }
+      },
+      "selection_rule": "latest frame before dest_ssim snap (\u22650.05 jump toward lock in final second)"
+    },
+    "D-E": {
+      "full_duration": 10.083366666666667,
+      "literal": {
+        "index": 241,
+        "t": 10.0417,
+        "pair_mae": 19.100806,
+        "dest_ssim": 0.994913
+      },
+      "star": {
+        "index": 238,
+        "t": 9.9167,
+        "pair_mae": 16.858671,
+        "dest_ssim": 0.248665
+      },
+      "frames_before_literal": 3,
+      "seconds_before_literal": 0.125,
+      "trim_end": 9.958333333333334,
+      "full_end": 10.083333333333334,
+      "incoming_last_1s_to_star": {
+        "start": 214,
+        "end": 238,
+        "n": 25,
+        "mean_pair_mae": 13.813945416666664,
+        "min_pair_mae": 12.231835,
+        "max_pair_mae": 16.858671,
+        "mean_dest_ssim": 0.13046384
+      },
+      "pose_lock_snap_onset": {
+        "index": 240,
+        "t": 10.0,
+        "pair_mae": 17.692163,
+        "dest_ssim": 0.444183
+      },
+      "star_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 42.40944180747335,
+        "rmse": 53.84829088470751,
+        "psnr_db": 13.507365137009232,
+        "ssim": 0.22347284543698606,
+        "histogram_correlation": 0.8070776685680404,
+        "max_abs": 242
+      },
+      "literal_vs_target_prime": {
+        "width": 1376,
+        "height": 768,
+        "mae": 40.0360555328448,
+        "rmse": 51.90396456613108,
+        "psnr_db": 13.826792974471134,
+        "ssim": 0.24071781371713744,
+        "histogram_correlation": 0.8340121315752747,
+        "max_abs": 244
+      },
+      "hard_cut": null,
+      "selection_rule": "latest frame before dest_ssim snap (\u22650.05 jump toward lock in final second)"
+    }
+  }
+}

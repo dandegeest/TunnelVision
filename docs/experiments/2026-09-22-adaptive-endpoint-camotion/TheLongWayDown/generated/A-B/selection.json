@@ -1,0 +1,20 @@
+{
+  "Be_literal": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 3.22,
+    "dest_ssim": 0.99
+  },
+  "Be_star": {
+    "index": 216,
+    "t": 9.0,
+    "pair_mae": 7.5,
+    "dest_ssim": 0.241
+  },
+  "full_duration": 10.083333,
+  "seconds_removed": 1.0833,
+  "percent_removed": 10.74,
+  "destination_established_t": 8.0,
+  "pose_lock_began_t": 9.5,
+  "reason": "B environment (stairwell, rusted door, construction floor) is established by ~8.0s. Frame 216 is the latest arrival that is still clearly traveling (pair MAE 7.50) before dest-SSIM magnetism (0.24\u21920.99) and motion collapse after 9.5s. Not the last frame; not a pre-arrival rooftop/stair frame."
+}

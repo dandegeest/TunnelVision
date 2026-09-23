@@ -1,0 +1,20 @@
+{
+  "De_literal": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 2.75,
+    "dest_ssim": 0.946
+  },
+  "De_star": {
+    "index": 216,
+    "t": 9.0,
+    "pair_mae": 8.24,
+    "dest_ssim": 0.296
+  },
+  "full_duration": 10.083333,
+  "seconds_removed": 1.0833,
+  "percent_removed": 10.74,
+  "destination_established_t": 6.0,
+  "pose_lock_began_t": 9.5,
+  "reason": "Utility tunnel + cables + steam + brick established by ~6s. Frame 216 is the latest D arrival with pair MAE 8.24 before dest-SSIM lock after 9.5s."
+}

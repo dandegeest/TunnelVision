@@ -1,0 +1,36 @@
+{
+  "leg": "B-C",
+  "model": "kwaivgi/kling-v2.5-turbo-pro",
+  "resolutionIntent": "720p",
+  "durationRequested": 5,
+  "endImage": null,
+  "startImage": "stills/B-720p.png",
+  "promptFile": "prompts/B-C-effective.txt",
+  "wallMs": 133902,
+  "result": {
+    "provider": "replicate",
+    "model": "kwaivgi/kling-v2.5-turbo-pro",
+    "modelVersion": "hidden",
+    "predictionId": "f9s0z5myd1rmy0d0saeta4f520",
+    "status": "succeeded",
+    "outputUrl": "https://replicate.delivery/xezq/g5UEEbiYTvJLEtyBOMFgWD4i2fPmr2shC7L5MHtke1g8rIQXA/tmplhola3x8.mp4",
+    "metadata": {
+      "replicate_status": "succeeded",
+      "metrics": {
+        "model_variant": "pro",
+        "predict_time": 130.23813968299999,
+        "total_time": 130.278958001,
+        "video_output_duration_seconds": 5
+      },
+      "urls": {
+        "cancel": "https://api.replicate.com/v1/predictions/f9s0z5myd1rmy0d0saeta4f520/cancel",
+        "get": "https://api.replicate.com/v1/predictions/f9s0z5myd1rmy0d0saeta4f520",
+        "stream": "https://stream.replicate.com/v1/files/jbxs-dmadbbai7kjqzos6uwiiyecxv6uwa5jceezs2vtdb5klgf7u62lq",
+        "web": "https://replicate.com/p/f9s0z5myd1rmy0d0saeta4f520"
+      }
+    },
+    "startedAt": "2026-09-22T19:35:20.341Z",
+    "completedAt": "2026-09-22T19:37:33.082Z",
+    "elapsedMs": 132741
+  }
+}

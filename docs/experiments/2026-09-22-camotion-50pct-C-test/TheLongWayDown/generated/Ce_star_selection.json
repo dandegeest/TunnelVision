@@ -1,0 +1,20 @@
+{
+  "Ce_literal": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 3.37,
+    "dest_ssim": 0.981
+  },
+  "Ce_star": {
+    "index": 210,
+    "t": 8.75,
+    "pair_mae": 8.21,
+    "dest_ssim": 0.321
+  },
+  "full_duration": 10.083333,
+  "seconds_removed": 1.3333,
+  "percent_removed": 13.22,
+  "destination_established_t": 7.5,
+  "pose_lock_began_t": 9.0,
+  "reason": "Construction floor + plastic + shaft established by ~7.5s. Frame 210 is the latest C arrival with pair MAE 8.21 before dest-SSIM lock and MAE collapse after 9.0s."
+}

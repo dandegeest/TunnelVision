@@ -1,0 +1,64 @@
+{
+  "width": 1932,
+  "height": 1072,
+  "codec": "h264",
+  "pix_fmt": "yuv420p",
+  "fps": "24/1",
+  "duration": 10.083333,
+  "decoded_frames": 242,
+  "last_index": 241,
+  "window": [
+    {
+      "index": 234,
+      "vs_prev_mae": null,
+      "luma": 78.0581559400204,
+      "sharpness": 6.471454973931852
+    },
+    {
+      "index": 235,
+      "vs_prev_mae": 4.898460756517619,
+      "luma": 76.65791996281533,
+      "sharpness": 6.543885687537328
+    },
+    {
+      "index": 236,
+      "vs_prev_mae": 4.418963187427253,
+      "luma": 76.09797721408485,
+      "sharpness": 6.478878504672897
+    },
+    {
+      "index": 237,
+      "vs_prev_mae": 4.274763926228073,
+      "luma": 75.16293709377543,
+      "sharpness": 6.558865430245509
+    },
+    {
+      "index": 238,
+      "vs_prev_mae": 2.4034308916082114,
+      "luma": 74.7585244391397,
+      "sharpness": 6.457736509934951
+    },
+    {
+      "index": 239,
+      "vs_prev_mae": 2.7135511624074247,
+      "luma": 73.50758677497605,
+      "sharpness": 6.487286329959808
+    },
+    {
+      "index": 240,
+      "vs_prev_mae": 2.352406574786523,
+      "luma": 72.9299328602845,
+      "sharpness": 6.339191645279486
+    },
+    {
+      "index": 241,
+      "vs_prev_mae": 5.9810184970592175,
+      "luma": 73.06426121849346,
+      "sharpness": 6.46243555598599
+    }
+  ],
+  "selected": {
+    "index": 241,
+    "reason": "literal last decoded frame; window inspected for glitch only"
+  }
+}

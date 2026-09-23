@@ -1,0 +1,256 @@
+{
+  "experiment": "adaptive-endpoint-camotion",
+  "hybrid_control_static": {
+    "B": {
+      "ssim": 0.777,
+      "mae": 6.28,
+      "psnr_db": 27.2,
+      "histogram_correlation": 0.791
+    },
+    "C": {
+      "ssim": 0.936,
+      "mae": 3.57,
+      "psnr_db": 34.7,
+      "histogram_correlation": 0.978
+    },
+    "D": {
+      "ssim": 0.933,
+      "mae": 3.75,
+      "psnr_db": 34.4,
+      "histogram_correlation": 0.984
+    }
+  },
+  "camotion_transform": {
+    "B": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 5.791266534289135,
+      "rmse": 11.863339123663009,
+      "psnr_db": 26.646664703533318,
+      "ssim": 0.8154526436719864,
+      "histogram_correlation": 0.9357137714891651,
+      "max_abs": 159,
+      "pair": "Be* vs Bs-prime*"
+    },
+    "C": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 9.99603818382209,
+      "rmse": 16.633998297597042,
+      "psnr_db": 23.710870554687187,
+      "ssim": 0.6934980307817677,
+      "histogram_correlation": 0.852822400970771,
+      "max_abs": 189,
+      "pair": "Ce* vs Cs-prime*"
+    },
+    "D": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 7.512173539651639,
+      "rmse": 12.844353326220743,
+      "psnr_db": 25.956558733515717,
+      "ssim": 0.7698074508852427,
+      "histogram_correlation": 0.8504652198507366,
+      "max_abs": 124,
+      "pair": "De* vs Ds-prime*"
+    }
+  },
+  "rendered_seams": {
+    "B": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 8.22220249246506,
+      "rmse": 15.655542335056357,
+      "psnr_db": 24.23744127017279,
+      "ssim": 0.7112793975539639,
+      "histogram_correlation": 0.8725138042684346,
+      "max_abs": 193,
+      "pair": "Be* vs Bs_rendered*",
+      "prime_vs_rendered": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 4.882451397060342,
+        "rmse": 8.369622099446893,
+        "psnr_db": 29.676686620450695,
+        "ssim": 0.8538557306222768,
+        "histogram_correlation": 0.7666320247532655,
+        "max_abs": 128
+      }
+    },
+    "C": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 10.48971675653822,
+      "rmse": 16.83079665121278,
+      "psnr_db": 23.608710150674895,
+      "ssim": 0.674364241114538,
+      "histogram_correlation": 0.983047398038409,
+      "max_abs": 192,
+      "pair": "Ce* vs Cs_rendered*",
+      "prime_vs_rendered": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 3.2461439245284964,
+        "rmse": 3.943506929551772,
+        "psnr_db": 36.21315144253242,
+        "ssim": 0.9581711264401931,
+        "histogram_correlation": 0.8445867690703938,
+        "max_abs": 41
+      }
+    },
+    "D": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 8.177126627473399,
+      "rmse": 13.067329164272193,
+      "psnr_db": 25.807066987519235,
+      "ssim": 0.7481574352388911,
+      "histogram_correlation": 0.9917954486406225,
+      "max_abs": 130,
+      "pair": "De* vs Ds_rendered*",
+      "prime_vs_rendered": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 3.3803390204773236,
+        "rmse": 4.15677797781345,
+        "psnr_db": 35.755667037657574,
+        "ssim": 0.9605621441971315,
+        "histogram_correlation": 0.8509240742592404,
+        "max_abs": 57
+      }
+    }
+  },
+  "kinetic": {
+    "B": {
+      "incoming_last_1s_to_star": {
+        "start": 192,
+        "end": 216,
+        "n": 25,
+        "mean_pair_mae": 8.296439041666668,
+        "min_pair_mae": 7.497199,
+        "max_pair_mae": 9.073895,
+        "mean_dest_ssim": 0.20926448
+      },
+      "outgoing_first_1s": {
+        "start": 0,
+        "end": 24,
+        "n": 25,
+        "mean_pair_mae": 14.08983,
+        "min_pair_mae": 11.610049,
+        "max_pair_mae": 16.584639,
+        "mean_dest_ssim": 0.08941776000000001
+      },
+      "incoming_mean_mae": 8.296439041666668,
+      "outgoing_mean_mae": 14.08983,
+      "mae_ratio_out_over_in": 1.6982985024343047
+    },
+    "C": {
+      "incoming_last_1s_to_star": {
+        "start": 186,
+        "end": 210,
+        "n": 25,
+        "mean_pair_mae": 9.973537916666666,
+        "min_pair_mae": 8.21132,
+        "max_pair_mae": 10.941173,
+        "mean_dest_ssim": 0.19175360000000002
+      },
+      "outgoing_first_1s": {
+        "start": 0,
+        "end": 24,
+        "n": 25,
+        "mean_pair_mae": 17.086293,
+        "min_pair_mae": 14.891466,
+        "max_pair_mae": 18.571465,
+        "mean_dest_ssim": 0.07746479999999999
+      },
+      "incoming_mean_mae": 9.973537916666666,
+      "outgoing_mean_mae": 17.086293,
+      "mae_ratio_out_over_in": 1.7131626853743935
+    },
+    "D": {
+      "incoming_last_1s_to_star": {
+        "start": 192,
+        "end": 216,
+        "n": 25,
+        "mean_pair_mae": 9.319030166666666,
+        "min_pair_mae": 8.149467,
+        "max_pair_mae": 10.383354,
+        "mean_dest_ssim": 0.22300883999999999
+      },
+      "outgoing_first_1s": {
+        "start": 0,
+        "end": 24,
+        "n": 25,
+        "mean_pair_mae": 16.653766083333334,
+        "min_pair_mae": 12.79853,
+        "max_pair_mae": 20.050277,
+        "mean_dest_ssim": 0.057523160000000004
+      },
+      "incoming_mean_mae": 9.319030166666666,
+      "outgoing_mean_mae": 16.653766083333334,
+      "mae_ratio_out_over_in": 1.7870707343455503
+    }
+  },
+  "dead_tail": {
+    "A-B": {
+      "full_duration": 10.083333,
+      "editorial_t": 9.0,
+      "editorial_index": 216,
+      "seconds_removed": 1.0833329999999997,
+      "percent_removed": 10.743798702274335
+    },
+    "B-C": {
+      "full_duration": 10.083333,
+      "editorial_t": 8.75,
+      "editorial_index": 210,
+      "seconds_removed": 1.3333329999999997,
+      "percent_removed": 13.223137627211159
+    },
+    "C-D": {
+      "full_duration": 10.083333,
+      "editorial_t": 9.0,
+      "editorial_index": 216,
+      "seconds_removed": 1.0833329999999997,
+      "percent_removed": 10.743798702274335
+    },
+    "D-E": {
+      "full_duration": 10.083333,
+      "editorial_t": 8.5,
+      "editorial_index": 204,
+      "seconds_removed": 1.5833329999999997,
+      "percent_removed": 15.702476552147981
+    }
+  },
+  "footage": {
+    "generated_seconds": 40.333332,
+    "used_seconds": 35.25,
+    "discarded_seconds": 5.083331999999999,
+    "discarded_percent": 12.603302895976952
+  },
+  "selections": {
+    "Be_star": {
+      "index": 216,
+      "t": 9.0
+    },
+    "Ce_star": {
+      "index": 210,
+      "t": 8.75
+    },
+    "De_star": {
+      "index": 216,
+      "t": 9.0
+    },
+    "Ee_star": {
+      "index": 204,
+      "t": 8.5
+    }
+  },
+  "story": {
+    "B": "stairwell / construction \u2014 established ~8.0s, cut 9.00s",
+    "C": "construction floor / shaft \u2014 established ~7.5s, cut 8.75s",
+    "D": "utility / brick / cables / steam \u2014 established ~6.0s, cut 9.00s",
+    "E": "abandoned station \u2014 established ~3.0s, cut 8.50s; station reached"
+  },
+  "movie": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_adaptive_endpoint_camotion.mp4",
+  "threeway_full": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/threeway_full_hybrid_camotion_adaptive.mp4"
+}

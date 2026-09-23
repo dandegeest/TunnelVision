@@ -1,0 +1,471 @@
+61839210	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/experimental_A_B_C_D_E_hybrid_endpoint_inheritance.mp4	full movie summarized in REPORT.md
+59693891	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_hybrid_canonical_camotion.mp4	full movie summarized in REPORT.md
+54264243	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+50753529	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_adaptive_full_length_diagnostic.mp4	full movie summarized in REPORT.md
+43561201	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_adaptive_endpoint_camotion.mp4	full movie summarized in REPORT.md
+37870518	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+35457490	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+34953338	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/control_vs_experiment_side_by_side.mp4	full movie summarized in REPORT.md
+33675609	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+31618597	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/experimental_A_B_C_D_E_endpoint_inheritance.mp4	full movie summarized in REPORT.md
+31477432	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+31336064	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+31125436	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+30189683	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+29612861	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+29531945	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28963042	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28782723	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28782723	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28782723	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28471596	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28020260	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/threeway_full_hybrid_camotion_adaptive.mp4	full movie summarized in REPORT.md
+17893727	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+17893727	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-D-E-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+17501262	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/D-E/D-E-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+16755298	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/D-E-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+16287013	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+15683950	docs/experiments/2026-09-22-endpoint-inheritance/FirstTracksTheDescent2/generated/kling25-720p/C-D.mp4	superseded FirstTracks inheritance video; report remains
+15558316	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15558316	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-C-D-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15519434	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15386530	docs/experiments/2026-09-22-endpoint-inheritance/FirstTracksTheDescent2/generated/kling25-720p/experimental_B_C_D_flat_concat.mp4	superseded FirstTracks inheritance video; report remains
+15261226	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/C-D-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15041993	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15041993	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-B-C-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+14712046	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+14682128	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+14492631	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/C-D-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+14487301	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+14445803	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+14332221	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/B-C-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+14268973	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13972532	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-to-Ee-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+13790170	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/A-B/A-B-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+13347567	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13347567	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-A-B-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13347567	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/A-B/A-B-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13347567	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13223778	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-to-De-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+13049709	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-to-Be-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+13022566	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-to-Ce-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+12911046	docs/experiments/2026-09-22-endpoint-inheritance/FirstTracksTheDescent2/generated/kling25-720p/B-C.mp4	superseded FirstTracks inheritance video; report remains
+12732898	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+12240052	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-to-Ee-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+11736324	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-to-De-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+11356913	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-to-Ce-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+11225178	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-to-Be-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+8541003	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/0-A-B.mp4	temp encode
+8225996	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/1-B-C.mp4	temp encode
+7938598	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/3-D-E.mp4	temp encode
+6915137	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/2-C-D.mp4	temp encode
+4579013	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+4410213	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+4222978	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-D.mp4	redundant unmarked seam; compare-seam-* kept
+4064005	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+3809508	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3551056	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3491255	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+3448784	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3426542	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-B-b.mp4	temp encode
+3394849	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/smart-D-raw.mp4	unmarked raw seam; marked + compare clips kept
+3394215	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3387094	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/original-D-raw.mp4	unmarked raw seam; marked + compare clips kept
+3381743	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/adaptive-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3281967	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-C.mp4	redundant unmarked seam; compare-seam-* kept
+3275106	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-B.mp4	redundant unmarked seam; compare-seam-* kept
+3271308	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/smart-C-raw.mp4	unmarked raw seam; marked + compare clips kept
+3265856	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-B-a.mp4	temp encode
+3254782	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/original-C-raw.mp4	unmarked raw seam; marked + compare clips kept
+3213736	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3204626	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-D-a.mp4	temp encode
+3190581	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3029433	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+3027587	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/clips/seam-100-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3027587	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/adaptive-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2995833	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/clips/seam-0-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2985101	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/clips/seam-50-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2916886	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2913881	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-C-a.mp4	temp encode
+2861426	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/smart-B-raw.mp4	unmarked raw seam; marked + compare clips kept
+2844601	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/original-B-raw.mp4	unmarked raw seam; marked + compare clips kept
+2807071	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-D-b.mp4	temp encode
+2759549	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0241.png	large frame sequence; metrics/report kept
+2758064	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0240.png	large frame sequence; metrics/report kept
+2736805	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2736805	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/last_literal.png	large frame sequence; metrics/report kept
+2734980	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0228.png	large frame sequence; metrics/report kept
+2731621	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2731621	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/last_literal.png	large frame sequence; metrics/report kept
+2731510	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach/f-006.png	large frame sequence; metrics/report kept
+2728220	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2721926	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+2721686	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2720831	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2720325	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2715737	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2715545	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2713278	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2713150	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+2712428	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2709716	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2709365	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2702598	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2702017	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2699264	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2693386	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2693114	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2688274	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0216.png	large frame sequence; metrics/report kept
+2675959	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach/f-005.png	large frame sequence; metrics/report kept
+2642467	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/clips/seam-100.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2629664	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2628272	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2625151	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2625151	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/last_literal.png	large frame sequence; metrics/report kept
+2625147	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2622225	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2619643	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+2618239	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2618049	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2616066	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2615786	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2615166	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2615166	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/last_literal.png	large frame sequence; metrics/report kept
+2614170	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2611329	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2609435	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2609124	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2606830	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/adaptive-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2605399	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+2603895	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0228.png	large frame sequence; metrics/report kept
+2602044	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0241.png	large frame sequence; metrics/report kept
+2599291	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0240.png	large frame sequence; metrics/report kept
+2598490	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0240.png	large frame sequence; metrics/report kept
+2596215	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0241.png	large frame sequence; metrics/report kept
+2591738	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0241.png	large frame sequence; metrics/report kept
+2588043	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0240.png	large frame sequence; metrics/report kept
+2575464	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0204.png	large frame sequence; metrics/report kept
+2554436	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2553448	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0228.png	large frame sequence; metrics/report kept
+2539949	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0228.png	large frame sequence; metrics/report kept
+2477822	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0192.png	large frame sequence; metrics/report kept
+2452570	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0216.png	large frame sequence; metrics/report kept
+2407926	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach/f-004.png	large frame sequence; metrics/report kept
+2406518	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/first.png	large frame sequence; metrics/report kept
+2402458	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0216.png	large frame sequence; metrics/report kept
+2387416	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2383680	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2381166	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0240.png	large frame sequence; metrics/report kept
+2379491	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/approach/f-004.png	large frame sequence; metrics/report kept
+2375735	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2375735	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/last_literal.png	large frame sequence; metrics/report kept
+2373361	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2373054	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2369830	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2368909	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2364079	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0241.png	large frame sequence; metrics/report kept
+2363414	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2352774	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0228.png	large frame sequence; metrics/report kept
+2345408	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+2344024	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2336057	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2336057	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/last_literal.png	large frame sequence; metrics/report kept
+2330661	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0216.png	large frame sequence; metrics/report kept
+2320166	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0216.png	large frame sequence; metrics/report kept
+2318334	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0180.png	large frame sequence; metrics/report kept
+2317457	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2314383	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2304490	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2300479	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2290904	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2289306	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2285303	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2284246	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/approach/f-003.png	large frame sequence; metrics/report kept
+2248948	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+2234482	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0168.png	large frame sequence; metrics/report kept
+2226328	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0210.png	large frame sequence; metrics/report kept
+2220760	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2217692	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0204.png	large frame sequence; metrics/report kept
+2213777	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0204.png	large frame sequence; metrics/report kept
+2172350	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-C-b.mp4	temp encode
+2154229	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach/f-003.png	large frame sequence; metrics/report kept
+2149208	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/first.png	large frame sequence; metrics/report kept
+2148314	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0012.png	large frame sequence; metrics/report kept
+2118640	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0204.png	large frame sequence; metrics/report kept
+2114384	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0156.png	large frame sequence; metrics/report kept
+2102705	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/approach/f-003.png	large frame sequence; metrics/report kept
+2095975	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0241.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+2090028	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0239.png	large frame sequence; metrics/report kept
+2086679	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0241.png	large frame sequence; metrics/report kept
+2086679	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/last_literal.png	large frame sequence; metrics/report kept
+2086679	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0241.png	large frame sequence; metrics/report kept
+2086433	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach/f-002.png	large frame sequence; metrics/report kept
+2086352	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0240.png	large frame sequence; metrics/report kept
+2086352	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0240.png	large frame sequence; metrics/report kept
+2078655	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0238.png	large frame sequence; metrics/report kept
+2068699	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0237.png	large frame sequence; metrics/report kept
+2055100	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/approach/f-001.png	large frame sequence; metrics/report kept
+2048969	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0144.png	large frame sequence; metrics/report kept
+2045994	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0216.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+2038207	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0236.png	large frame sequence; metrics/report kept
+2036359	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0240.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+2032791	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/approach/f-003.png	large frame sequence; metrics/report kept
+2018539	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/sheets/inspect/0-t0.90.png	large frame sequence; metrics/report kept
+2017241	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0235.png	large frame sequence; metrics/report kept
+2012140	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0228.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+2012001	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0012.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1994382	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/first.png	large frame sequence; metrics/report kept
+1991786	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/100-t0.95.png	large frame sequence; metrics/report kept
+1990857	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0240.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1985684	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+1983121	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0192.png	large frame sequence; metrics/report kept
+1982514	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/50-t0.95.png	large frame sequence; metrics/report kept
+1980626	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0180.png	large frame sequence; metrics/report kept
+1978822	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0036.png	large frame sequence; metrics/report kept
+1978723	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0234.png	large frame sequence; metrics/report kept
+1969974	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0168.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1966218	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0024.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1958021	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0012.png	large frame sequence; metrics/report kept
+1957754	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0241.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1936722	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0048.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1929031	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/50-t0.75.png	large frame sequence; metrics/report kept
+1928446	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/100-t0.75.png	large frame sequence; metrics/report kept
+1926295	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/first.png	large frame sequence; metrics/report kept
+1926295	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0000.png	large frame sequence; metrics/report kept
+1924221	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0204.png	large frame sequence; metrics/report kept
+1922699	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0192.png	large frame sequence; metrics/report kept
+1919099	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0000.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1916176	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0012.png	large frame sequence; metrics/report kept
+1910502	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0096.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1905094	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0168.png	large frame sequence; metrics/report kept
+1904511	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0012.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1903066	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0024.png	large frame sequence; metrics/report kept
+1887317	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0108.png	large frame sequence; metrics/report kept
+1880069	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0228.png	large frame sequence; metrics/report kept
+1879351	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0024.png	large frame sequence; metrics/report kept
+1876540	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0036.png	large frame sequence; metrics/report kept
+1872743	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0156.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1864306	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0228.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1863287	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0180.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1858142	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0036.png	large frame sequence; metrics/report kept
+1853505	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0204.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1850279	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0192.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1848464	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0192.png	large frame sequence; metrics/report kept
+1848242	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/sheets/inspect/0-t1.25.png	large frame sequence; metrics/report kept
+1846412	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0072.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1835517	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0192.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1831104	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0060.png	large frame sequence; metrics/report kept
+1829974	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0240.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1827068	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0024.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1815042	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0012.png	large frame sequence; metrics/report kept
+1812704	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0012.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1811896	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0084.png	large frame sequence; metrics/report kept
+1809766	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0024.png	large frame sequence; metrics/report kept
+1805098	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/sheets/inspect/0-t1.05.png	large frame sequence; metrics/report kept
+1795832	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0168.png	large frame sequence; metrics/report kept
+1793787	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0180.png	large frame sequence; metrics/report kept
+1789074	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0241.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1788085	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0036.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1778216	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0036.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1775317	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0024.png	large frame sequence; metrics/report kept
+1774445	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0048.png	large frame sequence; metrics/report kept
+1772405	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0012.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1771943	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/sheets/inspect/0-t1.50.png	large frame sequence; metrics/report kept
+1769371	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0084.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1767692	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0204.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1765632	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0048.png	large frame sequence; metrics/report kept
+1763514	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0180.png	large frame sequence; metrics/report kept
+1762879	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0024.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1760576	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0132.png	large frame sequence; metrics/report kept
+1755445	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0060.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1754022	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0036.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1745563	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0216.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1744160	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0024.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1734441	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0192.png	large frame sequence; metrics/report kept
+1733478	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0156.png	large frame sequence; metrics/report kept
+1732214	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0144.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1731603	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/approach/f-003.png	large frame sequence; metrics/report kept
+1728537	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0060.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1724322	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0048.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1722733	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach/f-001.png	large frame sequence; metrics/report kept
+1721516	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/50-t1.25.png	large frame sequence; metrics/report kept
+1720745	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0108.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1714319	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0120.png	large frame sequence; metrics/report kept
+1713864	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0156.png	large frame sequence; metrics/report kept
+1709467	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0024.png	large frame sequence; metrics/report kept
+1708720	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/approach/f-002.png	large frame sequence; metrics/report kept
+1707570	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0216.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1701846	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0084.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1700209	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0156.png	large frame sequence; metrics/report kept
+1695481	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/first.png	large frame sequence; metrics/report kept
+1671061	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0168.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1668115	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/50-t1.05.png	large frame sequence; metrics/report kept
+1667365	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0012.png	large frame sequence; metrics/report kept
+1666950	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0144.png	large frame sequence; metrics/report kept
+1661968	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0192.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1661214	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0204.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1660144	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0144.png	large frame sequence; metrics/report kept
+1659540	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0048.png	large frame sequence; metrics/report kept
+1651161	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0000.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1649886	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0228.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1646204	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0036.png	large frame sequence; metrics/report kept
+1645440	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/50-t1.50.png	large frame sequence; metrics/report kept
+1644993	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0216.png	large frame sequence; metrics/report kept
+1635738	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0072.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1634772	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0060.png	large frame sequence; metrics/report kept
+1634252	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0060.png	large frame sequence; metrics/report kept
+1632898	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0180.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1627717	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0096.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1626619	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0072.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1624332	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0024.png	large frame sequence; metrics/report kept
+1623227	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0144.png	large frame sequence; metrics/report kept
+1620807	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/approach/f-002.png	large frame sequence; metrics/report kept
+1620779	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0060.png	large frame sequence; metrics/report kept
+1618898	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0048.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1618184	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0168.png	large frame sequence; metrics/report kept
+1615270	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0012.png	large frame sequence; metrics/report kept
+1612737	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0180.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1610422	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0000.png	large frame sequence; metrics/report kept
+1603382	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0048.png	large frame sequence; metrics/report kept
+1584291	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0120.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1584239	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0156.png	large frame sequence; metrics/report kept
+1573959	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0168.png	large frame sequence; metrics/report kept
+1570722	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0180.png	large frame sequence; metrics/report kept
+1567662	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/first.png	large frame sequence; metrics/report kept
+1566619	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0132.png	large frame sequence; metrics/report kept
+1563600	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0036.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1562974	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/D-E/samples/frame-0132.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1555983	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0168.png	large frame sequence; metrics/report kept
+1553836	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0156.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1552965	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0204.png	large frame sequence; metrics/report kept
+1549155	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0084.png	large frame sequence; metrics/report kept
+1544999	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0036.png	large frame sequence; metrics/report kept
+1536095	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0144.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1529237	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0144.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1527899	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0000.png	large frame sequence; metrics/report kept
+1527507	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/approach/f-002.png	large frame sequence; metrics/report kept
+1526670	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0120.png	large frame sequence; metrics/report kept
+1525732	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0072.png	large frame sequence; metrics/report kept
+1518109	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0072.png	large frame sequence; metrics/report kept
+1516874	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0240.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1511838	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0168.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1511502	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0000.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1509705	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/100-t1.25.png	large frame sequence; metrics/report kept
+1508664	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0144.png	large frame sequence; metrics/report kept
+1508039	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/approach/f-001.png	large frame sequence; metrics/report kept
+1504634	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0096.png	large frame sequence; metrics/report kept
+1503579	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0072.png	large frame sequence; metrics/report kept
+1499097	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0120.png	large frame sequence; metrics/report kept
+1498012	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/100-t1.05.png	large frame sequence; metrics/report kept
+1496719	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0108.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1495378	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0084.png	large frame sequence; metrics/report kept
+1492869	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0180.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1492038	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples/frame-0072.png	large frame sequence; metrics/report kept
+1490289	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0241.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1483922	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0000.png	large frame sequence; metrics/report kept
+1482571	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0060.png	large frame sequence; metrics/report kept
+1480537	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/100-t1.50.png	large frame sequence; metrics/report kept
+1478747	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0120.png	large frame sequence; metrics/report kept
+1475324	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0156.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1465796	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0120.png	large frame sequence; metrics/report kept
+1462892	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0060.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1458929	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0108.png	large frame sequence; metrics/report kept
+1458219	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0084.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1457901	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0036.png	large frame sequence; metrics/report kept
+1447796	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0048.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1446564	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0096.png	large frame sequence; metrics/report kept
+1444007	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0192.png	large frame sequence; metrics/report kept
+1440465	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0060.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1436706	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0120.png	large frame sequence; metrics/report kept
+1436706	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/last_literal.png	large frame sequence; metrics/report kept
+1429461	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0118.png	large frame sequence; metrics/report kept
+1428150	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0072.png	large frame sequence; metrics/report kept
+1427767	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/first.png	large frame sequence; metrics/report kept
+1419629	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0156.png	large frame sequence; metrics/report kept
+1414740	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/approach/f-001.png	large frame sequence; metrics/report kept
+1411845	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0132.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1405883	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0132.png	large frame sequence; metrics/report kept
+1403042	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0192.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1402155	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples/frame-0108.png	large frame sequence; metrics/report kept
+1402035	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0119.png	large frame sequence; metrics/report kept
+1400413	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0113.png	large frame sequence; metrics/report kept
+1397498	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0228.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1396917	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0144.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1391386	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0132.png	large frame sequence; metrics/report kept
+1388194	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0117.png	large frame sequence; metrics/report kept
+1384026	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0096.png	large frame sequence; metrics/report kept
+1376857	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0116.png	large frame sequence; metrics/report kept
+1375753	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/approach/f-002.png	large frame sequence; metrics/report kept
+1372478	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0084.png	large frame sequence; metrics/report kept
+1358728	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0132.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1356245	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0084.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1354090	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0180.png	large frame sequence; metrics/report kept
+1353900	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0060.png	large frame sequence; metrics/report kept
+1350994	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0048.png	large frame sequence; metrics/report kept
+1349209	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0132.png	large frame sequence; metrics/report kept
+1344545	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0120.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1342400	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0108.png	large frame sequence; metrics/report kept
+1338195	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0000.png	large frame sequence; metrics/report kept
+1336603	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/approach/f-001.png	large frame sequence; metrics/report kept
+1323574	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0096.png	large frame sequence; metrics/report kept
+1323413	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0096.png	large frame sequence; metrics/report kept
+1319820	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0120.png	large frame sequence; metrics/report kept
+1314158	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0114.png	large frame sequence; metrics/report kept
+1314117	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0168.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1313162	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0120.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1307341	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0072.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1294458	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples/frame-0048.png	large frame sequence; metrics/report kept
+1287031	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0115.png	large frame sequence; metrics/report kept
+1284144	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0084.png	large frame sequence; metrics/report kept
+1282472	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0108.png	large frame sequence; metrics/report kept
+1278719	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples/frame-0144.png	large frame sequence; metrics/report kept
+1277596	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0115.png	large frame sequence; metrics/report kept
+1267429	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0114.png	large frame sequence; metrics/report kept
+1266320	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0000.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1263736	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0132.png	large frame sequence; metrics/report kept
+1262231	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0108.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1262066	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0156.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1259049	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/samples/frame-0096.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1246424	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0108.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1245134	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0116.png	large frame sequence; metrics/report kept
+1241470	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/side-by-side-precut.png	large frame sequence; metrics/report kept
+1233361	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0096.png	large frame sequence; metrics/report kept
+1229094	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail/frame-0113.png	large frame sequence; metrics/report kept
+1221987	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0216.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1215760	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0084.png	large frame sequence; metrics/report kept
+1215596	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0117.png	large frame sequence; metrics/report kept
+1211272	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0120.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1210550	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0113.png	large frame sequence; metrics/report kept
+1206203	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0117.png	large frame sequence; metrics/report kept
+1202265	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/first.png	large frame sequence; metrics/report kept
+1200839	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0204.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1199520	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0116.png	large frame sequence; metrics/report kept
+1197758	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0072.png	large frame sequence; metrics/report kept
+1185183	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/C-D/samples/frame-0132.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1181825	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0118.png	large frame sequence; metrics/report kept
+1176179	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0114.png	large frame sequence; metrics/report kept
+1164417	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/first.png	large frame sequence; metrics/report kept
+1128578	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0115.png	large frame sequence; metrics/report kept
+1116849	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples/frame-0108.png	large frame sequence; metrics/report kept
+1101780	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/A-B/samples/frame-0096.png	every-12-frame dump; motion.csv + motion.png + selected Be* kept
+1093847	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect/side-by-side-postcut.png	large frame sequence; metrics/report kept
+1079547	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0118.png	large frame sequence; metrics/report kept
+1073520	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0119.png	large frame sequence; metrics/report kept
+1035600	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples/frame-0000.png	large frame sequence; metrics/report kept
+956633	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail/frame-0120.png	large frame sequence; metrics/report kept
+956633	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/last_literal.png	large frame sequence; metrics/report kept
+904038	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/sheets/inspect/threeway-postcut.png	large frame sequence; metrics/report kept
+856289	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0119.png	large frame sequence; metrics/report kept
+761980	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/first.png	large frame sequence; metrics/report kept
+630701	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail/frame-0120.png	large frame sequence; metrics/report kept
+630701	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/last_literal.png	large frame sequence; metrics/report kept
+440681	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0113.png	large frame sequence; metrics/report kept
+439115	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0114.png	large frame sequence; metrics/report kept
+392760	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0117.png	large frame sequence; metrics/report kept
+387380	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0118.png	large frame sequence; metrics/report kept
+378737	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0116.png	large frame sequence; metrics/report kept
+358128	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0115.png	large frame sequence; metrics/report kept
+355982	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0119.png	large frame sequence; metrics/report kept
+353293	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail/frame-0120.png	large frame sequence; metrics/report kept
+353293	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/last_literal.png	large frame sequence; metrics/report kept
+257608	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/first.png	large frame sequence; metrics/report kept

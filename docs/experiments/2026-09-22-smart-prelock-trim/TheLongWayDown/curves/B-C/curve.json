@@ -1,0 +1,30 @@
+{
+  "video": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C.mp4",
+  "dest": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/stills/C-prime.png",
+  "meta": {
+    "width": 1928,
+    "height": 1072,
+    "fps": 24.0,
+    "duration": 10.083333,
+    "decoded_frames": 242
+  },
+  "peak_pair_mae": 23.33995786516854,
+  "heuristic_dest_established": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 15.846605805243446,
+    "dest_mae": 2.223077923429047,
+    "dest_ssim": 0.9956266675077077,
+    "luma": 69.54773219612518
+  },
+  "heuristic_pose_lock_start": null,
+  "last": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 15.846605805243446,
+    "dest_mae": 2.223077923429047,
+    "dest_ssim": 0.9956266675077077,
+    "luma": 69.54773219612518
+  },
+  "note": "experiment-local diagnostic. Not production."
+}

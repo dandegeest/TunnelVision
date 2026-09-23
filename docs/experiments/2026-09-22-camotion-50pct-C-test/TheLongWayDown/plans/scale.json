@@ -1,0 +1,16 @@
+{
+  "method": "scale CameraMotionPlan.exposure.strength",
+  "not": "image alpha blending",
+  "original_strength": 0.04,
+  "scaled_strength": 0.02,
+  "scale_factor": 0.5,
+  "unchanged": [
+    "camera.vanishing_point",
+    "camera.forward",
+    "destination",
+    "exposure.samples"
+  ],
+  "why": "Camotion exposure samples p - (motion_field[p] * strength * t_i). Halving strength halves pixel displacement along the same radial field. That is the plan's actual transformation magnitude.",
+  "source_plan": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/plans/C-D-startPlan-100pct.json",
+  "scaled_plan": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/plans/C-D-startPlan-50pct.json"
+}

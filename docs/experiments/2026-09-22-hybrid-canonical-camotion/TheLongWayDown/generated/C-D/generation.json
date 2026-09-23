@@ -1,0 +1,37 @@
+{
+  "experiment": "hybrid-canonical-camotion",
+  "leg": "C-D",
+  "model": "kwaivgi/kling-v2.5-turbo-pro",
+  "durationRequested": 8,
+  "startImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/Cs-prime.png",
+  "endImage": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/stills/D.png",
+  "camotionOnStart": "canonical-derived-plan-applied-to-rendered-endpoint",
+  "promptFile": "prompts/C-D.txt",
+  "wallMs": 189538,
+  "result": {
+    "provider": "replicate",
+    "model": "kwaivgi/kling-v2.5-turbo-pro",
+    "modelVersion": "hidden",
+    "predictionId": "yc1tyfr3j9rmy0d0sc19mbestg",
+    "status": "succeeded",
+    "outputUrl": "https://replicate.delivery/xezq/aXVdzL3FMW5eE6SFQCllHffAR57fp5ZAfBGukU8h8BGycSB6C/tmp9231wd74.mp4",
+    "metadata": {
+      "replicate_status": "succeeded",
+      "metrics": {
+        "model_variant": "pro",
+        "predict_time": 184.538408888,
+        "total_time": 184.554523091,
+        "video_output_duration_seconds": 10
+      },
+      "urls": {
+        "cancel": "https://api.replicate.com/v1/predictions/yc1tyfr3j9rmy0d0sc19mbestg/cancel",
+        "get": "https://api.replicate.com/v1/predictions/yc1tyfr3j9rmy0d0sc19mbestg",
+        "stream": "https://stream.replicate.com/v1/files/jbxs-vntnjfowtit3ewfezmpgbtayplaur5xro7zm7hgdcyfmcehij7ea",
+        "web": "https://replicate.com/p/yc1tyfr3j9rmy0d0sc19mbestg"
+      }
+    },
+    "startedAt": "2026-09-22T21:24:59.055Z",
+    "completedAt": "2026-09-22T21:28:07.019Z",
+    "elapsedMs": 187964
+  }
+}

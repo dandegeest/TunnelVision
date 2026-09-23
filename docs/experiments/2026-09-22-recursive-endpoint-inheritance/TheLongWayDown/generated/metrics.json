@@ -1,0 +1,464 @@
+{
+  "model": "kwaivgi/kling-v2.5-turbo-pro",
+  "legs": {
+    "A-B": {
+      "wallMs": 322395,
+      "elapsedMs": 321240,
+      "predictionId": "93gcndc27xrmw0d0satb5p5c0c",
+      "retries": 0,
+      "endImage": null,
+      "video": {
+        "width": 1928,
+        "height": 1072,
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "fps": "24/1",
+        "duration": 5.041667,
+        "decoded_frames": 121,
+        "last_index": 120,
+        "window": [
+          {
+            "index": 113,
+            "vs_prev_mae": null,
+            "luma": 38.8954165892529,
+            "sharpness": 2.3663858722903184
+          },
+          {
+            "index": 114,
+            "vs_prev_mae": 15.231542140180839,
+            "luma": 40.542558053869655,
+            "sharpness": 2.444451561352601
+          },
+          {
+            "index": 115,
+            "vs_prev_mae": 16.18914826799612,
+            "luma": 42.26110032694412,
+            "sharpness": 2.4554421702687934
+          },
+          {
+            "index": 116,
+            "vs_prev_mae": 17.32945732308375,
+            "luma": 45.521373294316795,
+            "sharpness": 2.570777813362319
+          },
+          {
+            "index": 117,
+            "vs_prev_mae": 17.817023866662538,
+            "luma": 49.39599686990359,
+            "sharpness": 2.5837601860747994
+          },
+          {
+            "index": 118,
+            "vs_prev_mae": 18.330788033380813,
+            "luma": 55.404167247269875,
+            "sharpness": 2.663268990013685
+          },
+          {
+            "index": 119,
+            "vs_prev_mae": 18.16034809097665,
+            "luma": 59.285643230940735,
+            "sharpness": 2.528128123756564
+          },
+          {
+            "index": 120,
+            "vs_prev_mae": 17.85163136599162,
+            "luma": 64.78240540038398,
+            "sharpness": 2.5467563073598547
+          }
+        ],
+        "selected": {
+          "index": 120,
+          "reason": "literal last decoded frame; window inspected for glitch only"
+        }
+      }
+    },
+    "B-C": {
+      "wallMs": 202009,
+      "elapsedMs": 201036,
+      "predictionId": "djdzdm1tnnrmr0d0sax9c4s5f4",
+      "retries": 0,
+      "endImage": null,
+      "video": {
+        "width": 1932,
+        "height": 1072,
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "fps": "24/1",
+        "duration": 5.041667,
+        "decoded_frames": 121,
+        "last_index": 120,
+        "window": [
+          {
+            "index": 113,
+            "vs_prev_mae": null,
+            "luma": 4.938389058846554,
+            "sharpness": 0.6700064565073525
+          },
+          {
+            "index": 114,
+            "vs_prev_mae": 6.675471471575868,
+            "luma": 4.717168073967636,
+            "sharpness": 0.6729404548609432
+          },
+          {
+            "index": 115,
+            "vs_prev_mae": 5.385067416540486,
+            "luma": 3.5141468833369385,
+            "sharpness": 0.5633667457588819
+          },
+          {
+            "index": 116,
+            "vs_prev_mae": 4.443404258469557,
+            "luma": 3.7173578278380357,
+            "sharpness": 0.5916819201652868
+          },
+          {
+            "index": 117,
+            "vs_prev_mae": 4.510721817928989,
+            "luma": 3.7410627375544636,
+            "sharpness": 0.602072216034736
+          },
+          {
+            "index": 118,
+            "vs_prev_mae": 4.6182168222036815,
+            "luma": 3.6482014745115006,
+            "sharpness": 0.6029072038480785
+          },
+          {
+            "index": 119,
+            "vs_prev_mae": 3.8315486169051223,
+            "luma": 3.061150800088584,
+            "sharpness": 0.5576378867851437
+          },
+          {
+            "index": 120,
+            "vs_prev_mae": 3.2673612720558696,
+            "luma": 3.1173493299547808,
+            "sharpness": 0.5479124497603024
+          }
+        ],
+        "selected": {
+          "index": 120,
+          "reason": "literal last decoded frame; window inspected for glitch only"
+        }
+      }
+    },
+    "C-D": {
+      "wallMs": 255487,
+      "elapsedMs": 254454,
+      "predictionId": "1qpp9b9j3hrmr0d0saz9t0ejww",
+      "retries": 0,
+      "endImage": null,
+      "video": {
+        "width": 1932,
+        "height": 1072,
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "fps": "24/1",
+        "duration": 5.041667,
+        "decoded_frames": 121,
+        "last_index": 120,
+        "window": [
+          {
+            "index": 113,
+            "vs_prev_mae": null,
+            "luma": 77.43438974253989,
+            "sharpness": 2.3110938937581738
+          },
+          {
+            "index": 114,
+            "vs_prev_mae": 43.547425431074444,
+            "luma": 82.3108902305244,
+            "sharpness": 2.1676722676867977
+          },
+          {
+            "index": 115,
+            "vs_prev_mae": 37.84316158596253,
+            "luma": 68.34867040316018,
+            "sharpness": 2.095259632301908
+          },
+          {
+            "index": 116,
+            "vs_prev_mae": 36.097683168010875,
+            "luma": 54.966307502343355,
+            "sharpness": 2.0247787839168416
+          },
+          {
+            "index": 117,
+            "vs_prev_mae": 32.27807150196224,
+            "luma": 36.82785364713698,
+            "sharpness": 1.9233933788517112
+          },
+          {
+            "index": 118,
+            "vs_prev_mae": 20.23485622482824,
+            "luma": 32.55569010537375,
+            "sharpness": 1.8914133294594295
+          },
+          {
+            "index": 119,
+            "vs_prev_mae": 18.162075717427356,
+            "luma": 28.68345722860851,
+            "sharpness": 1.6708270785918367
+          },
+          {
+            "index": 120,
+            "vs_prev_mae": 15.36749176606615,
+            "luma": 28.089364255327915,
+            "sharpness": 1.4929483640824506
+          }
+        ],
+        "selected": {
+          "index": 120,
+          "reason": "literal last decoded frame; window inspected for glitch only"
+        }
+      }
+    },
+    "D-E": {
+      "wallMs": 277263,
+      "elapsedMs": 276153,
+      "predictionId": "pg8tx7fcj1rmy0d0sb1bx2x3gg",
+      "retries": 0,
+      "endImage": null,
+      "video": {
+        "width": 1932,
+        "height": 1072,
+        "codec": "h264",
+        "pix_fmt": "yuv420p",
+        "fps": "24/1",
+        "duration": 5.041667,
+        "decoded_frames": 121,
+        "last_index": 120,
+        "window": [
+          {
+            "index": 113,
+            "vs_prev_mae": null,
+            "luma": 82.27787820730715,
+            "sharpness": 2.264880151082276
+          },
+          {
+            "index": 114,
+            "vs_prev_mae": 29.534629196151748,
+            "luma": 85.01281699679656,
+            "sharpness": 2.145837328297261
+          },
+          {
+            "index": 115,
+            "vs_prev_mae": 30.947491128724906,
+            "luma": 79.83518291049927,
+            "sharpness": 2.0834905492873665
+          },
+          {
+            "index": 116,
+            "vs_prev_mae": 35.17752512669571,
+            "luma": 74.97314910308705,
+            "sharpness": 2.1857627556373407
+          },
+          {
+            "index": 117,
+            "vs_prev_mae": 41.981365493958776,
+            "luma": 66.76768863369487,
+            "sharpness": 2.10281648991978
+          },
+          {
+            "index": 118,
+            "vs_prev_mae": 48.36399089567689,
+            "luma": 54.912317617399545,
+            "sharpness": 1.7602025729181816
+          },
+          {
+            "index": 119,
+            "vs_prev_mae": 41.64256808607068,
+            "luma": 37.71711995148481,
+            "sharpness": 1.329238616370476
+          },
+          {
+            "index": 120,
+            "vs_prev_mae": 27.877165189837562,
+            "luma": 29.195586347506772,
+            "sharpness": 0.9455984375252224
+          }
+        ],
+        "selected": {
+          "index": 120,
+          "reason": "literal last decoded frame; window inspected for glitch only"
+        }
+      }
+    }
+  },
+  "seams": {
+    "B": {
+      "incoming": "A-B",
+      "outgoing": "B-C",
+      "incoming_last_size": [
+        1928,
+        1072
+      ],
+      "outgoing_first_size": [
+        1932,
+        1072
+      ],
+      "Ce_vs_Cs_rendered": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 3.1433151281971883,
+        "rmse": 5.42624876380202,
+        "psnr_db": 33.4408096105471,
+        "ssim": 0.9322403253024572,
+        "histogram_correlation": 0.945334033121652,
+        "max_abs": 235
+      },
+      "inherited_vs_first_rendered": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 3.1433151281971883,
+        "rmse": 5.42624876380202,
+        "psnr_db": 33.4408096105471,
+        "ssim": 0.9322403253024572,
+        "histogram_correlation": 0.945334033121652,
+        "max_abs": 235
+      },
+      "last_vs_inherited": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "psnr_db": Infinity,
+        "ssim": 1.0,
+        "histogram_correlation": 1.0,
+        "max_abs": 0
+      }
+    },
+    "C": {
+      "incoming": "B-C",
+      "outgoing": "C-D",
+      "incoming_last_size": [
+        1932,
+        1072
+      ],
+      "outgoing_first_size": [
+        1932,
+        1072
+      ],
+      "Ce_vs_Cs_rendered": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 1.0149902338720476,
+        "rmse": 1.819694547695419,
+        "psnr_db": 42.930833732313005,
+        "ssim": 0.9256938105780871,
+        "histogram_correlation": 0.9901986853843772,
+        "max_abs": 36
+      },
+      "inherited_vs_first_rendered": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 1.0149902338720476,
+        "rmse": 1.819694547695419,
+        "psnr_db": 42.930833732313005,
+        "ssim": 0.9256938105780871,
+        "histogram_correlation": 0.9901986853843772,
+        "max_abs": 36
+      },
+      "last_vs_inherited": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "psnr_db": Infinity,
+        "ssim": 1.0,
+        "histogram_correlation": 1.0,
+        "max_abs": 0
+      }
+    },
+    "D": {
+      "incoming": "C-D",
+      "outgoing": "D-E",
+      "incoming_last_size": [
+        1932,
+        1072
+      ],
+      "outgoing_first_size": [
+        1932,
+        1072
+      ],
+      "Ce_vs_Cs_rendered": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 2.6156874143773883,
+        "rmse": 3.2369963906557038,
+        "psnr_db": 37.9279593056396,
+        "ssim": 0.9267581009213655,
+        "histogram_correlation": 0.9732353303781558,
+        "max_abs": 25
+      },
+      "inherited_vs_first_rendered": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 2.6156874143773883,
+        "rmse": 3.2369963906557038,
+        "psnr_db": 37.9279593056396,
+        "ssim": 0.9267581009213655,
+        "histogram_correlation": 0.9732353303781558,
+        "max_abs": 25
+      },
+      "last_vs_inherited": {
+        "width": 1932,
+        "height": 1072,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "psnr_db": Infinity,
+        "ssim": 1.0,
+        "histogram_correlation": 1.0,
+        "max_abs": 0
+      }
+    }
+  },
+  "state_quality": {
+    "A": {
+      "path": "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/stills/A.png",
+      "size": [
+        1376,
+        768
+      ],
+      "luma": 64.1641226458409,
+      "sharpness": 23.698483777425594
+    },
+    "Be": {
+      "path": "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/Be_selected.png",
+      "size": [
+        1928,
+        1072
+      ],
+      "luma": 65.91165490716155,
+      "sharpness": 2.5467563073598547
+    },
+    "Ce": {
+      "path": "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/Ce_selected.png",
+      "size": [
+        1932,
+        1072
+      ],
+      "luma": 2.5634428628403017,
+      "sharpness": 0.5479124497603024
+    },
+    "De": {
+      "path": "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/De_selected.png",
+      "size": [
+        1932,
+        1072
+      ],
+      "luma": 26.649482609951022,
+      "sharpness": 1.4929483640824506
+    },
+    "Ee": {
+      "path": "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/Ee_literal.png",
+      "size": [
+        1932,
+        1072
+      ],
+      "luma": 27.665947809380885,
+      "sharpness": 0.9455984375252224
+    }
+  }
+}

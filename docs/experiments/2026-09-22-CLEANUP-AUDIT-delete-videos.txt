@@ -1,0 +1,104 @@
+61839210	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/experimental_A_B_C_D_E_hybrid_endpoint_inheritance.mp4	full movie summarized in REPORT.md
+59693891	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_hybrid_canonical_camotion.mp4	full movie summarized in REPORT.md
+54264243	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+50753529	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_adaptive_full_length_diagnostic.mp4	full movie summarized in REPORT.md
+43561201	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/experimental_A_B_C_D_E_adaptive_endpoint_camotion.mp4	full movie summarized in REPORT.md
+37870518	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+35457490	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+34953338	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/control_vs_experiment_side_by_side.mp4	full movie summarized in REPORT.md
+33675609	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+31618597	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/experimental_A_B_C_D_E_endpoint_inheritance.mp4	full movie summarized in REPORT.md
+31477432	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+31336064	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+31125436	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+30189683	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+29612861	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+29531945	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28963042	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28782723	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28782723	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28782723	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28471596	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+28020260	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/threeway_full_hybrid_camotion_adaptive.mp4	full movie summarized in REPORT.md
+17893727	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+17893727	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-D-E-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+17501262	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/D-E/D-E-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+16755298	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/D-E-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+16287013	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+15683950	docs/experiments/2026-09-22-endpoint-inheritance/FirstTracksTheDescent2/generated/kling25-720p/C-D.mp4	superseded FirstTracks inheritance video; report remains
+15558316	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15558316	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-C-D-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15519434	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15386530	docs/experiments/2026-09-22-endpoint-inheritance/FirstTracksTheDescent2/generated/kling25-720p/experimental_B_C_D_flat_concat.mp4	superseded FirstTracks inheritance video; report remains
+15261226	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/C-D-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15041993	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+15041993	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-B-C-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+14712046	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/B-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+14682128	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/D-E.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+14492631	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/C-D-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+14487301	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+14445803	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+14332221	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/B-C-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+14268973	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13972532	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-to-Ee-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+13790170	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/A-B/A-B-scaled.mp4	ffmpeg re-encode of original take; regenerable locally
+13347567	docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/A-B-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13347567	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/ctrl-A-B-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13347567	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/A-B/A-B-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13347567	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-full-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+13223778	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-to-De-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+13049709	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-to-Be-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+13022566	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-to-Ce-star.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+12911046	docs/experiments/2026-09-22-endpoint-inheritance/FirstTracksTheDescent2/generated/kling25-720p/B-C.mp4	superseded FirstTracks inheritance video; report remains
+12732898	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/C-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+12240052	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/D-E/D-E-to-Ee-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+11736324	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/C-D/C-D-to-De-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+11356913	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/B-C-to-Ce-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+11225178	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/A-B/A-B-to-Be-star-scaled.mp4	re-encode/raw intermediate; regenerable from master or report
+8541003	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/0-A-B.mp4	temp encode
+8225996	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/1-B-C.mp4	temp encode
+7938598	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/3-D-E.mp4	temp encode
+6915137	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/2-C-D.mp4	temp encode
+4579013	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+4410213	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+4222978	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-D.mp4	redundant unmarked seam; compare-seam-* kept
+4064005	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+3809508	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3551056	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3491255	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+3448784	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3426542	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-B-b.mp4	temp encode
+3394849	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/smart-D-raw.mp4	unmarked raw seam; marked + compare clips kept
+3394215	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3387094	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/original-D-raw.mp4	unmarked raw seam; marked + compare clips kept
+3381743	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/adaptive-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3281967	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-C.mp4	redundant unmarked seam; compare-seam-* kept
+3275106	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/seam-B.mp4	redundant unmarked seam; compare-seam-* kept
+3271308	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/smart-C-raw.mp4	unmarked raw seam; marked + compare clips kept
+3265856	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-B-a.mp4	temp encode
+3254782	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/original-C-raw.mp4	unmarked raw seam; marked + compare clips kept
+3213736	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-D-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3204626	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-D-a.mp4	temp encode
+3190581	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3029433	docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/clips/control-seam-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+3027587	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/clips/seam-100-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+3027587	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/adaptive-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2995833	docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/clips/seam-0-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2985101	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/clips/seam-50-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2916886	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2913881	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-C-a.mp4	temp encode
+2861426	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/smart-B-raw.mp4	unmarked raw seam; marked + compare clips kept
+2844601	docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/clips/original-B-raw.mp4	unmarked raw seam; marked + compare clips kept
+2807071	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-D-b.mp4	temp encode
+2728220	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-D.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2713278	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2709365	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-C-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2642467	docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/clips/seam-100.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2606830	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/adaptive-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2554436	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2369830	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2344024	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-C.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2304490	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-B-raw.mp4	re-encode/raw intermediate; regenerable from master or report
+2220760	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/camotion-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics
+2172350	docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-C-b.mp4	temp encode
+1985684	docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/clips/hybrid-B.mp4	superseded Kling master; 1 generation to recreate; numbers in REPORT/metrics

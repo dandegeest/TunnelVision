@@ -1,0 +1,21 @@
+{
+  "Ee_literal": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 1.45,
+    "dest_ssim": 0.933
+  },
+  "Ee_star": {
+    "index": 204,
+    "t": 8.5,
+    "pair_mae": 7.24,
+    "dest_ssim": 0.305
+  },
+  "full_duration": 10.083333,
+  "seconds_removed": 1.5833,
+  "percent_removed": 15.7,
+  "destination_established_t": 3.0,
+  "pose_lock_began_t": 9.0,
+  "station_reached": true,
+  "reason": "Abandoned station (platform, tracks, clock, columns) established by ~3.0s. Frame 204 is the latest arrival with pair MAE 7.24 before dest-SSIM lock and MAE collapse after 9.0s."
+}

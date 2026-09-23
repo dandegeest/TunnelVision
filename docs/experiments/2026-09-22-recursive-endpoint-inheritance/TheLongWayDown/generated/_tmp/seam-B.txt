@@ -1,0 +1,2 @@
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-B-a.mp4'
+file '/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/_tmp/seam-B-b.mp4'

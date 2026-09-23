@@ -1,0 +1,62 @@
+{
+  "project": "TheLongWayDown",
+  "journey_status": "planned",
+  "kling_generations": 0,
+  "videos_found": [],
+  "missing_videos": [
+    {
+      "leg": "A-B",
+      "status": "ready",
+      "takes": [],
+      "durationSeconds": 9,
+      "startShootingFrame": "shooting-frames/A-B/start-upload-ec100b1f3f72745de5cc1ad7ee21c313.png",
+      "endShootingFrame": "shooting-frames/A-B/end-upload-c03b67504fe07997c2763e9bc2a302b1.png"
+    },
+    {
+      "leg": "B-C",
+      "status": "ready",
+      "takes": [],
+      "durationSeconds": 8,
+      "startShootingFrame": "shooting-frames/B-C/start-upload-1978184ff5bae685afd5d997ab63304d.png",
+      "endShootingFrame": "shooting-frames/B-C/end-upload-22a040d8a1a4371687937b73c9318db2.png"
+    },
+    {
+      "leg": "C-D",
+      "status": "ready",
+      "takes": [],
+      "durationSeconds": 8,
+      "startShootingFrame": "shooting-frames/C-D/start-upload-088404e4a0eec460e88f0915d75f6675.png",
+      "endShootingFrame": "shooting-frames/C-D/end-upload-ad752b3d2de5ac77540e7f6e79d4127c.png"
+    },
+    {
+      "leg": "D-E",
+      "status": "ready",
+      "takes": [],
+      "durationSeconds": 8,
+      "startShootingFrame": "shooting-frames/D-E/start-upload-2d7e63c09aa9b233cbddb6e3ac4737da.png",
+      "endShootingFrame": "shooting-frames/D-E/end-upload-64bd3e289f6b3349688dbaaa49263fee.png"
+    }
+  ],
+  "shooting_frames": {
+    "A-B": {
+      "start": "shooting-frames/A-B/start-upload-ec100b1f3f72745de5cc1ad7ee21c313.png",
+      "end": "shooting-frames/A-B/end-upload-c03b67504fe07997c2763e9bc2a302b1.png",
+      "pace": "moderate"
+    },
+    "B-C": {
+      "start": "shooting-frames/B-C/start-upload-1978184ff5bae685afd5d997ab63304d.png",
+      "end": "shooting-frames/B-C/end-upload-22a040d8a1a4371687937b73c9318db2.png",
+      "pace": "moderate"
+    },
+    "C-D": {
+      "start": "shooting-frames/C-D/start-upload-088404e4a0eec460e88f0915d75f6675.png",
+      "end": "shooting-frames/C-D/end-upload-ad752b3d2de5ac77540e7f6e79d4127c.png",
+      "pace": "moderate"
+    },
+    "D-E": {
+      "start": "shooting-frames/D-E/start-upload-2d7e63c09aa9b233cbddb6e3ac4737da.png",
+      "end": "shooting-frames/D-E/end-upload-64bd3e289f6b3349688dbaaa49263fee.png",
+      "pace": "moderate"
+    }
+  }
+}

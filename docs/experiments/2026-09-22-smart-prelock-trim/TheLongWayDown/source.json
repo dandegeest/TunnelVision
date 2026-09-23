@@ -1,0 +1,53 @@
+{
+  "kling_generations": 0,
+  "takes": [
+    {
+      "leg": "A-B",
+      "take_id": "A-B:take:1",
+      "asset": "take-01.mp4",
+      "model": "kwaivgi/kling-v2.5-turbo-pro",
+      "durationSeconds": 10,
+      "videoInputs": {
+        "startShootingFrame": true,
+        "endShootingFrame": true
+      },
+      "source": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/A-B/take-01.mp4"
+    },
+    {
+      "leg": "B-C",
+      "take_id": "B-C:take:1",
+      "asset": "take-01.mp4",
+      "model": "kwaivgi/kling-v2.5-turbo-pro",
+      "durationSeconds": 10,
+      "videoInputs": {
+        "startShootingFrame": true,
+        "endShootingFrame": true
+      },
+      "source": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/B-C/take-01.mp4"
+    },
+    {
+      "leg": "C-D",
+      "take_id": "C-D:take:1",
+      "asset": "take-01.mp4",
+      "model": "kwaivgi/kling-v2.5-turbo-pro",
+      "durationSeconds": 10,
+      "videoInputs": {
+        "startShootingFrame": true,
+        "endShootingFrame": true
+      },
+      "source": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/C-D/take-01.mp4"
+    },
+    {
+      "leg": "D-E",
+      "take_id": "D-E:take:1",
+      "asset": "take-01.mp4",
+      "model": "kwaivgi/kling-v2.5-turbo-pro",
+      "durationSeconds": 10,
+      "videoInputs": {
+        "startShootingFrame": true,
+        "endShootingFrame": true
+      },
+      "source": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/D-E/take-01.mp4"
+    }
+  ]
+}

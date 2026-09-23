@@ -1,0 +1,117 @@
+{
+  "experiment": "camotion-50pct-C-test",
+  "kling_generations": 1,
+  "scale": {
+    "method": "scale CameraMotionPlan.exposure.strength",
+    "not": "image alpha blending",
+    "original_strength": 0.04,
+    "scaled_strength": 0.02,
+    "scale_factor": 0.5,
+    "unchanged": [
+      "camera.vanishing_point",
+      "camera.forward",
+      "destination",
+      "exposure.samples"
+    ],
+    "why": "Camotion exposure samples p - (motion_field[p] * strength * t_i). Halving strength halves pixel displacement along the same radial field. That is the plan's actual transformation magnitude.",
+    "source_plan": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/plans/C-D-startPlan-100pct.json",
+    "scaled_plan": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/plans/C-D-startPlan-50pct.json"
+  },
+  "incoming_Ce_star_last_1s": {
+    "start": 186,
+    "end": 210,
+    "n": 25,
+    "mean_pair_mae": 9.973537916666666,
+    "min_pair_mae": 8.21132,
+    "max_pair_mae": 10.941173,
+    "mean_dest_ssim": 0.19175360000000002
+  },
+  "outgoing_50_first_1s": {
+    "start": 0,
+    "end": 24,
+    "n": 25,
+    "mean_pair_mae": 14.724841250000003,
+    "min_pair_mae": 12.985766,
+    "max_pair_mae": 15.684649,
+    "mean_dest_ssim": 0.06426268
+  },
+  "outgoing_100_first_1s": {
+    "start": 0,
+    "end": 24,
+    "n": 25,
+    "mean_pair_mae": 17.086293,
+    "min_pair_mae": 14.891466,
+    "max_pair_mae": 18.571465,
+    "mean_dest_ssim": 0.07746479999999999
+  },
+  "ratio_50": 1.4763909630697334,
+  "ratio_100": 1.7131626853743935,
+  "camotion_transform": {
+    "50": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 6.785721528228423,
+      "rmse": 12.33749813930234,
+      "psnr_db": 26.306261605100172,
+      "ssim": 0.7977134695455353,
+      "histogram_correlation": 0.8725772285890789,
+      "max_abs": 154
+    },
+    "100": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 9.99603818382209,
+      "rmse": 16.633998297597042,
+      "psnr_db": 23.710870554687187,
+      "ssim": 0.6934980307817677,
+      "histogram_correlation": 0.852822400970771,
+      "max_abs": 189
+    }
+  },
+  "rendered_seams": {
+    "50": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 7.631497661794547,
+      "rmse": 12.71680121104813,
+      "psnr_db": 26.043245959629203,
+      "ssim": 0.7691872382881649,
+      "histogram_correlation": 0.9778154284609252,
+      "max_abs": 156
+    },
+    "100": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 10.48971675653822,
+      "rmse": 16.83079665121278,
+      "psnr_db": 23.608710150674895,
+      "ssim": 0.674364241114538,
+      "histogram_correlation": 0.983047398038409,
+      "max_abs": 192
+    },
+    "prime50_vs_rendered": {
+      "width": 1932,
+      "height": 1072,
+      "mae": 3.285290518164869,
+      "rmse": 4.084700786644451,
+      "psnr_db": 35.90759862861055,
+      "ssim": 0.9547123772590677,
+      "histogram_correlation": 0.8494105106620623,
+      "max_abs": 45
+    }
+  },
+  "late_dest_ssim_50": {
+    "start": 180,
+    "end": 241,
+    "n": 62,
+    "mean_pair_mae": 8.301863672131148,
+    "min_pair_mae": 0.633519,
+    "max_pair_mae": 15.608668,
+    "mean_dest_ssim": 0.3481133870967742
+  },
+  "control_adaptive_C": {
+    "incoming_mean_mae": 9.973537916666666,
+    "outgoing_mean_mae": 17.086293,
+    "rendered_ssim": 0.674364241114538
+  }
+}

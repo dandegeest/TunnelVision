@@ -1,0 +1,37 @@
+{
+  "video": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/C-D/C-D.mp4",
+  "dest": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/stills/D.png",
+  "meta": {
+    "width": 1932,
+    "height": 1072,
+    "fps": 24.0,
+    "duration": 10.083333,
+    "decoded_frames": 242
+  },
+  "peak_pair_mae": 16.473973997493733,
+  "heuristic_dest_established": {
+    "index": 230,
+    "t": 9.5833,
+    "pair_mae": 3.0350381161236424,
+    "dest_mae": 14.524096700083541,
+    "dest_ssim": 0.5725842878532705,
+    "luma": 74.9492933881318
+  },
+  "heuristic_pose_lock_start": {
+    "index": 230,
+    "t": 9.5833,
+    "pair_mae": 3.0350381161236424,
+    "dest_mae": 14.524096700083541,
+    "dest_ssim": 0.5725842878532705,
+    "luma": 74.9492933881318
+  },
+  "last": {
+    "index": 241,
+    "t": 10.0417,
+    "pair_mae": 2.892298454469507,
+    "dest_mae": 4.5704286758563075,
+    "dest_ssim": 0.9459306010485633,
+    "luma": 72.96782054401903
+  },
+  "note": "experiment-local diagnostic. Not production."
+}

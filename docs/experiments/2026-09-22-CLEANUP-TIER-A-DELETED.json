@@ -1,0 +1,32 @@
+{
+  "deleted_count": 373,
+  "deleted_bytes": 1899561801,
+  "skipped_tier_b": 98,
+  "errors": [],
+  "empty_dirs_removed": [
+    "docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/D-E/samples",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail",
+    "docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/frames/tail",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/D-E/approach",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail",
+    "docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/frames/tail",
+    "docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/curves/C-D/samples",
+    "docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/C-D/samples",
+    "docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/curves/C-D/samples",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail",
+    "docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/B-C/samples",
+    "docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/D-E/approach",
+    "docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/frames/tail",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/C-D/approach",
+    "docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/curves/A-B/samples",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/B-C/approach",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail",
+    "docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/sheets/inspect",
+    "docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/sheets/inspect",
+    "docs/experiments/2026-09-22-hybrid-endpoint-inheritance/TheLongWayDown/generated/A-B/approach",
+    "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/A-B/frames/tail",
+    "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/C-D/frames/tail",
+    "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/D-E/frames/tail",
+    "docs/experiments/2026-09-22-recursive-endpoint-inheritance/TheLongWayDown/generated/B-C/frames/tail"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "Ce_literal": "frame 120 / 121 (last decoded). 1920x1080. 5.041667s @ 24fps.",
+  "Ce_selected": "same as Ce_literal",
+  "selected_frame_index": 120,
+  "timestamp_s": 5.0,
+  "frames_from_literal_end": 0,
+  "reason": "Last 8 frames are the same chute with continuous forward motion. Luma drop is entering the shadowed rock corridor, not a malformed, duplicated, or transitional glitch. Frame-to-frame MAE at the end (17.75) is lower than the previous steps.",
+  "Cs_method": "ffmpeg lanczos contain onto 1920x1080 (native decoded size). No generative restore."
+}

@@ -1,0 +1,15 @@
+{
+  "source": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-adaptive-endpoint-camotion/TheLongWayDown/generated/B-C/Ce_star.png",
+  "copied": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/Ce_star.png",
+  "sha256_source": "cc1e2d86c251843829d5e68bd62c545a3f4f78df63bddc6abfa76573c3eb5154",
+  "sha256_copied": "cc1e2d86c251843829d5e68bd62c545a3f4f78df63bddc6abfa76573c3eb5154",
+  "bytes_identical": true,
+  "pixels_identical": true,
+  "shape": [
+    1072,
+    1932,
+    3
+  ],
+  "camotion_applied": false,
+  "kling_start_will_be": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-zero-camotion-C-baseline/TheLongWayDown/generated/Ce_star.png"
+}

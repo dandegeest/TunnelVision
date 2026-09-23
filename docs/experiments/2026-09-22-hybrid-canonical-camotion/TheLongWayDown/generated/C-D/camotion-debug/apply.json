@@ -1,0 +1,9 @@
+{
+  "image": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/B-C/Ce.png",
+  "plan": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/plans/C-D-startPlan.json",
+  "output": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/Cs-prime.png",
+  "depth": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-hybrid-canonical-camotion/TheLongWayDown/generated/C-D/camotion-debug/depth.png",
+  "adaptive": true,
+  "replanned": false,
+  "note": "Plan is the stored canonical startPlan. Depth is from the image being warped."
+}

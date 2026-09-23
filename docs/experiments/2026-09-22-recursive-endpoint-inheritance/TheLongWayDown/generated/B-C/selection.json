@@ -1,0 +1,8 @@
+{
+  "Ce_literal": "frame 120/121",
+  "Ce_selected": "same as literal",
+  "frames_from_end": 0,
+  "reason": "Dark enclosed shaft/corridor is the arrived-at C. Low luma is the scene (elevator/foundation shaft), not a duplicate/malformed frame. Window is the same space.",
+  "camotion": false,
+  "note": "State quality is already dark and low-detail. Inherited as-is per experiment rules."
+}

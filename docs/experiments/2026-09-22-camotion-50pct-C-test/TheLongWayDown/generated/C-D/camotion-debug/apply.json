@@ -1,0 +1,9 @@
+{
+  "image": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/Ce_star.png",
+  "plan": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/plans/C-D-startPlan-50pct.json",
+  "output": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/C-D/Cs-prime-50.png",
+  "depth": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-camotion-50pct-C-test/TheLongWayDown/generated/C-D/camotion-debug/depth.png",
+  "adaptive": true,
+  "replanned": false,
+  "note": "Plan is the stored canonical startPlan. Depth is from the image being warped."
+}
