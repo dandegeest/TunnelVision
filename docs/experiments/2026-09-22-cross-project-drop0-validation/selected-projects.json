@@ -1,0 +1,66 @@
+{
+  "discovered_projects": 50,
+  "eligible_projects": 48,
+  "eligible_seams_in_corpus": 223,
+  "selected_cap": {"projects": 10, "seams": 40},
+  "excluded_reasons": [
+    "GrammarTest-PreflightSave / GrammarTest-POVCanyonRun: no takes",
+    "FPSTEST: fps experiment, not an authored journey",
+    "MarbleMountain / RunawayParadeBalloon*: 22–24 seams would dominate the 40-seam cap",
+    "GrammarTemplateTest-*: template suite, not independently authored",
+    "FirstTracksTheAscent: same skier family as Descent2; keep one",
+    "endpoint-inheritance experiment outputs: not used"
+  ],
+  "selected": [
+    {
+      "dir": "TheLongWayDown",
+      "role": "known_control",
+      "why": "Known positive control. POV, Kling 2.5, indoor urban descent, 3 seams."
+    },
+    {
+      "dir": "FirstTracksTheDescent2",
+      "role": "validation",
+      "why": "Skier/snowboard POV, outdoor alpine, Pruna p-video, 4 seams."
+    },
+    {
+      "dir": "Whiteout",
+      "role": "validation",
+      "why": "FOLLOW snowboarder, outdoor, Kling 2.5, persistent subject, 3 seams."
+    },
+    {
+      "dir": "NightTrainFOLLOW",
+      "role": "validation",
+      "why": "FOLLOW grammar, high-speed train, Pruna, persistent locomotive, 3 seams."
+    },
+    {
+      "dir": "NightTrainLEAD",
+      "role": "validation",
+      "why": "LEAD grammar counterpart, 3 seams."
+    },
+    {
+      "dir": "NightTrainMOUNTED",
+      "role": "validation",
+      "why": "MOUNTED grammar counterpart, 3 seams."
+    },
+    {
+      "dir": "PaperChase",
+      "role": "validation",
+      "why": "Stylized/non-photoreal POV, selected take 2, 6 seams."
+    },
+    {
+      "dir": "Backstage",
+      "role": "validation",
+      "why": "Indoor photoreal POV sprint, foreground-heavy theater, 3 seams."
+    },
+    {
+      "dir": "GardensoftheCurrent",
+      "role": "validation",
+      "why": "Underwater/open water POV, slower fluid motion, 5 seams."
+    },
+    {
+      "dir": "Redline",
+      "role": "validation",
+      "why": "Fast F1 cockpit POV, outdoor track, 4 seams."
+    }
+  ]
+}

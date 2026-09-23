@@ -1,0 +1,113 @@
+{
+  "experiment": "drop-outgoing-frame-zero",
+  "kling_generations": 0,
+  "camotion_generations": 0,
+  "production_code_changed": false,
+  "incoming_untouched": true,
+  "sources": {
+    "A-B": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/A-B/take-01.mp4",
+    "B-C": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/B-C/take-01.mp4",
+    "C-D": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/C-D/take-01.mp4",
+    "D-E": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/D-E/take-01.mp4"
+  },
+  "frame_counts": {
+    "A-B_src": 242,
+    "A-B_full": 242,
+    "B-C_src": 242,
+    "B-C_full": 242,
+    "B-C_from1": 241,
+    "C-D_src": 242,
+    "C-D_full": 242,
+    "C-D_from1": 241,
+    "D-E_src": 242,
+    "D-E_full": 242,
+    "D-E_from1": 241,
+    "control_total": 968,
+    "drop_total": 965,
+    "expected_control": 968,
+    "expected_drop": 965
+  },
+  "dropped_exactly_one_per_subsequent": true,
+  "seams": {
+    "B": {
+      "incoming_last_to_out0": {
+        "mae": 2.02051384029025,
+        "psnr_db": 35.953426188341936,
+        "ssim": 0.9565337951001577,
+        "histogram_correlation": 0.9989078461655764
+      },
+      "incoming_last_to_out1": {
+        "mae": 11.339090820534258,
+        "psnr_db": 22.633061136144917,
+        "ssim": 0.6690017155116398,
+        "histogram_correlation": 0.9764578383038968
+      },
+      "out0_to_out1": {
+        "mae": 11.45546708882971,
+        "psnr_db": 22.48110471037641,
+        "ssim": 0.6666046864658919,
+        "histogram_correlation": 0.9753842273311175
+      },
+      "out1_to_out2": {
+        "mae": 12.293193653103776,
+        "psnr_db": 21.95377406000403,
+        "ssim": 0.6691176548766157,
+        "histogram_correlation": 0.9901021210661138
+      }
+    },
+    "C": {
+      "incoming_last_to_out0": {
+        "mae": 3.3295592512024936,
+        "psnr_db": 33.87988941992798,
+        "ssim": 0.9173183996794694,
+        "histogram_correlation": 0.9987437698242285
+      },
+      "incoming_last_to_out1": {
+        "mae": 17.68042260817283,
+        "psnr_db": 19.78849065028618,
+        "ssim": 0.4988369577604242,
+        "histogram_correlation": 0.995895536106592
+      },
+      "out0_to_out1": {
+        "mae": 17.19644451497698,
+        "psnr_db": 19.99928261789388,
+        "ssim": 0.5150643296612697,
+        "histogram_correlation": 0.9963264500031671
+      },
+      "out1_to_out2": {
+        "mae": 17.769166840847628,
+        "psnr_db": 19.76586404945509,
+        "ssim": 0.512148132374236,
+        "histogram_correlation": 0.9943998611799817
+      }
+    },
+    "D": {
+      "incoming_last_to_out0": {
+        "mae": 2.4669627097912925,
+        "psnr_db": 37.03923632633069,
+        "ssim": 0.9517078707203747,
+        "histogram_correlation": 0.9977776884986412
+      },
+      "incoming_last_to_out1": {
+        "mae": 17.338676173076525,
+        "psnr_db": 20.44766853490406,
+        "ssim": 0.591820739600138,
+        "histogram_correlation": 0.9929255524935039
+      },
+      "out0_to_out1": {
+        "mae": 17.444112102867404,
+        "psnr_db": 20.43225309472218,
+        "ssim": 0.5878548501131565,
+        "histogram_correlation": 0.9898606016926572
+      },
+      "out1_to_out2": {
+        "mae": 19.198585005470573,
+        "psnr_db": 19.731601285567194,
+        "ssim": 0.5778900431344399,
+        "histogram_correlation": 0.9748808554142938
+      }
+    }
+  },
+  "control_cut": "incoming-last | outgoing-0",
+  "experiment_cut": "incoming-last | outgoing-1"
+}

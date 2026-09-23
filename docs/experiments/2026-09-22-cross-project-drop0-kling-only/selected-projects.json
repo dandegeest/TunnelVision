@@ -1,0 +1,70 @@
+{
+  "filter": "selected takes must be Kling; exclude Pruna draft-mode takes",
+  "discovered_projects": 50,
+  "kling_only_projects": 25,
+  "authored_kling_eligible": 16,
+  "authored_kling_seams": 101,
+  "excluded_reasons": [
+    "All pruna_only projects: draft-mode p-video, not this pass",
+    "DeethStir / Red5 / WhiteFlight: mixed Kling+Pruna selected takes",
+    "GrammarTemplateTest-* / GrammarTest-*: template suite, not independently authored",
+    "FPSTEST: fps experiment",
+    "RunawayParadeBalloon / RunawayParadeBalloon2: 22–24 seams would dominate the 40-seam cap",
+    "MidnightDescent: 11 POV seams would overweight one journey; keep diversity",
+    "MidnightMiniaturePF_FOLLOW_HoleInOne: pull-forward experimental variant",
+    "DuMBAnts / Oooolympics: eligible Kling but 10-project cap; ants only 1 seam"
+  ],
+  "selected_cap": {"projects": 10, "seams": 40},
+  "selected": [
+    {
+      "dir": "TheLongWayDown",
+      "role": "known_control",
+      "why": "Known positive control. POV, Kling 2.5, indoor urban descent, 3 seams."
+    },
+    {
+      "dir": "Whiteout",
+      "role": "validation",
+      "why": "FOLLOW snowboarder, outdoor alpine forest, Kling 2.5, persistent subject, 3 seams."
+    },
+    {
+      "dir": "PaperChase",
+      "role": "validation",
+      "why": "Stylized/non-photoreal indoor POV, selected take 2, Kling 2.5, 6 seams."
+    },
+    {
+      "dir": "NightTrainFOLLOW_2",
+      "role": "validation",
+      "why": "Kling FOLLOW counterpart to the earlier Pruna NightTrainFOLLOW. Persistent train, 3 seams."
+    },
+    {
+      "dir": "MatchMakerFOLLOW",
+      "role": "validation",
+      "why": "FOLLOW grammar, indoor persistent match-subject, Kling 2.5, 3 seams."
+    },
+    {
+      "dir": "MatchMaker",
+      "role": "validation",
+      "why": "POV counterpart to MatchMakerFOLLOW, dark indoor hallway, 3 seams."
+    },
+    {
+      "dir": "FadedGenes",
+      "role": "validation",
+      "why": "Only authored Kling v3 (kwaivgi/kling-v3-video) journey in the sample. Indoor/suburban POV, 2 seams."
+    },
+    {
+      "dir": "NoMan'sLand",
+      "role": "validation",
+      "why": "WWI trench POV, photoreal, foreground people, Kling 2.5, 4 seams."
+    },
+    {
+      "dir": "MidnightMiniature",
+      "role": "validation",
+      "why": "Night miniature-golf POV, slower decorative motion, Kling 2.5, 3 seams."
+    },
+    {
+      "dir": "WhiteWhale",
+      "role": "validation",
+      "why": "Underwater open-water photoreal, grammar unspecified, Kling 2.5, 5 seams."
+    }
+  ]
+}

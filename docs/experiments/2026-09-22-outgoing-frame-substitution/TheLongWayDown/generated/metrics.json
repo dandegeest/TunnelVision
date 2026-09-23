@@ -1,0 +1,129 @@
+{
+  "experiment": "outgoing-frame-substitution",
+  "kling_generations": 0,
+  "camotion_generations": 0,
+  "production_code_changed": false,
+  "replaced_incoming_frame": {
+    "index": 241,
+    "name": "F241 lock / Ce_literal"
+  },
+  "replacement": {
+    "video": "C-D/take-01.mp4",
+    "index": 0,
+    "name": "Cs_rendered"
+  },
+  "outgoing_continues_at": {
+    "index": 1,
+    "name": "D1"
+  },
+  "cs_appears_once": true,
+  "cs_count_in_experiment_clip": 1,
+  "clip_frames": {
+    "pre": 24,
+    "post": 48,
+    "total": 72
+  },
+  "identity": {
+    "bc": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/B-C/take-01.mp4",
+    "cd": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/C-D/take-01.mp4",
+    "lock_matches_existing_literal": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "psnr_db": 99.0,
+      "ssim": 1.0,
+      "histogram_correlation": 1.0,
+      "max_abs": 0,
+      "pair_mae": 0.0
+    },
+    "cs_matches_existing_first": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "psnr_db": 99.0,
+      "ssim": 1.0,
+      "histogram_correlation": 1.0,
+      "max_abs": 0,
+      "pair_mae": 0.0
+    },
+    "cs_sha": "09e18fbc8159eb728769cd71ff0f586ace1fa58ee599c0a997e78c45456033b4",
+    "lock_sha": "f3466cfcb6c570a8f2e6412e9c7c4c1ac9145c129835c06fc8412b50fc574a82",
+    "cs_equals_lock": false
+  },
+  "pairs": {
+    "F239_to_F240": {
+      "mae": 15.605574468167461,
+      "rmse": 24.27403663572341,
+      "psnr_db": 20.4279635473493,
+      "ssim": 0.5667866865547612,
+      "histogram_correlation": 0.9930511115458547,
+      "max_abs": 194,
+      "pair_mae": 15.605574468167461
+    },
+    "F240_to_lock": {
+      "mae": 17.341794173582297,
+      "rmse": 25.968056402797178,
+      "psnr_db": 19.842014693203424,
+      "ssim": 0.5384671556226809,
+      "histogram_correlation": 0.9886567340105675,
+      "max_abs": 200,
+      "pair_mae": 17.341794173582297
+    },
+    "lock_to_Cs": {
+      "mae": 3.3295592512024936,
+      "rmse": 5.158764581449975,
+      "psnr_db": 33.87988941992798,
+      "ssim": 0.9173183996794694,
+      "histogram_correlation": 0.9987437698242285,
+      "max_abs": 75,
+      "pair_mae": 3.3295592512024936
+    },
+    "Cs_to_D1": {
+      "mae": 17.19644451497698,
+      "rmse": 25.50210617448804,
+      "psnr_db": 19.99928261789388,
+      "ssim": 0.5150643296612697,
+      "histogram_correlation": 0.9963264500031671,
+      "max_abs": 197,
+      "pair_mae": 17.19644451497698
+    },
+    "F240_to_Cs": {
+      "mae": 17.442229980801386,
+      "rmse": 25.989971209710003,
+      "psnr_db": 19.834687640414145,
+      "ssim": 0.5396880650508855,
+      "histogram_correlation": 0.9863566449329785,
+      "max_abs": 197,
+      "pair_mae": 17.442229980801386
+    }
+  },
+  "motion_pair_mae_around_cut": {
+    "labels": [
+      "-3",
+      "-2",
+      "-1",
+      "CUT",
+      "+1",
+      "+2",
+      "+3"
+    ],
+    "control": [
+      16.39650699433331,
+      15.605574468167461,
+      17.341794173582297,
+      3.3295592512024936,
+      17.19644451497698,
+      17.769166840847628,
+      17.75542831743771
+    ],
+    "experiment": [
+      16.39650699433331,
+      15.605574468167461,
+      17.442229980801386,
+      17.19644451497698,
+      17.769166840847628,
+      17.75542831743771,
+      17.823895466908198
+    ]
+  },
+  "control_cut": "F241(lock) | Cs",
+  "experiment_cut": "Cs | D1"
+}

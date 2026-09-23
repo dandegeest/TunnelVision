@@ -1,0 +1,10 @@
+{
+  "kling_generations": 0,
+  "camotion_generations": 0,
+  "production_code_changed": false,
+  "incoming_take": "projects/TheLongWayDown/traversals/B-C/take-01.mp4",
+  "outgoing_take": "projects/TheLongWayDown/traversals/C-D/take-01.mp4",
+  "replaced_frame": "B-C decoded frame 241 (literal lock)",
+  "replacement_frame": "C-D decoded frame 0 (Cs_rendered)",
+  "outgoing_continues_at": "C-D decoded frame 1"
+}

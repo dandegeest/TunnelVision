@@ -1,0 +1,13 @@
+{
+  "kling_generations": 0,
+  "camotion_generations": 0,
+  "production_code_changed": false,
+  "takes": {
+    "A-B": "projects/TheLongWayDown/traversals/A-B/take-01.mp4",
+    "B-C": "projects/TheLongWayDown/traversals/B-C/take-01.mp4",
+    "C-D": "projects/TheLongWayDown/traversals/C-D/take-01.mp4",
+    "D-E": "projects/TheLongWayDown/traversals/D-E/take-01.mp4"
+  },
+  "control": "A-B full + B-C full + C-D full + D-E full",
+  "experiment": "A-B full + B-C from frame 1 + C-D from frame 1 + D-E from frame 1"
+}

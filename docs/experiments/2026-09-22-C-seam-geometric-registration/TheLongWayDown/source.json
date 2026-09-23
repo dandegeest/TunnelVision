@@ -1,0 +1,23 @@
+{
+  "kling_generations": 0,
+  "camotion_generations": 0,
+  "production_code_changed": false,
+  "smart_prelock_baseline_altered": false,
+  "sources": {
+    "incoming_take": "projects/TheLongWayDown/traversals/B-C/take-01.mp4",
+    "outgoing_take": "projects/TheLongWayDown/traversals/C-D/take-01.mp4",
+    "smart_prelock": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/",
+    "Ce_star": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/Ce_star.png",
+    "Cs_rendered": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/first.png",
+    "C_prime": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/stills/C-prime.png",
+    "B-C_to_star": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C-to-star.mp4",
+    "C-D_to_star": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/C-D-to-star.mp4",
+    "motion_csv": "docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/motion.csv"
+  },
+  "seam": {
+    "incoming_frame": 238,
+    "incoming_name": "Ce*",
+    "outgoing_frame": 0,
+    "outgoing_name": "Cs_rendered"
+  }
+}

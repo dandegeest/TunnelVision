@@ -1,0 +1,326 @@
+{
+  "experiment": "C-seam-geometric-registration",
+  "kling_generations": 0,
+  "camotion_generations": 0,
+  "production_code_changed": false,
+  "smart_prelock_baseline_altered": false,
+  "fps": 24.0,
+  "resolution": [
+    1928,
+    1072
+  ],
+  "touching_frames": {
+    "incoming": "B-C take-01.mp4 frame 238 (Ce*)",
+    "outgoing": "C-D take-01.mp4 frame 0 (Cs_rendered)",
+    "identity": {
+      "ce_vs_extracted": true,
+      "existing_ce_sha": "4de356c907915eadc41eb82af09d6c2ae3a2014e33513b59b0efbfcd2af7dba0",
+      "extracted_ce_sha": "4de356c907915eadc41eb82af09d6c2ae3a2014e33513b59b0efbfcd2af7dba0",
+      "existing_cs_sha": "09e18fbc8159eb728769cd71ff0f586ace1fa58ee599c0a997e78c45456033b4",
+      "extracted_cs_sha": "09e18fbc8159eb728769cd71ff0f586ace1fa58ee599c0a997e78c45456033b4",
+      "ce_vs_extracted_metrics": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "psnr_db": 99.0,
+        "ssim": 1.0,
+        "histogram_correlation": 1.0,
+        "max_abs": 0
+      },
+      "cs_vs_extracted_metrics": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "psnr_db": 99.0,
+        "ssim": 1.0,
+        "histogram_correlation": 1.0,
+        "max_abs": 0
+      },
+      "ce_vs_trimmed_last": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 1.9430094406081626,
+        "rmse": 2.821364542778853,
+        "psnr_db": 39.12161952691314,
+        "ssim": 0.9636859591349644,
+        "histogram_correlation": 0.9991049580983046,
+        "max_abs": 35
+      },
+      "cs_vs_trimmed_first": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 1.5784844901529695,
+        "rmse": 2.24243898817956,
+        "psnr_db": 41.116390895046884,
+        "ssim": 0.9730867122093256,
+        "histogram_correlation": 0.999381919992406,
+        "max_abs": 22
+      },
+      "project_bc": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/B-C/take-01.mp4",
+      "project_cd": "/Users/ddegeest/Source/tunnelvision/projects/TheLongWayDown/traversals/C-D/take-01.mp4",
+      "bc_hardlink_of_project": true,
+      "cd_hardlink_of_project": true
+    }
+  },
+  "control_Ce_vs_Cs": {
+    "width": 1928,
+    "height": 1072,
+    "mae": 25.345346658822073,
+    "rmse": 36.40680434891148,
+    "psnr_db": 16.907152410962773,
+    "ssim": 0.47219062663552824,
+    "histogram_correlation": 0.9776486406148299,
+    "max_abs": 226
+  },
+  "registration": {
+    "scale_only_ransac_all": {
+      "scale": 1.0090204539509484,
+      "dx": 0.0,
+      "dy": 0.0,
+      "rmse": 2.16976098543537,
+      "inliers": 92,
+      "matches": 672,
+      "inlier_ratio": 0.13690476190476192,
+      "inlier_rmse": 2.16976098543537
+    },
+    "scale_only_ransac_architecture": {
+      "scale": 1.009028438526479,
+      "dx": 0.0,
+      "dy": 0.0,
+      "rmse": 2.184477843670307,
+      "inliers": 98,
+      "matches": 668,
+      "inlier_ratio": 0.1467065868263473,
+      "inlier_rmse": 2.184477843670307
+    },
+    "scale_only_refined": {
+      "scale": 1.001028438526479,
+      "dx": 0.0,
+      "dy": 0.0,
+      "masked_mae": 25.761215209960938
+    },
+    "scale_trans_ransac_all": {
+      "scale": 0.9649885650420854,
+      "dx": 32.62469098459189,
+      "dy": 27.18663415120841,
+      "rmse": 1.6867213692500496,
+      "inliers": 367,
+      "matches": 672,
+      "inlier_ratio": 0.5461309523809523,
+      "inlier_rmse": 1.6867213692500496
+    },
+    "scale_trans_ransac_architecture": {
+      "scale": 0.9640497062021633,
+      "dx": 33.72957017781414,
+      "dy": 27.77682478803797,
+      "rmse": 1.7511672921526888,
+      "inliers": 399,
+      "matches": 668,
+      "inlier_ratio": 0.5973053892215568,
+      "inlier_rmse": 1.7511672921526888
+    },
+    "scale_trans_refined": {
+      "scale": 0.9540497062021633,
+      "dx": 41.72957017781414,
+      "dy": 33.77682478803797,
+      "masked_mae": 18.318105697631836
+    },
+    "dx_pct_width": 2.16439679345509,
+    "dy_pct_height": 3.150823207839363,
+    "center_based": {
+      "ransac_architecture": {
+        "scale": 0.9640497062021633,
+        "dx_c": -0.9265130433003961,
+        "dy_c": 8.507467312397523
+      },
+      "refined": {
+        "scale": 0.9540497062021633,
+        "dx_c": -2.5665130433004038,
+        "dy_c": 9.14746731239752
+      },
+      "literal241": {
+        "scale": 0.9620183531507925,
+        "dx_c": -1.037474699464049,
+        "dy_c": 7.955133936822076
+      },
+      "note": "origin-based dx/dy are mostly pivot compensation. Center-based residual is the true shift."
+    }
+  },
+  "aligned": {
+    "scale_only": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 25.316451811223963,
+      "rmse": 36.39628910529034,
+      "psnr_db": 16.909661486935022,
+      "ssim": 0.4746419543799083,
+      "histogram_correlation": 0.9173813517295045,
+      "max_abs": 221
+    },
+    "scale_trans": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 23.155409254299045,
+      "rmse": 35.6332406313503,
+      "psnr_db": 17.09369719572302,
+      "ssim": 0.50855535699218,
+      "histogram_correlation": 0.4453549010344389,
+      "max_abs": 255
+    },
+    "scale_only_about_center_using_joint_scale": {
+      "mae": 25.02851342354617,
+      "psnr_db": 16.73429354045638,
+      "ssim": 0.44940884714657897,
+      "scale": 0.9640497062021633
+    }
+  },
+  "c_prime_reference": {
+    "note": "Camotion still, resized 1376x768 -> 1928x1072. Not the movie seam.",
+    "ce_vs_Cprime": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 25.556085947337998,
+      "rmse": 36.75775065681114,
+      "psnr_db": 16.823825059959976,
+      "ssim": 0.4561138214492762,
+      "histogram_correlation": 0.8191056161896837,
+      "max_abs": 229
+    },
+    "cs_vs_Cprime": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 4.412068611816436,
+      "rmse": 6.451000801272579,
+      "psnr_db": 31.93826169193208,
+      "ssim": 0.9051702363763864,
+      "histogram_correlation": 0.8408815590898774,
+      "max_abs": 96
+    },
+    "literal241_vs_Cs": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 3.3295592512024936,
+      "rmse": 5.158764581449975,
+      "psnr_db": 33.87988941992798,
+      "ssim": 0.9173183996794694,
+      "histogram_correlation": 0.9987437698242285,
+      "max_abs": 75
+    },
+    "ce_vs_literal241": {
+      "width": 1928,
+      "height": 1072,
+      "mae": 25.30337501419252,
+      "rmse": 36.418333181915166,
+      "psnr_db": 16.904402311880023,
+      "ssim": 0.4661263280536969,
+      "histogram_correlation": 0.9815763790276876,
+      "max_abs": 226
+    }
+  },
+  "discarded_incoming_trajectory": [
+    {
+      "index": 238,
+      "t": 9.916666666666666,
+      "vs_ce": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "psnr_db": 99.0,
+        "ssim": 1.0,
+        "histogram_correlation": 1.0,
+        "max_abs": 0
+      },
+      "registration": {
+        "scale": 1.0,
+        "dx": 0.0,
+        "dy": 0.0,
+        "inliers": null
+      }
+    },
+    {
+      "index": 239,
+      "t": 9.958333333333334,
+      "vs_ce": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 16.39650699433331,
+        "rmse": 25.224789142268115,
+        "psnr_db": 20.094252716828915,
+        "ssim": 0.5549252036389629,
+        "histogram_correlation": 0.9903894189541801,
+        "max_abs": 198
+      },
+      "registration": {
+        "scale": 0.9843958287819732,
+        "dx": 14.513541360391969,
+        "dy": 11.110158962781156,
+        "inliers": 1542,
+        "matches": 2098,
+        "inlier_ratio": 0.7349857006673022,
+        "inlier_rmse": 1.2145544214402284
+      }
+    },
+    {
+      "index": 240,
+      "t": 10.0,
+      "vs_ce": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 21.273553459362937,
+        "rmse": 31.489804483437357,
+        "psnr_db": 18.167404325467363,
+        "ssim": 0.4936974098457103,
+        "histogram_correlation": 0.982782318805965,
+        "max_abs": 215
+      },
+      "registration": {
+        "scale": 0.976029636733671,
+        "dx": 22.4038285515511,
+        "dy": 17.851978691176782,
+        "inliers": 1247,
+        "matches": 1669,
+        "inlier_ratio": 0.7471539844218095,
+        "inlier_rmse": 1.3496674640195627
+      }
+    },
+    {
+      "index": 241,
+      "t": 10.041666666666666,
+      "vs_ce": {
+        "width": 1928,
+        "height": 1072,
+        "mae": 25.30337501419252,
+        "rmse": 36.418333181915166,
+        "psnr_db": 16.904402311880023,
+        "ssim": 0.4661263280536969,
+        "histogram_correlation": 0.9815763790276876,
+        "max_abs": 226
+      },
+      "registration": {
+        "scale": 0.9620183531507925,
+        "dx": 35.576832863171944,
+        "dy": 28.313296647997277,
+        "inliers": 499,
+        "matches": 815,
+        "inlier_ratio": 0.6122699386503068,
+        "inlier_rmse": 1.6912364388075296
+      }
+    }
+  ],
+  "phase5_justified": false,
+  "decay_rendered": false,
+  "decay": {},
+  "sources": {
+    "bc": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C.mp4",
+    "cd": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/C-D.mp4",
+    "bc_to_star": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/B-C-to-star.mp4",
+    "cd_to_star": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/C-D-to-star.mp4",
+    "ce_star": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/B-C/Ce_star.png",
+    "cs_rendered": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/generated/C-D/first.png",
+    "c_prime": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/stills/C-prime.png",
+    "motion_csv": "/Users/ddegeest/Source/tunnelvision/docs/experiments/2026-09-22-smart-prelock-trim/TheLongWayDown/curves/B-C/motion.csv"
+  }
+}
