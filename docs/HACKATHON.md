@@ -35,6 +35,11 @@ Related current-code docs (do not treat them as optional):
     Adaptive Pace OFF · journeyPace slow · +1 ON).
 -   [Pre-hack code freeze audit](hackathon/PRE-HACK-CODE-FREEZE-AUDIT.md)
     — 23 September 2026 read-only plan vs code audit.
+-   [Seedance 2.5 Draft → Final contingency](HACKATHON_DRAFT_FINAL_PLAN.md)
+    — 24 September 2026. Runway-app observation only. Overrides the
+    priority board below **only if** that file’s implementation gate
+    passes. Until then this file remains the plan. Do not implement
+    from the contingency during the freeze.
 
 Public Runway Dev documentation (source of truth for the API;
 reopen on event day):
@@ -827,6 +832,13 @@ PROMPT → SEND → HANDS OFF → WATCH AGENTS WORK → PLAY FILM
 ```
 
 ### Implementation priority (one hackathon day)
+
+The list below is the plan. A contingent replacement — Seedance 2.5
+Draft as the creative take, CM review of that take, Final only for
+accepted Drafts, Discover demoted to stretch — lives in
+[HACKATHON_DRAFT_FINAL_PLAN.md](HACKATHON_DRAFT_FINAL_PLAN.md). It
+applies only after that document’s gate passes. It is not in effect
+now.
 
 1.  Validate fully unattended end-to-end orchestration (P0).
 2.  CM chooses OG vs Pull Forward per traversal (P0).
