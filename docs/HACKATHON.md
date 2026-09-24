@@ -156,6 +156,53 @@ Hackathon-day work must build **on top of** this baseline rather
 than rewriting it. Continuous Camotion velocity / entry–exit pace
 is **post-hack research** — see BACKLOG.md — not event-day work.
 
+### Hack-day cinematographic model roles (post-freeze research)
+
+Manual experiments inside Runway (not TunnelVision-integrated
+tests) after the 23 September 2026 freeze. Treat as a **hack-day
+hypothesis**, not a proven ranking. Do **not** replace the frozen
+Kling Derive baseline because other Runway-hosted models exist.
+Do **not** implement Model Router before its value is demonstrated.
+
+**Principle:** TunnelVision should not assume one universally
+“best” video model. Different models may have different
+**cinematographic roles**.
+
+| Role | Candidate | Use |
+| --- | --- | --- |
+| **Precision / Derive** | Kling 2.5 Turbo Pro (`kling-v2.5-turbo-pro`), balanced | Frozen MemoryLane baseline. Constrained A→B with A′/B′. Do not replace merely for catalog variety. |
+| **Fast / economical** | Seedance Fast or Mini | Lightweight latency / iteration evaluation **if** useful. Do not spend morning benchmarking a large catalog. |
+| **Exploration / Discover** | Runway Gen-4.5 (`gen4.5`) | First Discover experiment: A + semantic spatial objective → invent unseen geometry → late-frame harvest → pristine B. |
+
+**Gen-4 Turbo (manual):** A TunnelVision-style multi-stage spatial
+route (curve left → walkway → porch → entrance → invented hallway)
+did **not** reliably execute sequential spatial obligations.
+**Not currently a priority for Directed / Derive.** This is
+suitability for the current spatial-traversal contract, not a
+general quality judgment.
+
+**Gen-4.5 (manual):** From a supplied exterior still, Gen-4.5
+followed the semantic route and **invented** unseen destination
+geometry (e.g. a brightly colored hallway absent from the start
+image). Promising specifically for **semantically directed
+Discover** — not as a replacement for start/end-keyframe Derive.
+Unseen-geometry invention is **not** unique to Gen-4.5 (prior
+Kling O3 Pro work also invented transitional geometry such as
+doorways). The Gen-4.5 claim is narrower: candidate for
+A + semantic route → invented space → harvested B.
+
+Do **not** claim Gen-4.5 is objectively better than Gen-4 Turbo or
+Kling, that Discover is guaranteed, that Seedance Fast/Mini is
+validated, or that Router is required.
+
+Hackathon morning still begins with **validate the frozen Derive
+baseline** (Kling balanced · Adaptive Durations ON · Adaptive Pace
+OFF · Pull Forward ON · +1 ON). No code unless a reproducible P0
+regression appears. Model experimentation must **not** derail P0.
+After P0: Continue Journey; Discover with Gen-4.5 as the first
+exploration candidate; Seedance Fast/Mini only if useful; Router
+only if demonstrated useful. Full Discover experiment: §17.
+
 ### Priority board (lock this for event day)
 
 | Status | Item |
@@ -176,7 +223,7 @@ is **post-hack research** — see BACKLOG.md — not event-day work.
 | **P0 HACK** | CM chooses OG vs Pull Forward **per traversal** |
 | **P0 HACK** | Failure-driven technique switching (OG → PF after diagnosis) |
 | **P1 HACK** | Continue Journey (`Director.intent()` NEW \| CONTINUE) |
-| **P1 HACK** | Discover with ≥720p late-frame canonical harvesting (not a UI mode) |
+| **P1 HACK** | Discover with ≥720p late-frame harvest; **Gen-4.5** first exploration candidate (not a UI mode) |
 | **P1 HACK** | Runway model selection / routing **if** it shows useful intelligence |
 | **P2 OPTIONAL** | Automatic color continuity / finishing |
 | **STRETCH** | GWM / Worlds (do not jeopardize the working journey) |
@@ -758,13 +805,16 @@ PROMPT → SEND → HANDS OFF → WATCH AGENTS WORK → PLAY FILM
 2.  CM chooses OG vs Pull Forward per traversal (P0).
 3.  Failure-driven technique switching (P0).
 4.  Continue Journey via `Director.intent()` (P1).
-5.  Discover ≥720p late-frame harvesting if P0 is healthy (P1).
-6.  Runway Model Router **only if** it shows useful intelligence
-    (P1).
-7.  Color continuity only after the above (P2).
+5.  Discover ≥720p late-frame harvesting if P0 is healthy (P1);
+    Gen-4.5 first exploration candidate — §17.
+6.  Seedance Fast / Mini evaluation **only if** useful (P1-late).
+7.  Runway Model Router **only if** it shows useful intelligence
+    (P1-late / optional).
+8.  Color continuity only after the above (P2).
 
 Do **not** spend the day on Agent chrome, Session browsing, or
-chained-video export.
+chained-video export. Do **not** let model catalog benchmarking
+displace P0.
 
 ---
 
@@ -849,7 +899,7 @@ genesis/      Research site (not the hackathon app)
 | Adaptive Pace | **Exists (pre-hack).** Project `adaptivePace` default ON (per-segment CM pace). OFF → one CM journey-pace call, persist `journeyPace` + story fingerprint, invalidate mismatched motion plans. No project Slow/Normal/Fast selector. MemoryLane baseline freezes demo at OFF / journeyPace chosen by CM. |
 | Adaptive Durations | **Exists.** Project `durationMode` adaptive \| fixed. Adaptive uses CM desired duration then model mapping. |
 | Gated +1 seam trim | **Exists (pre-hack).** Drop outgoing frame 0 when Be≈Bs (SSIM ≥ 0.89 and MAE ≤ 5). Measured on selected Takes; applied at export concat. Thresholds frozen. |
-| DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. **P1** if P0 is healthy: ≥720p A→? generation, latest-usable late-frame harvest, lossless PNG extract, then promote to pristine B. Do not expose a UI mode. Full spec: §17. |
+| DISCOVER | **Does not exist.** `Project.construction` includes `"discovery"` but it is unwired. **P1** if P0 is healthy: ≥720p A→? generation, latest-usable late-frame harvest, lossless PNG extract, then promote to pristine B. First exploration candidate: **Gen-4.5** (manual post-freeze research — see hack-day model roles). Do not expose a UI mode. Full spec: §17. |
 | Destination-aware Camotion field | **Backlog.** Product already applies adaptive weights: pace × depth × dest protect × VP protect on the frozen radial field. Do not retune. |
 | Durable project persistence | **Exists.** Directory format under the app Projects Folder. Same `Project` for Director, Shoot, and Agent. Opening a Project does **not** reconstruct Agent Session history. |
 
@@ -2059,10 +2109,35 @@ canonical or traversal generation.
 **P1 if P0 is healthy. Not a UI mode. Not required for Definition
 of Done.** Continue Journey stays ahead of or alongside Discover
 (lower complexity, high demo value). Do **not** promote Discover
-to P0.
+to P0. Do **not** start DISCOVER until P0 is green.
 
-Discover differs fundamentally from DERIVE. There is **no**
-predetermined pristine canonical B.
+### 17.0 Derive vs Discover (do not confuse them)
+
+``` text
+DERIVE (precision / constrained arrival)
+  Director knows intended B
+    → pristine A + pristine B
+    → Camotion A′ / B′
+    → constrained A→B traversal
+
+DISCOVER (exploration / semantically directed)
+  Director knows desired DIRECTION / SEMANTIC PROGRESSION
+  but not exact visual B
+    → A
+    → model explores / invents
+    → generated traversal (≥720p)
+    → late-frame harvesting
+    → discovered pristine B
+```
+
+The two modes intentionally give the video model different amounts
+of creative freedom. Discover is **not** “wander randomly and
+harvest whatever appears.” A stronger formulation is
+**semantically directed discovery**: the Director specifies the
+desired spatial progression or kind of destination, but does **not**
+predetermine canonical B visually. The video model may invent the
+unseen geometry required to satisfy that progression. TunnelVision
+turns the discovered result back into canonical state.
 
 ``` text
 DERIVE
@@ -2073,12 +2148,13 @@ DERIVE
 
 DISCOVER
   pristine canonical A
+    → semantic spatial objective (not a predetermined visual B)
     → generate A→? into the unknown  (≥720p)
     → inspect the traversal's ending region
     → select the latest usable discovered frame
     → extract that exact source frame losslessly
     → promote / enhance → pristine canonical B
-    → inspect B / decide next exploratory intent
+    → Director inspects B / chooses next semantic objective
     → generate B→?
     → harvest pristine C
     → repeat for the planned journey extent
@@ -2096,11 +2172,52 @@ same Agent UI and Project model support both. A exists before
 Director plans from A; each newly harvested canonical becomes
 grounding truth for the next exploratory decision.
 
-Do **not** start DISCOVER until P0 is green. Do not enter the
-Derive CM reshoot loop merely because a discovered B differs from
-a planned B. Emergence is the point.
+Do not enter the Derive CM reshoot loop merely because a discovered
+B differs from a planned B. Emergence is the point.
 
 Agency (Director vs Agent) stays orthogonal to DERIVE vs DISCOVER.
+
+### 17.0a First hack-day Discover experiment (Gen-4.5)
+
+Post-freeze **manual** Runway experiments (not TunnelVision
+provider tests) made Gen-4.5 the **first exploration candidate**.
+Hypothesis only — not a proven model ranking. Unseen-geometry
+invention is not claimed unique to Gen-4.5. See
+[hack-day cinematographic model roles](#hack-day-cinematographic-model-roles-post-freeze-research).
+
+After P0 is healthy, using the **frozen** TunnelVision
+infrastructure:
+
+1.  Start from canonical A.
+2.  Give Gen-4.5 a concise **semantic spatial objective** (desired
+    progression / kind of destination — not a predetermined
+    visual B).
+3.  Generate a traversal **without** predetermined canonical B.
+4.  Require ≥720p (or better if available) for harvest quality.
+5.  Inspect the **late** portion of the traversal.
+6.  Prefer the **LATEST USABLE** frame, not the prettiest frame.
+7.  CM selects the late-frame candidate.
+8.  Extract the exact source frame losslessly as PNG.
+9.  Enhance / upscale **only after** selection.
+10. Promote to pristine canonical B.
+11. Director inspects the actual discovered B.
+12. Director chooses the next semantic spatial objective.
+13. Repeat: A → discovered B → discovered C → …
+
+Success criteria:
+
+-   continuous physical travel
+-   meaningful new space revealed
+-   useful unseen geometry invented where needed
+-   harvested canonical is coherent / stable
+-   next generation can continue naturally from harvested B
+-   repeated recursion does not rapidly degrade image quality
+
+Do **not** spend hackathon morning proving Gen-4.5 vs Gen-4 Turbo
+or vs Kling. Validate frozen Derive first. Gen-4 Turbo is **not**
+currently a priority for Directed / Derive (manual: weak sequential
+spatial obligation following). Seedance Fast / Mini remain optional
+fast-role candidates only if useful.
 
 ### 17.1 Quality floor
 
@@ -2253,16 +2370,21 @@ provenance.
 
 ### 17.6 Open before attempting Discover
 
-Answer these on event day only if P0 is green:
+Answer these on event day only if P0 is green. Prefer the
+[first Gen-4.5 experiment](#170a-first-hack-day-discover-experiment-gen-45)
+before wide model shopping.
 
 1.  First Discover shot: generate from pristine A alone (no B′),
     or still require some end condition / Camotion pair?
+    (Gen-4.5 hypothesis assumes A + semantic objective, no
+    predetermined visual B.)
 2.  How OG vs Pull Forward applies when there is no predetermined
     B (Pull Forward is destination-seeking).
 3.  Which established enhance / upscale path, if any, is used for
     `B-source.png` → `B.png`.
 4.  Whether Director still writes a destination **count** only, or
-    a loose arc of intents that harvest overwrites.
+    a loose arc of **semantic spatial objectives** that harvest
+    overwrites.
 
 ---
 
@@ -2381,7 +2503,8 @@ Concentrate that day on:
 2.  CM OG vs Pull Forward per traversal (P0)
 3.  failure-driven technique switching (P0)
 4.  Continue Journey via `Director.intent()` (P1)
-5.  Discover ≥720p late-frame harvesting if P0 is healthy (P1)
+5.  Discover ≥720p late-frame harvesting if P0 is healthy (P1);
+    Gen-4.5 first exploration candidate — §17
 6.  Runway Model Router **only if** it shows useful intelligence
 7.  credentials / newly announced models if they help the demo
 
@@ -2477,10 +2600,15 @@ autonomous cinematographer adapting technique.
 -   Continue Journey: `Director.intent()` → NEW | CONTINUE;
     inherit the previous completed Project's actual final
     canonical as the new Project's A; write `continuedFrom`.
--   Discover ≥720p late-frame harvesting if time remains.
+-   Discover ≥720p late-frame harvesting if time remains —
+    **Gen-4.5** first exploration candidate (§17.0a). Do not
+    replace frozen Kling Derive. Do not benchmark Gen-4 Turbo
+    for Derive.
+-   Seedance Fast / Mini only if a fast role is actually useful.
 
 If P0 is not green, keep fixing P0. Do not start Continue Journey
-on a broken unattended loop.
+or Discover. Model experimentation must not derail P0 on a broken
+unattended loop.
 
 ### 4:30–5:15 — Demo polish
 
@@ -2756,7 +2884,7 @@ conversation.
 
 **Only after P0 (and preferably Continue Journey):**
 
-1.  Discover ≥720p late-frame harvesting
+1.  Discover ≥720p late-frame harvesting (Gen-4.5 first candidate)
 2.  Runway Model Router if it shows useful intelligence
 3.  a compelling new Runway capability
 4.  color continuity (P2)

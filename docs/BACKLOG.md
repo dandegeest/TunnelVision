@@ -1222,9 +1222,18 @@ Do not spend event-day time on it until unattended Derive and CM
 OG vs Pull Forward already work. Canonical harvest spec:
 [HACKATHON.md](HACKATHON.md) §17.
 
+**Hack-day first experiment (hypothesis):** Runway Gen-4.5 as the
+exploration engine for **semantically directed discovery** —
+A + semantic spatial objective → invent unseen geometry →
+late-frame harvest → pristine B. Manual post-freeze Runway
+experiments only; not a proven ranking. Do not replace frozen
+Kling Derive with Gen-4.5. See
+[HACKATHON.md — hack-day cinematographic model roles](HACKATHON.md#hack-day-cinematographic-model-roles-post-freeze-research).
+
 **Goal.** Create the next pristine canonical from what actually
 emerges in generated traversal footage — not from a predetermined
-constructed B.
+constructed B. Director may still specify the **kind of
+progression** without locking visual B.
 
 **Why it matters.** DERIVE follows the Director’s intended
 destination. DISCOVER lets the journey evolve from the world the
@@ -1242,12 +1251,13 @@ DERIVE
 
 DISCOVER
   pristine A
+    → semantic spatial objective (not predetermined visual B)
     → generate A→? into the unknown  (≥720p)
     → inspect the ending region
     → latest usable late frame
     → lossless extract (PNG)
     → promote / enhance → pristine B
-    → inspect B / decide next exploratory intent
+    → Director inspects B / next semantic objective
     → generate B→?
     → harvest C
     → repeat for the planned journey extent
@@ -1258,7 +1268,7 @@ Do not search the whole clip for the prettiest frame. Prefer the
 literal final frame unless an earlier late-frame candidate is
 materially more usable.
 
-First experiment: one late-frame contact sheet + one CM
+First experiment: Gen-4.5 + one late-frame contact sheet + one CM
 evaluation (not N LLM calls). Then FFmpeg (or equivalent)
 extracts the exact selected frame to `B-source.png` with no
 resize / JPEG. A separate promote / enhance step produces
@@ -1268,7 +1278,9 @@ selected frame.
 
 Discover prompts may stay looser; do not force Derive-style
 Destination specification onto Discover. See
-[PROMPT_COACH.md](PROMPT_COACH.md).
+[PROMPT_COACH.md](PROMPT_COACH.md). A concise **semantic spatial
+objective** is still useful — that is directed discovery, not a
+predetermined still.
 
 Director still owns journey **extent** (planned destination
 count). JourneyAgent completes when that extent is processed and
