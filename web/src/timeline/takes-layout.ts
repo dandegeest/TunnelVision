@@ -79,9 +79,10 @@ export function journeyLaneHeight(
   let height = JOURNEY_LANE_MIN_HEIGHT;
   for (const journey of journeys) {
     const shooting = shootingJourneyIds.includes(journey.id) || journey.status === "shooting";
+    const pending = shooting || Boolean(journey.shootError);
     height = Math.max(
       height,
-      journeyLaneStackHeight(journeyTakes(journey).length, showNewTakeControl(selection, journey, shooting), shooting),
+      journeyLaneStackHeight(journeyTakes(journey).length, showNewTakeControl(selection, journey, shooting), pending),
     );
   }
   return height;

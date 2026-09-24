@@ -18,6 +18,7 @@ import { canUploadStoryboardFrame } from "../project/starting-frame";
 import { formatFriendlyAspectRatio } from "../project/media-preflight";
 import type { Project, StoryboardFrame } from "../project/types";
 import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
+import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 import { CamotionDiagnosticPanel, CamotionEmptyState, CamotionSourceSwitch } from "./CamotionDiagnostic";
 import { InspectorCopyDisclosure, InspectorPaneNav } from "./InspectorPanes";
@@ -54,8 +55,11 @@ export function DestinationPlanFields({
 
   return (
     <>
-      <label className="block">
-        <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="min-w-0 flex-1 text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Intent</span>
+          <CopyToClipboardButton text={intent} label={`Copy destination ${frame.label} intent`} />
+        </div>
         <ClickToEditTextarea
           aria-label={`Destination ${frame.label} intent`}
           rows={3}
@@ -64,11 +68,17 @@ export function DestinationPlanFields({
           className={fieldClass}
           onChange={onPlanChange ? (next) => onPlanChange({ intent: next }) : undefined}
         />
-      </label>
-      <label className="block">
-        <span className="block text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
-          {opening ? "Story" : "Beat"}
-        </span>
+      </div>
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="min-w-0 flex-1 text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+            {opening ? "Story" : "Beat"}
+          </span>
+          <CopyToClipboardButton
+            text={source}
+            label={opening ? `Copy destination ${frame.label} story` : `Copy destination ${frame.label} beat`}
+          />
+        </div>
         <ClickToEditTextarea
           aria-label={opening ? `Destination ${frame.label} story` : `Destination ${frame.label} beat`}
           rows={3}
@@ -83,7 +93,7 @@ export function DestinationPlanFields({
                 : undefined
           }
         />
-      </label>
+      </div>
     </>
   );
 }

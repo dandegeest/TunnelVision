@@ -314,6 +314,8 @@ export type StoryboardFrame = {
   takes?: CanonicalTake[];
   /** Which still Plan / Shoot / generation use. Defaults to the newest. */
   selectedTakeId?: string;
+  /** Last generate or reshoot failure for this still. Cleared when a new still lands. */
+  constructionError?: string;
 };
 
 /** Be ≈ Bs lock for the selected pair. First traversal never has this. */
@@ -384,6 +386,8 @@ export type JourneyShot = {
    */
   take?: JourneyShotTake;
   shootError?: string;
+  /** Intent of the take that failed. Retry uses this so the setting does not change. */
+  failedShootIntent?: GenerationIntent;
 };
 
 /** AUTO lets the Director choose N destinations. A number is an exact storyboard length. */
@@ -393,6 +397,11 @@ export type Project = {
   id: string;
   title: string;
   story: string;
+  /**
+   * Raw human creative brief. Absent on legacy projects.
+   * `story` remains the Production Prompt the rest of the pipeline consumes.
+   */
+  storyIdea?: string;
   agency: Agency;
   construction: Construction;
   /** AUTO, or an exact destination count. After the first Director plan this follows the storyboard. */

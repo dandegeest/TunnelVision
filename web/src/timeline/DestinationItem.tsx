@@ -24,6 +24,8 @@ export function DestinationItem({
   selected,
   continuity,
   generating = false,
+  constructionError,
+  onRetry,
   onSelect,
 }: {
   occurrence: LaidOutOccurrence;
@@ -31,13 +33,16 @@ export function DestinationItem({
   selected: boolean;
   continuity?: BoundaryContinuity;
   generating?: boolean;
+  constructionError?: string;
+  onRetry?: () => void;
   onSelect: () => void;
 }) {
   const image = destination?.image ?? occurrence.image;
   const fpo = Boolean(occurrence.fpo) || !image;
   const label = destination?.label ?? occurrence.label;
   const loopReturn = occurrence.destinationId === "A" && occurrence.occurrenceIndex > 0;
-  const ring = occurrence.arrivalBlocked
+  const failed = Boolean(constructionError) && !generating;
+  const ring = failed || occurrence.arrivalBlocked
     ? "ring-2 ring-[#c45c38]"
     : selected
       ? "ring-2 ring-[#ece7df]"
@@ -50,14 +55,17 @@ export function DestinationItem({
   ].filter(Boolean);
 
   return (
-    <button
-      type="button"
-      className="group absolute top-0 -translate-x-1/2 text-left outline-none"
+    <div
+      className="group absolute top-0 -translate-x-1/2 text-left"
       style={{ left: occurrence.xCenter, width: DESTINATION_THUMB_PX }}
-      onClick={onSelect}
-      aria-label={ariaBits.join(", ")}
-      aria-busy={generating || undefined}
     >
+      <button
+        type="button"
+        className="block w-full text-left outline-none"
+        onClick={onSelect}
+        aria-label={ariaBits.join(", ")}
+        aria-busy={generating || undefined}
+      >
       <span className="mb-1 flex h-5 items-baseline justify-center gap-1 border-b border-[#3a342c]">
         <span
           className={`truncate text-center text-[11px] tracking-[0.2em] text-[#ece7df]${
@@ -83,6 +91,9 @@ export function DestinationItem({
         {generating ? (
           <span className="storyboard-generating pointer-events-none absolute inset-0 overflow-hidden rounded" aria-hidden />
         ) : null}
+        {failed ? (
+          <span className="pointer-events-none absolute inset-0 rounded bg-[#2a1610]/72" aria-hidden />
+        ) : null}
         {continuity && matchLabel ? (
           <span
             className={`pointer-events-none absolute inset-x-0 bottom-0 rounded-b bg-[#0c0b0a]/75 px-1 py-0.5 text-center text-[8px] tracking-[0.12em] uppercase ${seamTone(continuity)}`}
@@ -92,6 +103,22 @@ export function DestinationItem({
           </span>
         ) : null}
       </span>
-    </button>
+      </button>
+      {failed && onRetry ? (
+        <button
+          type="button"
+          className="absolute bottom-1 left-1/2 z-[2] -translate-x-1/2 rounded border border-[#f0c2a8] bg-[#2a1610] px-1.5 py-0.5 text-[9px] tracking-[0.14em] text-[#f0c2a8] uppercase outline-none hover:bg-[#3a2018] focus-visible:ring-1 focus-visible:ring-[#f0c2a8]"
+          aria-label={`Retry destination ${occurrence.destinationId}`}
+          title={constructionError}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onRetry();
+          }}
+        >
+          Retry
+        </button>
+      ) : null}
+    </div>
   );
 }

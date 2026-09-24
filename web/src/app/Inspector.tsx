@@ -11,6 +11,7 @@ import { canAssessJourney, cinematographerScoreTone, locomotionPaceLabel } from 
 import { effectiveJourneyPace } from "../project/journey-overrides";
 import { LOCOMOTION_PACES, type LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { OptionMenu } from "../ui/OptionMenu";
+import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
 import { canReshootDestinationFrame } from "../project/destination";
 import { defaultTakeIntentFromProject, takeIntentTooltip, type GenerationIntent } from "../project/generation-intent";
 import { canShootJourney } from "../project/shoot";
@@ -820,7 +821,10 @@ function TakeInspector({
       {intentLabel ? <InspectorMeta label="Generation" value={intentLabel} /> : null}
       {effectivePrompt ? (
         <details>
-          <summary className="cursor-pointer text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">Prompt</summary>
+          <summary className="flex cursor-pointer items-center gap-2 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">
+            <span className="min-w-0 flex-1">Prompt</span>
+            <CopyToClipboardButton text={effectivePrompt} label="Copy prompt" />
+          </summary>
           <ShootingPromptText
             className="mt-2"
             effectivePrompt={effectivePrompt}

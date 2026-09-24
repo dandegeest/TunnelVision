@@ -167,7 +167,7 @@ export function projectWithJourneyShooting(project: Project, journeyId: string):
     ...project,
     journeys: project.journeys.map((journey) =>
       journey.id === journeyId
-        ? { ...journey, status: "shooting", shootError: undefined }
+        ? { ...journey, status: "shooting", shootError: undefined, failedShootIntent: undefined }
         : journey,
     ),
   };
@@ -220,6 +220,7 @@ export function projectWithJourneyShotFailed(
   project: Project,
   journeyId: string,
   error: string,
+  intent?: GenerationIntent,
 ): Project {
   if (!project.journeys.some((journey) => journey.id === journeyId)) {
     throw new Error("Unknown journey");
@@ -230,10 +231,15 @@ export function projectWithJourneyShotFailed(
       if (journey.id !== journeyId) {
         return journey;
       }
+      const failed = {
+        ...journey,
+        shootError: error,
+        ...(intent ? { failedShootIntent: intent } : {}),
+      };
       if (journeyTakes(journey).length > 0) {
-        return { ...journey, status: "rendered", shootError: error };
+        return { ...failed, status: "rendered" as const };
       }
-      return { ...journey, status: "failed", shootError: error };
+      return { ...failed, status: "failed" as const };
     }),
   };
 }

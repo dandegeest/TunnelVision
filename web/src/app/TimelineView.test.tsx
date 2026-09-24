@@ -803,6 +803,60 @@ describe("Shoot from a real planned project", () => {
     expect(html).not.toContain("+ NEW TAKE");
     expect(html).toContain("storyboard-generating");
   });
+
+  it("shows a failed take on the same bar and swaps it for the generating bar while retrying", () => {
+    const forest = createForestProject();
+    const failedProject = {
+      ...forest,
+      journeys: forest.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              status: "failed" as const,
+              shootError: "provider down",
+              failedShootIntent: "quality" as const,
+              videoUrl: undefined,
+              take: undefined,
+              takes: undefined,
+              selectedTakeId: undefined,
+            }
+          : journey,
+      ),
+      storyboard: forest.storyboard.map((frame) =>
+        frame.id === "B" ? { ...frame, constructionError: "still failed" } : frame,
+      ),
+    };
+    const failed = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={failedProject}
+        initialView="shoot"
+        initialSelection={{ kind: "journey", journeyId: "A-B", band: "footage" }}
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(failed).toContain('aria-label="Failed take 1 A-B"');
+    expect(failed).toContain('aria-label="Retry take 1 A-B"');
+    expect(failed).toContain("provider down");
+    expect(failed).toContain('aria-label="Retry destination B"');
+    expect(failed).not.toContain('aria-label="Generating take 1 A-B"');
+
+    const retrying = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={failedProject}
+        initialView="shoot"
+        initialSelection={{ kind: "journey", journeyId: "A-B", band: "footage" }}
+        initialShootingJourneyIds={["A-B"]}
+        initialConstructingBeatId="B"
+      >
+        <TimelineView />
+      </ProjectProvider>,
+    );
+    expect(retrying).toContain('aria-label="Generating take 1 A-B"');
+    expect(retrying).toContain("storyboard-generating");
+    expect(retrying).not.toContain('aria-label="Retry take 1 A-B"');
+    expect(retrying).not.toContain('aria-label="Retry destination B"');
+  });
 });
 
 describe("Shoot cut playback", () => {

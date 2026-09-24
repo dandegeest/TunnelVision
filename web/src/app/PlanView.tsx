@@ -219,6 +219,7 @@ export function StoryboardFrameMedia({
   onOpenReel,
   onOpenDetails,
   detailOpen = false,
+  onRetry,
 }: {
   frame: StoryboardFrame;
   selected: boolean;
@@ -233,8 +234,14 @@ export function StoryboardFrameMedia({
   onOpenReel?: () => void;
   onOpenDetails?: () => void;
   detailOpen?: boolean;
+  onRetry?: () => void;
 }) {
-  const frameBorder = selected ? "border-2 border-[#ece7df]" : "border-2 border-[#3a342c]";
+  const failed = Boolean(frame.constructionError) && !constructing;
+  const frameBorder = failed
+    ? "border-2 border-[#c45c38]"
+    : selected
+      ? "border-2 border-[#ece7df]"
+      : "border-2 border-[#3a342c]";
   const provenance = displayProvenanceForFrame(frame);
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
   const showPlanChanged = planChanged && !constructing;
@@ -304,6 +311,13 @@ export function StoryboardFrameMedia({
               showMediaInfo && frame.mediaInfo ? "bottom-6" : "bottom-0 pb-2"
             }`}
           />
+          {constructing ? (
+            <span
+              className="storyboard-generating pointer-events-none absolute inset-0 z-[2]"
+              aria-busy="true"
+              aria-label={`Generating destination ${frame.id}`}
+            />
+          ) : null}
           {showPlanChanged ? (
             <span className="storyboard-plan-changed-flag pointer-events-none">Plan changed</span>
           ) : null}
@@ -360,6 +374,23 @@ export function StoryboardFrameMedia({
           ) : null}
         </span>
       )}
+      {failed && frame.constructionError ? (
+        <span className="absolute inset-0 z-[3] flex items-end justify-center bg-[#2a1610]/72 pb-2">
+          <button
+            type="button"
+            className="rounded border border-[#f0c2a8] bg-[#2a1610] px-2 py-1 text-[10px] tracking-[0.16em] text-[#f0c2a8] uppercase outline-none hover:bg-[#3a2018] focus-visible:ring-1 focus-visible:ring-[#f0c2a8]"
+            aria-label={`Retry destination ${frame.id}`}
+            title={frame.constructionError}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onRetry?.();
+            }}
+          >
+            Retry
+          </button>
+        </span>
+      ) : null}
     </span>
   );
 }
@@ -1081,6 +1112,7 @@ export function PlanView() {
     constructDestination,
     generateOpeningFrame,
     reshootDestination,
+    retryDestination,
     storyboardReelId,
     setStoryboardReelId,
   } = useProject();
@@ -1207,6 +1239,9 @@ export function PlanView() {
                 story={project.story}
                 hasWarning={warnings.length > 0}
                 planChanged={planChanged}
+                onRetry={() => {
+                  void retryDestination(frame.id);
+                }}
                 onSelect={frame.image ? selectStill : selectOrOpenReel}
                 onOpenReel={openReel}
                 onOpenDetails={openReel}

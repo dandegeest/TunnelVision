@@ -80,6 +80,7 @@ import {
   destinationConstructionRequestFromProject,
   destinationRepairRequestFromProject,
   openingFrameGenerationRequestFromProject,
+  projectWithDestinationConstructionError,
   projectWithGeneratedOpeningFrame,
   projectWithRepairedCanonical,
   projectWithImageModel,
@@ -139,6 +140,7 @@ import {
 } from "./journey-agent";
 import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type LocomotionPace, type Project, type Selection, type VideoModelId } from "./types";
 import { cameraGrammarFromProject, cameraGrammarIsLocked, projectWithCameraGrammar } from "./camera-grammar";
+import { compileStoryIdea } from "./story-idea";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 
 function withId(ids: string[], id: string): string[] {
@@ -189,6 +191,8 @@ type ProjectContextValue = {
   syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
   composerDraft: string;
   setComposerDraft: (draft: string) => void;
+  setStoryIdea: (storyIdea: string) => void;
+  writeStoryFromIdea: (idea?: string) => Promise<void>;
   agentComposerDraft: string;
   setAgentComposerDraft: (draft: string) => void;
   agentSession: AgentSession | null;
@@ -210,6 +214,7 @@ type ProjectContextValue = {
   conversation: ConversationEntry[];
   selectedJourney: JourneyShot | null;
   directorStatus: DirectorStatus;
+  screenwriterStatus: "idle" | "writing";
   planStartError: string | null;
   journeyAgent: JourneyAgentSnapshot;
   planWithDirector: () => Promise<void>;
@@ -251,6 +256,7 @@ type ProjectContextValue = {
   generateOpeningFrame: () => Promise<void>;
   setDestinationPlan: (frameId: string, next: { intent?: string; visualDescription?: string }) => void;
   reshootDestination: (frameId: string) => Promise<void>;
+  retryDestination: (frameId: string) => Promise<void>;
   movieExport: MovieExportResult | null;
   exportingMovie: boolean;
   exportMovieError: string | null;
@@ -345,6 +351,7 @@ export function ProjectProvider({
   const [downloadingCut, setDownloadingCut] = useState(false);
   const assembledCutRef = useRef<{ fingerprint: string; result: MovieExportResult } | null>(null);
   const [directorStatus, setDirectorStatus] = useState<DirectorStatus>(initialDirectorStatus);
+  const [screenwriterStatus, setScreenwriterStatus] = useState<"idle" | "writing">("idle");
   const [planStartError, setPlanStartError] = useState<string | null>(null);
   const [journeyAgent, setJourneyAgent] = useState<JourneyAgentSnapshot>(
     () => initialJourneyAgent ?? idleJourneyAgentSnapshot(),
@@ -547,6 +554,19 @@ export function ProjectProvider({
       return;
     }
     const next = projectWithStory(current, draft);
+    projectRef.current = next;
+    setProject(next);
+  }, []);
+
+  const setStoryIdea = useCallback((storyIdea: string) => {
+    setPlanStartError(null);
+    const current = projectRef.current;
+    const next = storyIdea.trim()
+      ? { ...current, storyIdea }
+      : { ...current, storyIdea: undefined };
+    if (next.storyIdea === current.storyIdea) {
+      return;
+    }
     projectRef.current = next;
     setProject(next);
   }, []);
@@ -840,6 +860,9 @@ export function ProjectProvider({
     async (current: Project, beatId: string): Promise<Project> => {
       const entryId = nextConversationId("construction");
       setConstructingBeatId(beatId);
+      if (projectRef.current.storyboard.some((frame) => frame.id === beatId && frame.constructionError)) {
+        applyProject(projectWithDestinationConstructionError(projectRef.current, beatId, undefined));
+      }
       setConversation((entries) =>
         appendConversationEntry(entries, {
           id: entryId,
@@ -876,10 +899,12 @@ export function ProjectProvider({
         if (projectSessionRef.current !== session) {
           return projectRef.current;
         }
+        const message = error instanceof Error ? error.message : "Destination construction failed.";
+        applyProject(projectWithDestinationConstructionError(projectRef.current, beatId, message));
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "failed",
-            error: error instanceof Error ? error.message : "Destination construction failed.",
+            error: message,
           }),
         );
         throw error;
@@ -982,6 +1007,9 @@ export function ProjectProvider({
       const entryId = nextConversationId("construction");
       setConstructingBeatId("A");
       setStartingFrameError(null);
+      if (projectRef.current.storyboard.some((frame) => frame.id === "A" && frame.constructionError)) {
+        applyProject(projectWithDestinationConstructionError(projectRef.current, "A", undefined));
+      }
       setConversation((entries) =>
         appendConversationEntry(entries, {
           id: entryId,
@@ -1019,6 +1047,7 @@ export function ProjectProvider({
         }
         const message = error instanceof Error ? error.message : "Opening frame generation failed.";
         setStartingFrameError(message);
+        applyProject(projectWithDestinationConstructionError(projectRef.current, "A", message));
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "failed",
@@ -1066,6 +1095,26 @@ export function ProjectProvider({
       }
     },
     [constructDestinationOn, generateOpeningOn],
+  );
+
+  const retryDestination = useCallback(
+    async (frameId: string) => {
+      const current = projectRef.current;
+      const frame = current.storyboard.find((item) => item.id === frameId);
+      if (!frame) {
+        return;
+      }
+      if (canReshootDestinationFrame(current, frame)) {
+        await reshootDestination(frameId);
+        return;
+      }
+      if (frameId === "A") {
+        await generateOpeningFrame();
+        return;
+      }
+      await constructDestination(frameId);
+    },
+    [constructDestination, generateOpeningFrame, reshootDestination],
   );
 
   const assessCinematographerOn = useCallback(
@@ -1262,7 +1311,7 @@ export function ProjectProvider({
         }
         const message = error instanceof Error ? error.message : "Shoot failed";
         setShootError(message);
-        const failed = projectWithJourneyShotFailed(projectRef.current, journeyId, message);
+        const failed = projectWithJourneyShotFailed(projectRef.current, journeyId, message, resolvedIntent);
         applyProject(failed);
         setConversation((entries) =>
           resolveShootingEntry(entries, entryId, {
@@ -2203,17 +2252,22 @@ export function ProjectProvider({
   );
 
   const beginAgentJourney = useCallback(
-    async (story: string) => {
+    async (
+      story: string,
+      options?: { storyIdea?: string; cameraGrammar?: Project["cameraGrammar"]; title?: string },
+    ) => {
       const text = story.trim();
       if (!text) {
         return;
       }
       rememberSessionProject(projectRef.current, movieExportRef.current);
-      const title = sanitizeProjectFolderName(titleFromJourneyPrompt(text) || "Untitled");
+      const title = sanitizeProjectFolderName(options?.title || titleFromJourneyPrompt(text) || "Untitled");
       const next = {
         ...createNewProjectFromSession(projectRef.current),
         title,
         story: text,
+        storyIdea: options?.storyIdea?.trim() || undefined,
+        ...(options?.cameraGrammar ? { cameraGrammar: options.cameraGrammar } : {}),
         agency: "autonomous" as const,
       };
       persistedCreatedAtRef.current = undefined;
@@ -2240,7 +2294,12 @@ export function ProjectProvider({
         }
         persistedCreatedAtRef.current = created.createdAt;
         setPersistedProjectPath(created.path);
-        adoptSavedProject({ ...created.project, title: created.project.title, story: text });
+        adoptSavedProject({
+          ...created.project,
+          title: created.project.title,
+          story: text,
+          storyIdea: next.storyIdea,
+        });
         await refreshProjectList();
       } catch (error) {
         setPersistenceError(error instanceof Error ? error.message : "Could not create the project.");
@@ -2248,6 +2307,46 @@ export function ProjectProvider({
     },
     [adoptSavedProject, ensureProjectsFolder, refreshProjectList, rememberSessionProject, replaceProject],
   );
+
+  const writeStoryFromIdea = useCallback(async (ideaInput?: string) => {
+    const idea = (ideaInput ?? projectRef.current.storyIdea ?? "").trim();
+    if (!idea) {
+      setPlanStartError("Enter a story idea.");
+      return;
+    }
+    if ((projectRef.current.storyIdea ?? "").trim() !== idea) {
+      setStoryIdea(idea);
+    }
+    setPlanStartError(null);
+    setScreenwriterStatus("writing");
+    try {
+      const compiled = await compileStoryIdea(idea);
+      const current = projectRef.current;
+      const withIdea = cameraGrammarIsLocked(current)
+        ? { ...current, storyIdea: compiled.storyIdea }
+        : projectWithCameraGrammar({ ...current, storyIdea: compiled.storyIdea }, compiled.cameraGrammar);
+      projectRef.current = withIdea;
+      setProject(withIdea);
+      setComposerDraft(compiled.productionPrompt);
+      const nextTitle = compiled.title ? sanitizeProjectFolderName(compiled.title) : "";
+      if (nextTitle && nextTitle !== projectRef.current.title) {
+        const named = { ...projectRef.current, title: nextTitle };
+        projectRef.current = named;
+        setProject(named);
+        if (persistedProjectPathRef.current) {
+          try {
+            await renameProject(nextTitle);
+          } catch {
+            // renameProject records persistenceError. The new prompt stays.
+          }
+        }
+      }
+    } catch (error) {
+      setPlanStartError(error instanceof Error ? error.message : "Screenwriter failed");
+    } finally {
+      setScreenwriterStatus("idle");
+    }
+  }, [renameProject, setComposerDraft, setStoryIdea]);
 
   const planAgentJourney = useCallback(
     async (story: string) => {
@@ -2260,11 +2359,32 @@ export function ProjectProvider({
         commitAgentSession(existing);
       }
       commitAgentSession(appendUserTurn(agentSessionRef.current ?? existing, text));
+      setPlanStartError(null);
+      setScreenwriterStatus("writing");
+      let compiled: Awaited<ReturnType<typeof compileStoryIdea>>;
+      try {
+        compiled = await compileStoryIdea(text);
+      } catch (error) {
+        setScreenwriterStatus("idle");
+        setPlanStartError(error instanceof Error ? error.message : "Screenwriter failed");
+        return;
+      }
+      setScreenwriterStatus("idle");
       if (projectHasExistingJourney(projectRef.current)) {
-        await beginAgentJourney(text);
+        await beginAgentJourney(compiled.productionPrompt, {
+          storyIdea: compiled.storyIdea,
+          cameraGrammar: compiled.cameraGrammar,
+          title: compiled.title,
+        });
       } else {
-        setComposerDraft(text);
-        const name = titleFromJourneyPrompt(text);
+        const current = projectRef.current;
+        const withIdea = cameraGrammarIsLocked(current)
+          ? { ...current, storyIdea: compiled.storyIdea }
+          : projectWithCameraGrammar({ ...current, storyIdea: compiled.storyIdea }, compiled.cameraGrammar);
+        projectRef.current = withIdea;
+        setProject(withIdea);
+        setComposerDraft(compiled.productionPrompt);
+        const name = compiled.title || titleFromJourneyPrompt(compiled.productionPrompt);
         try {
           if (!persistedProjectPathRef.current) {
             await saveProject(name);
@@ -2456,6 +2576,8 @@ export function ProjectProvider({
       syncJourneyClipDuration,
       composerDraft,
       setComposerDraft,
+      setStoryIdea,
+      writeStoryFromIdea,
       agentComposerDraft,
       setAgentComposerDraft,
       agentSession,
@@ -2477,6 +2599,7 @@ export function ProjectProvider({
       conversation,
       selectedJourney,
       directorStatus,
+      screenwriterStatus,
       planStartError,
       journeyAgent,
       planWithDirector,
@@ -2518,6 +2641,7 @@ export function ProjectProvider({
       generateOpeningFrame,
       setDestinationPlan,
       reshootDestination,
+      retryDestination,
       movieExport,
       exportingMovie,
       exportMovieError,
@@ -2582,6 +2706,7 @@ export function ProjectProvider({
       conversation,
       selectedJourney,
       directorStatus,
+      screenwriterStatus,
       planStartError,
       journeyAgent,
       planWithDirector,
@@ -2623,6 +2748,7 @@ export function ProjectProvider({
       generateOpeningFrame,
       setDestinationPlan,
       reshootDestination,
+      retryDestination,
       movieExport,
       exportingMovie,
       exportMovieError,

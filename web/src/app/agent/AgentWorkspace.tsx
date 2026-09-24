@@ -10,6 +10,7 @@ import { StoryboardReelHost } from "../PlanView";
 import { splitJourneyPrompt } from "../../project/project-name";
 import { journeyCreationLabel, resolveReferenced, sessionCardsFromTurns } from "../../project/session";
 import { AgentCollapsedStrip, AgentJourneyPath } from "./AgentJourneyPath";
+import { CopyToClipboardButton } from "../../ui/CopyToClipboardButton";
 import {
   agentGeneratingLabel,
   beatText,
@@ -125,6 +126,7 @@ export function AgentWorkspace() {
     shootingJourneyIds,
     journeyAgent,
     directorStatus,
+    screenwriterStatus,
   } = useProject();
   const [openIds, setOpenIds] = useState(() => new Set<string>());
   const [promptOpen, setPromptOpen] = useState<Record<string, boolean>>({});
@@ -134,6 +136,7 @@ export function AgentWorkspace() {
   const agentBusy = journeyAgentIsBusy(journeyAgent);
   const busy =
     directorStatus === "planning" ||
+    screenwriterStatus === "writing" ||
     agentBusy ||
     Boolean(constructingBeatId) ||
     assessingJourneyIds.length > 0 ||
@@ -144,6 +147,7 @@ export function AgentWorkspace() {
     assessingJourneyIds,
     shootingJourneyIds,
     directorPlanning: directorStatus === "planning",
+    screenwriterWriting: screenwriterStatus === "writing",
   });
   const cards = sessionCardsFromTurns(agentSession?.turns ?? []);
   const repairingId =
@@ -290,7 +294,9 @@ export function AgentWorkspace() {
                             }`}
                             aria-busy={busy || undefined}
                             data-agent-stage={
-                              journeyAgent?.phase === "DIRECTING" || directorStatus === "planning"
+                              screenwriterStatus === "writing"
+                                ? "screenwriter"
+                                : journeyAgent?.phase === "DIRECTING" || directorStatus === "planning"
                                 ? "directing"
                                 : journeyAgent?.phase === "PLANNING_MOTION"
                                   ? "planning"
@@ -460,6 +466,9 @@ export function AgentWorkspace() {
               }
             }}
           />
+          <span className="mb-1 self-start">
+            <CopyToClipboardButton text={agentComposerDraft} label="Copy story idea" />
+          </span>
           {agentBusy ? (
             <button
               type="button"

@@ -32,6 +32,7 @@ export type ProjectSettingsSnapshot = {
   adaptivePace?: boolean;
   journeyPace?: Project["journeyPace"];
   journeyPaceStory?: string;
+  storyIdea?: string;
   storyDuration: StoryDuration;
   storyDurationLocked: boolean;
 };

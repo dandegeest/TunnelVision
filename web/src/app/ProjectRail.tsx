@@ -991,16 +991,22 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     planWithDirector,
     planAgentJourney,
     stopJourneyAgent,
+    screenwriterStatus,
+    setStoryIdea,
+    writeStoryFromIdea,
   } = useProject();
   const [settingsOpen, setSettingsOpen] = useState(initialSettingsOpen);
   const planning = directorStatus === "planning";
   const agentBusy = journeyAgentIsBusy(journeyAgent);
   const busy =
     planning ||
+    screenwriterStatus === "writing" ||
     agentBusy ||
     Boolean(constructingBeatId) ||
     assessingJourneyIds.length > 0 ||
     shootingJourneyIds.length > 0;
+  const writingStory = screenwriterStatus === "writing";
+  const planAnimating = busy && !writingStory;
   const journeyStory = project.story.trim() || composerDraft.trim();
   const canPlan = canPlanMovie({ ...project, story: journeyStory }) && !busy;
   const progress = journeyProgressFromProject(project, {
@@ -1079,19 +1085,56 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <label
+                  htmlFor="project-story-idea"
+                  className="min-w-0 flex-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase"
+                >
+                  Story idea
+                </label>
+                <CopyToClipboardButton text={project.storyIdea ?? ""} label="Copy story idea" />
+              </div>
+              <ClickToEditTextarea
+                id="project-story-idea"
+                rows={4}
+                value={project.storyIdea ?? ""}
+                placeholder="A walk in the redwood forest, 5 destinations…"
+                aria-label="Story idea"
+                disabled={busy}
+                className="min-h-[5.5rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                onChange={setStoryIdea}
+              />
+              <button
+                type="button"
+                className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
+                  writingStory ? " storyboard-generating" : ""
+                }`}
+                disabled={busy}
+                onClick={() => {
+                  const field = document.getElementById("project-story-idea");
+                  const idea = field instanceof HTMLTextAreaElement ? field.value : (project.storyIdea ?? "");
+                  void writeStoryFromIdea(idea);
+                }}
+              >
+                <span className={`relative z-[1]${writingStory ? " storyboard-generating-label" : ""}`}>
+                  {writingStory ? "Writing story…" : "Write story"}
+                </span>
+              </button>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <label
                   htmlFor="project-story"
                   className="min-w-0 flex-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase"
                 >
-                  Journey prompt
+                  Production prompt
                 </label>
-                <CopyToClipboardButton text={composerDraft} label="Copy journey prompt" />
+                <CopyToClipboardButton text={composerDraft} label="Copy production prompt" />
               </div>
               <ClickToEditTextarea
                 id="project-story"
                 rows={8}
                 value={composerDraft}
                 placeholder="Describe the journey…"
-                aria-label="Journey story"
+                aria-label="Production prompt"
                 disabled={busy}
                 className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
@@ -1219,7 +1262,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
               <button
                 type="button"
                 aria-label={directed ? "Plan journey" : "Create journey"}
-                aria-busy={busy || undefined}
+                aria-busy={planAnimating || undefined}
                 disabled={!canPlan}
                 title={planTitle}
                 onClick={() => {
@@ -1229,10 +1272,10 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   });
                 }}
                 className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
-                  busy ? " storyboard-generating" : ""
+                  planAnimating ? " storyboard-generating" : ""
                 }`}
               >
-                <span className={`relative z-[1]${busy ? " storyboard-generating-label" : ""}`}>
+                <span className={`relative z-[1]${planAnimating ? " storyboard-generating-label" : ""}`}>
                   {actionLabel}
                 </span>
               </button>

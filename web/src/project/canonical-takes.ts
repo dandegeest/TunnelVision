@@ -103,6 +103,7 @@ export function frameWithAppendedCanonicalTake(
   if (!take.generatedFrom) {
     delete next.generatedFrom;
   }
+  delete next.constructionError;
   return next;
 }
 

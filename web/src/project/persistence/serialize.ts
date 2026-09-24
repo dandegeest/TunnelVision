@@ -19,6 +19,7 @@ import {
   fixedDurationSecondsFromProject,
   isDurationMode,
 } from "../shot-duration";
+import { isGenerationIntent } from "../generation-intent";
 import { journeyTakes } from "../takes";
 import type {
   CanonicalTake,
@@ -144,6 +145,7 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     ...(journeyPaceIsCurrent(project)
       ? { journeyPace: project.journeyPace, journeyPaceStory: project.journeyPaceStory }
       : {}),
+    ...(project.storyIdea?.trim() ? { storyIdea: project.storyIdea.trim() } : {}),
     storyDuration: project.storyDuration,
     storyDurationLocked: project.storyDurationLocked,
   };
@@ -256,6 +258,7 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
       destinationId: frame.destinationId,
       mediaInfo: frame.mediaInfo,
       generatedFrom: frame.generatedFrom,
+      ...(frame.constructionError ? { constructionError: frame.constructionError } : {}),
       selectedTakeId: selected?.id,
       takes: persistedTakes,
     };
@@ -322,6 +325,7 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
       takes: persistedTakes,
       outgoingStartDrop: journey.outgoingStartDrop,
       shootError: journey.shootError,
+      ...(journey.failedShootIntent ? { failedShootIntent: journey.failedShootIntent } : {}),
     };
     traversalIndex.push({
       id: journey.id,
@@ -502,6 +506,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       visualDescription: typeof raw.visualDescription === "string" ? raw.visualDescription : undefined,
       destinationId: typeof raw.destinationId === "string" ? raw.destinationId : undefined,
       generatedFrom: typeof raw.generatedFrom === "string" ? raw.generatedFrom : selected?.generatedFrom,
+      constructionError: typeof raw.constructionError === "string" ? raw.constructionError : undefined,
       takes,
       selectedTakeId: selected?.id,
     };
@@ -584,6 +589,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       selectedTakeId: selected?.id,
       outgoingStartDrop: parseOutgoingStartDrop(raw.outgoingStartDrop),
       shootError: typeof raw.shootError === "string" ? raw.shootError : undefined,
+      failedShootIntent: isGenerationIntent(raw.failedShootIntent) ? raw.failedShootIntent : undefined,
       shootabilityNote: typeof raw.shootabilityNote === "string" ? raw.shootabilityNote : undefined,
     };
     if (selected?.videoUrl) {
@@ -628,6 +634,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       (settings.journeyPaceStory ?? "") === storyFingerprint(input.manifest.journey.initialPrompt)
         ? settings.journeyPaceStory
         : undefined,
+    storyIdea: typeof settings.storyIdea === "string" && settings.storyIdea.trim() ? settings.storyIdea : undefined,
     videoModel: settings.videoModel,
     videoModelsByIntent: settings.videoModelsByIntent,
     defaultTakeIntent: settings.defaultTakeIntent,

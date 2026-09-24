@@ -463,6 +463,28 @@ function frameWithConstructedStill(
   );
 }
 
+export function projectWithDestinationConstructionError(
+  project: Project,
+  beatId: string,
+  error: string | undefined,
+): Project {
+  return {
+    ...project,
+    storyboard: project.storyboard.map((frame) => {
+      if (frame.id !== beatId) {
+        return frame;
+      }
+      const next = { ...frame };
+      if (error) {
+        next.constructionError = error;
+      } else {
+        delete next.constructionError;
+      }
+      return next;
+    }),
+  };
+}
+
 export function projectWithGeneratedOpeningFrame(
   project: Project,
   next: DestinationConstructionResult & { mediaInfo?: StoryboardMediaInfo },

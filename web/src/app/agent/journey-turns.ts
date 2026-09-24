@@ -149,8 +149,12 @@ export function agentGeneratingLabel(
     assessingJourneyIds?: readonly string[];
     shootingJourneyIds?: readonly string[];
     directorPlanning?: boolean;
+    screenwriterWriting?: boolean;
   },
 ): string | null {
+  if (live?.screenwriterWriting) {
+    return "Writing story…";
+  }
   const activity = journeyAgent?.activity;
   const destinationId = constructingBeatId ?? activity?.destinationId;
   const pair = activity?.journeyId ?? live?.assessingJourneyIds?.[0] ?? live?.shootingJourneyIds?.[0];

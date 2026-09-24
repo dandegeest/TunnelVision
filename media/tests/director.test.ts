@@ -51,7 +51,10 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.match(request.systemInstruction, /meaningfully new place, world state, or story moment/);
   assert.match(request.systemInstruction, /approaching and then crossing the same threshold/);
   assert.match(request.systemInstruction, /one continuous shot/);
-  assert.match(request.systemInstruction, /Simple journeys may require only 2–4 subsequent destinations/);
+  assert.match(
+    request.systemInstruction,
+    /When no overall duration is requested, simple journeys may require only 2–4 subsequent destinations/,
+  );
   assert.match(request.systemInstruction, /Use more when the filmmaker's story genuinely requires them/);
   assert.match(request.systemInstruction, /People, animals, vehicles, objects, and other subjects may appear in viewpoints/);
   assert.doesNotMatch(request.systemInstruction, /typically 4 to 8/);
@@ -66,6 +69,31 @@ test("Director request includes story, starting frame, agency, and spatial princ
   assert.equal(request.payload.startFrameIntent, input.startFrame.intent);
   assert.match(request.prompt, /Opening-beat intent already on the storyboard/);
   assert.match(request.prompt, /attic bedroom/);
+});
+
+test("explicit overall duration is a journey-scope constraint and does not set shot timing", () => {
+  const story = [
+    "A frantic, 45-second chaotic race from the mounted perspective of a small remote-controlled car navigating a massive, cluttered house.",
+    "The journey speeds under scattered furniture, weaves through messy rooms, and bounces down a flight of stairs.",
+    "The car bursts outside into a vibrant backyard, speeding across the grass toward a homemade wooden ramp.",
+    "The journey concludes with the car launching off the ramp and plunging into the water of a swimming pool.",
+    "Colorful hand-drawn cel animation with bold outlines and painted backgrounds.",
+  ].join(" ");
+  const request = buildDirectorRequest({ ...input, story, cameraGrammar: "mounted" });
+  assert.match(request.prompt, /Filmmaker story:/);
+  assert.match(request.prompt, /45-second/);
+  assert.match(request.prompt, /Camera grammar: MOUNTED/);
+  assert.match(request.systemInstruction, /fewest destinations necessary to express the filmmaker's requested journey and any explicitly requested approximate overall duration/);
+  assert.match(request.systemInstruction, /treat it as a planning constraint when deciding journey scope and destination count/);
+  assert.match(request.systemInstruction, /about 15 seconds implies less progression than about 45 seconds, which implies less than roughly one minute/);
+  assert.match(request.systemInstruction, /Do not let the simple-journey range override an explicit longer duration/);
+  assert.match(request.systemInstruction, /downstream cinematography owns shot timing/);
+  assert.match(request.systemInstruction, /Do not convert a duration into a fixed destination count/);
+  assert.match(request.systemInstruction, /Preserve every existing destination id and order/);
+  assert.doesNotMatch(request.systemInstruction, /\d+\s*seconds?\s*=\s*\d+/i);
+  assert.doesNotMatch(request.systemInstruction, /duration\s*\/\s*\d+/i);
+  assert.doesNotMatch(request.systemInstruction, /destinations of \d+ seconds/i);
+  assert.equal(request.payload.storyDuration, undefined);
 });
 
 test("Director LEAD request does not use the forward-only POV locomotion principle", () => {

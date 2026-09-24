@@ -107,7 +107,7 @@ describe("Shell header chrome", () => {
     expect(project.indexOf('aria-label="Set consistency')).toBeGreaterThan(createAt);
     expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(project.indexOf('aria-label="Set consistency'));
     expect(settingsAt).toBeGreaterThan(createAt);
-    expect(project).toContain(">Journey prompt<");
+    expect(project).toContain(">Production prompt<");
     expect(project).toContain(">Camera<");
     expect(project).toContain(">Destinations<");
     expect(project.indexOf(">Camera<")).toBeLessThan(project.indexOf(">Destinations<"));
@@ -122,7 +122,7 @@ describe("Shell header chrome", () => {
     expect(project).toContain("Generate audio");
     expect(project).toContain("Adaptive durations");
     expect(project).toContain("Adaptive Pace");
-    expect(project).toContain('aria-label="Copy journey prompt"');
+    expect(project).toContain('aria-label="Copy production prompt"');
     expect(project).not.toContain("Fixed duration");
     expect(project).not.toContain("Auto generate");
     expect(project).not.toContain("Auto blocking");
@@ -260,7 +260,7 @@ describe("Shell header chrome", () => {
     expect(project).toContain("Generate audio");
     expect(project).toContain("Adaptive durations");
     expect(project).toContain("Adaptive Pace");
-    expect(project).toContain('aria-label="Copy journey prompt"');
+    expect(project).toContain('aria-label="Copy production prompt"');
     expect(project).not.toContain("Generate all destinations");
     expect(project).not.toContain("Generate all segments");
     expect(project).not.toContain("Generate start destination");

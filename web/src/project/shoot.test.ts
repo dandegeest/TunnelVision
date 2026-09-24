@@ -229,6 +229,26 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(failed.journeys[0]?.shootError).toBe("provider down");
   });
 
+  it("keeps the failed take intent for retry and clears it when the take lands", () => {
+    const prepared = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
+    const failed = projectWithJourneyShotFailed(prepared, "A-B", "provider down", "quality");
+    expect(failed.journeys[0]?.status).toBe("failed");
+    expect(failed.journeys[0]?.shootError).toBe("provider down");
+    expect(failed.journeys[0]?.failedShootIntent).toBe("quality");
+    const retrying = projectWithJourneyShooting(failed, "A-B");
+    expect(retrying.journeys[0]?.status).toBe("shooting");
+    expect(retrying.journeys[0]?.shootError).toBeUndefined();
+    expect(retrying.journeys[0]?.failedShootIntent).toBeUndefined();
+    const rendered = projectWithJourneyShotTake(failed, "A-B", {
+      take: { ...take, generationIntent: "quality" },
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    expect(rendered.journeys[0]?.status).toBe("rendered");
+    expect(rendered.journeys[0]?.shootError).toBeUndefined();
+    expect(rendered.journeys[0]?.failedShootIntent).toBeUndefined();
+    expect(rendered.journeys[0]?.takes?.[0]?.generationIntent).toBe("quality");
+  });
+
   it("marks every NEW TAKE ALL segment shooting so provider calls can overlap", () => {
     const staged = projectWithMotionPlan(projectWithMotionPlan(projectWithTwoLegs(), "A-B", motionPlan), "B-C", motionPlanBC);
     expect(journeysReadyToTakeAll(staged).map((journey) => journey.id)).toEqual(["A-B", "B-C"]);

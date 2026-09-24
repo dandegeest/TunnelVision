@@ -1,3 +1,4 @@
+import { useProject } from "../project/ProjectProvider";
 import type { Destination, Selection, StoryboardFrame } from "../project/types";
 import {
   boundaryContinuityAtSeam,
@@ -24,6 +25,7 @@ export function DestinationsLane({
   storyboard: readonly StoryboardFrame[];
   onSelect: (occurrenceIndex: number, destinationId: string) => void;
 }) {
+  const { retryDestination } = useProject();
   return (
     <div className="absolute inset-x-0 top-7 z-[1] h-[100px]">
       {occurrences.map((occurrence) => {
@@ -39,6 +41,10 @@ export function DestinationsLane({
           occurrence.inboundJourneyId,
           occurrence.outboundJourneyId,
         );
+        const frame = storyboard.find(
+          (item) => item.id === occurrence.destinationId || (item.destinationId ?? item.id) === occurrence.destinationId,
+        );
+        const generating = occurrenceIsGenerating(occurrence, constructingBeatId, storyboard);
         return (
           <DestinationItem
             key={occurrence.occurrenceIndex}
@@ -46,7 +52,15 @@ export function DestinationsLane({
             destination={destination}
             selected={selected}
             continuity={continuity}
-            generating={occurrenceIsGenerating(occurrence, constructingBeatId, storyboard)}
+            generating={generating}
+            constructionError={generating ? undefined : frame?.constructionError}
+            onRetry={
+              frame
+                ? () => {
+                    void retryDestination(frame.id);
+                  }
+                : undefined
+            }
             onSelect={() => onSelect(occurrence.occurrenceIndex, occurrence.destinationId)}
           />
         );

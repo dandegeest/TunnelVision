@@ -128,6 +128,7 @@ describe("project persistence schema", () => {
       mae: 3.1,
     });
     expect(hydrated.project.story).toBe("Follow the koi.");
+    expect(hydrated.project.storyIdea).toBeUndefined();
     expect(hydrated.project.imageModel).toBe("nano-banana-2-lite");
     expect(documents.manifest.settings.durationMode).toBe("adaptive");
     expect(documents.manifest.settings.fixedDurationSeconds).toBe(5);
@@ -220,5 +221,60 @@ describe("project persistence schema", () => {
       assetExists: () => true,
     });
     expect(hydratedMissing.project.pullForwardReferenceEnabled).toBe(true);
+  });
+
+  it("persists Story Idea without changing the Production Prompt", () => {
+    const project = {
+      ...createNewProject(),
+      story: "Redwood Walk\n\nFive connected places.",
+      storyIdea: "a walk in the redwood forest, 5 destinations",
+    };
+    const documents = serializeProjectDocuments({ project });
+    expect(documents.manifest.journey.initialPrompt).toBe(project.story);
+    expect(documents.manifest.settings.storyIdea).toBe(project.storyIdea);
+    const hydrated = hydrateProject({
+      manifest: documents.manifest,
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: () => true,
+    });
+    expect(hydrated.project.story).toBe(project.story);
+    expect(hydrated.project.storyIdea).toBe(project.storyIdea);
+  });
+
+  it("persists a failed still and the intent of a failed take", () => {
+    const blank = createNewProject();
+    const project = {
+      ...blank,
+      storyboard: blank.storyboard.map((frame) =>
+        frame.id === "A" ? { ...frame, constructionError: "still failed" } : frame,
+      ),
+      journeys: [
+        {
+          id: "A-B",
+          startDestinationId: "A",
+          endDestinationId: "B",
+          durationSeconds: 5,
+          status: "failed" as const,
+          shootError: "provider down",
+          failedShootIntent: "quality" as const,
+        },
+      ],
+    };
+    const documents = serializeProjectDocuments({ project });
+    const canonical = documents.canonicals.A as { constructionError?: string };
+    const traversal = documents.traversals["A-B"] as { shootError?: string; failedShootIntent?: string };
+    expect(canonical.constructionError).toBe("still failed");
+    expect(traversal.shootError).toBe("provider down");
+    expect(traversal.failedShootIntent).toBe("quality");
+    const hydrated = hydrateProject({
+      manifest: documents.manifest,
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: () => true,
+    });
+    expect(hydrated.project.storyboard.find((frame) => frame.id === "A")?.constructionError).toBe("still failed");
+    expect(hydrated.project.journeys[0]?.failedShootIntent).toBe("quality");
+    expect(hydrated.project.journeys[0]?.shootError).toBe("provider down");
   });
 });

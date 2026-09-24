@@ -11,8 +11,10 @@ in [PRODUCT.md](PRODUCT.md), [AGENTS.md](AGENTS.md),
 [ARCHITECTURE.md](ARCHITECTURE.md), and
 [IMPLEMENTATION.md](IMPLEMENTATION.md). Journey-prompting
 philosophy and experimental findings stay in
-[PROMPT_COACH.md](PROMPT_COACH.md). Do not implement a Prompt Coach
-agent from that file.
+[PROMPT_COACH.md](PROMPT_COACH.md). A narrow Story Idea →
+Screenwriter → Production Prompt step is an approved post-freeze
+exception (24 September 2026). Do not implement the rest of Prompt
+Coach from that file.
 
 Do not implement from this file until a session is explicitly asked
 to take an item. Do not re-litigate completed product work here.

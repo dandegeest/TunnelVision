@@ -20,10 +20,30 @@ Related discovery work: [HACKATHON.md](HACKATHON.md),
 Qualitative session evidence:
 [sessions/red-paper-airplane.md](sessions/red-paper-airplane.md).
 
-Do not create a `PromptCoach` agent, Screenwriter, or Project schema
-fields from this file. [AGENTS.md](AGENTS.md) already forbids
-implementing Screenwriter. Prompt Coach is a related **future**
-intent-conditioning layer, not that role.
+Do not create a `PromptCoach` agent or Project schema fields from
+this file except the **approved narrow product layer** below.
+[AGENTS.md](AGENTS.md) forbade implementing Screenwriter when this
+document was research-only. That warning still applies to the rest
+of this file.
+
+**Implemented (approved post-freeze exception, 24 September 2026).**
+A single intent-conditioning step now exists:
+
+``` text
+Story Idea
+  → deterministic leading-token camera grammar (POV / FOLLOW / LEAD / MOUNTED)
+  → one Screenwriter call
+  → Production Prompt (`Project.story`)
+  → existing Director / JourneyAgent flow
+```
+
+Story Idea is persisted separately. The Production Prompt stays
+manually editable and is the conditioned story plus a closing style
+line. The project title is a separate Screenwriter field and is not
+repeated inside that prompt. Screenwriter does not plan destinations,
+shoot, or choose models. Broader Prompt Coach research in this
+document remains **experimental / future** unless a later task
+explicitly implements it.
 
 ---
 

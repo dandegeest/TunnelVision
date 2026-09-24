@@ -126,6 +126,7 @@ describe("journey turns from conversation", () => {
     expect(agentGeneratingLabel(null, { phase: "DIRECTING", activity: null, events: [] }, { directorPlanning: true })).toBe(
       "Directing",
     );
+    expect(agentGeneratingLabel(null, null, { screenwriterWriting: true })).toBe("Writing story…");
   });
 
   it("keeps the submitted prompt and lists Director, beat, cinematographer, and reshoot reasoning", () => {

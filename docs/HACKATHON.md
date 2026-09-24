@@ -156,6 +156,33 @@ Hackathon-day work must build **on top of** this baseline rather
 than rewriting it. Continuous Camotion velocity / entry–exit pace
 is **post-hack research** — see BACKLOG.md — not event-day work.
 
+### APPROVED POST-FREEZE EXCEPTION — Screenwriter / Story Idea
+
+**24 September 2026.** One bounded exception to the freeze, allowed
+because it sits in front of the existing flow and has high demo
+value with a small regression surface.
+
+``` text
+Story Idea → deterministic grammar token → one Screenwriter call
+  → Production Prompt → existing TunnelVision flow
+```
+
+-   Why: the Project prompt and Agent composer were doing two jobs
+    (raw human brief and conditioned journey prompt).
+-   Bounded: one LLM intent compile, leading-token grammar only,
+    Story Idea persisted beside `Project.story`. No Director, CM,
+    Camotion, construction, Pull Forward, Adaptive Pace, Adaptive
+    Durations, +1, or provider changes.
+-   Agent Send conditions automatically. Project inspector **Write
+    story** is explicit and does not overwrite the Production Prompt
+    until invoked. Screenwriter failure keeps the Story Idea and does
+    not start generation.
+-   Broader Prompt Coach research stays unimplemented.
+-   Test result after implementation: web **706 / 706**, media **203 / 203** (baseline was 698 and 200; the increase is this feature's tests).
+
+Code freeze **resumes** after this exception. Do not treat it as a
+reopened development window.
+
 ### Hack-day cinematographic model roles (post-freeze research)
 
 Manual experiments inside Runway (not TunnelVision-integrated

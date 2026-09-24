@@ -340,6 +340,7 @@ export function projectWithAppendedTake(
             ...mirrorSelectedTake(item, takes, stored),
             status: "rendered",
             shootError: undefined,
+            failedShootIntent: undefined,
           }
         : item,
     ),

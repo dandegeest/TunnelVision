@@ -366,6 +366,74 @@ function GeneratingTakeRow({
   );
 }
 
+function FailedTakeRow({
+  laid,
+  journey,
+  number,
+  zoom,
+  durationSeconds,
+  rowIndex,
+  first,
+  last,
+  intent,
+  error,
+  onSelect,
+  onRetry,
+}: {
+  laid: LaidOutJourney;
+  journey: JourneyShot;
+  number: number;
+  zoom: number;
+  durationSeconds: number;
+  rowIndex: number;
+  first: boolean;
+  last: boolean;
+  intent?: JourneyShot["failedShootIntent"];
+  error: string;
+  onSelect: () => void;
+  onRetry: () => void;
+}) {
+  const intentMark = intent ? GENERATION_INTENT_MARK[intent] : undefined;
+  return (
+    <div
+      className={`absolute z-[2] box-border flex items-center gap-1 border border-[#c45c38] bg-[#2a1610] px-1.5 text-[#f0c2a8] ${takeBarRadiusClass(first, last, false)}`}
+      style={{
+        top: takeRowTop(rowIndex),
+        left: laid.left,
+        width: durationBarWidth(durationSeconds, zoom),
+        height: TAKE_ROW_HEIGHT,
+      }}
+      data-take-failed=""
+      data-take-duration={durationSeconds}
+      title={error}
+    >
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 items-center gap-1 text-left outline-none"
+        aria-label={`Failed take ${number} ${journey.id}`}
+        onClick={onSelect}
+      >
+        <TakeNumberBadge number={number} />
+        <span className="h-[18px] w-[32px] shrink-0 rounded border border-[#8a4a32] bg-[#1a100c]" />
+        <span className="truncate text-[9px] tracking-[0.16em]">Failed</span>
+        {intentMark ? <span className="truncate text-[9px] tracking-[0.16em] opacity-80">{intentMark}</span> : null}
+      </button>
+      <button
+        type="button"
+        className="shrink-0 rounded border border-[#f0c2a8] px-1.5 py-0.5 text-[9px] tracking-[0.14em] uppercase outline-none hover:bg-[#3a2018] focus-visible:ring-1 focus-visible:ring-[#f0c2a8]"
+        aria-label={`Retry take ${number} ${journey.id}`}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onRetry();
+        }}
+      >
+        Retry
+      </button>
+    </div>
+  );
+}
+
 export function JourneyLane({
   journeys,
   projectJourneys,
@@ -446,8 +514,9 @@ export function JourneyLane({
         const shooting =
           (shootingJourneyIds?.includes(laid.journeyId) ?? false) || journey.status === "shooting";
         const takes = journeyTakes(journey);
+        const failedTake = Boolean(journey.shootError) && !shooting;
         const current = selectedTake(journey);
-        const showTakes = showTakesGutter(takes.length, shooting);
+        const showTakes = showTakesGutter(takes.length, shooting || failedTake);
         const showNewTake = showNewTakeControl(selection, journey, shooting);
         const startImage = destinationById(project.destinations, journey.startDestinationId)?.image;
         return (
@@ -527,11 +596,35 @@ export function JourneyLane({
                 durationSeconds={requestedDurationSeconds(
                   project,
                   journey,
-                  shootingIntents[journey.id] ?? defaultTakeIntentFromProject(project),
+                  shootingIntents[journey.id] ?? journey.failedShootIntent ?? defaultTakeIntentFromProject(project),
                 )}
                 rowIndex={takes.length}
                 first={laid.journeyId === firstJourneyId}
                 last={laid.journeyId === lastJourneyId}
+              />
+            ) : failedTake ? (
+              <FailedTakeRow
+                laid={laid}
+                journey={journey}
+                number={nextTakeNumber(takes)}
+                zoom={zoom}
+                durationSeconds={requestedDurationSeconds(
+                  project,
+                  journey,
+                  journey.failedShootIntent ?? defaultTakeIntentFromProject(project),
+                )}
+                rowIndex={takes.length}
+                first={laid.journeyId === firstJourneyId}
+                last={laid.journeyId === lastJourneyId}
+                intent={journey.failedShootIntent}
+                error={journey.shootError ?? "Shoot failed"}
+                onSelect={() => onSelect(laid.journeyId, "footage")}
+                onRetry={() => {
+                  void shootJourney(
+                    journey.id,
+                    journey.failedShootIntent ?? defaultTakeIntentFromProject(project),
+                  );
+                }}
               />
             ) : null}
             {showNewTake ? (

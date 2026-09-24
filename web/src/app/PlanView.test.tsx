@@ -126,8 +126,8 @@ describe("Plan project story", () => {
   it("edits project story from the Project panel without a Send control", () => {
     const html = renderPlan(undefined, { debug: false });
     expect(html).toContain('id="project-story"');
-    expect(html).toContain('aria-label="Journey story"');
-    expect(html).not.toMatch(/aria-label="Journey story"[^>]*readOnly=""/);
+    expect(html).toContain('aria-label="Production prompt"');
+    expect(html).not.toMatch(/aria-label="Production prompt"[^>]*readOnly=""/);
     expect(html).toContain("text-[11px]");
     expect(html).toContain("resize-y");
     expect(html).toContain("border-[#3a342c]/50");
@@ -313,6 +313,25 @@ describe("Plan storyboard FPO intent", () => {
     expect(generating).toContain("Move forward into the next space.");
     expect(generating).not.toContain("A corridor continuing the same world.");
     expect(generating).not.toContain("CONSTRUCT");
+  });
+
+  it("shows a failed reshoot on the still and animates that still while retrying", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    const frame = {
+      ...planned.storyboard[1]!,
+      image: "https://example.test/b.jpg",
+      imageOrigin: "generated" as const,
+      constructionError: "provider down",
+    };
+    const failed = renderFrame(frame, { onRetry: () => undefined });
+    expect(failed).toContain('aria-label="Retry destination B"');
+    expect(failed).toContain("border-[#c45c38]");
+    expect(failed).toContain("provider down");
+    expect(failed).not.toContain("Generating…");
+    const retrying = renderFrame(frame, { constructing: true, onRetry: () => undefined });
+    expect(retrying).toContain("storyboard-generating");
+    expect(retrying).toContain('aria-label="Generating destination B"');
+    expect(retrying).not.toContain('aria-label="Retry destination B"');
   });
 
   it("replaces the FPO with the actual image after successful construction", () => {
@@ -1791,7 +1810,7 @@ describe("new-project Plan", () => {
     expect(html.indexOf('aria-label="Delete project"')).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
     expect(settingsAt).toBeGreaterThan(createAt);
-    expect(html).toContain(">Journey prompt<");
+    expect(html).toContain(">Production prompt<");
     expect(html).toContain(">Options<");
     expect(html).not.toContain("DIRECT generates A from the story");
     expect(html).not.toContain(">Technical<");
@@ -1804,7 +1823,7 @@ describe("new-project Plan", () => {
     expect(html).not.toContain('aria-label="Auto blocking"');
     expect(html).toContain('aria-label="Generate all segments"');
     expect(html).toContain('aria-label="Generate audio"');
-    expect(html).toContain('aria-label="Copy journey prompt"');
+    expect(html).toContain('aria-label="Copy production prompt"');
     expect(html).toContain('aria-label="Adaptive durations"');
     expect(html).toMatch(
       /checked[^>]*aria-label="Adaptive durations"|aria-label="Adaptive durations"[^>]*checked/,

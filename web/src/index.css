@@ -628,6 +628,7 @@ textarea {
 }
 
 #project-story,
+#project-story-idea,
 #project-story-duration {
   font-size: 11px;
 }

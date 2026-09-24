@@ -1,10 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
 
-import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
-import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { deriveStory } from "../media/src/director/derive-story.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
+import { SCREENWRITER_THINKING_LEVEL, conditionStory } from "../media/src/screenwriter/condition-story.ts";
+import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
+import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
 import { directorAnchorsFromRequest, directorStartFrameFromRequest, directorStoryboardFromRequest, UntrustedMediaError } from "./trusted-media.ts";
@@ -57,7 +58,7 @@ export function directorDevPlugin(repoRoot: string): Plugin {
       loadDotEnvLocal(repoRoot);
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0];
-        if (url !== "/api/director/plan" && url !== "/api/director/story") {
+        if (url !== "/api/director/plan" && url !== "/api/director/story" && url !== "/api/screenwriter/condition") {
           next();
           return;
         }
@@ -67,6 +68,22 @@ export function directorDevPlugin(repoRoot: string): Plugin {
         }
         try {
           const body = (await readJsonBody(req)) as Record<string, unknown>;
+          if (url === "/api/screenwriter/condition") {
+            const storyIdea = typeof body.storyIdea === "string" ? body.storyIdea : "";
+            const cameraGrammar = cameraGrammarFromUnknown(body.cameraGrammar);
+            const result = await conditionStory({
+              reasoning: new ReplicateReasoningProvider({
+                gemini: { thinkingLevel: SCREENWRITER_THINKING_LEVEL },
+              }),
+              storyIdea,
+              cameraGrammar,
+            });
+            sendJson(res, 200, {
+              productionPrompt: result.productionPrompt,
+              ...(result.title ? { title: result.title } : {}),
+            });
+            return;
+          }
           const startFrame = directorStartFrameFromRequest(repoRoot, body);
           if (url === "/api/director/story") {
             const result = await deriveStory({
