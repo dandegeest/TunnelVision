@@ -454,7 +454,7 @@ export function AgentWorkspace() {
             placeholder="Where should we go next?"
             aria-label="Where should we go next?"
             disabled={busy}
-            className="max-h-[40vh] min-h-[7rem] flex-1 resize-y bg-[#161410] py-1 text-[15px] leading-relaxed text-[#ece7df] placeholder:text-[#7a7266] outline-none disabled:cursor-not-allowed disabled:opacity-40"
+            className="tv-display max-h-[40vh] min-h-[7rem] flex-1 resize-y bg-[#161410] py-1 leading-relaxed text-[#ece7df] placeholder:text-[#7a7266] outline-none disabled:cursor-not-allowed disabled:opacity-40"
             onChange={(event) => setAgentComposerDraft(event.target.value)}
             onKeyDown={(event) => {
               if (busy) {

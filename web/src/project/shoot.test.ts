@@ -6,8 +6,12 @@ import { projectWithSyncedProductionLegs } from "./production-legs";
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
+  journeysForTakeBatch,
   journeysReadyToTakeAll,
+  journeysReadyToTakeMissing,
+  journeysReadyToTakeSelected,
   projectWithJourneyClipDuration,
+  projectWithClearedShootFailure,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
   projectWithJourneysShooting,
@@ -249,6 +253,15 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(rendered.journeys[0]?.takes?.[0]?.generationIntent).toBe("quality");
   });
 
+  it("dismisses a failed take attempt without a clip", () => {
+    const prepared = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
+    const failed = projectWithJourneyShotFailed(prepared, "A-B", "provider down", "quality");
+    const cleared = projectWithClearedShootFailure(failed, "A-B");
+    expect(cleared.journeys[0]?.shootError).toBeUndefined();
+    expect(cleared.journeys[0]?.failedShootIntent).toBeUndefined();
+    expect(cleared.journeys[0]?.status).toBe("ready");
+  });
+
   it("marks every NEW TAKE ALL segment shooting so provider calls can overlap", () => {
     const staged = projectWithMotionPlan(projectWithMotionPlan(projectWithTwoLegs(), "A-B", motionPlan), "B-C", motionPlanBC);
     expect(journeysReadyToTakeAll(staged).map((journey) => journey.id)).toEqual(["A-B", "B-C"]);
@@ -266,6 +279,34 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(journeysReadyToTakeAll(launching)).toEqual([]);
     expect(shootRequestFromProject(launching, "A-B").journeyId).toBe("A-B");
     expect(shootRequestFromProject(launching, "B-C").journeyId).toBe("B-C");
+  });
+
+  it("scopes Take Selected and Take Missing by selection and quality", () => {
+    const staged = projectWithMotionPlan(projectWithMotionPlan(projectWithTwoLegs(), "A-B", motionPlan), "B-C", motionPlanBC);
+    const withQuality = projectWithJourneyShotTake(staged, "A-B", {
+      take: { ...take, generationIntent: "quality" },
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    expect(journeysReadyToTakeMissing(withQuality, "quality").map((journey) => journey.id)).toEqual(["B-C"]);
+    expect(journeysReadyToTakeMissing(withQuality, "balanced").map((journey) => journey.id)).toEqual([
+      "A-B",
+      "B-C",
+    ]);
+    expect(
+      journeysReadyToTakeSelected(withQuality, { kind: "journey", journeyId: "B-C", band: "footage" }).map(
+        (journey) => journey.id,
+      ),
+    ).toEqual(["B-C"]);
+    expect(
+      journeysForTakeBatch(withQuality, "missing", "quality", { kind: "storyboard", frameId: "A" }).map(
+        (journey) => journey.id,
+      ),
+    ).toEqual(["B-C"]);
+    expect(
+      journeysForTakeBatch(withQuality, "selected", "fast", { kind: "destination", destinationId: "B", occurrenceIndex: 1 }).map(
+        (journey) => journey.id,
+      ),
+    ).toEqual(["A-B", "B-C"]);
   });
 
   it("auto-shoots blocked legs regardless of CM warnings and skips completed takes", () => {

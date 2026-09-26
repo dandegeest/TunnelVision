@@ -1440,9 +1440,10 @@ describe("Plan destination details", () => {
     const html = renderPlan(stale);
     expect(html).toContain("Plan changed");
     expect(html).toContain("storyboard-plan-changed-flag");
-    const flag = html.slice(html.indexOf("storyboard-plan-changed-flag"), html.indexOf("storyboard-plan-changed-flag") + 80);
-    expect(flag).not.toContain("bottom-1.5");
-    expect(flag).not.toContain("bottom-8");
+    expect(html).toContain("storyboard-media-info");
+    const mediaBar = html.slice(html.indexOf("storyboard-media-info"), html.indexOf("storyboard-media-info") + 420);
+    expect(mediaBar).toContain("storyboard-plan-changed-flag");
+    expect(mediaBar).toContain("Plan changed");
     expect(html).not.toContain("storyboard-plan-changed-veil");
     expect(html).not.toContain("border-dashed border-[#d4b36a]");
     expect(html).toContain('aria-label="Storyboard B, plan changed"');
@@ -1450,6 +1451,14 @@ describe("Plan destination details", () => {
     expect(selectedStale).toContain('title="The plan changed after this still was generated. Reshoot to update it."');
     expect(selectedStale).toContain('aria-label="Storyboard B, plan changed"');
     expect(renderPlan(constructedB)).not.toContain("Plan changed");
+    const reshots = projectWithConstructedDestination(stale, {
+      beatId: "B",
+      mediaId: "upload-33333333333333333333333333333333",
+      imageUrl: "/api/runtime-media/upload-33333333333333333333333333333333",
+    });
+    expect(generatedStillNeedsReshoot(reshots, reshots.storyboard[1]!)).toBe(false);
+    expect(renderPlan(reshots)).not.toContain("Plan changed");
+    expect(renderPlan(reshots)).not.toContain('aria-label="Storyboard B, plan changed"');
     const nextStale = projectWithStoryboardBeatPlan(constructedB, "C", {
       visualDescription: "A rewritten following destination after B already exists.",
     });
@@ -1926,6 +1935,20 @@ describe("new-project Plan", () => {
     expect(html).toMatch(
       /<button[^>]*aria-label="Add Destination"[^>]*\sdisabled(?:="[^"]*")?[\s>]|<button[^>]*\sdisabled(?:="[^"]*")?[^>]*aria-label="Add Destination"/,
     );
+  });
+
+  it("animates empty FPO beats while Director planning is running", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), plannedBeats);
+    const planning = renderPlan(planned, { directorStatus: "planning" });
+    expect(planning).toContain('aria-label="Planning destination B"');
+    expect(planning).toContain('aria-label="Planning destination C"');
+    expect(planning).toContain("Planning…");
+    const fpo = renderFrame(planned.storyboard[1]!, { planning: true });
+    expect(fpo).toContain("storyboard-generating");
+    expect(fpo).toContain('aria-label="Planning destination B"');
+    expect(fpo).toContain("Planning…");
+    const still = renderFrame(createForestProject().storyboard[0]!, { planning: true });
+    expect(still).not.toContain('aria-label="Planning destination A"');
   });
 
   it("animates PLAN with the current pipeline stage", () => {

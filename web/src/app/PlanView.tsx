@@ -209,6 +209,7 @@ export function StoryboardFrameMedia({
   frame,
   selected,
   constructing,
+  planning = false,
   showMediaInfo = false,
   showIntentOverlay = false,
   showBeatOverlay = false,
@@ -224,6 +225,8 @@ export function StoryboardFrameMedia({
   frame: StoryboardFrame;
   selected: boolean;
   constructing: boolean;
+  /** Director PLAN JOURNEY is filling empty FPO beats. */
+  planning?: boolean;
   showMediaInfo?: boolean;
   showIntentOverlay?: boolean;
   showBeatOverlay?: boolean;
@@ -237,6 +240,7 @@ export function StoryboardFrameMedia({
   onRetry?: () => void;
 }) {
   const failed = Boolean(frame.constructionError) && !constructing;
+  const planningEmpty = planning && !frame.image && !constructing;
   const frameBorder = failed
     ? "border-2 border-[#c45c38]"
     : selected
@@ -245,6 +249,7 @@ export function StoryboardFrameMedia({
   const provenance = displayProvenanceForFrame(frame);
   const labelTracking = frame.label.length <= 2 ? "tracking-[0.22em]" : "tracking-normal";
   const showPlanChanged = planChanged && !constructing;
+  const showBottomBar = Boolean(showPlanChanged || (showMediaInfo && frame.mediaInfo));
   const overlaySecond = openingOverlayCopy(frame, story);
   const stillLabel = planChanged ? `Storyboard ${frame.label}, plan changed` : `Storyboard ${frame.label}`;
   const still = frame.image ? (
@@ -308,7 +313,7 @@ export function StoryboardFrameMedia({
             showIntent={showIntentOverlay}
             showBeat={showBeatOverlay}
             className={`absolute inset-x-0 top-6 z-[1] px-1.5 pt-1.5 ${
-              showMediaInfo && frame.mediaInfo ? "bottom-6" : "bottom-0 pb-2"
+              showBottomBar ? "bottom-6" : "bottom-0 pb-2"
             }`}
           />
           {constructing ? (
@@ -318,24 +323,32 @@ export function StoryboardFrameMedia({
               aria-label={`Generating destination ${frame.id}`}
             />
           ) : null}
-          {showPlanChanged ? (
-            <span className="storyboard-plan-changed-flag pointer-events-none">Plan changed</span>
-          ) : null}
-          {showMediaInfo && frame.mediaInfo ? (
+          {showBottomBar ? (
             <span
               className={`storyboard-media-info absolute inset-x-0 bottom-0 z-[1] flex h-6 items-center gap-1.5 bg-[#0c0b0a]/72 px-1.5 text-[9px] leading-none tracking-[0.08em] text-[#d4cdc2] ${
                 onOpenReel ? "pointer-events-auto" : "pointer-events-none"
               } ${hasWarning ? "pr-8" : ""}`}
             >
-              {provenance ? <ProvenanceIcon provenance={provenance} /> : null}
-              <span className="min-w-0 truncate">{formatMediaInfoLine(frame.mediaInfo)}</span>
+              {showMediaInfo && frame.mediaInfo ? (
+                <>
+                  {provenance ? <ProvenanceIcon provenance={provenance} /> : null}
+                  <span className="min-w-0 truncate">{formatMediaInfoLine(frame.mediaInfo)}</span>
+                </>
+              ) : (
+                <span className="min-w-0 flex-1" />
+              )}
+              {showPlanChanged ? (
+                <span className="storyboard-plan-changed-flag pointer-events-none">Plan changed</span>
+              ) : null}
             </span>
           ) : null}
         </>
       ) : (
         <span
-          className={`storyboard-fpo storyboard-fpo-planned${constructing ? " storyboard-generating" : ""}`}
-          aria-busy={constructing || undefined}
+          className={`storyboard-fpo storyboard-fpo-planned${
+            constructing || planningEmpty ? " storyboard-generating" : ""
+          }`}
+          aria-busy={constructing || planningEmpty || undefined}
         >
           <button
             type="button"
@@ -351,7 +364,12 @@ export function StoryboardFrameMedia({
             aria-pressed={selected}
             aria-expanded={detailOpen || undefined}
           >
-            <span className="storyboard-fpo-label max-w-full truncate" title={frame.label}>
+            <span
+              className={`storyboard-fpo-label max-w-full truncate${
+                planningEmpty ? " storyboard-generating-label" : ""
+              }`}
+              title={frame.label}
+            >
               {frame.label}
             </span>
             <StoryboardPlanOverlay
@@ -370,6 +388,14 @@ export function StoryboardFrameMedia({
               aria-label={`Generating destination ${frame.id}`}
             >
               <span className="storyboard-generating-label">Generating…</span>
+            </span>
+          ) : planningEmpty ? (
+            <span
+              className="storyboard-fpo-action"
+              role="status"
+              aria-label={`Planning destination ${frame.id}`}
+            >
+              <span className="storyboard-generating-label">Planning…</span>
             </span>
           ) : null}
         </span>
@@ -1233,6 +1259,7 @@ export function PlanView() {
                 frame={frame}
                 selected={selectedCard}
                 constructing={constructing}
+                planning={planning && !frame.image}
                 showMediaInfo={selectedCard}
                 showIntentOverlay={showIntentOverlay}
                 showBeatOverlay={showBeatOverlay}

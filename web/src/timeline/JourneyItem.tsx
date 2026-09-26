@@ -1,5 +1,11 @@
 import type { MouseEvent } from "react";
-import { cinematographerScoreTone, locomotionPaceLabel, motionBandAriaLabel } from "../project/cinematographer";
+import {
+  canAssessJourney,
+  cinematographerScoreTone,
+  locomotionPaceLabel,
+  motionBandAriaLabel,
+  motionPlanNeedsRebuild,
+} from "../project/cinematographer";
 import { useProject } from "../project/ProjectProvider";
 import type { CinematographerAssessment, JourneyShot, Selection } from "../project/types";
 import type { LaidOutJourney } from "./geometry";
@@ -30,7 +36,7 @@ export function newTakeActionLabel(): string {
 }
 
 export function newTakeAllActionLabel(): string {
-  return "+ NEW TAKE ALL";
+  return "Take All";
 }
 
 export function newTakeBusyLabel(): string {
@@ -54,13 +60,14 @@ export function JourneyItem({
   preparing?: boolean;
   onSelect: () => void;
 }) {
-  const { retryMotionPlan } = useProject();
+  const { project, retryMotionPlan } = useProject();
   const tone = journeySegmentTone(journey);
   const ring = selected
     ? "ring-2 ring-[#ece7df]"
     : "hover:ring-1 hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-[#7a7266]";
   const ctaClass =
-    "relative z-[2] shrink-0 rounded border border-[#3a342c] px-1.5 py-0 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
+    "relative z-[2] flex h-[18px] shrink-0 items-center justify-center rounded border border-[#3a342c] px-1.5 text-[10px] leading-[16px] text-[#ece7df] outline-none hover:border-[#7a7266] disabled:cursor-not-allowed disabled:opacity-40";
+  const needsRebuild = motionPlanNeedsRebuild(journey) && canAssessJourney(project, journey);
 
   const onRetry = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -115,9 +122,21 @@ export function JourneyItem({
             className={ctaClass}
             disabled={preparing}
             aria-label={`Retry ${journey.id}`}
+            title={journey.motionPlanError}
             onClick={onRetry}
           >
             Retry
+          </button>
+        ) : needsRebuild ? (
+          <button
+            type="button"
+            className={ctaClass}
+            disabled={preparing}
+            aria-label={`Rebuild Camotion ${journey.id}`}
+            title="Regenerate Camotion shooting frames for this segment"
+            onClick={onRetry}
+          >
+            Rebuild
           </button>
         ) : null}
       </div>

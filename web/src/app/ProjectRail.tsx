@@ -1099,7 +1099,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 placeholder="A walk in the redwood forest, 5 destinations…"
                 aria-label="Story idea"
                 disabled={busy}
-                className="min-h-[5.5rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                className="tv-prompt min-h-[5.5rem] w-full overflow-auto leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setStoryIdea}
               />
               <button
@@ -1136,7 +1136,7 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 placeholder="Describe the journey…"
                 aria-label="Production prompt"
                 disabled={busy}
-                className="min-h-[10rem] w-full overflow-auto text-[11px] leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                className="tv-prompt min-h-[10rem] w-full overflow-auto leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
               />
             </div>

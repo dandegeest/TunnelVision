@@ -7,7 +7,12 @@ import {
   type BoundaryContinuity,
 } from "../project/boundary-continuity";
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
-import { canAssessJourney, cinematographerScoreTone, locomotionPaceLabel } from "../project/cinematographer";
+import {
+  canAssessJourney,
+  cinematographerScoreTone,
+  locomotionPaceLabel,
+  motionPlanNeedsRebuild,
+} from "../project/cinematographer";
 import { effectiveJourneyPace } from "../project/journey-overrides";
 import { LOCOMOTION_PACES, type LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { OptionMenu } from "../ui/OptionMenu";
@@ -220,6 +225,7 @@ export function Inspector() {
   const canAssess = canAssessJourney(project, journey);
   const assessing = assessingJourneyIds.includes(journey.id);
   const motionPlanError = journey.motionPlanError ?? (canAssess && !assessment ? cinematographerError : null);
+  const needsRebuild = motionPlanNeedsRebuild(journey) && canAssess;
   const take = selectedTake(journey);
   const motionSource = journey.motionPlan ?? (takeHasShootingFrames(take) ? take : undefined);
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
@@ -255,6 +261,7 @@ export function Inspector() {
           assessing={assessing}
           canAssess={canAssess}
           motionPlanError={motionPlanError}
+          needsRebuild={needsRebuild}
           onRetry={() => {
             void retryMotionPlan(journey.id);
           }}
@@ -313,6 +320,7 @@ function MotionInspectorFields({
   assessing,
   canAssess,
   motionPlanError,
+  needsRebuild = false,
   onRetry,
   motionSource,
   motionRecords,
@@ -336,6 +344,7 @@ function MotionInspectorFields({
   assessing: boolean;
   canAssess: boolean;
   motionPlanError?: string | null;
+  needsRebuild?: boolean;
   onRetry: () => void;
   motionSource?: { startShootingFrame: ShootingFrameRef; endShootingFrame: ShootingFrameRef };
   motionRecords: ReturnType<typeof camotionRecordsForJourney>;
@@ -415,6 +424,11 @@ function MotionInspectorFields({
             {motionPlanError}
           </p>
         ) : null}
+        {needsRebuild && !motionPlanError ? (
+          <p className="rounded border border-[#3a342c] bg-[#141210] px-3 py-2 text-[#cfc6b8]">
+            Camotion shooting frames are missing. Rebuild regenerates A′/B′ for this segment.
+          </p>
+        ) : null}
         {motionPlanError && canAssess ? (
           <button
             type="button"
@@ -426,6 +440,18 @@ function MotionInspectorFields({
             {assessing ? "Planning…" : "Retry"}
           </button>
         ) : null}
+        {needsRebuild && canAssess && !motionPlanError ? (
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+            disabled={assessing}
+            aria-label={`Rebuild Camotion ${journeyId}`}
+            title="Regenerate Camotion shooting frames for this segment"
+            onClick={onRetry}
+          >
+            {assessing ? "Planning…" : "Rebuild Camotion"}
+          </button>
+        ) : null}
       </div>
       <div hidden={pane !== "details"} className="space-y-3">
         <InspectorCopyDisclosure
@@ -434,7 +460,9 @@ function MotionInspectorFields({
           copyText={camotionCopy}
         >
           <div className="space-y-3">
-            {motionSource ? (
+            {motionSource &&
+            motionSource.startShootingFrame.imageUrl &&
+            motionSource.endShootingFrame.imageUrl ? (
               <ShootingFrameThumbs
                 journeyId={journeyId}
                 frames={motionSource}
@@ -443,6 +471,10 @@ function MotionInspectorFields({
                 onSelectStart={onSelectStart}
                 onSelectEnd={onSelectEnd}
               />
+            ) : needsRebuild ? (
+              <p className="text-[11px] tracking-[0.08em] text-[#9a8f7e]">
+                Shooting frames missing — use Rebuild Camotion.
+              </p>
             ) : null}
             <CamotionDiagnosticPanel
               records={motionRecords}

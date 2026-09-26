@@ -24,6 +24,7 @@ export function DestinationItem({
   selected,
   continuity,
   generating = false,
+  planning = false,
   constructionError,
   onRetry,
   onSelect,
@@ -33,6 +34,8 @@ export function DestinationItem({
   selected: boolean;
   continuity?: BoundaryContinuity;
   generating?: boolean;
+  /** Director PLAN JOURNEY is filling this empty FPO beat. */
+  planning?: boolean;
   constructionError?: string;
   onRetry?: () => void;
   onSelect: () => void;
@@ -42,6 +45,8 @@ export function DestinationItem({
   const label = destination?.label ?? occurrence.label;
   const loopReturn = occurrence.destinationId === "A" && occurrence.occurrenceIndex > 0;
   const failed = Boolean(constructionError) && !generating;
+  const planningEmpty = planning && fpo && !generating;
+  const live = generating || planningEmpty;
   const ring = failed || occurrence.arrivalBlocked
     ? "ring-2 ring-[#c45c38]"
     : selected
@@ -64,12 +69,12 @@ export function DestinationItem({
         className="block w-full text-left outline-none"
         onClick={onSelect}
         aria-label={ariaBits.join(", ")}
-        aria-busy={generating || undefined}
+        aria-busy={live || undefined}
       >
       <span className="mb-1 flex h-5 items-baseline justify-center gap-1 border-b border-[#3a342c]">
         <span
           className={`truncate text-center text-[11px] tracking-[0.2em] text-[#ece7df]${
-            generating ? " storyboard-generating-label" : ""
+            live ? " storyboard-generating-label" : ""
           }`}
         >
           {label}
@@ -80,7 +85,11 @@ export function DestinationItem({
       </span>
       <span className="relative block">
         {fpo ? (
-          <span className={`storyboard-fpo relative block aspect-video w-full overflow-hidden rounded ${ring}`} />
+          <span
+            className={`storyboard-fpo relative block aspect-video w-full overflow-hidden rounded ${ring}${
+              planningEmpty ? " storyboard-generating" : ""
+            }`}
+          />
         ) : (
           <img
             src={image}

@@ -411,15 +411,28 @@ function restoreShootingFrame(
   missing: string[],
   present: (relativePath: string) => boolean,
 ): ShootingFrameRef | undefined {
-  if (!frame) {
+  if (!frame?.mediaId) {
     return undefined;
   }
-  const relative = isSafeProjectRelativePath(frame.imageUrl) ? frame.imageUrl : undefined;
-  if (relative && !present(relative)) {
-    missing.push(relative);
+  const relative =
+    typeof frame.imageUrl === "string" && isSafeProjectRelativePath(frame.imageUrl)
+      ? frame.imageUrl
+      : undefined;
+  if (relative) {
+    if (!present(relative)) {
+      missing.push(relative);
+      // Empty URL so hasStagedMotionPlan / Rebuild treat this as missing A′/B′ bytes.
+      return { mediaId: frame.mediaId, imageUrl: "" };
+    }
     return { mediaId: frame.mediaId, imageUrl: runtimeMediaPreviewUrl(frame.mediaId) };
   }
-  return { mediaId: frame.mediaId, imageUrl: runtimeMediaPreviewUrl(frame.mediaId) };
+  // No project-relative asset (stripped after cleanup, or never persisted). Keep mediaId only.
+  if (!frame.imageUrl) {
+    missing.push(`shooting-frame:${frame.mediaId}`);
+    return { mediaId: frame.mediaId, imageUrl: "" };
+  }
+  // Already a session/runtime preview URL from an in-memory project.
+  return { mediaId: frame.mediaId, imageUrl: frame.imageUrl };
 }
 
 function restoreMotionPlan(

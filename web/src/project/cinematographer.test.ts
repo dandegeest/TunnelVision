@@ -11,6 +11,8 @@ import {
   cinematographerAssessmentIsCurrent,
   locomotionPaceLabel,
   hasCurrentMotionPlan,
+  hasStagedMotionPlan,
+  motionPlanNeedsRebuild,
   journeyLegStatusLabel,
   journeySegmentAriaLabel,
   journeySegmentCaption,
@@ -140,7 +142,29 @@ describe("Cinematographer actual-set assessment", () => {
     });
     const journey = planned.journeys.find((item) => item.id === "A-B")!;
     expect(hasCurrentMotionPlan(planned, journey)).toBe(true);
+    expect(hasStagedMotionPlan(journey)).toBe(true);
+    expect(motionPlanNeedsRebuild(journey)).toBe(false);
     expect(journeysReadyToBlock(planned).some((item) => item.id === "A-B")).toBe(false);
+    const missingFrames = {
+      ...planned,
+      journeys: planned.journeys.map((item) =>
+        item.id === "A-B" && item.motionPlan
+          ? {
+              ...item,
+              motionPlan: {
+                ...item.motionPlan,
+                startShootingFrame: { mediaId: item.motionPlan.startShootingFrame.mediaId, imageUrl: "" },
+                endShootingFrame: { ...item.motionPlan.endShootingFrame, imageUrl: undefined as unknown as string },
+              },
+            }
+          : item,
+      ),
+    };
+    const missing = missingFrames.journeys.find((item) => item.id === "A-B")!;
+    expect(hasStagedMotionPlan(missing)).toBe(false);
+    expect(hasCurrentMotionPlan(missingFrames, missing)).toBe(false);
+    expect(motionPlanNeedsRebuild(missing)).toBe(true);
+    expect(journeysReadyToBlock(missingFrames).some((item) => item.id === "A-B")).toBe(true);
     expect(motionPlanAutoKey(planned)).toContain(
       `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:planned`,
     );

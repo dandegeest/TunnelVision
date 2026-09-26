@@ -625,6 +625,82 @@ describe("Shoot from a real planned project", () => {
     expect(atC).toContain('aria-label="New take B-C"');
   });
 
+  it("offers Rebuild Camotion on MOTION when shooting frames are missing", () => {
+    const forest = createForestProject();
+    const planned = projectWithSyncedProductionLegs(forest);
+    const withPlan = {
+      ...planned,
+      journeys: planned.journeys.map((journey) =>
+        journey.id === "A-B"
+          ? {
+              ...journey,
+              cinematographer: {
+                shootability: "shootable" as const,
+                summary: "Advance.",
+                route: "Forward.",
+                threshold: "Opening.",
+                camera: "Track.",
+                parallax: "Near.",
+                transitionStrategy: "Pass.",
+                segmentPromptAddition: "Track forward.",
+                pace: "moderate" as const,
+                setConsistency: 80,
+                traversalConfidence: 70,
+                concerns: [],
+              },
+              motionPlan: {
+                cinematographer: {
+                  shootability: "shootable" as const,
+                  summary: "Advance.",
+                  route: "Forward.",
+                  threshold: "Opening.",
+                  camera: "Track.",
+                  parallax: "Near.",
+                  transitionStrategy: "Pass.",
+                  segmentPromptAddition: "Track forward.",
+                  pace: "moderate" as const,
+                  setConsistency: 80,
+                  traversalConfidence: 70,
+                  concerns: [],
+                },
+                startCanonicalMediaId: journey.motionPlan?.startCanonicalMediaId,
+                endCanonicalMediaId: journey.motionPlan?.endCanonicalMediaId,
+                startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "" },
+                endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "" },
+                startPlan: journey.motionPlan?.startPlan ?? {
+                  version: 1 as const,
+                  camera: { vanishing_point: [0.5, 0.5] as [number, number], forward: 1 },
+                  destination: {
+                    point: [0.5, 0.5] as [number, number],
+                    protect: true,
+                    bbox: [0.2, 0.2, 0.8, 0.8] as [number, number, number, number],
+                  },
+                  exposure: { strength: 0.08, samples: 16 },
+                },
+                endPlan: journey.motionPlan?.endPlan ?? {
+                  version: 1 as const,
+                  camera: { vanishing_point: [0.5, 0.5] as [number, number], forward: 1 },
+                  destination: {
+                    point: [0.5, 0.5] as [number, number],
+                    protect: true,
+                    bbox: [0.2, 0.2, 0.8, 0.8] as [number, number, number, number],
+                  },
+                  exposure: { strength: 0.08, samples: 16 },
+                },
+                segmentPromptAddition: "Track forward.",
+                effectivePrompt: "Track forward.",
+                pace: "moderate" as const,
+              },
+            }
+          : journey,
+      ),
+    };
+    const html = renderShoot(withPlan, { journeyId: "A-B", band: "motion" });
+    expect(html).toContain('aria-label="Rebuild Camotion A-B"');
+    expect(html).toContain(">Rebuild<");
+    expect(html).toContain("Regenerate Camotion shooting frames for this segment");
+  });
+
   it("offers Retry on MOTION after that segment's automatic Motion Plan fails", () => {
     const base = projectWithSyncedProductionLegs({
       ...createNewProject(),
@@ -837,9 +913,22 @@ describe("Shoot from a real planned project", () => {
     );
     expect(failed).toContain('aria-label="Failed take 1 A-B"');
     expect(failed).toContain('aria-label="Retry take 1 A-B"');
+    expect(failed).toContain('title="provider down"');
+    expect(failed).not.toMatch(/aria-label="Retry take 1 A-B"[^>]*>\s*Retry\s*</);
+    expect(failed).toContain('aria-label="Delete failed take 1 A-B"');
     expect(failed).toContain("provider down");
     expect(failed).toContain('aria-label="Retry destination B"');
     expect(failed).not.toContain('aria-label="Generating take 1 A-B"');
+    expect(failed).toContain('aria-label="New take A-B"');
+    const failedTop = Number(
+      failed.match(/data-take-failed=""[^>]*style="[^"]*top:(\d+)px/)?.[1] ??
+        failed.match(/style="top:(\d+)px[^"]*"[^>]*data-take-failed/)?.[1],
+    );
+    const newTakeTopPx = Number(
+      failed.match(/style="top:(\d+)px;left:\d+px;width:\d+px;height:22px"[\s\S]{0,300}?aria-label="New take A-B"/)?.[1],
+    );
+    expect(failedTop).toBeGreaterThan(0);
+    expect(newTakeTopPx).toBeGreaterThan(failedTop);
 
     const retrying = renderToStaticMarkup(
       <ProjectProvider
@@ -1262,7 +1351,9 @@ describe("Shoot footage inspector", () => {
     expect(html).toContain('data-canonical-stale="true"');
     expect(html).toContain('aria-label="Take 2 A-B previous canonicals"');
     expect(html).toContain(TAKE_PREVIOUS_CANONICALS_COPY);
-    expect(html).toContain("≠");
+    expect(html).toContain("take-outdated-flag");
+    expect(html).toContain("Outdated");
+    expect(html).not.toContain(">≠<");
   });
 
   it("colors CM prompt addition in the Motion Inspector", () => {

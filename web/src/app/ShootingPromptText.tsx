@@ -12,7 +12,7 @@ export function ShootingPromptText({
 }) {
   const { paceLeadIn, addition, baseline } = splitShootingPrompt(effectivePrompt, segmentPromptAddition);
   return (
-    <p className={`whitespace-pre-wrap ${className}`.trim()}>
+    <p className={`tv-prompt whitespace-pre-wrap leading-snug ${className}`.trim()}>
       {paceLeadIn ? (
         <span className="text-[#f4d27a]" data-prompt-role="pace">
           {paceLeadIn}

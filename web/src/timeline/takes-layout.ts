@@ -21,23 +21,28 @@ export function takeRowTop(index: number): number {
   return TAKES_STACK_TOP + TAKES_HEADER_HEIGHT + TAKES_HEADER_GAP + index * (TAKE_ROW_HEIGHT + TAKE_ROW_GAP);
 }
 
-export function newTakeTop(takeCount: number): number {
-  if (takeCount === 0) {
+/**
+ * Top of the NEW TAKE control. `pendingRow` is a generating or failed bar
+ * that occupies the next take row — NEW TAKE sits below it.
+ */
+export function newTakeTop(takeCount: number, pendingRow = false): number {
+  const rows = takeCount + (pendingRow ? 1 : 0);
+  if (rows === 0) {
     return TAKES_STACK_TOP;
   }
-  return takeRowTop(takeCount);
+  return takeRowTop(rows);
 }
 
-export function pendingTakeCount(takeCount: number, shooting: boolean): number {
-  return takeCount + (shooting ? 1 : 0);
+export function pendingTakeCount(takeCount: number, pendingRow: boolean): number {
+  return takeCount + (pendingRow ? 1 : 0);
 }
 
-export function showTakesGutter(takeCount: number, shooting: boolean): boolean {
-  return takeCount > 0 || shooting;
+export function showTakesGutter(takeCount: number, pendingRow: boolean): boolean {
+  return takeCount > 0 || pendingRow;
 }
 
-export function journeyLaneStackHeight(takeCount: number, showNewTake: boolean, shooting = false): number {
-  const stackTakes = pendingTakeCount(takeCount, shooting);
+export function journeyLaneStackHeight(takeCount: number, showNewTake: boolean, pendingRow = false): number {
+  const stackTakes = pendingTakeCount(takeCount, pendingRow);
   if (stackTakes === 0 && !showNewTake) {
     return BAND_HEIGHT;
   }
@@ -45,7 +50,7 @@ export function journeyLaneStackHeight(takeCount: number, showNewTake: boolean, 
     return TAKES_STACK_TOP + NEW_TAKE_HEIGHT;
   }
   if (showNewTake) {
-    return newTakeTop(stackTakes) + NEW_TAKE_HEIGHT;
+    return newTakeTop(takeCount, pendingRow) + NEW_TAKE_HEIGHT;
   }
   return takeRowTop(stackTakes) - TAKE_ROW_GAP;
 }

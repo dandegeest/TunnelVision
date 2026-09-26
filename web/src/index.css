@@ -2,6 +2,13 @@
 
 :root {
   color-scheme: dark;
+  /* Type scale — body/prompts at 12px; build hierarchy outward from there. */
+  --tv-text-micro: 9px; /* media facts, badges, dense chrome */
+  --tv-text-label: 10px; /* field eyebrows, section kickers */
+  --tv-text-control: 11px; /* button labels, uppercase CTAs */
+  --tv-text-body: 12px; /* prompts, body copy, menu rows */
+  --tv-text-title: 13px; /* panel headers */
+  --tv-text-display: 15px; /* agent compose / large inputs */
 }
 
 html,
@@ -178,7 +185,7 @@ body,
   overflow-y: auto;
   overscroll-behavior: contain;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: var(--tv-text-body);
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: 0.01em;
@@ -191,7 +198,7 @@ body,
   overscroll-behavior: contain;
   pointer-events: auto;
   background: linear-gradient(to bottom, rgba(12, 11, 10, 0.72) 0%, rgba(12, 11, 10, 0.28) 55%, transparent 100%);
-  font-size: 0.8rem;
+  font-size: var(--tv-text-body);
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: 0.01em;
@@ -210,7 +217,7 @@ body,
 .storyboard-plan-overlay-kicker {
   display: block;
   margin-bottom: 0.15rem;
-  font-size: 0.625rem;
+  font-size: var(--tv-text-label);
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: 0.16em;
@@ -365,19 +372,32 @@ body,
 }
 
 .storyboard-plan-changed-flag {
-  position: absolute;
-  right: 0.4rem;
-  bottom: 2rem;
-  z-index: 1;
-  padding: 0.15rem 0.4rem;
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.1rem 0.35rem;
   border: 1px dashed #d4b36a;
-  background: rgba(12, 11, 10, 0.82);
+  background: rgba(12, 11, 10, 0.55);
   color: #e4d2a4;
-  font-size: 9px;
+  font-size: var(--tv-text-micro);
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   line-height: 1.2;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.take-outdated-flag {
+  flex: 0 0 auto;
+  padding: 0.05rem 0.3rem;
+  border: 1px dashed #d4b36a;
+  background: rgba(68, 57, 34, 0.85);
+  color: #e4d2a4;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .agent-stage[data-agent-stage] {
@@ -618,6 +638,7 @@ body {
   background: #0c0b0a;
   color: #ece7df;
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-size: var(--tv-text-body);
 }
 
 button,
@@ -627,12 +648,32 @@ textarea {
   font: inherit;
 }
 
+/* Prompts and body copy — type-scale body (12px). */
 #project-story,
 #project-story-idea,
-#project-story-duration {
-  font-size: 11px;
+#project-story-duration,
+#agent-composer,
+.destination-detail-prompt,
+.tv-prompt {
+  font-size: var(--tv-text-body);
 }
 
-.destination-detail-prompt {
-  font-size: 10px;
+.tv-label {
+  font-size: var(--tv-text-label);
+}
+
+.tv-control {
+  font-size: var(--tv-text-control);
+}
+
+.tv-title {
+  font-size: var(--tv-text-title);
+}
+
+.tv-micro {
+  font-size: var(--tv-text-micro);
+}
+
+.tv-display {
+  font-size: var(--tv-text-display);
 }

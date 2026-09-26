@@ -25,7 +25,8 @@ export function DestinationsLane({
   storyboard: readonly StoryboardFrame[];
   onSelect: (occurrenceIndex: number, destinationId: string) => void;
 }) {
-  const { retryDestination } = useProject();
+  const { retryDestination, directorStatus } = useProject();
+  const planning = directorStatus === "planning";
   return (
     <div className="absolute inset-x-0 top-7 z-[1] h-[100px]">
       {occurrences.map((occurrence) => {
@@ -45,6 +46,7 @@ export function DestinationsLane({
           (item) => item.id === occurrence.destinationId || (item.destinationId ?? item.id) === occurrence.destinationId,
         );
         const generating = occurrenceIsGenerating(occurrence, constructingBeatId, storyboard);
+        const emptyBeat = Boolean(occurrence.fpo) || !destination?.image;
         return (
           <DestinationItem
             key={occurrence.occurrenceIndex}
@@ -53,6 +55,7 @@ export function DestinationsLane({
             selected={selected}
             continuity={continuity}
             generating={generating}
+            planning={planning && emptyBeat}
             constructionError={generating ? undefined : frame?.constructionError}
             onRetry={
               frame

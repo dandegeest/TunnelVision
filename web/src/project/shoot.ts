@@ -13,8 +13,25 @@ import {
   projectWithAppendedTake,
   selectedTake,
 } from "./takes";
-import type { CameraGrammar, CameraMotionPlanV1, JourneyShot, JourneyShotTake, LocomotionPace, Project } from "./types";
+import type {
+  CameraGrammar,
+  CameraMotionPlanV1,
+  JourneyShot,
+  JourneyShotTake,
+  LocomotionPace,
+  Project,
+  Selection,
+} from "./types";
 import { cameraGrammarFromProject } from "./camera-grammar";
+
+export const TAKE_BATCH_SCOPES = ["all", "selected", "missing"] as const;
+export type TakeBatchScope = (typeof TAKE_BATCH_SCOPES)[number];
+
+export const TAKE_BATCH_SCOPE_LABEL: Record<TakeBatchScope, string> = {
+  all: "Take All",
+  selected: "Take Selected",
+  missing: "Take Missing",
+};
 
 export type ShootJourneyRequest = {
   journeyId: string;
@@ -65,6 +82,53 @@ export function journeysReadyToAutoShoot(project: Project): JourneyShot[] {
 /** Filmmaker NEW TAKE ALL: every staged segment, including those that already have Takes. */
 export function journeysReadyToTakeAll(project: Project): JourneyShot[] {
   return project.journeys.filter((journey) => canShootJourney(project, journey));
+}
+
+export function journeyHasTakeOfIntent(journey: JourneyShot, intent: GenerationIntent): boolean {
+  return journeyTakes(journey).some((take) => take.generationIntent === intent);
+}
+
+/** Segments active for the current Shoot selection (journey or touching destination). */
+export function journeyMatchesTakeSelection(journey: JourneyShot, selection: Selection): boolean {
+  if (selection.kind === "journey") {
+    return selection.journeyId === journey.id;
+  }
+  if (selection.kind === "destination") {
+    return (
+      selection.destinationId === journey.startDestinationId ||
+      selection.destinationId === journey.endDestinationId
+    );
+  }
+  return false;
+}
+
+export function journeysReadyToTakeSelected(project: Project, selection: Selection): JourneyShot[] {
+  return project.journeys.filter(
+    (journey) => canShootJourney(project, journey) && journeyMatchesTakeSelection(journey, selection),
+  );
+}
+
+/** Staged segments with no take of this quality yet. */
+export function journeysReadyToTakeMissing(project: Project, intent: GenerationIntent): JourneyShot[] {
+  return project.journeys.filter(
+    (journey) => canShootJourney(project, journey) && !journeyHasTakeOfIntent(journey, intent),
+  );
+}
+
+export function journeysForTakeBatch(
+  project: Project,
+  scope: TakeBatchScope,
+  intent: GenerationIntent,
+  selection: Selection,
+): JourneyShot[] {
+  switch (scope) {
+    case "all":
+      return journeysReadyToTakeAll(project);
+    case "selected":
+      return journeysReadyToTakeSelected(project, selection);
+    case "missing":
+      return journeysReadyToTakeMissing(project, intent);
+  }
 }
 
 /** Switch the Fast mapping. Unshot legs preview the default Take intent's clip length. */
@@ -240,6 +304,28 @@ export function projectWithJourneyShotFailed(
         return { ...failed, status: "rendered" as const };
       }
       return { ...failed, status: "failed" as const };
+    }),
+  };
+}
+
+/** Dismiss a failed NEW TAKE attempt that never produced a clip. */
+export function projectWithClearedShootFailure(project: Project, journeyId: string): Project {
+  if (!project.journeys.some((journey) => journey.id === journeyId)) {
+    throw new Error("Unknown journey");
+  }
+  return {
+    ...project,
+    journeys: project.journeys.map((journey) => {
+      if (journey.id !== journeyId) {
+        return journey;
+      }
+      const takes = journeyTakes(journey);
+      return {
+        ...journey,
+        shootError: undefined,
+        failedShootIntent: undefined,
+        status: takes.length > 0 ? ("rendered" as const) : journey.status === "failed" ? ("ready" as const) : journey.status,
+      };
     }),
   };
 }

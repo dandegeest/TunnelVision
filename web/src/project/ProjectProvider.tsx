@@ -33,10 +33,12 @@ import {
 import {
   canShootJourney,
   journeysReadyToAutoShoot,
-  journeysReadyToTakeAll,
+  journeysForTakeBatch,
+  type TakeBatchScope,
   projectWithDefaultTakeIntent,
   projectWithKlingV3Mode,
   projectWithJourneyClipDuration,
+  projectWithClearedShootFailure,
   projectWithJourneyShotFailed,
   projectWithJourneyShooting,
   projectWithJourneysShooting,
@@ -227,11 +229,12 @@ type ProjectContextValue = {
   shootingIntents: Readonly<Record<string, GenerationIntent>>;
   shootError: string | null;
   shootJourney: (journeyId: string, intent?: GenerationIntent) => Promise<void>;
-  shootAllJourneys: (intent: GenerationIntent) => Promise<void>;
+  shootAllJourneys: (intent: GenerationIntent, scope?: TakeBatchScope) => Promise<void>;
   selectTake: (journeyId: string, takeId: string) => void;
   selectTakeRow: (rowIndex: number) => void;
   deleteTake: (journeyId: string, takeId: string) => void;
   deleteTakeRow: (rowIndex: number) => void;
+  clearShootFailure: (journeyId: string) => void;
   cutPlaybackJourneyId: string | null;
   cutStartOffset: number;
   cutSeekNonce: number;
@@ -342,6 +345,8 @@ export function ProjectProvider({
   const [selection, setSelection] = useState<Selection>(
     () => initialSelection ?? { kind: "storyboard", frameId: "A" },
   );
+  const selectionRef = useRef(selection);
+  selectionRef.current = selection;
   const [zoom, setZoomState] = useState(1);
   const [playheadTime, setPlayheadTime] = useState(0);
   const [playing, setPlaying] = useState(initialPlaying);
@@ -1408,9 +1413,9 @@ export function ProjectProvider({
   );
 
   const shootAllJourneys = useCallback(
-    async (intent: GenerationIntent) => {
+    async (intent: GenerationIntent, scope: TakeBatchScope = "all") => {
       const current = projectRef.current;
-      const launches = journeysReadyToTakeAll(current).map((journey) => ({
+      const launches = journeysForTakeBatch(current, scope, intent, selectionRef.current).map((journey) => ({
         journeyId: journey.id,
         entryId: nextConversationId("shooting"),
       }));
@@ -1475,6 +1480,12 @@ export function ProjectProvider({
 
   const deleteTakeRow = useCallback((rowIndex: number) => {
     const next = projectWithDeletedTakeRow(projectRef.current, rowIndex);
+    projectRef.current = next;
+    setProject(next);
+  }, []);
+
+  const clearShootFailure = useCallback((journeyId: string) => {
+    const next = projectWithClearedShootFailure(projectRef.current, journeyId);
     projectRef.current = next;
     setProject(next);
   }, []);
@@ -2617,6 +2628,7 @@ export function ProjectProvider({
       selectTakeRow,
       deleteTake,
       deleteTakeRow,
+      clearShootFailure,
       cutPlaybackJourneyId,
       cutStartOffset,
       cutSeekNonce,
@@ -2724,6 +2736,7 @@ export function ProjectProvider({
       selectTakeRow,
       deleteTake,
       deleteTakeRow,
+      clearShootFailure,
       cutPlaybackJourneyId,
       cutStartOffset,
       cutSeekNonce,

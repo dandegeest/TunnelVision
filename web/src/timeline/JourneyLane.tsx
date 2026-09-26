@@ -48,7 +48,7 @@ import {
 } from "./takes-layout";
 
 const takeCtaClass =
-  "h-[22px] shrink-0 cursor-pointer rounded border border-[#3a342c] text-[10px] leading-[16px] tracking-[0.12em] text-[#ece7df] hover:border-[#7a7266]";
+  "h-[22px] shrink-0 cursor-pointer rounded border border-[#3a342c] text-[11px] leading-[16px] tracking-[0.12em] text-[#ece7df] hover:border-[#7a7266]";
 
 function takeThumbnailUrl(take: JourneyShotTake, fallback?: string): string | undefined {
   return takeHasShootingFrames(take) ? take.startShootingFrame.imageUrl : fallback;
@@ -220,11 +220,26 @@ function TakeRow({
       >
         <TakeNumberBadge number={number} stale={stale} />
         {thumbSrc ? (
-          <img src={thumbSrc} alt="" className="media-contain h-[18px] w-[32px] shrink-0 rounded" />
+          <img
+            src={thumbSrc}
+            alt=""
+            className={`media-contain h-[18px] w-[32px] shrink-0 rounded ${
+              stale ? "opacity-70 outline outline-1 outline-dashed outline-[#d4b36a]" : ""
+            }`}
+          />
         ) : (
-          <span className="h-[18px] w-[32px] shrink-0 rounded border border-[#3a342c] bg-[#142014]" />
+          <span
+            className={`h-[18px] w-[32px] shrink-0 rounded border bg-[#142014] ${
+              stale ? "border-dashed border-[#d4b36a]" : "border-[#3a342c]"
+            }`}
+          />
         )}
         {intentMark ? <span className="truncate text-[9px] tracking-[0.16em] opacity-80">{intentMark}</span> : null}
+        {stale ? (
+          <span className="take-outdated-flag" aria-hidden>
+            Outdated
+          </span>
+        ) : null}
       </button>
       {lock ? <TakeLockScores drop={lock} /> : null}
       {onDeleteTake ? (
@@ -366,6 +381,36 @@ function GeneratingTakeRow({
   );
 }
 
+function FailedTakeRetryIcon() {
+  return (
+    <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+      <path
+        d="M9.5 3.5A3.8 3.8 0 0 0 2.4 5.2M2.5 8.5A3.8 3.8 0 0 0 9.6 6.8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+      />
+      <path
+        d="M9.5 1.5v2.4H7.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2.5 10.5V8.1H4.9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function FailedTakeRow({
   laid,
   journey,
@@ -379,6 +424,7 @@ function FailedTakeRow({
   error,
   onSelect,
   onRetry,
+  onDelete,
 }: {
   laid: LaidOutJourney;
   journey: JourneyShot;
@@ -392,11 +438,12 @@ function FailedTakeRow({
   error: string;
   onSelect: () => void;
   onRetry: () => void;
+  onDelete: () => void;
 }) {
   const intentMark = intent ? GENERATION_INTENT_MARK[intent] : undefined;
   return (
     <div
-      className={`absolute z-[2] box-border flex items-center gap-1 border border-[#c45c38] bg-[#2a1610] px-1.5 text-[#f0c2a8] ${takeBarRadiusClass(first, last, false)}`}
+      className={`group absolute z-[2] box-border flex items-center gap-1 border border-[#c45c38] bg-[#2a1610] px-1.5 text-[#f0c2a8] ${takeBarRadiusClass(first, last, false)}`}
       style={{
         top: takeRowTop(rowIndex),
         left: laid.left,
@@ -405,12 +452,12 @@ function FailedTakeRow({
       }}
       data-take-failed=""
       data-take-duration={durationSeconds}
-      title={error}
     >
       <button
         type="button"
         className="flex min-w-0 flex-1 items-center gap-1 text-left outline-none"
         aria-label={`Failed take ${number} ${journey.id}`}
+        title={error}
         onClick={onSelect}
       >
         <TakeNumberBadge number={number} />
@@ -420,15 +467,29 @@ function FailedTakeRow({
       </button>
       <button
         type="button"
-        className="shrink-0 rounded border border-[#f0c2a8] px-1.5 py-0.5 text-[9px] tracking-[0.14em] uppercase outline-none hover:bg-[#3a2018] focus-visible:ring-1 focus-visible:ring-[#f0c2a8]"
+        className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-[#f0c2a8] text-[#f0c2a8] outline-none hover:bg-[#3a2018] focus-visible:ring-1 focus-visible:ring-[#f0c2a8]"
         aria-label={`Retry take ${number} ${journey.id}`}
+        title={error}
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
           onRetry();
         }}
       >
-        Retry
+        <FailedTakeRetryIcon />
+      </button>
+      <button
+        type="button"
+        className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded text-[12px] leading-none text-[#9a8f7e] hover:bg-[#3a2018] hover:text-[#f0c2a8]"
+        aria-label={`Delete failed take ${number} ${journey.id}`}
+        title="Dismiss this failed take"
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onDelete();
+        }}
+      >
+        ×
       </button>
     </div>
   );
@@ -449,10 +510,20 @@ export function JourneyLane({
   shootingJourneyIds?: readonly string[];
   onSelect: (journeyId: string, band: "motion" | "footage") => void;
 }) {
-  const { project, shootJourney, selectTake, selectTakeRow, deleteTake, deleteTakeRow, zoom, shootingIntents } =
-    useProject();
+  const {
+    project,
+    shootJourney,
+    selectTake,
+    selectTakeRow,
+    deleteTake,
+    deleteTakeRow,
+    clearShootFailure,
+    zoom,
+    shootingIntents,
+  } = useProject();
   const [pendingDelete, setPendingDelete] = useState<
     | { kind: "take"; journeyId: string; takeId: string; number: number }
+    | { kind: "failed"; journeyId: string; number: number }
     | { kind: "row"; rowIndex: number; count: number }
     | null
   >(null);
@@ -541,11 +612,11 @@ export function JourneyLane({
                 TAKES
                 {journeyHasStaleTakes(project, journey) ? (
                   <span
-                    className="ml-1 text-[#e4d2a4]"
+                    className="take-outdated-flag ml-1.5"
                     title={TAKE_PREVIOUS_CANONICALS_COPY}
                     aria-label={TAKE_PREVIOUS_CANONICALS_COPY}
                   >
-                    ≠
+                    Outdated
                   </span>
                 ) : null}
               </div>
@@ -625,13 +696,20 @@ export function JourneyLane({
                     journey.failedShootIntent ?? defaultTakeIntentFromProject(project),
                   );
                 }}
+                onDelete={() => {
+                  setPendingDelete({
+                    kind: "failed",
+                    journeyId: journey.id,
+                    number: nextTakeNumber(takes),
+                  });
+                }}
               />
             ) : null}
             {showNewTake ? (
               <div
                 className="absolute z-[2] flex items-center justify-center"
                 style={{
-                  top: newTakeTop(takes.length),
+                  top: newTakeTop(takes.length, failedTake),
                   left: laid.left,
                   width: Math.max(laid.width, 8),
                   height: NEW_TAKE_HEIGHT,
@@ -660,6 +738,18 @@ export function JourneyLane({
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           deleteTake(pendingDelete.journeyId, pendingDelete.takeId);
+          setPendingDelete(null);
+        }}
+      />
+    ) : pendingDelete?.kind === "failed" ? (
+      <DeleteTakeDialog
+        journeyId={pendingDelete.journeyId}
+        takeNumber={pendingDelete.number}
+        title="Dismiss failed take"
+        copy={`Dismiss the failed TAKE ${pendingDelete.number} attempt on ${pendingDelete.journeyId}? No clip was saved.`}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          clearShootFailure(pendingDelete.journeyId);
           setPendingDelete(null);
         }}
       />

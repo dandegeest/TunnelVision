@@ -323,7 +323,7 @@ describe("Shell header chrome", () => {
     expect(logoAt).toBeGreaterThan(-1);
     expect(logoAt).toBeLessThan(directorAt);
     expect(toolbar).not.toContain('aria-label="Current project:');
-    expect(toolbar).toContain("text-sm font-semibold");
+    expect(toolbar).toContain("text-[13px] font-semibold");
     expect(html).toContain("workspace-app-header");
     expect(html).toContain("grid-column:1 / -1");
   });
@@ -338,7 +338,8 @@ describe("Shell header chrome", () => {
     expect(html).toContain('aria-label="Download"');
     expect(html).toContain(">DOWNLOAD<");
     expect(html).toContain('aria-label="Play current cut"');
-    expect(html).toContain('aria-label="New take all"');
+    expect(html).toContain('aria-label="Take All"');
+    expect(html).toContain('aria-label="Take quality Fast"');
     expect(html).not.toContain("Export Movie");
     expect(html).not.toContain("Exported the rendered journey clips");
   });

@@ -68,7 +68,21 @@ export function canAssessJourney(project: Project, journey: JourneyShot): boolea
 }
 
 export function hasStagedMotionPlan(journey: JourneyShot): boolean {
-  return Boolean(journey.motionPlan?.startShootingFrame && journey.motionPlan.endShootingFrame);
+  const plan = journey.motionPlan;
+  return Boolean(plan?.startShootingFrame?.imageUrl && plan.endShootingFrame?.imageUrl);
+}
+
+/**
+ * Motion Plan shell exists but A′/B′ image bytes are gone (e.g. deleted from disk).
+ * Unstaged legs with only a CM assessment still use automatic Motion Planning.
+ */
+export function motionPlanNeedsRebuild(journey: JourneyShot): boolean {
+  if (hasStagedMotionPlan(journey) || journey.motionPlanError || !journey.motionPlan) {
+    return false;
+  }
+  return !(
+    journey.motionPlan.startShootingFrame?.imageUrl && journey.motionPlan.endShootingFrame?.imageUrl
+  );
 }
 
 /** Actual adjacent media IDs CM must have inspected for this pair. */

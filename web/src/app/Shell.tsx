@@ -9,7 +9,7 @@ import { AgentWorkspace } from "./agent/AgentWorkspace";
 
 function Wordmark() {
   return (
-    <p className="min-w-0 truncate text-sm font-semibold tracking-[0.2em] text-[#cfc6b8] uppercase">
+    <p className="min-w-0 truncate text-[13px] font-semibold tracking-[0.2em] text-[#cfc6b8] uppercase">
       TunnelVision
     </p>
   );

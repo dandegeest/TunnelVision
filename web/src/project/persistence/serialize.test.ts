@@ -199,6 +199,90 @@ describe("project persistence schema", () => {
     expect(conversationEventsText([])).toBe("");
   });
 
+  it("clears Motion Plan shooting-frame URLs when A′/B′ files are missing on disk", () => {
+    let project = createNewProject();
+    project = {
+      ...project,
+      title: "Missing primes",
+      storyboard: [
+        frameWithAppendedCanonicalTake(project.storyboard[0]!, { ...FRAME, origin: "user", source: "upload" }),
+        {
+          id: "B",
+          label: "B",
+          imageOrigin: "generated",
+          image: "/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        },
+      ],
+      journeys: [
+        {
+          id: "A-B",
+          startDestinationId: "A",
+          endDestinationId: "B",
+          durationSeconds: 5,
+          status: "ready",
+          cinematographer: {
+            shootability: "shootable",
+            summary: "Advance.",
+            route: "Forward.",
+            threshold: "Opening.",
+            camera: "Track.",
+            parallax: "Near.",
+            transitionStrategy: "Pass.",
+            segmentPromptAddition: "Track forward.",
+            pace: "moderate",
+            setConsistency: 80,
+            traversalConfidence: 70,
+            concerns: [],
+          },
+          motionPlan: {
+            cinematographer: {
+              shootability: "shootable",
+              summary: "Advance.",
+              route: "Forward.",
+              threshold: "Opening.",
+              camera: "Track.",
+              parallax: "Near.",
+              transitionStrategy: "Pass.",
+              segmentPromptAddition: "Track forward.",
+              pace: "moderate",
+              setConsistency: 80,
+              traversalConfidence: 70,
+              concerns: [],
+            },
+            startCanonicalMediaId: FRAME.mediaId,
+            endCanonicalMediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            startShootingFrame: {
+              mediaId: "upload-11111111111111111111111111111111",
+              imageUrl: "/api/runtime-media/upload-11111111111111111111111111111111",
+            },
+            endShootingFrame: {
+              mediaId: "upload-22222222222222222222222222222222",
+              imageUrl: "/api/runtime-media/upload-22222222222222222222222222222222",
+            },
+            startPlan: PLAN,
+            endPlan: PLAN,
+            segmentPromptAddition: "Track forward.",
+            effectivePrompt: "Track forward.",
+            pace: "moderate",
+          },
+        },
+      ],
+    };
+    const documents = serializeProjectDocuments({ project });
+    const hydrated = hydrateProject({
+      manifest: documents.manifest,
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: (relativePath) => !relativePath.startsWith("shooting-frames/"),
+    });
+    const journey = hydrated.project.journeys.find((item) => item.id === "A-B")!;
+    expect(journey.motionPlan).toBeDefined();
+    expect(journey.motionPlan?.startShootingFrame.imageUrl).toBe("");
+    expect(journey.motionPlan?.endShootingFrame.imageUrl).toBe("");
+    expect(hydrated.warnings.missingAssets.some((path) => path.startsWith("shooting-frames/"))).toBe(true);
+  });
+
   it("persists pull-forward reference and treats a missing setting as ON", () => {
     const off = serializeProjectDocuments({
       project: { ...createNewProject(), pullForwardReferenceEnabled: false },

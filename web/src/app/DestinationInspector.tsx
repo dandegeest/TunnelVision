@@ -51,7 +51,7 @@ export function DestinationPlanFields({
   const opening = frame.id === "A";
   const intent = frame.intent ?? "";
   const source = opening ? project.story : (frame.visualDescription ?? "");
-  const fieldClass = "destination-detail-prompt mt-2 block w-full text-[10px] leading-snug text-[#ece7df]";
+  const fieldClass = "destination-detail-prompt tv-prompt mt-2 block w-full leading-snug text-[#ece7df]";
 
   return (
     <>
@@ -113,7 +113,7 @@ function DestinationGeneratedPrompt({
     <InspectorCopyDisclosure label="Prompt" copyLabel="Copy prompt" copyText={generated}>
       <p
         aria-label={`Destination ${frame.label} prompt`}
-        className="whitespace-pre-wrap text-[10px] leading-snug text-[#cfc6b8]"
+        className="tv-prompt whitespace-pre-wrap leading-snug text-[#cfc6b8]"
       >
         {generated}
       </p>
