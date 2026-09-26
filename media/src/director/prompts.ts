@@ -71,7 +71,7 @@ Rules:
 - Do not include the opening beat. The starting frame is already authoritative.
 - Return beats in travel order after the opening.
 - Preserve every existing destination id and order. Actual stills are authoritative; reason from the attached images, not merely stale text.
-- For unresolved slots, supply intent and visualDescription. Do not generate images. PLAN fills semantic gaps, not image gaps.
+- For unresolved slots, supply intent and visualDescription. Do not generate images. PLAN fills semantic gaps, not image gaps. Newly planned beats continue the filmmaker's journey; the product appends them onto the production story as more story rather than replacing the opening.
 - For an existing actual destination with no intent or visualDescription, describe it from the attached image. Include that id in beats[]. The product keeps the still and adopts that text.
 - For an existing actual destination that already has intent and visualDescription, restating its known look is fine; the product keeps the original still and those existing fields.
 - When the opening is the only existing destination, return subsequent beats only, with ids continuing after the opening (B, C, D, …). Use the fewest destinations necessary to express the filmmaker's requested journey and any explicitly requested approximate overall duration. Add a beat when the camera reaches a meaningfully new place, world state, or story moment. Do not create separate storyboard beats merely for approaching and then crossing the same threshold when that movement can occur within one continuous shot. When no overall duration is requested, simple journeys may require only 2–4 subsequent destinations. Use more when the filmmaker's story genuinely requires them.

@@ -26,6 +26,11 @@ import {
   projectHasExistingJourney,
   canRemoveStoryboardDestination,
   projectWithStoryboardBeatPlan,
+  newlyPlannedBeats,
+  extendProductionStoryWithBeats,
+  storyClauseFromBeat,
+  projectWithClearedStillsFrom,
+  frameWithClearedStill,
 } from "./storyboard";
 import { projectWithConstructedDestination } from "./destination";
 import type { StoryboardFrame } from "./types";
@@ -841,5 +846,72 @@ describe("story duration", () => {
         ],
       }),
     ).toBe(false);
+  });
+
+  it("extends the production story when newly planned beats are added after an existing plan", () => {
+    const planned = projectWithDirectorPlan(createWardrobeProject(), {
+      summary: "Leave through the wardrobe.",
+      beats: [
+        { id: "B", intent: "Pass through the wardrobe.", visualDescription: "Coats and dark wood." },
+      ],
+    });
+    expect(planned.story).toBe(createWardrobeProject().story);
+    const grown = projectWithAddedDestination(planned);
+    const extended = projectWithDirectorPlan(grown, {
+      summary: "Continue into the hall.",
+      beats: [
+        { id: "B", intent: "Pass through the wardrobe.", visualDescription: "Coats and dark wood." },
+        {
+          id: "C",
+          intent: "The camera follows the mouse as it enters the lit hall.",
+          visualDescription: "A warm hall with an open doorway.",
+        },
+      ],
+    });
+    expect(newlyPlannedBeats(grown.storyboard, extended.storyboard).map((frame) => frame.id)).toEqual(["C"]);
+    expect(extended.story.startsWith(planned.story.trim())).toBe(true);
+    expect(extended.story.length).toBeGreaterThan(planned.story.trim().length);
+    expect(extended.story.toLowerCase()).toContain("mouse");
+  });
+
+  it("does not rewrite story on the first Director plan from opening alone", () => {
+    const opening = createWardrobeProject();
+    const planned = projectWithDirectorPlan(opening, {
+      summary: "Leave through the wardrobe.",
+      beats: [
+        { id: "B", intent: "Pass through the wardrobe.", visualDescription: "Coats." },
+        { id: "C", intent: "Enter the forest.", visualDescription: "Trees." },
+      ],
+    });
+    expect(planned.story).toBe(opening.story);
+  });
+
+  it("clears stills from a letter onward while keeping plan text", () => {
+    const forest = createForestProject();
+    const cleared = projectWithClearedStillsFrom(forest, "D");
+    expect(cleared.storyboard.slice(0, 3).every(isSpecifiedStoryboardDestination)).toBe(true);
+    expect(cleared.storyboard.slice(3).every((frame) => frame.imageOrigin === "none")).toBe(true);
+    expect(cleared.storyboard[3]?.intent).toBe(forest.storyboard[3]?.intent);
+    expect(frameWithClearedStill(forest.storyboard[3]!).takes).toEqual([]);
+    expect(cleared.journeys.some((journey) => journey.id.includes("D"))).toBe(false);
+  });
+
+  it("builds story clauses from camera intents", () => {
+    expect(
+      storyClauseFromBeat({
+        intent: "The camera follows the mouse as it weaves past cafe seating toward the park.",
+      }),
+    ).toBe("The mouse weaves past cafe seating toward the park.");
+    expect(
+      storyClauseFromBeat({
+        intent:
+          "The camera dives after the mouse as it descends from the rooftops, scurrying down a curved zinc rain gutter.",
+      }),
+    ).toBe("The mouse descends from the rooftops, scurrying down a curved zinc rain gutter.");
+    expect(
+      extendProductionStoryWithBeats("Starts in the walls.", [
+        { intent: "The camera follows the mouse as it climbs the tower." },
+      ]),
+    ).toBe("Starts in the walls. The mouse climbs the tower.");
   });
 });

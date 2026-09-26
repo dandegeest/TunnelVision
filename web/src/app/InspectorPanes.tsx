@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
+import { DisclosureMarker, disclosureSummaryClass } from "../ui/Disclosure";
 
 export function inspectorPanePillClass(active: boolean) {
   return `rounded-full px-2.5 py-0.5 tracking-[0.14em] uppercase outline-none ${
@@ -51,27 +52,14 @@ export function InspectorCopyDisclosure({
   const [open, setOpen] = useState(true);
   return (
     <div>
-      <div className="flex items-center gap-2 text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">
+      <div className="flex items-center gap-2">
         <button
           type="button"
           aria-expanded={open}
-          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left outline-none"
+          className={`${disclosureSummaryClass} min-w-0 flex-1 text-left`}
           onClick={() => setOpen((current) => !current)}
         >
-          <svg
-            viewBox="0 0 8 8"
-            className={`h-2 w-2 shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
-            aria-hidden
-          >
-            <path
-              d="M2.2 1.1 6.2 4 2.2 6.9"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <DisclosureMarker open={open} />
           <span className="min-w-0 flex-1">{label}</span>
         </button>
         <CopyToClipboardButton text={copyText} label={copyLabel} />

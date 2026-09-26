@@ -8,6 +8,7 @@ import { locomotionPaceLabel } from "../project/cinematographer";
 import { effectiveJourneyPace } from "../project/journey-overrides";
 import { useProject } from "../project/ProjectProvider";
 import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
+import { DisclosureMarker, disclosureSummaryClass } from "../ui/Disclosure";
 import { ProgressSpinner } from "../ui/ProgressSpinner";
 import {
   cinematographerCardCopy,
@@ -148,9 +149,12 @@ function ScoreMeter({ label, value }: { label: string; value: number }) {
 
 function DirectorEvidenceDetails({ evidence }: { evidence: DirectorEvidence }) {
   return (
-    <details className="text-xs text-[#9a8f7e]">
-      <summary className="cursor-pointer tracking-[0.16em] uppercase">Evidence</summary>
-      <div className="mt-2 space-y-2 leading-relaxed">
+    <details className="tv-disclosure text-[#9a8f7e]">
+      <summary className={disclosureSummaryClass}>
+        <DisclosureMarker />
+        Evidence
+      </summary>
+      <div className="mt-2 space-y-2 text-xs leading-relaxed">
         {evidence.model ? <p>Model: {evidence.model}</p> : null}
         {evidence.predictionId ? <p>Prediction: {evidence.predictionId}</p> : null}
         <p>Elapsed: {evidence.elapsedMs}ms</p>
@@ -305,9 +309,12 @@ function CinematographerBlockView({ block }: { block: CinematographerBlock }) {
       {assessment ? (
         <div className="mt-3 space-y-3">
           <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#ece7df]">{assessment.summary}</p>
-          <details className="text-xs text-[#9a8f7e]">
-            <summary className="cursor-pointer tracking-[0.16em] uppercase">Traversal</summary>
-            <div className="mt-2 space-y-2 leading-relaxed text-[#cfc6b8]">
+          <details className="tv-disclosure text-[#9a8f7e]">
+            <summary className={disclosureSummaryClass}>
+              <DisclosureMarker />
+              Traversal
+            </summary>
+            <div className="mt-2 space-y-2 text-xs leading-relaxed text-[#cfc6b8]">
               <p>{assessment.shootability}</p>
               <p>{assessment.camera}</p>
               <p>{consumedPace ?? assessment.pace}</p>
@@ -427,9 +434,12 @@ function ShootingEntryView({ entry }: { entry: Extract<ConversationEntry, { kind
               {entry.take.segmentPromptAddition}
             </p>
           ) : null}
-          <details className="text-xs text-[#9a8f7e]">
-            <summary className="cursor-pointer tracking-[0.16em] uppercase">Take</summary>
-            <div className="mt-2 space-y-2 leading-relaxed text-[#cfc6b8]">
+          <details className="tv-disclosure text-[#9a8f7e]">
+            <summary className={disclosureSummaryClass}>
+              <DisclosureMarker />
+              Take
+            </summary>
+            <div className="mt-2 space-y-2 text-xs leading-relaxed text-[#cfc6b8]">
               <ShootingPromptText
                 effectivePrompt={entry.take.effectivePrompt}
                 segmentPromptAddition={entry.take.segmentPromptAddition}

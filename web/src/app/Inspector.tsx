@@ -45,6 +45,7 @@ import { camotionRecordsCopyText, camotionRecordsForDestination, camotionRecords
 import { PanelHeader } from "./PanelHeader";
 import { InspectorCopyDisclosure, InspectorPaneNav } from "./InspectorPanes";
 import { GenerationIntentMenu } from "../ui/GenerationIntentMenu";
+import { DisclosureMarker, disclosureSummaryClass } from "../ui/Disclosure";
 import { JourneyPaceMark } from "../timeline/JourneyPaceMark";
 import { newTakeActionLabel } from "../timeline/JourneyItem";
 
@@ -852,8 +853,9 @@ function TakeInspector({
       {direction ? <InspectorMeta label="Shot direction" value={direction} /> : null}
       {intentLabel ? <InspectorMeta label="Generation" value={intentLabel} /> : null}
       {effectivePrompt ? (
-        <details>
-          <summary className="flex cursor-pointer items-center gap-2 text-[11px] tracking-[0.22em] text-[#9a8f7e] uppercase">
+        <details className="tv-disclosure">
+          <summary className={disclosureSummaryClass}>
+            <DisclosureMarker />
             <span className="min-w-0 flex-1">Prompt</span>
             <CopyToClipboardButton text={effectivePrompt} label="Copy prompt" />
           </summary>

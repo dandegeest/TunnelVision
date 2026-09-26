@@ -333,6 +333,150 @@ export function projectWithStoryboardBeatPlan(
   };
 }
 
+function beatHasPlanText(frame: Pick<StoryboardFrame, "intent" | "visualDescription">): boolean {
+  return Boolean(frame.intent?.trim() || frame.visualDescription?.trim());
+}
+
+/**
+ * Beats that newly gained directing text — empty slots filled or new ids invented.
+ * Opening A is never treated as an extension beat.
+ */
+export function newlyPlannedBeats(
+  before: readonly StoryboardFrame[],
+  after: readonly StoryboardFrame[],
+): StoryboardFrame[] {
+  const prior = new Map(before.map((frame) => [storyboardIdKey(frame.id), frame]));
+  return after.filter((frame) => {
+    if (sameStoryboardId(frame.id, "A") || !beatHasPlanText(frame)) {
+      return false;
+    }
+    const prev = prior.get(storyboardIdKey(frame.id));
+    if (!prev) {
+      return true;
+    }
+    return !beatHasPlanText(prev);
+  });
+}
+
+/** Turn a Director beat intent into a filmmaker-facing story clause. */
+export function storyClauseFromBeat(frame: Pick<StoryboardFrame, "intent" | "visualDescription">): string {
+  const intent = frame.intent?.trim() ?? "";
+  const visual = frame.visualDescription?.trim() ?? "";
+  let clause = intent;
+  if (!clause && visual) {
+    const sentence = visual.split(/(?<=[.!?])\s+/)[0]?.trim() ?? visual;
+    clause = sentence.replace(/^Stylized 3D animation\.\s*/i, "").trim();
+  }
+  if (!clause) {
+    return "";
+  }
+  clause = clause.replace(/^The camera\s+/i, "");
+  // "follows/dives after the mouse as it…" → "the mouse…"
+  clause = clause.replace(
+    /^(?:.*?\s)?(?:after|following|trailing|pursuing|follows|trails)\s+the mouse as it\s+/i,
+    "the mouse ",
+  );
+  // "touches down on the street, following the mouse as it weaves…" → "the mouse weaves…"
+  clause = clause.replace(/^[^,]+,\s*following the mouse as it\s+/i, "the mouse ");
+  clause = clause.replace(/^following the mouse as it\s+/i, "the mouse ");
+  clause = clause.replace(/^trailing the mouse as it\s+/i, "the mouse ");
+  clause = clause.replace(/^pursuing the mouse as it\s+/i, "the mouse ");
+  clause = clause.trim();
+  if (!clause) {
+    return "";
+  }
+  if (/^the mouse\b/i.test(clause)) {
+    clause = `The mouse${clause.slice("the mouse".length)}`;
+  } else {
+    clause = clause.charAt(0).toUpperCase() + clause.slice(1);
+  }
+  if (!/[.!?]$/.test(clause)) {
+    clause = `${clause}.`;
+  }
+  return clause;
+}
+
+/**
+ * Append newly planned beats onto the production story without rewriting the opening.
+ * Earlier story text stays; new geography is written on as more story.
+ */
+export function extendProductionStoryWithBeats(
+  story: string,
+  beats: readonly Pick<StoryboardFrame, "intent" | "visualDescription">[],
+): string {
+  const base = story.trim();
+  const clauses = beats.map(storyClauseFromBeat).filter(Boolean);
+  if (clauses.length === 0) {
+    return base;
+  }
+  const addition = clauses.join(" ");
+  if (!base) {
+    return addition;
+  }
+  const probe = clauses[0]!.slice(0, Math.min(48, clauses[0]!.length));
+  if (probe && base.includes(probe)) {
+    return base;
+  }
+  return `${base} ${addition}`;
+}
+
+/** Drop stills from a destination while keeping plan text. Production legs resync. */
+export function frameWithClearedStill(frame: StoryboardFrame): StoryboardFrame {
+  const next: StoryboardFrame = {
+    id: frame.id,
+    label: frame.label,
+    imageOrigin: "none",
+    ...(frame.intent?.trim() ? { intent: frame.intent } : {}),
+    ...(frame.visualDescription?.trim() ? { visualDescription: frame.visualDescription } : {}),
+    takes: [],
+  };
+  return next;
+}
+
+/** Clear actual stills from `fromFrameId` through the end of the storyboard. Keeps plan text. */
+export function projectWithClearedStillsFrom(project: Project, fromFrameId: string): Project {
+  const start = project.storyboard.findIndex((frame) => sameStoryboardId(frame.id, fromFrameId));
+  if (start < 0) {
+    return project;
+  }
+  const clearedIds = new Set(
+    project.storyboard.slice(start).map((frame) => storyboardIdKey(frame.id)),
+  );
+  const storyboard = project.storyboard.map((frame, index) => {
+    if (index < start || !isSpecifiedStoryboardDestination(frame)) {
+      return frame;
+    }
+    return frameWithClearedStill(frame);
+  });
+  const destinations = project.destinations.filter(
+    (destination) => !clearedIds.has(storyboardIdKey(destination.id)),
+  );
+  const journeys = project.journeys.filter((journey) => {
+    if (clearedIds.has(storyboardIdKey(journey.startDestinationId))) {
+      return false;
+    }
+    if (journey.endDestinationId && clearedIds.has(storyboardIdKey(journey.endDestinationId))) {
+      return false;
+    }
+    return true;
+  });
+  const boundaryAnalysis = project.boundaryAnalysis?.filter((record) => {
+    if (clearedIds.has(storyboardIdKey(record.sharedDestinationId))) {
+      return false;
+    }
+    const prevParts = record.previousJourneyId.split("-");
+    const nextParts = record.nextJourneyId.split("-");
+    return ![...prevParts, ...nextParts].some((part) => clearedIds.has(storyboardIdKey(part)));
+  });
+  return projectWithSyncedProductionLegs({
+    ...project,
+    storyboard,
+    destinations,
+    journeys,
+    ...(project.boundaryAnalysis ? { boundaryAnalysis } : {}),
+  });
+}
+
 export function projectWithNudgedStoryDuration(project: Project, delta: 1 | -1): Project {
   if (project.storyDurationLocked) {
     return project;
@@ -597,10 +741,22 @@ export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): P
   if (!start) {
     throw new Error("Project has no specified opening storyboard frame");
   }
-  const storyboard = applyDirectorPlanToStoryboard(project.storyboard, plan);
+  const before = project.storyboard;
+  const storyboard = applyDirectorPlanToStoryboard(before, plan);
+  const hadPriorContinuation = before.some(
+    (frame) =>
+      !sameStoryboardId(frame.id, start.id) &&
+      (beatHasPlanText(frame) || isSpecifiedStoryboardDestination(frame)),
+  );
+  const extensionBeats = hadPriorContinuation ? newlyPlannedBeats(before, storyboard) : [];
+  const story =
+    extensionBeats.length > 0
+      ? extendProductionStoryWithBeats(project.story, extensionBeats)
+      : project.story;
   return {
     ...project,
     storyboard,
+    story,
     storyDuration: storyboard.length,
     storyDurationLocked: true,
   };

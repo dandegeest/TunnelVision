@@ -11,6 +11,7 @@ import { splitJourneyPrompt } from "../../project/project-name";
 import { journeyCreationLabel, resolveReferenced, sessionCardsFromTurns } from "../../project/session";
 import { AgentCollapsedStrip, AgentJourneyPath } from "./AgentJourneyPath";
 import { CopyToClipboardButton } from "../../ui/CopyToClipboardButton";
+import { DisclosureMarker } from "../../ui/Disclosure";
 import {
   agentGeneratingLabel,
   beatText,
@@ -19,25 +20,6 @@ import {
 
 function TurnRule() {
   return <hr className="border-0 border-t border-[#ece7df]/10" />;
-}
-
-function DisclosureChevron({ open }: { open: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 12 12"
-      className={`h-3 w-3 shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
-      aria-hidden
-    >
-      <path
-        d="M4 2.2 8.6 6 4 9.8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 }
 
 function HistoryTurn({
@@ -59,12 +41,12 @@ function HistoryTurn({
         type="button"
         aria-expanded={expanded}
         aria-label={expanded ? `Collapse ${title}` : `Open ${title}`}
-        className="flex items-center gap-1.5 text-left text-[13px] tracking-[0.04em] text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
+        className="flex items-center gap-1.5 text-left text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
         onClick={onToggle}
       >
-        {title}
-        {detail ? <span className="tracking-normal text-[#7a7266]">{detail}</span> : null}
-        <DisclosureChevron open={expanded} />
+        <DisclosureMarker open={expanded} />
+        <span>{title}</span>
+        {detail ? <span className="tracking-normal text-[#7a7266] normal-case">{detail}</span> : null}
       </button>
       {expanded ? <div className="mt-4">{children}</div> : null}
     </div>
@@ -93,11 +75,11 @@ function JourneyPrompt({
         type="button"
         aria-expanded={expanded}
         aria-label={expanded ? `Collapse ${title}` : `Open ${title}`}
-        className="flex items-center gap-1.5 text-left text-[15px] leading-relaxed text-[#cfc6b8] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
+        className="flex items-center gap-1.5 text-left text-[#9a8f7e] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
         onClick={onToggle}
       >
-        {title}
-        <DisclosureChevron open={expanded} />
+        <DisclosureMarker open={expanded} />
+        <span className="text-[15px] leading-relaxed tracking-normal text-[#cfc6b8] normal-case">{title}</span>
       </button>
       {expanded ? (
         <p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed text-[#cfc6b8]">{body}</p>

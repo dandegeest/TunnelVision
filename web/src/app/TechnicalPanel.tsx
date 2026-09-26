@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useProject } from "../project/ProjectProvider";
 import type { JourneyShot, StoryboardFrame } from "../project/types";
 import { actualFrameForDestination } from "../project/cinematographer";
+import { DisclosureMarker, disclosureSummaryClass } from "../ui/Disclosure";
 
 type DebugMediaSnapshot = {
   storeDirectory: string | null;
@@ -85,12 +86,15 @@ export function TechnicalPanel() {
 
   return (
     <details
-      className="mt-auto border-t border-[#2a2620] pt-3 text-xs text-[#9a8f7e]"
+      className="tv-disclosure mt-auto border-t border-[#2a2620] pt-3 text-[#9a8f7e]"
       open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
-      <summary className="cursor-pointer tracking-[0.16em] uppercase">Technical</summary>
-      <div className="mt-2 space-y-1 leading-relaxed">
+      <summary className={disclosureSummaryClass}>
+        <DisclosureMarker />
+        Technical
+      </summary>
+      <div className="mt-2 space-y-1 text-xs leading-relaxed">
         <p>Construction: planned. Discovery is not implemented.</p>
         <p>
           Video uses Camotion shooting frames and the Project panel Video
@@ -100,7 +104,7 @@ export function TechnicalPanel() {
         </p>
         {debugOn ? (
           <div className="mt-3 space-y-1 border-t border-[#2a2620] pt-2">
-            <p className="tracking-[0.16em] uppercase">Debug</p>
+            <p className="text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Debug</p>
             <DebugPath label="Session store" value={snapshot?.storeDirectory} />
             {selectedFrame ? (
               <>

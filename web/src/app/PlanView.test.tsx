@@ -192,7 +192,7 @@ describe("Plan project story", () => {
     expect(html).toContain(formatConversationClock(AT2));
     expect(html).not.toContain("Director planning…");
     expect(html).toContain(submitted);
-    expect(html.match(/<summary[^>]*>Evidence<\/summary>/g)?.length).toBe(1);
+    expect(html.match(/<summary[^>]*>[\s\S]*?Evidence[\s\S]*?<\/summary>/g)?.length).toBe(1);
   });
 
   it("does not enable later destinations while the journey story is empty", () => {
@@ -488,7 +488,7 @@ describe("Plan conversation thread", () => {
     expect(second).toBeGreaterThan(constructingC);
     expect(directorTwo).toBeGreaterThan(second);
     expect(html).toContain("/api/runtime-media/upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-    expect(html.match(/<summary[^>]*>Evidence<\/summary>/g)?.length).toBe(2);
+    expect(html.match(/<summary[^>]*>[\s\S]*?Evidence[\s\S]*?<\/summary>/g)?.length).toBe(2);
     expect(html).toContain("First journey.");
     expect(html).toContain("Deeper into the fissure.");
     expect(html).toContain(formatConversationClock(AT));

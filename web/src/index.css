@@ -677,3 +677,24 @@ textarea {
 .tv-display {
   font-size: var(--tv-text-display);
 }
+
+/* App-wide disclosure / collapsible header (TAKE / Evidence / Prompt / …). */
+.tv-disclosure-summary {
+  font-family: inherit;
+}
+
+.tv-disclosure-summary::-webkit-details-marker {
+  display: none;
+}
+
+.tv-disclosure-marker {
+  display: block;
+  transition: transform 120ms ease;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+}
+
+details[open] > summary .tv-disclosure-marker,
+.tv-disclosure-marker.is-open {
+  transform: rotate(90deg);
+}

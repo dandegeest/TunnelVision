@@ -6,6 +6,7 @@ import type { StoryboardFrame } from "../../project/types";
 import { StoryboardFrameMedia } from "../PlanView";
 import type { JourneyProgress, JourneyProgressStatus } from "../conversation-console";
 import { previousCanonicals, rejectedCanonicals, type RejectedCanonical } from "./journey-turns";
+import { DisclosureMarker } from "../../ui/Disclosure";
 
 /** Journeys shorter than this scale to the chat width instead of scrolling. */
 export const AGENT_PATH_FIT_LIMIT = 10;
@@ -127,13 +128,11 @@ function ReshootHistory({
       <button
         type="button"
         aria-expanded={open}
-        className="flex items-center text-[12px] tracking-[0.04em] text-[#7a7266] outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
+        className="flex items-center gap-1.5 text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase outline-none hover:text-[#ece7df] focus-visible:text-[#ece7df]"
         onClick={() => setOpen((value) => !value)}
       >
+        <DisclosureMarker open={open} />
         {label}
-        <span className="ml-1.5" aria-hidden>
-          {open ? "▾" : "›"}
-        </span>
       </button>
       {open ? (
         <div className="mt-2 flex flex-col items-start">
