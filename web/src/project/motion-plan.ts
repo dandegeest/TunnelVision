@@ -9,6 +9,7 @@ import {
   canAssessJourney,
   hasCurrentMotionPlan,
   hasStagedMotionPlan,
+  motionPlanSourceToken,
 } from "./cinematographer";
 import { cameraGrammarFromProject } from "./camera-grammar";
 import { pullForwardReferenceEnabledFromProject } from "./destination";
@@ -142,6 +143,7 @@ export function projectWithMotionPlan(
     ...motionPlan,
     startCanonicalMediaId: start?.mediaId ?? motionPlan.startCanonicalMediaId,
     endCanonicalMediaId: end?.mediaId ?? motionPlan.endCanonicalMediaId,
+    sourceKey: motionPlanSourceToken(project, journey) ?? motionPlan.sourceKey,
   };
   const durationSeconds = unshotDurationSeconds(project, { cinematographer: stamped.cinematographer });
   return {

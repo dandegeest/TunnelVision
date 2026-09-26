@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createNewProject } from "./new-project";
-import { frameWithAppendedCanonicalTake, canonicalTakes, selectedCanonicalTake } from "./canonical-takes";
+import { frameWithAppendedCanonicalTake, canonicalTakes, locateCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
 import { projectWithReplacedStartImage } from "./starting-frame";
 
 const PNG_A = {
@@ -35,6 +35,17 @@ describe("canonical takes", () => {
     expect(second.mediaId).toBe(PNG_B.mediaId);
     expect(canonicalTakes(second)[0]?.mediaId).toBe(PNG_A.mediaId);
     expect(selectedCanonicalTake(second)?.id).toBe("A:canonical:2");
+  });
+
+  it("locates a take on its destination", () => {
+    const empty = { ...createNewProject().storyboard[0]!, id: "B", label: "B" };
+    const first = frameWithAppendedCanonicalTake(empty, { ...PNG_A, origin: "user", source: "upload" });
+    const second = frameWithAppendedCanonicalTake(first, { ...PNG_B, origin: "generated", source: "repair" });
+    const located = locateCanonicalTake([second], "B:canonical:1");
+    expect(located?.frame.id).toBe("B");
+    expect(located?.index).toBe(0);
+    expect(located?.takes).toHaveLength(2);
+    expect(locateCanonicalTake([second], "missing")).toBeUndefined();
   });
 
   it("keeps prior uploads when replacing A", () => {

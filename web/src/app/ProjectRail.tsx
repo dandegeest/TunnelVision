@@ -22,13 +22,12 @@ import {
   isCameraGrammar,
 } from "../project/camera-grammar";
 import { formatJourneyAgentButtonLabel, journeyAgentIsBusy } from "../project/journey-agent";
-import { projectScoreFromProject } from "../project/cinematographer";
 import { displayProjectPath } from "../project/persistence/paths";
 import { recentListedProjects } from "../project/recent-projects";
 import type { ListedProject } from "../project/project-persistence-client";
 import { suggestedProjectName } from "../project/project-name";
 import { journeyProgressFromProject } from "./conversation-console";
-import { JourneyProgressRail, ProjectScoreReadout, progressSelectionId } from "./JourneyProgressRail";
+import { JourneyProgressRail, progressSelectionId } from "./JourneyProgressRail";
 import type { Agency, Project } from "../project/types";
 import {
   IMAGE_MODELS,
@@ -1015,7 +1014,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
     shootingJourneyIds,
     journeyAgent,
   });
-  const score = projectScoreFromProject(project);
   const hasOpeningFrame = hasAuthoritativeStartingFrame(project);
   const directed = project.agency === "directed";
   const actionLabel = planActionLabel({
@@ -1290,7 +1288,6 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   Stop
                 </button>
               ) : null}
-              <ProjectScoreReadout score={score} />
               {progress ? (
                 <JourneyProgressRail
                   progress={progress}

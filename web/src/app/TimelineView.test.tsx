@@ -4,8 +4,10 @@ import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { createNewProject } from "../project/new-project";
 import { projectWithCinematographerAssessment } from "../project/cinematographer";
+import { projectWithMotionPlan } from "../project/motion-plan";
 import { projectWithSyncedProductionLegs } from "../project/production-legs";
 import { projectWithJourneyShotTake } from "../project/shoot";
+import { frameWithAppendedCanonicalTake } from "../project/canonical-takes";
 import type { CinematographerAssessment, JourneyShotTake } from "../project/types";
 import { ProjectProvider } from "../project/ProjectProvider";
 import { TimelineView } from "./TimelineView";
@@ -89,6 +91,8 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain("Destination E, boundary match Strong");
     expect(html).toContain('aria-label="Destination A"');
     expect(html).toContain('aria-label="Destination F"');
+    expect(html).toContain('aria-label="Add destination"');
+    expect(html).toContain('data-destination-drop="add"');
     expect(html).not.toContain("Destination A, boundary match");
     expect(html).not.toContain("Destination F, boundary match");
     expect(html).toContain("Strong · raster");
@@ -99,6 +103,8 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain("storyboard-reel");
     expect(html).toContain('aria-label="Storyboard reel, destination B"');
     expect(html).toContain('aria-label="Close storyboard reel"');
+    expect(html).toContain('aria-label="Delete destination B"');
+    expect(html).not.toContain('aria-label="Delete destination A"');
     expect(html).toContain(">Inspector - Destination<");
   });
 
@@ -149,11 +155,14 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain("~1.85:1 · 1392×752 · Nano Banana 2 Lite");
     expect(html).not.toContain("This is what the generated world actually gave us");
     expect(html).not.toContain("The Cinematographer judges how to shoot");
+    expect(html).not.toContain("Previous takes");
     const opening = renderShoot();
     expect(opening).toContain(">Inspector - Destination<");
     expect(opening).toContain("text-2xl\">A<");
     expect(opening).toContain('aria-label="View destination A still"');
     expect(opening).toContain('title="View still"');
+    const destinationA = opening.indexOf('aria-label="Destination A"');
+    expect(opening.slice(destinationA, destinationA + 160)).toContain('title="View still"');
     expect(opening).toContain('aria-label="Destination A intent"');
     expect(opening).toContain("rows=\"3\"");
     expect(opening).toContain('aria-label="Destination A story"');
@@ -170,6 +179,49 @@ describe("Shoot boundary continuity UI", () => {
     expect(opening).not.toContain("This is the opening destination.");
     expect(opening).not.toContain("Status: ready");
     expect(opening).not.toContain("tracking-[0.22em] text-[#9a8f7e] uppercase\">Destination<");
+  });
+
+  it("lists earlier stills under Reshoot and opens every take in the reel", () => {
+    const project = {
+      ...createForestProject(),
+      storyboard: createForestProject().storyboard.map((frame) =>
+        frame.id === "B"
+          ? frameWithAppendedCanonicalTake(frame, {
+              mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              imageUrl: "/takes/b-2.png",
+              origin: "generated",
+              source: "repair",
+            })
+          : frame,
+      ),
+    };
+    const html = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 });
+    expect(html).toContain('aria-label="Previous takes"');
+    expect(html).toContain('aria-expanded="false"');
+    expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(
+      html.indexOf('aria-label="Previous takes"'),
+    );
+    expect(html).toContain('aria-label="Open take 1 of destination B"');
+    expect(html).not.toContain('aria-label="Open take 2 of destination B"');
+
+    const first = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 }, {
+      storyboardReelId: "B:canonical:1",
+    });
+    const firstReel = first.slice(first.indexOf("storyboard-reel"));
+    expect(firstReel).toContain('aria-label="Storyboard reel, destination B, take 1"');
+    expect(firstReel).toContain('alt="Destination B take 1"');
+    expect(isDisabled(firstReel, "Previous take")).toBe(true);
+    expect(isDisabled(firstReel, "Next take")).toBe(false);
+    expect(firstReel).not.toContain('aria-label="Previous destination"');
+    expect(firstReel).not.toContain('aria-label="Next destination"');
+
+    const last = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 }, {
+      storyboardReelId: "B:canonical:2",
+    });
+    const lastReel = last.slice(last.indexOf("storyboard-reel"));
+    expect(lastReel).toContain('aria-label="Storyboard reel, destination B, take 2"');
+    expect(isDisabled(lastReel, "Previous take")).toBe(false);
+    expect(isDisabled(lastReel, "Next take")).toBe(true);
   });
 });
 
@@ -482,6 +534,7 @@ describe("empty Shoot", () => {
     expect(html).toContain('aria-label="Destination A"');
     expect(html).toContain('aria-label="Plan destination B"');
     expect(html).toContain("storyboard-fpo");
+    expect(html).toContain('data-destination-drop="B"');
     expect(html).not.toContain("Nothing is ready to shoot until the journey has actual adjacent destinations.");
     expect(html).not.toContain("Cannot read");
     expect(html).not.toContain('aria-label="Stage');
@@ -699,6 +752,57 @@ describe("Shoot from a real planned project", () => {
     expect(html).toContain('aria-label="Rebuild Camotion A-B"');
     expect(html).toContain(">Rebuild<");
     expect(html).toContain("Regenerate Camotion shooting frames for this segment");
+    expect(html).not.toContain('aria-label="Replan A-B"');
+  });
+
+  it("offers Replan in the inspector when this segment already has a current Motion Plan", () => {
+    const assessment = {
+      shootability: "shootable" as const,
+      summary: "Advance.",
+      route: "Forward.",
+      threshold: "Opening.",
+      camera: "Track.",
+      parallax: "Near.",
+      transitionStrategy: "Pass.",
+      segmentPromptAddition: "Track forward.",
+      pace: "moderate" as const,
+      setConsistency: 80,
+      traversalConfidence: 70,
+      concerns: [],
+    };
+    const plan = {
+      version: 1 as const,
+      camera: { vanishing_point: [0.5, 0.5] as [number, number], forward: 1 },
+      destination: {
+        point: [0.5, 0.5] as [number, number],
+        protect: true,
+        bbox: [0.2, 0.2, 0.8, 0.8] as [number, number, number, number],
+      },
+      exposure: { strength: 0.08, samples: 16 },
+    };
+    const planned = projectWithMotionPlan(createForestProject(), "A-B", {
+      cinematographer: assessment,
+      startCanonicalMediaId: "start",
+      endCanonicalMediaId: "end",
+      startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "/a-prime.png" },
+      endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b-prime.png" },
+      startPlan: plan,
+      endPlan: plan,
+      segmentPromptAddition: "Track forward.",
+      effectivePrompt: "Track forward.",
+      pace: "moderate",
+    });
+    const html = renderShoot(planned, { journeyId: "A-B", band: "motion" });
+    expect(html).toContain('aria-label="Take direction A-B"');
+    expect(html).toContain("What happens during this shot. The still stays.");
+    expect(html).toContain('aria-label="Replan A-B"');
+    expect(html).toContain(">Replan<");
+    expect(html).toContain(
+      "Force a new motion plan. Planning also reruns when intent or the still changes.",
+    );
+    expect((html.match(/aria-label="Replan A-B"/g) ?? []).length).toBe(1);
+    expect(html).not.toContain('aria-label="Rebuild Camotion A-B"');
+    expect(html).not.toContain('aria-label="Retry A-B"');
   });
 
   it("offers Retry on MOTION after that segment's automatic Motion Plan fails", () => {

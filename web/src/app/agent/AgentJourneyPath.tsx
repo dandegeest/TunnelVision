@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { selectedCanonicalTake } from "../../project/canonical-takes";
+import { formatCutClock } from "../../project/current-cut";
 import { cinematographerScoreTone } from "../../project/cinematographer";
 import type { JourneyAgentPhase } from "../../project/journey-agent";
 import type { StoryboardFrame } from "../../project/types";
@@ -27,6 +28,39 @@ function footageLabel(status: JourneyProgressStatus): string {
   return "pending";
 }
 
+function SegmentBridge({ segment }: { segment: JourneyProgress["segments"][number] }) {
+  const scored = segment.setConsistency != null && segment.traversalConfidence != null;
+  const duration = segment.durationSeconds != null ? formatCutClock(segment.durationSeconds) : null;
+  const facts = [duration, segment.paceLabel].filter(Boolean).join(" · ");
+  return (
+    <span className="relative flex w-full items-center justify-center">
+      {scored || facts ? (
+        <span className="absolute bottom-[calc(100%+0.35rem)] left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap">
+          {scored ? (
+            <span
+              className="flex items-center gap-1 text-[9px] tracking-[0.12em] text-[#9a8f7e]"
+              aria-label={`Segment ${segment.label} SC ${segment.setConsistency} TC ${segment.traversalConfidence}`}
+            >
+              <span>SC</span>
+              <span className={cinematographerScoreTone(segment.setConsistency!, true)}>{segment.setConsistency}</span>
+              <span className="ml-0.5">TC</span>
+              <span className={cinematographerScoreTone(segment.traversalConfidence!, true)}>
+                {segment.traversalConfidence}
+              </span>
+            </span>
+          ) : null}
+          {facts ? (
+            <span className="text-[9px] tracking-[0.08em] text-[#cfc6b8]" aria-label={`Segment ${segment.label} ${facts}`}>
+              {facts}
+            </span>
+          ) : null}
+        </span>
+      ) : null}
+      <PathLine from={segment.from} to={segment.to} status={segment.status} />
+    </span>
+  );
+}
+
 function PathLine({
   from,
   to,
@@ -43,13 +77,13 @@ function PathLine({
       data-progress-line={status}
       className={
         live
-          ? `agent-path-bridge ${status === "shooting" ? "agent-path-bridge-shoot" : "agent-path-bridge-plan"}`
-          : `h-1 w-5 shrink-0 ${
-              status === "active"
-                ? "journey-progress-line-active"
-                : status === "complete"
-                  ? "bg-[#8fa36a]"
-                  : "journey-progress-line-pending"
+          ? `agent-path-bridge w-full ${status === "shooting" ? "agent-path-bridge-shoot" : "agent-path-bridge-plan"}`
+          : `block w-full shrink-0 ${
+              status === "complete"
+                ? "h-1 bg-[#8fa36a]"
+                : status === "active"
+                  ? "h-0.5 journey-progress-line-active"
+                  : "h-0.5 journey-progress-line-pending"
             }`
       }
     >
@@ -155,17 +189,32 @@ function FailedTake({ reject }: { reject: RejectedCanonical }) {
   return (
     <div className="w-full opacity-40">
       <StoryboardFrameMedia frame={frame} selected={false} constructing={false} />
-      <p className="mt-1.5 flex items-center justify-between gap-2 text-[11px] tracking-[0.04em] text-[#9a8f7e]">
-        <span>Failed</span>
-        {reject.travel != null ? (
-          <span className="flex items-center gap-1.5">
-            <span>Travel</span>
-            <span className={cinematographerScoreTone(reject.travel, true)}>{reject.travel}</span>
-          </span>
-        ) : null}
+      <p className="mt-1.5 text-[11px] leading-snug tracking-[0.02em] text-[#cfc6b8]">
+        {reject.reason ?? "Reshot"}
       </p>
+      {reject.travel != null ? (
+        <p className="mt-1 flex items-center gap-1.5 text-[11px] tracking-[0.04em] text-[#9a8f7e]">
+          <span>Travel</span>
+          <span className={cinematographerScoreTone(reject.travel, true)}>{reject.travel}</span>
+        </p>
+      ) : null}
     </div>
   );
+}
+
+function leadClass(status: JourneyProgressStatus): string {
+  if (status === "planning") {
+    return "agent-path-lead-plan";
+  }
+  if (status === "shooting") {
+    return "agent-path-lead-shoot";
+  }
+  if (status === "complete") {
+    return "agent-path-lead-complete";
+  }
+  return `agent-path-lead-pending ${
+    status === "active" ? "journey-progress-line-active" : "journey-progress-line-pending"
+  }`;
 }
 
 function LetterNode({
@@ -174,6 +223,8 @@ function LetterNode({
   selected,
   directing,
   castIndex,
+  incoming,
+  outgoing,
   onSelect,
 }: {
   letter: string;
@@ -181,6 +232,8 @@ function LetterNode({
   selected: boolean;
   directing?: boolean;
   castIndex?: number;
+  incoming?: JourneyProgressStatus;
+  outgoing?: JourneyProgressStatus;
   onSelect: () => void;
 }) {
   const style =
@@ -188,14 +241,20 @@ function LetterNode({
       ? ({ ["--cast-i"]: String(castIndex) } as CSSProperties)
       : undefined;
   return (
-    <div className="flex aspect-video w-full items-center justify-center">
+    <div className="relative flex aspect-video w-full items-center justify-center">
+      {incoming ? (
+        <span aria-hidden className={`agent-path-lead agent-path-lead-in ${leadClass(incoming)}`} />
+      ) : null}
+      {outgoing ? (
+        <span aria-hidden className={`agent-path-lead agent-path-lead-out ${leadClass(outgoing)}`} />
+      ) : null}
       <button
         type="button"
         aria-label={`Canonical ${letter} ${status === "active" ? "in progress" : "pending"}`}
         aria-pressed={selected}
         style={style}
         onClick={onSelect}
-        className={`inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full border border-[#7a7266] bg-transparent px-2 text-[12px] font-semibold tracking-[0.06em] text-[#cfc6b8] outline-none hover:border-[#ece7df] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#ece7df] ${
+        className={`relative z-[1] inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full border border-[#7a7266] bg-[#0c0b0a] px-2 text-[12px] font-semibold tracking-[0.06em] text-[#cfc6b8] outline-none hover:border-[#ece7df] hover:text-[#ece7df] focus-visible:ring-1 focus-visible:ring-[#ece7df] ${
           status === "active"
             ? "animate-pulse ring-1 ring-[#ece7df]"
             : directing
@@ -219,6 +278,7 @@ function PathStop({
   connector,
   live,
   bridge,
+  readout,
 }: {
   id: string;
   media: ReactNode;
@@ -227,6 +287,7 @@ function PathStop({
   connector: ReactNode;
   live?: boolean;
   bridge?: "planning" | "shooting";
+  readout?: boolean;
 }) {
   return (
     <li
@@ -243,8 +304,8 @@ function PathStop({
       </div>
       {connector ? (
         <div
-          className={`col-start-2 row-start-1 flex items-center justify-center self-stretch transition-[width] duration-500 ease-out ${
-            bridge ? "w-24" : "w-5"
+          className={`relative z-10 col-start-2 row-start-1 flex items-center justify-center self-stretch overflow-visible transition-[width] duration-500 ease-out ${
+            bridge || readout ? "w-[9rem]" : "w-8"
           }`}
         >
           {connector}
@@ -348,7 +409,7 @@ function JourneyPathTrack({
           showChevrons ? "overflow-x-auto px-9" : "overflow-x-hidden"
         }`}
       >
-        <ol aria-label={label} className="flex w-max items-start gap-0">
+        <ol aria-label={label} className="flex w-max items-start gap-0 pt-8">
           {children}
         </ol>
       </div>
@@ -365,6 +426,7 @@ export function AgentJourneyPath({
   constructingId,
   repairingId,
   repairTravel,
+  reshootReasons,
   phase,
   directorPlanning = false,
   onSelect,
@@ -378,6 +440,7 @@ export function AgentJourneyPath({
   constructingId?: string | null;
   repairingId?: string | null;
   repairTravel?: number;
+  reshootReasons?: Record<string, readonly string[]>;
   phase?: JourneyAgentPhase;
   directorPlanning?: boolean;
   onSelect: (id: string) => void;
@@ -402,10 +465,11 @@ export function AgentJourneyPath({
         const next = progress.nodes[index + 1];
         const segment = progress.segments[index];
         const generating = constructingId === node.id || repairingId === node.id;
+        const reasons = reshootReasons?.[node.id];
         const rejects = frame
           ? generating
-            ? previousCanonicals(frame, repairTravel)
-            : rejectedCanonicals(frame, repairTravel)
+            ? previousCanonicals(frame, repairTravel, reasons)
+            : rejectedCanonicals(frame, repairTravel, reasons)
           : [];
         const selectedTake = frame ? selectedCanonicalTake(frame) : undefined;
         const displayFrame =
@@ -446,6 +510,8 @@ export function AgentJourneyPath({
             selected={selected}
             directing={directing && node.status === "pending"}
             castIndex={index}
+            incoming={index > 0 ? progress.segments[index - 1]?.status : undefined}
+            outgoing={segment?.status}
             onSelect={() => {
               if (selected && onOpenReel) {
                 onOpenReel(node.id);
@@ -457,12 +523,17 @@ export function AgentJourneyPath({
         );
         const bridge =
           segment?.status === "planning" || segment?.status === "shooting" ? segment.status : undefined;
+        const readout = Boolean(
+          segment &&
+            (segment.setConsistency != null || segment.durationSeconds != null || segment.paceLabel),
+        );
         return (
           <PathStop
             key={node.id}
             id={node.id}
             live={generating}
             bridge={bridge}
+            readout={readout}
             media={media}
             caption={<NodeCaption caption={caption} beat={beat} selected={selected} />}
             extra={
@@ -474,7 +545,7 @@ export function AgentJourneyPath({
                 </ReshootHistory>
               ) : null
             }
-            connector={next && segment ? <PathLine from={node.id} to={next.id} status={segment.status} /> : null}
+            connector={next && segment ? <SegmentBridge segment={segment} /> : null}
           />
         );
       })}

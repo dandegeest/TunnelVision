@@ -1,6 +1,7 @@
+import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
-import { basename, dirname, extname, join, resolve } from "node:path";
+import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { downloadClipToFile } from "./export-movie.ts";
@@ -17,9 +18,11 @@ import { createNewProject } from "./src/project/new-project.ts";
 import {
   conversationEventsPath,
   isSafeProjectRelativePath,
+  CANONICALS_DIR,
   PROJECT_MANIFEST_NAME,
   relativePosix,
   sanitizeProjectFolderName,
+  SHOOTING_FRAMES_DIR,
   TRAVERSALS_DIR,
   uniqueProjectFolderName,
 } from "./src/project/persistence/paths.ts";
@@ -79,6 +82,59 @@ async function pathExists(filePath: string): Promise<boolean> {
 }
 
 const TRAVERSAL_TAKE_ASSET = /^take-\d+\.(mp4|webm)$/i;
+
+function pathIsInside(filePath: string, directory: string): boolean {
+  const prefix = directory.endsWith(sep) ? directory : `${directory}${sep}`;
+  return filePath === directory || filePath.startsWith(prefix);
+}
+
+function dropRegistryFilesUnder(directory: string): void {
+  const registry = getActiveRuntimeMediaRegistry();
+  if (!registry) {
+    return;
+  }
+  for (const record of registry.list()) {
+    if (pathIsInside(record.filePath, directory)) {
+      registry.drop(record.mediaId);
+    }
+  }
+}
+
+/** Remove destination folders the current save no longer references. */
+async function pruneUnreferencedProjectDirectories(
+  projectRoot: string,
+  parent: string,
+  keepIds: ReadonlySet<string>,
+): Promise<void> {
+  const root = join(projectRoot, parent);
+  let names: string[] = [];
+  try {
+    names = await readdir(root);
+  } catch {
+    return;
+  }
+  for (const name of names) {
+    if (keepIds.has(name)) {
+      continue;
+    }
+    const relativePath = relativePosix(parent, name);
+    if (!isSafeProjectRelativePath(relativePath)) {
+      continue;
+    }
+    const abs = join(projectRoot, relativePath);
+    let info;
+    try {
+      info = await stat(abs);
+    } catch {
+      continue;
+    }
+    if (!info.isDirectory()) {
+      continue;
+    }
+    dropRegistryFilesUnder(abs);
+    await rm(abs, { recursive: true, force: true });
+  }
+}
 
 async function pruneUnreferencedTraversalTakes(
   projectRoot: string,
@@ -153,6 +209,55 @@ export type ProjectStore = {
   deleteProject(input: { projectRoot: string; projectsFolder: string }): Promise<void>;
 };
 
+async function sameFileBytes(left: string, right: string): Promise<boolean> {
+  if (left === right) {
+    return true;
+  }
+  const [leftStat, rightStat] = await Promise.all([stat(left), stat(right)]);
+  if (leftStat.size !== rightStat.size) {
+    return false;
+  }
+  const [leftBytes, rightBytes] = await Promise.all([readFile(left), readFile(right)]);
+  return createHash("sha256").update(leftBytes).digest("hex") === createHash("sha256").update(rightBytes).digest("hex");
+}
+
+/** Local file for this media id, if the runtime registry or trusted catalog has one. */
+async function localMediaSource(
+  options: ProjectStoreOptions,
+  mediaId: string,
+  sourceUrl?: string,
+): Promise<string | undefined> {
+  const registry = getActiveRuntimeMediaRegistry();
+  const sourceRuntimeId = sourceUrl ? runtimeMediaIdFromUrl(sourceUrl) : undefined;
+  const fromSource = sourceRuntimeId ? registry?.get(sourceRuntimeId) : undefined;
+  const runtime = fromSource ?? registry?.get(mediaId);
+  if (runtime) {
+    return runtime.filePath;
+  }
+  try {
+    const trusted = resolveTrustedMedia(options.repoRoot, mediaId);
+    if (trusted.kind === "file") {
+      return trusted.path;
+    }
+  } catch (error) {
+    if (!(error instanceof UntrustedMediaError)) {
+      throw error;
+    }
+  }
+  if (!sourceUrl || sourceUrl.startsWith("/api/runtime-media/")) {
+    return undefined;
+  }
+  const localPath = sourceUrl.startsWith("file:")
+    ? fileURLToPath(sourceUrl)
+    : /^https?:\/\//i.test(sourceUrl)
+      ? undefined
+      : sourceUrl;
+  if (localPath && (await pathExists(localPath))) {
+    return localPath;
+  }
+  return undefined;
+}
+
 async function copyMediaIntoProject(
   options: ProjectStoreOptions,
   projectRoot: string,
@@ -164,57 +269,32 @@ async function copyMediaIntoProject(
     throw new ProjectSchemaError(`Unsafe project asset path: ${relativePath}`);
   }
   const dest = join(projectRoot, relativePath);
+  const source = await localMediaSource(options, mediaId, sourceUrl);
+  if (source) {
+    if (await pathExists(dest)) {
+      if (await sameFileBytes(source, dest)) {
+        return;
+      }
+    } else {
+      await mkdir(dirname(dest), { recursive: true });
+    }
+    await copyFile(source, dest);
+    return;
+  }
   if (await pathExists(dest)) {
     return;
   }
+  if (!sourceUrl) {
+    throw new Error(`Missing media ${mediaId} for ${relativePath}`);
+  }
   await mkdir(dirname(dest), { recursive: true });
-  const registry = getActiveRuntimeMediaRegistry();
-  const sourceRuntimeId = sourceUrl ? runtimeMediaIdFromUrl(sourceUrl) : undefined;
-  const fromSource = sourceRuntimeId ? registry?.get(sourceRuntimeId) : undefined;
-  const fromName = registry?.get(mediaId);
-  const runtime = fromSource ?? fromName;
-  if (runtime) {
-    await copyFile(runtime.filePath, dest);
-    return;
-  }
-  try {
-    const trusted = resolveTrustedMedia(options.repoRoot, mediaId);
-    if (trusted.kind === "file") {
-      await copyFile(trusted.path, dest);
-      return;
-    }
-  } catch (error) {
-    if (!(error instanceof UntrustedMediaError)) {
-      throw error;
-    }
-  }
-  if (sourceUrl) {
-    if (sourceUrl.startsWith("/api/runtime-media/")) {
-      const record = getActiveRuntimeMediaRegistry()?.get(sourceUrl.slice("/api/runtime-media/".length));
-      if (record) {
-        await copyFile(record.filePath, dest);
-        return;
-      }
-    }
-    const localPath = sourceUrl.startsWith("file:")
-      ? fileURLToPath(sourceUrl)
-      : /^https?:\/\//i.test(sourceUrl)
-        ? undefined
-        : sourceUrl;
-    if (localPath && (await pathExists(localPath))) {
-      await copyFile(localPath, dest);
-      return;
-    }
-    const absolute =
-      sourceUrl.startsWith("http://") || sourceUrl.startsWith("https://")
-        ? sourceUrl
-        : sourceUrl.startsWith("/")
-          ? new URL(sourceUrl, options.origin ?? "http://127.0.0.1").href
-          : pathToFileURL(sourceUrl).href;
-    await downloadClipToFile(absolute, dest);
-    return;
-  }
-  throw new Error(`Missing media ${mediaId} for ${relativePath}`);
+  const absolute =
+    sourceUrl.startsWith("http://") || sourceUrl.startsWith("https://")
+      ? sourceUrl
+      : sourceUrl.startsWith("/")
+        ? new URL(sourceUrl, options.origin ?? "http://127.0.0.1").href
+        : pathToFileURL(sourceUrl).href;
+  await downloadClipToFile(absolute, dest);
 }
 
 function adoptProjectMedia(projectRoot: string, mediaId: string, relativePath: string) {
@@ -354,6 +434,21 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
         await writeFile(eventsPath, conversationEventsText(input.conversation), "utf8");
       }
       await writeJsonAtomic(join(projectRoot, PROJECT_MANIFEST_NAME), documents.manifest);
+      const mediaPaths = documents.mediaCopies.map((copy) => copy.relativePath);
+      const shootingFrameIds = new Set(Object.keys(documents.shootingFrames));
+      for (const relativePath of mediaPaths) {
+        const prefix = `${SHOOTING_FRAMES_DIR}/`;
+        if (!relativePath.startsWith(prefix)) {
+          continue;
+        }
+        const journeyId = relativePath.slice(prefix.length).split("/")[0];
+        if (journeyId) {
+          shootingFrameIds.add(journeyId);
+        }
+      }
+      await pruneUnreferencedProjectDirectories(projectRoot, CANONICALS_DIR, new Set(Object.keys(documents.canonicals)));
+      await pruneUnreferencedProjectDirectories(projectRoot, SHOOTING_FRAMES_DIR, shootingFrameIds);
+      await pruneUnreferencedProjectDirectories(projectRoot, TRAVERSALS_DIR, new Set(Object.keys(documents.traversals)));
       await pruneUnreferencedTraversalTakes(
         projectRoot,
         new Set(documents.mediaCopies.map((copy) => copy.relativePath)),

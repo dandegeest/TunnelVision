@@ -833,6 +833,25 @@ describe("story duration", () => {
     expect(next.storyboard[1]?.visualDescription).toBe("A warmer corridor with an open doorway.");
     expect(next.storyboard[1]?.image).toBe(image);
     expect(next.storyboard[0]).toEqual(planned.storyboard[0]);
+    expect(next.story).toBe(planned.story);
+  });
+
+  it("appends the production story the first time a destination is given plan text", () => {
+    const opening = createWardrobeProject();
+    const added = projectWithAddedDestination(opening);
+    expect(added.story).toBe(opening.story);
+    const typed = projectWithStoryboardBeatPlan(added, "B", {
+      intent: "The camera follows the mouse as it keeps following the road as it winds down the mountain.",
+      visualDescription: "The camera keeps moving forward along the winding gravel road leading down the mountain.",
+    });
+    expect(typed.story.startsWith(opening.story.trim())).toBe(true);
+    expect(typed.story).toContain("winds down the mountain");
+    const edited = projectWithStoryboardBeatPlan(typed, "B", {
+      intent: "The camera follows the mouse as it turns onto a switchback.",
+      visualDescription: "A tighter bend in the same gravel road.",
+    });
+    expect(edited.storyboard[1]?.intent).toContain("switchback");
+    expect(edited.story).toBe(typed.story);
   });
 
   it("treats a loaded storyboard as an existing journey so Agent can start a new project", () => {

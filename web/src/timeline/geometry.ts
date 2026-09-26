@@ -5,6 +5,9 @@ export const BASE_PX_PER_SECOND = 38;
 export const MIN_ZOOM = 0.5;
 export const MAX_ZOOM = 3;
 export const DESTINATION_THUMB_PX = 132;
+/** Smaller trailing control that appends a destination. */
+export const ADD_DESTINATION_PX = 76;
+export const ADD_DESTINATION_GAP_PX = 16;
 export const VIEWER_GUTTER_PX = 56;
 export const TRACK_PAD_PX = DESTINATION_THUMB_PX / 2 + VIEWER_GUTTER_PX;
 /** Hide pace marks when destination stills leave no readable gap. */

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { boundaryContinuitiesForProject } from "../project/boundary-continuity";
 import { useProject } from "../project/ProjectProvider";
-import { layoutShootTimeline, selectShootOccurrence } from "./shoot-layout";
-import { timeToX } from "./geometry";
+import { canAddStoryboardDestination } from "../project/storyboard";
+import { storyboardFrameForDestination } from "../project/types";
+import { layoutShootTimeline, selectShootOccurrence, shootOccurrenceOpensReel } from "./shoot-layout";
+import { ADD_DESTINATION_GAP_PX, ADD_DESTINATION_PX, timeToX } from "./geometry";
 import { DestinationsLane } from "./DestinationsLane";
 import { GridMarks } from "./GridMarks";
 import { JourneyLane } from "./JourneyLane";
@@ -18,12 +20,16 @@ export function Timeline() {
     selection,
     select,
     openStoryboardInPlan,
+    setStoryboardReelId,
     assessingJourneyIds,
     shootingJourneyIds,
     constructingBeatId,
   } = useProject();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const layout = useMemo(() => layoutShootTimeline(project, zoom), [project, zoom]);
+  const addDestinationExtent = canAddStoryboardDestination(project)
+    ? ADD_DESTINATION_GAP_PX + ADD_DESTINATION_PX + 12
+    : 0;
   const continuities = useMemo(() => boundaryContinuitiesForProject(project), [project]);
   const laneHeight = journeyLaneHeight(project.journeys, selection, shootingJourneyIds);
   const trackMinHeight = shootTrackMinHeight(laneHeight);
@@ -50,7 +56,10 @@ export function Timeline() {
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#10100c]">
       <div ref={scrollerRef} className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
-        <div className="relative" style={{ width: layout.trackWidth, minHeight: trackMinHeight }}>
+        <div
+          className="relative"
+          style={{ width: layout.trackWidth + addDestinationExtent, minHeight: trackMinHeight }}
+        >
           <GridMarks layout={layout} zoom={zoom} />
           <div className="absolute inset-x-0 top-0 z-[1] h-7 border-b border-[#2a2620] text-[10px] tracking-[0.14em] text-[#7d7466]">
             {layout.occurrences.map((occurrence) => (
@@ -72,6 +81,13 @@ export function Timeline() {
             storyboard={project.storyboard}
             onSelect={(occurrenceIndex) => {
               const occurrence = layout.occurrences.find((item) => item.occurrenceIndex === occurrenceIndex);
+              if (shootOccurrenceOpensReel(occurrence, selection)) {
+                const frame = storyboardFrameForDestination(project.storyboard, occurrence!.destinationId);
+                if (frame) {
+                  setStoryboardReelId(frame.id);
+                  return;
+                }
+              }
               selectShootOccurrence(occurrence, {
                 select,
                 openStoryboardInPlan,

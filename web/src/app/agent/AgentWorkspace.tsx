@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { cinematographerScoreTone, projectScoreFromProject } from "../../project/cinematographer";
 import { currentCutDurationSeconds, formatCutClock } from "../../project/current-cut";
 import { journeyAgentIsBusy } from "../../project/journey-agent";
 import { useProject } from "../../project/ProjectProvider";
 import { canPlanMovie } from "../../project/storyboard";
 import { journeyProgressFromProject } from "../conversation-console";
-import { ProjectScoreReadout } from "../JourneyProgressRail";
 import { StoryboardReelHost } from "../PlanView";
 import { splitJourneyPrompt } from "../../project/project-name";
 import { journeyCreationLabel, resolveReferenced, sessionCardsFromTurns } from "../../project/session";
@@ -15,7 +13,9 @@ import { DisclosureMarker } from "../../ui/Disclosure";
 import {
   agentGeneratingLabel,
   beatText,
+  canonicalReshootCount,
   locationCaption,
+  reshootReasonsByDestination,
 } from "./journey-turns";
 
 function TurnRule() {
@@ -109,12 +109,12 @@ export function AgentWorkspace() {
     journeyAgent,
     directorStatus,
     screenwriterStatus,
+    conversation,
   } = useProject();
   const [openIds, setOpenIds] = useState(() => new Set<string>());
   const [promptOpen, setPromptOpen] = useState<Record<string, boolean>>({});
   const completedPromptIds = useRef(new Set<string>());
   const threadRef = useRef<HTMLDivElement>(null);
-  const score = projectScoreFromProject(project);
   const agentBusy = journeyAgentIsBusy(journeyAgent);
   const busy =
     directorStatus === "planning" ||
@@ -204,7 +204,10 @@ export function AgentWorkspace() {
 
   return (
     <div className="relative flex h-full min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-hidden bg-[#0c0b0a]" aria-label="Agent">
-      <div ref={threadRef} className="agent-scroll min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-8 pb-48 pt-10">
+      <div
+        ref={threadRef}
+        className={`agent-scroll min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-8 pt-10 ${agentBusy ? "pb-16" : "pb-48"}`}
+      >
         <div className="mx-auto flex min-w-0 max-w-5xl flex-col">
           {cards.map((card, index) => {
             const resolved = resolveReferenced(
@@ -224,7 +227,6 @@ export function AgentWorkspace() {
             const promptExpanded = promptOpen[card.id] ?? !complete;
             const referenced = resolved?.project;
             const exportReady = resolved?.movieExport;
-            const cardScore = referenced ? projectScoreFromProject(referenced) : score;
             const cardProgress =
               active && referenced
                 ? journeyProgressFromProject(referenced, {
@@ -245,6 +247,8 @@ export function AgentWorkspace() {
             const duration = referenced ? currentCutDurationSeconds(referenced) : 0;
             const locationCount = referenced?.storyboard.length ?? 0;
             const traversalCount = Math.max(0, locationCount - 1);
+            const reshootCount = referenced ? canonicalReshootCount(referenced.storyboard) : 0;
+            const reshootLabel = `${reshootCount} ${reshootCount === 1 ? "reshoot" : "reshoots"}`;
             const videoUrl = exportReady?.videoUrl?.trim() ?? "";
             const reelOk = Boolean(
               referenced?.storyboard.some((frame) => project.storyboard.some((item) => item.id === frame.id)),
@@ -299,29 +303,6 @@ export function AgentWorkspace() {
                             {busy || generating ? <span className="agent-stage-pip" aria-hidden /> : null}
                             {active ? generating ?? (busy ? "Directing" : "Journey") : "Journey"}
                           </p>
-                          {active && score.segments > 0 ? (
-                            <div className="flex shrink-0 items-center gap-3 pt-0.5">
-                              {score.setConsistency != null ? (
-                                <span className="flex items-center gap-1">
-                                  <span className="text-[11px] text-[#7a7266]">Set</span>
-                                  <span className={cinematographerScoreTone(score.setConsistency, true)}>
-                                    {score.setConsistency}
-                                  </span>
-                                </span>
-                              ) : null}
-                              {score.traversalConfidence != null ? (
-                                <span className="flex items-center gap-1.5">
-                                  <span className="text-[13px] text-[#9a8f7e]">Travel</span>
-                                  <span
-                                    className={cinematographerScoreTone(score.traversalConfidence)}
-                                    aria-label={`Traversal confidence ${score.traversalConfidence}`}
-                                  >
-                                    {score.traversalConfidence}
-                                  </span>
-                                </span>
-                              ) : null}
-                            </div>
-                          ) : null}
                         </div>
                         {active && cardProgress ? (
                           <div className="mt-8 min-w-0">
@@ -333,6 +314,9 @@ export function AgentWorkspace() {
                               selectedId={interact.selectedId}
                               constructingId={constructingBeatId}
                               repairingId={repairingId}
+                              reshootReasons={reshootReasonsByDestination(
+                                active ? conversation : [],
+                              )}
                               phase={active ? journeyAgent?.phase : undefined}
                               directorPlanning={active && directorStatus === "planning"}
                               onSelect={interact.onSelect}
@@ -343,16 +327,6 @@ export function AgentWorkspace() {
                       </>
                     ) : card.journey ? (
                       <>
-                        {referenced ? (
-                          <div className="min-w-0">
-                            <AgentCollapsedStrip
-                              frames={referenced.storyboard}
-                              selectedId={interact.selectedId}
-                              onSelect={interact.onSelect}
-                              onOpenReel={interact.onOpenReel}
-                            />
-                          </div>
-                        ) : null}
                         <div className={referenced ? "mt-4" : undefined}>
                           <HistoryTurn
                             title={complete ? "Journey complete" : card.journey.status === "failed" ? "Journey failed" : "Journey"}
@@ -361,13 +335,19 @@ export function AgentWorkspace() {
                             onToggle={() => toggle(card.id)}
                           >
                             {referenced ? (
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="text-[13px] text-[#7a7266]">
-                                  {locationCount} locations · {traversalCount} traversals
-                                  {duration > 0 ? ` · ${formatCutClock(duration)}` : ""}
+                              <>
+                                <AgentCollapsedStrip
+                                  frames={referenced.storyboard}
+                                  selectedId={interact.selectedId}
+                                  onSelect={interact.onSelect}
+                                  onOpenReel={interact.onOpenReel}
+                                />
+                                <p className="mt-3 text-[13px] text-[#7a7266]">
+                                {locationCount} locations · {traversalCount} traversals
+                                {duration > 0 ? ` · ${formatCutClock(duration)}` : ""}
+                                {` · ${reshootLabel}`}
                                 </p>
-                                {cardScore.segments > 0 ? <ProjectScoreReadout score={cardScore} /> : null}
-                              </div>
+                              </>
                             ) : null}
                           </HistoryTurn>
                         </div>
@@ -403,68 +383,73 @@ export function AgentWorkspace() {
       </div>
 
       <form
-        className="pointer-events-none absolute inset-x-0 bottom-0 px-6 pb-6"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 px-6 ${agentBusy ? "pb-3" : "pb-6"}`}
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
-        <div
-          className="pointer-events-auto mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-[#3a342c] px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.65)]"
-          style={{ backgroundColor: "#161410" }}
-        >
-          <button
-            type="button"
-            aria-label="New Session"
-            title="New Session"
-            className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#9a8f7e] hover:text-[#ece7df]"
-            onClick={() => {
-              void startNewAgentSession();
-            }}
+        {agentBusy ? (
+          <div
+            className="pointer-events-auto mx-auto flex w-fit items-center rounded-full border border-[#3a342c] p-1 shadow-[0_12px_40px_rgba(0,0,0,0.65)]"
+            style={{ backgroundColor: "#161410" }}
           >
-            <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
-              <path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-          </button>
-          <label className="sr-only" htmlFor="agent-composer">
-            Where should we go next?
-          </label>
-          <textarea
-            id="agent-composer"
-            rows={4}
-            value={agentComposerDraft}
-            placeholder="Where should we go next?"
-            aria-label="Where should we go next?"
-            disabled={busy}
-            className="tv-display max-h-[40vh] min-h-[7rem] flex-1 resize-y bg-[#161410] py-1 leading-relaxed text-[#ece7df] placeholder:text-[#7a7266] outline-none disabled:cursor-not-allowed disabled:opacity-40"
-            onChange={(event) => setAgentComposerDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (busy) {
-                return;
-              }
-              if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                event.preventDefault();
-                submit();
-              }
-            }}
-          />
-          <span className="mb-1 self-start">
-            <CopyToClipboardButton text={agentComposerDraft} label="Copy story idea" />
-          </span>
-          {agentBusy ? (
             <button
               type="button"
               aria-label="Stop agent"
               title="Stop JourneyAgent. Destinations and Takes already made stay."
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ece7df] text-[#0c0b0a]"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#ece7df] text-[#0c0b0a]"
               onClick={stopJourneyAgent}
             >
               <span className="sr-only">Stop</span>
-              <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden>
-                <rect x="4" y="4" width="8" height="8" fill="currentColor" />
+              <svg viewBox="0 0 16 16" className="h-2.5 w-2.5" aria-hidden>
+                <rect x="4.5" y="4.5" width="7" height="7" fill="currentColor" />
               </svg>
             </button>
-          ) : (
+          </div>
+        ) : (
+          <div
+            className="pointer-events-auto mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-[#3a342c] px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.65)]"
+            style={{ backgroundColor: "#161410" }}
+          >
+            <button
+              type="button"
+              aria-label="New Session"
+              title="New Session"
+              className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#9a8f7e] hover:text-[#ece7df]"
+              onClick={() => {
+                void startNewAgentSession();
+              }}
+            >
+              <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
+                <path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </button>
+            <label className="sr-only" htmlFor="agent-composer">
+              Where should we go next?
+            </label>
+            <textarea
+              id="agent-composer"
+              rows={4}
+              value={agentComposerDraft}
+              placeholder="Where should we go next?"
+              aria-label="Where should we go next?"
+              disabled={busy}
+              className="tv-display max-h-[40vh] min-h-[7rem] flex-1 resize-y bg-[#161410] py-1 leading-relaxed text-[#ece7df] placeholder:text-[#7a7266] outline-none disabled:cursor-not-allowed disabled:opacity-40"
+              onChange={(event) => setAgentComposerDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (busy) {
+                  return;
+                }
+                if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                  event.preventDefault();
+                  submit();
+                }
+              }}
+            />
+            <span className="mb-1 self-start">
+              <CopyToClipboardButton text={agentComposerDraft} label="Copy story idea" />
+            </span>
             <button
               type="submit"
               disabled={!canSubmit}
@@ -476,8 +461,8 @@ export function AgentWorkspace() {
                 <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </form>
       <StoryboardReelHost />
     </div>

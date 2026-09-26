@@ -168,6 +168,19 @@ export function selectShootOccurrence(
   });
 }
 
+/** A later click on the occurrence that is already selected opens its reel. */
+export function shootOccurrenceOpensReel(
+  occurrence: LaidOutOccurrence | undefined,
+  selection: Selection,
+): boolean {
+  return Boolean(
+    occurrence &&
+      !occurrence.fpo &&
+      selection.kind === "destination" &&
+      selection.occurrenceIndex === occurrence.occurrenceIndex,
+  );
+}
+
 /** Adjacent Shoot motion pair in timeline order. */
 export function neighboringMotionJourney<T extends { id: string }>(
   journeys: readonly T[],

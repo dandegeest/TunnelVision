@@ -7,6 +7,7 @@ import { isProductionEndpoint } from "../project/production-legs";
 import { selectedTakeVideoUrl } from "../project/takes";
 import { adaptivePaceFromProject, journeyPaceIsCurrent } from "../project/adaptive-pace";
 import { locomotionPaceLabel } from "../project/cinematographer";
+import { effectiveJourneyDurationSeconds, effectiveJourneyPace } from "../project/journey-overrides";
 import type {
   CinematographerAssessment,
   JourneyShot,
@@ -30,6 +31,14 @@ export type JourneyProgressSegment = {
   to: string;
   label: string;
   status: JourneyProgressStatus;
+  /** Assessed set consistency for this segment, when CM has scored it. */
+  setConsistency?: number;
+  /** Assessed traversal confidence for this segment, when CM has scored it. */
+  traversalConfidence?: number;
+  /** Planned shot length for this segment. */
+  durationSeconds?: number;
+  /** Apparent camera speed for this segment. */
+  paceLabel?: string;
 };
 
 export type JourneyProgress = {
@@ -230,6 +239,26 @@ function nodesFromJourneys(project: Project): string[] {
   return nodes;
 }
 
+function segmentReadout(
+  project: Project,
+  journey: JourneyShot,
+): Pick<JourneyProgressSegment, "setConsistency" | "traversalConfidence" | "durationSeconds" | "paceLabel"> {
+  const assessment = journey.cinematographer;
+  if (!assessment) {
+    return {};
+  }
+  const pace = effectiveJourneyPace(journey, project);
+  const duration =
+    effectiveJourneyDurationSeconds(journey) ??
+    (journey.durationSeconds > 0 ? journey.durationSeconds : undefined);
+  return {
+    setConsistency: clampScore(assessment.setConsistency),
+    traversalConfidence: clampScore(assessment.traversalConfidence),
+    ...(duration != null ? { durationSeconds: duration } : {}),
+    ...(pace ? { paceLabel: locomotionPaceLabel(pace) } : {}),
+  };
+}
+
 export function journeyProgressFromProject(
   project: Project,
   live?: JourneyProgressLive,
@@ -270,13 +299,15 @@ export function journeyProgressFromProject(
   for (let index = 0; index < ids.length - 1; index += 1) {
     const from = ids[index]!;
     const to = ids[index + 1]!;
-    const journeyId = journeyByPair(project, from, to)?.id ?? `${from}-${to}`;
+    const journey = journeyByPair(project, from, to);
+    const journeyId = journey?.id ?? `${from}-${to}`;
     segments.push({
       journeyId,
       from,
       to,
       label: formatJourneyCompact(journeyId),
       status: segmentStatus(project, from, to, live),
+      ...(journey ? segmentReadout(project, journey) : {}),
     });
   }
   return { nodes, segments };

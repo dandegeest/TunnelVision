@@ -208,6 +208,7 @@ function persistMotionPlan(
     segmentPromptAddition: plan.segmentPromptAddition,
     effectivePrompt: plan.effectivePrompt,
     pace: plan.pace,
+    sourceKey: plan.sourceKey,
     camotion: plan.camotion
       ? { depthSupplied: plan.camotion.depthSupplied, workDirRetained: false }
       : undefined,
@@ -321,6 +322,7 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
       filmmakerDurationSeconds: journey.filmmakerDurationSeconds,
       motionPlan: shootingFrames[journey.id],
       motionPlanError: journey.motionPlanError,
+      ...(journey.shotDirection?.trim() ? { shotDirection: journey.shotDirection.trim() } : {}),
       selectedTakeId: selected?.id,
       takes: persistedTakes,
       outgoingStartDrop: journey.outgoingStartDrop,
@@ -459,6 +461,7 @@ function restoreMotionPlan(
     segmentPromptAddition: String(raw.segmentPromptAddition ?? ""),
     effectivePrompt: String(raw.effectivePrompt ?? ""),
     pace: raw.pace as SegmentMotionPlan["pace"],
+    sourceKey: typeof raw.sourceKey === "string" ? raw.sourceKey : undefined,
   };
 }
 
@@ -593,6 +596,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       cinematographerEndMediaId: typeof raw.cinematographerEndMediaId === "string" ? raw.cinematographerEndMediaId : undefined,
       motionPlan,
       motionPlanError: typeof raw.motionPlanError === "string" ? raw.motionPlanError : undefined,
+      shotDirection: typeof raw.shotDirection === "string" && raw.shotDirection.trim() ? raw.shotDirection : undefined,
       filmmakerPace: isLocomotionPace(raw.filmmakerPace) ? raw.filmmakerPace : undefined,
       filmmakerDurationSeconds:
         typeof raw.filmmakerDurationSeconds === "number" && Number.isFinite(raw.filmmakerDurationSeconds)

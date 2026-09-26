@@ -119,7 +119,10 @@ export function cinematographerAssessmentIsCurrent(
   const stampedStart = journey.cinematographerStartMediaId;
   const stampedEnd = journey.cinematographerEndMediaId;
   if (stampedStart && stampedEnd) {
-    return stampedStart === pair.startMediaId && stampedEnd === pair.endMediaId;
+    if (stampedStart !== pair.startMediaId || stampedEnd !== pair.endMediaId) {
+      return false;
+    }
+    return motionPlanSourceIsCurrent(project, journey);
   }
   return hasCurrentMotionPlan(project, journey);
 }
@@ -137,14 +140,17 @@ export function hasCurrentMotionPlan(project: Project, journey: JourneyShot): bo
   const plannedStart = journey.motionPlan.startCanonicalMediaId;
   const plannedEnd = journey.motionPlan.endCanonicalMediaId;
   if (!plannedStart || !plannedEnd) {
-    return true;
+    return motionPlanSourceIsCurrent(project, journey);
   }
-  return plannedStart === start.mediaId && plannedEnd === end.mediaId;
+  if (plannedStart !== start.mediaId || plannedEnd !== end.mediaId) {
+    return false;
+  }
+  return motionPlanSourceIsCurrent(project, journey);
 }
 
-/** Identity of the actual adjacent canonical pair this Motion Plan must match. */
-export function journeyMotionPlanInputKey(project: Project, journey: JourneyShot): string | null {
-  if (!canAssessJourney(project, journey) || !journey.endDestinationId) {
+/** Hash of the endpoint intent and beat text a Motion Plan must match. */
+export function motionPlanSourceToken(project: Project, journey: JourneyShot): string | null {
+  if (!journey.endDestinationId) {
     return null;
   }
   const start = actualFrameForDestination(project, journey.startDestinationId);
@@ -152,13 +158,118 @@ export function journeyMotionPlanInputKey(project: Project, journey: JourneyShot
   if (!start || !end) {
     return null;
   }
-  return `${journey.id}:${start.mediaId}:${end.mediaId}`;
+  return hashPlanSource(`${start.intent?.trim() ?? ""}\n${end.intent?.trim() ?? ""}`);
+}
+
+/** Older plans have no source stamp and stay current until intent or beat is edited. */
+function motionPlanSourceIsCurrent(project: Project, journey: JourneyShot): boolean {
+  const stamped = journey.motionPlan?.sourceKey;
+  if (!stamped) {
+    return true;
+  }
+  const token = motionPlanSourceToken(project, journey);
+  return token !== null && token === stamped;
+}
+
+function hashPlanSource(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+/** A current plan can be thrown out and planned again without changing the stills. */
+export function canForceMotionPlan(project: Project, journey: JourneyShot): boolean {
+  return hasCurrentMotionPlan(project, journey) && journeyMotionPlanInputKey(project, journey) !== null;
+}
+
+/** Identity of the actual adjacent canonical pair this Motion Plan must match. */
+export function journeyMotionPlanInputKey(project: Project, journey: JourneyShot): string | null {
+  if (!canAssessJourney(project, journey) || !journey.endDestinationId) {
+    return null;
+  }
+  if (!journeyEndpointsReadyForMotionPlan(project, journey)) {
+    return null;
+  }
+  const start = actualFrameForDestination(project, journey.startDestinationId);
+  const end = actualFrameForDestination(project, journey.endDestinationId);
+  if (!start || !end) {
+    return null;
+  }
+  const source = motionPlanSourceToken(project, journey);
+  return `${journey.id}:${start.mediaId}:${end.mediaId}:${source ?? ""}`;
+}
+
+/**
+ * Drop Motion Plans whose endpoint intent changed.
+ * Beat text is for the still only, so it leaves the plan in place. Takes stay.
+ */
+export function projectWithoutMotionPlansForChangedBeats(
+  project: Project,
+  before: readonly StoryboardFrame[],
+  after: readonly StoryboardFrame[],
+): Project {
+  const changed = new Set<string>();
+  for (const frame of after) {
+    const previous = before.find((item) => item.id === frame.id);
+    if (!previous) {
+      continue;
+    }
+    const intentChanged = (previous.intent ?? "").trim() !== (frame.intent ?? "").trim();
+    if (!intentChanged) {
+      continue;
+    }
+    changed.add(frame.id);
+    if (frame.destinationId) {
+      changed.add(frame.destinationId);
+    }
+  }
+  if (changed.size === 0) {
+    return project;
+  }
+  let touched = false;
+  const journeys = project.journeys.map((journey) => {
+    const usesFrame =
+      changed.has(journey.startDestinationId) ||
+      (journey.endDestinationId !== null && changed.has(journey.endDestinationId));
+    if (!usesFrame || (!journey.motionPlan && !journey.cinematographer && !journey.motionPlanError)) {
+      return journey;
+    }
+    touched = true;
+    return journeyWithoutMotionPlan(journey);
+  });
+  return touched ? { ...project, journeys } : project;
+}
+
+/**
+ * Opening A uses the production story as its beat. Later destinations need both
+ * intent and beat text before automatic Motion Planning.
+ */
+function motionPlanEndpointReady(project: Project, frame: StoryboardFrame): boolean {
+  if (frame.id === "A") {
+    return Boolean(project.story.trim() || frame.intent?.trim());
+  }
+  return Boolean(frame.intent?.trim() && frame.visualDescription?.trim());
+}
+
+export function journeyEndpointsReadyForMotionPlan(project: Project, journey: JourneyShot): boolean {
+  if (!journey.endDestinationId) {
+    return false;
+  }
+  const start = actualFrameForDestination(project, journey.startDestinationId);
+  const end = actualFrameForDestination(project, journey.endDestinationId);
+  if (!start || !end) {
+    return false;
+  }
+  return motionPlanEndpointReady(project, start) && motionPlanEndpointReady(project, end);
 }
 
 /**
  * Effect key for automatic Motion Planning.
- * Includes only each actual adjacent pair and whether that pair already has a current plan.
- * Story, debug, and session UI must not appear here.
+ * Includes each actual adjacent pair, its intent, and whether that pair already
+ * has a current plan. Beat, story, debug, and session UI must not appear here.
  */
 export function motionPlanAutoKey(project: Project): string {
   return project.journeys
@@ -175,7 +286,10 @@ export function motionPlanAutoKey(project: Project): string {
 
 export function journeysReadyToBlock(project: Project): JourneyShot[] {
   return project.journeys.filter(
-    (journey) => canAssessJourney(project, journey) && !hasCurrentMotionPlan(project, journey),
+    (journey) =>
+      canAssessJourney(project, journey) &&
+      journeyEndpointsReadyForMotionPlan(project, journey) &&
+      !hasCurrentMotionPlan(project, journey),
   );
 }
 
@@ -376,6 +490,29 @@ export function projectWithCinematographerAssessment(
         : item,
     ),
   });
+}
+
+function journeyWithoutMotionPlan(journey: JourneyShot): JourneyShot {
+  const next = { ...journey };
+  delete next.cinematographer;
+  delete next.cinematographerStartMediaId;
+  delete next.cinematographerEndMediaId;
+  delete next.motionPlan;
+  delete next.motionPlanError;
+  return next;
+}
+
+/** Drop this segment's assessment and staged frames so planning runs again. Takes stay. */
+export function projectWithoutMotionPlan(project: Project, journeyId: string): Project {
+  if (!project.journeys.some((journey) => journey.id === journeyId)) {
+    throw new Error("Unknown journey");
+  }
+  return {
+    ...project,
+    journeys: project.journeys.map((journey) =>
+      journey.id === journeyId ? journeyWithoutMotionPlan(journey) : journey,
+    ),
+  };
 }
 
 export function projectWithoutCinematographerAssessment(project: Project, journeyId: string): Project {

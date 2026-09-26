@@ -4,6 +4,7 @@ import { createNewProject } from "../project/new-project";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
 import { projectWithDirectorPlan } from "../project/storyboard";
 import type { ConversationEntry } from "../project/conversation";
+import type { CinematographerAssessment } from "../project/types";
 import {
   cinematographerCardCopy,
   cinematographerScores,
@@ -65,6 +66,38 @@ describe("journey progress rail", () => {
     const constructing = journeyProgressFromProject(forest, { constructingBeatId: "C" });
     expect(constructing?.nodes.find((node) => node.id === "C")?.status).toBe("active");
     expect(constructing?.segments.find((segment) => segment.journeyId === "B-C")?.status).toBe("complete");
+  });
+
+  it("attaches assessed SC, TC, duration, and pace to each segment", () => {
+    const forest = createForestProject();
+    const assessment: CinematographerAssessment = {
+      shootability: "shootable",
+      summary: "Track forward.",
+      route: "Advance.",
+      threshold: "The opening.",
+      camera: "Track forward.",
+      parallax: "Near trees.",
+      transitionStrategy: "Pass through.",
+      segmentPromptAddition: "Track forward through the opening.",
+      pace: "fast",
+      desiredDurationSeconds: 8,
+      setConsistency: 88,
+      traversalConfidence: 71,
+      concerns: [],
+    };
+    const progress = journeyProgressFromProject({
+      ...forest,
+      journeys: forest.journeys.map((journey) =>
+        journey.id === "A-B" ? { ...journey, cinematographer: assessment } : journey,
+      ),
+    });
+    expect(progress?.segments.find((segment) => segment.journeyId === "A-B")).toMatchObject({
+      setConsistency: 88,
+      traversalConfidence: 71,
+      durationSeconds: 8,
+      paceLabel: "Fast",
+    });
+    expect(progress?.segments.find((segment) => segment.journeyId === "B-C")?.setConsistency).toBeUndefined();
   });
 
   it("falls back to production journeys when the storyboard is only A", () => {

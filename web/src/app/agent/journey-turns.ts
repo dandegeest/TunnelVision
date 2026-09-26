@@ -27,6 +27,8 @@ export type RejectedCanonical = {
   letter: string;
   attempt: number;
   travel?: number;
+  /** Why this still was replaced. */
+  reason?: string;
 };
 
 export type TurnReasoningLine = {
@@ -242,26 +244,80 @@ export function repairScanLine(entries: ConversationEntry[]): {
   };
 }
 
-function asRejected(frame: StoryboardFrame, takes: CanonicalTake[], travel?: number): RejectedCanonical[] {
-  return takes.map((take) => ({
-    take,
-    letter: frame.id,
-    attempt: take.number ?? 0,
-    ...(travel != null ? { travel } : {}),
-  }));
+function reasonForRejectedTake(
+  takes: readonly CanonicalTake[],
+  take: CanonicalTake,
+  reasons?: readonly string[],
+): string | undefined {
+  const index = takes.findIndex((item) => item.id === take.id);
+  const next = index >= 0 ? takes[index + 1] : undefined;
+  return next?.reason?.trim() || take.reason?.trim() || reasons?.[index]?.trim() || undefined;
 }
 
-export function rejectedCanonicals(frame: StoryboardFrame, travel?: number): RejectedCanonical[] {
+function asRejected(
+  frame: StoryboardFrame,
+  takes: CanonicalTake[],
+  travel?: number,
+  reasons?: readonly string[],
+): RejectedCanonical[] {
+  const all = canonicalTakes(frame);
+  return takes.map((take) => {
+    const reason = reasonForRejectedTake(all, take, reasons);
+    return {
+      take,
+      letter: frame.id,
+      attempt: take.number ?? 0,
+      ...(travel != null ? { travel } : {}),
+      ...(reason ? { reason } : {}),
+    };
+  });
+}
+
+export function rejectedCanonicals(
+  frame: StoryboardFrame,
+  travel?: number,
+  reasons?: readonly string[],
+): RejectedCanonical[] {
   const selected = selectedCanonicalTake(frame);
   return asRejected(
     frame,
     canonicalTakes(frame).filter((take) => take.id !== selected?.id),
     travel,
+    reasons,
   );
 }
 
-export function previousCanonicals(frame: StoryboardFrame, travel?: number): RejectedCanonical[] {
-  return asRejected(frame, canonicalTakes(frame), travel);
+export function previousCanonicals(
+  frame: StoryboardFrame,
+  travel?: number,
+  reasons?: readonly string[],
+): RejectedCanonical[] {
+  return asRejected(frame, canonicalTakes(frame), travel, reasons);
+}
+
+export function reshootReasonsByDestination(
+  entries: readonly ConversationEntry[],
+): Record<string, string[]> {
+  const reasons: Record<string, string[]> = {};
+  for (const entry of entries) {
+    if (entry.kind !== "agent" || entry.status !== "repairing") {
+      continue;
+    }
+    const reason = entry.instruction?.trim();
+    if (!reason) {
+      continue;
+    }
+    for (const id of entry.destinationIds) {
+      const list = reasons[id] ?? [];
+      list.push(reason);
+      reasons[id] = list;
+    }
+  }
+  return reasons;
+}
+
+export function canonicalReshootCount(frames: readonly StoryboardFrame[]): number {
+  return frames.reduce((sum, frame) => sum + Math.max(0, canonicalTakes(frame).length - 1), 0);
 }
 
 export function locationCaption(project: Project, id: string): string {

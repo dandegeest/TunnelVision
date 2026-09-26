@@ -1,3 +1,4 @@
+import { composeDirectedShootingPrompt } from "../../../media/src/cinematographer/shooting-prompt.ts";
 import { actualFrameForDestination, canAssessJourney, hasCurrentMotionPlan } from "./cinematographer";
 import { resolveKlingV3Mode, type KlingV3Mode, type VideoModelId } from "../../../media/src/replicate/video-models.ts";
 import { projectWithResolvedUnshotDurations, targetDurationSeconds } from "./shot-duration";
@@ -218,7 +219,11 @@ export function shootRequestFromProject(
     endShootingMediaId: journey.motionPlan.endShootingFrame.mediaId,
     startPlan: journey.motionPlan.startPlan,
     endPlan: journey.motionPlan.endPlan,
-    effectivePrompt: journey.motionPlan.effectivePrompt,
+    effectivePrompt: composeDirectedShootingPrompt(
+      journey.motionPlan.effectivePrompt,
+      journey.motionPlan.segmentPromptAddition,
+      journey.shotDirection,
+    ),
     cameraGrammar: cameraGrammarFromProject(project),
   };
 }

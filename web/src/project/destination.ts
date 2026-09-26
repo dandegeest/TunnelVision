@@ -706,12 +706,28 @@ export function projectWithConstructedDestination(
 /** Apply an Agent canonical repair. Opening A uses the generated-opening write path. */
 export function projectWithRepairedCanonical(
   project: Project,
-  next: DestinationConstructionResult & { beatId: string; mediaInfo?: StoryboardMediaInfo },
+  next: DestinationConstructionResult & { beatId: string; mediaInfo?: StoryboardMediaInfo; reason?: string },
 ): Project {
-  if (next.beatId === "A") {
-    return projectWithGeneratedOpeningFrame(project, next);
+  const written =
+    next.beatId === "A"
+      ? projectWithGeneratedOpeningFrame(project, next)
+      : projectWithConstructedDestination(project, next);
+  const reason = next.reason?.trim();
+  if (!reason) {
+    return written;
   }
-  return projectWithConstructedDestination(project, next);
+  return {
+    ...written,
+    storyboard: written.storyboard.map((frame) => {
+      if (frame.id !== next.beatId || !frame.takes?.length) {
+        return frame;
+      }
+      const takes = frame.takes.map((take, index) =>
+        index === frame.takes!.length - 1 ? { ...take, reason } : take,
+      );
+      return { ...frame, takes };
+    }),
+  };
 }
 
 export async function requestConstructDestination(

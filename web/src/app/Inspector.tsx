@@ -9,12 +9,19 @@ import {
 import { ARRIVAL_BLOCKED_COPY, journeyIsPlayable } from "../project/policy";
 import {
   canAssessJourney,
+  canForceMotionPlan,
   cinematographerScoreTone,
   locomotionPaceLabel,
   motionPlanNeedsRebuild,
 } from "../project/cinematographer";
 import { effectiveJourneyPace } from "../project/journey-overrides";
-import { LOCOMOTION_PACES, type LocomotionPace } from "../../../media/src/cinematographer/shooting-prompt.ts";
+import {
+  composeDirectedShootingPrompt,
+  directedSegmentPromptAddition,
+  LOCOMOTION_PACES,
+  type LocomotionPace,
+} from "../../../media/src/cinematographer/shooting-prompt.ts";
+import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
 import { OptionMenu } from "../ui/OptionMenu";
 import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
 import { canReshootDestinationFrame } from "../project/destination";
@@ -108,6 +115,7 @@ export function Inspector() {
     selection,
     cinematographerError,
     retryMotionPlan,
+    forceMotionPlan,
     shootJourney,
     shootError,
     constructingBeatId,
@@ -115,6 +123,7 @@ export function Inspector() {
     shootingJourneyIds,
     debugOn,
     setDestinationPlan,
+    setShotDirection,
     setComposerDraft,
     reshootDestination,
     setStoryboardReelId,
@@ -200,6 +209,7 @@ export function Inspector() {
             pane={destinationPane}
             onPaneChange={setDestinationPane}
             onOpenReel={frame.image ? () => setStoryboardReelId(frame.id) : undefined}
+            onOpenTake={(takeId) => setStoryboardReelId(takeId)}
             onReshoot={() => {
               void reshootDestination(frame.id);
             }}
@@ -227,6 +237,7 @@ export function Inspector() {
   const assessing = assessingJourneyIds.includes(journey.id);
   const motionPlanError = journey.motionPlanError ?? (canAssess && !assessment ? cinematographerError : null);
   const needsRebuild = motionPlanNeedsRebuild(journey) && canAssess;
+  const canReplan = canForceMotionPlan(project, journey);
   const take = selectedTake(journey);
   const motionSource = journey.motionPlan ?? (takeHasShootingFrames(take) ? take : undefined);
   const startDestination = destinationById(project.destinations, journey.startDestinationId);
@@ -240,6 +251,12 @@ export function Inspector() {
   const effectivePrompt = take?.effectivePrompt ?? motionSource?.effectivePrompt;
   const segmentPromptAddition =
     take?.segmentPromptAddition ?? motionSource?.segmentPromptAddition ?? assessment?.segmentPromptAddition;
+  const plannedPrompt = journey.motionPlan?.effectivePrompt ?? motionSource?.effectivePrompt;
+  const plannedAddition = journey.motionPlan?.segmentPromptAddition ?? motionSource?.segmentPromptAddition;
+  const motionEffectivePrompt = plannedPrompt
+    ? composeDirectedShootingPrompt(plannedPrompt, plannedAddition, journey.shotDirection)
+    : undefined;
+  const motionSegmentAddition = directedSegmentPromptAddition(plannedAddition, journey.shotDirection);
   const startLabel = startDestination?.label ?? journey.startDestinationId;
   const endLabel = endDestination?.label ?? journey.endDestinationId ?? "?";
   const selectEndpoint = (endpoint: "start" | "end", pane: DestinationInspectorPane) => {
@@ -263,13 +280,19 @@ export function Inspector() {
           canAssess={canAssess}
           motionPlanError={motionPlanError}
           needsRebuild={needsRebuild}
+          canReplan={canReplan}
           onRetry={() => {
             void retryMotionPlan(journey.id);
           }}
+          onReplan={() => {
+            void forceMotionPlan(journey.id);
+          }}
           motionSource={motionSource}
           motionRecords={motionRecords}
-          effectivePrompt={effectivePrompt}
-          segmentPromptAddition={segmentPromptAddition}
+          effectivePrompt={motionEffectivePrompt}
+          segmentPromptAddition={motionSegmentAddition}
+          shotDirection={journey.shotDirection ?? ""}
+          onShotDirectionChange={(next) => setShotDirection(journey.id, next)}
           project={project}
           debugOn={debugOn}
           startLabel={startLabel}
@@ -322,11 +345,15 @@ function MotionInspectorFields({
   canAssess,
   motionPlanError,
   needsRebuild = false,
+  canReplan = false,
   onRetry,
+  onReplan,
   motionSource,
   motionRecords,
   effectivePrompt,
   segmentPromptAddition,
+  shotDirection = "",
+  onShotDirectionChange,
   project,
   debugOn,
   startLabel,
@@ -346,11 +373,15 @@ function MotionInspectorFields({
   canAssess: boolean;
   motionPlanError?: string | null;
   needsRebuild?: boolean;
+  canReplan?: boolean;
   onRetry: () => void;
+  onReplan: () => void;
   motionSource?: { startShootingFrame: ShootingFrameRef; endShootingFrame: ShootingFrameRef };
   motionRecords: ReturnType<typeof camotionRecordsForJourney>;
   effectivePrompt?: string;
   segmentPromptAddition?: string;
+  shotDirection?: string;
+  onShotDirectionChange: (next: string) => void;
   project: Pick<Project, "destinations" | "journeys">;
   debugOn: boolean;
   startLabel: string;
@@ -451,6 +482,31 @@ function MotionInspectorFields({
             onClick={onRetry}
           >
             {assessing ? "Planning…" : "Rebuild Camotion"}
+          </button>
+        ) : null}
+        <div>
+          <span className="text-[10px] tracking-[0.16em] text-[#9a8f7e] uppercase">Take direction</span>
+          <ClickToEditTextarea
+            key={`${journeyId}-shot-direction`}
+            aria-label={`Take direction ${journeyId}`}
+            rows={3}
+            value={shotDirection}
+            placeholder="What happens during this shot. The still stays."
+            className="destination-detail-prompt tv-prompt mt-2 block w-full leading-snug text-[#ece7df]"
+            commitOnBlur
+            onChange={onShotDirectionChange}
+          />
+        </div>
+        {canReplan && !motionPlanError && !needsRebuild ? (
+          <button
+            type="button"
+            className="rounded border border-[#3a342c] px-3 py-1 disabled:opacity-40"
+            disabled={assessing}
+            aria-label={`Replan ${journeyId}`}
+            title="Force a new motion plan. Planning also reruns when intent or the still changes."
+            onClick={onReplan}
+          >
+            {assessing ? "Planning…" : "Replan"}
           </button>
         ) : null}
       </div>

@@ -121,6 +121,7 @@ export function createForestProject(): Project {
         mediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
         destinationId: "B",
         mediaInfo: MEDIA_DERIVED,
+        visualDescription: FOREST_STORYBOARD_INTENTS.B,
       },
       {
         id: "C",
@@ -131,6 +132,7 @@ export function createForestProject(): Project {
         mediaId: TRUSTED_MEDIA_IDS.forestAtoFC,
         destinationId: "C",
         mediaInfo: MEDIA_DERIVED,
+        visualDescription: FOREST_STORYBOARD_INTENTS.C,
       },
       {
         id: "D",
@@ -141,6 +143,7 @@ export function createForestProject(): Project {
         mediaId: TRUSTED_MEDIA_IDS.forestAtoFD,
         destinationId: "D",
         mediaInfo: MEDIA_DERIVED,
+        visualDescription: FOREST_STORYBOARD_INTENTS.D,
       },
       {
         id: "E",
@@ -151,6 +154,7 @@ export function createForestProject(): Project {
         mediaId: TRUSTED_MEDIA_IDS.forestAtoFE,
         destinationId: "E",
         mediaInfo: MEDIA_DERIVED,
+        visualDescription: FOREST_STORYBOARD_INTENTS.E,
       },
       {
         id: "F",
@@ -161,6 +165,7 @@ export function createForestProject(): Project {
         mediaId: TRUSTED_MEDIA_IDS.forestAtoFF,
         destinationId: "F",
         mediaInfo: MEDIA_DERIVED,
+        visualDescription: FOREST_STORYBOARD_INTENTS.F,
       },
     ],
     destinations: [

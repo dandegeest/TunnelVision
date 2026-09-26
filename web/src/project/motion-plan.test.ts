@@ -69,11 +69,11 @@ describe("per-segment Motion Plan", () => {
     );
     expect(withBoth.destinations).toEqual(forest.destinations);
     expect(withBoth.journeys.find((journey) => journey.id === "C-D")?.motionPlan).toBeUndefined();
-    expect(motionPlanAutoKey(forest)).toContain(
-      `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:needed`,
+    expect(motionPlanAutoKey(forest)).toMatch(
+      new RegExp(`A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:[0-9a-f]+:needed`),
     );
-    expect(motionPlanAutoKey(withAB)).toContain(
-      `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:planned`,
+    expect(motionPlanAutoKey(withAB)).toMatch(
+      new RegExp(`A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:[0-9a-f]+:planned`),
     );
     expect(motionPlanAutoKey(withAB)).not.toBe(motionPlanAutoKey(forest));
     expect(withAB.journeys.find((journey) => journey.id === "A-B")?.motionPlan).toMatchObject({

@@ -4,6 +4,7 @@ import { createForestProject, FOREST_USER_PROMPT } from "../../fixtures/forest-a
 import { createWardrobeProject } from "../../fixtures/wardrobe-loop";
 import { createNewProject } from "../../project/new-project";
 import type { AgentSession, SessionTurn } from "../../project/session";
+import type { CinematographerAssessment } from "../../project/types";
 import { ProjectProvider } from "../../project/ProjectProvider";
 import { AgentCollapsedStrip } from "./AgentJourneyPath";
 import { AgentWorkspace } from "./AgentWorkspace";
@@ -96,17 +97,16 @@ describe("Agent workspace", () => {
     expect(html).toContain("agent-scroll");
     expect(html).toContain("overflow-x-hidden");
     expect(html).not.toContain('aria-label="Previous locations"');
-    expect(html).toContain("Where should we go next?");
     expect(html).toContain('aria-label="Stop agent"');
+    expect(html).toContain("h-7 w-7");
+    expect(html).toContain("pb-16");
+    expect(html).not.toContain("pb-48");
     expect(html).not.toContain('aria-label="Create journey"');
-    expect(html).toContain('aria-label="New Session"');
+    expect(html).not.toContain('aria-label="New Session"');
+    expect(html).not.toContain('id="agent-composer"');
+    expect(html).not.toContain("min-h-[7rem]");
     expect(html).not.toContain("Switching OG");
     expect(html).not.toContain("Plan | Shoot");
-    expect(html).toContain("resize-y");
-    expect(html).toContain("min-h-[7rem]");
-    const composer = html.slice(html.indexOf('id="agent-composer"'));
-    expect(composer).not.toContain("Travel the forest.");
-    expect(html).toMatch(/<textarea[^>]*id="agent-composer"[^>]*\sdisabled(?:="[^"]*")?[\s>]/);
   });
 
   it("keeps completed journeys in history above a later prompt", () => {
@@ -162,15 +162,14 @@ describe("Agent workspace", () => {
         <AgentWorkspace />
       </ProjectProvider>,
     );
-    expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf("data-collapsed-path"));
-    expect(html.indexOf("data-collapsed-path")).toBeLessThan(html.indexOf("Journey complete"));
+    expect(html.indexOf("Travel the forest.")).toBeLessThan(html.indexOf("Journey complete"));
     expect(html.indexOf("Journey complete")).toBeLessThan(html.indexOf('aria-label="Journey movie"'));
     expect(html.indexOf('aria-label="Journey movie"')).toBeLessThan(html.indexOf('aria-label="Download journey movie"'));
     expect(html).toContain("Open Journey complete");
     expect(html).not.toContain("Collapse Journey complete");
     expect(html).not.toContain("A continuous POV descent through the root tunnels.");
-    expect(html).toContain("data-collapsed-path");
-    expect(html).toContain("w-[3.5rem]");
+    expect(html).not.toContain("data-collapsed-path");
+    expect(html).not.toContain("w-[3.5rem]");
     expect(html).not.toContain("bg-[#5c6b3d]");
     expect(html).toContain('aria-label="Journey movie"');
     expect(html).toContain('aria-label="Download journey movie"');
@@ -367,6 +366,50 @@ describe("Agent workspace", () => {
     expect(shooting).toContain(">SHOOT<");
     expect(shooting).not.toContain('data-progress-line="planning"');
     expect(shooting).not.toContain(">PLAN<");
+  });
+
+  it("shows segment SC, TC, duration, and pace above the path instead of a journey average", () => {
+    const forest = createForestProject();
+    const assessment: CinematographerAssessment = {
+      shootability: "shootable",
+      summary: "Track forward.",
+      route: "Advance.",
+      threshold: "The opening.",
+      camera: "Track forward.",
+      parallax: "Near trees.",
+      transitionStrategy: "Pass through.",
+      segmentPromptAddition: "Track forward through the opening.",
+      pace: "fast",
+      desiredDurationSeconds: 8,
+      setConsistency: 88,
+      traversalConfidence: 71,
+      concerns: [],
+    };
+    const html = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{
+          ...forest,
+          agency: "autonomous",
+          journeys: forest.journeys.map((journey) =>
+            journey.id === "A-B" ? { ...journey, cinematographer: assessment } : journey,
+          ),
+        }}
+        initialView="agent"
+        initialAgentSession={forestLiveSession}
+        initialJourneyAgent={{
+          phase: "PLANNING_MOTION",
+          activity: { message: "blocking C-D", journeyId: "C-D" },
+          events: [],
+        }}
+        initialAssessingJourneyIds={["C-D"]}
+      >
+        <AgentWorkspace />
+      </ProjectProvider>,
+    );
+    expect(html).toContain('aria-label="Segment A→B SC 88 TC 71"');
+    expect(html).toContain('aria-label="Segment A→B 0:08 · Fast"');
+    expect(html).not.toContain("Average Set Consistency");
+    expect(html).not.toContain('aria-label="Traversal confidence 71"');
   });
 
   it("uses location chevrons when a journey has 10 or more stops", () => {

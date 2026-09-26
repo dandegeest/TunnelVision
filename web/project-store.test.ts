@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -265,6 +265,51 @@ describe("project store round-trip", () => {
     expect(registry.get(persistedTakeVideoMediaId(saved.project.id, "A-B", 2))).toBeUndefined();
   });
 
+  it("deletes canonical and shooting-frame folders for a removed destination", async () => {
+    const root = await tempDir("tv-projects-prune-destination-");
+    const runtimeDir = await tempDir("tv-runtime-prune-destination-");
+    const registry = createRuntimeMediaRegistry(runtimeDir);
+    setActiveRuntimeMediaRegistry(registry);
+    const stillA = registry.register(PNG);
+    const stillB = registry.register(PNG);
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(root, "PruneDestination");
+    const project: Project = {
+      ...createNewProject(),
+      title: "PruneDestination",
+      story: "Move through the hall.",
+      storyboard: [
+        {
+          id: "A",
+          label: "A",
+          imageOrigin: "user",
+          mediaId: stillA.mediaId,
+          image: stillA.imageUrl,
+        },
+      ],
+    };
+    await store.saveProject({ projectRoot, project, conversation: [] });
+    const orphanCanonical = join(projectRoot, "canonicals", "B");
+    const orphanShooting = join(projectRoot, "shooting-frames", "A-B");
+    const orphanTraversal = join(projectRoot, "traversals", "A-B");
+    await mkdir(orphanCanonical, { recursive: true });
+    await mkdir(orphanShooting, { recursive: true });
+    await mkdir(orphanTraversal, { recursive: true });
+    const orphanStill = join(orphanCanonical, "take-01.png");
+    await writeFile(orphanStill, PNG);
+    await writeFile(join(orphanShooting, "end-upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.png"), PNG);
+    await writeFile(join(orphanTraversal, "traversal.json"), "{}");
+    registry.adopt({ mediaId: stillB.mediaId, filePath: orphanStill, mimeType: "image/png" });
+
+    await store.saveProject({ projectRoot, project, conversation: [] });
+
+    expect(existsSync(join(projectRoot, "canonicals", "A"))).toBe(true);
+    expect(existsSync(orphanCanonical)).toBe(false);
+    expect(existsSync(orphanShooting)).toBe(false);
+    expect(existsSync(orphanTraversal)).toBe(false);
+    expect(registry.get(stillB.mediaId)).toBeUndefined();
+  });
+
   it("copies a new Take from its source clip, not a colliding same-name registry entry", async () => {
     const root = await tempDir("tv-projects-video-identity-");
     const runtimeDir = await tempDir("tv-runtime-video-identity-");
@@ -407,6 +452,44 @@ describe("project store delete", () => {
     await store.deleteProject({ projectRoot, projectsFolder: root });
     expect(existsSync(projectRoot)).toBe(false);
     expect(existsSync(root)).toBe(true);
+  });
+
+  it("overwrites a canonical file when a new still reuses that take path", async () => {
+    const root = await tempDir("tv-projects-replace-still-");
+    const runtimeDir = await tempDir("tv-runtime-replace-still-");
+    const registry = createRuntimeMediaRegistry(runtimeDir);
+    setActiveRuntimeMediaRegistry(registry);
+    const first = registry.register(PNG);
+    const replacement = Buffer.from(PNG);
+    replacement[replacement.length - 8] ^= 0x5a;
+    const second = registry.register(replacement);
+    const store = createProjectStore({ repoRoot: root });
+    const projectRoot = await store.createProjectDirectory(root, "ReplaceStill");
+    const frame = {
+      id: "A",
+      label: "A",
+      imageOrigin: "user" as const,
+      mediaId: first.mediaId,
+      image: first.imageUrl,
+    };
+    await store.saveProject({
+      projectRoot,
+      project: { ...createNewProject(), title: "ReplaceStill", storyboard: [frame] },
+      conversation: [],
+    });
+    const asset = join(projectRoot, "canonicals", "A", "take-01.png");
+    expect(await readFile(asset)).toEqual(PNG);
+
+    await store.saveProject({
+      projectRoot,
+      project: {
+        ...createNewProject(),
+        title: "ReplaceStill",
+        storyboard: [{ ...frame, mediaId: second.mediaId, image: second.imageUrl }],
+      },
+      conversation: [],
+    });
+    expect(await readFile(asset)).toEqual(replacement);
   });
 
   it("refuses a path outside the Projects Folder", async () => {

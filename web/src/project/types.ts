@@ -148,6 +148,8 @@ export type SegmentMotionPlan = {
   segmentPromptAddition: string;
   effectivePrompt: string;
   pace: LocomotionPace;
+  /** Intent and beat text this plan was computed from. Missing on older plans. */
+  sourceKey?: string;
   camotion?: CamotionDebug;
 };
 
@@ -356,6 +358,11 @@ export type JourneyShot = {
   motionPlan?: SegmentMotionPlan;
   /** Present after automatic Motion Planning fails for this pair. Cleared on retry or success. */
   motionPlanError?: string;
+  /**
+   * Filmmaker instruction for the next video take on this segment.
+   * Appended to the shooting prompt. Does not change the still or the motion plan.
+   */
+  shotDirection?: string;
   /**
    * Filmmaker pace lock for this traversal. Wins over CM `pace` for staging,
    * shooting, and display. Missing means use the Cinematographer value.

@@ -1,6 +1,7 @@
 import type { Project, Selection, StoryboardFrame, StoryboardImageOrigin, StoryDuration } from "./types";
 import { destinationById, storyboardFrameById } from "./types";
 import type { DirectorPlan } from "./director";
+import { projectWithoutMotionPlansForChangedBeats } from "./cinematographer";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 
 export type WorkspaceView = "plan" | "shoot" | "agent";
@@ -306,31 +307,46 @@ export function projectWithPullForwardReference(project: Project, enabled: boole
   return { ...project, pullForwardReferenceEnabled: enabled };
 }
 
-/** Updates Director plan fields on a beat. Does not invoke the Director or regenerate media. */
+/**
+ * Updates Director plan fields on a beat. Does not invoke the Director or regenerate media.
+ * The first time a later destination gains intent or beat text, that text is appended
+ * onto the production story. Later edits of the same beat do not rewrite the story.
+ */
 export function projectWithStoryboardBeatPlan(
   project: Project,
   frameId: string,
   next: { intent?: string; visualDescription?: string },
 ): Project {
-  if (!project.storyboard.some((frame) => frame.id === frameId)) {
+  const current = project.storyboard.find((frame) => frame.id === frameId);
+  if (!current) {
     return project;
   }
-  return {
-    ...project,
-    storyboard: project.storyboard.map((frame) => {
-      if (frame.id !== frameId) {
-        return frame;
-      }
-      const updated = { ...frame };
-      if (next.intent !== undefined) {
-        updated.intent = next.intent;
-      }
-      if (next.visualDescription !== undefined) {
-        updated.visualDescription = next.visualDescription;
-      }
-      return updated;
-    }),
-  };
+  const hadPlanText = beatHasPlanText(current);
+  const storyboard = project.storyboard.map((frame) => {
+    if (frame.id !== frameId) {
+      return frame;
+    }
+    const updated = { ...frame };
+    if (next.intent !== undefined) {
+      updated.intent = next.intent;
+    }
+    if (next.visualDescription !== undefined) {
+      updated.visualDescription = next.visualDescription;
+    }
+    return updated;
+  });
+  const updated = storyboard.find((frame) => frame.id === frameId)!;
+  const gainedPlanText =
+    !sameStoryboardId(current.id, "A") && !hadPlanText && beatHasPlanText(updated);
+  return projectWithoutMotionPlansForChangedBeats(
+    {
+      ...project,
+      storyboard,
+      story: gainedPlanText ? extendProductionStoryWithBeats(project.story, [updated]) : project.story,
+    },
+    project.storyboard,
+    storyboard,
+  );
 }
 
 function beatHasPlanText(frame: Pick<StoryboardFrame, "intent" | "visualDescription">): boolean {
@@ -753,11 +769,15 @@ export function projectWithDirectorPlan(project: Project, plan: DirectorPlan): P
     extensionBeats.length > 0
       ? extendProductionStoryWithBeats(project.story, extensionBeats)
       : project.story;
-  return {
-    ...project,
+  return projectWithoutMotionPlansForChangedBeats(
+    {
+      ...project,
+      storyboard,
+      story,
+      storyDuration: storyboard.length,
+      storyDurationLocked: true,
+    },
+    before,
     storyboard,
-    story,
-    storyDuration: storyboard.length,
-    storyDurationLocked: true,
-  };
+  );
 }

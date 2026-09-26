@@ -2805,6 +2805,158 @@ optional.
 
 ---
 
+### Production prompt shows a newly appended destination sentence
+
+**Status:** DEFERRED — not hackathon-critical. Do not implement
+from a normal product session before the event.
+
+**Goal.** When the first Intent on a newly added destination
+appends one sentence to the production story, the Production
+prompt box shows that sentence immediately.
+
+**Why it matters.** The stored story already grows. The project
+rail box is a separate draft and can stay stale until the project
+is reopened. During a demo that looks like the story did not
+update.
+
+**Intended behavior / design.**
+
+-   First committed Intent on a later destination still appends
+    one sentence to `project.story`. The Director does not run
+    again. Earlier prompt text is not rewritten.
+-   If Beat is committed first and Intent is empty, that first
+    sentence still comes from the Beat. Later edits of either
+    field do not append again.
+-   The Production prompt field updates to the stored story in
+    the same action. Save must not overwrite the appended story
+    with the old draft.
+
+**Constraints / invariants.**
+
+-   Do not call Director from Add Destination or from this sync.
+-   Do not rewrite the opening story.
+-   Agent and Plan journey flows stay as they are.
+
+**Likely implementation areas.**
+
+-   `projectWithStoryboardBeatPlan` /
+    `extendProductionStoryWithBeats` (`web/src/project/storyboard.ts`)
+-   Production prompt draft in `ProjectProvider` /
+    `ProjectRail` (`composerDraft` vs `project.story`)
+
+**Open questions.**
+
+-   If the filmmaker is mid-edit in the Production prompt box,
+    does the append wait, merge, or replace the draft?
+
+---
+
+### Uploaded destinations plan from Intent alone
+
+**Status:** DEFERRED — not hackathon-critical. Do not implement
+from a normal product session before the event.
+
+**Goal.** An uploaded still starts motion planning once Intent is
+committed. Beat text is not required to unblock that plan.
+
+**Why it matters.** Generate needs both Intent and Beat because
+those texts are what get drawn. An upload already is the picture.
+The Beat is not sent to the cinematographer, but planning waits
+until both fields have text. That forces a dummy Beat.
+
+**Intended behavior / design.**
+
+-   Generate on an empty slot still requires Intent and Beat.
+-   After a file is uploaded and Intent is committed, automatic
+    motion planning may run. Beat text is not part of the plan.
+-   Typing a Beat later does not change the uploaded pixels and
+    does not rebuild the motion plan.
+-   Changing Intent on a segment that already has a motion plan
+    still rebuilds that plan. Changing the still still rebuilds
+    it.
+
+**Constraints / invariants.**
+
+-   Do not loosen the wait-for-both rule for generated
+    destinations.
+-   Do not send Beat into the cinematographer or the video prompt.
+-   An actual uploaded image stays authoritative. Beat text must
+    not become permission to replace it.
+-   Take direction remains the control for the next video take
+    without changing the still or the motion plan.
+
+**Likely implementation areas.**
+
+-   `motionPlanEndpointReady` (`web/src/project/cinematographer.ts`)
+-   `canConstructDestinationFrame` stays stricter than the upload
+    planning gate (`web/src/project/destination.ts`)
+
+**Open questions.**
+
+-   If Intent is empty and only a Beat is typed on an upload, does
+    planning stay blocked?
+-   Opening A already plans from story or Intent. Keep that as-is.
+
+---
+
+### Reshoot an uploaded still by editing that file
+
+**Status:** DEFERRED — not hackathon-critical. Do not implement
+from a normal product session before the event.
+
+**Goal.** Reshoot on a filmmaker-uploaded still edits that image.
+Beat is what changes in the picture. Intent is the move. The
+original file remains the previous canonical take.
+
+**Why it matters.** Uploads cannot be reshot today. Replace swaps
+in another file. Generate runs only on an empty slot. A generated
+reshoot edits from the previous destination, not from the current
+still. The filmmaker uploaded a picture because that picture is
+the destination.
+
+**Intended behavior / design.**
+
+-   The uploaded still is the image reference for the edit.
+-   Beat describes the change in the picture. Intent describes the
+    move. The result is a new canonical take.
+-   The original upload stays selectable as the previous take.
+-   A new still means a new motion plan for segments that use it.
+-   Throwing the upload away stays Replace, or Generate after the
+    still is cleared. Do not add a second “replace completely”
+    reshoot.
+
+**Constraints / invariants.**
+
+-   Do not silently replace an actual canonical.
+-   Do not treat this as footage NEW TAKE. Destination reshoot and
+    a video take stay different operations.
+-   Versioning of inbound/outbound Takes across the old and new
+    still belongs with
+    [Non-destructive canonical reshoots](#non-destructive-canonical-reshoots).
+    This item is only the edit-from-upload prompt path.
+-   High risk next to stills and motion plans. Not a hackathon
+    demo path.
+
+**Likely implementation areas.**
+
+-   `canReshootDestinationFrame` currently requires
+    `imageOrigin === "generated"` (`web/src/project/destination.ts`)
+-   Construction prompt and source media id: today reshoot uses
+    the preceding destination, not the current still
+    (`assembleCanonicalConstructionPrompt`,
+    `media/src/prompts/canonical-destination.ts`)
+-   Canonical take history so the upload remains recoverable
+
+**Open questions.**
+
+-   Should Intent on an upload edit mean the same “move from the
+    previous viewpoint” line used for Generate, or only a change
+    to this picture?
+-   Does the edited result become `imageOrigin: generated` while
+    the upload remains a user take?
+
+---
+
 ## Architecture invariants
 
 Future backlog work must preserve these. They are product law, not

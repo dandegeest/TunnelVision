@@ -34,6 +34,20 @@ export function canonicalTakes(frame: StoryboardFrame): CanonicalTake[] {
   return [];
 }
 
+export function locateCanonicalTake(
+  frames: readonly StoryboardFrame[],
+  takeId: string,
+): { frame: StoryboardFrame; takes: CanonicalTake[]; index: number } | undefined {
+  for (const frame of frames) {
+    const takes = canonicalTakes(frame);
+    const index = takes.findIndex((take) => take.id === takeId);
+    if (index >= 0) {
+      return { frame, takes, index };
+    }
+  }
+  return undefined;
+}
+
 export function selectedCanonicalTake(frame: StoryboardFrame): CanonicalTake | undefined {
   const takes = canonicalTakes(frame);
   if (takes.length < 1) {

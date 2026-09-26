@@ -4,7 +4,7 @@ import { createNewProject } from "../project/new-project";
 import { projectWithDirectorPlan } from "../project/storyboard";
 import { currentCutDurationSeconds } from "../project/current-cut";
 import { projectWithAppendedTake, projectWithSelectedTake, takeId, journeyTakes } from "../project/takes";
-import { journeyPlayheadStart, layoutShootTimeline, neighboringMotionJourney, neighboringShootOccurrence, occurrenceForJourneyEndpoint, occurrenceIsGenerating, playheadStartForSelection, selectShootOccurrence, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
+import { journeyPlayheadStart, layoutShootTimeline, neighboringMotionJourney, neighboringShootOccurrence, occurrenceForJourneyEndpoint, occurrenceIsGenerating, playheadStartForSelection, selectShootOccurrence, shootOccurrenceOpensReel, shootTimelineSlots, trailingFpoSlots } from "./shoot-layout";
 
 const A_MEDIA = {
   mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -127,6 +127,21 @@ describe("shoot timeline slots", () => {
       },
     });
     expect(selected).toEqual([{ destinationId: "A", occurrenceIndex: 0 }]);
+  });
+
+  it("opens the reel only on a second click of the selected actual", () => {
+    const layout = layoutShootTimeline(createForestProject(), 1);
+    const opening = occurrenceForJourneyEndpoint(layout.occurrences, "A-B", "start");
+    const next = occurrenceForJourneyEndpoint(layout.occurrences, "A-B", "end");
+    expect(
+      shootOccurrenceOpensReel(opening, { kind: "destination", destinationId: "A", occurrenceIndex: 0 }),
+    ).toBe(true);
+    expect(
+      shootOccurrenceOpensReel(next, { kind: "destination", destinationId: "A", occurrenceIndex: 0 }),
+    ).toBe(false);
+    expect(
+      shootOccurrenceOpensReel(opening, { kind: "journey", journeyId: "A-B", band: "motion" }),
+    ).toBe(false);
   });
 
   it("finds the previous and next motion journey in timeline order", () => {

@@ -14,11 +14,13 @@ import {
   destinationImageModelLabel,
   precedingActualFrame,
 } from "../project/destination";
+import { canonicalTakes, selectedCanonicalTake } from "../project/canonical-takes";
 import { canUploadStoryboardFrame } from "../project/starting-frame";
 import { formatFriendlyAspectRatio } from "../project/media-preflight";
 import type { Project, StoryboardFrame } from "../project/types";
 import { ClickToEditTextarea } from "../ui/ClickToEditTextarea";
 import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
+import { DisclosureMarker, disclosureSummaryClass } from "../ui/Disclosure";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 import { CamotionDiagnosticPanel, CamotionEmptyState, CamotionSourceSwitch } from "./CamotionDiagnostic";
 import { InspectorCopyDisclosure, InspectorPaneNav } from "./InspectorPanes";
@@ -61,12 +63,14 @@ export function DestinationPlanFields({
           <CopyToClipboardButton text={intent} label={`Copy destination ${frame.label} intent`} />
         </div>
         <ClickToEditTextarea
+          key={`${frame.id}-intent`}
           aria-label={`Destination ${frame.label} intent`}
           rows={3}
           value={intent}
           disabled={disabled}
           className={fieldClass}
           onChange={onPlanChange ? (next) => onPlanChange({ intent: next }) : undefined}
+          commitOnBlur
         />
       </div>
       <div>
@@ -80,6 +84,7 @@ export function DestinationPlanFields({
           />
         </div>
         <ClickToEditTextarea
+          key={`${frame.id}-beat`}
           aria-label={opening ? `Destination ${frame.label} story` : `Destination ${frame.label} beat`}
           rows={3}
           value={source}
@@ -92,6 +97,7 @@ export function DestinationPlanFields({
                 ? (next) => onPlanChange({ visualDescription: next })
                 : undefined
           }
+          commitOnBlur
         />
       </div>
     </>
@@ -225,6 +231,49 @@ function destinationShootHint(
   return "This destination cannot be shot yet.";
 }
 
+function PreviousTakes({
+  frame,
+  onOpenTake,
+}: {
+  frame: StoryboardFrame;
+  onOpenTake?: (takeId: string) => void;
+}) {
+  const selected = selectedCanonicalTake(frame);
+  const previous = canonicalTakes(frame).filter((take) => take.id !== selected?.id && take.imageUrl);
+  const [open, setOpen] = useState(false);
+  if (previous.length === 0) {
+    return null;
+  }
+  return (
+    <div>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label="Previous takes"
+        className={`${disclosureSummaryClass} text-left`}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <DisclosureMarker open={open} />
+        Previous takes
+      </button>
+      <div className="mt-2 flex flex-wrap gap-2" hidden={!open}>
+        {previous.map((take) => (
+          <button
+            key={take.id}
+            type="button"
+            aria-label={`Open take ${take.number} of destination ${frame.label}`}
+            title={`Take ${take.number}`}
+            className="w-16 overflow-hidden rounded border border-[#3a342c]"
+            onClick={() => onOpenTake?.(take.id)}
+          >
+            <img src={take.imageUrl} alt="" className="aspect-video w-full object-cover" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export type DestinationInspectorPane = "source" | "motion" | "details";
 
 const destinationPanes = [
@@ -254,6 +303,7 @@ export function DestinationInspectorFields({
   camotionKey,
   onCamotionKeyChange,
   onOpenReel,
+  onOpenTake,
   debugOn = false,
   initialPane = "source",
   pane: paneProp,
@@ -279,6 +329,7 @@ export function DestinationInspectorFields({
   camotionKey?: string;
   onCamotionKeyChange?: (key: string) => void;
   onOpenReel?: () => void;
+  onOpenTake?: (takeId: string) => void;
   debugOn?: boolean;
   initialPane?: DestinationInspectorPane;
   pane?: DestinationInspectorPane;
@@ -373,6 +424,7 @@ export function DestinationInspectorFields({
                 ) : null}
               </div>
             ) : null}
+            <PreviousTakes frame={frame} onOpenTake={onOpenTake} />
             {afterFields}
           </>
         ) : null}
@@ -403,6 +455,7 @@ export function DestinationInspectorPanel({
   onStoryChange,
   onReshoot,
   onShoot,
+  onOpenTake,
   reshooting = false,
   stillMode,
   onStillModeChange,
@@ -417,6 +470,7 @@ export function DestinationInspectorPanel({
   onStoryChange?: (story: string) => void;
   onReshoot?: () => void;
   onShoot?: () => void;
+  onOpenTake?: (takeId: string) => void;
   reshooting?: boolean;
   stillMode?: "canonical" | "primed";
   onStillModeChange?: (mode: "canonical" | "primed") => void;
@@ -452,6 +506,7 @@ export function DestinationInspectorPanel({
           reshooting={reshooting}
           onReshoot={onReshoot}
           onShoot={onShoot}
+          onOpenTake={onOpenTake}
           stillMode={stillMode}
           onStillModeChange={onStillModeChange}
           camotionKey={camotionKey}

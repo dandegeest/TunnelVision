@@ -172,6 +172,16 @@ describe("SHOOT gate and JourneyShot take", () => {
       effectivePrompt: uniquePrompt,
     });
     expect(shootRequestFromProject(stored, "A-B").effectivePrompt).toBe(uniquePrompt);
+    const directed = {
+      ...prepared,
+      journeys: prepared.journeys.map((journey) =>
+        journey.id === "A-B" ? { ...journey, shotDirection: "Hands reach toward the camera." } : journey,
+      ),
+    };
+    expect(shootRequestFromProject(directed, "A-B").effectivePrompt).toBe(
+      "baseline\nHands reach toward the camera.\nTrack forward through the opening.",
+    );
+    expect(shootRequestFromProject(directed, "A-B").segmentPromptAddition).toBe(motionPlan.segmentPromptAddition);
     expect(shootRequestFromProject(prepared, "A-B").targetDurationSeconds).toBe(5);
     expect(shootRequestFromProject({ ...prepared, generateAudio: true }, "A-B").generateAudio).toBe(true);
     expect(canShootJourney(prepared, prepared.journeys[0]!)).toBe(true);

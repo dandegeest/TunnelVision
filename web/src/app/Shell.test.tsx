@@ -104,8 +104,8 @@ describe("Shell header chrome", () => {
     expect(project.indexOf('aria-label="Current project:')).toBeLessThan(project.indexOf('aria-label="Delete project"'));
     expect(project.indexOf('aria-label="Delete project"')).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
-    expect(project.indexOf('aria-label="Set consistency')).toBeGreaterThan(createAt);
-    expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(project.indexOf('aria-label="Set consistency'));
+    expect(project).not.toContain('aria-label="Set consistency');
+    expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(createAt);
     expect(settingsAt).toBeGreaterThan(createAt);
     expect(project).toContain(">Production prompt<");
     expect(project).toContain(">Camera<");

@@ -13,6 +13,7 @@ import {
   LOCOMOTION_PACE_PHRASES,
   TUNNELVISION_LOCOMOTION_BASELINE,
   TUNNELVISION_LOCOMOTION_BASELINE_TEMPLATE,
+  composeDirectedShootingPrompt,
   composeJourneyShootingPrompt,
   composeShootingPrompt,
   locomotionBaseline,
@@ -163,6 +164,17 @@ test("composeShootingPrompt leads with extreme slow-motion and hyper-speed instr
     addition: "",
     baseline: slowMo,
   });
+});
+
+test("filmmaker take direction sits between the route and the locomotion baseline", () => {
+  const addition = "Track forward through the opening.";
+  const baseline = locomotionBaseline("fast");
+  const prompt = composeShootingPrompt(baseline, addition, "fast");
+  assert.equal(composeDirectedShootingPrompt(prompt, addition, "   "), prompt);
+  assert.equal(
+    composeDirectedShootingPrompt(prompt, addition, "Hands reach toward the camera as it moves through."),
+    `${addition}\nHands reach toward the camera as it moves through.\n${baseline}`,
+  );
 });
 
 test("composeJourneyShootingPrompt uses the selected grammar baseline, not POV by default for FOLLOW", () => {

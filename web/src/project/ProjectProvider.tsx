@@ -23,6 +23,7 @@ import {
   ensureProjectJourneyPace,
   projectWithCinematographerAssessment,
   projectWithMotionPlanError,
+  projectWithoutMotionPlan,
   requestCinematographerAssessment,
 } from "./cinematographer";
 import {
@@ -68,7 +69,7 @@ import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from ".
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
-import { canPlanMovie, projectHasExistingJourney, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
+import { canAddStoryboardDestination, canPlanMovie, projectHasExistingJourney, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
 import { projectWithAdaptivePace, projectWithStory } from "./adaptive-pace";
 import { projectWithDurationMode, projectWithFixedDurationSeconds } from "./shot-duration";
 import {
@@ -225,6 +226,7 @@ type ProjectContextValue = {
   assessingJourneyIds: readonly string[];
   cinematographerError: string | null;
   retryMotionPlan: (journeyId: string) => Promise<void>;
+  forceMotionPlan: (journeyId: string) => Promise<void>;
   shootingJourneyIds: readonly string[];
   shootingIntents: Readonly<Record<string, GenerationIntent>>;
   shootError: string | null;
@@ -251,6 +253,7 @@ type ProjectContextValue = {
   replacingStart: boolean;
   replaceDestinationImage: (frameId: string, file: File, options?: { clearPlan?: boolean }) => Promise<void>;
   appendDestinationWithImage: (file: File) => Promise<void>;
+  addDestinationWithImage: (file: File) => Promise<void>;
   addDestination: () => void;
   openStoryboardInPlan: (frameId: string) => void;
   removeDestination: (frameId: string) => void;
@@ -258,6 +261,7 @@ type ProjectContextValue = {
   constructDestination: (beatId: string) => Promise<void>;
   generateOpeningFrame: () => Promise<void>;
   setDestinationPlan: (frameId: string, next: { intent?: string; visualDescription?: string }) => void;
+  setShotDirection: (journeyId: string, shotDirection: string) => void;
   reshootDestination: (frameId: string) => Promise<void>;
   retryDestination: (frameId: string) => Promise<void>;
   movieExport: MovieExportResult | null;
@@ -284,6 +288,10 @@ const ProjectContext = createContext<ProjectContextValue | null>(null);
 
 /** Survives React Strict Mode remount so one canonical pair is not planned twice. */
 const inFlightMotionPlans = new Map<string, Promise<Project>>();
+/** Bumped when the user forces a new plan so an in-flight result cannot write back. */
+const motionPlanEpoch = new Map<string, number>();
+/** Segments whose cleared plan is already being replanned by an explicit force. */
+const forcedMotionPlans = new Set<string>();
 
 export function ProjectProvider({
   children,
@@ -787,6 +795,7 @@ export function ProjectProvider({
         ),
       );
       setSelection({ kind: "storyboard", frameId });
+      setStoryboardReelId(frameId);
     } catch (error) {
       setStartingFrameError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
@@ -801,6 +810,25 @@ export function ProjectProvider({
       constructingBeatId ||
       journeyAgentIsBusy(journeyAgent) ||
       !canDropAppendStoryboardDestination(current)
+    ) {
+      return;
+    }
+    const added = projectWithAddedDestination(current);
+    const frame = added.storyboard[added.storyboard.length - 1];
+    if (!frame || current.storyboard.some((item) => item.id === frame.id)) {
+      return;
+    }
+    applyProject(added);
+    await replaceDestinationImage(frame.id, file);
+  }, [applyProject, constructingBeatId, directorStatus, journeyAgent, replaceDestinationImage]);
+
+  const addDestinationWithImage = useCallback(async (file: File) => {
+    const current = projectRef.current;
+    if (
+      directorStatus === "planning" ||
+      constructingBeatId ||
+      journeyAgentIsBusy(journeyAgent) ||
+      !canAddStoryboardDestination(current)
     ) {
       return;
     }
@@ -1000,6 +1028,7 @@ export function ProjectProvider({
           mediaId: result.mediaId,
           imageUrl: result.imageUrl,
           ...(mediaInfo ? { mediaInfo } : {}),
+          reason: input.instruction,
         }),
       );
       return next;
@@ -1078,6 +1107,22 @@ export function ProjectProvider({
   const setDestinationPlan = useCallback(
     (frameId: string, next: { intent?: string; visualDescription?: string }) => {
       applyProject(projectWithStoryboardBeatPlan(projectRef.current, frameId, next));
+    },
+    [applyProject],
+  );
+
+  const setShotDirection = useCallback(
+    (journeyId: string, shotDirection: string) => {
+      const current = projectRef.current;
+      const trimmed = shotDirection.trim();
+      applyProject({
+        ...current,
+        journeys: current.journeys.map((journey) =>
+          journey.id === journeyId
+            ? { ...journey, shotDirection: trimmed || undefined }
+            : journey,
+        ),
+      });
     },
     [applyProject],
   );
@@ -1175,6 +1220,7 @@ export function ProjectProvider({
       if (pending) {
         return pending;
       }
+      const epoch = motionPlanEpoch.get(journeyId) ?? 0;
       const work = (async (): Promise<Project> => {
         const session = projectSessionRef.current;
         const entryId = nextConversationId("blocking");
@@ -1218,6 +1264,15 @@ export function ProjectProvider({
           }
           const latest = projectRef.current;
           const latestJourney = latest.journeys.find((item) => item.id === journeyId);
+          if ((motionPlanEpoch.get(journeyId) ?? 0) !== epoch) {
+            setConversation((entries) =>
+              resolveBlockingEntry(entries, entryId, {
+                status: "failed",
+                error: "Motion plan restarted",
+              }),
+            );
+            return latest;
+          }
           if (!latestJourney || journeyMotionPlanInputKey(latest, latestJourney) !== inputKey) {
             setConversation((entries) =>
               resolveBlockingEntry(entries, entryId, {
@@ -1272,7 +1327,9 @@ export function ProjectProvider({
           );
           throw error;
         } finally {
-          inFlightMotionPlans.delete(inputKey);
+          if (inFlightMotionPlans.get(inputKey) === work) {
+            inFlightMotionPlans.delete(inputKey);
+          }
           setAssessingJourneyIds((ids) => withoutId(ids, journeyId));
         }
       })();
@@ -1390,6 +1447,36 @@ export function ProjectProvider({
     [assessJourney],
   );
 
+  const forceMotionPlan = useCallback(
+    async (journeyId: string) => {
+      if (forcedMotionPlans.has(journeyId)) {
+        return;
+      }
+      const current = projectRef.current;
+      const journey = current.journeys.find((item) => item.id === journeyId);
+      if (!journey || !canAssessJourney(current, journey)) {
+        return;
+      }
+      const inputKey = journeyMotionPlanInputKey(current, journey);
+      if (!inputKey) {
+        return;
+      }
+      forcedMotionPlans.add(journeyId);
+      motionPlanEpoch.set(journeyId, (motionPlanEpoch.get(journeyId) ?? 0) + 1);
+      inFlightMotionPlans.delete(inputKey);
+      const cleared = projectWithoutMotionPlan(current, journeyId);
+      applyProject(cleared);
+      try {
+        await assessJourneyOn(cleared, journeyId);
+      } catch {
+        // Conversation already records the failure.
+      } finally {
+        forcedMotionPlans.delete(journeyId);
+      }
+    },
+    [applyProject, assessJourneyOn],
+  );
+
   const autoMotionKey = useMemo(() => motionPlanAutoKey(project), [project]);
   useEffect(() => {
     if (journeyAgentIsBusy(journeyAgent)) {
@@ -1397,6 +1484,9 @@ export function ProjectProvider({
     }
     const current = projectRef.current;
     for (const journey of journeysReadyToBlock(current)) {
+      if (forcedMotionPlans.has(journey.id)) {
+        continue;
+      }
       void assessJourney(journey.id);
     }
   }, [assessJourney, autoMotionKey, journeyAgent]);
@@ -2619,6 +2709,7 @@ export function ProjectProvider({
       assessingJourneyIds,
       cinematographerError,
       retryMotionPlan,
+      forceMotionPlan,
       shootingJourneyIds,
       shootingIntents,
       shootError,
@@ -2645,6 +2736,7 @@ export function ProjectProvider({
       replacingStart,
       replaceDestinationImage,
       appendDestinationWithImage,
+      addDestinationWithImage,
       addDestination,
       openStoryboardInPlan,
       removeDestination,
@@ -2652,6 +2744,7 @@ export function ProjectProvider({
       constructDestination,
       generateOpeningFrame,
       setDestinationPlan,
+      setShotDirection,
       reshootDestination,
       retryDestination,
       movieExport,
@@ -2727,6 +2820,7 @@ export function ProjectProvider({
       assessingJourneyIds,
       cinematographerError,
       retryMotionPlan,
+      forceMotionPlan,
       shootingJourneyIds,
       shootingIntents,
       shootError,
@@ -2753,6 +2847,7 @@ export function ProjectProvider({
       replacingStart,
       replaceDestinationImage,
       appendDestinationWithImage,
+      addDestinationWithImage,
       addDestination,
       openStoryboardInPlan,
       removeDestination,
@@ -2760,6 +2855,7 @@ export function ProjectProvider({
       constructDestination,
       generateOpeningFrame,
       setDestinationPlan,
+      setShotDirection,
       reshootDestination,
       retryDestination,
       movieExport,

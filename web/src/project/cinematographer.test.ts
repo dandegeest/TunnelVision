@@ -10,6 +10,7 @@ import {
   cinematographerShootabilityTileLabel,
   cinematographerAssessmentIsCurrent,
   locomotionPaceLabel,
+  canForceMotionPlan,
   hasCurrentMotionPlan,
   hasStagedMotionPlan,
   motionPlanNeedsRebuild,
@@ -24,11 +25,13 @@ import {
   projectScoreFromProject,
   projectWithCinematographerAssessment,
   projectWithMotionPlanError,
+  projectWithoutMotionPlan,
   requestCinematographerAssessment,
 } from "./cinematographer";
 import { projectWithJourneyFilmmakerDuration, projectWithJourneyFilmmakerPace } from "./journey-overrides";
 import { directorPlanRequestFromProject } from "./director";
 import { projectWithMotionPlan } from "./motion-plan";
+import { projectWithStoryboardBeatPlan } from "./storyboard";
 import { journeyIsPlayable } from "./policy";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
 import type { CinematographerAssessment, Project } from "./types";
@@ -101,13 +104,44 @@ describe("Cinematographer actual-set assessment", () => {
   it("keys automatic Motion Planning to the actual adjacent pair only", () => {
     const project = createForestProject();
     const ready = motionPlanAutoKey(project);
-    expect(ready).toContain(`A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:needed`);
+    expect(ready).toMatch(
+      new RegExp(`A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:[0-9a-f]+:needed`),
+    );
     expect(motionPlanAutoKey({ ...project, story: "Unrelated story edit." })).toBe(ready);
     expect(motionPlanAutoKey({ ...project, title: "Unrelated title." })).toBe(ready);
     expect(motionPlanAutoKey({ ...project, agency: "autonomous" })).toBe(ready);
     const fpo = withFpoB(project);
     expect(motionPlanAutoKey(fpo)).not.toContain("A-B:");
     expect(journeysReadyToBlock(fpo).some((journey) => journey.id === "A-B")).toBe(false);
+  });
+
+  it("waits to motion-plan a new still until that destination has intent and beat", () => {
+    const project = createForestProject();
+    const dropped = {
+      ...project,
+      storyboard: project.storyboard.map((frame) =>
+        frame.id === "B" ? { ...frame, visualDescription: undefined, intent: undefined } : frame,
+      ),
+    };
+    expect(journeysReadyToBlock(dropped).some((journey) => journey.id === "A-B")).toBe(false);
+    expect(motionPlanAutoKey(dropped)).not.toContain("A-B:");
+    const intentOnly = {
+      ...dropped,
+      storyboard: dropped.storyboard.map((frame) =>
+        frame.id === "B" ? { ...frame, intent: "Keep following the road." } : frame,
+      ),
+    };
+    expect(journeysReadyToBlock(intentOnly).some((journey) => journey.id === "A-B")).toBe(false);
+    const ready = {
+      ...intentOnly,
+      storyboard: intentOnly.storyboard.map((frame) =>
+        frame.id === "B"
+          ? { ...frame, visualDescription: "The camera keeps moving forward along the winding gravel road." }
+          : frame,
+      ),
+    };
+    expect(journeysReadyToBlock(ready).some((journey) => journey.id === "A-B")).toBe(true);
+    expect(motionPlanAutoKey(ready)).toContain("A-B:");
   });
 
   it("invalidates a Motion Plan when either canonical media identity changes", () => {
@@ -142,6 +176,15 @@ describe("Cinematographer actual-set assessment", () => {
     });
     const journey = planned.journeys.find((item) => item.id === "A-B")!;
     expect(hasCurrentMotionPlan(planned, journey)).toBe(true);
+    expect(canForceMotionPlan(planned, journey)).toBe(true);
+    const cleared = projectWithoutMotionPlan(planned, "A-B");
+    const clearedJourney = cleared.journeys.find((item) => item.id === "A-B")!;
+    expect(clearedJourney.motionPlan).toBeUndefined();
+    expect(clearedJourney.cinematographer).toBeUndefined();
+    expect(clearedJourney.takes).toEqual(journey.takes);
+    expect(hasCurrentMotionPlan(cleared, clearedJourney)).toBe(false);
+    expect(canForceMotionPlan(cleared, clearedJourney)).toBe(false);
+    expect(journeysReadyToBlock(cleared).some((item) => item.id === "A-B")).toBe(true);
     expect(hasStagedMotionPlan(journey)).toBe(true);
     expect(motionPlanNeedsRebuild(journey)).toBe(false);
     expect(journeysReadyToBlock(planned).some((item) => item.id === "A-B")).toBe(false);
@@ -165,8 +208,8 @@ describe("Cinematographer actual-set assessment", () => {
     expect(hasCurrentMotionPlan(missingFrames, missing)).toBe(false);
     expect(motionPlanNeedsRebuild(missing)).toBe(true);
     expect(journeysReadyToBlock(missingFrames).some((item) => item.id === "A-B")).toBe(true);
-    expect(motionPlanAutoKey(planned)).toContain(
-      `A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:planned`,
+    expect(motionPlanAutoKey(planned)).toMatch(
+      new RegExp(`A-B:${TRUSTED_MEDIA_IDS.forestAtoFA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:[0-9a-f]+:planned`),
     );
     expect(motionPlanAutoKey({ ...planned, story: "Unrelated story edit." })).toBe(motionPlanAutoKey(planned));
     const swappedA = {
@@ -178,9 +221,61 @@ describe("Cinematographer actual-set assessment", () => {
     const stale = swappedA.journeys.find((item) => item.id === "A-B")!;
     expect(hasCurrentMotionPlan(swappedA, stale)).toBe(false);
     expect(journeysReadyToBlock(swappedA).some((item) => item.id === "A-B")).toBe(true);
-    expect(motionPlanAutoKey(swappedA)).toContain(
-      `A-B:${TRUSTED_MEDIA_IDS.wardrobeLoopVisionA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:needed`,
+    expect(motionPlanAutoKey(swappedA)).toMatch(
+      new RegExp(`A-B:${TRUSTED_MEDIA_IDS.wardrobeLoopVisionA}:${TRUSTED_MEDIA_IDS.forestAtoFB}:[0-9a-f]+:needed`),
     );
+  });
+
+  it("drops a Motion Plan when endpoint intent changes and keeps it when the beat or story changes", () => {
+    const planned = projectWithMotionPlan(createForestProject(), "A-B", {
+      cinematographer: shootableAB,
+      startCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
+      endCanonicalMediaId: TRUSTED_MEDIA_IDS.forestAtoFB,
+      startShootingFrame: {
+        mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        imageUrl: "/a-prime.png",
+      },
+      endShootingFrame: {
+        mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        imageUrl: "/b-prime.png",
+      },
+      startPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+        destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+        exposure: { strength: 0.08, samples: 16 },
+      },
+      endPlan: {
+        version: 1,
+        camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+        destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+        exposure: { strength: 0.08, samples: 16 },
+      },
+      segmentPromptAddition: shootableAB.segmentPromptAddition,
+      effectivePrompt: shootableAB.segmentPromptAddition,
+      pace: "fast",
+    });
+    const journey = planned.journeys.find((item) => item.id === "A-B")!;
+    const intentEdited = projectWithStoryboardBeatPlan(planned, "B", {
+      intent: "Hands reach for the camera.",
+    });
+    const afterIntent = intentEdited.journeys.find((item) => item.id === "A-B")!;
+    expect(afterIntent.motionPlan).toBeUndefined();
+    expect(afterIntent.cinematographer).toBeUndefined();
+    expect(afterIntent.takes).toEqual(journey.takes);
+    expect(journeysReadyToBlock(intentEdited).some((item) => item.id === "A-B")).toBe(true);
+    expect(motionPlanAutoKey(intentEdited)).not.toBe(motionPlanAutoKey(planned));
+    const beatEdited = projectWithStoryboardBeatPlan(planned, "B", {
+      visualDescription: "Hands rise and grab toward the lens.",
+    });
+    expect(beatEdited.journeys.find((item) => item.id === "A-B")?.motionPlan?.segmentPromptAddition).toBe(
+      journey.motionPlan?.segmentPromptAddition,
+    );
+    expect(journeysReadyToBlock(beatEdited).some((item) => item.id === "A-B")).toBe(false);
+    expect(motionPlanAutoKey(beatEdited)).toBe(motionPlanAutoKey(planned));
+    const untouched = beatEdited.journeys.find((item) => item.id === "C-D");
+    expect(untouched?.motionPlan).toBe(planned.journeys.find((item) => item.id === "C-D")?.motionPlan);
+    expect(motionPlanAutoKey({ ...planned, story: "Unrelated story edit." })).toBe(motionPlanAutoKey(planned));
   });
 
   it("posts trusted media identities rather than filesystem paths", async () => {

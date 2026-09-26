@@ -95,6 +95,27 @@ export function locomotionBaseline(
 /** Default filled baseline (fast). Prefer `locomotionBaseline(pace)` at shoot time. */
 export const TUNNELVISION_LOCOMOTION_BASELINE = locomotionBaseline(DEFAULT_LOCOMOTION_PACE);
 
+/** Insert filmmaker take direction between the route and the locomotion baseline. */
+export function composeDirectedShootingPrompt(
+  effectivePrompt: string,
+  segmentPromptAddition: string | undefined,
+  shotDirection?: string,
+): string {
+  const direction = shotDirection?.trim() ?? "";
+  if (!direction) {
+    return effectivePrompt;
+  }
+  const { paceLeadIn, addition, baseline } = splitShootingPrompt(effectivePrompt, segmentPromptAddition);
+  return [paceLeadIn, addition, direction, baseline].filter(Boolean).join("\n");
+}
+
+export function directedSegmentPromptAddition(
+  segmentPromptAddition: string | undefined,
+  shotDirection?: string,
+): string {
+  return [segmentPromptAddition?.trim() ?? "", shotDirection?.trim() ?? ""].filter(Boolean).join("\n");
+}
+
 export function composeShootingPrompt(
   baseline: string,
   segmentPromptAddition?: string,

@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { createForestProject } from "../../fixtures/forest-a-to-f";
 import type { ConversationEntry } from "../../project/conversation";
+import { frameWithAppendedCanonicalTake } from "../../project/canonical-takes";
 import {
   agentGeneratingLabel,
+  canonicalReshootCount,
   cinematographerScanLine,
   compactLettersFromTurn,
   directorScanLine,
   journeyTurnsFromConversation,
+  previousCanonicals,
+  rejectedCanonicals,
+  reshootReasonsByDestination,
   restoreAgentJourneyTurns,
   repairScanLine,
   turnPrompt,
@@ -165,5 +170,42 @@ describe("journey turns from conversation", () => {
     );
     expect(turns[0]?.complete).toBe(false);
     expect(turns[0]?.videoUrl).toBeUndefined();
+  });
+
+  it("counts reshoots and keeps the repair reason on the replaced still", () => {
+    const empty = { id: "A", label: "A", imageOrigin: "none" as const };
+    const first = frameWithAppendedCanonicalTake(empty, {
+      mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      imageUrl: "/a.png",
+      origin: "generated",
+      source: "constructed",
+    });
+    const replaced = frameWithAppendedCanonicalTake(first, {
+      mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      imageUrl: "/b.png",
+      origin: "generated",
+      source: "repair",
+      reason: "The opening does not face the route.",
+    });
+    expect(canonicalReshootCount([replaced])).toBe(1);
+    expect(rejectedCanonicals(replaced)[0]?.reason).toBe("The opening does not face the route.");
+    const reasons = reshootReasonsByDestination([
+      {
+        id: "repair",
+        createdAt: AT,
+        kind: "agent",
+        status: "repairing",
+        destinationIds: ["C"],
+        journeyId: "B-C",
+        recommendation: "RESHOOT_END",
+        instruction: "End contradicts the visible space.",
+        setConsistency: 80,
+        traversalConfidence: 20,
+      },
+    ]);
+    const current = createForestProject().storyboard.find((frame) => frame.id === "C")!;
+    expect(previousCanonicals(current, undefined, reasons.C)[0]?.reason).toBe(
+      "End contradicts the visible space.",
+    );
   });
 });

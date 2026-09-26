@@ -28,6 +28,7 @@ export function DestinationItem({
   constructionError,
   onRetry,
   onSelect,
+  embedded = false,
 }: {
   occurrence: LaidOutOccurrence;
   destination?: Destination;
@@ -39,6 +40,8 @@ export function DestinationItem({
   constructionError?: string;
   onRetry?: () => void;
   onSelect: () => void;
+  /** Positioning is owned by a parent drop target. */
+  embedded?: boolean;
 }) {
   const image = destination?.image ?? occurrence.image;
   const fpo = Boolean(occurrence.fpo) || !image;
@@ -61,15 +64,21 @@ export function DestinationItem({
 
   return (
     <div
-      className="group absolute top-0 -translate-x-1/2 text-left"
-      style={{ left: occurrence.xCenter, width: DESTINATION_THUMB_PX }}
+      className={
+        embedded
+          ? "group text-left"
+          : "group absolute top-0 -translate-x-1/2 text-left"
+      }
+      style={embedded ? undefined : { left: occurrence.xCenter, width: DESTINATION_THUMB_PX }}
     >
       <button
         type="button"
         className="block w-full text-left outline-none"
         onClick={onSelect}
         aria-label={ariaBits.join(", ")}
+        aria-pressed={selected}
         aria-busy={live || undefined}
+        title={selected && !fpo ? "View still" : undefined}
       >
       <span className="mb-1 flex h-5 items-baseline justify-center gap-1 border-b border-[#3a342c]">
         <span
