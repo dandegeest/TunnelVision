@@ -23,7 +23,7 @@ export const CAMERA_GRAMMAR_LABEL: Record<CameraGrammar, string> = {
  * Do not enumerate FPS-style objects; that primes the video model.
  * Product still and video prompts share this clause; filmmaker/Director
  * story text should not. World-subject persistence is not part of this
- * clause — stills may add WORLD_SUBJECTS_MAY_APPEAR; video leaves
+ * clause — canonical stills add WORLD_SUBJECTS_MAY_APPEAR. Video leaves
  * subjects to CM segmentPromptAddition.
  */
 export const UNEMBODIED_FIRST_PERSON_POV =
@@ -31,7 +31,7 @@ export const UNEMBODIED_FIRST_PERSON_POV =
 
 /** Still-generation only. Video subject guidance belongs in CM. */
 export const WORLD_SUBJECTS_MAY_APPEAR =
-  "People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.";
+  "Keep the world alive and in motion. Preserve the activity implied by the journey, favoring active characters, sets, and props over unnecessarily static scenes.";
 
 const LOCOMOTION_PACE_MACRO = "{pace}";
 

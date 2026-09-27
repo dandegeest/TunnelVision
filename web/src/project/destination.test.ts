@@ -122,7 +122,9 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/unembodied first-person POV/);
     expect(prompt).toMatch(/Never show the viewer\/camera operator, their body, shadow, reflection, or FPS-style objects/);
     expect(prompt).not.toMatch(/weapons, phones, or camera equipment/);
-    expect(prompt).toMatch(/People, animals, vehicles, objects, and other subjects may appear naturally/);
+    expect(prompt).toMatch(
+      /Keep the world alive and in motion\. Preserve the activity implied by the journey, favoring active characters, sets, and props over unnecessarily static scenes/,
+    );
     expect(prompt).not.toMatch(/Do not show a person/);
     expect(prompt).not.toMatch(/vanishing point/i);
     expect(prompt).not.toMatch(/Camotion/i);
@@ -164,6 +166,9 @@ describe("destination construction prompt", () => {
     expect(prompt).toMatch(/acceptable for no far-field preview to appear/);
     expect(prompt).toMatch(/iron gates/);
     expect(prompt).toMatch(/Do not force the next destination into the frame/);
+    expect(prompt).toMatch(
+      /Far-field continuity describes future space, not future time\. Show only the future geography and environment there\. Do not duplicate or pre-position the journey's persistent subject in the far field; keep the subject only at its current location\./,
+    );
     expect(prompt).not.toMatch(/following destination/i);
     expect(prompt).not.toMatch(/Look ahead only/);
     expect(prompt).not.toMatch(/The next viewpoint should look like this:/);
@@ -181,7 +186,7 @@ describe("destination construction prompt", () => {
     expect(grammarAt).toBeLessThan(worldAt);
     expect(worldAt).toBeLessThan(lookAt);
     expect(
-      prompt.trim().endsWith("or drive the composition, lighting, or style of the current destination."),
+      prompt.trim().endsWith("keep the subject only at its current location."),
     ).toBe(true);
   });
 
@@ -673,7 +678,7 @@ describe("opening frame generation", () => {
     );
     expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/weapons, phones, or camera equipment/);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(
-      /People, animals, vehicles, objects, and other subjects may appear naturally/,
+      /Keep the world alive and in motion\. Preserve the activity implied by the journey, favoring active characters, sets, and props over unnecessarily static scenes/,
     );
     expect(openingFrameGenerationPrompt(withStory.story)).not.toMatch(/Do not show a person/);
     expect(openingFrameGenerationPrompt(withStory.story)).toMatch(/Do not show text/);

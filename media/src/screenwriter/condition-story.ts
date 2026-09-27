@@ -20,6 +20,7 @@ productionPrompt shape:
 
 Rules:
 - Make the smallest useful changes. Enrich sparse ideas. Preserve explicit human intent.
+- Spatial progression stays primary: the camera travels through physically connected space. Keep the world alive while it travels. Preserve character and environmental activity the filmmaker already supplied and, where natural to the story and its energy, enrich an otherwise static world with visible motion from characters, creatures, vehicles, machinery, weather, water, or physical events. People are not required. Favor clear active verbs. Do not add arbitrary activity or detailed choreography.
 - Honor a requested destination count in the prose. Do not emit A/B/C destination objects.
 - Preserve requested overall journey duration as story intent. Do not assign individual shot/traversal durations; the Director and Cinematographer handle journey structure and shot timing downstream.
 - If the idea names a style (watercolor, claymation, rotoscope, documentary, stop-motion, etc.), keep that style and do not force photorealism. If the idea states no style, end with concise cinematic photorealism (photorealistic live-action, natural light, realistic materials, atmospheric depth).

@@ -58,8 +58,9 @@ test("locomotion baseline keeps continuous travel and unembodied first-person PO
   );
   assert.match(
     WORLD_SUBJECTS_MAY_APPEAR,
-    /People, animals, vehicles, objects, and other subjects may appear naturally as part of the world/,
+    /Keep the world alive and in motion\. Preserve the activity implied by the journey, favoring active characters, sets, and props over unnecessarily static scenes/,
   );
+  assert.equal(TUNNELVISION_LOCOMOTION_BASELINE.includes(WORLD_SUBJECTS_MAY_APPEAR), false);
   assert.doesNotMatch(TUNNELVISION_LOCOMOTION_BASELINE, /Do not show a person/);
 });
 

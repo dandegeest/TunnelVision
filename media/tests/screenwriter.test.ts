@@ -133,6 +133,25 @@ test("overall journey duration stays story intent and is not turned into shot ti
   assert.equal(minute.productionPrompt.includes("6 seconds"), false);
 });
 
+test("the world stays alive without replacing travel, requiring people, or taking over direction", () => {
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Spatial progression stays primary/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Keep the world alive while it travels/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Preserve character and environmental activity the filmmaker already supplied/);
+  assert.match(
+    SCREENWRITER_SYSTEM_INSTRUCTION,
+    /enrich an otherwise static world with visible motion from characters, creatures, vehicles, machinery, weather, water, or physical events/,
+  );
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /where natural to the story and its energy/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /People are not required/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Do not add arbitrary activity or detailed choreography/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /frame-by-frame choreography/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /not the Director or Cinematographer/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Leave local cinematography and the actual destination plan to later roles/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Preserve explicit human intent/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /do not force photorealism/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Camera grammar is already chosen/);
+});
+
 test("an explicit style stays in the prompt and is not replaced by the photoreal default", () => {
   const parsed = parseScreenwriterCondition(
     JSON.stringify({

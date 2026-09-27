@@ -13,6 +13,7 @@ import {
 import { countPromptOccurrences } from "../src/prompts/assemble.ts";
 import {
   CANONICAL_CONSTRUCTION_SECTION_ORDER,
+  FAR_FIELD_FUTURE_SPACE,
   PULL_FORWARD_CONTINUITY_OFF,
   WORLD_CONTINUITY,
   assembleCanonicalConstructionPrompt,
@@ -58,7 +59,7 @@ test("canonical construction sections follow destination → spatial → route �
       prompt
         .trim()
         .endsWith(
-          "or drive the composition, lighting, or style of the current destination.",
+          "keep the subject only at its current location.",
         ),
     );
   }
@@ -159,6 +160,31 @@ test("pull-forward OFF replaces only visual-inheritance language and keeps gramm
     assert.ok(starts.cameraGrammarLaw < starts.pullForwardContinuity);
     assert.ok(starts.pullForwardContinuity < starts.farFieldContinuity);
   }
+});
+
+test("far-field continuity is future space and does not pre-position the persistent subject", () => {
+  const withFarField = assembleCanonicalConstructionPrompt(CANYON_CONSTRUCT);
+  assert.ok(withFarField.includes(FAR_FIELD_FUTURE_SPACE));
+  assert.ok(withFarField.indexOf("Far-field continuity:") < withFarField.indexOf(FAR_FIELD_FUTURE_SPACE));
+  const pullForwardOff = assembleCanonicalConstructionPrompt({
+    ...CANYON_CONSTRUCT,
+    pullForwardReferenceEnabled: false,
+  });
+  assert.ok(pullForwardOff.includes(FAR_FIELD_FUTURE_SPACE));
+  const withoutFarField = assembleCanonicalConstructionPrompt({
+    intent: CANYON_CONSTRUCT.intent,
+    visualDescription: CANYON_CONSTRUCT.visualDescription,
+  });
+  assert.equal(withoutFarField.includes("Far-field continuity:"), false);
+  assert.equal(withoutFarField.includes(FAR_FIELD_FUTURE_SPACE), false);
+  const repair = assembleCanonicalRepairPrompt({
+    role: "end",
+    intent: CANYON_CONSTRUCT.intent,
+    visualDescription: CANYON_CONSTRUCT.visualDescription,
+    instruction: "Keep the same car on the road and open a route into the tunnel.",
+  });
+  assert.equal(repair.includes("Far-field continuity:"), false);
+  assert.equal(repair.includes(FAR_FIELD_FUTURE_SPACE), false);
 });
 
 test("FOLLOW canonical repair keeps pursuit geometry over far-field or aesthetic fixes", () => {

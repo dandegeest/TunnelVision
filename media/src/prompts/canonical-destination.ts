@@ -91,12 +91,15 @@ export const FAR_FIELD_CONTINUITY_LEAD = "Far-field continuity:";
 export const FAR_FIELD_CONTINUITY_RULE =
   "This is optional distant environmental information only. Include it only if it fits naturally and spatially from the current destination viewpoint. It is acceptable for no far-field preview to appear. Do not force the next destination into the frame, and do not let it dominate, replace, or drive the composition, lighting, or style of the current destination.";
 
+export const FAR_FIELD_FUTURE_SPACE =
+  "Far-field continuity describes future space, not future time. Show only the future geography and environment there. Do not duplicate or pre-position the journey's persistent subject in the far field; keep the subject only at its current location.";
+
 export function farFieldContinuitySection(details: string): string {
   const trimmed = details.replace(/\s+/g, " ").trim();
   if (!trimmed) {
     return "";
   }
-  return [FAR_FIELD_CONTINUITY_LEAD, trimmed, FAR_FIELD_CONTINUITY_RULE].join("\n");
+  return [FAR_FIELD_CONTINUITY_LEAD, trimmed, FAR_FIELD_CONTINUITY_RULE, FAR_FIELD_FUTURE_SPACE].join("\n");
 }
 
 export function destinationIntentSection(visualDescription: string): string {

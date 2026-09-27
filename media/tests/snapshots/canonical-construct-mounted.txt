@@ -8,7 +8,7 @@ The destination is a spatially progressed MOUNTED viewpoint. The camera remains 
 Move the camera from the source viewpoint:
 Advance along the twisting canyon road toward the rock tunnel.
 
-This is a MOUNTED viewpoint: the camera is physically attached to the moving subject, vehicle, or object. Persistent foreground geometry belonging to the mount may remain visible when natural to this perspective. Do not convert this into an unembodied POV that hides the mount, or into a detached follow/lead camera. People, animals, vehicles, objects, and other subjects may appear naturally as part of the world.
+This is a MOUNTED viewpoint: the camera is physically attached to the moving subject, vehicle, or object. Persistent foreground geometry belonging to the mount may remain visible when natural to this perspective. Do not convert this into an unembodied POV that hides the mount, or into a detached follow/lead camera. Keep the world alive and in motion. Preserve the activity implied by the journey, favoring active characters, sets, and props over unnecessarily static scenes.
 
 Preserve the same physical world, materials, lighting character, and visual identity of the source image.
 Do not satisfy the destination merely by changing the activity, subjects, weather, lighting, visual style, or state of the source scene.
@@ -18,3 +18,4 @@ This is a spatial continuation of the same world, not a restyle and not an in-pl
 Far-field continuity:
 A narrow rock tunnel blasted through the canyon wall, with a bright opening at the far end.
 This is optional distant environmental information only. Include it only if it fits naturally and spatially from the current destination viewpoint. It is acceptable for no far-field preview to appear. Do not force the next destination into the frame, and do not let it dominate, replace, or drive the composition, lighting, or style of the current destination.
+Far-field continuity describes future space, not future time. Show only the future geography and environment there. Do not duplicate or pre-position the journey's persistent subject in the far field; keep the subject only at its current location.
