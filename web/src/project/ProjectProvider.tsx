@@ -49,6 +49,7 @@ import {
   requestShootJourney,
   shootRequestFromProject,
 } from "./shoot";
+import { projectWithSelectedCanonicalTake } from "./canonical-takes";
 import {
   currentJourneyCanonicalPair,
   filmedTakeFitsCurrentJourney,
@@ -233,6 +234,7 @@ type ProjectContextValue = {
   shootJourney: (journeyId: string, intent?: GenerationIntent) => Promise<void>;
   shootAllJourneys: (intent: GenerationIntent, scope?: TakeBatchScope) => Promise<void>;
   selectTake: (journeyId: string, takeId: string) => void;
+  selectCanonicalTake: (takeId: string) => void;
   selectTakeRow: (rowIndex: number) => void;
   deleteTake: (journeyId: string, takeId: string) => void;
   deleteTakeRow: (rowIndex: number) => void;
@@ -1555,6 +1557,13 @@ export function ProjectProvider({
     [applyProject],
   );
 
+  const selectCanonicalTake = useCallback(
+    (takeId: string) => {
+      applyProject(projectWithSelectedCanonicalTake(projectRef.current, takeId));
+    },
+    [applyProject],
+  );
+
   const selectTakeRow = useCallback(
     (rowIndex: number) => {
       applyProject(projectWithSelectedTakeRow(projectRef.current, rowIndex));
@@ -2716,6 +2725,7 @@ export function ProjectProvider({
       shootJourney,
       shootAllJourneys,
       selectTake,
+      selectCanonicalTake,
       selectTakeRow,
       deleteTake,
       deleteTakeRow,
@@ -2827,6 +2837,7 @@ export function ProjectProvider({
       shootJourney,
       shootAllJourneys,
       selectTake,
+      selectCanonicalTake,
       selectTakeRow,
       deleteTake,
       deleteTakeRow,

@@ -835,7 +835,7 @@ export function StoryboardReel({
   onShoot,
   onDropFile,
   onDelete,
-  onOpenTake,
+  onSelectCanonicalTake,
   takeId,
   onSelectTake,
   reshooting = false,
@@ -852,7 +852,7 @@ export function StoryboardReel({
   onShoot?: (frameId: string) => void;
   onDropFile?: (file: File) => void;
   onDelete?: () => void;
-  onOpenTake?: (takeId: string) => void;
+  onSelectCanonicalTake?: (takeId: string) => void;
   takeId?: string;
   onSelectTake?: (takeId: string) => void;
   reshooting?: boolean;
@@ -1081,7 +1081,7 @@ export function StoryboardReel({
         onStoryChange={onStoryChange}
         onReshoot={onReshoot ? () => onReshoot(current.id) : undefined}
         onShoot={onShoot ? () => onShoot(current.id) : undefined}
-        onOpenTake={onOpenTake}
+        onSelectCanonicalTake={onSelectCanonicalTake}
         stillMode={stillMode}
         pane={inspectorPane}
         onPaneChange={setInspectorPane}
@@ -1107,6 +1107,7 @@ export function StoryboardReelHost() {
     constructDestination,
     constructingBeatId,
     removeDestination,
+    selectCanonicalTake,
   } = useProject();
   const { applyDestinationImageFile, dialog: replacePlanDialog } = useReplaceDestinationImage();
 
@@ -1144,7 +1145,7 @@ export function StoryboardReelHost() {
       project={project}
       takeId={locatedTake?.takes[locatedTake.index]?.id}
       onSelectTake={openTake}
-      onOpenTake={openTake}
+      onSelectCanonicalTake={selectCanonicalTake}
       onClose={() => {
         commitActiveTextEdit();
         setStoryboardReelId(null);

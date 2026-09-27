@@ -127,6 +127,7 @@ export function Inspector() {
     setComposerDraft,
     reshootDestination,
     setStoryboardReelId,
+    selectCanonicalTake,
     select,
     openStoryboardInPlan,
   } = useProject();
@@ -209,7 +210,7 @@ export function Inspector() {
             pane={destinationPane}
             onPaneChange={setDestinationPane}
             onOpenReel={frame.image ? () => setStoryboardReelId(frame.id) : undefined}
-            onOpenTake={(takeId) => setStoryboardReelId(takeId)}
+            onSelectCanonicalTake={selectCanonicalTake}
             onReshoot={() => {
               void reshootDestination(frame.id);
             }}

@@ -231,17 +231,17 @@ function destinationShootHint(
   return "This destination cannot be shot yet.";
 }
 
-function PreviousTakes({
+function CanonicalTakes({
   frame,
-  onOpenTake,
+  onSelectTake,
 }: {
   frame: StoryboardFrame;
-  onOpenTake?: (takeId: string) => void;
+  onSelectTake?: (takeId: string) => void;
 }) {
+  const takes = canonicalTakes(frame).filter((take) => take.imageUrl);
   const selected = selectedCanonicalTake(frame);
-  const previous = canonicalTakes(frame).filter((take) => take.id !== selected?.id && take.imageUrl);
   const [open, setOpen] = useState(false);
-  if (previous.length === 0) {
+  if (takes.length < 2) {
     return null;
   }
   return (
@@ -249,26 +249,33 @@ function PreviousTakes({
       <button
         type="button"
         aria-expanded={open}
-        aria-label="Previous takes"
+        aria-label="Takes"
         className={`${disclosureSummaryClass} text-left`}
         onClick={() => setOpen((current) => !current)}
       >
         <DisclosureMarker open={open} />
-        Previous takes
+        Takes
       </button>
       <div className="mt-2 flex flex-wrap gap-2" hidden={!open}>
-        {previous.map((take) => (
-          <button
-            key={take.id}
-            type="button"
-            aria-label={`Open take ${take.number} of destination ${frame.label}`}
-            title={`Take ${take.number}`}
-            className="w-16 overflow-hidden rounded border border-[#3a342c]"
-            onClick={() => onOpenTake?.(take.id)}
-          >
-            <img src={take.imageUrl} alt="" className="aspect-video w-full object-cover" />
-          </button>
-        ))}
+        {takes.map((take) => {
+          const active = take.id === selected?.id;
+          return (
+            <button
+              key={take.id}
+              type="button"
+              aria-pressed={active}
+              aria-label={`Take ${take.number} of destination ${frame.label}`}
+              title={active ? `Take ${take.number}, active` : `Use take ${take.number}`}
+              className={`w-16 overflow-hidden rounded border ${active ? "border-[#ece7df]" : "border-[#3a342c]"}`}
+              onClick={() => onSelectTake?.(take.id)}
+            >
+              <img src={take.imageUrl} alt="" className="aspect-video w-full object-cover" />
+              <span className="block px-1 py-0.5 text-center text-[9px] tracking-[0.12em] text-[#9a8f7e] uppercase">
+                {active ? `${take.number} · Active` : take.number}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -303,7 +310,7 @@ export function DestinationInspectorFields({
   camotionKey,
   onCamotionKeyChange,
   onOpenReel,
-  onOpenTake,
+  onSelectCanonicalTake,
   debugOn = false,
   initialPane = "source",
   pane: paneProp,
@@ -329,7 +336,7 @@ export function DestinationInspectorFields({
   camotionKey?: string;
   onCamotionKeyChange?: (key: string) => void;
   onOpenReel?: () => void;
-  onOpenTake?: (takeId: string) => void;
+  onSelectCanonicalTake?: (takeId: string) => void;
   debugOn?: boolean;
   initialPane?: DestinationInspectorPane;
   pane?: DestinationInspectorPane;
@@ -424,7 +431,7 @@ export function DestinationInspectorFields({
                 ) : null}
               </div>
             ) : null}
-            <PreviousTakes frame={frame} onOpenTake={onOpenTake} />
+            <CanonicalTakes frame={frame} onSelectTake={onSelectCanonicalTake} />
             {afterFields}
           </>
         ) : null}
@@ -455,7 +462,7 @@ export function DestinationInspectorPanel({
   onStoryChange,
   onReshoot,
   onShoot,
-  onOpenTake,
+  onSelectCanonicalTake,
   reshooting = false,
   stillMode,
   onStillModeChange,
@@ -470,7 +477,7 @@ export function DestinationInspectorPanel({
   onStoryChange?: (story: string) => void;
   onReshoot?: () => void;
   onShoot?: () => void;
-  onOpenTake?: (takeId: string) => void;
+  onSelectCanonicalTake?: (takeId: string) => void;
   reshooting?: boolean;
   stillMode?: "canonical" | "primed";
   onStillModeChange?: (mode: "canonical" | "primed") => void;
@@ -506,7 +513,7 @@ export function DestinationInspectorPanel({
           reshooting={reshooting}
           onReshoot={onReshoot}
           onShoot={onShoot}
-          onOpenTake={onOpenTake}
+          onSelectCanonicalTake={onSelectCanonicalTake}
           stillMode={stillMode}
           onStillModeChange={onStillModeChange}
           camotionKey={camotionKey}

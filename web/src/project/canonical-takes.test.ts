@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createNewProject } from "./new-project";
-import { frameWithAppendedCanonicalTake, canonicalTakes, locateCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
+import { frameWithAppendedCanonicalTake, canonicalTakes, locateCanonicalTake, projectWithSelectedCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
+import { createForestProject } from "../fixtures/forest-a-to-f";
 import { projectWithReplacedStartImage } from "./starting-frame";
 
 const PNG_A = {
@@ -46,6 +47,30 @@ describe("canonical takes", () => {
     expect(located?.index).toBe(0);
     expect(located?.takes).toHaveLength(2);
     expect(locateCanonicalTake([second], "missing")).toBeUndefined();
+  });
+
+  it("selects an earlier still without reordering or dropping takes", () => {
+    const forest = createForestProject();
+    const project = {
+      ...forest,
+      storyboard: forest.storyboard.map((frame) =>
+        frame.id === "B"
+          ? frameWithAppendedCanonicalTake(frame, { ...PNG_B, origin: "generated", source: "repair" })
+          : frame,
+      ),
+    };
+    const before = canonicalTakes(project.storyboard.find((frame) => frame.id === "B")!);
+    const selected = projectWithSelectedCanonicalTake(project, "B:canonical:1");
+    const frame = selected.storyboard.find((item) => item.id === "B")!;
+    const after = canonicalTakes(frame);
+    expect(after.map((take) => take.id)).toEqual(before.map((take) => take.id));
+    expect(after.map((take) => take.mediaId)).toEqual(before.map((take) => take.mediaId));
+    expect(frame.selectedTakeId).toBe("B:canonical:1");
+    expect(frame.mediaId).toBe(before[0]?.mediaId);
+    expect(frame.image).toBe(before[0]?.imageUrl);
+    expect(selected.destinations.find((destination) => destination.id === "B")?.image).toBe(before[0]?.imageUrl);
+    expect(projectWithSelectedCanonicalTake(selected, "B:canonical:1")).toBe(selected);
+    expect(projectWithSelectedCanonicalTake(selected, "missing")).toBe(selected);
   });
 
   it("keeps prior uploads when replacing A", () => {

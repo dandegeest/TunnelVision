@@ -55,10 +55,6 @@ export function takeMatchesCurrentCanonicals(
   );
 }
 
-export function journeyHasStaleTakes(project: Project, journey: JourneyShot): boolean {
-  return journeyTakes(journey).some((take) => takeMatchesCurrentCanonicals(project, journey, take) === false);
-}
-
 function storyboardMediaId(project: Project, destinationId: string): string | undefined {
   const frame =
     project.storyboard.find((item) => item.destinationId === destinationId) ??

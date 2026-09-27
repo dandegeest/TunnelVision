@@ -388,16 +388,15 @@ body,
 
 .take-outdated-flag {
   flex: 0 0 auto;
-  padding: 0.05rem 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   border: 1px dashed #d4b36a;
+  border-radius: 2px;
   background: rgba(68, 57, 34, 0.85);
   color: #e4d2a4;
-  font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  line-height: 1.2;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .agent-stage[data-agent-stage] {

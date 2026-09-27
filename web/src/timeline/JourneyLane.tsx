@@ -6,7 +6,6 @@ import {
   takeIntentTooltip,
 } from "../project/generation-intent";
 import {
-  journeyHasStaleTakes,
   journeyTakes,
   nextTakeNumber,
   selectedTake,
@@ -71,6 +70,24 @@ function TakeNumberBadge({
       }`}
     >
       {number}
+    </span>
+  );
+}
+
+function TakeOutdatedIcon() {
+  return (
+    <span className="take-outdated-flag" title={TAKE_PREVIOUS_CANONICALS_COPY} aria-hidden>
+      <svg viewBox="0 0 12 12" className="h-2.5 w-2.5">
+        <circle cx="6" cy="6" r="4.25" fill="none" stroke="currentColor" strokeWidth="1.25" />
+        <path
+          d="M6 3.4V6.15L7.7 7.35"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </span>
   );
 }
@@ -235,11 +252,7 @@ function TakeRow({
           />
         )}
         {intentMark ? <span className="truncate text-[9px] tracking-[0.16em] opacity-80">{intentMark}</span> : null}
-        {stale ? (
-          <span className="take-outdated-flag" aria-hidden>
-            Outdated
-          </span>
-        ) : null}
+        {stale ? <TakeOutdatedIcon /> : null}
       </button>
       {lock ? <TakeLockScores drop={lock} /> : null}
       {onDeleteTake ? (
@@ -610,15 +623,6 @@ export function JourneyLane({
                 }}
               >
                 TAKES
-                {journeyHasStaleTakes(project, journey) ? (
-                  <span
-                    className="take-outdated-flag ml-1.5"
-                    title={TAKE_PREVIOUS_CANONICALS_COPY}
-                    aria-label={TAKE_PREVIOUS_CANONICALS_COPY}
-                  >
-                    Outdated
-                  </span>
-                ) : null}
               </div>
             ) : null}
             {takes.map((take, rowIndex) => (

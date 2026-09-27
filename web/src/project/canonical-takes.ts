@@ -3,10 +3,12 @@ import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type {
   CanonicalTake,
   CanonicalTakeSource,
+  Project,
   StoryboardFrame,
   StoryboardImageOrigin,
   StoryboardMediaInfo,
 } from "./types";
+import { projectWithSyncedProductionLegs } from "./production-legs";
 
 export function canonicalTakeId(frameId: string, number: number): string {
   return `${frameId}:canonical:${number}`;
@@ -145,6 +147,27 @@ export function frameWithSelectedCanonicalTake(frame: StoryboardFrame, takeId: s
     delete next.generatedFrom;
   }
   return next;
+}
+
+/** Choose which existing still is current. Order and membership of takes stay put. */
+export function projectWithSelectedCanonicalTake(project: Project, takeId: string): Project {
+  const located = locateCanonicalTake(project.storyboard, takeId);
+  if (!located) {
+    return project;
+  }
+  const take = located.takes[located.index];
+  if (!take) {
+    return project;
+  }
+  if (located.frame.selectedTakeId === take.id && located.frame.mediaId === take.mediaId) {
+    return project;
+  }
+  return projectWithSyncedProductionLegs({
+    ...project,
+    storyboard: project.storyboard.map((frame) =>
+      frame.id === located.frame.id ? frameWithSelectedCanonicalTake(frame, take.id) : frame,
+    ),
+  });
 }
 
 function withCanonicalTakeIdentity(

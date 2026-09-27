@@ -155,7 +155,7 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain("~1.85:1 · 1392×752 · Nano Banana 2 Lite");
     expect(html).not.toContain("This is what the generated world actually gave us");
     expect(html).not.toContain("The Cinematographer judges how to shoot");
-    expect(html).not.toContain("Previous takes");
+    expect(html).not.toContain('aria-label="Takes"');
     const opening = renderShoot();
     expect(opening).toContain(">Inspector - Destination<");
     expect(opening).toContain("text-2xl\">A<");
@@ -196,13 +196,16 @@ describe("Shoot boundary continuity UI", () => {
       ),
     };
     const html = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 });
-    expect(html).toContain('aria-label="Previous takes"');
+    expect(html).toContain('aria-label="Takes"');
+    expect(html).not.toContain('aria-label="Previous takes"');
     expect(html).toContain('aria-expanded="false"');
-    expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(
-      html.indexOf('aria-label="Previous takes"'),
+    expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(html.indexOf('aria-label="Takes"'));
+    expect(html.indexOf('aria-label="Take 1 of destination B"')).toBeLessThan(
+      html.indexOf('aria-label="Take 2 of destination B"'),
     );
-    expect(html).toContain('aria-label="Open take 1 of destination B"');
-    expect(html).not.toContain('aria-label="Open take 2 of destination B"');
+    expect(html).toContain('aria-pressed="false" aria-label="Take 1 of destination B"');
+    expect(html).toContain('aria-pressed="true" aria-label="Take 2 of destination B"');
+    expect(html).toContain(">2 · Active<");
 
     const first = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 }, {
       storyboardReelId: "B:canonical:1",
@@ -1455,8 +1458,9 @@ describe("Shoot footage inspector", () => {
     expect(html).toContain('data-canonical-stale="true"');
     expect(html).toContain('aria-label="Take 2 A-B previous canonicals"');
     expect(html).toContain(TAKE_PREVIOUS_CANONICALS_COPY);
-    expect(html).toContain("take-outdated-flag");
-    expect(html).toContain("Outdated");
+    expect(html).toContain('class="take-outdated-flag"');
+    expect(html).not.toContain("take-outdated-flag ml-1.5");
+    expect(html).not.toContain(">Outdated<");
     expect(html).not.toContain(">≠<");
   });
 
