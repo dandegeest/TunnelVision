@@ -133,6 +133,22 @@ test("overall journey duration stays story intent and is not turned into shot ti
   assert.equal(minute.productionPrompt.includes("6 seconds"), false);
 });
 
+test("a payoff can settle without extending an ending that is already resolved", () => {
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Distinguish climax from resolution/);
+  assert.match(
+    SCREENWRITER_SYSTEM_INSTRUCTION,
+    /When a Story Idea ends at the instant of its main payoff, add a brief natural resolution beat afterward when appropriate/,
+  );
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Do not mechanically add another destination/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /do not extend an ending that already contains a clear resolution/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /end immediately, cut to black, finish on, or end with a stated final image/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /intentionally abrupt, disturbing, unresolved, or ambiguous, preserve it/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Do not emit A\/B\/C destination objects/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Leave local cinematography and the actual destination plan to later roles/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Do not assign individual shot\/traversal durations/);
+  assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Do not write Camotion/);
+});
+
 test("the world stays alive without replacing travel, requiring people, or taking over direction", () => {
   assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Spatial progression stays primary/);
   assert.match(SCREENWRITER_SYSTEM_INSTRUCTION, /Keep the world alive while it travels/);
