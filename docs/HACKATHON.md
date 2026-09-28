@@ -36,10 +36,12 @@ Related current-code docs (do not treat them as optional):
 -   [Pre-hack code freeze audit](hackathon/PRE-HACK-CODE-FREEZE-AUDIT.md)
     — 23 September 2026 read-only plan vs code audit.
 -   [Seedance 2.5 Draft → Final contingency](HACKATHON_DRAFT_FINAL_PLAN.md)
-    — 24 September 2026. Runway-app observation only. Overrides the
-    priority board below **only if** that file’s implementation gate
-    passes. Until then this file remains the plan. Do not implement
-    from the contingency during the freeze.
+    — 24 September 2026. Runway-app observation only. Still on for
+    30 September **if they announce Dev support**. The demo use is
+    Seedance Draft as the **fast take**. It overrides the priority
+    board below **only if** that file’s implementation gate passes.
+    Until then this file remains the plan. Do not implement from
+    the contingency during the freeze.
 
 Public Runway Dev documentation (source of truth for the API;
 reopen on event day):
@@ -203,7 +205,7 @@ Do **not** implement Model Router before its value is demonstrated.
 | Role | Candidate | Use |
 | --- | --- | --- |
 | **Precision / Derive** | Kling 2.5 Turbo Pro (`kling-v2.5-turbo-pro`), balanced | Frozen MemoryLane baseline. Constrained A→B with A′/B′. Do not replace merely for catalog variety. |
-| **Fast / economical** | Seedance Fast or Mini | Lightweight latency / iteration evaluation **if** useful. Do not spend morning benchmarking a large catalog. |
+| **Fast / economical** | Seedance 2.5 **Draft**, if Dev support is announced that morning. Otherwise Seedance Fast or Mini, or the existing Pruna fast take | Draft is the creative take the crew can judge quickly. Final promotes an accepted Draft only when that promotion does not reroll the shot. Do not spend morning benchmarking a large catalog. |
 | **Exploration / Discover** | Runway Gen-4.5 (`gen4.5`) | First Discover experiment: A + semantic spatial objective → invent unseen geometry → late-frame harvest → pristine B. |
 
 **Gen-4 Turbo (manual):** A TunnelVision-style multi-stage spatial
@@ -257,6 +259,7 @@ only if demonstrated useful. Full Discover experiment: §17.
 | **P1 HACK** | Continue Journey (`Director.intent()` NEW \| CONTINUE) |
 | **P1 HACK** | Discover with ≥720p late-frame harvest; **Gen-4.5** first exploration candidate (not a UI mode) |
 | **P1 HACK** | Runway model selection / routing **if** it shows useful intelligence |
+| **ON IF ANNOUNCED** | Seedance 2.5 Draft as the fast take. Final only if an accepted Draft can be promoted without a reroll. If they do not announce it, the fast take stays Pruna |
 | **P2 OPTIONAL** | Automatic color continuity / finishing |
 | **STRETCH** | GWM / Worlds (do not jeopardize the working journey) |
 | **ABANDONED** | 120fps Temporal Seam / velocity smoothing |

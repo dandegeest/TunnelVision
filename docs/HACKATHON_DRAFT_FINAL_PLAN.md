@@ -11,6 +11,12 @@ until the [implementation gate](#implementation-gate) passes. If the
 gate passes, the priorities in this file replace that board for the
 day. If it fails, keep the current Replicate Seedance shoot path.
 
+**28 September 2026. This contingency stays on.** If kickoff or the
+API showcase announces Seedance 2.5 Draft on Dev, Draft is the
+**fast take**: the crew evaluates that traversal, and Final is only
+the promotion of an accepted Draft. If they do not announce it, the
+fast take stays Pruna and this file does not replace the board.
+
 ---
 
 ## Critical statement
@@ -449,7 +455,8 @@ If any of A–C fail: **keep the current Replicate Seedance pipeline.**
 
 If A–D pass: **Draft/Final becomes hack-day P0**, and the priority
 list in this file replaces the board in [HACKATHON.md](HACKATHON.md)
-for that day.
+for that day. Demo use is specific: Seedance Draft is the fast take.
+Final runs only on Drafts the crew accepts.
 
 Until then this statement stays:
 
