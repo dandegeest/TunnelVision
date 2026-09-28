@@ -299,8 +299,8 @@ invention):**
 -   Continue Journey via `Director.intent()` (P1)
 -   Discover late-frame harvesting if P0 is healthy (P1)
 -   Runway Model Router **if** it demonstrates useful intelligence
--   Subtle live visualization of those **new** decisions (not a
-    new chrome system)
+-   Live visualization of those **new** decisions in the existing
+    Agent thread (not a new chrome system). See §7.
 
 The hackathon should **not** depend on implementing JourneyAgent or
 the Agent UI in 5–6 hours. A journey created in Agent must open
@@ -1409,6 +1409,34 @@ concern.
 
 The feeling: “I am watching an AI film crew make my movie.”
 
+**27 September 2026 — show the choices while the plan unfolds.**
+The Agent path is already decent: a live stage, and per-segment
+Set Consistency, Traversal Confidence, duration, and pace. Leave
+that in place. It is not yet compelling enough for the room.
+As the journey is planned and shot, the same thread should show
+each agentic choice at the moment it is made, in filmmaker
+language. Do not save the decisions for a recap after COMPLETE,
+and do not add a dashboard.
+
+Show, when the decision actually happens:
+
+-   **CM technique.** Original generation or Pull Forward, and a
+    short reason. If a failure switches technique, show the
+    diagnosis and the switch before the reshoot.
+-   **Router.** The model that ran (`routing.model`), whether the
+    config optimized for latency or quality, and a reroute when
+    the CM sends the shot back. One line per still and per
+    traversal.
+-   **Other crew choices already in the loop.** Grammar, pace,
+    duration, accept versus repair, and the repair reason.
+    SC/TC stay on the segment. Do not bring back a journey-average
+    score.
+
+Same Agent thread and journey card. No new chrome system, no
+model picker, no JSON, no Camotion A′/B′, no provider ids. If
+router or OG/PF is not built yet, the line appears when that
+decision lands. Do not fake it.
+
 Reuse `ProgressSpinner` and the existing generating shimmer classes
 (`storyboard-generating`) for tiles.
 
@@ -2459,7 +2487,9 @@ Do not bury the payoff under metrics.
 
 The Agent UI is **pre-hack**. Event day may add only the smallest
 status needed to make **new** agent decisions observable (CM
-technique, intent NEW/CONTINUE, Discover harvest).
+technique, router model, intent NEW/CONTINUE, Discover harvest).
+Put those lines in the existing journey thread as the plan
+unfolds (§7). Do not add a panel for them.
 
 ``` text
 THE CONVERSATION IS THE WORKSPACE.
@@ -2495,8 +2525,9 @@ Prefer reusing Agent journey cards, storyboard tiles, `Preview`,
 `ProgressSpinner`, buttons, and the generating shimmer.
 
 Create hack-specific chrome only where a **new decision** must be
-visible (CM technique, Continue status). Do **not** rebuild the
-Agent workspace.
+visible (CM technique, router model, Continue status). Prefer one
+line in the existing journey thread over a new panel (§7). Do
+**not** rebuild the Agent workspace.
 
 Do **not** destabilize Director / Shoot.
 
