@@ -28,12 +28,26 @@
     <h2>Title</h2>
     <p>Short text.</p>
     <div class="live-images">
-      <img src="images/photo.jpg" alt="">
+      <img src="images/photo.jpg" alt="Photo description">
+      <video data-gallery-video muted playsinline preload="metadata"
+             src="videos/clip.mp4" aria-label="Video description"></video>
     </div>
   </article>
 
-  Images live in genesis/live/images/. Omit .live-images when there are none.
+  Photos live in genesis/live/images/; videos live in genesis/live/videos/.
+  Multiple media items go in .live-images for the gallery. A single video
+  goes inline as <video class="live-inline-video" controls playsinline
+  preload="metadata" src="videos/clip.mp4"></video>.
+  Omit the media markup when there is no media.
 -->
+
+<article class="live-update">
+  <time>11:27 AM</time>
+  <h2>First E2E integration test</h2>
+  <p>First E2E integration test with the Runway SDK and Model Router selecting “draft” mode.</p>
+  <video class="live-inline-video" controls playsinline preload="metadata"
+         src="videos/1127-runway-e2e.mp4"></video>
+</article>
 
 <article class="live-update">
   <time>10:55 AM</time>
@@ -63,11 +77,12 @@
 </main>
 <div aria-hidden="true" class="journey-lightbox" id="live-lightbox">
   <div class="lb-backdrop" data-lb-close="true"></div>
-  <div aria-label="Photo" aria-modal="true" class="lb-dialog" role="dialog">
+  <div aria-label="Live media" aria-modal="true" class="lb-dialog" role="dialog">
     <button aria-label="Close" class="lb-close" type="button">×</button>
     <button aria-label="Previous photo" class="lb-prev" type="button">‹</button>
     <div class="lb-stage">
       <img alt="" class="lb-image"/>
+      <video class="lb-video" controls playsinline preload="metadata" hidden></video>
       <div class="lb-meta"><div class="lb-label"></div><div class="lb-counter"></div></div>
     </div>
     <button aria-label="Next photo" class="lb-next" type="button">›</button>
@@ -80,6 +95,7 @@
   var lb = document.getElementById('live-lightbox');
   if (!lb || !groups.length) return;
   var img = lb.querySelector('.lb-image');
+  var video = lb.querySelector('.lb-video');
   var label = lb.querySelector('.lb-label');
   var counter = lb.querySelector('.lb-counter');
   var prev = lb.querySelector('.lb-prev');
@@ -88,10 +104,26 @@
   var frames = [];
   var index = 0;
 
+  function stopVideo() {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+  }
+
   function render() {
     var frame = frames[index];
-    img.src = frame.src;
-    img.alt = frame.alt;
+    stopVideo();
+    if (frame.type === 'video') {
+      img.hidden = true;
+      video.hidden = false;
+      video.src = frame.src;
+      video.setAttribute('aria-label', frame.alt);
+    } else {
+      video.hidden = true;
+      img.hidden = false;
+      img.src = frame.src;
+      img.alt = frame.alt;
+    }
     label.textContent = frame.alt;
     counter.textContent = frames.length > 1 ? (index + 1) + ' / ' + frames.length : '';
     prev.hidden = next.hidden = frames.length < 2;
@@ -108,6 +140,7 @@
   }
 
   function hide() {
+    stopVideo();
     lb.classList.remove('open');
     lb.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lb-open');
@@ -120,14 +153,20 @@
   }
 
   groups.forEach(function(group) {
-    var photos = Array.from(group.querySelectorAll('img'));
-    photos.forEach(function(el, i) {
+    var media = Array.from(group.querySelectorAll('img, video[data-gallery-video]'));
+    var framesForGroup = media.map(function(el) {
+      var isVideo = el.tagName.toLowerCase() === 'video';
+      return {
+        type: isVideo ? 'video' : 'image',
+        src: el.getAttribute('src'),
+        alt: isVideo ? (el.getAttribute('aria-label') || '') : (el.alt || '')
+      };
+    });
+    media.forEach(function(el, i) {
       el.tabIndex = 0;
       el.setAttribute('role', 'button');
       function open() {
-        openAt(photos.map(function(photo) {
-          return { src: photo.getAttribute('src'), alt: photo.alt || '' };
-        }), i);
+        openAt(framesForGroup, i);
       }
       el.addEventListener('click', open);
       el.addEventListener('keydown', function(e) {
