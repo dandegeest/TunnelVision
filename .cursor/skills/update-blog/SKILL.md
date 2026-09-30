@@ -2,8 +2,8 @@
 name: update-blog
 description: >-
   Adds one newest-first entry to the TunnelVision hackathon live blog, then
-  commits and pushes only that entry and its images. Use when the user says
-  "Update Blog" followed by the text and optional images. Do not include
+  commits and pushes only that entry and its media. Use when the user says
+  "Update Blog" followed by the text and optional images/videos. Do not include
   active dev work. No patch file.
 ---
 
@@ -15,27 +15,35 @@ The user says **Update Blog**, then the update text, and optionally one or more 
 
 ## Write the entry
 
-Edit only `genesis/live/index.html`. Put images only in `genesis/live/images/`.
+Edit only `genesis/live/index.html`. Put images in `genesis/live/images/`
+and videos in `genesis/live/videos/`.
 
 Insert a new `<article class="live-update">` immediately after the HTML comment and before every existing article. Newest stays first.
 
 - **Time:** current local time, `h:mm AM/PM`, unless the user gave a time.
 - **Title:** a short title they gave, otherwise a few words taken from the text. Do not use the whole paragraph as the title.
 - **Text:** their update, lightly cleaned for typos. Do not add commentary, plans, or dev notes they did not write.
-- **Images:** copy each image into `genesis/live/images/` with a short lowercase name (`0832-desk.jpg`). Keep the original format. One `<img>` per image inside `.live-images`. Omit `.live-images` when there are no images.
+- **Media:** copy each file into its matching media directory with a short lowercase name (`1030-desk.jpg`, `1030-demo.mp4`). Keep the original format.
+- One video and no other media: render it inline with `<video class="live-inline-video" controls playsinline preload="metadata" src="videos/1030-demo.mp4"></video>`.
+- Multiple media items (any mix of photos and videos): put them in one `.live-images` gallery. Use `<img src="images/1030-desk.jpg" alt="Description">` for photos and `<video data-gallery-video muted playsinline preload="metadata" src="videos/1030-demo.mp4" aria-label="Description"></video>` for video thumbnails. Videos play in the lightbox, not in the gallery.
+- A single image may use `.live-images` as a one-item lightbox gallery. Omit media markup when there is no media.
 
 ```html
 <article class="live-update">
   <time>8:15 AM</time>
   <h2>Title</h2>
   <p>Short text.</p>
+  <video class="live-inline-video" controls playsinline preload="metadata"
+         src="videos/clip.mp4"></video>
   <div class="live-images">
-    <img src="images/0832-desk.jpg" alt="Title">
+    <img src="images/photo.jpg" alt="Photo description">
+    <video data-gallery-video muted playsinline preload="metadata"
+           src="videos/clip.mp4" aria-label="Video description"></video>
   </div>
 </article>
 ```
 
-Do not change CSS, navigation, deployment, or any other file.
+Do not change navigation, deployment, or unrelated files.
 
 ## Commit and push only the blog
 
@@ -45,7 +53,7 @@ Do not change CSS, navigation, deployment, or any other file.
 **In sync, and the only dirty paths are under `genesis/live/`:**
 
 ```bash
-git add genesis/live/index.html genesis/live/images
+git add genesis/live/index.html genesis/live/images genesis/live/videos
 git commit -m "$(cat <<'EOF'
 Live: Title here.
 
@@ -60,7 +68,7 @@ git push origin HEAD
 git worktree add --detach /tmp/tv-live-blog origin/main
 ```
 
-Copy the updated `genesis/live/index.html` and only this entry's new image files into that worktree. From the worktree, `git add` those paths only, commit with the same message, then `git push origin HEAD:main`. Remove the worktree with `git worktree remove /tmp/tv-live-blog`.
+Copy the updated `genesis/live/index.html` and only this entry's new media files into that worktree. From the worktree, `git add` those paths only, commit with the same message, then `git push origin HEAD:main`. Remove the worktree with `git worktree remove /tmp/tv-live-blog`.
 
 Never `git add -A` or `git add .`. Never stage app code, docs, or unrelated media. Never amend, force-push, skip hooks, or change git config.
 
