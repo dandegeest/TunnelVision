@@ -12,6 +12,7 @@ import {
   canReshootDestinationFrame,
   destinationGeneratedPrompt,
   destinationImageModelLabel,
+  destinationImageResolutionTier,
   precedingActualFrame,
 } from "../project/destination";
 import { canonicalTakes, selectedCanonicalTake } from "../project/canonical-takes";
@@ -136,10 +137,12 @@ function DestinationMediaFacts({
 }) {
   const info = frame.mediaInfo;
   const model = destinationImageModelLabel(project, frame);
+  const tier = destinationImageResolutionTier(frame);
   const parts = [
     info ? formatFriendlyAspectRatio(info.width, info.height) : undefined,
     info ? `${info.width}×${info.height}` : undefined,
     model,
+    tier,
   ].filter((part): part is string => Boolean(part));
   if (parts.length === 0) {
     return null;

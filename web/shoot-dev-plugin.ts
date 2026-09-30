@@ -4,6 +4,7 @@ import type { Plugin } from "vite";
 import { loadDotEnvLocal, getOptionalEnv } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
+import { RunwayRouterProvider, routerGoalForIntent, runwayRouterConfigured } from "../media/src/runway/router.ts";
 import { resolveKlingV3Mode, videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { renderCamotionShootingFrame } from "./camotion-cli.ts";
 import { createCanonicalDepthCache } from "./camotion-depth.ts";
@@ -106,7 +107,9 @@ export function shootDevPlugin(repoRoot: string): Plugin {
           }
           const videoModelId = videoModelIdFromBody(body.videoModel);
           const generateAudio = body.generateAudio === true;
-          const provider = new ReplicateMediaProvider({
+          const provider = runwayRouterConfigured()
+            ? new RunwayRouterProvider({ goal: routerGoalForIntent(body.generationIntent) })
+            : new ReplicateMediaProvider({
             model: videoModelSlug(videoModelId),
             generateAudio,
             pVideo: {

@@ -1,4 +1,36 @@
 import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
+
+function imageRoutingEvidence(generated: GeneratedImage): {
+  provider: string;
+  model: string;
+  modelVersion: string | null;
+  predictionId: string;
+  elapsedMs: number;
+  outputUrl: string;
+  configId?: string;
+  optimizeFor?: string;
+  resolution?: string;
+  credits?: number;
+} {
+  const metadata = generated.metadata;
+  const text = (value: unknown) => (typeof value === "string" && value.trim() ? value : undefined);
+  const configId = text(metadata.configId);
+  const optimizeFor = text(metadata.optimizeFor);
+  const resolution = text(metadata.resolution);
+  const credits = typeof metadata.credits === "number" ? metadata.credits : undefined;
+  return {
+    provider: generated.provider,
+    model: generated.model,
+    modelVersion: generated.modelVersion,
+    predictionId: generated.predictionId,
+    elapsedMs: generated.elapsedMs,
+    outputUrl: generated.outputUrl,
+    ...(configId ? { configId } : {}),
+    ...(optimizeFor ? { optimizeFor } : {}),
+    ...(resolution ? { resolution } : {}),
+    ...(credits !== undefined ? { credits } : {}),
+  };
+}
 import { GENERATED_OPENING_ASPECT_RATIO, parseImageAspectRatio } from "../media/src/image-aspect-ratio.ts";
 import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { pullForwardReferenceEnabledFromUnknown } from "../media/src/prompts/canonical-destination.ts";
@@ -146,12 +178,8 @@ export async function constructDestinationImage(input: {
         prompt,
         ...(aspectRatio ? { aspectRatio } : {}),
       },
-      model: generated.model,
-      modelVersion: generated.modelVersion,
-      predictionId: generated.predictionId,
-      elapsedMs: generated.elapsedMs,
+      ...imageRoutingEvidence(generated),
       outputMediaId: recorded.mediaId,
-      outputUrl: generated.outputUrl,
     },
   };
 }
@@ -217,12 +245,8 @@ export async function generateOpeningFrameImage(input: {
         prompt,
         aspectRatio,
       },
-      model: generated.model,
-      modelVersion: generated.modelVersion,
-      predictionId: generated.predictionId,
-      elapsedMs: generated.elapsedMs,
+      ...imageRoutingEvidence(generated),
       outputMediaId: recorded.mediaId,
-      outputUrl: generated.outputUrl,
     },
   };
 }

@@ -90,6 +90,7 @@ import {
   projectWithImageModel,
   projectWithImageOutputFormat,
   projectWithImageResolution,
+  recordedImageModel,
   requestGenerateOpeningFrame,
   canGenerateOpeningFrame,
   canReshootDestinationFrame,
@@ -921,6 +922,7 @@ export function ProjectProvider({
             mediaId: result.mediaId,
             imageUrl: result.imageUrl,
             ...(mediaInfo ? { mediaInfo } : {}),
+            ...recordedImageModel(result.evidence),
           }),
         );
         setConversation((entries) =>
@@ -1030,6 +1032,7 @@ export function ProjectProvider({
           mediaId: result.mediaId,
           imageUrl: result.imageUrl,
           ...(mediaInfo ? { mediaInfo } : {}),
+          ...recordedImageModel(result.evidence),
           reason: input.instruction,
         }),
       );
@@ -1068,6 +1071,7 @@ export function ProjectProvider({
             mediaId: result.mediaId,
             imageUrl: result.imageUrl,
             ...(mediaInfo ? { mediaInfo } : {}),
+            ...recordedImageModel(result.evidence),
           }),
         );
         setConversation((entries) =>

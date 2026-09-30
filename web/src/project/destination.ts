@@ -26,7 +26,8 @@ import {
   projectCanonicalAspectRatio,
 } from "./canonical-aspect";
 import { projectWithSyncedProductionLegs } from "./production-legs";
-import { frameWithAppendedCanonicalTake } from "./canonical-takes";
+import { frameWithAppendedCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
+import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
 import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 
 export type DestinationLookAhead = {
@@ -55,11 +56,22 @@ export type DestinationConstructionRequest = {
   cameraGrammar?: CameraGrammar;
   /** Missing means ON. Repair ignores this and keeps its own image inputs. */
   pullForwardReferenceEnabled?: boolean;
+  /** Journey intent. FAST uses the latency router; balanced and quality use the quality router. */
+  generationIntent?: GenerationIntent;
 };
 
 export type DestinationConstructionResult = {
   mediaId: string;
   imageUrl: string;
+  /** Model the router selected. Absent when an older caller did not record it. */
+  model?: string;
+  modelVersion?: string | null;
+  provider?: string;
+  predictionId?: string;
+  configId?: string;
+  optimizeFor?: string;
+  resolution?: string;
+  credits?: number;
 };
 
 export type DestinationConstructionEvidence = {
@@ -78,11 +90,52 @@ export type DestinationConstructionEvidence = {
   elapsedMs: number;
   outputMediaId: string;
   outputUrl?: string;
+  provider?: string;
+  configId?: string;
+  optimizeFor?: string;
+  resolution?: string;
+  credits?: number;
 };
 
 export type DestinationConstructionResponse = DestinationConstructionResult & {
   evidence: DestinationConstructionEvidence;
 };
+
+/** Copy the generator identity from a construction response onto the still result. */
+export function recordedImageModel(evidence: {
+  model?: string;
+  modelVersion?: string | null;
+  provider?: string;
+  predictionId?: string;
+  configId?: string;
+  optimizeFor?: string;
+  resolution?: string;
+  credits?: number;
+}): Pick<
+  DestinationConstructionResult,
+  "model" | "modelVersion" | "provider" | "predictionId" | "configId" | "optimizeFor" | "resolution" | "credits"
+> {
+  const model = evidence.model?.trim();
+  const text = (value: string | undefined) => {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : undefined;
+  };
+  const provider = text(evidence.provider);
+  const predictionId = text(evidence.predictionId);
+  const configId = text(evidence.configId);
+  const optimizeFor = text(evidence.optimizeFor);
+  const resolution = text(evidence.resolution);
+  return {
+    ...(model ? { model } : {}),
+    ...(typeof evidence.modelVersion === "string" ? { modelVersion: evidence.modelVersion } : {}),
+    ...(provider ? { provider } : {}),
+    ...(predictionId ? { predictionId } : {}),
+    ...(configId ? { configId } : {}),
+    ...(optimizeFor ? { optimizeFor } : {}),
+    ...(resolution ? { resolution } : {}),
+    ...(typeof evidence.credits === "number" ? { credits: evidence.credits } : {}),
+  };
+}
 
 function isActualTrustedFrame(frame: StoryboardFrame | undefined): frame is StoryboardFrame & {
   mediaId: string;
@@ -278,13 +331,35 @@ export function destinationGeneratedPrompt(project: Project, frame: StoryboardFr
   });
 }
 
-/** Product image model for a generated still. Uploads have no model. */
+export function runwayRouterLine(model: string, modelVersion: unknown): string {
+  const goal =
+    modelVersion === "latency" ? "FAST" : modelVersion === "quality" ? "QUALITY" : modelVersion || "QUALITY";
+  return `Router · ${goal} → ${model}`;
+}
+
+/** Megapixel tier the router resolved for this still, when the response recorded one. */
+export function destinationImageResolutionTier(frame: StoryboardFrame): string | undefined {
+  const resolution = selectedCanonicalTake(frame)?.generation?.resolution;
+  return typeof resolution === "string" && resolution.trim() ? resolution.trim() : undefined;
+}
+
+/** Model that produced this still. Uploads have no model. */
 export function destinationImageModelLabel(
   project: Project,
   frame: StoryboardFrame,
 ): string | undefined {
   if (frame.imageOrigin !== "generated") {
     return undefined;
+  }
+  const take = selectedCanonicalTake(frame);
+  const recorded = take?.model?.trim();
+  if (recorded && recorded !== "router") {
+    const provider = take?.generation?.provider;
+    const version = take?.generation?.modelVersion;
+    if (provider === "runway" || version === "latency" || version === "quality") {
+      return runwayRouterLine(recorded, version);
+    }
+    return imageModelDisplayLabel(recorded) ?? recorded;
   }
   return imageModelDisplayLabel(project.imageModel);
 }
@@ -429,6 +504,7 @@ export type OpeningFrameGenerationRequest = {
   imageOutputFormat: ImageOutputFormat;
   imageResolution?: ImageResolution;
   cameraGrammar?: CameraGrammar;
+  generationIntent?: GenerationIntent;
 };
 
 export function openingFrameGenerationRequestFromProject(
@@ -442,7 +518,21 @@ export function openingFrameGenerationRequestFromProject(
     aspectRatio: GENERATED_OPENING_ASPECT_RATIO,
     ...imageGenerationKnobsFromProject(project),
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
+    generationIntent: defaultTakeIntentFromProject(project),
   };
+}
+
+function canonicalGenerationRecord(next: DestinationConstructionResult): Record<string, unknown> | undefined {
+  const record: Record<string, unknown> = {};
+  if (next.provider) record.provider = next.provider;
+  if (typeof next.modelVersion === "string") record.modelVersion = next.modelVersion;
+  if (next.optimizeFor) record.optimizeFor = next.optimizeFor;
+  else if (next.modelVersion === "latency" || next.modelVersion === "quality") record.optimizeFor = next.modelVersion;
+  if (next.predictionId) record.predictionId = next.predictionId;
+  if (next.configId) record.configId = next.configId;
+  if (next.resolution) record.resolution = next.resolution;
+  if (typeof next.credits === "number") record.credits = next.credits;
+  return Object.keys(record).length > 0 ? record : undefined;
 }
 
 function frameWithConstructedStill(
@@ -450,6 +540,8 @@ function frameWithConstructedStill(
   next: DestinationConstructionResult & { mediaInfo?: StoryboardMediaInfo },
   extras: Pick<StoryboardFrame, "destinationId" | "generatedFrom"> & { source?: "generated" | "constructed" | "repair" },
 ): StoryboardFrame {
+  const model = next.model?.trim();
+  const generation = canonicalGenerationRecord(next);
   return frameWithAppendedCanonicalTake(
     { ...frame, destinationId: extras.destinationId ?? frame.destinationId ?? frame.id },
     {
@@ -459,6 +551,8 @@ function frameWithConstructedStill(
       source: extras.source ?? "constructed",
       generatedFrom: extras.generatedFrom,
       mediaInfo: next.mediaInfo,
+      ...(model && model !== "router" ? { model } : {}),
+      ...(generation ? { generation } : {}),
     },
   );
 }
@@ -541,6 +635,7 @@ export function destinationConstructionRequestFromProject(
     ...imageGenerationKnobsFromProject(project),
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
     pullForwardReferenceEnabled: pullForwardReferenceEnabledFromProject(project),
+    generationIntent: defaultTakeIntentFromProject(project),
   };
 }
 
@@ -596,6 +691,7 @@ export function destinationRepairRequestFromProject(
     repairRole: input.role,
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
     ...(referenceMediaId ? { referenceMediaId } : {}),
+    generationIntent: defaultTakeIntentFromProject(project),
   };
 }
 

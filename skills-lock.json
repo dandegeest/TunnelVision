@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "runway-dev": {
+      "source": "runwayml/skills",
+      "sourceType": "github",
+      "skillPath": "skills/runway-dev/SKILL.md",
+      "computedHash": "c01d7cb7ceef2a6e9d469f1b08fc867231d2c1264f00500ead75104ca8c6650d"
+    },
+    "runway-dev-model-routers": {
+      "source": "runwayml/skills",
+      "sourceType": "github",
+      "skillPath": "skills/runway-dev-model-routers/SKILL.md",
+      "computedHash": "d0c522c961d64ff8a9da57d1057a3212212b1fce990eac87bba4cf21c7fb6202"
+    }
+  }
+}

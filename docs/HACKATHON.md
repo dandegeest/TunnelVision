@@ -196,7 +196,9 @@ Manual experiments inside Runway (not TunnelVision-integrated
 tests) after the 23 September 2026 freeze. Treat as a **hack-day
 hypothesis**, not a proven ranking. Do **not** replace the frozen
 Kling Derive baseline because other Runway-hosted models exist.
-Do **not** implement Model Router before its value is demonstrated.
+Kling is not in the current Runway catalog. Router is the media
+path for the demo (§30 September below); it does not retire the
+frozen baseline until a routed start+end take is accepted.
 
 **Principle:** TunnelVision should not assume one universally
 “best” video model. Different models may have different
@@ -232,10 +234,52 @@ validated, or that Router is required.
 Hackathon morning still begins with **validate the frozen Derive
 baseline** (Kling balanced · Adaptive Durations ON · Adaptive Pace
 OFF · Pull Forward ON · +1 ON). No code unless a reproducible P0
-regression appears. Model experimentation must **not** derail P0.
-After P0: Continue Journey; Discover with Gen-4.5 as the first
-exploration candidate; Seedance Fast/Mini only if useful; Router
-only if demonstrated useful. Full Discover experiment: §17.
+regression appears. Model experimentation must **not** derail the
+unattended journey. After that check, Model Router is the primary
+media path (30 September note). Continue Journey and Discover stay
+later. Full Discover experiment: §17.
+
+### 30 September 2026 — event morning
+
+Re-read that morning, not from memory: [quickstart](https://dev.runwayml.com/quickstart.txt),
+[`llms.txt`](https://docs.dev.runwayml.com/llms.txt),
+[`ai-context.md`](https://docs.dev.runwayml.com/ai-context.md),
+[models](https://docs.dev.runwayml.com/guides/models.md),
+[Model Routers](https://docs.dev.runwayml.com/_llms-txt/model-routers.txt),
+and the [MCP guide](https://docs.dev.runwayml.com/guides/mcp.md).
+Official skills `runway-dev` and `runway-dev-model-routers` are
+installed under `.agents/skills/`. Gitignored `.cursor/mcp.json`
+already matches the guide. This Cursor session still has no Runway
+Dev tools. Finish OAuth in Settings → MCP before `whoami` or
+`list_model_routers`. Do not put an API key in that file.
+
+**Reasoning stays on Replicate.** The current catalog and endpoint
+map have video, image, audio, upscale, frame-rate, HDR, recipes,
+and realtime Characters. There is no general-purpose text/LLM
+endpoint. Characters are avatars, not Director or CM. Do not
+migrate `ReplicateReasoningProvider`.
+
+**Router is media selection.** Modalities are video, image, and
+audio (`POST /v1/generate/video|image|audio`). `optimizeFor` is
+exactly `cost`, `latency`, or `quality`. There is no `balanced`
+preference. A TunnelVision FAST goal is a latency config. QUALITY
+is a quality config. Do not invent a middle config. Shot
+requirements narrow the pool through the request itself: `first`
+plus `last`, resolution, duration, allow/deny list, and the
+per-modality credit ceiling. Do not add a classifier on top of
+Director/CM state. The response includes `routing.model`. HTTP
+`dryRun: true` previews that choice without generating; the SDK
+cannot dry-run yet. MCP lists and edits configs and can explain a
+finished task. It does not generate. Generation stays on the
+existing Runway HTTP client (`RUNWAY_DEV_TOKEN`; official SDK name
+`RUNWAYML_API_SECRET` is the same secret).
+
+**Today’s order.** The unattended journey is still the product.
+Router is how canonicals and traversals are generated, and the
+selected model is one line in the existing Agent thread (§7). Do
+not start OG vs Pull Forward, Continue, or Discover until that
+path is generating. Do not refactor the provider architecture
+beyond extending `media/src/runway/`.
 
 ### Priority board (lock this for event day)
 
@@ -258,7 +302,7 @@ only if demonstrated useful. Full Discover experiment: §17.
 | **P0 HACK** | Failure-driven technique switching (OG → PF after diagnosis) |
 | **P1 HACK** | Continue Journey (`Director.intent()` NEW \| CONTINUE) |
 | **P1 HACK** | Discover with ≥720p late-frame harvest; **Gen-4.5** first exploration candidate (not a UI mode) |
-| **P1 HACK** | Runway model selection / routing **if** it shows useful intelligence |
+| **PRIMARY HACK** | Runway Model Router for canonicals and traversals. Show `routing.model` in the Agent thread. Replicate LLM stays |
 | **ON IF ANNOUNCED** | Seedance 2.5 Draft as the fast take. Final only if an accepted Draft can be promoted without a reroll. If they do not announce it, the fast take stays Pruna |
 | **P2 OPTIONAL** | Automatic color continuity / finishing |
 | **STRETCH** | GWM / Worlds (do not jeopardize the working journey) |
@@ -301,7 +345,7 @@ invention):**
 -   Validate fully unattended orchestration in the existing Agent
 -   Continue Journey via `Director.intent()` (P1)
 -   Discover late-frame harvesting if P0 is healthy (P1)
--   Runway Model Router **if** it demonstrates useful intelligence
+-   Runway Model Router for image and video (primary media path)
 -   Live visualization of those **new** decisions in the existing
     Agent thread (not a new chrome system). See §7.
 
@@ -650,16 +694,16 @@ Camera Grammar Hackathon Rule:
 - Mixed-grammar journeys are post-hackathon.
 ```
 
-### Runway Model Router — P1 if it shows useful intelligence
+### Runway Model Router — primary media path
 
-Camera grammar already landed. Model Router must **not** displace
-P0 (unattended loop + CM OG vs Pull Forward).
+Camera grammar already landed. Router does **not** replace the
+unattended journey, and it does not move Director or CM off
+Replicate. It is how image and video jobs are sent once the
+frozen baseline has been checked (30 September note).
 
-**P1:** can TunnelVision’s filmmaking agents reason about **which
-Runway model / model route** should execute a particular
-filmmaking task, instead of using one fixed model for every
-traversal — **only if** that materially demonstrates useful API /
-model intelligence?
+TunnelVision already knows the task. It should not add another
+classifier. The request shape plus a latency or quality config is
+the routing decision. Router then picks the eligible model.
 
 ``` text
 Director
@@ -755,9 +799,9 @@ traversal, or switch technique after a diagnosed failure.
     that Project?
 5.  Can Discover evolve the journey from generated world state
     without a UI mode?
-6.  Can agents use Runway’s Model Router intelligently rather
-    than blindly choosing one generation model — **only if** that
-    materially helps the demo?
+6.  Can the existing agents hand each still and traversal to
+    Runway Model Router, and can the filmmaker see which model
+    ran?
 
 **Hackathon product.** An ongoing conversation with an autonomous
 cinematographic world-traversal agent. Agent decisions are
@@ -770,6 +814,7 @@ The product demonstrated to judges is the combination:
 conversational Agent UX
   + autonomous Director / Cinematographer
   + self-evaluation
+  + Runway Model Router for stills and traversals
   + adaptive cinematography (OG vs Pull Forward)
   + repair
   + persistent spatial continuity across separate Projects
@@ -843,16 +888,16 @@ accepted Drafts, Discover demoted to stretch — lives in
 applies only after that document’s gate passes. It is not in effect
 now.
 
-1.  Validate fully unattended end-to-end orchestration (P0).
-2.  CM chooses OG vs Pull Forward per traversal (P0).
-3.  Failure-driven technique switching (P0).
-4.  Continue Journey via `Director.intent()` (P1).
-5.  Discover ≥720p late-frame harvesting if P0 is healthy (P1);
-    Gen-4.5 first exploration candidate — §17.
-6.  Seedance Fast / Mini evaluation **only if** useful (P1-late).
-7.  Runway Model Router **only if** it shows useful intelligence
-    (P1-late / optional).
-8.  Color continuity only after the above (P2).
+1.  Validate fully unattended end-to-end orchestration.
+2.  Runway Model Router for canonicals and traversals on the
+    existing Runway client. Show `routing.model` in the Agent
+    thread. Keep Replicate LLM.
+3.  Named start+end model only if the routed pool cannot honor
+    first+last.
+4.  CM chooses OG vs Pull Forward, then failure-driven switching,
+    after Router media is generating.
+5.  Continue Journey and Discover only if the demo path is stable.
+6.  Color continuity only after the above (P2).
 
 Do **not** spend the day on Agent chrome, Session browsing, or
 chained-video export. Do **not** let model catalog benchmarking
@@ -2035,8 +2080,10 @@ When JourneyAgent already retries **canonicals**:
     latency vs quality pools). Those are adapter configs, not
     product Draft/Final modes.
 -   Canonical repair may use a stronger image generation route.
--   Log `routing.model` and credits on the take for debugging; do
-    not show them in the hackathon UI.
+-   Log `routing.model` and credits on the take. Show one
+    filmmaker-language line in the Agent thread (§7). Do not add
+    a dashboard, and do not invent a model name if the response
+    has none.
 
 Do **not** invent a footage-evaluator loop so Router has something
 to escalate. For the demo movie, call the quality-oriented router

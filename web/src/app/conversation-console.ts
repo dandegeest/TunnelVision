@@ -8,6 +8,7 @@ import { selectedTakeVideoUrl } from "../project/takes";
 import { adaptivePaceFromProject, journeyPaceIsCurrent } from "../project/adaptive-pace";
 import { locomotionPaceLabel } from "../project/cinematographer";
 import { effectiveJourneyDurationSeconds, effectiveJourneyPace } from "../project/journey-overrides";
+import { runwayRouterLine } from "../project/destination";
 import type {
   CinematographerAssessment,
   JourneyShot,
@@ -434,7 +435,7 @@ export function destinationCardCopy(
   beatId: string,
   status: "constructing" | "constructed" | "failed",
   createdAt: string,
-  extras?: { description?: string; error?: string; imageUrl?: string },
+  extras?: { description?: string; error?: string; imageUrl?: string; route?: string; resolution?: string },
 ): string {
   const lines = [`DESTINATION ${beatId}`];
   if (status === "constructing") {
@@ -445,6 +446,12 @@ export function destinationCardCopy(
   }
   if (extras?.description) {
     lines.push(extras.description);
+  }
+  if (extras?.route) {
+    lines.push(extras.route);
+  }
+  if (extras?.resolution) {
+    lines.push(extras.resolution);
   }
   if (extras?.imageUrl) {
     lines.push(extras.imageUrl);
@@ -521,10 +528,18 @@ export function repairCardCopy(entry: Extract<ConversationEntry, { kind: "agent"
   return withClock(entry.createdAt, lines.join("\n"));
 }
 
+export function takeRouteLine(take: Pick<JourneyShotTake, "provider" | "model" | "modelVersion">): string {
+  if (take.provider === "runway" && take.model && take.model !== "router") {
+    return runwayRouterLine(take.model, take.modelVersion);
+  }
+  return `${take.provider} · ${take.model}${take.modelVersion ? ` · ${take.modelVersion}` : ""}`;
+}
+
 function takeCopy(take: JourneyShotTake): string {
+  const route = takeRouteLine(take);
   return [
     take.effectivePrompt,
-    `${take.provider} · ${take.model}${take.modelVersion ? ` · ${take.modelVersion}` : ""}`,
+    route,
     `${take.durationSeconds}s`,
     take.startShootingFrame.imageUrl,
     take.endShootingFrame.imageUrl,

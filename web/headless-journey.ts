@@ -8,6 +8,7 @@ import { plan } from "../media/src/director/plan-storyboard.ts";
 import { deriveStory } from "../media/src/director/derive-story.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
+import { RunwayRouterProvider, routerGoalForIntent, runwayRouterConfigured } from "../media/src/runway/router.ts";
 import { imageModelSlug } from "../media/src/replicate/image-models.ts";
 import { resolveKlingV3Mode, videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { cameraGrammarFromUnknown, type CameraGrammar } from "../media/src/cinematographer/camera-grammar.ts";
@@ -46,6 +47,7 @@ import {
   projectWithConstructedDestination,
   projectWithGeneratedOpeningFrame,
   projectWithRepairedCanonical,
+  recordedImageModel,
 } from "./src/project/destination.ts";
 import { directorPlanRequestFromProject, directorStoryRequestFromProject } from "./src/project/director.ts";
 import {
@@ -53,7 +55,7 @@ import {
   nextMovieExportFilename,
   type MovieExportResult,
 } from "./src/project/export-movie.ts";
-import { isGenerationIntent, type GenerationIntent } from "./src/project/generation-intent.ts";
+import { defaultTakeIntentFromProject, isGenerationIntent, type GenerationIntent } from "./src/project/generation-intent.ts";
 import { runJourneyAgent, type JourneyAgentOperations, type JourneyAgentSnapshot } from "./src/project/journey-agent.ts";
 import { effectiveJourneyPace } from "./src/project/journey-overrides.ts";
 import { motionPlanStageRequestFromAssessment, projectWithMotionPlan } from "./src/project/motion-plan.ts";
@@ -85,7 +87,10 @@ function takeFromShootResult(result: JourneyShotTakeResult): JourneyShotTake {
   return result as unknown as JourneyShotTake;
 }
 
-function imageProvider(project: Project): ReplicateMediaProvider {
+function imageProvider(project: Project): RunwayRouterProvider | ReplicateMediaProvider {
+  if (runwayRouterConfigured()) {
+    return new RunwayRouterProvider({ goal: routerGoalForIntent(defaultTakeIntentFromProject(project)) });
+  }
   const imageModelId = imageModelIdFromBody(project.imageModel);
   const imageModel = imageModelSlug(imageModelId);
   const imageResolution = imageResolutionFromBody(imageModelId, project.imageResolution);
@@ -99,7 +104,15 @@ function imageProvider(project: Project): ReplicateMediaProvider {
   });
 }
 
-function videoProvider(project: Project, videoModel: Project["videoModel"], generateAudio: boolean): ReplicateMediaProvider {
+function videoProvider(
+  project: Project,
+  videoModel: Project["videoModel"],
+  generateAudio: boolean,
+  intent?: unknown,
+): RunwayRouterProvider | ReplicateMediaProvider {
+  if (runwayRouterConfigured()) {
+    return new RunwayRouterProvider({ goal: routerGoalForIntent(intent) });
+  }
   return new ReplicateMediaProvider({
     model: videoModelSlug(videoModel),
     generateAudio,
@@ -153,7 +166,10 @@ export function createHeadlessJourneyOperations(input: {
         body: request,
         generateImage: (imageRequest) => provider.generateImage(imageRequest),
       });
-      return projectWithGeneratedOpeningFrame(project, result);
+      return projectWithGeneratedOpeningFrame(project, {
+        ...result,
+        ...recordedImageModel(result.evidence),
+      });
     },
     async writeStoryFromOpening(project) {
       if (project.story.trim()) {
@@ -211,6 +227,7 @@ export function createHeadlessJourneyOperations(input: {
         beatId: request.beatId,
         mediaId: result.mediaId,
         imageUrl: result.imageUrl,
+        ...recordedImageModel(result.evidence),
       });
     },
     async assessCinematographer(project, journeyId) {
@@ -255,6 +272,7 @@ export function createHeadlessJourneyOperations(input: {
         beatId: request.beatId,
         mediaId: result.mediaId,
         imageUrl: result.imageUrl,
+        ...recordedImageModel(result.evidence),
       });
     },
     async planMotion(project, journeyId) {
@@ -296,7 +314,12 @@ export function createHeadlessJourneyOperations(input: {
     async createTake(project, journeyId) {
       log(`Shooting ${journeyId}`);
       const request = shootRequestFromProject(project, journeyId);
-      const provider = videoProvider(project, request.videoModel, request.generateAudio === true);
+      const provider = videoProvider(
+        project,
+        request.videoModel,
+        request.generateAudio === true,
+        request.generationIntent,
+      );
       const take = await shootPreparedJourney({
         repoRoot: input.repoRoot,
         body: request,

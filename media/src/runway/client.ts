@@ -25,6 +25,7 @@ export type RunwayTask = {
   readonly progress?: number;
   readonly estimatedCost?: RunwayEstimatedCost;
   readonly cost?: RunwayEstimatedCost;
+  readonly routing?: RunwayRouting;
 };
 
 export type RunwayCreateTaskResponse = {
@@ -32,8 +33,23 @@ export type RunwayCreateTaskResponse = {
   readonly estimatedCost?: RunwayEstimatedCost;
 };
 
+export type RunwayRouting = {
+  readonly model?: string;
+  readonly configId?: string;
+  readonly optimizeFor?: string;
+  readonly resolvedSettings?: { readonly optimizeFor?: string };
+  readonly resolvedInput?: { readonly resolution?: string; readonly aspectRatio?: string; readonly ratio?: string };
+  readonly estimatedCost?: RunwayEstimatedCost;
+  readonly cost?: RunwayEstimatedCost;
+};
+
+export type RunwayGenerateResponse = RunwayCreateTaskResponse & {
+  readonly routing?: RunwayRouting;
+};
+
 export interface RunwayApi {
   createVideoUpscale(body: Record<string, unknown>): Promise<RunwayCreateTaskResponse>;
+  createGeneration(path: string, body: Record<string, unknown>): Promise<RunwayGenerateResponse>;
   retrieveTask(id: string): Promise<RunwayTask>;
   uploadVideo(filename: string, bytes: Buffer): Promise<string>;
 }
@@ -58,7 +74,10 @@ export class RunwayDevClient implements RunwayApi {
   private readonly fetchImpl: typeof fetch;
 
   constructor(options: RunwayDevClientOptions = {}) {
-    this.token = options.token ?? getOptionalEnv(RUNWAY_DEV_TOKEN_NAME);
+    this.token =
+      options.token ??
+      getOptionalEnv(RUNWAY_DEV_TOKEN_NAME) ??
+      getOptionalEnv("RUNWAYML_API_SECRET");
     this.baseUrl = options.baseUrl ?? RUNWAY_API_BASE_URL;
     this.apiVersion = options.apiVersion ?? RUNWAY_API_VERSION;
     this.fetchImpl = options.fetch ?? fetch;
@@ -72,6 +91,10 @@ export class RunwayDevClient implements RunwayApi {
 
   async createVideoUpscale(body: Record<string, unknown>): Promise<RunwayCreateTaskResponse> {
     return this.requestJson<RunwayCreateTaskResponse>("POST", "/v1/video_upscale", body);
+  }
+
+  async createGeneration(path: string, body: Record<string, unknown>): Promise<RunwayGenerateResponse> {
+    return this.requestJson<RunwayGenerateResponse>("POST", path, body);
   }
 
   async retrieveTask(id: string): Promise<RunwayTask> {
@@ -216,6 +239,15 @@ function contentTypeForFilename(filename: string): string {
   }
   if (lower.endsWith(".webm")) {
     return "video/webm";
+  }
+  if (lower.endsWith(".png")) {
+    return "image/png";
+  }
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+    return "image/jpeg";
+  }
+  if (lower.endsWith(".webp")) {
+    return "image/webp";
   }
   return "video/mp4";
 }

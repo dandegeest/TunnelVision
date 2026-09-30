@@ -202,6 +202,12 @@ describe("conversation presentation grouping", () => {
   it("keeps repair cards and destination copy as distinct presentation", () => {
     expect(formatJourneyArrow("B-C")).toBe("B → C");
     expect(destinationCardCopy("B", "constructed", AT, { imageUrl: "/b.png" })).toContain("DESTINATION B");
+    expect(
+      destinationCardCopy("A", "constructed", AT, {
+        route: "Router · FAST → gemini_image3",
+        resolution: "1k",
+      }),
+    ).toContain("Router · FAST → gemini_image3");
     expect(destinationDescription(createForestProject(), "B")).toBe(
       "Root-tunnel mouth. The dark opening is slightly right of center.",
     );

@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { formatConversationClock, type ConversationEntry } from "../project/conversation";
+import { destinationImageModelLabel, destinationImageResolutionTier } from "../project/destination";
 import type { DirectorEvidence } from "../project/director";
 import { humanRepairRecommendation } from "../project/journey-agent-repair";
 import { currentCutClips, currentCutDurationSeconds, formatCutClock } from "../project/current-cut";
@@ -26,6 +27,7 @@ import {
   journeyCompleteCardCopy,
   repairCardCopy,
   shootingCardCopy,
+  takeRouteLine,
   type CinematographerBlock,
   type ConversationBlock,
 } from "./conversation-console";
@@ -222,6 +224,10 @@ function DestinationEntryView({
   entry: Extract<ConversationEntry, { kind: "construction" }>;
   description?: string;
 }) {
+  const { project } = useProject();
+  const frame = project.storyboard.find((item) => item.id === entry.beatId);
+  const route = frame ? destinationImageModelLabel(project, frame) : undefined;
+  const resolution = frame ? destinationImageResolutionTier(frame) : undefined;
   return (
     <ConversationCard
       className="conversation-destination"
@@ -231,6 +237,8 @@ function DestinationEntryView({
         description,
         error: entry.error,
         imageUrl: entry.imageUrl,
+        ...(route ? { route } : {}),
+        ...(resolution ? { resolution } : {}),
       })}
       copyLabel={`Copy destination ${entry.beatId}`}
       active={entry.status === "constructing"}
@@ -246,6 +254,8 @@ function DestinationEntryView({
       {entry.status === "constructed" && entry.imageUrl ? (
         <img src={entry.imageUrl} alt="" className="media-contain aspect-video w-full rounded" />
       ) : null}
+      {route ? <p className="mt-2 text-[12px] leading-snug text-[#cfc6b8]">{route}</p> : null}
+      {resolution ? <p className="text-[12px] leading-snug text-[#9a8f7e]">{resolution}</p> : null}
       {entry.status === "failed" ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
           {entry.error}
@@ -444,10 +454,7 @@ function ShootingEntryView({ entry }: { entry: Extract<ConversationEntry, { kind
                 effectivePrompt={entry.take.effectivePrompt}
                 segmentPromptAddition={entry.take.segmentPromptAddition}
               />
-              <p>
-                {entry.take.provider} · {entry.take.model}
-                {entry.take.modelVersion ? ` · ${entry.take.modelVersion}` : ""}
-              </p>
+              <p>{takeRouteLine(entry.take)}</p>
               <p>{entry.take.durationSeconds}s</p>
             </div>
           </details>

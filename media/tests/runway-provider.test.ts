@@ -20,6 +20,9 @@ function mockApi(overrides: Partial<RunwayApi> = {}): RunwayApi {
     async retrieveTask() {
       throw new Error("should not retrieve a Runway task");
     },
+    async createGeneration() {
+      throw new Error("should not generate through Runway");
+    },
     async uploadVideo() {
       throw new Error("should not upload to Runway");
     },

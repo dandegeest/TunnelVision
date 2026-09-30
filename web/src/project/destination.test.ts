@@ -16,6 +16,7 @@ import {
   destinationConstructionPrompt,
   destinationGeneratedPrompt,
   destinationImageModelLabel,
+  destinationImageResolutionTier,
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
   destinationRepairRequestFromProject,
@@ -693,6 +694,7 @@ describe("opening frame generation", () => {
       imageOutputFormat: "png",
       imageResolution: "1K",
       cameraGrammar: "pov",
+      generationIntent: "fast",
     });
     expect(openingFrameIntent(withStory.story)).toBe(
       "Travel forward through an imagined interior at night.",
@@ -723,6 +725,7 @@ describe("opening frame generation", () => {
       imageOutputFormat: "png",
       imageResolution: "1K",
       cameraGrammar: "pov",
+      generationIntent: "fast",
     });
     const keptIntent = projectWithGeneratedOpeningFrame(
       {
@@ -822,6 +825,62 @@ describe("destination inspector copy", () => {
     expect(destinationImageModelLabel(empty, empty.storyboard[0]!)).toBeUndefined();
   });
 
+  it("shows the image model recorded on the canonical, not a later project setting", () => {
+    const story = "Travel forward through an imagined interior at night.";
+    const generated = projectWithGeneratedOpeningFrame(
+      { ...createNewProject(), story },
+      { ...generatedB, model: "gemini_image3_pro", modelVersion: "quality" },
+    );
+    expect(generated.storyboard[0]?.takes?.[0]?.model).toBe("gemini_image3_pro");
+    expect(generated.storyboard[0]?.takes?.[0]?.generation).toEqual({
+      modelVersion: "quality",
+      optimizeFor: "quality",
+    });
+    expect(destinationImageModelLabel(generated, generated.storyboard[0]!)).toBe(
+      "Router · QUALITY → gemini_image3_pro",
+    );
+    const switched = { ...generated, imageModel: "nano-banana-2-lite" as const };
+    expect(destinationImageModelLabel(switched, switched.storyboard[0]!)).toBe(
+      "Router · QUALITY → gemini_image3_pro",
+    );
+    const catalog = projectWithGeneratedOpeningFrame(
+      { ...createNewProject(), story },
+      { ...generatedB, model: "google/nano-banana-2-lite", modelVersion: "test-version" },
+    );
+    expect(destinationImageModelLabel(catalog, catalog.storyboard[0]!)).toBe("Nano Banana 2 Lite");
+    const fast = projectWithGeneratedOpeningFrame(
+      { ...createNewProject(), story, defaultTakeIntent: "fast" },
+      {
+        ...generatedB,
+        provider: "runway",
+        model: "gemini_image3",
+        modelVersion: "latency",
+        predictionId: "2623355c-f33c-4159-bf4c-7dd9c1b6e753",
+        configId: "tv-draft",
+        optimizeFor: "latency",
+        resolution: "1k",
+        credits: 8,
+      },
+    );
+    expect(fast.storyboard[0]?.takes?.[0]?.generation).toMatchObject({
+      provider: "runway",
+      modelVersion: "latency",
+      optimizeFor: "latency",
+      predictionId: "2623355c-f33c-4159-bf4c-7dd9c1b6e753",
+      configId: "tv-draft",
+      resolution: "1k",
+      credits: 8,
+    });
+    expect(destinationImageModelLabel(fast, fast.storyboard[0]!)).toBe("Router · FAST → gemini_image3");
+    expect(destinationImageResolutionTier(fast.storyboard[0]!)).toBe("1k");
+    expect(openingFrameGenerationRequestFromProject(fast).generationIntent).toBe("fast");
+    const quality = {
+      ...fast,
+      defaultTakeIntent: "quality" as const,
+    };
+    expect(openingFrameGenerationRequestFromProject(quality).generationIntent).toBe("quality");
+  });
+
   it("accepts a product id or known slug and rejects unknown image models", () => {
     expect(imageModelIdFromBody(undefined)).toBe("nano-banana-2");
     expect(imageModelIdFromBody("nano-banana-2")).toBe("nano-banana-2");
@@ -853,6 +912,7 @@ describe("destination inspector copy", () => {
       imageOutputFormat: "jpg",
       imageResolution: "4K",
       cameraGrammar: "pov",
+      generationIntent: "fast",
     });
     const lite = projectWithImageModel(hq, "nano-banana-2-lite");
     expect(lite.imageOutputFormat).toBe("jpg");

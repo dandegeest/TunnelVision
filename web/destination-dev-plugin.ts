@@ -5,6 +5,7 @@ import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { imageModelSlug } from "../media/src/replicate/image-models.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
+import { RunwayRouterProvider, routerGoalForIntent, runwayRouterConfigured } from "../media/src/runway/router.ts";
 import { constructDestinationImage, generateOpeningFrameImage } from "./destination-construct.ts";
 import {
   imageModelIdFromBody,
@@ -83,7 +84,9 @@ export function destinationDevPlugin(repoRoot: string): Plugin {
           const imageModelId = imageModelIdFromBody(body.imageModel);
           const imageModel = imageModelSlug(imageModelId);
           const imageResolution = imageResolutionFromBody(imageModelId, body.imageResolution);
-          const provider = new ReplicateMediaProvider({
+          const provider = runwayRouterConfigured()
+            ? new RunwayRouterProvider({ goal: routerGoalForIntent(body.generationIntent) })
+            : new ReplicateMediaProvider({
             imageModel,
             imageEditModel: imageModel,
             nanoBanana: {
