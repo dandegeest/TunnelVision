@@ -51,6 +51,95 @@
   <p>Coffee acquired. Today the goal is simple: get TunnelVision running on Runway, make the agent visible, and build one great journey.</p>
 </article>
 </main>
+<div aria-hidden="true" class="journey-lightbox" id="live-lightbox">
+  <div class="lb-backdrop" data-lb-close="true"></div>
+  <div aria-label="Photo" aria-modal="true" class="lb-dialog" role="dialog">
+    <button aria-label="Close" class="lb-close" type="button">×</button>
+    <button aria-label="Previous photo" class="lb-prev" type="button">‹</button>
+    <div class="lb-stage">
+      <img alt="" class="lb-image"/>
+      <div class="lb-meta"><div class="lb-label"></div><div class="lb-counter"></div></div>
+    </div>
+    <button aria-label="Next photo" class="lb-next" type="button">›</button>
+  </div>
+</div>
 <script src="../assets/js/research.js"></script>
+<script>
+(function() {
+  var groups = Array.from(document.querySelectorAll('.live-images'));
+  var lb = document.getElementById('live-lightbox');
+  if (!lb || !groups.length) return;
+  var img = lb.querySelector('.lb-image');
+  var label = lb.querySelector('.lb-label');
+  var counter = lb.querySelector('.lb-counter');
+  var prev = lb.querySelector('.lb-prev');
+  var next = lb.querySelector('.lb-next');
+  var close = lb.querySelector('.lb-close');
+  var frames = [];
+  var index = 0;
+
+  function render() {
+    var frame = frames[index];
+    img.src = frame.src;
+    img.alt = frame.alt;
+    label.textContent = frame.alt;
+    counter.textContent = frames.length > 1 ? (index + 1) + ' / ' + frames.length : '';
+    prev.hidden = next.hidden = frames.length < 2;
+  }
+
+  function openAt(list, i) {
+    frames = list;
+    index = i;
+    render();
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lb-open');
+    close.focus();
+  }
+
+  function hide() {
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lb-open');
+  }
+
+  function step(delta) {
+    if (frames.length < 2) return;
+    index = (index + delta + frames.length) % frames.length;
+    render();
+  }
+
+  groups.forEach(function(group) {
+    var photos = Array.from(group.querySelectorAll('img'));
+    photos.forEach(function(el, i) {
+      el.tabIndex = 0;
+      el.setAttribute('role', 'button');
+      function open() {
+        openAt(photos.map(function(photo) {
+          return { src: photo.getAttribute('src'), alt: photo.alt || '' };
+        }), i);
+      }
+      el.addEventListener('click', open);
+      el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open();
+        }
+      });
+    });
+  });
+
+  prev.addEventListener('click', function() { step(-1); });
+  next.addEventListener('click', function() { step(1); });
+  close.addEventListener('click', hide);
+  lb.querySelector('.lb-backdrop').addEventListener('click', hide);
+  document.addEventListener('keydown', function(e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') hide();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+})();
+</script>
 </body>
 </html>
