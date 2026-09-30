@@ -591,3 +591,36 @@ body {
     padding-left: 0;
   }
 }
+
+/* Live hackathon log. Newest article first. */
+.live-update {
+  padding: 40px 0;
+  border-bottom: 1px solid var(--line);
+}
+.live-update time {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .16em;
+  font-weight: 800;
+  color: var(--accent);
+}
+.live-update h2 {
+  margin-top: 8px;
+}
+.live-update p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.6;
+}
+.live-images {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+.live-images img {
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #050706;
+}

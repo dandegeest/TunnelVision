@@ -3,6 +3,8 @@
 !/genesis/assets/**
 !/genesis/research/
 !/genesis/research/**
+!/genesis/live/
+!/genesis/live/**
 # Local Cursor state. Project rules and skills are tracked.
 .cursor/*
 !.cursor/rules/
