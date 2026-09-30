@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { formatConversationClock, type ConversationEntry } from "../project/conversation";
-import { destinationImageModelLabel, destinationImageResolutionTier } from "../project/destination";
+import { destinationImageModelLabel, destinationImageResolutionTier, takeRouterActivity } from "../project/destination";
 import type { DirectorEvidence } from "../project/director";
 import { humanRepairRecommendation } from "../project/journey-agent-repair";
 import { currentCutClips, currentCutDurationSeconds, formatCutClock } from "../project/current-cut";
@@ -12,12 +12,16 @@ import { CopyToClipboardButton } from "../ui/CopyToClipboardButton";
 import { DisclosureMarker, disclosureSummaryClass } from "../ui/Disclosure";
 import { ProgressSpinner } from "../ui/ProgressSpinner";
 import {
+  ROUTER_SELECTING_IMAGE,
+  ROUTER_SELECTING_VIDEO,
+  canonicalRouterSubject,
   cinematographerCardCopy,
   cinematographerScores,
   cinematographerSegmentLabel,
   clampScore,
   destinationCardCopy,
   destinationDescription,
+  routerSelectionLines,
   directorCardCopy,
   filmmakerCardCopy,
   formatDirectorEvidenceJson,
@@ -86,6 +90,38 @@ function ConversationBusyStatus({
       <ProgressSpinner className="h-3 w-3" />
       <span>{children}</span>
     </p>
+  );
+}
+
+function RouterPending({ label }: { label: string }) {
+  return (
+    <p className="router-activity-pending flex items-center gap-2 text-[15px] tracking-[0.06em] text-[#ece7df]" aria-busy="true">
+      <ProgressSpinner className="h-3.5 w-3.5" />
+      <span>
+        <span className="font-semibold tracking-[0.16em]">ROUTER</span>
+        {` · ${label}`}
+      </span>
+    </p>
+  );
+}
+
+function RouterResolved({
+  selection,
+  subject,
+}: {
+  selection: { goal: "FAST" | "QUALITY"; model: string; credits?: number };
+  subject: string;
+}) {
+  const detail = routerSelectionLines(selection, subject)[1];
+  return (
+    <div className="text-[15px] leading-snug text-[#ece7df]">
+      <p>
+        <span className="font-semibold tracking-[0.16em]">ROUTER</span>
+        {` · ${selection.goal} → `}
+        <span className="font-semibold">{selection.model}</span>
+      </p>
+      <p className="text-[13px] tracking-[0.04em] text-[#cfc6b8]">{detail}</p>
+    </div>
   );
 }
 
@@ -237,24 +273,38 @@ function DestinationEntryView({
         description,
         error: entry.error,
         imageUrl: entry.imageUrl,
-        ...(route ? { route } : {}),
-        ...(resolution ? { resolution } : {}),
+        ...(entry.status === "constructed" && !entry.router && route ? { route } : {}),
+        ...(entry.router ? { router: entry.router } : {}),
+        ...(resolution && entry.status === "constructed" ? { resolution } : {}),
       })}
       copyLabel={`Copy destination ${entry.beatId}`}
       active={entry.status === "constructing"}
     >
       {entry.status === "constructing" ? (
-        <ConversationBusyStatus className="text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
-          Constructing {entry.beatId}…
-        </ConversationBusyStatus>
+        <div className="mb-2 space-y-2">
+          <ConversationBusyStatus className="text-[13px] tracking-[0.14em] text-[#9a8f7e] uppercase">
+            Constructing {entry.beatId}…
+          </ConversationBusyStatus>
+          <RouterPending label={ROUTER_SELECTING_IMAGE} />
+        </div>
       ) : null}
       {description ? (
         <p className="mb-2 text-[12px] leading-relaxed text-[#9a8f7e]">{description}</p>
       ) : null}
+      {entry.status === "constructed" && entry.router ? (
+        <div className="mb-2">
+          <RouterResolved
+            selection={entry.router}
+            subject={canonicalRouterSubject(entry.beatId, entry.router.canonicalNumber)}
+          />
+        </div>
+      ) : null}
       {entry.status === "constructed" && entry.imageUrl ? (
         <img src={entry.imageUrl} alt="" className="media-contain aspect-video w-full rounded" />
       ) : null}
-      {route ? <p className="mt-2 text-[12px] leading-snug text-[#cfc6b8]">{route}</p> : null}
+      {entry.status === "constructed" && !entry.router && route ? (
+        <p className="mt-2 text-[12px] leading-snug text-[#cfc6b8]">{route}</p>
+      ) : null}
       {resolution ? <p className="text-[12px] leading-snug text-[#9a8f7e]">{resolution}</p> : null}
       {entry.status === "failed" ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
@@ -402,6 +452,7 @@ function RepairEntryView({ entry }: { entry: Extract<ConversationEntry, { kind: 
 
 function ShootingEntryView({ entry }: { entry: Extract<ConversationEntry, { kind: "shooting" }> }) {
   const segment = formatJourneyArrow(entry.journeyId);
+  const router = entry.take ? takeRouterActivity(entry.take) : undefined;
   const title =
     entry.status === "shooting"
       ? `● Shooting ${segment}...`
@@ -417,6 +468,7 @@ function ShootingEntryView({ entry }: { entry: Extract<ConversationEntry, { kind
       copyLabel={`Copy shot ${segment}`}
       active={entry.status === "shooting"}
     >
+      {entry.status === "shooting" ? <RouterPending label={ROUTER_SELECTING_VIDEO} /> : null}
       {entry.status === "failed" ? (
         <p className="rounded border border-[#8a4a32] bg-[#2a1610] px-3 py-2 text-sm text-[#f0c2a8]">
           {entry.error}
@@ -424,6 +476,7 @@ function ShootingEntryView({ entry }: { entry: Extract<ConversationEntry, { kind
       ) : null}
       {entry.status === "shot" && entry.take ? (
         <div className="space-y-3">
+          {router ? <RouterResolved selection={router} subject={segment} /> : null}
           <div className="grid grid-cols-2 gap-2">
             <img
               src={entry.take.startShootingFrame.imageUrl}

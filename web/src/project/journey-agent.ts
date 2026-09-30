@@ -7,10 +7,12 @@ import {
   assertCanonicalRepairAllowed,
   canonicalPairNeedsRepair,
   canonicalRepairBlockReason,
+  canonicalRepairRole,
   formatCanonicalRepairActivity,
   formatCanonicalRepairCompleteActivity,
   inboundJourneyForDestination,
   journeyCinematographerAssessment,
+  oppositeCanonicalMediaId,
   repairCandidateFromJourney,
   type CanonicalRepairRecommendation,
 } from "./journey-agent-repair";
@@ -462,24 +464,25 @@ async function executeJourneyAgent(
           return;
         }
         const candidate = repairCandidateFromJourney(project, journey);
-        if (!candidate) {
+        const destinationId = candidate?.destinationIds[0];
+        if (!candidate || !destinationId) {
           throw new Error(protectedCanonicalRepairReason(project, journeyId));
         }
-        const endId = candidate.endDestinationId;
-        assertCanonicalRepairAllowed(project, [endId]);
-        const startMediaId = actualFrameForDestination(project, journey.startDestinationId)?.mediaId;
+        assertCanonicalRepairAllowed(project, [destinationId]);
+        const role = canonicalRepairRole(journey, destinationId);
+        const referenceMediaId = oppositeCanonicalMediaId(project, journey, destinationId);
         emit("REPAIRING_CANONICALS", {
           message: formatCanonicalRepairActivity({
-            destinationIds: [endId],
+            destinationIds: [destinationId],
             journeyId,
             setConsistency: candidate.setConsistency,
             traversalConfidence: candidate.traversalConfidence,
             instruction: candidate.instruction,
           }),
-          destinationId: endId,
+          destinationId,
           journeyId,
           kind: "canonical-repair",
-          destinationIds: [endId],
+          destinationIds: [destinationId],
           journeyIds: [journeyId],
           recommendation: candidate.recommendation,
           instruction: candidate.instruction,
@@ -488,10 +491,10 @@ async function executeJourneyAgent(
         });
         adoptProject(
           projectWithSyncedProductionLegs(
-            await operations.repairCanonical(project, endId, {
-              role: "end",
+            await operations.repairCanonical(project, destinationId, {
+              role,
               instruction: candidate.instruction,
-              ...(startMediaId ? { referenceMediaId: startMediaId } : {}),
+              ...(referenceMediaId ? { referenceMediaId } : {}),
             }),
           ),
         );
@@ -505,16 +508,16 @@ async function executeJourneyAgent(
         }
         emit("REPAIRING_CANONICALS", {
           message: formatCanonicalRepairCompleteActivity({
-            destinationIds: [endId],
+            destinationIds: [destinationId],
             beforeSetConsistency: candidate.setConsistency,
             beforeTraversalConfidence: candidate.traversalConfidence,
             afterSetConsistency: after.setConsistency,
             afterTraversalConfidence: after.traversalConfidence,
           }),
-          destinationId: endId,
+          destinationId,
           journeyId,
           kind: "canonical-repair-complete",
-          destinationIds: [endId],
+          destinationIds: [destinationId],
           journeyIds: [journeyId],
           recommendation: candidate.recommendation,
           setConsistency: candidate.setConsistency,
@@ -522,7 +525,7 @@ async function executeJourneyAgent(
           afterSetConsistency: after.setConsistency,
           afterTraversalConfidence: after.traversalConfidence,
         });
-        reshotDestinationIds.add(endId);
+        reshotDestinationIds.add(destinationId);
       }
     };
 

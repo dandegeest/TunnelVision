@@ -187,7 +187,7 @@ test("polling stops with provider_unavailable after the timeout", async () => {
       waitForRunwayTask(
         {
           async retrieveTask(): Promise<RunwayTask> {
-            return { id: "task-slow", status: "RUNNING", progress: 0.1 };
+            return { id: "task-slow", status: "UNKNOWN" };
           },
         },
         "task-slow",
@@ -208,4 +208,39 @@ test("polling stops with provider_unavailable after the timeout", async () => {
       return true;
     },
   );
+});
+
+test("in-flight Runway tasks keep polling past the wall clock", async () => {
+  let now = 0;
+  let polls = 0;
+  const statuses = ["THROTTLED", "PENDING", "RUNNING", "RUNNING"];
+  const task = await waitForRunwayTask(
+    {
+      async retrieveTask(): Promise<RunwayTask> {
+        const status = statuses[polls] ?? "SUCCEEDED";
+        polls += 1;
+        if (status === "SUCCEEDED") {
+          return {
+            id: "task-slow",
+            status,
+            output: ["https://example.com/clip.mp4"],
+          };
+        }
+        return { id: "task-slow", status, progress: polls / 10 };
+      },
+    },
+    "task-slow",
+    {
+      timeoutMs: 10,
+      pollIntervalMs: 5,
+      now: () => now,
+      sleep: async (ms) => {
+        now += ms;
+      },
+    },
+  );
+  assert.equal(task.status, "SUCCEEDED");
+  assert.equal(task.output?.[0], "https://example.com/clip.mp4");
+  assert.ok(now > 10);
+  assert.equal(polls, 5);
 });

@@ -71,6 +71,58 @@ describe("Export Movie concatenation", () => {
     expect(result.seamDrops[0]!.mae).toBeLessThan(1);
   }, 30_000);
 
+  it("drops outgoing frame 0 when only the last picture matches and audio runs longer", async () => {
+    const { execFile } = await import("node:child_process");
+    const { promisify } = await import("node:util");
+    const exec = promisify(execFile);
+    const directory = await mkdtemp(join(tmpdir(), "tunnelvision-drop0-tail-"));
+    const incoming = join(directory, "in.mp4");
+    const outgoing = join(directory, "out.mp4");
+    const outputPath = join(directory, "movie.mp4");
+    await exec("ffmpeg", [
+      "-y",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=red:s=64x64:r=24:d=1",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=blue:s=64x64:r=24:d=0.05",
+      "-f",
+      "lavfi",
+      "-i",
+      "anullsrc=r=32000:cl=stereo:d=1.3",
+      "-filter_complex",
+      "[0:v][1:v]concat=n=2:v=1:a=0[v]",
+      "-map",
+      "[v]",
+      "-map",
+      "2:a",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      incoming,
+    ]);
+    await exec("ffmpeg", [
+      "-y",
+      "-f",
+      "lavfi",
+      "-i",
+      "color=c=blue:s=64x64:r=24:d=0.5",
+      "-pix_fmt",
+      "yuv420p",
+      outgoing,
+    ]);
+    const result = await concatenateClipFiles({ clipPaths: [incoming, outgoing], outputPath });
+    expect(result.seamDrops).toEqual([
+      expect.objectContaining({ outgoingIndex: 1, dropped: true }),
+    ]);
+  }, 30_000);
+
   it("keeps outgoing frame 0 when the lock is not tight", async () => {
     const { execFile } = await import("node:child_process");
     const { promisify } = await import("node:util");

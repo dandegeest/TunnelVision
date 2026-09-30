@@ -8,7 +8,7 @@ import { selectedTakeVideoUrl } from "../project/takes";
 import { adaptivePaceFromProject, journeyPaceIsCurrent } from "../project/adaptive-pace";
 import { locomotionPaceLabel } from "../project/cinematographer";
 import { effectiveJourneyDurationSeconds, effectiveJourneyPace } from "../project/journey-overrides";
-import { runwayRouterLine } from "../project/destination";
+import { runwayRouterLine, takeRouterActivity } from "../project/destination";
 import type {
   CinematographerAssessment,
   JourneyShot,
@@ -431,18 +431,44 @@ export function directorCardCopy(entry: Extract<ConversationEntry, { kind: "dire
   return withClock(entry.createdAt, lines.join("\n"));
 }
 
+export const ROUTER_SELECTING_IMAGE = "Selecting image model…";
+export const ROUTER_SELECTING_VIDEO = "Selecting S/E video model…";
+
+export function canonicalRouterSubject(beatId: string, canonicalNumber?: number): string {
+  return canonicalNumber && canonicalNumber > 1 ? `Canonical ${beatId}.${canonicalNumber}` : `Canonical ${beatId}`;
+}
+
+export function routerSelectionLines(
+  selection: { goal: "FAST" | "QUALITY"; model: string; credits?: number },
+  subject: string,
+): [string, string] {
+  const detail = typeof selection.credits === "number" ? `${subject} · ${selection.credits} credits` : subject;
+  return [`ROUTER · ${selection.goal} → ${selection.model}`, detail];
+}
+
 export function destinationCardCopy(
   beatId: string,
   status: "constructing" | "constructed" | "failed",
   createdAt: string,
-  extras?: { description?: string; error?: string; imageUrl?: string; route?: string; resolution?: string },
+  extras?: {
+    description?: string;
+    error?: string;
+    imageUrl?: string;
+    route?: string;
+    resolution?: string;
+    router?: { goal: "FAST" | "QUALITY"; model: string; credits?: number; canonicalNumber?: number };
+  },
 ): string {
   const lines = [`DESTINATION ${beatId}`];
   if (status === "constructing") {
     lines.push(`Constructing ${beatId}…`);
+    lines.push(`ROUTER · ${ROUTER_SELECTING_IMAGE}`);
   }
   if (status === "constructed") {
     lines.push(`Constructed ${beatId}`);
+  }
+  if (extras?.router) {
+    lines.push(...routerSelectionLines(extras.router, canonicalRouterSubject(beatId, extras.router.canonicalNumber)));
   }
   if (extras?.description) {
     lines.push(extras.description);
@@ -557,10 +583,17 @@ export function shootingCardCopy(entry: Extract<ConversationEntry, { kind: "shoo
         ? `SHOT ${segment} ACCEPTED`
         : `SHOT ${segment}`,
   ];
+  if (entry.status === "shooting") {
+    lines.push(`ROUTER · ${ROUTER_SELECTING_VIDEO}`);
+  }
   if (entry.status === "failed" && entry.error) {
     lines.push(entry.error);
   }
   if (entry.take) {
+    const selection = takeRouterActivity(entry.take);
+    if (selection) {
+      lines.push(...routerSelectionLines(selection, segment));
+    }
     lines.push(takeCopy(entry.take));
   }
   if (entry.videoUrl) {

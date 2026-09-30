@@ -337,6 +337,71 @@ export function runwayRouterLine(model: string, modelVersion: unknown): string {
   return `Router · ${goal} → ${model}`;
 }
 
+export type RouterActivitySelection = {
+  model: string;
+  goal: "FAST" | "QUALITY";
+  credits?: number;
+};
+
+/** Authoritative router choice. Omits a result until routing.model and FAST/QUALITY are both known. */
+export function routerActivitySelection(input: {
+  provider?: string;
+  model?: string | null;
+  modelVersion?: string | null;
+  credits?: number;
+}): RouterActivitySelection | undefined {
+  if (input.provider !== "runway") {
+    return undefined;
+  }
+  const model = input.model?.trim();
+  if (!model || model === "router") {
+    return undefined;
+  }
+  const goal = input.modelVersion === "latency" ? "FAST" : input.modelVersion === "quality" ? "QUALITY" : undefined;
+  if (!goal) {
+    return undefined;
+  }
+  return {
+    model,
+    goal,
+    ...(typeof input.credits === "number" ? { credits: input.credits } : {}),
+  };
+}
+
+export function takeRouterActivity(take: {
+  provider?: string;
+  model?: string | null;
+  modelVersion?: string | null;
+  generation?: { credits?: unknown };
+}): RouterActivitySelection | undefined {
+  const credits = take.generation?.credits;
+  return routerActivitySelection({
+    provider: take.provider,
+    model: take.model,
+    modelVersion: take.modelVersion,
+    ...(typeof credits === "number" ? { credits } : {}),
+  });
+}
+
+export function constructionRouterSelection(
+  evidence: {
+    provider?: string;
+    model?: string | null;
+    modelVersion?: string | null;
+    credits?: number;
+  },
+  canonicalNumber?: number,
+): (RouterActivitySelection & { canonicalNumber?: number }) | undefined {
+  const selection = routerActivitySelection(evidence);
+  if (!selection) {
+    return undefined;
+  }
+  return {
+    ...selection,
+    ...(canonicalNumber && canonicalNumber > 1 ? { canonicalNumber } : {}),
+  };
+}
+
 /** Megapixel tier the router resolved for this still, when the response recorded one. */
 export function destinationImageResolutionTier(frame: StoryboardFrame): string | undefined {
   const resolution = selectedCanonicalTake(frame)?.generation?.resolution;

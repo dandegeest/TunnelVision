@@ -17,6 +17,8 @@ import {
   destinationGeneratedPrompt,
   destinationImageModelLabel,
   destinationImageResolutionTier,
+  routerActivitySelection,
+  takeRouterActivity,
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
   destinationRepairRequestFromProject,
@@ -1045,5 +1047,47 @@ describe("camera grammar still conditioning", () => {
     });
     expect(constructed).toMatch(/MOUNTED viewpoint/);
     expect(constructed).toMatch(/Mount geometry may persist/);
+  });
+});
+
+describe("router activity selection", () => {
+  it("uses the returned routing model and omits a selection until that model exists", () => {
+    expect(
+      routerActivitySelection({
+        provider: "runway",
+        model: "gemini_image3",
+        modelVersion: "latency",
+        credits: 7,
+      }),
+    ).toEqual({ model: "gemini_image3", goal: "FAST", credits: 7 });
+    expect(
+      routerActivitySelection({
+        provider: "runway",
+        model: "seedance2_fast",
+        modelVersion: "quality",
+        credits: 232,
+      }),
+    ).toEqual({ model: "seedance2_fast", goal: "QUALITY", credits: 232 });
+    expect(routerActivitySelection({ provider: "runway", model: "router", modelVersion: "latency" })).toBeUndefined();
+    expect(routerActivitySelection({ provider: "runway", model: "gemini_image3", modelVersion: "2k" })).toBeUndefined();
+    expect(
+      routerActivitySelection({ provider: "replicate", model: "google/veo-3.1-fast", modelVersion: "quality" }),
+    ).toBeUndefined();
+    expect(
+      takeRouterActivity({
+        provider: "runway",
+        model: "seedance2_fast",
+        modelVersion: "latency",
+        generation: { credits: 174 },
+      }),
+    ).toEqual({ model: "seedance2_fast", goal: "FAST", credits: 174 });
+    expect(
+      takeRouterActivity({
+        provider: "runway",
+        model: "seedance2_fast",
+        modelVersion: "latency",
+        generation: {},
+      })?.credits,
+    ).toBeUndefined();
   });
 });

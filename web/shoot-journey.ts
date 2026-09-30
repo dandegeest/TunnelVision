@@ -290,6 +290,7 @@ export async function shootPreparedJourney(input: {
       : seed !== undefined
         ? { seed }
         : {}),
+    ...(typeof generated.metadata.credits === "number" ? { generation: { credits: generated.metadata.credits } } : {}),
     videoUrl: generated.outputUrl,
     providerOutputUrl: generated.outputUrl,
     videoInputs: { startShootingFrame: true, endShootingFrame: true },

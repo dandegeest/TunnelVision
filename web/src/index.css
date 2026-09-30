@@ -594,6 +594,20 @@ body,
   height: 2px;
 }
 
+.router-activity-pending {
+  animation: router-select-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes router-select-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 @keyframes agent-pip {
   0% {
     transform: scale(1);

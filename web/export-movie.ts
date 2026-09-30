@@ -188,18 +188,21 @@ async function extractFrame(
         destPath,
       ]);
     } else {
+      // Decode through the end of the picture. A short seek before the
+      // container end misses the last frame when audio runs past the video,
+      // and ffmpeg still exits successfully with an empty image.
       await exec("ffmpeg", [
         "-y",
         "-hide_banner",
         "-loglevel",
         "error",
         "-sseof",
-        "-0.05",
+        "-1",
         "-i",
         clipPath,
+        "-map",
+        "0:v:0",
         "-update",
-        "1",
-        "-frames:v",
         "1",
         destPath,
       ]);

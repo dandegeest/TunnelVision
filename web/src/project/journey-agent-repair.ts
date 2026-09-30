@@ -1,4 +1,4 @@
-import { actualFrameForDestination } from "./cinematographer";
+import { actualFrameForDestination, hasCurrentMotionPlan } from "./cinematographer";
 import { journeyHasTakes, journeyTakes } from "./takes";
 import type { CinematographerAssessment, JourneyShot, Project, StoryboardFrame } from "./types";
 
@@ -25,10 +25,14 @@ export function journeyCinematographerAssessment(
 }
 
 export function canonicalPairNeedsRepair(
-  assessment: Pick<CinematographerAssessment, "setConsistency" | "traversalConfidence">,
+  assessment: Pick<CinematographerAssessment, "setConsistency" | "traversalConfidence" | "repairRecommendation">,
   thresholds = JOURNEY_AGENT_REPAIR_THRESHOLDS,
 ): boolean {
-  return assessment.traversalConfidence < thresholds.traversalConfidenceBelow;
+  return (
+    assessment.traversalConfidence < thresholds.traversalConfidenceBelow ||
+    assessment.repairRecommendation === "RESHOOT_START" ||
+    assessment.repairRecommendation === "RESHOOT_END"
+  );
 }
 
 export function humanRepairRecommendation(recommendation: CanonicalRepairRecommendation): string {
@@ -62,6 +66,16 @@ function generatedUnprotectedFrame(
   return frame;
 }
 
+/** A later hop must not rewrite a start that an earlier hop has already staged or shot. */
+function startAnchorsEarlierJourney(project: Project, journey: JourneyShot): boolean {
+  return project.journeys.some(
+    (other) =>
+      other.id !== journey.id &&
+      other.endDestinationId === journey.startDestinationId &&
+      (journeyHasTakes(other) || other.status === "shooting" || hasCurrentMotionPlan(project, other)),
+  );
+}
+
 export function canonicalRepairPlanFromAssessment(
   project: Project,
   journey: JourneyShot,
@@ -71,7 +85,22 @@ export function canonicalRepairPlanFromAssessment(
   if (!canonicalPairNeedsRepair(assessment) || !endId) {
     return undefined;
   }
-  if (!generatedUnprotectedFrame(project, endId)) {
+  const confidenceRepair =
+    assessment.traversalConfidence < JOURNEY_AGENT_REPAIR_THRESHOLDS.traversalConfidenceBelow;
+  const recommendation = assessment.repairRecommendation;
+  const startId =
+    recommendation === "RESHOOT_START" &&
+    !startAnchorsEarlierJourney(project, journey) &&
+    generatedUnprotectedFrame(project, journey.startDestinationId)
+      ? journey.startDestinationId
+      : undefined;
+  const repairEnd =
+    recommendation === "RESHOOT_END" ||
+    recommendation === "RESHOOT_START" ||
+    confidenceRepair;
+  const targetId =
+    startId ?? (repairEnd && generatedUnprotectedFrame(project, endId) ? endId : undefined);
+  if (!targetId) {
     return undefined;
   }
   const instruction =
@@ -79,9 +108,9 @@ export function canonicalRepairPlanFromAssessment(
     assessment.summary.trim() ||
     "The pair needs a stronger continuously shootable spatial connection.";
   return {
-    recommendation: "RESHOOT_END",
+    recommendation: targetId === journey.startDestinationId ? "RESHOOT_START" : "RESHOOT_END",
     instruction,
-    destinationIds: [endId],
+    destinationIds: [targetId],
     setConsistency: assessment.setConsistency,
     traversalConfidence: assessment.traversalConfidence,
   };

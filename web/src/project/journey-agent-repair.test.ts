@@ -92,30 +92,61 @@ describe("JourneyAgent repair thresholds", () => {
   it("lets a good pair skip repair", () => {
     expect(canonicalPairNeedsRepair({ setConsistency: 90, traversalConfidence: 80 })).toBe(false);
   });
+
+  it("repairs an explicit RESHOOT_START or RESHOOT_END even when confidence is at least 30", () => {
+    expect(
+      canonicalPairNeedsRepair({
+        setConsistency: 90,
+        traversalConfidence: 40,
+        repairRecommendation: "RESHOOT_END",
+      }),
+    ).toBe(true);
+    expect(
+      canonicalPairNeedsRepair({
+        setConsistency: 90,
+        traversalConfidence: 40,
+        repairRecommendation: "RESHOOT_START",
+      }),
+    ).toBe(true);
+    expect(
+      canonicalPairNeedsRepair({
+        setConsistency: 90,
+        traversalConfidence: 40,
+        repairRecommendation: "SHOOT",
+      }),
+    ).toBe(false);
+    expect(
+      canonicalPairNeedsRepair({
+        setConsistency: 90,
+        traversalConfidence: 40,
+        repairRecommendation: "RESHOOT_BOTH",
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("CM repair target", () => {
-  it("always plans a repair of the new END canonical", () => {
+  it("repairs the canonical CM named, and the new END when only confidence requires repair", () => {
     const project = generatedPair();
     const journey = project.journeys[0]!;
     expect(
       canonicalRepairPlanFromAssessment(project, journey, {
         ...assessment,
-        setConsistency: 25,
-        traversalConfidence: 10,
+        setConsistency: 90,
+        traversalConfidence: 40,
         repairRecommendation: "RESHOOT_START",
         repairInstruction: "Start does not establish a plausible route toward end.",
-      })?.destinationIds,
-    ).toEqual(["B"]);
+      }),
+    ).toMatchObject({ recommendation: "RESHOOT_START", destinationIds: ["A"] });
     expect(
       canonicalRepairPlanFromAssessment(project, journey, {
         ...assessment,
-        setConsistency: 25,
-        traversalConfidence: 10,
+        setConsistency: 90,
+        traversalConfidence: 40,
         repairRecommendation: "RESHOOT_END",
         repairInstruction: "End contradicts the visible space established by start.",
-      })?.destinationIds,
-    ).toEqual(["B"]);
+      }),
+    ).toMatchObject({ recommendation: "RESHOOT_END", destinationIds: ["B"] });
     expect(
       canonicalRepairPlanFromAssessment(project, journey, {
         ...assessment,

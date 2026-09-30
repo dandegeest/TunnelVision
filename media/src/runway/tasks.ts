@@ -3,10 +3,16 @@ import { secretsToRedact, wrapRunwayError, type RunwayApi, type RunwayTask } fro
 
 /** Official docs: do not poll a task faster than once every five seconds. */
 export const RUNWAY_TASK_POLL_INTERVAL_MS = 5_000;
-/** Matches the official SDK default for waitForTaskOutput. */
+/**
+ * Wall-clock limit for a task that is not in flight.
+ * PENDING, THROTTLED, and RUNNING keep polling until Runway
+ * succeeds, fails, or cancels. Quality video stays RUNNING well
+ * past the SDK's 10 minute waitForTaskOutput default.
+ */
 export const RUNWAY_TASK_TIMEOUT_MS = 10 * 60 * 1000;
 
 const TERMINAL_FAILURE = new Set(["FAILED", "CANCELLED"]);
+const IN_FLIGHT = new Set(["PENDING", "THROTTLED", "RUNNING"]);
 
 export type WaitForRunwayTaskOptions = {
   readonly timeoutMs?: number;
@@ -56,22 +62,26 @@ export async function waitForRunwayTask(
       );
     }
 
-    if (now() - started >= timeoutMs) {
-      throw new MediaGenerationError(
-        "provider_unavailable",
-        `Runway task timed out after ${timeoutMs}ms`,
-        { predictionId: taskId },
-      );
+    if (!taskIsInFlight(task) && now() - started >= timeoutMs) {
+      throw runwayTaskTimeout(taskId, timeoutMs);
     }
     await sleep(pollIntervalMs);
-    if (now() - started >= timeoutMs) {
-      throw new MediaGenerationError(
-        "provider_unavailable",
-        `Runway task timed out after ${timeoutMs}ms`,
-        { predictionId: taskId },
-      );
+    if (!taskIsInFlight(task) && now() - started >= timeoutMs) {
+      throw runwayTaskTimeout(taskId, timeoutMs);
     }
   }
+}
+
+function taskIsInFlight(task: RunwayTask): boolean {
+  return IN_FLIGHT.has(task.status);
+}
+
+function runwayTaskTimeout(taskId: string, timeoutMs: number): MediaGenerationError {
+  return new MediaGenerationError(
+    "provider_unavailable",
+    `Runway task timed out after ${timeoutMs}ms`,
+    { predictionId: taskId },
+  );
 }
 
 export function runwayTaskOutputUrl(task: RunwayTask): string | undefined {

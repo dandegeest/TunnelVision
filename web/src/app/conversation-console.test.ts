@@ -9,6 +9,7 @@ import {
   cinematographerCardCopy,
   cinematographerScores,
   destinationCardCopy,
+  shootingCardCopy,
   destinationDescription,
   formatJourneyArrow,
   groupConversationEntries,
@@ -208,6 +209,55 @@ describe("conversation presentation grouping", () => {
         resolution: "1k",
       }),
     ).toContain("Router · FAST → gemini_image3");
+    expect(destinationCardCopy("B", "constructing", AT)).toContain("ROUTER · Selecting image model…");
+    expect(
+      destinationCardCopy("C", "constructed", AT, {
+        router: { goal: "FAST", model: "gemini_image3", credits: 7, canonicalNumber: 2 },
+      }),
+    ).toContain("ROUTER · FAST → gemini_image3");
+    expect(
+      destinationCardCopy("C", "constructed", AT, {
+        router: { goal: "FAST", model: "gemini_image3", credits: 7, canonicalNumber: 2 },
+      }),
+    ).toContain("Canonical C.2 · 7 credits");
+    const shooting = shootingCardCopy({
+      id: "shoot",
+      createdAt: AT,
+      kind: "shooting",
+      journeyId: "B-C",
+      status: "shot",
+      take: {
+        startShootingFrame: { mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageUrl: "/a.png" },
+        endShootingFrame: { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", imageUrl: "/b.png" },
+        startPlan: {
+          version: 1,
+          camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+          destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+          exposure: { strength: 0.08, samples: 16 },
+        },
+        endPlan: {
+          version: 1,
+          camera: { vanishing_point: [0.5, 0.5], forward: 1 },
+          destination: { point: [0.5, 0.5], protect: true, bbox: [0.25, 0.2, 0.75, 0.8] },
+          exposure: { strength: 0.08, samples: 16 },
+        },
+        segmentPromptAddition: "Track forward.",
+        effectivePrompt: "Track forward.",
+        pace: "fast",
+        provider: "runway",
+        model: "seedance2_fast",
+        modelVersion: "latency",
+        durationSeconds: 8,
+        generation: { credits: 232 },
+        videoInputs: { startShootingFrame: true, endShootingFrame: true },
+      },
+      videoUrl: "https://example.test/bc.mp4",
+    });
+    expect(shooting).toContain("ROUTER · FAST → seedance2_fast");
+    expect(shooting).toContain("B → C · 232 credits");
+    expect(shootingCardCopy({ id: "live", createdAt: AT, kind: "shooting", journeyId: "B-C", status: "shooting" })).toContain(
+      "ROUTER · Selecting S/E video model…",
+    );
     expect(destinationDescription(createForestProject(), "B")).toBe(
       "Root-tunnel mouth. The dark opening is slightly right of center.",
     );

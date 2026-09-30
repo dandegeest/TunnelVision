@@ -26,12 +26,20 @@ export type DirectorConversationEntry = ConversationEntryBase & {
   error?: string;
 };
 
+export type ConstructionRouterSelection = {
+  model: string;
+  goal: "FAST" | "QUALITY";
+  credits?: number;
+  canonicalNumber?: number;
+};
+
 export type ConstructionConversationEntry = ConversationEntryBase & {
   kind: "construction";
   beatId: string;
   status: "constructing" | "constructed" | "failed";
   error?: string;
   imageUrl?: string;
+  router?: ConstructionRouterSelection;
 };
 
 export type BlockingConversationEntry = ConversationEntryBase & {
@@ -242,7 +250,9 @@ export function resolveDirectorEntry(
 export function resolveConstructionEntry(
   entries: ConversationEntry[],
   id: string,
-  next: { status: "constructed"; imageUrl: string } | { status: "failed"; error: string },
+  next:
+    | { status: "constructed"; imageUrl: string; router?: ConstructionRouterSelection }
+    | { status: "failed"; error: string },
 ): ConversationEntry[] {
   return entries.map((entry) => {
     if (entry.kind !== "construction" || entry.id !== id) {
@@ -254,12 +264,14 @@ export function resolveConstructionEntry(
         status: "constructed",
         imageUrl: next.imageUrl,
         error: undefined,
+        ...(next.router ? { router: next.router } : { router: undefined }),
       };
     }
     return {
       ...entry,
       status: "failed",
       error: next.error,
+      router: undefined,
     };
   });
 }

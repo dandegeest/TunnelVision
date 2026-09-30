@@ -674,15 +674,44 @@ describe("JourneyAgent canonical repair", () => {
     expect(result.snapshot.phase).toBe("COMPLETE");
   });
 
-  it("repairs only the new END even when CM recommends START or BOTH", async () => {
-    for (const diagnosis of [weakStart, weakEnd, weakBoth]) {
-      const { ops, calls } = recordingOps(
-        { planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan) },
-        { assessments: [diagnosis, repaired] },
-      );
-      await runJourneyAgent(promptedProject(), ops);
-      expect(calls.filter((call) => call.startsWith("repair:"))).toEqual(["repair:B:end"]);
-    }
+  it("honors RESHOOT_START on the generated opening and RESHOOT_END on the new still", async () => {
+    const explicitStart = assessmentWith({
+      setConsistency: 90,
+      traversalConfidence: 40,
+      repairRecommendation: "RESHOOT_START",
+      repairInstruction: "Start does not establish a plausible route toward end.",
+    });
+    const explicitEnd = assessmentWith({
+      setConsistency: 90,
+      traversalConfidence: 40,
+      repairRecommendation: "RESHOOT_END",
+      repairInstruction: "End contradicts the visible space established by start.",
+    });
+    const startRun = recordingOps(
+      { planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan) },
+      { assessments: [explicitStart, repaired] },
+    );
+    const startResult = await runJourneyAgent(promptedProject(), startRun.ops);
+    expect(startRun.calls.filter((call) => call.startsWith("repair:"))).toEqual(["repair:A:start"]);
+    expect(startResult.project.storyboard[0]?.mediaId).not.toBe(MEDIA.A.mediaId);
+    expect(startResult.project.storyboard.find((frame) => frame.id === "B")?.mediaId).toBe(MEDIA.B.mediaId);
+    expect(startResult.snapshot.phase).toBe("COMPLETE");
+
+    const endRun = recordingOps(
+      { planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan) },
+      { assessments: [explicitEnd, repaired] },
+    );
+    const endResult = await runJourneyAgent(promptedProject(), endRun.ops);
+    expect(endRun.calls.filter((call) => call.startsWith("repair:"))).toEqual(["repair:B:end"]);
+    expect(endResult.project.storyboard[0]?.mediaId).toBe(MEDIA.A.mediaId);
+    expect(endResult.project.storyboard.find((frame) => frame.id === "B")?.mediaId).not.toBe(MEDIA.B.mediaId);
+
+    const bothRun = recordingOps(
+      { planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan) },
+      { assessments: [weakBoth, repaired] },
+    );
+    await runJourneyAgent(promptedProject(), bothRun.ops);
+    expect(bothRun.calls.filter((call) => call.startsWith("repair:"))).toEqual(["repair:B:end"]);
   });
 
   it("stops after two repair attempts and shoots the current pair", async () => {
@@ -707,7 +736,10 @@ describe("JourneyAgent canonical repair", () => {
       { planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan) },
       { assessments: [weakStart, repaired] },
     );
-    const result = await runJourneyAgent(withActualA(), ops);
+    const result = await runJourneyAgent(
+      { ...promptedProject(), storyboard: [actualFrame("A", "user")] },
+      ops,
+    );
     expect(calls.filter((call) => call.startsWith("repair:"))).toEqual(["repair:B:end"]);
     expect(result.project.storyboard[0]?.mediaId).toBe(MEDIA.A.mediaId);
     expect(result.project.storyboard.find((frame) => frame.id === "B")?.mediaId).not.toBe(MEDIA.B.mediaId);

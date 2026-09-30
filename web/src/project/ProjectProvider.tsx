@@ -68,6 +68,7 @@ import {
 } from "./outgoing-start-drop";
 import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from "./current-cut";
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
+import { selectedCanonicalTake } from "./canonical-takes";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canAddStoryboardDestination, canPlanMovie, projectHasExistingJourney, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
@@ -90,6 +91,7 @@ import {
   projectWithImageModel,
   projectWithImageOutputFormat,
   projectWithImageResolution,
+  constructionRouterSelection,
   recordedImageModel,
   requestGenerateOpeningFrame,
   canGenerateOpeningFrame,
@@ -925,10 +927,16 @@ export function ProjectProvider({
             ...recordedImageModel(result.evidence),
           }),
         );
+        const frame = next.storyboard.find((item) => item.id === request.beatId);
+        const router = constructionRouterSelection(
+          result.evidence,
+          frame ? selectedCanonicalTake(frame)?.number : undefined,
+        );
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "constructed",
             imageUrl: result.imageUrl,
+            ...(router ? { router } : {}),
           }),
         );
         return next;
@@ -1019,26 +1027,62 @@ export function ProjectProvider({
         referenceMediaId?: string;
       },
     ): Promise<Project> => {
-      const session = projectSessionRef.current;
-      const request = destinationRepairRequestFromProject(current, beatId, input);
-      const result = await requestConstructDestination(request);
-      const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
-      if (projectSessionRef.current !== session) {
-        return projectRef.current;
-      }
-      const next = applyProject(
-        projectWithRepairedCanonical(projectRef.current, {
-          beatId: request.beatId,
-          mediaId: result.mediaId,
-          imageUrl: result.imageUrl,
-          ...(mediaInfo ? { mediaInfo } : {}),
-          ...recordedImageModel(result.evidence),
-          reason: input.instruction,
+      const entryId = nextConversationId("construction");
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: entryId,
+          createdAt: conversationTimestamp(),
+          kind: "construction",
+          beatId,
+          status: "constructing",
         }),
       );
-      return next;
+      const session = projectSessionRef.current;
+      try {
+        const request = destinationRepairRequestFromProject(current, beatId, input);
+        const result = await requestConstructDestination(request);
+        const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
+        const next = applyProject(
+          projectWithRepairedCanonical(projectRef.current, {
+            beatId: request.beatId,
+            mediaId: result.mediaId,
+            imageUrl: result.imageUrl,
+            ...(mediaInfo ? { mediaInfo } : {}),
+            ...recordedImageModel(result.evidence),
+            reason: input.instruction,
+          }),
+        );
+        const frame = next.storyboard.find((item) => item.id === request.beatId);
+        const router = constructionRouterSelection(
+          result.evidence,
+          frame ? selectedCanonicalTake(frame)?.number : undefined,
+        );
+        setConversation((entries) =>
+          resolveConstructionEntry(entries, entryId, {
+            status: "constructed",
+            imageUrl: result.imageUrl,
+            ...(router ? { router } : {}),
+          }),
+        );
+        return next;
+      } catch (error) {
+        if (projectSessionRef.current !== session) {
+          return projectRef.current;
+        }
+        const message = error instanceof Error ? error.message : "Canonical repair failed.";
+        setConversation((entries) =>
+          resolveConstructionEntry(entries, entryId, {
+            status: "failed",
+            error: message,
+          }),
+        );
+        throw error;
+      }
     },
-    [applyProject],
+    [applyProject, nextConversationId],
   );
 
   const generateOpeningOn = useCallback(
@@ -1074,10 +1118,16 @@ export function ProjectProvider({
             ...recordedImageModel(result.evidence),
           }),
         );
+        const frame = next.storyboard.find((item) => item.id === "A");
+        const router = constructionRouterSelection(
+          result.evidence,
+          frame ? selectedCanonicalTake(frame)?.number : undefined,
+        );
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "constructed",
             imageUrl: result.imageUrl,
+            ...(router ? { router } : {}),
           }),
         );
         return next;
