@@ -41,6 +41,7 @@ export type DirectorPlanInput = {
     readonly specified: boolean;
     readonly intent?: string;
     readonly visualDescription?: string;
+    readonly attachImage?: boolean;
   }[];
   readonly storyDuration?: "auto" | number;
 };
@@ -139,6 +140,8 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
       specified: slot.specified,
       ...(slot.intent?.trim() ? { intent: slot.intent.trim() } : {}),
       ...(slot.visualDescription?.trim() ? { visualDescription: slot.visualDescription.trim() } : {}),
+      ...(slot.attachImage === true ? { attachImage: true as const } : {}),
+      ...(slot.attachImage === false ? { attachImage: false as const } : {}),
       ...(hasImage ? { hasImage: true as const } : {}),
     };
   });
@@ -164,6 +167,8 @@ export function buildDirectorRequest(input: DirectorPlanInput): ReasoningRequest
     specified: slot.specified,
     ...(slot.intent?.trim() ? { intent: slot.intent.trim() } : {}),
     ...(slot.visualDescription?.trim() ? { visualDescription: slot.visualDescription.trim() } : {}),
+    ...(slot.attachImage === true ? { attachImage: true as const } : {}),
+    ...(slot.attachImage === false ? { attachImage: false as const } : {}),
   }));
   const payload: DirectorRequestPayload = {
     story,

@@ -39,7 +39,7 @@ A TunnelVision project is a partially specified movie. The storyboard is the aut
 
 Plan resolves unspecified directing decisions. It does not overwrite specified filmmaking decisions. You do not replace, restyle, reorder, or rewrite supplied destination media. You do not generate images or video. You do not write shooting-geometry JSON. You do not invent vanishing points, exposure, provider settings, or Cinematographer shooting instructions.
 
-The first image is the opening viewpoint. It is already the first storyboard beat. Later images, if any, are additional actual destinations in travel order.
+The first image is the opening viewpoint. It is already the first storyboard beat. A later image, if any, is the actual still immediately before a run of unresolved slots, and only when that still does not itself follow an unresolved slot. Other actual destinations are described in the storyboard text and are not attached as images.
 
 Plan a journey the camera can actually travel, not a list of attractive disconnected scenes. People, animals, vehicles, objects, and other subjects may appear in viewpoints as part of the world. ${directorGrammarBodyConstraint(grammar)}
 
@@ -70,8 +70,8 @@ Rules:
 - summary is required. It is the readable Director response: what you decided about this journey, not a restatement of each beat field.
 - Do not include the opening beat. The starting frame is already authoritative.
 - Return beats in travel order after the opening.
-- Preserve every existing destination id and order. Actual stills are authoritative; reason from the attached images, not merely stale text.
-- For unresolved slots, supply intent and visualDescription. Do not generate images. PLAN fills semantic gaps, not image gaps. Newly planned beats continue the filmmaker's journey; the product appends them onto the production story as more story rather than replacing the opening.
+- Preserve every existing destination id and order. Actual stills are authoritative. Use the attached images for the opening and for the still each unresolved run continues from. Use the written intent and visual for actual destinations whose stills were not attached.
+- For unresolved slots, supply intent and visualDescription. You may revise intent already written on an unresolved slot. Do not generate images. PLAN fills semantic gaps, not image gaps. Newly planned beats continue the filmmaker's journey; the product appends them onto the production story as more story rather than replacing the opening.
 - For an existing actual destination with no intent or visualDescription, describe it from the attached image. Include that id in beats[]. The product keeps the still and adopts that text.
 - For an existing actual destination that already has intent and visualDescription, restating its known look is fine; the product keeps the original still and those existing fields.
 - When the opening is the only existing destination, return subsequent beats only, with ids continuing after the opening (B, C, D, …). Use the fewest destinations necessary to express the filmmaker's requested journey and any explicitly requested approximate overall duration. Add a beat when the camera reaches a meaningfully new place, world state, or story moment. Do not create separate storyboard beats merely for approaching and then crossing the same threshold when that movement can occur within one continuous shot. When no overall duration is requested, simple journeys may require only 2–4 subsequent destinations. Use more when the filmmaker's story genuinely requires them.
@@ -96,6 +96,8 @@ export type DirectorPromptAnchor = {
   readonly mediaId?: string;
   readonly hasImage?: boolean;
   readonly specified?: boolean;
+  /** When set, this slot is or is not one of the stills attached to the request. */
+  readonly attachImage?: boolean;
 };
 
 function letterGaps(slots: readonly { readonly id: string }[]): boolean {
@@ -195,11 +197,19 @@ export function directorUserPrompt(input: {
       const isOpening =
         slot.id.trim().toLowerCase() === input.startFrameId.trim().toLowerCase();
       const specified = isPromptSlotSpecified(slot) || isOpening;
-      const imageNumber = specified ? nextImage : undefined;
-      if (specified) {
+      const numbered =
+        slot.attachImage === true ||
+        (slot.attachImage === undefined && specified);
+      const imageNumber = numbered ? nextImage : undefined;
+      if (numbered) {
         nextImage += 1;
       }
       lines.push(slotLine(slot, imageNumber, isOpening ? "opening" : "later"));
+    }
+    if (storyboard.some((slot) => slot.attachImage === false)) {
+      lines.push(
+        "Attached images are the opening and the actual still immediately before each run of unresolved slots. A still that follows an unresolved slot is not attached. Image numbers are the stills you can see. Revise intent on unresolved slots when the journey needs it.",
+      );
     }
     const unresolved = storyboard.filter((slot) => !isPromptSlotSpecified(slot));
     const allActual = unresolved.length === 0;

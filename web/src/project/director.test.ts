@@ -2,13 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createForestPartialAnchorProject,
   createForestProject,
-  FOREST_STORYBOARD_INTENTS,
 } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject, WARDROBE_USER_PROMPT } from "../fixtures/wardrobe-loop";
 import { createNewProject } from "./new-project";
 import {
   authoritativeStartFrame,
   directorPlanRequestFromProject,
+  directorPlanStillIds,
   directorStoryDurationForRequest,
   directorStoryRequestFromProject,
   requestDirectorPlan,
@@ -16,7 +16,7 @@ import {
 } from "./director";
 import { projectWithDirectorPlan } from "./storyboard";
 import { TRUSTED_MEDIA_IDS } from "./trusted-media-id";
-import type { Project } from "./types";
+import type { Project, StoryboardFrame } from "./types";
 import { directorUserPrompt } from "../../../media/src/director/prompts";
 
 const payload = {
@@ -173,6 +173,7 @@ describe("Director request from Project state", () => {
           specified: true,
           intent: project.storyboard[0]?.intent,
           mediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+          attachImage: true,
         },
       ],
     });
@@ -285,28 +286,13 @@ describe("Director request from Project state", () => {
     const request = directorPlanRequestFromProject(project);
     expect(request.startMediaId).toBe(TRUSTED_MEDIA_IDS.forestAtoFA);
     expect(request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "D", "F"]);
-    expect(request.anchors?.[0]).toMatchObject({
-      id: "A",
-      label: "A",
-      intent: FOREST_STORYBOARD_INTENTS.A,
-      mediaId: TRUSTED_MEDIA_IDS.forestAtoFA,
-    });
-    expect(request.anchors?.[1]).toMatchObject({
-      id: "D",
-      label: "D",
-      intent: FOREST_STORYBOARD_INTENTS.D,
-      mediaId: TRUSTED_MEDIA_IDS.forestAtoFD,
-    });
-    expect(request.anchors?.[2]).toMatchObject({
-      id: "F",
-      label: "F",
-      intent: FOREST_STORYBOARD_INTENTS.F,
-      mediaId: TRUSTED_MEDIA_IDS.forestAtoFF,
-    });
+    expect(request.anchors?.filter((anchor) => anchor.mediaId).map((anchor) => anchor.id)).toEqual(["A"]);
     const prompt = directorUserPrompt(request);
     expect(prompt).toMatch(/Complete ordered storyboard/);
-    expect(prompt).toMatch(/Image 2 is this destination/);
-    expect(prompt).toMatch(/Image 3 is this destination/);
+    expect(prompt).toMatch(/Image 1 is this destination/);
+    expect(prompt).not.toMatch(/Image 2 is this destination/);
+    expect(prompt).not.toMatch(/Image 3 is this destination/);
+    expect(prompt).toMatch(/A still that follows an unresolved slot is not attached/);
     expect(prompt).toMatch(/All listed destinations are actual/);
     expect(prompt).toMatch(/Intent: Root tunnel with a large glowing crystal/);
     expect(prompt).not.toMatch(/Plan the subsequent spatially traversable beats from this opening/);
@@ -328,7 +314,65 @@ describe("Director request from Project state", () => {
   it("includes completed Forest destinations as existing anchors", () => {
     const request = directorPlanRequestFromProject(createForestProject());
     expect(request.anchors?.map((anchor) => anchor.id)).toEqual(["A", "B", "C", "D", "E", "F"]);
-    expect(request.anchors?.every((anchor) => Boolean(anchor.mediaId))).toBe(true);
+    expect(request.anchors?.filter((anchor) => anchor.mediaId).map((anchor) => anchor.id)).toEqual(["A"]);
+  });
+
+  it("sends the opening and the still before each unresolved run", () => {
+    const still = (id: string): StoryboardFrame => ({
+      id,
+      label: id,
+      imageOrigin: "generated",
+      image: `${id}.png`,
+      mediaId: TRUSTED_MEDIA_IDS.wardrobeLoopVisionA,
+      intent: `${id} intent`,
+      visualDescription: `${id} look`,
+    });
+    const empty = (id: string): StoryboardFrame => ({
+      id,
+      label: id,
+      imageOrigin: "none",
+      intent: `${id} intent`,
+    });
+    const projectFor = (storyboard: StoryboardFrame[]): Project => ({
+      ...createNewProject(),
+      story: "Continue the journey through the remaining places.",
+      storyboard,
+    });
+
+    const endRun = projectFor([
+      still("A"),
+      still("B"),
+      still("K"),
+      empty("L"),
+      empty("M"),
+      empty("O"),
+    ]);
+    expect(directorPlanStillIds(endRun.storyboard, "A")).toEqual(["A", "K"]);
+    const endRequest = directorPlanRequestFromProject(endRun);
+    expect(endRequest.anchors?.filter((anchor) => anchor.mediaId).map((anchor) => anchor.id)).toEqual([
+      "A",
+      "K",
+    ]);
+    expect(endRequest.storyboard?.filter((slot) => slot.attachImage).map((slot) => slot.id)).toEqual([
+      "A",
+      "K",
+    ]);
+    const endPrompt = directorUserPrompt(endRequest);
+    expect(endPrompt).toMatch(/Image 2 is this destination/);
+    expect(endPrompt).not.toMatch(/Image 3 is this destination/);
+
+    const afterGap = projectFor([still("A"), empty("B"), still("C"), empty("D")]);
+    expect(directorPlanStillIds(afterGap.storyboard, "A")).toEqual(["A"]);
+
+    const separateRuns = projectFor([
+      still("A"),
+      still("B"),
+      empty("C"),
+      still("D"),
+      still("E"),
+      empty("F"),
+    ]);
+    expect(directorPlanStillIds(separateRuns.storyboard, "A")).toEqual(["A", "B", "E"]);
   });
 
   it("refuses to plan a new project before the filmmaker supplies starting frame A", () => {

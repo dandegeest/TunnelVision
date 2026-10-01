@@ -148,6 +148,7 @@ export function directorStoryboardFromRequest(body: Record<string, unknown>): Ar
   specified: boolean;
   intent?: string;
   visualDescription?: string;
+  attachImage?: boolean;
 }> | undefined {
   if (!Array.isArray(body.storyboard) || body.storyboard.length < 1) {
     return undefined;
@@ -172,6 +173,8 @@ export function directorStoryboardFromRequest(body: Record<string, unknown>): Ar
       specified: record.specified === true,
       ...(intent ? { intent } : {}),
       ...(visualDescription ? { visualDescription } : {}),
+      ...(record.attachImage === true ? { attachImage: true as const } : {}),
+      ...(record.attachImage === false ? { attachImage: false as const } : {}),
     };
   });
 }

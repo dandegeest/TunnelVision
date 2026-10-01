@@ -20,6 +20,7 @@ export type DirectorStoryboardSlot = {
   intent?: string;
   visualDescription?: string;
   mediaId?: string;
+  attachImage?: boolean;
 };
 
 export type DirectorAnchor = {
@@ -85,7 +86,7 @@ function isSpecifiedDirectorAnchor(frame: StoryboardFrame): boolean {
   return frame.imageOrigin !== "none" && Boolean(frame.image);
 }
 
-function directorAnchorFromFrame(frame: StoryboardFrame): DirectorAnchor {
+function directorAnchorFromFrame(frame: StoryboardFrame, includeMedia: boolean): DirectorAnchor {
   const intent = frame.intent?.trim();
   const visualDescription = frame.visualDescription?.trim();
   return {
@@ -93,8 +94,41 @@ function directorAnchorFromFrame(frame: StoryboardFrame): DirectorAnchor {
     label: frame.label,
     ...(intent ? { intent } : {}),
     ...(visualDescription ? { visualDescription } : {}),
-    ...(isTrustedMediaIdShape(frame.mediaId) ? { mediaId: frame.mediaId } : {}),
+    ...(includeMedia && isTrustedMediaIdShape(frame.mediaId) ? { mediaId: frame.mediaId } : {}),
   };
+}
+
+/**
+ * Stills sent to Plan: the opening, plus the actual still immediately before
+ * each run of unresolved slots. A still that itself follows an unresolved
+ * slot is not sent.
+ */
+export function directorPlanStillIds(
+  storyboard: readonly StoryboardFrame[],
+  startId: string,
+): string[] {
+  const key = (id: string) => id.trim().toLowerCase();
+  const ids: string[] = [];
+  const start = storyboard.find((frame) => key(frame.id) === key(startId));
+  if (start && isSpecifiedDirectorAnchor(start)) {
+    ids.push(start.id);
+  }
+  for (let index = 1; index < storyboard.length; index += 1) {
+    if (isSpecifiedDirectorAnchor(storyboard[index]!)) {
+      continue;
+    }
+    const previous = storyboard[index - 1]!;
+    if (!isSpecifiedDirectorAnchor(previous)) {
+      continue;
+    }
+    if (index >= 2 && !isSpecifiedDirectorAnchor(storyboard[index - 2]!)) {
+      continue;
+    }
+    if (!ids.some((id) => key(id) === key(previous.id))) {
+      ids.push(previous.id);
+    }
+  }
+  return ids;
 }
 
 /** A one-slot board cannot mean "exactly one destination" — that forces empty beats. */
@@ -108,7 +142,10 @@ export function directorStoryDurationForRequest(project: Project): "auto" | numb
   return project.storyboard.length;
 }
 
-function directorSlotFromFrame(frame: StoryboardFrame): DirectorStoryboardSlot {
+function directorSlotFromFrame(
+  frame: StoryboardFrame,
+  planImageIds: ReadonlySet<string>,
+): DirectorStoryboardSlot {
   const intent = frame.intent?.trim();
   const visualDescription = frame.visualDescription?.trim();
   const specified = isSpecifiedDirectorAnchor(frame);
@@ -118,7 +155,12 @@ function directorSlotFromFrame(frame: StoryboardFrame): DirectorStoryboardSlot {
     specified,
     ...(intent ? { intent } : {}),
     ...(visualDescription ? { visualDescription } : {}),
-    ...(specified && isTrustedMediaIdShape(frame.mediaId) ? { mediaId: frame.mediaId } : {}),
+    ...(specified &&
+    planImageIds.has(frame.id.trim().toLowerCase()) &&
+    isTrustedMediaIdShape(frame.mediaId)
+      ? { mediaId: frame.mediaId }
+      : {}),
+    attachImage: planImageIds.has(frame.id.trim().toLowerCase()),
   };
 }
 
@@ -138,7 +180,12 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
   const extra = specified.filter(
     (frame) => frame.id.trim().toLowerCase() !== start.id.trim().toLowerCase(),
   );
-  const storyboard = project.storyboard.map(directorSlotFromFrame);
+  const planImageIds = new Set(
+    directorPlanStillIds(project.storyboard, start.id).map((id) => id.trim().toLowerCase()),
+  );
+  const storyboard = project.storyboard.map((frame) =>
+    directorSlotFromFrame(frame, planImageIds),
+  );
   const storyDuration = directorStoryDurationForRequest(project);
   return {
     story: project.story,
@@ -148,7 +195,13 @@ export function directorPlanRequestFromProject(project: Project): DirectorPlanRe
     storyDuration,
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
     ...(startFrameIntent ? { startFrameIntent } : {}),
-    ...(extra.length > 0 ? { anchors: specified.map(directorAnchorFromFrame) } : {}),
+    ...(extra.length > 0
+      ? {
+          anchors: specified.map((frame) =>
+            directorAnchorFromFrame(frame, planImageIds.has(frame.id.trim().toLowerCase())),
+          ),
+        }
+      : {}),
     ...(storyboard.length > 0 ? { storyboard } : {}),
   };
 }
