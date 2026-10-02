@@ -16,6 +16,7 @@ export type ProjectSettingsSnapshot = {
   videoModelsByIntent?: Project["videoModelsByIntent"];
   defaultTakeIntent?: Project["defaultTakeIntent"];
   klingV3Mode?: Project["klingV3Mode"];
+  mediaProvider?: Project["mediaProvider"];
   imageModel: Project["imageModel"];
   imageOutputFormat: Project["imageOutputFormat"];
   imageResolution: Project["imageResolution"];

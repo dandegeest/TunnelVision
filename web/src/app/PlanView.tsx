@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useProject } from "../project/ProjectProvider";
 import { canConstructDestinationFrame, canGenerateOpeningFrame, canReshootDestinationFrame, generatedStillNeedsReshoot } from "../project/destination";
 import {
@@ -36,6 +36,7 @@ import {
   DestinationInspectorPanel,
   type DestinationInspectorPane,
 } from "./DestinationInspector";
+import { InspectorToggle } from "./Inspector";
 import { DestinationChevron } from "./DestinationChevron";
 import { layoutShootTimeline } from "../timeline/shoot-layout";
 
@@ -823,6 +824,24 @@ function neighboringReelFrame(
   return frames[currentIndex + direction];
 }
 
+function ReelInspector(props: ComponentProps<typeof DestinationInspectorPanel>) {
+  const { inspectorOpen } = useProject();
+  if (!inspectorOpen) {
+    return (
+      <div
+        className="inspector-reopen flex h-full w-8 shrink-0 flex-col items-center border-l border-[#2a2620] bg-[#12100d]"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex h-9 w-full items-center justify-center">
+          <InspectorToggle compact />
+        </div>
+      </div>
+    );
+  }
+  return <DestinationInspectorPanel {...props} headerAction={<InspectorToggle />} />;
+}
+
 export function StoryboardReel({
   frames,
   currentId,
@@ -834,12 +853,12 @@ export function StoryboardReel({
   onReshoot,
   onShoot,
   onDropFile,
-  onDelete,
   onSelectCanonicalTake,
   takeId,
   onSelectTake,
   reshooting = false,
   initialInspectorPane = "source",
+  closableInspector = false,
 }: {
   frames: readonly StoryboardFrame[];
   currentId: string;
@@ -851,12 +870,12 @@ export function StoryboardReel({
   onReshoot?: (frameId: string) => void;
   onShoot?: (frameId: string) => void;
   onDropFile?: (file: File) => void;
-  onDelete?: () => void;
   onSelectCanonicalTake?: (takeId: string) => void;
   takeId?: string;
   onSelectTake?: (takeId: string) => void;
   reshooting?: boolean;
   initialInspectorPane?: DestinationInspectorPane;
+  closableInspector?: boolean;
 }) {
   const current = frames.find((frame) => frame.id === currentId);
   const takes = current ? canonicalTakes(current) : [];
@@ -946,6 +965,22 @@ export function StoryboardReel({
     return null;
   }
 
+  const inspectorProps = {
+    frame: current,
+    project,
+    reshooting,
+    onPlanChange: onPlanChange ? (next: { intent?: string; visualDescription?: string }) => onPlanChange(current.id, next) : undefined,
+    onStoryChange,
+    onReshoot: onReshoot ? () => onReshoot(current.id) : undefined,
+    onShoot: onShoot ? () => onShoot(current.id) : undefined,
+    onSelectCanonicalTake,
+    stillMode,
+    pane: inspectorPane,
+    onPaneChange: setInspectorPane,
+    camotionKey,
+    onCamotionKeyChange: setCamotionKey,
+  };
+
   return (
     <div
       ref={reelRef}
@@ -963,29 +998,6 @@ export function StoryboardReel({
         ref={stageColumnRef}
         className="relative flex min-h-0 min-w-0 flex-1"
       >
-        {onDelete ? (
-          <button
-            type="button"
-            aria-label={`Delete destination ${current.label}`}
-            title="Delete destination"
-            className="absolute top-2 left-2 z-10 flex h-8 w-8 items-center justify-center text-[#9a8f7e] outline-none hover:text-[#c45c38] focus-visible:text-[#c45c38] focus-visible:ring-1 focus-visible:ring-[#7a7266]"
-            onClick={(event) => {
-              event.stopPropagation();
-              onDelete();
-            }}
-          >
-            <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" aria-hidden>
-              <path
-                d="M3.1 3.6h5.8M4.6 3.6V2.7h2.8v.9M4.3 3.6l.35 6.1h2.7l.35-6.1"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        ) : null}
         <button
           type="button"
           aria-label="Close storyboard reel"
@@ -1073,21 +1085,11 @@ export function StoryboardReel({
           }}
         />
       </div>
-      <DestinationInspectorPanel
-        frame={current}
-        project={project}
-        reshooting={reshooting}
-        onPlanChange={onPlanChange ? (next) => onPlanChange(current.id, next) : undefined}
-        onStoryChange={onStoryChange}
-        onReshoot={onReshoot ? () => onReshoot(current.id) : undefined}
-        onShoot={onShoot ? () => onShoot(current.id) : undefined}
-        onSelectCanonicalTake={onSelectCanonicalTake}
-        stillMode={stillMode}
-        pane={inspectorPane}
-        onPaneChange={setInspectorPane}
-        camotionKey={camotionKey}
-        onCamotionKeyChange={setCamotionKey}
-      />
+      {closableInspector ? (
+        <ReelInspector {...inspectorProps} />
+      ) : (
+        <DestinationInspectorPanel {...inspectorProps} />
+      )}
     </div>
   );
 }
@@ -1106,7 +1108,6 @@ export function StoryboardReelHost() {
     generateOpeningFrame,
     constructDestination,
     constructingBeatId,
-    removeDestination,
     selectCanonicalTake,
   } = useProject();
   const { applyDestinationImageFile, dialog: replacePlanDialog } = useReplaceDestinationImage();
@@ -1142,6 +1143,7 @@ export function StoryboardReelHost() {
     <StoryboardReel
       frames={project.storyboard}
       currentId={reelFrameId}
+      closableInspector
       project={project}
       takeId={locatedTake?.takes[locatedTake.index]?.id}
       onSelectTake={openTake}
@@ -1150,15 +1152,6 @@ export function StoryboardReelHost() {
         commitActiveTextEdit();
         setStoryboardReelId(null);
       }}
-      onDelete={
-        canRemoveStoryboardDestination(project, reelFrameId)
-          ? () => {
-              commitActiveTextEdit();
-              removeDestination(reelFrameId);
-              setStoryboardReelId(null);
-            }
-          : undefined
-      }
       onSelect={(frameId) => {
         commitActiveTextEdit();
         setStoryboardReelId(frameId);

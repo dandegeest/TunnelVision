@@ -1,3 +1,4 @@
+import { mediaProviderFromProject } from "./media-provider";
 import type { Project } from "./types";
 import {
   DEFAULT_IMAGE_MODEL_ID,
@@ -33,6 +34,7 @@ export function createNewProject(): Project {
     videoModelsByIntent: defaultVideoModelsByIntent(),
     defaultTakeIntent: DEFAULT_GENERATION_INTENT,
     klingV3Mode: DEFAULT_KLING_V3_MODE,
+    mediaProvider: "runway",
     imageModel: DEFAULT_IMAGE_MODEL_ID,
     imageOutputFormat: DEFAULT_IMAGE_OUTPUT_FORMAT,
     imageResolution: DEFAULT_IMAGE_RESOLUTION,
@@ -60,6 +62,7 @@ export type SessionProjectSettings = Pick<
   | "videoModelsByIntent"
   | "defaultTakeIntent"
   | "klingV3Mode"
+  | "mediaProvider"
   | "imageModel"
   | "imageOutputFormat"
   | "imageResolution"
@@ -75,6 +78,7 @@ export function sessionProjectSettings(project: Project): SessionProjectSettings
     videoModelsByIntent: project.videoModelsByIntent ? { ...project.videoModelsByIntent } : undefined,
     defaultTakeIntent: project.defaultTakeIntent,
     klingV3Mode: project.klingV3Mode,
+    mediaProvider: mediaProviderFromProject(project),
     imageModel: project.imageModel,
     imageOutputFormat: project.imageOutputFormat,
     imageResolution: project.imageResolution,

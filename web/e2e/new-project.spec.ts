@@ -618,6 +618,11 @@ test("project image and video model selectors default to Nano Banana 2 and Pruna
   await expect(page.getByLabel("Plan journey")).toHaveCount(0);
   await expect(page.getByLabel("Create journey")).toHaveCount(0);
   await expect(page.getByLabel("Generate audio")).toHaveCount(0);
+  await expect(page.getByLabel("Default take intent")).toBeVisible();
+  await expect(page.getByLabel("Image model")).toHaveCount(0);
+  await expect(page.getByLabel("Quality video model")).toHaveCount(0);
+  await page.getByLabel("Generation provider").click();
+  await page.getByRole("menuitem", { name: "Replicate", exact: true }).click();
   const image = page.getByLabel("Image model");
   await expect(image).toHaveAttribute("data-value", "nano-banana-2");
   const format = page.getByLabel("Image format");

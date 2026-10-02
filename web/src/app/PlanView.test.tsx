@@ -85,6 +85,7 @@ function renderPlan(
     directorStatus?: "idle" | "planning" | "ready" | "error";
     debug?: boolean;
     storyboardReelId?: string | null;
+    inspectorOpen?: boolean;
   },
 ) {
   return renderToStaticMarkup(
@@ -99,6 +100,7 @@ function renderPlan(
       initialShootingJourneyIds={options?.shootingJourneyIds}
       initialDirectorStatus={options?.directorStatus}
       initialStoryboardReelId={options?.storyboardReelId}
+      initialInspectorOpen={options?.inspectorOpen}
     >
       <FilmmakingFrame>
         <PlanView />
@@ -1013,6 +1015,22 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain('title="View still"');
   });
 
+  it("hides the reel inspector with the same control as the other views", () => {
+    const open = renderPlan(createForestProject(), { storyboardReelId: "B" });
+    const closed = renderPlan(createForestProject(), { storyboardReelId: "B", inspectorOpen: false });
+    expect(open).toContain('title="Hide inspector"');
+    expect(open).toContain('aria-label="Inspector"');
+    expect(open).toContain('aria-label="Inspector - Destination"');
+    expect(open).toContain('aria-label="Destination B intent"');
+    expect(open).not.toContain("inspector-reopen");
+    expect(closed).toContain("inspector-reopen");
+    expect(closed).toContain('title="Show inspector"');
+    expect(closed).toContain('aria-label="Inspector"');
+    expect(closed).toContain('alt="Destination B"');
+    expect(closed).not.toContain('aria-label="Inspector - Destination"');
+    expect(closed).not.toContain('aria-label="Destination B intent"');
+  });
+
   it("does not mark unselected stills as view-still", () => {
     const html = renderPlan(createForestProject());
     const a = html.indexOf('aria-label="Storyboard A"');
@@ -1030,7 +1048,6 @@ describe("Plan storyboard reel", () => {
         project={forest}
         onClose={() => undefined}
         onSelect={() => undefined}
-        onDelete={() => undefined}
       />,
     );
     expect(html).toContain("storyboard-reel");
@@ -1044,7 +1061,7 @@ describe("Plan storyboard reel", () => {
     expect(html).toContain('aria-label="Previous destination"');
     expect(html).toContain('aria-label="Next destination"');
     expect(html).toContain('aria-label="Close storyboard reel"');
-    expect(html).toContain('aria-label="Delete destination B"');
+    expect(html).not.toContain('aria-label="Delete destination B"');
     expect(html).toContain('aria-label="Inspector - Destination"');
     expect(html).toContain(">Inspector - Destination<");
     expect(html).toContain('aria-label="Destination B intent"');

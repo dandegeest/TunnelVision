@@ -697,6 +697,7 @@ describe("opening frame generation", () => {
       imageResolution: "1K",
       cameraGrammar: "pov",
       generationIntent: "fast",
+      mediaProvider: "runway",
     });
     expect(openingFrameIntent(withStory.story)).toBe(
       "Travel forward through an imagined interior at night.",
@@ -728,6 +729,7 @@ describe("opening frame generation", () => {
       imageResolution: "1K",
       cameraGrammar: "pov",
       generationIntent: "fast",
+      mediaProvider: "runway",
     });
     const keptIntent = projectWithGeneratedOpeningFrame(
       {
@@ -915,6 +917,7 @@ describe("destination inspector copy", () => {
       imageResolution: "4K",
       cameraGrammar: "pov",
       generationIntent: "fast",
+      mediaProvider: "runway",
     });
     const lite = projectWithImageModel(hq, "nano-banana-2-lite");
     expect(lite.imageOutputFormat).toBe("jpg");

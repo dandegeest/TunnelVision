@@ -28,7 +28,8 @@ import {
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import { frameWithAppendedCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
-import type { Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
+import { mediaProviderFromProject } from "./media-provider";
+import type { MediaProviderChoice, Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
 
 export type DestinationLookAhead = {
   intent: string;
@@ -58,6 +59,8 @@ export type DestinationConstructionRequest = {
   pullForwardReferenceEnabled?: boolean;
   /** Journey intent. FAST uses the latency router; balanced and quality use the quality router. */
   generationIntent?: GenerationIntent;
+  /** Stills. Runway uses the intent router. Replicate uses imageModel. */
+  mediaProvider?: MediaProviderChoice;
 };
 
 export type DestinationConstructionResult = {
@@ -570,6 +573,7 @@ export type OpeningFrameGenerationRequest = {
   imageResolution?: ImageResolution;
   cameraGrammar?: CameraGrammar;
   generationIntent?: GenerationIntent;
+  mediaProvider?: MediaProviderChoice;
 };
 
 export function openingFrameGenerationRequestFromProject(
@@ -764,6 +768,7 @@ function imageGenerationKnobsFromProject(project: Project): {
   imageModel: ImageModelId;
   imageOutputFormat: ImageOutputFormat;
   imageResolution?: ImageResolution;
+  mediaProvider: MediaProviderChoice;
 } {
   return {
     imageModel: project.imageModel,
@@ -771,6 +776,7 @@ function imageGenerationKnobsFromProject(project: Project): {
     ...(imageModelHasResolutionChoice(project.imageModel)
       ? { imageResolution: resolveImageResolution(project.imageModel, project.imageResolution) }
       : {}),
+    mediaProvider: mediaProviderFromProject(project),
   };
 }
 

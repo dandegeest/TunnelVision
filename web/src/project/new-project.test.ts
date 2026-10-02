@@ -72,6 +72,7 @@ describe("new product project", () => {
         balanced: "kling-v2.5-turbo-pro" as const,
         quality: "seedance-2.5" as const,
       },
+      mediaProvider: "replicate" as const,
       pullForwardReferenceEnabled: false,
       autoGenerateAllDestinations: true,
       storyDuration: 6 as const,
@@ -97,6 +98,7 @@ describe("new product project", () => {
     expect(next.pullForwardReferenceEnabled).toBe(false);
     expect(next.autoGenerateAllDestinations).toBe(false);
     expect(next.defaultTakeIntent).toBe("quality");
+    expect(next.mediaProvider).toBe("replicate");
     expect(next.imageModel).toBe("nano-banana-2-lite");
     expect(next.imageOutputFormat).toBe("jpg");
     expect(next.imageResolution).toBe("2K");

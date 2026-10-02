@@ -65,6 +65,14 @@ export function aspectsAgree(a: number, b: number, tolerance = ASPECT_RELATIVE_T
   return Math.abs(a - b) / mean < tolerance;
 }
 
+/**
+ * Aspect the filmmaker is shown, without the "~" that only marks rounding.
+ * Provider 16:9 grids such as 1376×768 and 2016×1152 share this key.
+ */
+export function filmmakerAspectKey(width: number, height: number): string {
+  return formatFriendlyAspectRatio(width, height).replace(/^~/, "");
+}
+
 const ASPECT_EXACT_TOLERANCE = 0.0025;
 const ASPECT_NAMED_TOLERANCE = 0.02;
 
@@ -365,9 +373,13 @@ function aspectClusters(
   const clusters: (StoryboardFrame & { mediaInfo: StoryboardMediaInfo })[][] = [];
   for (const frame of frames) {
     const aspect = aspectRatio(frame.mediaInfo.width, frame.mediaInfo.height);
+    const key = filmmakerAspectKey(frame.mediaInfo.width, frame.mediaInfo.height);
     const existing = clusters.find((cluster) => {
       const sample = cluster[0]!.mediaInfo;
-      return aspectsAgree(aspect, aspectRatio(sample.width, sample.height));
+      return (
+        key === filmmakerAspectKey(sample.width, sample.height) ||
+        aspectsAgree(aspect, aspectRatio(sample.width, sample.height))
+      );
     });
     if (existing) {
       existing.push(frame);

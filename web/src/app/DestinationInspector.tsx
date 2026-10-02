@@ -473,6 +473,7 @@ export function DestinationInspectorPanel({
   onCamotionKeyChange,
   pane,
   onPaneChange,
+  headerAction,
 }: {
   frame: StoryboardFrame;
   project: Project;
@@ -488,6 +489,7 @@ export function DestinationInspectorPanel({
   onCamotionKeyChange?: (key: string) => void;
   pane?: DestinationInspectorPane;
   onPaneChange?: (pane: DestinationInspectorPane) => void;
+  headerAction?: ReactNode;
 }) {
   return (
     <aside
@@ -497,7 +499,7 @@ export function DestinationInspectorPanel({
       onClick={(event) => event.stopPropagation()}
     >
       <PanelHeader className="inspector-header" title="Inspector - Destination">
-        <span />
+        {headerAction ?? <span />}
       </PanelHeader>
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-4">
         <DestinationInspectorFields

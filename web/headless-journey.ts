@@ -8,7 +8,7 @@ import { plan } from "../media/src/director/plan-storyboard.ts";
 import { deriveStory } from "../media/src/director/derive-story.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
 import { ReplicateMediaProvider } from "../media/src/replicate/provider.ts";
-import { RunwayRouterProvider, routerGoalForIntent, runwayRouterConfigured } from "../media/src/runway/router.ts";
+import { RunwayRouterProvider, mediaGenerationUsesRunway, routerGoalForIntent } from "../media/src/runway/router.ts";
 import { imageModelSlug } from "../media/src/replicate/image-models.ts";
 import { resolveKlingV3Mode, videoModelSlug } from "../media/src/replicate/video-models.ts";
 import { cameraGrammarFromUnknown, type CameraGrammar } from "../media/src/cinematographer/camera-grammar.ts";
@@ -88,7 +88,7 @@ function takeFromShootResult(result: JourneyShotTakeResult): JourneyShotTake {
 }
 
 function imageProvider(project: Project): RunwayRouterProvider | ReplicateMediaProvider {
-  if (runwayRouterConfigured()) {
+  if (mediaGenerationUsesRunway(project.mediaProvider)) {
     return new RunwayRouterProvider({ goal: routerGoalForIntent(defaultTakeIntentFromProject(project)) });
   }
   const imageModelId = imageModelIdFromBody(project.imageModel);
@@ -110,7 +110,7 @@ function videoProvider(
   generateAudio: boolean,
   intent?: unknown,
 ): RunwayRouterProvider | ReplicateMediaProvider {
-  if (runwayRouterConfigured()) {
+  if (mediaGenerationUsesRunway(project.mediaProvider)) {
     return new RunwayRouterProvider({ goal: routerGoalForIntent(intent) });
   }
   return new ReplicateMediaProvider({

@@ -9,6 +9,8 @@ import type { KlingV3Mode, VideoModelId } from "../../../media/src/replicate/vid
 import type { GenerationIntent, VideoModelsByIntent } from "./generation-intent";
 
 export type { ImageModelId, ImageOutputFormat, ImageResolution, KlingV3Mode, LocomotionPace, VideoModelId, CameraGrammar };
+/** Image and video generation. Planning stays on Replicate. */
+export type MediaProviderChoice = "runway" | "replicate";
 export type Agency = "directed" | "autonomous";
 export type Construction = "planned" | "discovery";
 export type DurationMode = "adaptive" | "fixed";
@@ -431,6 +433,11 @@ export type Project = {
    * projects means true. OFF is not the preferred product default.
    */
   pullForwardReferenceEnabled?: boolean;
+  /**
+   * Stills and traversals. Runway uses the intent routers. Replicate uses
+   * the image and video models in project settings. Missing means Runway.
+   */
+  mediaProvider?: MediaProviderChoice;
   /**
    * Whole-journey camera relationship. Missing on older projects means POV.
    */

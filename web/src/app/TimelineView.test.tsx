@@ -103,7 +103,7 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).toContain("storyboard-reel");
     expect(html).toContain('aria-label="Storyboard reel, destination B"');
     expect(html).toContain('aria-label="Close storyboard reel"');
-    expect(html).toContain('aria-label="Delete destination B"');
+    expect(html).not.toContain('aria-label="Delete destination B"');
     expect(html).not.toContain('aria-label="Delete destination A"');
     expect(html).toContain(">Inspector - Destination<");
   });

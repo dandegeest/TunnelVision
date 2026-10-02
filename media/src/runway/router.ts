@@ -31,6 +31,20 @@ export function runwayRouterConfigured(): boolean {
   return Boolean(getOptionalEnv("RUNWAY_DEV_TOKEN") ?? getOptionalEnv("RUNWAYML_API_SECRET"));
 }
 
+/**
+ * Project settings pick the provider. An omitted choice keeps the previous
+ * behavior: Runway when a token is configured, otherwise Replicate.
+ */
+export function mediaGenerationUsesRunway(choice: unknown): boolean {
+  if (choice === "replicate") {
+    return false;
+  }
+  if (choice === "runway") {
+    return true;
+  }
+  return runwayRouterConfigured();
+}
+
 export function routerConfigId(goal: RouterGoal): string {
   const name = goal === "latency" ? "RUNWAY_ROUTER_DRAFT" : "RUNWAY_ROUTER_FINAL";
   return getOptionalEnv(name) ?? (goal === "latency" ? DRAFT_CONFIG : FINAL_CONFIG);

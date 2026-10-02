@@ -20,10 +20,12 @@ import type {
   JourneyShot,
   JourneyShotTake,
   LocomotionPace,
+  MediaProviderChoice,
   Project,
   Selection,
 } from "./types";
 import { cameraGrammarFromProject } from "./camera-grammar";
+import { mediaProviderFromProject } from "./media-provider";
 
 export const TAKE_BATCH_SCOPES = ["all", "selected", "missing"] as const;
 export type TakeBatchScope = (typeof TAKE_BATCH_SCOPES)[number];
@@ -52,6 +54,8 @@ export type ShootJourneyRequest = {
   endPlan?: CameraMotionPlanV1;
   effectivePrompt?: string;
   cameraGrammar?: CameraGrammar;
+  /** Traversals. Runway uses the intent router. Replicate uses videoModel. */
+  mediaProvider?: MediaProviderChoice;
   /** When true, Camotion work dirs are kept on disk after A′/B′ are copied. */
   debug?: boolean;
 };
@@ -225,6 +229,7 @@ export function shootRequestFromProject(
       journey.shotDirection,
     ),
     cameraGrammar: cameraGrammarFromProject(project),
+    mediaProvider: mediaProviderFromProject(project),
   };
 }
 

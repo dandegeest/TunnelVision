@@ -6,6 +6,7 @@ import {
   aspectsAgree,
   compactFrameLabels,
   displayProvenanceForFrame,
+  filmmakerAspectKey,
   formatFriendlyAspectRatio,
   formatMediaInfoLine,
   mediaFormatFromFile,
@@ -93,6 +94,26 @@ describe("media preflight", () => {
     expect(report.findings.map((finding) => finding.kind)).toEqual(["format"]);
     expect(report.findings[0]?.severity).toBe("info");
     expect(report.warningCount).toBe(0);
+  });
+
+  it("treats provider 16:9 grids of different pixel sizes as the same aspect", () => {
+    const runway = { width: 2016, height: 1152, format: "png" as const };
+    const nano = { width: 1376, height: 768, format: "png" as const };
+    const nano2k = { width: 2752, height: 1536, format: "png" as const };
+    expect(filmmakerAspectKey(runway.width, runway.height)).toBe("16:9");
+    expect(filmmakerAspectKey(nano.width, nano.height)).toBe("16:9");
+    expect(filmmakerAspectKey(nano2k.width, nano2k.height)).toBe("16:9");
+    const report = mediaPreflightForProject(
+      projectWith([
+        actualFrame("A", runway),
+        actualFrame("B", nano),
+        actualFrame("C", nano2k),
+      ]),
+    );
+    expect(report.findings.some((finding) => finding.kind === "aspect")).toBe(false);
+    expect(report.warningCount).toBe(0);
+    expect(report.findings.map((finding) => finding.kind)).toEqual(["resolution"]);
+    expect(preflightWarningsForFrame(report, "B")).toEqual([]);
   });
 
   it("does not warn on tiny numerical aspect differences", () => {

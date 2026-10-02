@@ -5,10 +5,16 @@ import {
   canonicalImageResolution,
   routerAspectRatio,
   routerConfigId,
+  mediaGenerationUsesRunway,
   routerGoalForIntent,
   routerImageInput,
   routerVideoInput,
 } from "../src/runway/router.ts";
+
+test("an explicit provider choice overrides the configured router", () => {
+  assert.equal(mediaGenerationUsesRunway("replicate"), false);
+  assert.equal(mediaGenerationUsesRunway("runway"), true);
+});
 
 test("fast uses the latency router and other intents use quality", () => {
   assert.equal(routerGoalForIntent("fast"), "latency");

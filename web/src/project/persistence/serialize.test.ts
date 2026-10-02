@@ -130,6 +130,7 @@ describe("project persistence schema", () => {
     expect(hydrated.project.story).toBe("Follow the koi.");
     expect(hydrated.project.storyIdea).toBeUndefined();
     expect(hydrated.project.imageModel).toBe("nano-banana-2-lite");
+    expect(hydrated.project.mediaProvider).toBe("runway");
     expect(documents.manifest.settings.durationMode).toBe("adaptive");
     expect(documents.manifest.settings.fixedDurationSeconds).toBe(5);
     expect(documents.manifest.settings.adaptivePace).toBe(true);

@@ -12,6 +12,12 @@ import {
 } from "../project/storyboard";
 import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
 import { pullForwardReferenceEnabledFromProject } from "../project/destination";
+import {
+  MEDIA_PROVIDER_LABEL,
+  MEDIA_PROVIDERS,
+  isMediaProviderChoice,
+  mediaProviderFromProject,
+} from "../project/media-provider";
 import { adaptivePaceFromProject } from "../project/adaptive-pace";
 import { durationModeFromProject, fixedDurationSecondsFromProject, MAX_FIXED_DURATION_SECONDS, MIN_FIXED_DURATION_SECONDS } from "../project/shot-duration";
 import {
@@ -695,7 +701,7 @@ function PullForwardReferenceToggle() {
 }
 
 function ProjectSettingsView({ busy }: { busy: boolean }) {
-  const { persistedProjectPath, persistenceError, projectsFolder, chooseProjectsFolder, revealProject } =
+  const { project, persistedProjectPath, persistenceError, projectsFolder, chooseProjectsFolder, revealProject } =
     useProject();
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-3 py-3">
@@ -736,10 +742,43 @@ function ProjectSettingsView({ busy }: { busy: boolean }) {
           Choose Folder
         </button>
       </div>
-      <ImageModelSelect disabled={busy} />
-      <VideoModelSelect disabled={busy} />
+      <MediaProviderSelect disabled={busy} />
+      <DefaultTakeIntentSelect disabled={busy} />
+      {mediaProviderFromProject(project) === "replicate" ? (
+        <>
+          <ImageModelSelect disabled={busy} />
+          <ReplicateVideoModelSelect disabled={busy} />
+        </>
+      ) : null}
       <DebugModeToggle />
       <PullForwardReferenceToggle />
+    </div>
+  );
+}
+
+function MediaProviderSelect({ disabled }: { disabled: boolean }) {
+  const { project, setMediaProvider } = useProject();
+  const fieldClass =
+    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]";
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Provider</span>
+      <OptionMenu
+        ariaLabel="Generation provider"
+        title="Stills and traversals. Runway uses the intent routers. Replicate uses the image and video models below. Planning stays on Replicate."
+        disabled={disabled}
+        triggerClassName={fieldClass}
+        value={mediaProviderFromProject(project)}
+        options={MEDIA_PROVIDERS.map((provider) => ({
+          value: provider,
+          label: MEDIA_PROVIDER_LABEL[provider],
+        }))}
+        onChange={(next) => {
+          if (isMediaProviderChoice(next)) {
+            setMediaProvider(next);
+          }
+        }}
+      />
     </div>
   );
 }
@@ -817,44 +856,49 @@ function ImageModelSelect({ disabled }: { disabled: boolean }) {
   );
 }
 
-function VideoModelSelect({ disabled }: { disabled: boolean }) {
-  const { project, setDefaultTakeIntent, setKlingV3Mode, setVideoModelForIntent } = useProject();
-  const mappings = videoModelsByIntentFromProject(project);
+function DefaultTakeIntentSelect({ disabled }: { disabled: boolean }) {
+  const { project, setDefaultTakeIntent } = useProject();
   const defaultTakeIntent = defaultTakeIntentFromProject(project);
-  const fieldClass =
-    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]";
   const intentOptionClass = (selected: boolean) =>
     `flex h-full min-w-0 flex-col items-center justify-center gap-0 rounded px-0.5 text-[9px] leading-tight tracking-[0.08em] uppercase outline-none ${
       selected ? "bg-[#ece7df] text-[#0c0b0a]" : "text-[#9a8f7e] hover:text-[#cfc6b8]"
     }`;
   return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Default Take Intent</span>
+      <nav
+        aria-label="Default take intent"
+        title="CREATE JOURNEY and Agent NEW TAKE use this intent. On Runway it picks the router. On Replicate it picks the mapped model. Filmmaker NEW TAKE can still pick Fast, Balanced, or Quality per Take."
+        className="grid h-11 w-full grid-cols-3 items-stretch rounded border border-[#3a342c] p-0.5"
+      >
+        {GENERATION_INTENTS.map((intent) => (
+          <button
+            key={intent}
+            type="button"
+            aria-label={`Default take intent ${GENERATION_INTENT_LABEL[intent]}`}
+            aria-pressed={defaultTakeIntent === intent}
+            disabled={disabled}
+            className={intentOptionClass(defaultTakeIntent === intent)}
+            onClick={() => setDefaultTakeIntent(intent)}
+          >
+            <span aria-hidden="true" className="text-[10px] leading-none">
+              {GENERATION_INTENT_MARK[intent]}
+            </span>
+            {GENERATION_INTENT_LABEL[intent]}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function ReplicateVideoModelSelect({ disabled }: { disabled: boolean }) {
+  const { project, setKlingV3Mode, setVideoModelForIntent } = useProject();
+  const mappings = videoModelsByIntentFromProject(project);
+  const fieldClass =
+    "h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]";
+  return (
     <div className="flex flex-col gap-3">
-      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Generation</span>
-      <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Default Take Intent</span>
-        <nav
-          aria-label="Default take intent"
-          title="CREATE JOURNEY and Agent NEW TAKE use this intent's mapped model. Filmmaker NEW TAKE can still pick Fast, Balanced, or Quality per Take."
-          className="grid h-11 w-full grid-cols-3 items-stretch rounded border border-[#3a342c] p-0.5"
-        >
-          {GENERATION_INTENTS.map((intent) => (
-            <button
-              key={intent}
-              type="button"
-              aria-label={`Default take intent ${GENERATION_INTENT_LABEL[intent]}`}
-              aria-pressed={defaultTakeIntent === intent}
-              disabled={disabled}
-              className={intentOptionClass(defaultTakeIntent === intent)}
-              onClick={() => setDefaultTakeIntent(intent)}
-            >
-              <span aria-hidden="true" className="text-[10px] leading-none">
-                {GENERATION_INTENT_MARK[intent]}
-              </span>
-              {GENERATION_INTENT_LABEL[intent]}
-            </button>
-          ))}
-        </nav>
-      </div>
       {GENERATION_INTENTS.map((intent) => (
         <div key={intent} className="flex flex-col gap-1.5">
           <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">
@@ -862,7 +906,7 @@ function VideoModelSelect({ disabled }: { disabled: boolean }) {
           </span>
           <OptionMenu
             ariaLabel={`${GENERATION_INTENT_LABEL[intent]} video model`}
-            title={`${GENERATION_INTENT_LABEL[intent]} generation intent. Maps onto a catalog model until a router fulfills the intent.`}
+            title={`${GENERATION_INTENT_LABEL[intent]} Replicate model.`}
             disabled={disabled}
             triggerClassName={fieldClass}
             value={mappings[intent]}

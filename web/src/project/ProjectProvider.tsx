@@ -145,7 +145,8 @@ import {
   runJourneyAgent,
   type JourneyAgentSnapshot,
 } from "./journey-agent";
-import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type LocomotionPace, type Project, type Selection, type VideoModelId } from "./types";
+import { projectWithMediaProvider } from "./media-provider";
+import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type LocomotionPace, type MediaProviderChoice, type Project, type Selection, type VideoModelId } from "./types";
 import { cameraGrammarFromProject, cameraGrammarIsLocked, projectWithCameraGrammar } from "./camera-grammar";
 import { compileStoryIdea } from "./story-idea";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
@@ -193,6 +194,7 @@ type ProjectContextValue = {
   setDefaultTakeIntent: (intent: GenerationIntent) => void;
   setKlingV3Mode: (mode: KlingV3Mode) => void;
   setImageModel: (imageModel: ImageModelId) => void;
+  setMediaProvider: (mediaProvider: MediaProviderChoice) => void;
   setImageOutputFormat: (imageOutputFormat: ImageOutputFormat) => void;
   setImageResolution: (imageResolution: ImageResolution) => void;
   syncJourneyClipDuration: (journeyId: string, durationSeconds: number) => void;
@@ -550,6 +552,10 @@ export function ProjectProvider({
 
   const setImageModel = useCallback((imageModel: ImageModelId) => {
     setProject((current) => projectWithImageModel(current, imageModel));
+  }, []);
+
+  const setMediaProvider = useCallback((mediaProvider: MediaProviderChoice) => {
+    setProject((current) => projectWithMediaProvider(current, mediaProvider));
   }, []);
 
   const setImageOutputFormat = useCallback((imageOutputFormat: ImageOutputFormat) => {
@@ -2735,6 +2741,7 @@ export function ProjectProvider({
       setDefaultTakeIntent,
       setKlingV3Mode,
       setImageModel,
+      setMediaProvider,
       setImageOutputFormat,
       setImageResolution,
       syncJourneyClipDuration,
@@ -2851,6 +2858,7 @@ export function ProjectProvider({
       setDefaultTakeIntent,
       setKlingV3Mode,
       setImageModel,
+      setMediaProvider,
       setImageOutputFormat,
       setImageResolution,
       syncJourneyClipDuration,

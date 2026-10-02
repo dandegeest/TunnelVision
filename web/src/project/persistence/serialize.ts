@@ -20,6 +20,7 @@ import {
   isDurationMode,
 } from "../shot-duration";
 import { isGenerationIntent } from "../generation-intent";
+import { isMediaProviderChoice } from "../media-provider";
 import { journeyTakes } from "../takes";
 import type {
   CanonicalTake,
@@ -128,6 +129,7 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     videoModelsByIntent: project.videoModelsByIntent,
     defaultTakeIntent: project.defaultTakeIntent,
     klingV3Mode: project.klingV3Mode,
+    mediaProvider: project.mediaProvider,
     imageModel: project.imageModel,
     imageOutputFormat: project.imageOutputFormat,
     imageResolution: project.imageResolution,
@@ -656,6 +658,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     videoModelsByIntent: settings.videoModelsByIntent,
     defaultTakeIntent: settings.defaultTakeIntent,
     klingV3Mode: settings.klingV3Mode,
+    ...(isMediaProviderChoice(settings.mediaProvider) ? { mediaProvider: settings.mediaProvider } : {}),
     imageModel: settings.imageModel,
     imageOutputFormat: settings.imageOutputFormat,
     imageResolution: settings.imageResolution,

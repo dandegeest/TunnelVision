@@ -153,19 +153,45 @@ describe("Shell header chrome", () => {
     );
     expect(html).toContain(">Project settings<");
     expect(html).toContain('aria-label="Back to project"');
-    expect(html).toContain('aria-label="Image model"');
-    expect(html).toContain('aria-label="Image format"');
+    expect(html).toContain('aria-label="Generation provider"');
+    expect(html).toContain('data-value="runway"');
+    expect(html.indexOf('aria-label="Generation provider"')).toBeLessThan(
+      html.indexOf('aria-label="Default take intent"'),
+    );
+    expect(html).not.toContain('aria-label="Image model"');
+    expect(html).not.toContain('aria-label="Image format"');
     expect(html).not.toContain('aria-label="Image resolution"');
     expect(html).toContain('aria-label="Default take intent"');
     expect(html).toContain('aria-label="Default take intent Fast"');
     expect(html).toContain('aria-label="Default take intent Balanced"');
     expect(html).toContain('aria-label="Default take intent Quality"');
     expect(html).toMatch(/aria-pressed="true"[^>]*aria-label="Default take intent Fast"|aria-label="Default take intent Fast"[^>]*aria-pressed="true"/);
-    expect(html).toContain('aria-label="Fast video model"');
-    expect(html).toContain('aria-label="Balanced video model"');
-    expect(html).toContain('aria-label="Quality video model"');
-    expect(html).toContain("Kling 3");
+    expect(html).not.toContain('aria-label="Fast video model"');
+    expect(html).not.toContain('aria-label="Balanced video model"');
+    expect(html).not.toContain('aria-label="Quality video model"');
     expect(html).not.toContain('aria-label="Kling 3 resolution"');
+    const replicate = renderToStaticMarkup(
+      <ProjectProvider
+        initialProject={{ ...createForestProject(), mediaProvider: "replicate" }}
+        initialDebug={false}
+      >
+        <ProjectRail initialSettingsOpen />
+      </ProjectProvider>,
+    );
+    expect(replicate).toContain('data-value="replicate"');
+    expect(replicate.indexOf('aria-label="Generation provider"')).toBeLessThan(
+      replicate.indexOf('aria-label="Default take intent"'),
+    );
+    expect(replicate.indexOf('aria-label="Default take intent"')).toBeLessThan(
+      replicate.indexOf('aria-label="Image model"'),
+    );
+    expect(replicate).toContain('aria-label="Image format"');
+    expect(replicate).not.toContain('aria-label="Image resolution"');
+    expect(replicate).toContain('aria-label="Fast video model"');
+    expect(replicate).toContain('aria-label="Balanced video model"');
+    expect(replicate).toContain('aria-label="Quality video model"');
+    expect(replicate).toContain("Pruna");
+    expect(replicate).not.toContain("Pruna $");
     expect(html).toContain('aria-label="Debug mode"');
     expect(html).toContain('aria-label="Pull Forward Reference"');
     expect(html).toMatch(
@@ -173,17 +199,13 @@ describe("Shell header chrome", () => {
     );
     expect(html).toContain("Use the previous canonical as a visual reference");
     expect(html.indexOf('aria-label="Default take intent"')).toBeLessThan(
-      html.indexOf('aria-label="Fast video model"'),
-    );
-    expect(html.indexOf('aria-label="Fast video model"')).toBeLessThan(
       html.indexOf('aria-label="Back to project"'),
     );
     expect(html).toContain("items-center justify-end px-3 pb-3");
     expect(html).not.toMatch(
       /checked[^>]*aria-label="Debug mode"|aria-label="Debug mode"[^>]*checked/,
     );
-    expect(html).toContain("Pruna");
-    expect(html).not.toContain("Pruna $");
+    expect(html).not.toContain("Pruna");
     expect(html).not.toContain("<select");
     expect(html).not.toContain('id="project-story"');
     expect(html).not.toContain(">Options<");
@@ -232,6 +254,7 @@ describe("Shell header chrome", () => {
       <ProjectProvider
         initialProject={{
           ...createForestProject(),
+          mediaProvider: "replicate",
           videoModelsByIntent: {
             fast: "pruna-p-video",
             balanced: "kling-v2.5-turbo-pro",
