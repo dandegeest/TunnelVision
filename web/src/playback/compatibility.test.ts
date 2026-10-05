@@ -5,6 +5,7 @@ import {
   videoIdentitiesCompatible,
   type VideoPacketIdentity,
 } from "./compatibility";
+import { continuousPreviewCursor } from "./remux";
 
 const clip = (journeyId: string, patch: Partial<VideoPacketIdentity> = {}): VideoPacketIdentity => ({
   journeyId,
@@ -53,6 +54,12 @@ describe("MediaBunny remux compatibility", () => {
     expect(seamTrimPacketDecision("key", "delta").apply).toBe(false);
     expect(seamTrimPacketDecision("key", "delta").warning).toMatch(/needs a decode/);
     expect(seamTrimPacketDecision("key", "key")).toEqual({ apply: true });
+  });
+
+  it("starts the next clip after audio that runs past the video", () => {
+    expect(continuousPreviewCursor(6.041666666666667, 6.048)).toBe(6.048);
+    expect(continuousPreviewCursor(5.083333333333334, 5.0)).toBe(5.083333333333334);
+    expect(continuousPreviewCursor(5, null)).toBe(5);
   });
 
   it("treats mixed audio as incompatible", () => {

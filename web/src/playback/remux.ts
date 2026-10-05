@@ -208,13 +208,26 @@ async function writeVideoPackets(
   return end;
 }
 
+/**
+ * Where the next clip may start. AAC packets are key packets, so each one must
+ * land at or after the previous packet's timestamp. Encoder delay often makes
+ * the audio timestamp run past the last video frame.
+ */
+export function continuousPreviewCursor(videoEnd: number, audioMaxTimestamp: number | null): number {
+  if (audioMaxTimestamp == null || !Number.isFinite(audioMaxTimestamp)) {
+    return videoEnd;
+  }
+  return Math.max(videoEnd, audioMaxTimestamp);
+}
+
 async function writeAudioPackets(
   source: EncodedAudioPacketSource,
   sink: EncodedPacketSink,
   offset: number,
   decoderConfig: AudioDecoderConfig | null,
-): Promise<void> {
+): Promise<number> {
   let base: number | null = null;
+  let maxTimestamp = offset;
   for await (const packet of sink.packets()) {
     if (base === null) {
       base = packet.timestamp;
@@ -222,7 +235,9 @@ async function writeAudioPackets(
     const shifted = packet.clone({ timestamp: packet.timestamp - base + offset });
     await source.add(shifted, decoderConfig ? { decoderConfig } : undefined);
     decoderConfig = null;
+    maxTimestamp = Math.max(maxTimestamp, shifted.timestamp);
   }
+  return maxTimestamp;
 }
 
 /**
@@ -357,10 +372,16 @@ export async function buildContinuousPreview(
         index === 0 ? firstConfig : null,
         signal,
       );
+      let audioMaxTimestamp: number | null = null;
       if (audioSource && clip.audio && audioConfig) {
-        await writeAudioPackets(audioSource, new EncodedPacketSink(clip.audio), offset, index === 0 ? audioConfig : null);
+        audioMaxTimestamp = await writeAudioPackets(
+          audioSource,
+          new EncodedPacketSink(clip.audio),
+          offset,
+          index === 0 ? audioConfig : null,
+        );
       }
-      offset = videoEnd;
+      offset = continuousPreviewCursor(videoEnd, audioMaxTimestamp);
       spans.push({ journeyId: clip.clip.journeyId, mediaStart, mediaEnd: offset });
       clip.input.dispose();
     }
