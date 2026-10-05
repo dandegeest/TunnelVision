@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import {
   camotionRecordKey,
   camotionRecordsCopyText,
@@ -15,6 +15,8 @@ import {
   destinationImageResolutionTier,
   precedingActualFrame,
 } from "../project/destination";
+import { characterCheckForTake, characterSuggestionText } from "../project/character-consistency";
+import type { ConversationEntry } from "../project/conversation";
 import { persistentSubjectReference } from "../project/persistent-subject";
 import { canonicalTakes, selectedCanonicalTake } from "../project/canonical-takes";
 import { canUploadStoryboardFrame } from "../project/starting-frame";
@@ -238,14 +240,21 @@ function destinationShootHint(
 
 function CanonicalTakes({
   frame,
-  onSelectTake,
+  conversation,
+  viewedTakeId,
+  onOpenTake,
+  onActivateTake,
 }: {
   frame: StoryboardFrame;
-  onSelectTake?: (takeId: string) => void;
+  conversation?: readonly ConversationEntry[];
+  viewedTakeId?: string;
+  onOpenTake?: (takeId: string) => void;
+  onActivateTake?: (takeId: string) => void;
 }) {
   const takes = canonicalTakes(frame).filter((take) => take.imageUrl);
   const selected = selectedCanonicalTake(frame);
   const [open, setOpen] = useState(false);
+  const radioName = useId();
   if (takes.length < 2) {
     return null;
   }
@@ -264,24 +273,98 @@ function CanonicalTakes({
       <div className="mt-2 flex flex-wrap gap-2" hidden={!open}>
         {takes.map((take) => {
           const active = take.id === selected?.id;
+          const viewed = take.id === viewedTakeId;
+          const score = characterCheckForTake(take, conversation)?.score;
           return (
-            <button
+            <div
               key={take.id}
-              type="button"
-              aria-pressed={active}
-              aria-label={`Take ${take.number} of destination ${frame.label}`}
-              title={active ? `Take ${take.number}, active` : `Use take ${take.number}`}
-              className={`w-16 overflow-hidden rounded border ${active ? "border-[#ece7df]" : "border-[#3a342c]"}`}
-              onClick={() => onSelectTake?.(take.id)}
+              className={`w-[4.75rem] overflow-hidden rounded border ${viewed ? "border-[#ece7df]" : "border-[#3a342c]"}`}
             >
-              <img src={take.imageUrl} alt="" className="aspect-video w-full object-cover" />
-              <span className="block px-1 py-0.5 text-center text-[9px] tracking-[0.12em] text-[#9a8f7e] uppercase">
-                {active ? `${take.number} · Active` : take.number}
-              </span>
-            </button>
+              <button
+                type="button"
+                aria-label={`View take ${take.number} of destination ${frame.label}`}
+                title={`View take ${take.number}`}
+                className="block w-full text-left"
+                onClick={() => onOpenTake?.(take.id)}
+              >
+                <img src={take.imageUrl} alt="" className="aspect-video w-full object-cover" />
+                <span className="block px-1 py-0.5 text-center text-[9px] tracking-[0.12em] text-[#9a8f7e] uppercase">
+                  {take.number}
+                </span>
+                {score != null ? (
+                  <span className="block px-1 pb-0.5 text-center text-[9px] tracking-[0.12em] text-[#cfc6b8]">
+                    CC {score}
+                  </span>
+                ) : null}
+              </button>
+              <label className="flex items-center justify-center gap-1 border-t border-[#3a342c] px-1 py-1 text-[9px] tracking-[0.08em] text-[#9a8f7e] uppercase">
+                <input
+                  type="radio"
+                  name={radioName}
+                  checked={active}
+                  aria-label={`Make take ${take.number} of destination ${frame.label} active`}
+                  title={active ? `Take ${take.number} is the active still` : `Make take ${take.number} the active still`}
+                  className="accent-[#ece7df]"
+                  onClick={(event) => event.stopPropagation()}
+                  onChange={() => onActivateTake?.(take.id)}
+                />
+                Active
+              </label>
+            </div>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function CharacterCheckNotes({
+  frame,
+  conversation,
+  viewedTakeId,
+  onReshootInstructionChange,
+}: {
+  frame: StoryboardFrame;
+  conversation?: readonly ConversationEntry[];
+  viewedTakeId?: string;
+  onReshootInstructionChange?: (instruction: string) => void;
+}) {
+  const viewed = viewedTakeId ? canonicalTakes(frame).find((take) => take.id === viewedTakeId) : undefined;
+  const selected = viewed ?? selectedCanonicalTake(frame);
+  const check = selected ? characterCheckForTake(selected, conversation) : undefined;
+  const suggestions = check ? characterSuggestionText(check) : "";
+  if (!check) {
+    return null;
+  }
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">CC {check.score}</span>
+      {suggestions ? (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Suggested changes</span>
+            <CopyToClipboardButton text={suggestions} label={`Copy character suggestions ${frame.label}`} />
+          </div>
+          <textarea
+            readOnly
+            aria-label={`Character consistency suggestions for destination ${frame.label}`}
+            value={suggestions}
+            rows={3}
+            className="w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[12px] leading-snug text-[#ece7df] outline-none"
+          />
+          <button
+            type="button"
+            className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:border-[#7a7266]"
+            aria-label={`Add character suggestions to reshoot ${frame.label}`}
+            onClick={() => {
+              const existing = frame.reshootInstruction?.trim() ?? "";
+              onReshootInstructionChange?.(existing ? `${existing}\n${suggestions}` : suggestions);
+            }}
+          >
+            Add to reshoot
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -315,7 +398,11 @@ export function DestinationInspectorFields({
   camotionKey,
   onCamotionKeyChange,
   onOpenReel,
+  onOpenCanonicalTake,
   onSelectCanonicalTake,
+  viewedTakeId,
+  onReshootInstructionChange,
+  conversation,
   debugOn = false,
   initialPane = "source",
   pane: paneProp,
@@ -341,7 +428,11 @@ export function DestinationInspectorFields({
   camotionKey?: string;
   onCamotionKeyChange?: (key: string) => void;
   onOpenReel?: () => void;
+  onOpenCanonicalTake?: (takeId: string) => void;
   onSelectCanonicalTake?: (takeId: string) => void;
+  viewedTakeId?: string;
+  onReshootInstructionChange?: (instruction: string) => void;
+  conversation?: readonly ConversationEntry[];
   debugOn?: boolean;
   initialPane?: DestinationInspectorPane;
   pane?: DestinationInspectorPane;
@@ -396,6 +487,20 @@ export function DestinationInspectorFields({
               onPlanChange={onPlanChange}
               onStoryChange={onStoryChange}
             />
+            {canReshoot && onReshoot ? (
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Reshoot instructions</span>
+                <textarea
+                  aria-label={`Reshoot instructions ${frame.label}`}
+                  value={frame.reshootInstruction ?? ""}
+                  disabled={reshooting}
+                  rows={2}
+                  placeholder="Notes for the next reshoot."
+                  className="w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[12px] leading-snug text-[#ece7df] outline-none placeholder:text-[#5c564e] focus-visible:border-[#ece7df] disabled:opacity-40"
+                  onChange={(event) => onReshootInstructionChange?.(event.target.value)}
+                />
+              </label>
+            ) : null}
             {showShoot || (canReshoot && onReshoot) ? (
               <div className="flex shrink-0 gap-2">
                 {showShoot ? (
@@ -436,7 +541,19 @@ export function DestinationInspectorFields({
                 ) : null}
               </div>
             ) : null}
-            <CanonicalTakes frame={frame} onSelectTake={onSelectCanonicalTake} />
+            <CanonicalTakes
+              frame={frame}
+              conversation={conversation}
+              viewedTakeId={viewedTakeId}
+              onOpenTake={onOpenCanonicalTake}
+              onActivateTake={onSelectCanonicalTake}
+            />
+            <CharacterCheckNotes
+              frame={frame}
+              conversation={conversation}
+              viewedTakeId={viewedTakeId}
+              onReshootInstructionChange={onReshootInstructionChange}
+            />
             {afterFields}
           </>
         ) : null}
@@ -468,6 +585,10 @@ export function DestinationInspectorPanel({
   onReshoot,
   onShoot,
   onSelectCanonicalTake,
+  onOpenCanonicalTake,
+  viewedTakeId,
+  onReshootInstructionChange,
+  conversation,
   reshooting = false,
   stillMode,
   onStillModeChange,
@@ -484,6 +605,10 @@ export function DestinationInspectorPanel({
   onReshoot?: () => void;
   onShoot?: () => void;
   onSelectCanonicalTake?: (takeId: string) => void;
+  onOpenCanonicalTake?: (takeId: string) => void;
+  viewedTakeId?: string;
+  onReshootInstructionChange?: (instruction: string) => void;
+  conversation?: readonly ConversationEntry[];
   reshooting?: boolean;
   stillMode?: "canonical" | "primed";
   onStillModeChange?: (mode: "canonical" | "primed") => void;
@@ -521,6 +646,10 @@ export function DestinationInspectorPanel({
           onReshoot={onReshoot}
           onShoot={onShoot}
           onSelectCanonicalTake={onSelectCanonicalTake}
+          onOpenCanonicalTake={onOpenCanonicalTake}
+          viewedTakeId={viewedTakeId}
+          onReshootInstructionChange={onReshootInstructionChange}
+          conversation={conversation}
           stillMode={stillMode}
           onStillModeChange={onStillModeChange}
           camotionKey={camotionKey}

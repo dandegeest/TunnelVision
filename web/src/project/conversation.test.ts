@@ -12,7 +12,9 @@ import {
   resolveConstructionEntry,
   resolveDirectorEntry,
   resolveBlockingEntry,
+  INTERRUPTED_SHOOT_ERROR,
   resolveShootingEntry,
+  settleInterruptedShootingEntries,
   agentConversationEntryFromEvent,
   resolveAgentEvaluationEntry,
   type ConversationEntry,
@@ -347,6 +349,13 @@ describe("Plan conversation history", () => {
       status: "blocked",
       assessment,
     });
+    expect(settleInterruptedShootingEntries(entries)[1]).toMatchObject({
+      id: "s1",
+      kind: "shooting",
+      status: "failed",
+      error: INTERRUPTED_SHOOT_ERROR,
+    });
+    expect(settleInterruptedShootingEntries(entries)[0]).toMatchObject({ id: "b1", status: "blocked" });
     entries = resolveShootingEntry(entries, "s1", {
       status: "failed",
       error: "Shoot failed",

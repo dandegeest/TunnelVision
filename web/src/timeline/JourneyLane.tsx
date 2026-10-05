@@ -198,9 +198,11 @@ function TakeRow({
   const dropEnd = selectedTakeJoinsOutgoingStartDrop(project, journey, take);
   const lock = selected ? currentOutgoingStartDrop(project, journey) : undefined;
   const ring = selected
-    ? "z-[3] border-[#ece7df] bg-[#1c2418] ring-2 ring-inset ring-[#ece7df] text-[#ece7df]"
+    ? stale
+      ? "z-[3] border-[#e4d2a4] bg-[#5c3d14] ring-2 ring-inset ring-[#ece7df] text-[#ece7df]"
+      : "z-[3] border-[#ece7df] bg-[#1c2418] ring-2 ring-inset ring-[#ece7df] text-[#ece7df]"
     : stale
-      ? "z-[2] border-dashed border-[#d4b36a] bg-[#10100c] hover:ring-1 hover:ring-inset hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#7a7266]"
+      ? "z-[2] border-dashed border-[#d4b36a] bg-[#3a2810] hover:ring-1 hover:ring-inset hover:ring-[#d4b36a] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#d4b36a]"
       : "z-[2] border-[#3a342c] bg-[#10100c] hover:ring-1 hover:ring-inset hover:ring-[#7a7266] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#7a7266]";
   const titleParts = [
     take.generationIntent ? takeIntentTooltip(take) : undefined,

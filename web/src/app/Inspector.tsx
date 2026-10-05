@@ -126,6 +126,8 @@ export function Inspector() {
     setShotDirection,
     setComposerDraft,
     reshootDestination,
+    setReshootInstruction,
+    conversation,
     setStoryboardReelId,
     selectCanonicalTake,
     select,
@@ -211,9 +213,12 @@ export function Inspector() {
             onPaneChange={setDestinationPane}
             onOpenReel={frame.image ? () => setStoryboardReelId(frame.id) : undefined}
             onSelectCanonicalTake={selectCanonicalTake}
+            onOpenCanonicalTake={(takeId) => setStoryboardReelId(takeId)}
             onReshoot={() => {
               void reshootDestination(frame.id);
             }}
+            onReshootInstructionChange={(instruction) => setReshootInstruction(frame.id, instruction)}
+            conversation={conversation}
           />
         ) : (
           <>

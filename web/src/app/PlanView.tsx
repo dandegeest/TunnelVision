@@ -22,6 +22,7 @@ import { useReplaceDestinationImage } from "./ClearStoryboardPlanDialog";
 import { canAddStoryboardDestination, canRemoveStoryboardDestination } from "../project/storyboard";
 import { previewFrameAspectRatio } from "../project/canonical-aspect";
 import { canonicalTakes, locateCanonicalTake } from "../project/canonical-takes";
+import type { ConversationEntry } from "../project/conversation";
 import type { Project, StoryboardFrame } from "../project/types";
 import { commitActiveTextEdit } from "../ui/commit-text-edit";
 import { useDismissableMenu } from "../ui/dismissable-menu";
@@ -854,6 +855,8 @@ export function StoryboardReel({
   onShoot,
   onDropFile,
   onSelectCanonicalTake,
+  onReshootInstructionChange,
+  conversation,
   takeId,
   onSelectTake,
   reshooting = false,
@@ -871,6 +874,8 @@ export function StoryboardReel({
   onShoot?: (frameId: string) => void;
   onDropFile?: (file: File) => void;
   onSelectCanonicalTake?: (takeId: string) => void;
+  onReshootInstructionChange?: (frameId: string, instruction: string) => void;
+  conversation?: readonly ConversationEntry[];
   takeId?: string;
   onSelectTake?: (takeId: string) => void;
   reshooting?: boolean;
@@ -974,6 +979,12 @@ export function StoryboardReel({
     onReshoot: onReshoot ? () => onReshoot(current.id) : undefined,
     onShoot: onShoot ? () => onShoot(current.id) : undefined,
     onSelectCanonicalTake,
+    onOpenCanonicalTake: onSelectTake,
+    viewedTakeId: activeTake?.id,
+    onReshootInstructionChange: onReshootInstructionChange
+      ? (instruction: string) => onReshootInstructionChange(current.id, instruction)
+      : undefined,
+    conversation,
     stillMode,
     pane: inspectorPane,
     onPaneChange: setInspectorPane,
@@ -1104,6 +1115,8 @@ export function StoryboardReelHost() {
     setStoryboardReelId,
     setDestinationPlan,
     setComposerDraft,
+    setReshootInstruction,
+    conversation,
     reshootDestination,
     generateOpeningFrame,
     constructDestination,
@@ -1148,6 +1161,8 @@ export function StoryboardReelHost() {
       takeId={locatedTake?.takes[locatedTake.index]?.id}
       onSelectTake={openTake}
       onSelectCanonicalTake={selectCanonicalTake}
+      onReshootInstructionChange={setReshootInstruction}
+      conversation={conversation}
       onClose={() => {
         commitActiveTextEdit();
         setStoryboardReelId(null);

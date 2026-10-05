@@ -1,6 +1,7 @@
 import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
 import { isTrustedMediaIdShape } from "./trusted-media-id";
 import type {
+  CanonicalCharacterCheck,
   CanonicalTake,
   CanonicalTakeSource,
   Project,
@@ -147,6 +148,50 @@ export function frameWithSelectedCanonicalTake(frame: StoryboardFrame, takeId: s
     delete next.generatedFrom;
   }
   return next;
+}
+
+export function projectWithCanonicalCharacterCheck(
+  project: Project,
+  takeId: string,
+  check: CanonicalCharacterCheck,
+): Project {
+  const located = locateCanonicalTake(project.storyboard, takeId);
+  if (!located) {
+    return project;
+  }
+  const takes = located.takes.map((take, index) =>
+    index === located.index ? { ...take, characterConsistency: check } : take,
+  );
+  return {
+    ...project,
+    storyboard: project.storyboard.map((frame) =>
+      frame.id === located.frame.id
+        ? {
+            ...frame,
+            takes,
+            selectedTakeId: frame.selectedTakeId ?? located.takes[located.takes.length - 1]?.id,
+          }
+        : frame,
+    ),
+  };
+}
+
+export function projectWithReshootInstruction(project: Project, frameId: string, instruction: string): Project {
+  return {
+    ...project,
+    storyboard: project.storyboard.map((frame) => {
+      if (frame.id !== frameId) {
+        return frame;
+      }
+      const next = { ...frame };
+      if (instruction.trim()) {
+        next.reshootInstruction = instruction;
+      } else {
+        delete next.reshootInstruction;
+      }
+      return next;
+    }),
+  };
 }
 
 /** Choose which existing still is current. Order and membership of takes stay put. */

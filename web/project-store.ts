@@ -12,7 +12,7 @@ import {
   type RuntimeMediaRecord,
 } from "./runtime-media.ts";
 import { resolveTrustedMedia, UntrustedMediaError } from "./trusted-media.ts";
-import type { ConversationEntry } from "./src/project/conversation.ts";
+import { settleInterruptedShootingEntries, type ConversationEntry } from "./src/project/conversation.ts";
 import type { MovieExportResult } from "./src/project/export-movie.ts";
 import { createNewProject } from "./src/project/new-project.ts";
 import {
@@ -497,7 +497,9 @@ export function createProjectStore(options: ProjectStoreOptions): ProjectStore {
       adoptManifestMedia(root, manifest.id, manifest.media);
       let conversation: ConversationEntry[] = [];
       try {
-        conversation = parseConversationEvents(await readFile(join(root, conversationEventsPath()), "utf8"));
+        conversation = settleInterruptedShootingEntries(
+          parseConversationEvents(await readFile(join(root, conversationEventsPath()), "utf8")),
+        );
       } catch {
         conversation = [];
       }

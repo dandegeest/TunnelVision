@@ -69,7 +69,7 @@ import {
 } from "./outgoing-start-drop";
 import { canDownloadCurrentCut, currentCutClips, currentCutFingerprint } from "./current-cut";
 import { journeyPlayheadStart, layoutShootTimeline, playheadStartForSelection } from "../timeline/shoot-layout";
-import { selectedCanonicalTake } from "./canonical-takes";
+import { projectWithCanonicalCharacterCheck, projectWithReshootInstruction, selectedCanonicalTake } from "./canonical-takes";
 import { readStoryboardMediaInfo, readStoryboardMediaInfoFromUrl } from "./media-preflight";
 import { canDropAppendStoryboardDestination, hasAuthoritativeStartingFrame, projectWithReplacedFrameImage, uploadStartingFrame } from "./starting-frame";
 import { canAddStoryboardDestination, canPlanMovie, projectHasExistingJourney, projectWithAddedDestination, projectWithAutoBlockShots, projectWithAutoGenerateAllDestinations, projectWithAutoShoot, projectWithGenerateAudio, projectWithPullForwardReference, projectWithDirectorPlan, projectWithNudgedStoryDuration, projectWithRemovedDestination, projectWithStoryboardBeatPlan, projectWithStoryDuration, parseStoryDurationInput, selectionForWorkspaceView, type WorkspaceView } from "./storyboard";
@@ -276,6 +276,7 @@ type ProjectContextValue = {
   constructDestination: (beatId: string) => Promise<void>;
   generateOpeningFrame: () => Promise<void>;
   setDestinationPlan: (frameId: string, next: { intent?: string; visualDescription?: string }) => void;
+  setReshootInstruction: (frameId: string, instruction: string) => void;
   setShotDirection: (journeyId: string, shotDirection: string) => void;
   reshootDestination: (frameId: string) => Promise<void>;
   retryDestination: (frameId: string) => Promise<void>;
@@ -1213,7 +1214,7 @@ export function ProjectProvider({
   );
 
   const generateOpeningOn = useCallback(
-    async (current: Project): Promise<Project> => {
+    async (current: Project, reshootNote?: string): Promise<Project> => {
       const entryId = nextConversationId("construction");
       setConstructingBeatId("A");
       setStartingFrameError(null);
@@ -1232,7 +1233,10 @@ export function ProjectProvider({
       const session = projectSessionRef.current;
       try {
         const request = openingFrameGenerationRequestFromProject(current);
-        const result = await requestGenerateOpeningFrame(request);
+        const note = reshootNote?.trim();
+        const result = await requestGenerateOpeningFrame(
+          note ? { ...request, story: `${request.story.trim()}\n\nReshoot note: ${note}` } : request,
+        );
         const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
         if (projectSessionRef.current !== session) {
           return projectRef.current;
@@ -1296,6 +1300,65 @@ export function ProjectProvider({
     [applyProject],
   );
 
+  const setReshootInstruction = useCallback(
+    (frameId: string, instruction: string) => {
+      applyProject(projectWithReshootInstruction(projectRef.current, frameId, instruction));
+    },
+    [applyProject],
+  );
+
+  const recordCharacterCheck = useCallback(
+    async (current: Project, frameId: string) => {
+      if (!persistentSubjectReference(current)) {
+        return;
+      }
+      const frame = current.storyboard.find((item) => item.id === frameId);
+      const take = frame ? selectedCanonicalTake(frame) : undefined;
+      if (!take) {
+        return;
+      }
+      const session = projectSessionRef.current;
+      let evaluation: Awaited<ReturnType<typeof evaluateCharacterConsistencyOn>>;
+      try {
+        evaluation = await evaluateCharacterConsistencyOn(current, frameId);
+      } catch {
+        return;
+      }
+      if (projectSessionRef.current !== session) {
+        return;
+      }
+      applyProject(
+        projectWithCanonicalCharacterCheck(projectRef.current, take.id, {
+          score: evaluation.score,
+          status: evaluation.status,
+          observations: evaluation.observations,
+          repairInstructions: evaluation.repairInstructions,
+          repairNeeded: evaluation.repairNeeded,
+        }),
+      );
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: nextConversationId("character"),
+          createdAt: conversationTimestamp(),
+          kind: "character",
+          beatId: frameId,
+          status: evaluation.repairNeeded ? "drift" : "pass",
+          score: evaluation.score,
+          consistencyStatus: evaluation.status,
+          observations: evaluation.observations,
+          ...(evaluation.repairInstructions.length > 0
+            ? { repairInstructions: evaluation.repairInstructions }
+            : {}),
+          subjectMediaId: evaluation.subjectMediaId,
+          candidateMediaId: evaluation.candidateMediaId,
+          subjectDescription: evaluation.subjectDescription,
+          model: evaluation.model,
+        }),
+      );
+    },
+    [applyProject, evaluateCharacterConsistencyOn, nextConversationId],
+  );
+
   const setShotDirection = useCallback(
     (journeyId: string, shotDirection: string) => {
       const current = projectRef.current;
@@ -1319,17 +1382,28 @@ export function ProjectProvider({
       if (!frame || !canReshootDestinationFrame(current, frame)) {
         return;
       }
+      const instruction = frame.reshootInstruction?.trim() ?? "";
       try {
+        let next: Project;
         if (frameId === "A") {
-          await generateOpeningOn(current);
-          return;
+          next = await generateOpeningOn(current, instruction);
+        } else if (instruction && persistentSubjectReference(current)) {
+          setConstructingBeatId(frameId);
+          try {
+            const repaired = await repairCharacterOn(current, frameId, { instruction });
+            next = repaired.project;
+          } finally {
+            setConstructingBeatId(null);
+          }
+        } else {
+          next = await constructDestinationOn(current, frameId);
         }
-        await constructDestinationOn(current, frameId);
+        await recordCharacterCheck(next, frameId);
       } catch {
         // Conversation already records the failure.
       }
     },
-    [constructDestinationOn, generateOpeningOn],
+    [constructDestinationOn, generateOpeningOn, recordCharacterCheck, repairCharacterOn],
   );
 
   const retryDestination = useCallback(
@@ -2957,6 +3031,7 @@ export function ProjectProvider({
       constructDestination,
       generateOpeningFrame,
       setDestinationPlan,
+      setReshootInstruction,
       setShotDirection,
       reshootDestination,
       retryDestination,
@@ -3072,6 +3147,7 @@ export function ProjectProvider({
       constructDestination,
       generateOpeningFrame,
       setDestinationPlan,
+      setReshootInstruction,
       setShotDirection,
       reshootDestination,
       retryDestination,

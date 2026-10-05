@@ -233,6 +233,29 @@ export function shootRequestFromProject(
   };
 }
 
+/**
+ * A saved `shooting` status is an in-flight request from a session that has
+ * already ended. Reopening must not show Generating or block the next take.
+ * A clip that landed stays rendered. A staged journey with no clip returns to ready.
+ */
+export function projectWithInterruptedShootsSettled(project: Project): Project {
+  if (!project.journeys.some((journey) => journey.status === "shooting")) {
+    return project;
+  }
+  return {
+    ...project,
+    journeys: project.journeys.map((journey) => {
+      if (journey.status !== "shooting") {
+        return journey;
+      }
+      return {
+        ...journey,
+        status: journeyTakes(journey).length > 0 ? "rendered" : journey.motionPlan ? "ready" : "planned",
+      };
+    }),
+  };
+}
+
 export function projectWithJourneyShooting(project: Project, journeyId: string): Project {
   if (!project.journeys.some((journey) => journey.id === journeyId)) {
     throw new Error("Unknown journey");

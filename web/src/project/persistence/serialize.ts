@@ -23,6 +23,7 @@ import { isGenerationIntent } from "../generation-intent";
 import { isMediaProviderChoice } from "../media-provider";
 import { persistentSubjectReference } from "../persistent-subject";
 import { isTrustedMediaIdShape } from "../trusted-media-id";
+import { projectWithInterruptedShootsSettled } from "../shoot";
 import { journeyTakes } from "../takes";
 import type {
   CanonicalTake,
@@ -74,6 +75,27 @@ function extensionFromUrl(url: string | undefined, fallback: string): string {
     return "jpg";
   }
   return ext;
+}
+
+function characterCheckFromRaw(value: unknown): CanonicalTake["characterConsistency"] {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+  const raw = value as Record<string, unknown>;
+  const score = Number(raw.score);
+  const status = raw.status;
+  if (!Number.isFinite(score) || (status !== "GOOD" && status !== "DRIFTING" && status !== "FAILED")) {
+    return undefined;
+  }
+  const lines = (items: unknown) =>
+    Array.isArray(items) ? items.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : [];
+  return {
+    score,
+    status,
+    observations: lines(raw.observations),
+    repairInstructions: lines(raw.repairInstructions),
+    repairNeeded: raw.repairNeeded === true,
+  };
 }
 
 function extensionFromTake(take: CanonicalTake): string {
@@ -300,6 +322,7 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
         reason: take.reason,
         mediaInfo: take.mediaInfo,
         generation: take.generation,
+        ...(take.characterConsistency ? { characterConsistency: take.characterConsistency } : {}),
       };
     });
     const selected = persistedTakes.find((take) => take.id === frame.selectedTakeId) ?? persistedTakes[persistedTakes.length - 1];
@@ -313,6 +336,7 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
       mediaInfo: frame.mediaInfo,
       generatedFrom: frame.generatedFrom,
       ...(frame.constructionError ? { constructionError: frame.constructionError } : {}),
+      ...(frame.reshootInstruction ? { reshootInstruction: frame.reshootInstruction } : {}),
       selectedTakeId: selected?.id,
       takes: persistedTakes,
     };
@@ -573,6 +597,9 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
           reason: typeof take.reason === "string" ? take.reason : undefined,
           mediaInfo: take.mediaInfo as CanonicalTake["mediaInfo"],
           generation: take.generation && typeof take.generation === "object" ? (take.generation as Record<string, unknown>) : undefined,
+          ...(characterCheckFromRaw(take.characterConsistency)
+            ? { characterConsistency: characterCheckFromRaw(take.characterConsistency) }
+            : {}),
         },
       ];
     });
@@ -587,6 +614,9 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
       destinationId: typeof raw.destinationId === "string" ? raw.destinationId : undefined,
       generatedFrom: typeof raw.generatedFrom === "string" ? raw.generatedFrom : selected?.generatedFrom,
       constructionError: typeof raw.constructionError === "string" ? raw.constructionError : undefined,
+      ...(typeof raw.reshootInstruction === "string" && raw.reshootInstruction.trim()
+        ? { reshootInstruction: raw.reshootInstruction }
+        : {}),
       takes,
       selectedTakeId: selected?.id,
     };
@@ -730,5 +760,8 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     journeys,
   });
 
-  return { project, warnings: { missingAssets: [...new Set(missingAssets)] } };
+  return {
+    project: projectWithInterruptedShootsSettled(project),
+    warnings: { missingAssets: [...new Set(missingAssets)] },
+  };
 }

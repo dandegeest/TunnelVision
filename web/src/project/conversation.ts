@@ -335,6 +335,27 @@ export function resolveBlockingEntry(
   });
 }
 
+export const INTERRUPTED_SHOOT_ERROR = "Generation stopped before a take was saved.";
+
+/** A shooting card left open on disk is not a live provider call. */
+export function settleInterruptedShootingEntries(entries: readonly ConversationEntry[]): ConversationEntry[] {
+  if (!entries.some((entry) => entry.kind === "shooting" && entry.status === "shooting")) {
+    return [...entries];
+  }
+  return entries.map((entry) => {
+    if (entry.kind !== "shooting" || entry.status !== "shooting") {
+      return entry;
+    }
+    return {
+      ...entry,
+      status: "failed",
+      error: INTERRUPTED_SHOOT_ERROR,
+      take: undefined,
+      videoUrl: undefined,
+    };
+  });
+}
+
 export function resolveShootingEntry(
   entries: ConversationEntry[],
   id: string,

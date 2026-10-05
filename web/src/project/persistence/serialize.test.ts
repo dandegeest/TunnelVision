@@ -413,4 +413,28 @@ describe("project persistence schema", () => {
     expect(hydrated.project.journeys[0]?.failedShootIntent).toBe("quality");
     expect(hydrated.project.journeys[0]?.shootError).toBe("provider down");
   });
+
+  it("reopens an interrupted shoot as ready instead of generating", () => {
+    const project = {
+      ...createNewProject(),
+      journeys: [
+        {
+          id: "F-G",
+          startDestinationId: "F",
+          endDestinationId: "G",
+          durationSeconds: 5,
+          status: "shooting" as const,
+        },
+      ],
+    };
+    const documents = serializeProjectDocuments({ project });
+    expect((documents.traversals["F-G"] as { status?: string }).status).toBe("shooting");
+    const hydrated = hydrateProject({
+      manifest: documents.manifest,
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: () => true,
+    });
+    expect(hydrated.project.journeys.find((journey) => journey.id === "F-G")?.status).toBe("planned");
+  });
 });

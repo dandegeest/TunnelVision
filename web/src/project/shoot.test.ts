@@ -13,6 +13,7 @@ import {
   projectWithJourneyClipDuration,
   projectWithClearedShootFailure,
   projectWithJourneyShotFailed,
+  projectWithInterruptedShootsSettled,
   projectWithJourneyShooting,
   projectWithJourneysShooting,
   projectWithDefaultTakeIntent,
@@ -270,6 +271,20 @@ describe("SHOOT gate and JourneyShot take", () => {
     expect(cleared.journeys[0]?.shootError).toBeUndefined();
     expect(cleared.journeys[0]?.failedShootIntent).toBeUndefined();
     expect(cleared.journeys[0]?.status).toBe("ready");
+  });
+
+  it("returns an interrupted shoot to ready when the project is reopened", () => {
+    const prepared = projectWithMotionPlan(projectWithLeg(), "A-B", motionPlan);
+    const shooting = projectWithJourneyShooting(prepared, "A-B");
+    const settled = projectWithInterruptedShootsSettled(shooting);
+    expect(settled.journeys[0]?.status).toBe("ready");
+    const withTake = projectWithJourneyShotTake(shooting, "A-B", {
+      take,
+      videoUrl: "https://example.test/a-b.mp4",
+    });
+    const second = projectWithJourneyShooting(withTake, "A-B");
+    expect(projectWithInterruptedShootsSettled(second).journeys[0]?.status).toBe("rendered");
+    expect(projectWithInterruptedShootsSettled(prepared)).toBe(prepared);
   });
 
   it("marks every NEW TAKE ALL segment shooting so provider calls can overlap", () => {

@@ -200,12 +200,44 @@ describe("Shoot boundary continuity UI", () => {
     expect(html).not.toContain('aria-label="Previous takes"');
     expect(html).toContain('aria-expanded="false"');
     expect(html.indexOf('aria-label="Reshoot destination B"')).toBeLessThan(html.indexOf('aria-label="Takes"'));
-    expect(html.indexOf('aria-label="Take 1 of destination B"')).toBeLessThan(
-      html.indexOf('aria-label="Take 2 of destination B"'),
+    expect(html.indexOf('aria-label="View take 1 of destination B"')).toBeLessThan(
+      html.indexOf('aria-label="View take 2 of destination B"'),
     );
-    expect(html).toContain('aria-pressed="false" aria-label="Take 1 of destination B"');
-    expect(html).toContain('aria-pressed="true" aria-label="Take 2 of destination B"');
-    expect(html).toContain(">2 · Active<");
+    expect(html).toContain('aria-label="Make take 1 of destination B active"');
+    expect(html).toMatch(/aria-label="Make take 2 of destination B active"[^>]*checked/);
+    expect(html).not.toMatch(/aria-label="Make take 1 of destination B active"[^>]*checked/);
+    const scored = {
+      ...project,
+      storyboard: project.storyboard.map((frame) =>
+        frame.id === "B"
+          ? {
+              ...frame,
+              reshootInstruction: "Keep the low angle.",
+              takes: frame.takes?.map((take) =>
+                take.number === 2
+                  ? {
+                      ...take,
+                      characterConsistency: {
+                        score: 42,
+                        status: "DRIFTING" as const,
+                        observations: ["Stripe moved."],
+                        repairInstructions: ["Restore the orange stripe."],
+                        repairNeeded: true,
+                      },
+                    }
+                  : take,
+              ),
+            }
+          : frame,
+      ),
+    };
+    const scoredHtml = renderShoot(scored, { destinationId: "B", occurrenceIndex: 1 });
+    expect(scoredHtml).toContain(">CC 42<");
+    expect(scoredHtml).toContain("Restore the orange stripe.");
+    expect(scoredHtml).toContain('aria-label="Reshoot instructions B"');
+    expect(scoredHtml).toContain("Keep the low angle.");
+    expect(scoredHtml).toContain('aria-label="Add character suggestions to reshoot B"');
+    expect(scoredHtml).toContain('aria-label="Copy character suggestions B"');
 
     const first = renderShoot(project, { destinationId: "B", occurrenceIndex: 1 }, {
       storyboardReelId: "B:canonical:1",
@@ -1456,6 +1488,9 @@ describe("Shoot footage inspector", () => {
     };
     const html = renderShoot(reshot, { journeyId: "A-B", band: "footage" });
     expect(html).toContain('data-canonical-stale="true"');
+    const staleBar = html.slice(html.indexOf('data-canonical-stale="true"') - 500, html.indexOf('data-canonical-stale="true"'));
+    expect(staleBar).toContain("bg-[#5c3d14]");
+    expect(staleBar).not.toContain("bg-[#1c2418]");
     expect(html).toContain('aria-label="Take 2 A-B previous canonicals"');
     expect(html).toContain(TAKE_PREVIOUS_CANONICALS_COPY);
     expect(html).toContain('class="take-outdated-flag"');

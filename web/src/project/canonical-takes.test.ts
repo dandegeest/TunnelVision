@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createNewProject } from "./new-project";
-import { frameWithAppendedCanonicalTake, canonicalTakes, locateCanonicalTake, projectWithSelectedCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
+import { characterCheckForTake } from "./character-consistency";
+import { frameWithAppendedCanonicalTake, canonicalTakes, locateCanonicalTake, projectWithCanonicalCharacterCheck, projectWithReshootInstruction, projectWithSelectedCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { projectWithReplacedStartImage } from "./starting-frame";
 
@@ -79,5 +80,62 @@ describe("canonical takes", () => {
     const frame = twice.storyboard[0]!;
     expect(canonicalTakes(frame)).toHaveLength(2);
     expect(frame.mediaId).toBe(PNG_B.mediaId);
+  });
+
+  it("keeps a character check on the take it scored", () => {
+    const project = projectWithReplacedStartImage(createNewProject(), PNG_A);
+    const takeId = selectedCanonicalTake(project.storyboard[0]!)!.id;
+    const checked = projectWithCanonicalCharacterCheck(project, takeId, {
+      score: 42,
+      status: "DRIFTING",
+      observations: ["Stripe moved."],
+      repairInstructions: ["Restore the orange stripe."],
+      repairNeeded: true,
+    });
+    const noted = projectWithReshootInstruction(checked, "A", "Keep the low angle.");
+    expect(selectedCanonicalTake(noted.storyboard[0]!)?.characterConsistency?.score).toBe(42);
+    expect(noted.storyboard[0]?.reshootInstruction).toBe("Keep the low angle.");
+    expect(projectWithReshootInstruction(noted, "A", "  ").storyboard[0]?.reshootInstruction).toBeUndefined();
+  });
+
+  it("reads an earlier character log when the take has no stored check", () => {
+    const take = { mediaId: "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" };
+    const check = characterCheckForTake(take, [
+      {
+        id: "character-1",
+        createdAt: "2026-10-05T15:00:00.000Z",
+        kind: "character",
+        beatId: "B",
+        status: "drift",
+        score: 35,
+        consistencyStatus: "FAILED",
+        observations: ["The flag is missing."],
+        repairInstructions: ["Add the red flag."],
+        candidateMediaId: take.mediaId,
+      },
+      {
+        id: "character-2",
+        createdAt: "2026-10-05T15:01:00.000Z",
+        kind: "character",
+        beatId: "B",
+        status: "pass",
+        score: 85,
+        consistencyStatus: "GOOD",
+        candidateMediaId: "upload-cccccccccccccccccccccccccccccccc",
+      },
+    ]);
+    expect(check).toEqual({
+      score: 35,
+      status: "FAILED",
+      observations: ["The flag is missing."],
+      repairInstructions: ["Add the red flag."],
+      repairNeeded: true,
+    });
+    expect(
+      characterCheckForTake(
+        { mediaId: take.mediaId, characterConsistency: { score: 42, status: "DRIFTING", observations: [], repairInstructions: [], repairNeeded: true } },
+        [],
+      )?.score,
+    ).toBe(42);
   });
 });

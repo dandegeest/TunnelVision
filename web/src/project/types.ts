@@ -161,6 +161,15 @@ export type SegmentMotionPlan = {
  */
 export type CanonicalTakeSource = "upload" | "generated" | "constructed" | "repair" | "discover";
 
+/** Identity check for one still. Score and repair notes stay with that take. */
+export type CanonicalCharacterCheck = {
+  score: number;
+  status: "GOOD" | "DRIFTING" | "FAILED";
+  observations: string[];
+  repairInstructions: string[];
+  repairNeeded: boolean;
+};
+
 /**
  * One still for a storyboard letter. Canonicals keep 0..N takes; one is selected.
  * `StoryboardFrame.image` / `mediaId` always mirror the selected take.
@@ -178,6 +187,8 @@ export type CanonicalTake = {
   model?: string;
   createdAt?: string;
   reason?: string;
+  /** Character consistency for this still, when a subject sheet was checked. */
+  characterConsistency?: CanonicalCharacterCheck;
   mediaInfo?: StoryboardMediaInfo;
   /**
    * Forward-compatible generation metadata (router, cost, latency, retry).
@@ -320,6 +331,8 @@ export type StoryboardFrame = {
   selectedTakeId?: string;
   /** Last generate or reshoot failure for this still. Cleared when a new still lands. */
   constructionError?: string;
+  /** Filmmaker note sent with the next user reshoot of this still. */
+  reshootInstruction?: string;
 };
 
 /** Be ≈ Bs lock for the selected pair. First traversal never has this. */
