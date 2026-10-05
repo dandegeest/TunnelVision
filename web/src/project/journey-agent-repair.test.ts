@@ -241,7 +241,7 @@ describe("repair activity copy", () => {
         traversalConfidence: 45,
         instruction: "The space beyond C contradicts the immediate environment established by D.",
       }),
-    ).toMatch(/RESHOOT · D/);
+    ).toMatch(/RESHOOT TRAVERSAL · D/);
     expect(
       formatCanonicalRepairCompleteActivity({
         destinationIds: ["D"],

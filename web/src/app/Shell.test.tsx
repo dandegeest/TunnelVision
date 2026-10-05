@@ -194,6 +194,9 @@ describe("Shell header chrome", () => {
     expect(replicate).not.toContain("Pruna $");
     expect(html).toContain('aria-label="Debug mode"');
     expect(html).toContain('aria-label="Pull Forward Reference"');
+    expect(html).toContain('aria-label="Subject description"');
+    expect(html).toContain('aria-label="Upload persistent subject"');
+    expect(html).toContain(">Persistent Subject<");
     expect(html).toMatch(
       /checked[^>]*aria-label="Pull Forward Reference"|aria-label="Pull Forward Reference"[^>]*checked/,
     );

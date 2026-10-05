@@ -565,7 +565,7 @@ describe("Plan conversation thread", () => {
         },
       ],
     });
-    expect(html).toContain("Reshoot · D");
+    expect(html).toContain("Reshoot traversal · D");
     expect(html).toContain("C→D needs a stronger spatial connection.");
     expect(html).toContain("Set Consistency");
     expect(html).toContain(">25<");

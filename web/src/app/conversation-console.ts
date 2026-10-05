@@ -457,6 +457,12 @@ export function destinationCardCopy(
     route?: string;
     resolution?: string;
     router?: { goal: "FAST" | "QUALITY"; model: string; credits?: number; canonicalNumber?: number };
+    subjectRef?: {
+      description: string;
+      referenceCount: number;
+      references: { role: string; mediaId: string }[];
+      referenceLimitation?: string;
+    };
   },
 ): string {
   const lines = [`DESTINATION ${beatId}`];
@@ -469,6 +475,19 @@ export function destinationCardCopy(
   }
   if (extras?.router) {
     lines.push(...routerSelectionLines(extras.router, canonicalRouterSubject(beatId, extras.router.canonicalNumber)));
+  }
+  if (extras?.subjectRef) {
+    const roles = extras.subjectRef.references.map((item) => `${item.role}:${item.mediaId}`).join(", ");
+    lines.push(`SUBJECT REF · ${extras.subjectRef.referenceCount} image${extras.subjectRef.referenceCount === 1 ? "" : "s"}`);
+    if (extras.subjectRef.description) {
+      lines.push(extras.subjectRef.description);
+    }
+    if (roles) {
+      lines.push(roles);
+    }
+    if (extras.subjectRef.referenceLimitation) {
+      lines.push(extras.subjectRef.referenceLimitation);
+    }
   }
   if (extras?.description) {
     lines.push(extras.description);
@@ -529,6 +548,45 @@ export function cinematographerCardCopy(block: CinematographerBlock, project?: P
   return withClock(block.createdAt, lines.join("\n"));
 }
 
+export function characterCardCopy(entry: Extract<ConversationEntry, { kind: "character" }>): string {
+  const headline =
+    entry.status === "pass"
+      ? `CC · PASS · ${entry.score ?? ""}`.trim()
+      : entry.status === "drift"
+        ? `CC · DRIFT DETECTED · ${entry.score ?? ""}`.trim()
+        : entry.status === "repairing"
+          ? entry.reshootScope === "both"
+            ? `CC · RESHOOT BOTH · ${entry.beatId}`
+            : `CC · RESHOOT CHARACTER · ${entry.beatId}`
+          : `CC · CHECKING SUBJECT · ${entry.beatId}`;
+  const lines = [headline];
+  if (entry.consistencyStatus) {
+    lines.push(entry.consistencyStatus);
+  }
+  if (entry.subjectDescription) {
+    lines.push(entry.subjectDescription);
+  }
+  if (entry.subjectMediaId) {
+    lines.push(`subject:${entry.subjectMediaId}`);
+  }
+  if (entry.candidateMediaId) {
+    lines.push(`candidate:${entry.candidateMediaId}`);
+  }
+  if (entry.model) {
+    lines.push(entry.model);
+  }
+  if (entry.attempt != null) {
+    lines.push(`attempt ${entry.attempt}`);
+  }
+  for (const observation of entry.observations ?? []) {
+    lines.push(observation);
+  }
+  for (const instruction of entry.repairInstructions ?? []) {
+    lines.push(instruction);
+  }
+  return lines.join("\n");
+}
+
 export function repairCardCopy(entry: Extract<ConversationEntry, { kind: "agent" }>): string {
   const letters = entry.destinationIds.join(" & ");
   const segment = formatJourneyArrow(entry.journeyId);
@@ -541,7 +599,7 @@ export function repairCardCopy(entry: Extract<ConversationEntry, { kind: "agent"
           `Traversal Confidence ${entry.traversalConfidence} → ${entry.afterTraversalConfidence}`,
         ]
       : [
-          `RESHOOT · ${letters}`,
+          `RESHOOT TRAVERSAL · ${letters}`,
           `${formatJourneyCompact(entry.journeyId)} needs a stronger spatial connection.`,
           `Set Consistency ${entry.setConsistency} · Traversal Confidence ${entry.traversalConfidence}`,
         ];

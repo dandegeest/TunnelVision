@@ -24,9 +24,9 @@ import { joinPromptSections } from "./assemble.ts";
  * also swaps the locomotion-baseline "do not invent passageways" sentence
  * for threshold-connective travel. OFF is not the preferred product default.
  *
- * TODO: future persistent subject/object reference images can plug into this
- * assembler as an extra structured part after pull-forward continuity. Do not
- * add schema or persistence for that here.
+ * A persistent subject sheet initializes canonical A only. Later canonicals
+ * keep pull-forward continuity and do not receive subject-sheet language.
+ * Character-consistency repair has its own prompt.
  */
 
 export const CANONICAL_CONSTRUCTION_SECTION_ORDER = [
@@ -119,6 +119,23 @@ export function cameraGrammarLawSection(grammar: CameraGrammar): string {
   return stillViewpointClause(grammar);
 }
 
+/** Opening-still subject copy. The sheet defines identity, not the scene. */
+export type PersistentSubjectPrompt = {
+  description: string;
+};
+
+const SUBJECT_IDENTITY_ONLY = [
+  "The supplied subject reference image is the authoritative visual definition of the persistent subject.",
+  "Preserve the subject's identity, design, proportions, colors, markings, clothing/accessories/materials, and other distinctive visual features.",
+  "The subject reference defines WHO/WHAT the subject is. Do not copy the reference image's background, layout, reference-sheet composition, or pose unless required by the destination.",
+].join("\n");
+
+export function persistentSubjectInstruction(input: PersistentSubjectPrompt): string {
+  const description = input.description.trim();
+  const heading = description ? `PERSISTENT SUBJECT:\n${description}` : "PERSISTENT SUBJECT:";
+  return [heading, SUBJECT_IDENTITY_ONLY].join("\n\n");
+}
+
 export type CanonicalConstructionPromptInput = {
   intent: string;
   visualDescription: string;
@@ -169,7 +186,11 @@ export function canonicalConstructionSectionStarts(
   };
 }
 
-export function assembleOpeningFramePrompt(story: string, cameraGrammar?: CameraGrammar): string {
+export function assembleOpeningFramePrompt(
+  story: string,
+  cameraGrammar?: CameraGrammar,
+  persistentSubject?: Pick<PersistentSubjectPrompt, "description">,
+): string {
   const trimmed = story.trim();
   if (!trimmed) {
     throw new Error("Opening frame requires a journey story");
@@ -178,6 +199,7 @@ export function assembleOpeningFramePrompt(story: string, cameraGrammar?: Camera
   return joinPromptSections(
     `${openingStillLead(grammar)} Use the Journey to determine the specific physical viewpoint, orientation, environment, and situation at the instant the journey begins. Show only that opening moment; do not anticipate, combine, or depict later destinations or events from the Journey.`,
     `The camera is already in the world, oriented along the journey's intended direction of travel. ${stillViewpointClause(grammar)} Do not show text.`,
+    persistentSubject ? persistentSubjectInstruction(persistentSubject) : undefined,
     `Journey: ${trimmed}`,
   );
 }
@@ -188,6 +210,8 @@ export function assembleCanonicalRepairPrompt(input: {
   visualDescription: string;
   instruction: string;
   cameraGrammar?: CameraGrammar;
+  /** When set, the sheet is an identity hold. This reshoot still changes only the route. */
+  holdSubject?: { description: string };
 }): string {
   const intent = input.intent.trim();
   const visualDescription = input.visualDescription.trim();
@@ -214,9 +238,79 @@ export function assembleCanonicalRepairPrompt(input: {
     [
       "The stills must belong to one continuously shootable physical space. Do not make the two images look alike. Do not replace this destination with the opposite place. Do not repair merely to improve aesthetics.",
       grammarLock,
+      "Reshoot scope: TRAVERSAL. Change the route and camera.",
       `CM spatial repair: ${instruction}`,
       "The established START still, when supplied, is a spatial/geographic reference for the route, not a style match.",
-    ].join("\n"),
+      input.holdSubject
+        ? [
+            "Hold the persistent subject's identity while changing the route. Do not redesign the character, and do not copy the reference sheet's pose, background, or framing.",
+            input.holdSubject.description.trim()
+              ? `Persistent subject:\n${input.holdSubject.description.trim()}`
+              : "Persistent subject: use the attached reference image.",
+          ].join("\n")
+        : undefined,
+    ]
+      .filter((line) => line)
+      .join("\n"),
     stillViewpointClause(grammar),
+  );
+}
+
+/** Identity-only repair. Preserve the candidate destination; correct the subject. */
+export function assembleCharacterRepairPrompt(input: {
+  description: string;
+  visualDescription: string;
+  instruction: string;
+  cameraGrammar?: CameraGrammar;
+  /** Set when this identity repair follows a traversal reshoot and must keep that route. */
+  spatialInstruction?: string;
+}): string {
+  const description = input.description.trim();
+  const visualDescription = input.visualDescription.trim();
+  const instruction = input.instruction.trim();
+  const spatialInstruction = input.spatialInstruction?.trim() ?? "";
+  if (!visualDescription || !instruction) {
+    throw new Error("Character repair requires a destination and a consistency instruction");
+  }
+  return joinPromptSections(
+    [
+      spatialInstruction ? "TRAVERSAL AND CHARACTER REPAIR" : "CHARACTER CONSISTENCY REPAIR",
+      spatialInstruction
+        ? "Reshoot scope: BOTH. Correct the persistent subject, and keep the traversal change."
+        : "Reshoot scope: CHARACTER. Change the persistent subject identity. Leave the route and camera alone.",
+      description ? `Persistent subject:\n${description}` : "Persistent subject:",
+      "The supplied subject reference image is the authoritative identity reference.",
+      "The candidate destination is visually successful, but the persistent subject has drifted from its established identity.",
+    ].join("\n"),
+    [
+      "Preserve the candidate destination's environment, composition, action, subject pose, subject orientation, camera perspective, lighting, physical state, and journey continuity.",
+      `Destination to preserve:\n${visualDescription}`,
+      "Correct ONLY the persistent subject identity where necessary.",
+    ].join("\n"),
+    [
+      "Character consistency evaluator identified:",
+      instruction,
+    ].join("\n"),
+    spatialInstruction
+      ? [
+          "Traversal to preserve:",
+          spatialInstruction,
+          "Do not move the subject back to an earlier place, and do not undo that route to make identity easier to read.",
+        ].join("\n")
+      : undefined,
+    [
+      cameraGrammarFromUnknown(input.cameraGrammar) === "follow"
+        ? "This destination uses FOLLOW grammar. The camera stays behind or beside the subject. Keep that angle."
+        : undefined,
+      "Do not reproduce the pose or composition of the character reference sheet.",
+      "Do not turn the subject around, face it toward the camera, or change its pose to reveal a part from the reference.",
+      "Do not move a hidden detail, such as a chest panel, onto the visible side just to make it readable.",
+      "If an instruction asks for a feature this camera angle cannot see, ignore that part of the instruction.",
+      "The subject may naturally change pose, orientation, perspective, expression, scale in frame, or physical deformation caused by the scene.",
+      "Preserve those scene-driven variations.",
+      "Correct only a feature that is visibly the wrong design.",
+    ]
+      .filter((line) => line)
+      .join("\n"),
   );
 }

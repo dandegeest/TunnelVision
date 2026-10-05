@@ -20,6 +20,8 @@ import { createNewProject } from "./new-project";
 import { projectWithJourneyShotTake } from "./shoot";
 import { projectWithDirectorPlan, projectWithStoryboardBeatPlan } from "./storyboard";
 import { journeyTakes, selectedTakeVideoUrl } from "./takes";
+import type { CharacterConsistencyEvaluation } from "./character-consistency";
+import { runtimeMediaPreviewUrl } from "../../runtime-media-limits";
 import type { CinematographerAssessment, JourneyShotTake, Project, SegmentMotionPlan } from "./types";
 
 const STORY = "Travel forward through connected interior volumes.";
@@ -153,6 +155,12 @@ function domainOps(options: { assessments?: CinematographerAssessment[] } = {}):
       const media = beatId === "C" ? MEDIA.C : MEDIA.B;
       return projectWithConstructedDestination(project, { beatId, ...media });
     },
+    evaluateCharacterConsistency: async () => {
+      throw new Error("Character consistency was not expected");
+    },
+    repairCharacter: async () => {
+      throw new Error("Character repair was not expected");
+    },
     assessCinematographer: async (project, journeyId) => {
       const nextAssessment = assessments.shift() ?? assessment;
       return projectWithCinematographerAssessment(project, journeyId, nextAssessment);
@@ -236,6 +244,14 @@ function recordingOps(
       const previous = beat ? precedingActualFrame(project, beat) : undefined;
       received.constructFrom.push({ beatId, from: previous?.mediaId });
       return base.constructDestination(project, beatId);
+    },
+    evaluateCharacterConsistency: async (project, beatId) => {
+      calls.push(`cc:${beatId}`);
+      return base.evaluateCharacterConsistency(project, beatId);
+    },
+    repairCharacter: async (project, beatId, input) => {
+      calls.push(input.spatialInstruction ? `repairCharacter:${beatId}:both` : `repairCharacter:${beatId}`);
+      return base.repairCharacter(project, beatId, input);
     },
     assessCinematographer: async (project, journeyId) => {
       calls.push(`assess:${journeyId}`);
@@ -881,6 +897,152 @@ describe("JourneyAgent canonical repair", () => {
   });
 });
 
+const SUBJECT_ID = "upload-dddddddddddddddddddddddddddddddd";
+
+function withSubject(project: Project): Project {
+  return {
+    ...project,
+    persistentSubject: {
+      mediaId: SUBJECT_ID,
+      imageUrl: runtimeMediaPreviewUrl(SUBJECT_ID),
+      description: "Giant golden puppy balloon with a red collar.",
+    },
+  };
+}
+
+function scriptedCharacterChecks(scores: { score: number; repairNeeded: boolean }[]) {
+  const queue = [...scores];
+  return async (project: Project, beatId: string): Promise<CharacterConsistencyEvaluation> => {
+    const next = queue.shift() ?? { score: 90, repairNeeded: false };
+    const frame = project.storyboard.find((item) => item.id === beatId);
+    return {
+      score: next.score,
+      status: next.repairNeeded ? (next.score < 50 ? "FAILED" : "DRIFTING") : "GOOD",
+      observations: next.repairNeeded ? ["Ears shortened."] : ["Identity matches."],
+      repairNeeded: next.repairNeeded,
+      repairInstructions: next.repairNeeded ? ["Restore the long ears."] : [],
+      subjectMediaId: SUBJECT_ID,
+      candidateMediaId: frame?.mediaId ?? "",
+      subjectDescription: "Giant golden puppy balloon with a red collar.",
+      model: "google/gemini-3.1-pro",
+    };
+  };
+}
+
+function characterRepairOp() {
+  return async (project: Project, beatId: string) => ({
+    project: projectWithConstructedDestination(project, { beatId, ...repairedStill(beatId, 7) }),
+    references: [
+      { role: "subject" as const, mediaId: SUBJECT_ID },
+      { role: "candidate" as const, mediaId: project.storyboard.find((frame) => frame.id === beatId)?.mediaId ?? "" },
+      { role: "continuity" as const, mediaId: MEDIA.A.mediaId },
+    ],
+    model: "google/nano-banana-2",
+    referenceLimitation: "Single-image editors receive only the subject sheet.",
+  });
+}
+
+describe("character consistency", () => {
+  it("checks a passing B before cinematographer planning and does not check A", async () => {
+    const { ops, calls } = recordingOps({
+      planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
+      evaluateCharacterConsistency: scriptedCharacterChecks([{ score: 92, repairNeeded: false }]),
+    });
+    const result = await runJourneyAgent(withSubject(promptedProject()), ops);
+    expect(result.snapshot.phase).toBe("COMPLETE");
+    expect(calls.filter((call) => call.startsWith("cc:"))).toEqual(["cc:B"]);
+    expect(calls).not.toContain("repairCharacter:B");
+    expect(calls.indexOf("cc:B")).toBeLessThan(calls.indexOf("assess:A-B"));
+    expect(result.snapshot.events.some((event) => event.activity === "CC · PASS · 92")).toBe(true);
+  });
+
+  it("repairs a drifted B and only then plans motion", async () => {
+    const { ops, calls } = recordingOps({
+      planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
+      evaluateCharacterConsistency: scriptedCharacterChecks([
+        { score: 61, repairNeeded: true },
+        { score: 88, repairNeeded: false },
+      ]),
+      repairCharacter: characterRepairOp(),
+    });
+    const result = await runJourneyAgent(withSubject(promptedProject()), ops);
+    expect(result.snapshot.phase).toBe("COMPLETE");
+    expect(calls).toEqual(expect.arrayContaining(["cc:B", "repairCharacter:B", "assess:A-B"]));
+    const firstCheck = calls.indexOf("cc:B");
+    const repair = calls.indexOf("repairCharacter:B");
+    const assess = calls.indexOf("assess:A-B");
+    expect(firstCheck).toBeLessThan(repair);
+    expect(repair).toBeLessThan(assess);
+    expect(result.snapshot.events.map((event) => event.activity)).toEqual(
+      expect.arrayContaining(["CC · DRIFT DETECTED · 61", "CC · RESHOOT CHARACTER · B", "CC · PASS · 88"]),
+    );
+  });
+
+  it("rechecks B after a spatial reshoot and does not let that replacement skip character consistency", async () => {
+    const weak = assessmentWith({
+      traversalConfidence: 20,
+      repairRecommendation: "RESHOOT_END",
+      repairInstruction: "Open a continuous route.",
+    });
+    const { ops, calls } = recordingOps(
+      {
+        planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
+        evaluateCharacterConsistency: scriptedCharacterChecks([
+          { score: 90, repairNeeded: false },
+          { score: 40, repairNeeded: true },
+          { score: 86, repairNeeded: false },
+        ]),
+        repairCharacter: characterRepairOp(),
+      },
+      { assessments: [weak, assessment] },
+    );
+    const result = await runJourneyAgent(withSubject(promptedProject()), ops);
+    expect(result.snapshot.phase).toBe("COMPLETE");
+    expect(calls.filter((call) => call === "cc:B")).toHaveLength(3);
+    expect(calls.filter((call) => call === "repair:B:end")).toEqual(["repair:B:end"]);
+    const spatial = calls.indexOf("repair:B:end");
+    const laterChecks = calls.map((call, index) => (call === "cc:B" ? index : -1)).filter((index) => index > spatial);
+    expect(laterChecks.length).toBe(2);
+    const reassess = calls.lastIndexOf("assess:A-B");
+    expect(laterChecks[laterChecks.length - 1]).toBeLessThan(reassess);
+    expect(calls).toContain("repairCharacter:B:both");
+    expect(calls).not.toContain("repairCharacter:B");
+  });
+
+  it("checks C against the sheet after C is built from accepted B only", async () => {
+    const { ops, calls, received } = recordingOps({
+      evaluateCharacterConsistency: scriptedCharacterChecks([
+        { score: 91, repairNeeded: false },
+        { score: 84, repairNeeded: false },
+      ]),
+    });
+    const result = await runJourneyAgent(withSubject(promptedProject()), ops);
+    expect(result.snapshot.phase).toBe("COMPLETE");
+    expect(calls.filter((call) => call.startsWith("cc:"))).toEqual(["cc:B", "cc:C"]);
+    expect(received.constructFrom.find((item) => item.beatId === "C")?.from).toBe(MEDIA.B.mediaId);
+    expect(calls.indexOf("cc:B")).toBeLessThan(calls.indexOf("assess:A-B"));
+    expect(calls.indexOf("construct:C")).toBeLessThan(calls.indexOf("cc:C"));
+    expect(calls.indexOf("cc:C")).toBeLessThan(calls.indexOf("assess:B-C"));
+  });
+
+  it("fails clearly when character consistency stays broken after two repairs", async () => {
+    const { ops, calls } = recordingOps({
+      planJourney: async (project) => projectWithDirectorPlan(project, oneBeatPlan),
+      evaluateCharacterConsistency: scriptedCharacterChecks([
+        { score: 40, repairNeeded: true },
+        { score: 42, repairNeeded: true },
+        { score: 41, repairNeeded: true },
+      ]),
+      repairCharacter: characterRepairOp(),
+    });
+    const result = await runJourneyAgent(withSubject(promptedProject()), ops);
+    expect(result.snapshot.phase).toBe("FAILED");
+    expect(result.snapshot.failureReason).toMatch(/stayed FAILED at 41 after 2 repairs/);
+    expect(calls.filter((call) => call === "repairCharacter:B")).toHaveLength(2);
+    expect(calls).not.toContain("assess:A-B");
+  });
+});
+
 describe("JourneyAgent UI helpers", () => {
   it("treats COMPLETE, STOPPED, and FAILED as idle for the CREATE JOURNEY button", () => {
     expect(journeyAgentIsBusy(idleJourneyAgentSnapshot())).toBe(false);
@@ -905,6 +1067,6 @@ describe("JourneyAgent UI helpers", () => {
         },
         events: [],
       }),
-    ).toBe("Reshooting D…");
+    ).toBe("Reshooting traversal · D…");
   });
 });

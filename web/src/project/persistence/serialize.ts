@@ -21,6 +21,8 @@ import {
 } from "../shot-duration";
 import { isGenerationIntent } from "../generation-intent";
 import { isMediaProviderChoice } from "../media-provider";
+import { persistentSubjectReference } from "../persistent-subject";
+import { isTrustedMediaIdShape } from "../trusted-media-id";
 import { journeyTakes } from "../takes";
 import type {
   CanonicalTake,
@@ -121,6 +123,54 @@ function journeyStatus(project: Project): string {
   return "unplanned";
 }
 
+function persistentSubjectSettingsField(
+  project: Project,
+): { persistentSubject: NonNullable<ProjectSettingsSnapshot["persistentSubject"]> } | undefined {
+  const stored = project.persistentSubject;
+  const image = persistentSubjectReference(project);
+  const description = stored?.description ?? "";
+  if (!image && !description.trim()) {
+    return undefined;
+  }
+  return {
+    persistentSubject: {
+      ...(image ? { mediaId: image.mediaId } : {}),
+      description,
+    },
+  };
+}
+
+function restorePersistentSubject(
+  raw: ProjectSettingsSnapshot["persistentSubject"],
+  media: Record<string, string> | undefined,
+  present: (relativePath: string) => boolean,
+  missing: string[],
+): { persistentSubject?: Project["persistentSubject"] } {
+  if (!raw || typeof raw !== "object") {
+    return {};
+  }
+  const description = typeof raw.description === "string" ? raw.description : "";
+  const mediaId = typeof raw.mediaId === "string" ? raw.mediaId.trim() : "";
+  let imageUrl: string | undefined;
+  if (isTrustedMediaIdShape(mediaId)) {
+    const relative = media?.[mediaId];
+    if (relative && isSafeProjectRelativePath(relative) && present(relative)) {
+      imageUrl = runtimeMediaPreviewUrl(mediaId);
+    } else {
+      missing.push(relative && isSafeProjectRelativePath(relative) ? relative : `subject:${mediaId}`);
+    }
+  }
+  if (!imageUrl && !description.trim()) {
+    return {};
+  }
+  return {
+    persistentSubject: {
+      description,
+      ...(imageUrl ? { mediaId, imageUrl } : {}),
+    },
+  };
+}
+
 function settingsFromProject(project: Project): ProjectSettingsSnapshot {
   return {
     agency: project.agency,
@@ -140,6 +190,7 @@ function settingsFromProject(project: Project): ProjectSettingsSnapshot {
     autoShoot: project.autoShoot,
     generateAudio: project.generateAudio,
     pullForwardReferenceEnabled: project.pullForwardReferenceEnabled !== false,
+    ...persistentSubjectSettingsField(project),
     cameraGrammar: cameraGrammarFromProject(project),
     durationMode: durationModeFromProject(project),
     fixedDurationSeconds: fixedDurationSecondsFromProject(project),
@@ -349,6 +400,17 @@ export function serializeProjectDocuments(input: SerializeProjectInput): Seriali
         },
       ]
     : undefined;
+
+  const subjectImage = persistentSubjectReference(project);
+  if (subjectImage) {
+    rememberCopy(
+      copies,
+      seen,
+      subjectImage.mediaId,
+      relativePosix("subject", `reference.${extensionFromUrl(subjectImage.imageUrl, "png")}`),
+      subjectImage.imageUrl,
+    );
+  }
 
   const media: Record<string, string> = {};
   for (const copy of copies) {
@@ -634,6 +696,7 @@ export function hydrateProject(input: HydrateProjectInput): { project: Project; 
     autoShoot: settings.autoShoot,
     generateAudio: settings.generateAudio === true,
     pullForwardReferenceEnabled: settings.pullForwardReferenceEnabled !== false,
+    ...restorePersistentSubject(settings.persistentSubject, input.manifest.media, present, missingAssets),
     cameraGrammar: cameraGrammarFromUnknown(settings.cameraGrammar),
     durationMode: isDurationMode(settings.durationMode) ? settings.durationMode : DEFAULT_DURATION_MODE,
     fixedDurationSeconds:

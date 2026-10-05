@@ -5,7 +5,8 @@ import {
 } from "./director";
 import type { CanonicalRepairRecommendation } from "./journey-agent-repair";
 import type { JourneyAgentEvent } from "./journey-agent";
-import type { CinematographerAssessment, JourneyShotTake, Project } from "./types";
+import type { CharacterConsistencyStatus } from "./character-consistency";
+import type { CanonicalImageReference, CinematographerAssessment, JourneyShotTake, Project } from "./types";
 
 export type ConversationEntryBase = {
   id: string;
@@ -40,6 +41,31 @@ export type ConstructionConversationEntry = ConversationEntryBase & {
   error?: string;
   imageUrl?: string;
   router?: ConstructionRouterSelection;
+  /** Present when this still was constructed with the persistent subject sheet. */
+  subjectRef?: {
+    description: string;
+    referenceCount: number;
+    references: CanonicalImageReference[];
+    referenceLimitation?: string;
+  };
+};
+
+export type CharacterConversationEntry = ConversationEntryBase & {
+  kind: "character";
+  beatId: string;
+  status: "checking" | "pass" | "drift" | "repairing";
+  score?: number;
+  consistencyStatus?: CharacterConsistencyStatus;
+  observations?: string[];
+  repairInstructions?: string[];
+  subjectMediaId?: string;
+  candidateMediaId?: string;
+  subjectDescription?: string;
+  attempt?: number;
+  model?: string;
+  references?: CanonicalImageReference[];
+  referenceLimitation?: string;
+  reshootScope?: "character" | "both";
 };
 
 export type BlockingConversationEntry = ConversationEntryBase & {
@@ -88,7 +114,8 @@ export type ConversationEntry =
   | BlockingConversationEntry
   | ShootingConversationEntry
   | AssemblyConversationEntry
-  | AgentConversationEntry;
+  | AgentConversationEntry
+  | CharacterConversationEntry;
 
 export type PlanSubmission =
   | { ok: true; submitted: string; request: DirectorPlanRequest }
@@ -251,7 +278,12 @@ export function resolveConstructionEntry(
   entries: ConversationEntry[],
   id: string,
   next:
-    | { status: "constructed"; imageUrl: string; router?: ConstructionRouterSelection }
+    | {
+        status: "constructed";
+        imageUrl: string;
+        router?: ConstructionRouterSelection;
+        subjectRef?: ConstructionConversationEntry["subjectRef"];
+      }
     | { status: "failed"; error: string },
 ): ConversationEntry[] {
   return entries.map((entry) => {
@@ -265,6 +297,7 @@ export function resolveConstructionEntry(
         imageUrl: next.imageUrl,
         error: undefined,
         ...(next.router ? { router: next.router } : { router: undefined }),
+        ...(next.subjectRef ? { subjectRef: next.subjectRef } : { subjectRef: undefined }),
       };
     }
     return {
@@ -365,6 +398,53 @@ export function resolveAgentEvaluationEntry(
       ...(next.traversalConfidence != null ? { traversalConfidence: next.traversalConfidence } : {}),
     };
   });
+}
+
+export function characterConversationEntryFromEvent(
+  id: string,
+  createdAt: string,
+  event: JourneyAgentEvent,
+): CharacterConversationEntry | undefined {
+  if (
+    event.kind !== "character-check" &&
+    event.kind !== "character-pass" &&
+    event.kind !== "character-drift" &&
+    event.kind !== "character-repair"
+  ) {
+    return undefined;
+  }
+  const beatId = event.destinationId;
+  if (!beatId) {
+    return undefined;
+  }
+  const status =
+    event.kind === "character-pass"
+      ? "pass"
+      : event.kind === "character-drift"
+        ? "drift"
+        : event.kind === "character-repair"
+          ? "repairing"
+          : "checking";
+  const character = event.character;
+  return {
+    id,
+    createdAt,
+    kind: "character",
+    beatId,
+    status,
+    ...(character?.score != null ? { score: character.score } : {}),
+    ...(character?.status ? { consistencyStatus: character.status } : {}),
+    ...(character?.observations ? { observations: character.observations } : {}),
+    ...(character?.repairInstructions ? { repairInstructions: character.repairInstructions } : {}),
+    ...(character?.subjectMediaId ? { subjectMediaId: character.subjectMediaId } : {}),
+    ...(character?.candidateMediaId ? { candidateMediaId: character.candidateMediaId } : {}),
+    ...(character?.subjectDescription ? { subjectDescription: character.subjectDescription } : {}),
+    ...(character?.attempt != null ? { attempt: character.attempt } : {}),
+    ...(character?.model ? { model: character.model } : {}),
+    ...(character?.references ? { references: character.references } : {}),
+    ...(character?.referenceLimitation ? { referenceLimitation: character.referenceLimitation } : {}),
+    ...(character?.reshootScope ? { reshootScope: character.reshootScope } : {}),
+  };
 }
 
 export function agentConversationEntryFromEvent(

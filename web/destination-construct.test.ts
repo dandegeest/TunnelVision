@@ -541,3 +541,200 @@ describe("opening frame generation server path", () => {
     ).rejects.toThrow(/journey story/i);
   });
 });
+
+describe("persistent subject references", () => {
+  it("sends only the subject sheet when generating opening A", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-subject-a-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const subject = registry.register(PNG, "image/png");
+    let edited: { sourcePath?: string; referenceCount?: number; prompt?: string } = {};
+    let generated = false;
+    const result = await generateOpeningFrameImage({
+      repoRoot,
+      body: {
+        story: "Travel forward through an imagined interior at night.",
+        subjectMediaId: subject.mediaId,
+        subjectDescription: "Giant golden puppy balloon.",
+      },
+      generateImage: async () => {
+        generated = true;
+        throw new Error("generateImage should not run when a subject sheet is attached");
+      },
+      editImage: async (request) => {
+        edited = {
+          sourcePath: request.sourceImage.kind === "file" ? request.sourceImage.path : undefined,
+          referenceCount: request.referenceImages?.length ?? 0,
+          prompt: request.prompt,
+        };
+        return fakeGenerated("https://example.test/subject-a.png");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(generated).toBe(false);
+    expect(edited.sourcePath).toBe(subject.filePath);
+    expect(edited.referenceCount).toBe(0);
+    expect(edited.prompt).toMatch(/PERSISTENT SUBJECT:\nGiant golden puppy balloon/);
+    expect(edited.prompt).not.toMatch(/previous canonical defines WHERE/);
+    expect(result.evidence.references).toEqual({
+      subjectSupplied: true,
+      subjectDescription: "Giant golden puppy balloon.",
+      referenceCount: 1,
+      references: [{ role: "subject", mediaId: subject.mediaId }],
+    });
+    expect(result.evidence.model).toBe("google/nano-banana-2-lite");
+  });
+
+  it("ignores a subject sheet on ordinary B and C construction", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-subject-bc-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const subject = registry.register(PNG, "image/png");
+    const canonicalA = registry.register(PNG, "image/png");
+    const canonicalB = registry.register(PNG, "image/png");
+    const seen: { source?: string; references?: number; prompt?: string }[] = [];
+    const editImage = async (request: Parameters<NonNullable<Parameters<typeof constructDestinationImage>[0]["editImage"]>>[0]) => {
+      seen.push({
+        source: request.sourceImage.kind === "file" ? request.sourceImage.path : undefined,
+        references: request.referenceImages?.length ?? 0,
+        prompt: request.prompt,
+      });
+      return fakeGenerated("https://example.test/plain-next.png");
+    };
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: canonicalA.mediaId,
+        beatId: "B",
+        intent: "Move forward.",
+        visualDescription: "The next room.",
+        subjectMediaId: subject.mediaId,
+        subjectDescription: "Giant golden puppy balloon.",
+      },
+      editImage,
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    const built = await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: canonicalB.mediaId,
+        beatId: "C",
+        intent: "Continue forward.",
+        visualDescription: "The room after that.",
+        subjectMediaId: subject.mediaId,
+        subjectDescription: "Giant golden puppy balloon.",
+      },
+      editImage,
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(seen[0]).toMatchObject({ source: canonicalA.filePath, references: 0 });
+    expect(seen[1]).toMatchObject({ source: canonicalB.filePath, references: 0 });
+    expect(seen[0]?.prompt).not.toMatch(/PERSISTENT SUBJECT:/);
+    expect(built.evidence.references?.subjectSupplied).toBe(false);
+  });
+
+  it("orders character repair as subject, failed candidate, then previous canonical", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-subject-repair-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const subject = registry.register(PNG, "image/png");
+    const previous = registry.register(PNG, "image/png");
+    const candidate = registry.register(PNG, "image/png");
+    let paths: string[] = [];
+    const result = await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: previous.mediaId,
+        candidateMediaId: candidate.mediaId,
+        beatId: "B",
+        intent: "Move forward.",
+        visualDescription: "The balloon tilts sideways over the avenue.",
+        repairInstruction: "Restore the long caramel ears.",
+        repairRole: "character",
+        subjectMediaId: subject.mediaId,
+        subjectDescription: "Giant golden puppy balloon.",
+      },
+      editImage: async (request) => {
+        paths = [
+          request.sourceImage.kind === "file" ? request.sourceImage.path : "",
+          ...(request.referenceImages ?? []).map((image) => (image.kind === "file" ? image.path : "")),
+        ];
+        expect(request.prompt).toMatch(/CHARACTER CONSISTENCY REPAIR/);
+        expect(request.prompt).toMatch(/tilts sideways/);
+        expect(request.prompt).not.toMatch(/PERSISTENT SUBJECT:/);
+        return fakeGenerated("https://example.test/character-repair.png");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(paths).toEqual([subject.filePath, candidate.filePath, previous.filePath]);
+    expect(result.evidence.references?.references).toEqual([
+      { role: "subject", mediaId: subject.mediaId },
+      { role: "candidate", mediaId: candidate.mediaId },
+      { role: "continuity", mediaId: previous.mediaId },
+    ]);
+    expect(result.evidence.references?.referenceLimitation).toMatch(/Single-image editors receive only the subject sheet/);
+  });
+
+  it("holds the subject after the scene on a traversal reshoot", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-subject-traversal-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const subject = registry.register(PNG, "image/png");
+    const scene = registry.register(PNG, "image/png");
+    const start = registry.register(PNG, "image/png");
+    let paths: string[] = [];
+    const result = await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: scene.mediaId,
+        referenceMediaId: start.mediaId,
+        beatId: "B",
+        intent: "Move forward.",
+        visualDescription: "The robot approaches the hatch.",
+        repairInstruction: "Move the camera closer to the hatch.",
+        repairRole: "end",
+        subjectMediaId: subject.mediaId,
+        subjectDescription: "Cream capsule body.",
+        cameraGrammar: "follow",
+      },
+      editImage: async (request) => {
+        paths = [
+          request.sourceImage.kind === "file" ? request.sourceImage.path : "",
+          ...(request.referenceImages ?? []).map((image) => (image.kind === "file" ? image.path : "")),
+        ];
+        expect(request.prompt).toMatch(/Reshoot scope: TRAVERSAL/);
+        expect(request.prompt).toMatch(/Hold the persistent subject's identity/);
+        expect(request.prompt).not.toMatch(/CHARACTER CONSISTENCY REPAIR/);
+        return fakeGenerated("https://example.test/traversal-hold.png");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(paths).toEqual([scene.filePath, start.filePath, subject.filePath]);
+    expect(result.evidence.references?.references.map((item) => item.role)).toEqual([
+      "repair",
+      "repair",
+      "subject",
+    ]);
+    expect(result.evidence.references?.referenceLimitation).toMatch(/scene stays the edit source/i);
+  });
+
+  it("does not attach the subject sheet to a text-only canonical when no image id is sent", async () => {
+    const registry = createRuntimeMediaRegistry(mkdtempSync(resolve(tmpdir(), "tv-subject-off-")));
+    setActiveRuntimeMediaRegistry(registry);
+    const previous = registry.register(PNG, "image/png");
+    let sourcePath = "";
+    await constructDestinationImage({
+      repoRoot,
+      body: {
+        sourceMediaId: previous.mediaId,
+        beatId: "B",
+        intent: "Move forward.",
+        visualDescription: "The next room.",
+      },
+      editImage: async (request) => {
+        sourcePath = request.sourceImage.kind === "file" ? request.sourceImage.path : "";
+        expect(request.referenceImages).toBeUndefined();
+        expect(request.prompt).not.toMatch(/PERSISTENT SUBJECT:/);
+        return fakeGenerated("https://example.test/plain-b.png");
+      },
+      fetchOutput: async () => ({ bytes: PNG, contentType: "image/png" }),
+    });
+    expect(sourcePath).toBe(previous.filePath);
+  });
+});

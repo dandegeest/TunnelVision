@@ -15,6 +15,7 @@ import {
   destinationImageResolutionTier,
   precedingActualFrame,
 } from "../project/destination";
+import { persistentSubjectReference } from "../project/persistent-subject";
 import { canonicalTakes, selectedCanonicalTake } from "../project/canonical-takes";
 import { canUploadStoryboardFrame } from "../project/starting-frame";
 import { formatFriendlyAspectRatio } from "../project/media-preflight";
@@ -143,6 +144,7 @@ function DestinationMediaFacts({
     info ? `${info.width}×${info.height}` : undefined,
     model,
     tier,
+    frame.id === "A" && persistentSubjectReference(project) ? "SUBJECT REF" : undefined,
   ].filter((part): part is string => Boolean(part));
   if (parts.length === 0) {
     return null;

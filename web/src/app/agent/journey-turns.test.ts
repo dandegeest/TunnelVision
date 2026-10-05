@@ -143,7 +143,7 @@ describe("journey turns from conversation", () => {
     const live = turnReasoningLines(turns[1]!.entries, createForestProject());
     expect(live.some((line) => line.role === "Director" && line.text === "Root-tunnel mouth.")).toBe(true);
     expect(live.some((line) => line.role === "Cinematographer · B→C")).toBe(true);
-    expect(live.some((line) => line.role === "Reshoot · C")).toBe(true);
+    expect(live.some((line) => line.role === "Reshoot traversal · C")).toBe(true);
   });
 
   it("rebuilds a completed journey turn after reload when conversation is empty", () => {

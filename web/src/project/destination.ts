@@ -2,8 +2,10 @@ import { cameraGrammarFromUnknown, type CameraGrammar } from "../../../media/src
 import {
   assembleCanonicalConstructionPrompt,
   assembleCanonicalRepairPrompt,
+  assembleCharacterRepairPrompt,
   assembleOpeningFramePrompt,
   pullForwardReferenceEnabledFromUnknown,
+  type PersistentSubjectPrompt,
 } from "../../../media/src/prompts/canonical-destination.ts";
 import {
   DEFAULT_IMAGE_MODEL_ID,
@@ -29,7 +31,14 @@ import { projectWithSyncedProductionLegs } from "./production-legs";
 import { frameWithAppendedCanonicalTake, selectedCanonicalTake } from "./canonical-takes";
 import { defaultTakeIntentFromProject, type GenerationIntent } from "./generation-intent";
 import { mediaProviderFromProject } from "./media-provider";
-import type { MediaProviderChoice, Project, StoryboardFrame, StoryboardMediaInfo } from "./types";
+import { persistentSubjectReference, persistentSubjectRequestFields } from "./persistent-subject";
+import type {
+  CanonicalImageReference,
+  MediaProviderChoice,
+  Project,
+  StoryboardFrame,
+  StoryboardMediaInfo,
+} from "./types";
 
 export type DestinationLookAhead = {
   intent: string;
@@ -51,9 +60,13 @@ export type DestinationConstructionRequest = {
   imageResolution?: ImageResolution;
   /** Opposite / established START canonical for Agent spatial repair. Nano Banana includes it as extra image_input. */
   referenceMediaId?: string;
-  /** CM spatial repair instruction. Directed construct leaves this unset. */
+  /** Failed candidate kept during character repair so composition can be preserved. */
+  candidateMediaId?: string;
+  /** CM spatial repair, or character-consistency repair. Directed construct leaves this unset. */
   repairInstruction?: string;
-  repairRole?: "start" | "end";
+  repairRole?: "start" | "end" | "character";
+  /** Traversal instruction a character repair must keep. Present only on a both-reshoot. */
+  spatialInstruction?: string;
   cameraGrammar?: CameraGrammar;
   /** Missing means ON. Repair ignores this and keeps its own image inputs. */
   pullForwardReferenceEnabled?: boolean;
@@ -61,6 +74,13 @@ export type DestinationConstructionRequest = {
   generationIntent?: GenerationIntent;
   /** Stills. Runway uses the intent router. Replicate uses imageModel. */
   mediaProvider?: MediaProviderChoice;
+  /**
+   * Persistent subject sheet. Opening A uses it as the edit source.
+   * Character repair uses it as the identity source. A traversal reshoot
+   * attaches it after the scene so the route change holds the character.
+   */
+  subjectMediaId?: string;
+  subjectDescription?: string;
 };
 
 export type DestinationConstructionResult = {
@@ -98,11 +118,51 @@ export type DestinationConstructionEvidence = {
   optimizeFor?: string;
   resolution?: string;
   credits?: number;
+  references?: CanonicalReferenceEvidence;
+};
+
+/**
+ * Single-image editors keep only the first reference. Character repair puts
+ * the subject sheet first so identity is not dropped, then the failed
+ * candidate, then the previous accepted canonical.
+ */
+export const CHARACTER_REPAIR_REFERENCE_LIMITATION =
+  "Single-image editors receive only the subject sheet. Multi-image editors also receive the failed candidate, then the previous accepted canonical.";
+
+export const TRAVERSAL_HOLD_REFERENCE_LIMITATION =
+  "The scene stays the edit source. Multi-image editors also receive the persistent subject so the traversal reshoot can hold identity. Single-image editors keep the scene and do not see the sheet.";
+
+export type CanonicalReferenceEvidence = {
+  subjectSupplied: boolean;
+  subjectDescription?: string;
+  referenceCount: number;
+  references: CanonicalImageReference[];
+  referenceLimitation?: string;
 };
 
 export type DestinationConstructionResponse = DestinationConstructionResult & {
   evidence: DestinationConstructionEvidence;
 };
+
+export function constructionSubjectRef(
+  evidence: Pick<DestinationConstructionEvidence, "references">,
+): {
+  description: string;
+  referenceCount: number;
+  references: CanonicalImageReference[];
+  referenceLimitation?: string;
+} | undefined {
+  const references = evidence.references;
+  if (!references?.subjectSupplied) {
+    return undefined;
+  }
+  return {
+    description: references.subjectDescription ?? "",
+    referenceCount: references.referenceCount,
+    references: references.references,
+    ...(references.referenceLimitation ? { referenceLimitation: references.referenceLimitation } : {}),
+  };
+}
 
 /** Copy the generator identity from a construction response onto the still result. */
 export function recordedImageModel(evidence: {
@@ -228,8 +288,20 @@ export function canonicalRepairPrompt(input: {
   visualDescription: string;
   instruction: string;
   cameraGrammar?: CameraGrammar;
+  holdSubject?: { description: string };
 }): string {
   return assembleCanonicalRepairPrompt(input);
+}
+
+/** Identity repair of a candidate canonical. The sheet is an image, not this text alone. */
+export function characterRepairPrompt(input: {
+  description: string;
+  visualDescription: string;
+  instruction: string;
+  cameraGrammar?: CameraGrammar;
+  spatialInstruction?: string;
+}): string {
+  return assembleCharacterRepairPrompt(input);
 }
 
 /** Immediately preceding actual destination. Construction of N uses N-1. */
@@ -273,16 +345,25 @@ export function destinationConstructionPlan(
   };
 }
 
+function subjectSignatureSuffix(project: Project, frame: StoryboardFrame): string {
+  if (frame.id !== "A") {
+    return "";
+  }
+  const subject = persistentSubjectReference(project);
+  return subject ? `\nsubject:${subject.mediaId}` : "";
+}
+
 function ownGenerationSignature(project: Project, frame: StoryboardFrame): string | undefined {
+  const suffix = subjectSignatureSuffix(project, frame);
   if (frame.id === "A") {
     const story = project.story.trim();
-    return story ? `story:${story}` : undefined;
+    return story ? `story:${story}${suffix}` : undefined;
   }
   const plan = destinationConstructionPlan(frame);
   if (!plan) {
     return undefined;
   }
-  return `plan:${plan.intent}\n${plan.visualDescription}`;
+  return `plan:${plan.intent}\n${plan.visualDescription}${suffix}`;
 }
 
 function storedOwnGenerationSignature(generatedFrom: string): string {
@@ -317,10 +398,20 @@ export function storyboardGenerationSignature(project: Project, frame: Storyboar
 }
 
 /** Prompt TunnelVision would send to generate or reshoot this still right now. */
+function openingSubjectPrompt(project: Project): PersistentSubjectPrompt | undefined {
+  const subject = persistentSubjectReference(project);
+  if (!subject) {
+    return undefined;
+  }
+  return { description: subject.description };
+}
+
 export function destinationGeneratedPrompt(project: Project, frame: StoryboardFrame): string | undefined {
   if (frame.id === "A") {
     const story = project.story.trim();
-    return story ? openingFrameGenerationPrompt(story, project.cameraGrammar) : undefined;
+    return story
+      ? openingFrameGenerationPrompt(story, project.cameraGrammar, openingSubjectPrompt(project))
+      : undefined;
   }
   const plan = destinationConstructionPlan(frame);
   if (!plan) {
@@ -536,8 +627,12 @@ export function openingFrameIntent(story: string): string | undefined {
   return intent || undefined;
 }
 
-export function openingFrameGenerationPrompt(story: string, cameraGrammar?: CameraGrammar): string {
-  return assembleOpeningFramePrompt(story, cameraGrammar);
+export function openingFrameGenerationPrompt(
+  story: string,
+  cameraGrammar?: CameraGrammar,
+  persistentSubject?: Pick<PersistentSubjectPrompt, "description">,
+): string {
+  return assembleOpeningFramePrompt(story, cameraGrammar, persistentSubject);
 }
 
 /**
@@ -574,6 +669,8 @@ export type OpeningFrameGenerationRequest = {
   cameraGrammar?: CameraGrammar;
   generationIntent?: GenerationIntent;
   mediaProvider?: MediaProviderChoice;
+  subjectMediaId?: string;
+  subjectDescription?: string;
 };
 
 export function openingFrameGenerationRequestFromProject(
@@ -588,6 +685,7 @@ export function openingFrameGenerationRequestFromProject(
     ...imageGenerationKnobsFromProject(project),
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
     generationIntent: defaultTakeIntentFromProject(project),
+    ...persistentSubjectRequestFields(project),
   };
 }
 
@@ -759,8 +857,49 @@ export function destinationRepairRequestFromProject(
     repairInstruction: input.instruction,
     repairRole: input.role,
     cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
+    ...persistentSubjectRequestFields(project),
     ...(referenceMediaId ? { referenceMediaId } : {}),
     generationIntent: defaultTakeIntentFromProject(project),
+  };
+}
+
+/** Character repair of a generated B+ canonical. The sheet is not used for ordinary construction. */
+export function destinationCharacterRepairRequestFromProject(
+  project: Project,
+  beatId: string,
+  input: { instruction: string; spatialInstruction?: string },
+): DestinationConstructionRequest {
+  const beat = project.storyboard.find((frame) => frame.id === beatId);
+  const subject = persistentSubjectRequestFields(project);
+  if (!beat || beat.id === "A" || beat.imageOrigin !== "generated" || !isTrustedMediaIdShape(beat.mediaId)) {
+    throw new Error("Destination is not ready for character repair");
+  }
+  if (!subject) {
+    throw new Error("Character repair requires a persistent subject reference");
+  }
+  const plan = destinationConstructionPlan(beat);
+  if (!plan) {
+    throw new Error("Destination is not ready for character repair");
+  }
+  if (!input.instruction.trim()) {
+    throw new Error("Character repair requires a repair instruction");
+  }
+  const previous = precedingActualFrame(project, beat);
+  const aspectRatio = projectCanonicalAspectRatio(project);
+  return {
+    sourceMediaId: previous?.mediaId ?? beat.mediaId,
+    candidateMediaId: beat.mediaId,
+    beatId: beat.id,
+    intent: plan.intent,
+    visualDescription: plan.visualDescription,
+    ...(aspectRatio ? { aspectRatio } : {}),
+    ...imageGenerationKnobsFromProject(project),
+    repairInstruction: input.instruction.trim(),
+    repairRole: "character",
+    ...(input.spatialInstruction?.trim() ? { spatialInstruction: input.spatialInstruction.trim() } : {}),
+    cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
+    generationIntent: defaultTakeIntentFromProject(project),
+    ...subject,
   };
 }
 

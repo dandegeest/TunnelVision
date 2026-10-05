@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 
 import { loadDotEnvLocal, getOptionalEnv } from "../media/src/config/environment.ts";
 import { assessJourney } from "../media/src/cinematographer/assess-journey.ts";
+import { evaluateCharacterConsistency } from "../media/src/cinematographer/character-consistency.ts";
 import { chooseJourneyPace } from "../media/src/cinematographer/journey-pace.ts";
 import { plan } from "../media/src/director/plan-storyboard.ts";
 import { deriveStory } from "../media/src/director/derive-story.ts";
@@ -28,6 +29,7 @@ import {
   directorAnchorsFromRequest,
   directorStartFrameFromRequest,
   directorStoryboardFromRequest,
+  resolveTrustedMedia,
 } from "./trusted-media.ts";
 import { projectWithCameraGrammar } from "./src/project/camera-grammar.ts";
 import {
@@ -35,10 +37,11 @@ import {
   journeyPaceIsCurrent,
   projectWithJourneyPace,
 } from "./src/project/adaptive-pace.ts";
-import { cinematographerRequestFromProject, projectWithCinematographerAssessment } from "./src/project/cinematographer.ts";
+import { actualFrameForDestination, cinematographerRequestFromProject, projectWithCinematographerAssessment } from "./src/project/cinematographer.ts";
 import { prepareDirectorPlan } from "./src/project/conversation.ts";
 import {
   destinationConstructionRequestFromProject,
+  destinationCharacterRepairRequestFromProject,
   destinationRepairRequestFromProject,
   imageModelIdFromBody,
   imageOutputFormatFromBody,
@@ -62,6 +65,7 @@ import { motionPlanStageRequestFromAssessment, projectWithMotionPlan } from "./s
 import { createNewProject } from "./src/project/new-project.ts";
 import { projectWithDefaultTakeIntent, projectWithJourneyShotTake, shootRequestFromProject } from "./src/project/shoot.ts";
 import { projectWithDurationMode } from "./src/project/shot-duration.ts";
+import { persistentSubjectReference } from "./src/project/persistent-subject.ts";
 import { projectWithDirectorPlan } from "./src/project/storyboard.ts";
 import type { JourneyShotTake, Project } from "./src/project/types.ts";
 
@@ -162,9 +166,14 @@ export function createHeadlessJourneyOperations(input: {
       log("Generating opening still A");
       const request = openingFrameGenerationRequestFromProject(project);
       const provider = imageProvider(project);
+      if (request.subjectMediaId) {
+        log("Opening still includes the persistent subject reference");
+      }
       const result = await generateOpeningFrameImage({
+        repoRoot: input.repoRoot,
         body: request,
         generateImage: (imageRequest) => provider.generateImage(imageRequest),
+        editImage: (imageRequest) => provider.editImage(imageRequest),
       });
       return projectWithGeneratedOpeningFrame(project, {
         ...result,
@@ -229,6 +238,62 @@ export function createHeadlessJourneyOperations(input: {
         imageUrl: result.imageUrl,
         ...recordedImageModel(result.evidence),
       });
+    },
+    async evaluateCharacterConsistency(project, beatId) {
+      const subject = persistentSubjectReference(project);
+      const frame = actualFrameForDestination(project, beatId);
+      if (!subject || !frame) {
+        throw new Error(`Character consistency requires a subject sheet and canonical ${beatId}`);
+      }
+      log(`CC checking ${beatId}`);
+      const result = await evaluateCharacterConsistency({
+        reasoning: new ReplicateReasoningProvider(),
+        description: subject.description,
+        cameraGrammar: cameraGrammarFromUnknown(project.cameraGrammar),
+        subjectImage: resolveTrustedMedia(input.repoRoot, subject.mediaId),
+        candidateImage: resolveTrustedMedia(input.repoRoot, frame.mediaId),
+      });
+      log(`CC ${result.consistency.status} ${result.consistency.score} · ${beatId}`);
+      return {
+        score: result.consistency.score,
+        status: result.consistency.status,
+        observations: [...result.consistency.observations],
+        repairNeeded: result.consistency.repairNeeded,
+        repairInstructions: [...(result.consistency.repairInstructions ?? [])],
+        subjectMediaId: subject.mediaId,
+        candidateMediaId: frame.mediaId,
+        subjectDescription: subject.description,
+        model: result.model,
+      };
+    },
+    async repairCharacter(project, beatId, repair) {
+      log(repair.spatialInstruction ? `CC reshoot both ${beatId}` : `CC reshoot character ${beatId}`);
+      const request = destinationCharacterRepairRequestFromProject(project, beatId, repair);
+      const provider = imageProvider(project);
+      const result = await constructDestinationImage({
+        repoRoot: input.repoRoot,
+        body: request,
+        editImage: (imageRequest) => provider.editImage(imageRequest),
+        generateImage: (imageRequest) => provider.generateImage(imageRequest),
+      });
+      const references = result.evidence.references?.references ?? [];
+      log(
+        `CC repair references ${references.map((item) => item.role).join(", ") || "none"}`,
+      );
+      return {
+        project: projectWithRepairedCanonical(project, {
+          beatId: request.beatId,
+          mediaId: result.mediaId,
+          imageUrl: result.imageUrl,
+          ...recordedImageModel(result.evidence),
+          reason: repair.instruction,
+        }),
+        references,
+        ...(result.evidence.model ? { model: result.evidence.model } : {}),
+        ...(result.evidence.references?.referenceLimitation
+          ? { referenceLimitation: result.evidence.references.referenceLimitation }
+          : {}),
+      };
     },
     async assessCinematographer(project, journeyId) {
       log(`Cinematographer assessing ${journeyId}`);
@@ -481,6 +546,11 @@ export async function runHeadlessJourney(input: {
     writeStoryFromOpening: async (current) => persist(await base.writeStoryFromOpening(current)),
     planJourney: async (current) => persist(await base.planJourney(current)),
     constructDestination: async (current, beatId) => persist(await base.constructDestination(current, beatId)),
+    evaluateCharacterConsistency: (current, beatId) => base.evaluateCharacterConsistency(current, beatId),
+    repairCharacter: async (current, beatId, repair) => {
+      const repaired = await base.repairCharacter(current, beatId, repair);
+      return { ...repaired, project: await persist(repaired.project) };
+    },
     assessCinematographer: async (current, journeyId) =>
       persist(await base.assessCinematographer(current, journeyId)),
     repairCanonical: async (current, beatId, repair) =>

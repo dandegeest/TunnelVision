@@ -402,6 +402,24 @@ export type JourneyShot = {
 /** AUTO lets the Director choose N destinations. A number is an exact storyboard length. */
 export type StoryDuration = "auto" | number;
 
+/**
+ * One project-level subject sheet. `mediaId` is the authoritative image.
+ * `description` is a short semantic note, not a substitute for the image.
+ */
+export type PersistentSubject = {
+  mediaId?: string;
+  imageUrl?: string;
+  description: string;
+};
+
+/** How a canonical image request labeled each attached still. */
+export type CanonicalImageReferenceRole = "subject" | "continuity" | "repair" | "candidate";
+
+export type CanonicalImageReference = {
+  role: CanonicalImageReferenceRole;
+  mediaId: string;
+};
+
 export type Project = {
   id: string;
   title: string;
@@ -433,6 +451,12 @@ export type Project = {
    * projects means true. OFF is not the preferred product default.
    */
   pullForwardReferenceEnabled?: boolean;
+  /**
+   * Optional single subject sheet for canonical stills. The image is sent
+   * with every pristine canonical. Missing means no persistent subject.
+   * Not a character library.
+   */
+  persistentSubject?: PersistentSubject;
   /**
    * Stills and traversals. Runway uses the intent routers. Replicate uses
    * the image and video models in project settings. Missing means Runway.

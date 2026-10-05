@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createForestProject } from "../fixtures/forest-a-to-f";
 import { createWardrobeProject } from "../fixtures/wardrobe-loop";
@@ -21,7 +24,9 @@ import {
   takeRouterActivity,
   farFieldVisualDetails,
   destinationConstructionRequestFromProject,
+  destinationCharacterRepairRequestFromProject,
   destinationRepairRequestFromProject,
+  characterRepairPrompt,
   pullForwardReferenceEnabledFromProject,
   canonicalRepairPrompt,
   imageModelIdFromBody,
@@ -1092,5 +1097,80 @@ describe("router activity selection", () => {
         generation: {},
       })?.credits,
     ).toBeUndefined();
+  });
+});
+
+describe("persistent subject reference", () => {
+  const subject = {
+    mediaId: "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    imageUrl: "/api/runtime-media/upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    description: "Giant golden puppy balloon with caramel ears.",
+  };
+
+  it("leaves canonical requests unchanged when the project has no subject sheet", () => {
+    const planned = plannedFrom();
+    expect(destinationConstructionRequestFromProject(planned, "B").subjectMediaId).toBeUndefined();
+    expect(openingFrameGenerationRequestFromProject({ ...createNewProject(), story: "Travel forward." }).subjectMediaId).toBeUndefined();
+    expect(destinationGeneratedPrompt(planned, planned.storyboard[1]!)).not.toMatch(/PERSISTENT SUBJECT:/);
+  });
+
+  it("initializes A from the sheet and keeps later canonicals on pull-forward only", () => {
+    const planned = { ...plannedFrom(), persistentSubject: subject };
+    const opening = openingFrameGenerationRequestFromProject({
+      ...createNewProject(),
+      story: "Travel forward through the hall.",
+      persistentSubject: subject,
+    });
+    expect(opening.subjectMediaId).toBe(subject.mediaId);
+    expect(opening.subjectDescription).toBe(subject.description);
+    expect(openingFrameGenerationPrompt(opening.story, opening.cameraGrammar, { description: subject.description })).toMatch(
+      /authoritative visual definition/,
+    );
+    const requestB = destinationConstructionRequestFromProject(planned, "B");
+    expect(requestB.subjectMediaId).toBeUndefined();
+    expect(requestB.sourceMediaId).toBe(planned.storyboard[0]?.mediaId);
+    const withC = projectWithConstructedDestination(planned, { beatId: "B", ...generatedB });
+    const requestC = destinationConstructionRequestFromProject(
+      { ...withC, persistentSubject: subject },
+      "C",
+    );
+    expect(requestC.subjectMediaId).toBeUndefined();
+    expect(requestC.sourceMediaId).toBe(generatedB.mediaId);
+    expect(destinationGeneratedPrompt(planned, planned.storyboard[1]!)).not.toMatch(/PERSISTENT SUBJECT:/);
+    expect(destinationGeneratedPrompt(planned, planned.storyboard[0]!)).toMatch(/authoritative visual definition/);
+    const spatial = destinationRepairRequestFromProject(withC, "B", {
+      role: "end",
+      instruction: "Open a continuous route.",
+      referenceMediaId: planned.storyboard[0]?.mediaId,
+    });
+    expect(spatial.subjectMediaId).toBe(subject.mediaId);
+    expect(spatial.repairRole).toBe("end");
+    expect(spatial.spatialInstruction).toBeUndefined();
+  });
+
+  it("sends the sheet, the failed candidate, and the previous canonical for character repair", () => {
+    const planned = { ...plannedFrom(), persistentSubject: subject };
+    const withB = projectWithConstructedDestination(planned, { beatId: "B", ...generatedB });
+    const repair = destinationCharacterRepairRequestFromProject(withB, "B", {
+      instruction: "Restore the long caramel ears and red collar.",
+    });
+    expect(repair.repairRole).toBe("character");
+    expect(repair.subjectMediaId).toBe(subject.mediaId);
+    expect(repair.candidateMediaId).toBe(generatedB.mediaId);
+    expect(repair.sourceMediaId).toBe(planned.storyboard[0]?.mediaId);
+    expect(repair.repairInstruction).toMatch(/caramel ears/);
+    expect(characterRepairPrompt({
+      description: subject.description,
+      visualDescription: repair.visualDescription,
+      instruction: repair.repairInstruction ?? "",
+    })).toMatch(/CHARACTER CONSISTENCY REPAIR/);
+  });
+
+  it("does not mention the subject sheet in Camotion or traversal request code", () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+    for (const relative of ["web/shoot-journey.ts", "web/camotion-cli.ts", "web/src/project/shoot.ts", "web/src/project/motion-plan.ts"]) {
+      const source = readFileSync(resolve(root, relative), "utf8");
+      expect(source).not.toMatch(/subjectMediaId|persistentSubject/);
+    }
   });
 });

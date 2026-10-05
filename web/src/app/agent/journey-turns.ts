@@ -403,7 +403,7 @@ export function turnReasoningLines(entries: ConversationEntry[], project: Projec
       ].filter(Boolean);
       lines.push({
         id: entry.id,
-        role: `Reshoot · ${repair.letters}`,
+        role: `Reshoot traversal · ${repair.letters}`,
         text: bits.join(" · "),
       });
     }

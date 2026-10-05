@@ -27,6 +27,10 @@ export type ProjectSettingsSnapshot = {
   autoShoot: boolean;
   generateAudio?: boolean;
   pullForwardReferenceEnabled?: boolean;
+  persistentSubject?: {
+    mediaId?: string;
+    description?: string;
+  };
   cameraGrammar?: Project["cameraGrammar"];
   durationMode?: Project["durationMode"];
   fixedDurationSeconds?: number;

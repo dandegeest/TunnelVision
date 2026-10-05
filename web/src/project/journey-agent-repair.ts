@@ -8,6 +8,16 @@ export const JOURNEY_AGENT_REPAIR_THRESHOLDS = {
   maxAttemptsPerSegment: 2,
 } as const;
 
+/**
+ * Character-consistency repairs allowed for one acceptance of a canonical.
+ * The budget starts over after a spatial RESHOOT replaces that canonical.
+ * A character repair in that later acceptance keeps the traversal instruction,
+ * so it changes the character and the route together instead of undoing the route.
+ * Spatial repair still stops after maxAttemptsPerSegment, so a segment can
+ * run at most 1 + maxAttemptsPerSegment acceptance cycles.
+ */
+export const CHARACTER_CONSISTENCY_MAX_REPAIRS = 2;
+
 export type CanonicalRepairRecommendation = "RESHOOT_START" | "RESHOOT_END" | "RESHOOT_BOTH";
 
 export type CanonicalRepairPlan = {
@@ -190,7 +200,7 @@ export function formatCanonicalRepairActivity(input: {
     ? input.journeyId
     : input.journeyId.replaceAll("-", "→");
   return [
-    `RESHOOT · ${letters}`,
+    `RESHOOT TRAVERSAL · ${letters}`,
     `${segment} needs a stronger spatial connection.`,
     `Set Consistency ${input.setConsistency} · Traversal Confidence ${input.traversalConfidence}`,
     `Brief reason: ${input.instruction}`,

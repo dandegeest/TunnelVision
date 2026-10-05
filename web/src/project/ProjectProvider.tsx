@@ -13,6 +13,7 @@ import { clampZoom } from "../timeline/geometry";
 import { directorStoryRequestFromProject, requestDirectorPlan, requestDirectorStory } from "./director";
 import {
   cinematographerRequestFromProject,
+  actualFrameForDestination,
   canAssessJourney,
   cinematographerAssessmentIsCurrent,
   cinematographerPairMediaIds,
@@ -83,6 +84,7 @@ import {
   requestConstructDestination,
   projectWithConstructedDestination,
   destinationConstructionRequestFromProject,
+  destinationCharacterRepairRequestFromProject,
   destinationRepairRequestFromProject,
   openingFrameGenerationRequestFromProject,
   projectWithDestinationConstructionError,
@@ -92,6 +94,7 @@ import {
   projectWithImageOutputFormat,
   projectWithImageResolution,
   constructionRouterSelection,
+  constructionSubjectRef,
   recordedImageModel,
   requestGenerateOpeningFrame,
   canGenerateOpeningFrame,
@@ -103,6 +106,7 @@ import {
   appendConversationEntry,
   appendFilmmakerStory,
   agentConversationEntryFromEvent,
+  characterConversationEntryFromEvent,
   conversationTimestamp,
   prepareDirectorPlan,
   resolveAgentEvaluationEntry,
@@ -146,6 +150,8 @@ import {
   type JourneyAgentSnapshot,
 } from "./journey-agent";
 import { projectWithMediaProvider } from "./media-provider";
+import { projectWithPersistentSubjectDescription, projectWithPersistentSubjectImage, persistentSubjectReference } from "./persistent-subject";
+import { requestCharacterConsistency } from "./character-consistency";
 import { storyboardFrameById, type Agency, type CameraGrammar, type DurationMode, type ImageModelId, type ImageOutputFormat, type ImageResolution, type JourneyShot, type KlingV3Mode, type LocomotionPace, type MediaProviderChoice, type Project, type Selection, type VideoModelId } from "./types";
 import { cameraGrammarFromProject, cameraGrammarIsLocked, projectWithCameraGrammar } from "./camera-grammar";
 import { compileStoryIdea } from "./story-idea";
@@ -214,6 +220,8 @@ type ProjectContextValue = {
   setAutoShoot: (enabled: boolean) => void;
   setGenerateAudio: (enabled: boolean) => void;
   setPullForwardReferenceEnabled: (enabled: boolean) => void;
+  setPersistentSubjectDescription: (description: string) => void;
+  setPersistentSubjectImage: (image: { mediaId: string; imageUrl: string } | null) => void;
   setCameraGrammar: (grammar: CameraGrammar) => void;
   setDurationMode: (mode: DurationMode) => void;
   setFixedDurationSeconds: (seconds: number) => void;
@@ -676,6 +684,14 @@ export function ProjectProvider({
     setProject((current) => projectWithPullForwardReference(current, enabled));
   }, []);
 
+  const setPersistentSubjectDescription = useCallback((description: string) => {
+    setProject((current) => projectWithPersistentSubjectDescription(current, description));
+  }, []);
+
+  const setPersistentSubjectImage = useCallback((image: { mediaId: string; imageUrl: string } | null) => {
+    setProject((current) => projectWithPersistentSubjectImage(current, image));
+  }, []);
+
   const setCameraGrammar = useCallback((grammar: CameraGrammar) => {
     setProject((current) =>
       cameraGrammarIsLocked(current) ? current : projectWithCameraGrammar(current, grammar),
@@ -938,11 +954,13 @@ export function ProjectProvider({
           result.evidence,
           frame ? selectedCanonicalTake(frame)?.number : undefined,
         );
+        const subjectRef = constructionSubjectRef(result.evidence);
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "constructed",
             imageUrl: result.imageUrl,
             ...(router ? { router } : {}),
+            ...(subjectRef ? { subjectRef } : {}),
           }),
         );
         return next;
@@ -1066,11 +1084,13 @@ export function ProjectProvider({
           result.evidence,
           frame ? selectedCanonicalTake(frame)?.number : undefined,
         );
+        const subjectRef = constructionSubjectRef(result.evidence);
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "constructed",
             imageUrl: result.imageUrl,
             ...(router ? { router } : {}),
+            ...(subjectRef ? { subjectRef } : {}),
           }),
         );
         return next;
@@ -1079,6 +1099,107 @@ export function ProjectProvider({
           return projectRef.current;
         }
         const message = error instanceof Error ? error.message : "Canonical repair failed.";
+        setConversation((entries) =>
+          resolveConstructionEntry(entries, entryId, {
+            status: "failed",
+            error: message,
+          }),
+        );
+        throw error;
+      }
+    },
+    [applyProject, nextConversationId],
+  );
+
+  const evaluateCharacterConsistencyOn = useCallback(async (current: Project, beatId: string) => {
+    const subject = persistentSubjectReference(current);
+    const frame = actualFrameForDestination(current, beatId);
+    if (!subject || !frame) {
+      throw new Error(`Character consistency requires a subject sheet and canonical ${beatId}`);
+    }
+    const result = await requestCharacterConsistency({
+      subjectMediaId: subject.mediaId,
+      candidateMediaId: frame.mediaId,
+      description: subject.description,
+      cameraGrammar: cameraGrammarFromProject(current),
+    });
+    return {
+      score: result.consistency.score,
+      status: result.consistency.status,
+      observations: result.consistency.observations,
+      repairNeeded: result.consistency.repairNeeded,
+      repairInstructions: result.consistency.repairInstructions ?? [],
+      subjectMediaId: subject.mediaId,
+      candidateMediaId: frame.mediaId,
+      subjectDescription: subject.description,
+      model: result.model,
+    };
+  }, []);
+
+  const repairCharacterOn = useCallback(
+    async (current: Project, beatId: string, input: { instruction: string; spatialInstruction?: string }) => {
+      const entryId = nextConversationId("construction");
+      setConversation((entries) =>
+        appendConversationEntry(entries, {
+          id: entryId,
+          createdAt: conversationTimestamp(),
+          kind: "construction",
+          beatId,
+          status: "constructing",
+        }),
+      );
+      const session = projectSessionRef.current;
+      try {
+        const request = destinationCharacterRepairRequestFromProject(current, beatId, input);
+        const result = await requestConstructDestination(request);
+        const mediaInfo = await readStoryboardMediaInfoFromUrl(result.imageUrl);
+        if (projectSessionRef.current !== session) {
+          return {
+            project: projectRef.current,
+            references: result.evidence.references?.references ?? [],
+            ...(result.evidence.model ? { model: result.evidence.model } : {}),
+            ...(result.evidence.references?.referenceLimitation
+              ? { referenceLimitation: result.evidence.references.referenceLimitation }
+              : {}),
+          };
+        }
+        const next = applyProject(
+          projectWithRepairedCanonical(projectRef.current, {
+            beatId: request.beatId,
+            mediaId: result.mediaId,
+            imageUrl: result.imageUrl,
+            ...(mediaInfo ? { mediaInfo } : {}),
+            ...recordedImageModel(result.evidence),
+            reason: input.instruction,
+          }),
+        );
+        const frame = next.storyboard.find((item) => item.id === request.beatId);
+        const router = constructionRouterSelection(
+          result.evidence,
+          frame ? selectedCanonicalTake(frame)?.number : undefined,
+        );
+        const subjectRef = constructionSubjectRef(result.evidence);
+        setConversation((entries) =>
+          resolveConstructionEntry(entries, entryId, {
+            status: "constructed",
+            imageUrl: result.imageUrl,
+            ...(router ? { router } : {}),
+            ...(subjectRef ? { subjectRef } : {}),
+          }),
+        );
+        return {
+          project: next,
+          references: result.evidence.references?.references ?? [],
+          ...(result.evidence.model ? { model: result.evidence.model } : {}),
+          ...(result.evidence.references?.referenceLimitation
+            ? { referenceLimitation: result.evidence.references.referenceLimitation }
+            : {}),
+        };
+      } catch (error) {
+        if (projectSessionRef.current !== session) {
+          throw error;
+        }
+        const message = error instanceof Error ? error.message : "Character repair failed.";
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "failed",
@@ -1129,11 +1250,13 @@ export function ProjectProvider({
           result.evidence,
           frame ? selectedCanonicalTake(frame)?.number : undefined,
         );
+        const subjectRef = constructionSubjectRef(result.evidence);
         setConversation((entries) =>
           resolveConstructionEntry(entries, entryId, {
             status: "constructed",
             imageUrl: result.imageUrl,
             ...(router ? { router } : {}),
+            ...(subjectRef ? { subjectRef } : {}),
           }),
         );
         return next;
@@ -1896,6 +2019,8 @@ export function ProjectProvider({
         writeStoryFromOpening: writeStoryFromOpeningOn,
         planJourney: planDirectorOn,
         constructDestination: constructDestinationOn,
+        evaluateCharacterConsistency: evaluateCharacterConsistencyOn,
+        repairCharacter: repairCharacterOn,
         assessCinematographer: assessCinematographerOn,
         repairCanonical: repairCanonicalOn,
         planMotion: assessJourneyOn,
@@ -1965,6 +2090,19 @@ export function ProjectProvider({
               });
             }
             if (
+              event.kind === "character-check" ||
+              event.kind === "character-pass" ||
+              event.kind === "character-drift" ||
+              event.kind === "character-repair"
+            ) {
+              const character = characterConversationEntryFromEvent(
+                nextConversationId("character"),
+                conversationTimestamp(),
+                event,
+              );
+              return character ? appendConversationEntry(current, character) : current;
+            }
+            if (
               event.kind !== "canonical-repair" &&
               event.kind !== "canonical-repair-complete" &&
               event.kind !== "cinematographer-evaluation" &&
@@ -2001,10 +2139,12 @@ export function ProjectProvider({
     assessCinematographerOn,
     assessJourneyOn,
     constructDestinationOn,
+    evaluateCharacterConsistencyOn,
     generateOpeningOn,
     nextConversationId,
     planDirectorOn,
     repairCanonicalOn,
+    repairCharacterOn,
     shootJourneyOn,
     writeStoryFromOpeningOn,
     movieExport,
@@ -2761,6 +2901,8 @@ export function ProjectProvider({
       setAutoShoot,
       setGenerateAudio,
       setPullForwardReferenceEnabled,
+      setPersistentSubjectDescription,
+      setPersistentSubjectImage,
       setCameraGrammar,
       setDurationMode,
       setAdaptivePace,
@@ -2874,6 +3016,8 @@ export function ProjectProvider({
       setAutoShoot,
       setGenerateAudio,
       setPullForwardReferenceEnabled,
+      setPersistentSubjectDescription,
+      setPersistentSubjectImage,
       setCameraGrammar,
       setDurationMode,
       setAdaptivePace,

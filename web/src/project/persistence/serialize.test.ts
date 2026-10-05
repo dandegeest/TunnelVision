@@ -141,6 +141,7 @@ describe("project persistence schema", () => {
     expect(hydrated.project.cameraGrammar).toBe("pov");
     expect(documents.manifest.settings.pullForwardReferenceEnabled).toBe(true);
     expect(hydrated.project.pullForwardReferenceEnabled).toBe(true);
+    expect(hydrated.project.persistentSubject).toBeUndefined();
     expect(hydrated.warnings.missingAssets).toEqual([]);
     expect(journey.takes?.[0]?.videoMediaId).toBe(
       `video-${documents.manifest.id}-a-b-take-1`,
@@ -306,6 +307,56 @@ describe("project persistence schema", () => {
       assetExists: () => true,
     });
     expect(hydratedMissing.project.pullForwardReferenceEnabled).toBe(true);
+  });
+
+  it("round-trips a persistent subject image and description", () => {
+    const mediaId = "upload-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const project = {
+      ...createNewProject(),
+      title: "Puppy",
+      persistentSubject: {
+        mediaId,
+        imageUrl: `/api/runtime-media/${mediaId}`,
+        description: "Giant golden puppy balloon.",
+      },
+    };
+    const documents = serializeProjectDocuments({ project });
+    expect(documents.manifest.settings.persistentSubject).toEqual({
+      mediaId,
+      description: "Giant golden puppy balloon.",
+    });
+    expect(documents.mediaCopies.some((item) => item.mediaId === mediaId && item.relativePath === "subject/reference.png")).toBe(true);
+    const present = new Set(documents.mediaCopies.map((item) => item.relativePath));
+    const hydrated = hydrateProject({
+      manifest: documents.manifest,
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: (relative) => present.has(relative),
+    });
+    expect(hydrated.project.persistentSubject).toEqual(project.persistentSubject);
+    expect(hydrated.warnings.missingAssets).toEqual([]);
+  });
+
+  it("keeps the description when the subject image file is missing", () => {
+    const mediaId = "upload-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    const documents = serializeProjectDocuments({
+      project: {
+        ...createNewProject(),
+        persistentSubject: {
+          mediaId,
+          imageUrl: `/api/runtime-media/${mediaId}`,
+          description: "Red collar.",
+        },
+      },
+    });
+    const hydrated = hydrateProject({
+      manifest: documents.manifest,
+      canonicals: documents.canonicals,
+      traversals: documents.traversals,
+      assetExists: () => false,
+    });
+    expect(hydrated.project.persistentSubject).toEqual({ description: "Red collar." });
+    expect(hydrated.warnings.missingAssets.length).toBeGreaterThan(0);
   });
 
   it("persists Story Idea without changing the Production Prompt", () => {

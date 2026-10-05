@@ -56,6 +56,9 @@ test("FOLLOW baseline preserves relationship, not a fixed distance", () => {
   assert.match(follow, /Do not introduce a visible camera operator or a second traveler/);
   assert.match(directorGrammarResearchPrinciple("follow"), /not a fixed following distance/);
   assert.match(directorGrammarResearchPrinciple("follow"), /from behind/);
+  assert.match(cinematographerGrammarInstruction("follow"), /from behind or from the side/);
+  assert.match(cinematographerPairUserLines("follow").join("\n"), /from behind or from the side/);
+  assert.doesNotMatch(cinematographerGrammarInstruction("follow"), /front details are expected to be hidden/);
   assert.match(cinematographerGrammarInstruction("follow"), /preserves the relationship, not a fixed distance/i);
   assert.match(cinematographerGrammarInstruction("follow"), /LEAD, not elastic FOLLOW/);
   assert.match(stillViewpointClause("follow"), /behind a persistent subject/);

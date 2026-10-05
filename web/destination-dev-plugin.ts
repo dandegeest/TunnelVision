@@ -97,8 +97,10 @@ export function destinationDevPlugin(repoRoot: string): Plugin {
           const constructed =
             url === "/api/destination/generate-opening"
               ? await generateOpeningFrameImage({
+                  repoRoot,
                   body,
                   generateImage: (request) => provider.generateImage(request),
+                  editImage: (request) => provider.editImage(request),
                 })
               : await constructDestinationImage({
                   repoRoot,

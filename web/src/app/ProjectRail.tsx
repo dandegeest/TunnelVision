@@ -10,7 +10,8 @@ import {
   projectWithStoryDuration,
   storyDurationFieldValue,
 } from "../project/storyboard";
-import { hasAuthoritativeStartingFrame } from "../project/starting-frame";
+import { hasAuthoritativeStartingFrame, STARTING_FRAME_ACCEPT, uploadStartingFrame } from "../project/starting-frame";
+import { persistentSubjectReference } from "../project/persistent-subject";
 import { pullForwardReferenceEnabledFromProject } from "../project/destination";
 import {
   MEDIA_PROVIDER_LABEL,
@@ -700,6 +701,83 @@ function PullForwardReferenceToggle() {
   );
 }
 
+function PersistentSubjectSettings() {
+  const { project, setPersistentSubjectDescription, setPersistentSubjectImage } = useProject();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const image = persistentSubjectReference(project);
+  const description = project.persistentSubject?.description ?? "";
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Persistent Subject</span>
+      <p className="text-[10px] leading-snug text-[#7a7266]">
+        One reference image sent with every canonical still. It defines who or what stays consistent. The previous canonical still defines where the journey is.
+      </p>
+      <input
+        ref={fileRef}
+        type="file"
+        accept={STARTING_FRAME_ACCEPT}
+        className="sr-only"
+        tabIndex={-1}
+        aria-label="Upload persistent subject"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file) {
+            return;
+          }
+          setError(null);
+          void uploadStartingFrame(file)
+            .then((uploaded) => {
+              setPersistentSubjectImage(uploaded);
+            })
+            .catch((uploadError: unknown) => {
+              setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
+            });
+        }}
+      />
+      {image ? (
+        <img
+          src={image.imageUrl}
+          alt="Persistent subject reference"
+          className="media-contain h-24 w-full rounded border border-[#2a2620] bg-[#0c0b0a]"
+        />
+      ) : null}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:border-[#7a7266]"
+          onClick={() => fileRef.current?.click()}
+        >
+          {image ? "Change image" : "Upload image"}
+        </button>
+        {image ? (
+          <button
+            type="button"
+            aria-label="Remove persistent subject image"
+            className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#9a8f7e] uppercase hover:border-[#7a7266] hover:text-[#ece7df]"
+            onClick={() => setPersistentSubjectImage(null)}
+          >
+            Remove image
+          </button>
+        ) : null}
+      </div>
+      {error ? <p className="text-[11px] leading-snug text-[#f0c2a8]">{error}</p> : null}
+      <label className="flex flex-col gap-1.5">
+        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Subject description</span>
+        <textarea
+          aria-label="Subject description"
+          value={description}
+          placeholder="Giant golden puppy parade balloon with extremely long caramel floppy ears, cream muzzle and belly, red collar, and gold tag."
+          rows={4}
+          className="w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[12px] leading-snug text-[#ece7df] outline-none placeholder:text-[#5c564e] focus-visible:border-[#ece7df]"
+          onChange={(event) => setPersistentSubjectDescription(event.target.value)}
+        />
+      </label>
+    </div>
+  );
+}
+
 function ProjectSettingsView({ busy }: { busy: boolean }) {
   const { project, persistedProjectPath, persistenceError, projectsFolder, chooseProjectsFolder, revealProject } =
     useProject();
@@ -752,6 +830,7 @@ function ProjectSettingsView({ busy }: { busy: boolean }) {
       ) : null}
       <DebugModeToggle />
       <PullForwardReferenceToggle />
+      <PersistentSubjectSettings />
     </div>
   );
 }

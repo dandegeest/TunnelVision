@@ -19,6 +19,8 @@ import {
   assembleCanonicalConstructionPrompt,
   assembleCanonicalRepairPrompt,
   assembleOpeningFramePrompt,
+  assembleCharacterRepairPrompt,
+  persistentSubjectInstruction,
   canonicalConstructionSectionStarts,
   pullForwardContinuityClause,
   pullForwardReferenceEnabledFromUnknown,
@@ -196,8 +198,88 @@ test("FOLLOW canonical repair keeps pursuit geometry over far-field or aesthetic
     cameraGrammar: "follow",
   });
   assert.match(prompt, /Preserve FOLLOW geometry/);
+  assert.match(prompt, /Reshoot scope: TRAVERSAL/);
+  const held = assembleCanonicalRepairPrompt({
+    role: "end",
+    intent: "Follow the robot.",
+    visualDescription: "The robot climbs the airship rail.",
+    instruction: "Move the camera closer to the hatch.",
+    cameraGrammar: "follow",
+    holdSubject: { description: "Cream capsule body, orange stripe, ribbed arms." },
+  });
+  assert.match(held, /Hold the persistent subject's identity/);
+  assert.match(held, /Cream capsule body/);
+  assert.match(held, /Reshoot scope: TRAVERSAL/);
   assert.match(prompt, /Do not convert a pursuit still into a lead-facing view of the subject/);
   assert.doesNotMatch(prompt, /nose|headlights|bumper|hood/);
   assert.match(prompt, /behind a persistent subject/);
   assert.doesNotMatch(prompt, /SPATIAL PROGRESSION IS PRIMARY/);
+});
+
+test("persistent subject copy is omitted unless a subject sheet is attached", () => {
+  const opening = assembleOpeningFramePrompt(FILMMAKER_STORY, "pov");
+  const construct = assembleCanonicalConstructionPrompt(CANYON_CONSTRUCT);
+  assert.equal(opening.includes("PERSISTENT SUBJECT:"), false);
+  assert.equal(construct.includes("PERSISTENT SUBJECT:"), false);
+});
+
+test("opening subject copy treats the sheet as identity and not scene continuity", () => {
+  const prompt = assembleOpeningFramePrompt(FILMMAKER_STORY, "pov", {
+    description: "Giant golden puppy parade balloon with caramel floppy ears.",
+  });
+  assert.ok(prompt.includes("PERSISTENT SUBJECT:\nGiant golden puppy parade balloon with caramel floppy ears."));
+  assert.ok(prompt.includes("authoritative visual definition of the persistent subject"));
+  assert.ok(prompt.includes("Do not copy the reference image's background"));
+  assert.equal(prompt.includes("previous canonical defines WHERE"), false);
+  assert.ok(prompt.indexOf("PERSISTENT SUBJECT:") < prompt.indexOf(`Journey: ${FILMMAKER_STORY}`));
+});
+
+test("later canonical construction does not inject subject-sheet language", () => {
+  const prompt = assembleCanonicalConstructionPrompt(CANYON_CONSTRUCT);
+  assert.equal(prompt.includes("PERSISTENT SUBJECT:"), false);
+  assert.equal(prompt.includes("authoritative visual definition"), false);
+});
+
+test("character repair asks to keep the candidate and correct identity only", () => {
+  const prompt = assembleCharacterRepairPrompt({
+    description: "Giant golden puppy parade balloon with caramel floppy ears and a red collar.",
+    visualDescription: "The balloon is nearly horizontal in the wind above the avenue.",
+    instruction: "The floppy ears became short and upright. Restore the long caramel ears and red collar.",
+  });
+  assert.ok(prompt.includes("CHARACTER CONSISTENCY REPAIR"));
+  assert.ok(prompt.includes("authoritative identity reference"));
+  assert.ok(prompt.includes("nearly horizontal in the wind"));
+  assert.ok(prompt.includes("Restore the long caramel ears and red collar."));
+  assert.ok(prompt.includes("Do not reproduce the pose or composition of the character reference sheet."));
+  assert.ok(prompt.includes("Do not turn the subject around"));
+  assert.ok(prompt.includes("ignore that part of the instruction"));
+  const follow = assembleCharacterRepairPrompt({
+    description: "A small retro robot.",
+    visualDescription: "The robot runs away along the monorail roof.",
+    instruction: "Add the head antennae.",
+    cameraGrammar: "follow",
+  });
+  assert.match(follow, /FOLLOW grammar/);
+  assert.match(follow, /behind or beside the subject/);
+  assert.match(follow, /Keep that angle/);
+  assert.match(prompt, /Reshoot scope: CHARACTER/);
+  const both = assembleCharacterRepairPrompt({
+    description: "A small retro robot.",
+    visualDescription: "The robot runs away along the monorail roof.",
+    instruction: "Add the head antennae.",
+    cameraGrammar: "follow",
+    spatialInstruction: "Show the robot farther ahead on the roof.",
+  });
+  assert.match(both, /Reshoot scope: BOTH/);
+  assert.match(both, /Show the robot farther ahead on the roof/);
+  assert.match(both, /Do not move the subject back/);
+  assert.equal(prompt.includes("SPATIAL PROGRESSION IS PRIMARY"), false);
+});
+
+test("subject copy uses identity wording and not scene continuity", () => {
+  const prompt = persistentSubjectInstruction({
+    description: "A red collar and gold tag.",
+  });
+  assert.ok(prompt.includes("authoritative visual definition"));
+  assert.equal(prompt.includes("previous canonical defines WHERE"), false);
 });

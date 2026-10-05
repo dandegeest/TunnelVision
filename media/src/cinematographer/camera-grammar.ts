@@ -209,7 +209,7 @@ export function directorGrammarBodyConstraint(grammar: CameraGrammar = DEFAULT_C
 export function cinematographerGrammarInstruction(grammar: CameraGrammar = DEFAULT_CAMERA_GRAMMAR): string {
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
-      return `This journey uses FOLLOW grammar. Both stills are pursuit viewpoints from an invisible objective camera behind a persistent subject along the same route. The subject remains ahead of the camera, receding; the readable cue is the rear, aft, or trailing side. Image 2 is the next FOLLOW viewpoint, not first-person through the subject's eyes, not a lead-facing view of the subject, and not a camera physically mounted on the subject.
+      return `This journey uses FOLLOW grammar. FOLLOW means the camera stays with the subject, seeing them from behind or from the side. Both stills are pursuit viewpoints from an invisible objective camera behind a persistent subject along the same route. The subject remains ahead of the camera, receding; the readable cue is the rear, aft, or trailing side. Image 2 is the next FOLLOW viewpoint, not first-person through the subject's eyes, not a lead-facing view of the subject, and not a camera physically mounted on the subject.
 
 The camera operator is never a visible character. The subject is the continuity anchor. People, animals, vehicles, objects, and other world subjects in the stills may appear; preserve the intended follow subject when it is visible.
 
@@ -258,7 +258,7 @@ export function cinematographerPairUserLines(grammar: CameraGrammar = DEFAULT_CA
   switch (cameraGrammarFromUnknown(grammar)) {
     case "follow":
       return [
-        "Both stills are FOLLOW viewpoints from an invisible objective camera behind the same persistent subject, who remains ahead and receding. Image 2 is the next pursuit viewpoint, not a lead-facing view of the subject, not a reverse shot, and not first-person through the subject's eyes.",
+        "FOLLOW means the camera stays with the subject, seeing them from behind or from the side. Both stills are FOLLOW viewpoints from an invisible objective camera behind the same persistent subject, who remains ahead and receding. Image 2 is the next pursuit viewpoint, not a lead-facing view of the subject, not a reverse shot, and not first-person through the subject's eyes.",
       ];
     case "lead":
       return [

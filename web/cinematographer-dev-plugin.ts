@@ -4,10 +4,11 @@ import type { Plugin } from "vite";
 import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { loadDotEnvLocal } from "../media/src/config/environment.ts";
 import { assessJourney } from "../media/src/cinematographer/assess-journey.ts";
+import { evaluateCharacterConsistency } from "../media/src/cinematographer/character-consistency.ts";
 import { chooseJourneyPace } from "../media/src/cinematographer/journey-pace.ts";
 import { MediaGenerationError, redactSecrets } from "../media/src/errors.ts";
 import { ReplicateReasoningProvider } from "../media/src/replicate/reasoning.ts";
-import { cinematographerPairFromRequest, UntrustedMediaError } from "./trusted-media.ts";
+import { cinematographerPairFromRequest, resolveTrustedMedia, UntrustedMediaError } from "./trusted-media.ts";
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolveBody, reject) => {
@@ -72,6 +73,31 @@ export function cinematographerDevPlugin(repoRoot: string): Plugin {
           } catch (error) {
             const message =
               error instanceof Error ? error.message : "Cinematographer journey pace failed";
+            sendJson(res, statusForError(error), { error: redactSecrets(message) });
+          }
+          return;
+        }
+        if (url === "/api/cinematographer/character-consistency") {
+          if (req.method !== "POST") {
+            sendJson(res, 405, { error: "POST /api/cinematographer/character-consistency" });
+            return;
+          }
+          try {
+            const body = (await readJsonBody(req)) as Record<string, unknown>;
+            const description = typeof body.description === "string" ? body.description : "";
+            const result = await evaluateCharacterConsistency({
+              reasoning: new ReplicateReasoningProvider(),
+              description,
+              cameraGrammar: cameraGrammarFromUnknown(body.cameraGrammar),
+              subjectImage: resolveTrustedMedia(repoRoot, body.subjectMediaId),
+              candidateImage: resolveTrustedMedia(repoRoot, body.candidateMediaId),
+            });
+            sendJson(res, 200, {
+              consistency: result.consistency,
+              model: result.model,
+            });
+          } catch (error) {
+            const message = error instanceof Error ? error.message : "Character consistency failed";
             sendJson(res, statusForError(error), { error: redactSecrets(message) });
           }
           return;

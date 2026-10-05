@@ -19,6 +19,7 @@ import {
   cinematographerScores,
   cinematographerSegmentLabel,
   clampScore,
+  characterCardCopy,
   destinationCardCopy,
   destinationDescription,
   routerSelectionLines,
@@ -276,6 +277,7 @@ function DestinationEntryView({
         ...(entry.status === "constructed" && !entry.router && route ? { route } : {}),
         ...(entry.router ? { router: entry.router } : {}),
         ...(resolution && entry.status === "constructed" ? { resolution } : {}),
+        ...(entry.subjectRef ? { subjectRef: entry.subjectRef } : {}),
       })}
       copyLabel={`Copy destination ${entry.beatId}`}
       active={entry.status === "constructing"}
@@ -304,6 +306,15 @@ function DestinationEntryView({
       ) : null}
       {entry.status === "constructed" && !entry.router && route ? (
         <p className="mt-2 text-[12px] leading-snug text-[#cfc6b8]">{route}</p>
+      ) : null}
+      {entry.subjectRef ? (
+        <div className="mt-2 text-[12px] leading-snug text-[#cfc6b8]">
+          <p className="tracking-[0.08em] uppercase">Subject ref</p>
+          <p>{entry.subjectRef.references.map((item) => item.role).join(" · ")}</p>
+          {entry.subjectRef.referenceLimitation ? (
+            <p className="text-[#9a8f7e]">{entry.subjectRef.referenceLimitation}</p>
+          ) : null}
+        </div>
       ) : null}
       {resolution ? <p className="text-[12px] leading-snug text-[#9a8f7e]">{resolution}</p> : null}
       {entry.status === "failed" ? (
@@ -404,7 +415,7 @@ function RepairEntryView({ entry }: { entry: Extract<ConversationEntry, { kind: 
   return (
     <ConversationCard
       className="conversation-agent"
-      title={repaired ? `Reshoot complete · ${letters}` : `Reshoot · ${letters}`}
+      title={repaired ? `Reshoot complete · ${letters}` : `Reshoot traversal · ${letters}`}
       createdAt={entry.createdAt}
       copyText={repairCardCopy(entry)}
       copyLabel={`Copy reshoot ${letters}`}
@@ -602,7 +613,41 @@ function ConversationBlockView({
   if (entry.kind === "agent") {
     return <RepairEntryView entry={entry} />;
   }
+  if (entry.kind === "character") {
+    return <CharacterEntryView entry={entry} />;
+  }
   return null;
+}
+
+function CharacterEntryView({ entry }: { entry: Extract<ConversationEntry, { kind: "character" }> }) {
+  const title =
+    entry.status === "pass"
+      ? `CC · PASS · ${entry.score}`
+      : entry.status === "drift"
+        ? `CC · DRIFT DETECTED · ${entry.score}`
+        : entry.status === "repairing"
+          ? entry.reshootScope === "both"
+            ? `CC · RESHOOT BOTH · ${entry.beatId}`
+            : `CC · RESHOOT CHARACTER · ${entry.beatId}`
+          : `CC · CHECKING SUBJECT · ${entry.beatId}`;
+  return (
+    <ConversationCard
+      className="conversation-character"
+      title={title}
+      createdAt={entry.createdAt}
+      copyText={characterCardCopy(entry)}
+      copyLabel={`Copy character consistency ${entry.beatId}`}
+      active={entry.status === "checking" || entry.status === "repairing"}
+    >
+      {entry.observations && entry.observations.length > 0 ? (
+        <div className="space-y-1 text-[12px] leading-snug text-[#cfc6b8]">
+          {entry.observations.map((observation) => (
+            <p key={observation}>{observation}</p>
+          ))}
+        </div>
+      ) : null}
+    </ConversationCard>
+  );
 }
 
 export function ConversationRail() {

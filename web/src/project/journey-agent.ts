@@ -1,8 +1,11 @@
 import { actualFrameForDestination, canAssessJourney, cinematographerAssessmentIsCurrent, hasCurrentMotionPlan, projectWithoutCinematographerAssessment } from "./cinematographer";
+import type { CharacterConsistencyEvaluation } from "./character-consistency";
+import { persistentSubjectReference } from "./persistent-subject";
 import { canGenerateOpeningFrame, canReshootDestinationFrame, canReshootOpeningFrame, generatedStillNeedsReshoot, nextConstructableDestinationId } from "./destination";
 import { projectWithSyncedProductionLegs } from "./production-legs";
 import { canExportMovie, exportMovieUnavailableReason, type MovieExportResult } from "./export-movie";
 import {
+  CHARACTER_CONSISTENCY_MAX_REPAIRS,
   JOURNEY_AGENT_REPAIR_THRESHOLDS,
   assertCanonicalRepairAllowed,
   canonicalPairNeedsRepair,
@@ -17,6 +20,7 @@ import {
   type CanonicalRepairRecommendation,
 } from "./journey-agent-repair";
 import { canShootJourney, projectWithJourneyShotFailed, projectWithJourneyShotTake } from "./shoot";
+import type { CanonicalImageReference } from "./types";
 import { hasAuthoritativeStartingFrame } from "./starting-frame";
 import { journeyHasTakes, journeyTakes, selectedTakeVideoUrl } from "./takes";
 import type { Project } from "./types";
@@ -27,6 +31,7 @@ export type JourneyAgentPhase =
   | "DIRECTING"
   | "CONSTRUCTING"
   | "PLANNING_MOTION"
+  | "CHECKING_CHARACTER"
   | "REPAIRING_CANONICALS"
   | "SHOOTING"
   | "ASSEMBLING"
@@ -40,7 +45,11 @@ export type JourneyAgentActivityKind =
   | "cinematographer-evaluation"
   | "cinematographer-reevaluation"
   | "cinematographer-evaluated"
-  | "cinematographer-reevaluated";
+  | "cinematographer-reevaluated"
+  | "character-check"
+  | "character-pass"
+  | "character-drift"
+  | "character-repair";
 
 export type JourneyAgentActivity = {
   message: string;
@@ -55,6 +64,22 @@ export type JourneyAgentActivity = {
   traversalConfidence?: number;
   afterSetConsistency?: number;
   afterTraversalConfidence?: number;
+  character?: CharacterConsistencyEvent;
+};
+
+export type CharacterConsistencyEvent = {
+  score?: number;
+  status?: CharacterConsistencyEvaluation["status"];
+  observations?: string[];
+  repairInstructions?: string[];
+  subjectMediaId?: string;
+  candidateMediaId?: string;
+  subjectDescription?: string;
+  attempt?: number;
+  model?: string;
+  references?: CanonicalImageReference[];
+  referenceLimitation?: string;
+  reshootScope?: "character" | "both";
 };
 
 export type JourneyAgentEvent = {
@@ -71,6 +96,7 @@ export type JourneyAgentEvent = {
   traversalConfidence?: number;
   afterSetConsistency?: number;
   afterTraversalConfidence?: number;
+  character?: CharacterConsistencyEvent;
 };
 
 export type JourneyAgentSnapshot = {
@@ -86,11 +112,24 @@ export type CanonicalRepairOperationInput = {
   referenceMediaId?: string;
 };
 
+export type CharacterRepairOperationResult = {
+  project: Project;
+  references: CanonicalImageReference[];
+  model?: string;
+  referenceLimitation?: string;
+};
+
 export type JourneyAgentOperations = {
   generateOpening: (project: Project) => Promise<Project>;
   writeStoryFromOpening: (project: Project) => Promise<Project>;
   planJourney: (project: Project) => Promise<Project>;
   constructDestination: (project: Project, beatId: string) => Promise<Project>;
+  evaluateCharacterConsistency: (project: Project, beatId: string) => Promise<CharacterConsistencyEvaluation>;
+  repairCharacter: (
+    project: Project,
+    beatId: string,
+    input: { instruction: string; spatialInstruction?: string },
+  ) => Promise<CharacterRepairOperationResult>;
   assessCinematographer: (project: Project, journeyId: string) => Promise<Project>;
   repairCanonical: (
     project: Project,
@@ -147,15 +186,20 @@ export function formatJourneyAgentButtonLabel(snapshot: JourneyAgentSnapshot): s
       ? snapshot.activity.message
       : `${snapshot.activity.message}…`;
   }
-  if (snapshot.activity.kind === "canonical-repair" || snapshot.phase === "REPAIRING_CANONICALS") {
-    const letters =
-      snapshot.activity.destinationIds?.join(" & ") ?? snapshot.activity.destinationId;
-    if (snapshot.activity.kind === "canonical-repair-complete" && letters) {
-      return `Reshoot complete · ${letters}…`;
-    }
-    if (letters) {
-      return `Reshooting ${letters}…`;
-    }
+  const letters = snapshot.activity.destinationIds?.join(" & ") ?? snapshot.activity.destinationId;
+  if (snapshot.activity.kind === "character-repair" && letters) {
+    return snapshot.activity.character?.reshootScope === "both"
+      ? `Reshooting both · ${letters}…`
+      : `Reshooting character · ${letters}…`;
+  }
+  if (snapshot.activity.kind === "canonical-repair-complete" && letters) {
+    return `Reshoot complete · ${letters}…`;
+  }
+  if (snapshot.activity.kind === "canonical-repair" && letters) {
+    return `Reshooting traversal · ${letters}…`;
+  }
+  if (snapshot.phase === "REPAIRING_CANONICALS" && letters) {
+    return `Reshooting ${letters}…`;
   }
   const message = snapshot.activity.message.trim();
   const capped = message.charAt(0).toUpperCase() + message.slice(1);
@@ -185,6 +229,7 @@ function activityEventFields(activity: JourneyAgentActivity): Omit<JourneyAgentE
     ...(activity.afterTraversalConfidence != null
       ? { afterTraversalConfidence: activity.afterTraversalConfidence }
       : {}),
+    ...(activity.character ? { character: activity.character } : {}),
   };
 }
 
@@ -438,11 +483,91 @@ async function executeJourneyAgent(
       throw new Error(`Cinematographer evaluation is stale for ${journeyLabel(journeyId)}`);
     };
 
+    const acceptCharacter = async (beatId: string, spatialInstruction?: string) => {
+      if (beatId === "A" || !persistentSubjectReference(project)) {
+        return;
+      }
+      const frame = actualFrameForDestination(project, beatId);
+      if (!frame || frame.imageOrigin !== "generated") {
+        return;
+      }
+      let attempt = 0;
+      while (true) {
+        throwIfJourneyAgentStopped(signal);
+        emit("CHECKING_CHARACTER", {
+          message: `CC · CHECKING SUBJECT · ${beatId}`,
+          destinationId: beatId,
+          kind: "character-check",
+        });
+        const evaluation = await operations.evaluateCharacterConsistency(project, beatId);
+        const character = {
+          score: evaluation.score,
+          status: evaluation.status,
+          observations: [...evaluation.observations],
+          ...(evaluation.repairInstructions.length > 0
+            ? { repairInstructions: [...evaluation.repairInstructions] }
+            : {}),
+          subjectMediaId: evaluation.subjectMediaId,
+          candidateMediaId: evaluation.candidateMediaId,
+          subjectDescription: evaluation.subjectDescription,
+          attempt,
+          model: evaluation.model,
+        };
+        if (!evaluation.repairNeeded) {
+          emit("CHECKING_CHARACTER", {
+            message: `CC · PASS · ${evaluation.score}`,
+            destinationId: beatId,
+            kind: "character-pass",
+            character,
+          });
+          return;
+        }
+        emit("CHECKING_CHARACTER", {
+          message: `CC · DRIFT DETECTED · ${evaluation.score}`,
+          destinationId: beatId,
+          kind: "character-drift",
+          character,
+        });
+        if (attempt >= CHARACTER_CONSISTENCY_MAX_REPAIRS) {
+          throw new Error(
+            `Character consistency for ${beatId} stayed ${evaluation.status} at ${evaluation.score} after ${attempt} repairs.`,
+          );
+        }
+        attempt += 1;
+        const instruction =
+          evaluation.repairInstructions.join(" ") || evaluation.observations.join(" ") || "Restore the persistent subject identity.";
+        const keepTraversal = spatialInstruction?.trim() ?? "";
+        const repaired = await operations.repairCharacter(project, beatId, {
+          instruction,
+          ...(keepTraversal ? { spatialInstruction: keepTraversal } : {}),
+        });
+        adoptProject(projectWithSyncedProductionLegs(repaired.project));
+        emit("REPAIRING_CANONICALS", {
+          message: keepTraversal ? `CC · RESHOOT BOTH · ${beatId}` : `CC · RESHOOT CHARACTER · ${beatId}`,
+          destinationId: beatId,
+          kind: "character-repair",
+          instruction,
+          character: {
+            ...character,
+            attempt,
+            reshootScope: keepTraversal ? "both" : "character",
+            ...(repaired.model ? { model: repaired.model } : {}),
+            references: repaired.references,
+            ...(repaired.referenceLimitation ? { referenceLimitation: repaired.referenceLimitation } : {}),
+          },
+        });
+        throwIfJourneyAgentStopped(signal);
+      }
+    };
+
     const establishEndCanonical = async (journeyId: string) => {
       throwIfJourneyAgentStopped(signal);
       const initial = project.journeys.find((item) => item.id === journeyId);
       if (!initial || !canAssessJourney(project, initial) || journeyHasTakes(initial)) {
         return;
+      }
+      if (initial.endDestinationId) {
+        await acceptCharacter(initial.endDestinationId);
       }
       await evaluateCinematographerFor(journeyId, false);
 
@@ -500,6 +625,9 @@ async function executeJourneyAgent(
         );
         throwIfJourneyAgentStopped(signal);
         repairAttempts.count += 1;
+        if (destinationId !== "A") {
+          await acceptCharacter(destinationId, candidate.instruction);
+        }
         await evaluateCinematographerFor(journeyId, true);
         const afterJourney = project.journeys.find((item) => item.id === journeyId);
         const after = journeyCinematographerAssessment(afterJourney);

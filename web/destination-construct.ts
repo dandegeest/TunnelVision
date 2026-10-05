@@ -1,4 +1,4 @@
-import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest } from "../media/src/types.ts";
+import type { GeneratedImage, ImageEditRequest, ImageGenerationRequest, MediaInput } from "../media/src/types.ts";
 
 function imageRoutingEvidence(generated: GeneratedImage): {
   provider: string;
@@ -34,7 +34,8 @@ function imageRoutingEvidence(generated: GeneratedImage): {
 import { GENERATED_OPENING_ASPECT_RATIO, parseImageAspectRatio } from "../media/src/image-aspect-ratio.ts";
 import { cameraGrammarFromUnknown } from "../media/src/cinematographer/camera-grammar.ts";
 import { pullForwardReferenceEnabledFromUnknown } from "../media/src/prompts/canonical-destination.ts";
-import { destinationConstructionPrompt, canonicalRepairPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead } from "./src/project/destination.ts";
+import { destinationConstructionPrompt, canonicalRepairPrompt, characterRepairPrompt, openingFrameGenerationPrompt, optionalDestinationLookAhead, CHARACTER_REPAIR_REFERENCE_LIMITATION, TRAVERSAL_HOLD_REFERENCE_LIMITATION, type CanonicalReferenceEvidence } from "./src/project/destination.ts";
+import type { CanonicalImageReferenceRole } from "./src/project/types.ts";
 import { getActiveRuntimeMediaRegistry } from "./runtime-media.ts";
 import { resolveTrustedMedia } from "./trusted-media.ts";
 
@@ -47,10 +48,14 @@ export type ConstructDestinationBody = {
   aspectRatio?: unknown;
   imageModel?: unknown;
   referenceMediaId?: unknown;
+  candidateMediaId?: unknown;
   repairInstruction?: unknown;
   repairRole?: unknown;
+  spatialInstruction?: unknown;
   cameraGrammar?: unknown;
   pullForwardReferenceEnabled?: unknown;
+  subjectMediaId?: unknown;
+  subjectDescription?: unknown;
 };
 
 export async function fetchGeneratedOutputBytes(url: string): Promise<{
@@ -95,6 +100,7 @@ export async function constructDestinationImage(input: {
     elapsedMs: number;
     outputMediaId: string;
     outputUrl: string;
+    references?: CanonicalReferenceEvidence;
   };
 }> {
   const beatId = typeof input.body.beatId === "string" ? input.body.beatId.trim() : "";
@@ -113,45 +119,86 @@ export async function constructDestinationImage(input: {
   const aspectRatio = parseImageAspectRatio(input.body.aspectRatio);
   const repairInstruction =
     typeof input.body.repairInstruction === "string" ? input.body.repairInstruction.trim() : "";
-  const repairRole = input.body.repairRole === "start" || input.body.repairRole === "end" ? input.body.repairRole : undefined;
-  const isRepair = Boolean(repairInstruction && repairRole);
+  const repairRole =
+    input.body.repairRole === "start" || input.body.repairRole === "end" || input.body.repairRole === "character"
+      ? input.body.repairRole
+      : undefined;
+  const isSpatialRepair = Boolean(repairInstruction && (repairRole === "start" || repairRole === "end"));
+  const isCharacterRepair = Boolean(repairInstruction && repairRole === "character");
   const pullForwardReferenceEnabled = pullForwardReferenceEnabledFromUnknown(
     input.body.pullForwardReferenceEnabled,
   );
-  const prompt = isRepair
-    ? canonicalRepairPrompt({
-        role: repairRole!,
-        intent,
+  const postedSubjectId = optionalMediaId(input.body.subjectMediaId);
+  const subjectMediaId = isCharacterRepair || isSpatialRepair ? postedSubjectId : "";
+  const subjectDescription =
+    typeof input.body.subjectDescription === "string" ? input.body.subjectDescription.trim() : "";
+  const spatialInstruction =
+    typeof input.body.spatialInstruction === "string" ? input.body.spatialInstruction.trim() : "";
+  const candidateMediaId = optionalMediaId(input.body.candidateMediaId);
+  if (isCharacterRepair && !subjectMediaId) {
+    throw new Error("Character repair requires a persistent subject reference");
+  }
+  if (isCharacterRepair && !candidateMediaId) {
+    throw new Error("Character repair requires the failed candidate canonical");
+  }
+  // Ordinary B+ construction uses the previous canonical only. Character
+  // repair orders the sheet first so a single-image editor still sees
+  // identity, then the failed candidate, then the previous canonical.
+  const extraRefId = optionalMediaId(input.body.referenceMediaId);
+  const images = isCharacterRepair
+    ? canonicalReferenceImages({
+        repoRoot: input.repoRoot,
+        subjectMediaId,
+        candidateMediaId,
+        continuityMediaId: sourceMediaId !== candidateMediaId ? sourceMediaId : undefined,
+        repairMediaIds: [],
+      })
+    : canonicalReferenceImages({
+        repoRoot: input.repoRoot,
+        subjectMediaId: isSpatialRepair ? subjectMediaId : "",
+        subjectAfterScene: isSpatialRepair,
+        continuityMediaId: !isSpatialRepair && pullForwardReferenceEnabled ? sourceMediaId : undefined,
+        repairMediaIds: isSpatialRepair ? [sourceMediaId, extraRefId] : extraRefId ? [extraRefId] : [],
+      });
+  const prompt = isCharacterRepair
+    ? characterRepairPrompt({
+        description: subjectDescription,
         visualDescription,
         instruction: repairInstruction,
         cameraGrammar: cameraGrammarFromUnknown(input.body.cameraGrammar),
+        ...(spatialInstruction ? { spatialInstruction } : {}),
       })
-    : destinationConstructionPrompt({
-        intent,
-        visualDescription,
-        nextDestination,
-        cameraGrammar: cameraGrammarFromUnknown(input.body.cameraGrammar),
-        pullForwardReferenceEnabled,
-      });
-  // Pull-forward is sourceImage on ImageEditRequest (previous canonical).
-  // referenceImages is a separate extra-input list — today Agent repair's
-  // opposite canonical. This toggle must not drop those unrelated refs.
-  const extraRefId =
-    typeof input.body.referenceMediaId === "string" ? input.body.referenceMediaId.trim() : "";
-  const referenceImages =
-    extraRefId && extraRefId !== sourceMediaId
-      ? [resolveTrustedMedia(input.repoRoot, extraRefId)]
-      : undefined;
-  // Always resolve the preceding-canonical identity. Attach it as the
-  // image-edit source only when pull-forward is on, or this is repair.
-  const sourceImage = resolveTrustedMedia(input.repoRoot, sourceMediaId);
-  const attachPreviousCanonical = isRepair || pullForwardReferenceEnabled;
-  const generated = attachPreviousCanonical
+    : isSpatialRepair
+      ? canonicalRepairPrompt({
+          role: repairRole === "start" ? "start" : "end",
+          intent,
+          visualDescription,
+          instruction: repairInstruction,
+          cameraGrammar: cameraGrammarFromUnknown(input.body.cameraGrammar),
+          ...(subjectMediaId ? { holdSubject: { description: subjectDescription } } : {}),
+        })
+      : destinationConstructionPrompt({
+          intent,
+          visualDescription,
+          nextDestination,
+          cameraGrammar: cameraGrammarFromUnknown(input.body.cameraGrammar),
+          pullForwardReferenceEnabled,
+        });
+  const references = canonicalReferenceEvidence(
+    images,
+    subjectDescription,
+    isCharacterRepair
+      ? CHARACTER_REPAIR_REFERENCE_LIMITATION
+      : isSpatialRepair && subjectMediaId
+        ? TRAVERSAL_HOLD_REFERENCE_LIMITATION
+        : undefined,
+  );
+  const generated = images.length > 0
     ? await input.editImage({
-        sourceImage,
+        sourceImage: images[0]!.image,
         prompt,
         ...(aspectRatio ? { aspectRatio } : {}),
-        ...(referenceImages ? { referenceImages } : {}),
+        ...(images.length > 1 ? { referenceImages: images.slice(1).map((item) => item.image) } : {}),
       })
     : await generateWithoutPullForward({
         generateImage: input.generateImage,
@@ -178,9 +225,59 @@ export async function constructDestinationImage(input: {
         prompt,
         ...(aspectRatio ? { aspectRatio } : {}),
       },
+      references,
       ...imageRoutingEvidence(generated),
       outputMediaId: recorded.mediaId,
     },
+  };
+}
+
+function optionalMediaId(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function canonicalReferenceImages(input: {
+  repoRoot: string;
+  subjectMediaId: string;
+  /** Traversal reshoots keep the scene first. Character repair keeps the sheet first. */
+  subjectAfterScene?: boolean;
+  candidateMediaId?: string;
+  continuityMediaId?: string;
+  repairMediaIds: readonly string[];
+}): { mediaId: string; role: CanonicalImageReferenceRole; image: MediaInput }[] {
+  const images: { mediaId: string; role: CanonicalImageReferenceRole; image: MediaInput }[] = [];
+  const push = (mediaId: string | undefined, role: CanonicalImageReferenceRole) => {
+    if (!mediaId || images.some((item) => item.mediaId === mediaId)) {
+      return;
+    }
+    images.push({ mediaId, role, image: resolveTrustedMedia(input.repoRoot, mediaId) });
+  };
+  if (!input.subjectAfterScene) {
+    push(input.subjectMediaId, "subject");
+  }
+  push(input.candidateMediaId, "candidate");
+  push(input.continuityMediaId, "continuity");
+  for (const mediaId of input.repairMediaIds) {
+    push(mediaId, "repair");
+  }
+  if (input.subjectAfterScene) {
+    push(input.subjectMediaId, "subject");
+  }
+  return images;
+}
+
+function canonicalReferenceEvidence(
+  images: readonly { mediaId: string; role: CanonicalImageReferenceRole }[],
+  subjectDescription: string,
+  referenceLimitation?: string,
+): CanonicalReferenceEvidence {
+  const subjectSupplied = images.some((item) => item.role === "subject");
+  return {
+    subjectSupplied,
+    ...(subjectSupplied && subjectDescription ? { subjectDescription } : {}),
+    referenceCount: images.length,
+    references: images.map((item) => ({ role: item.role, mediaId: item.mediaId })),
+    ...(referenceLimitation ? { referenceLimitation } : {}),
   };
 }
 
@@ -199,8 +296,17 @@ async function generateWithoutPullForward(input: {
 }
 
 export async function generateOpeningFrameImage(input: {
-  body: { story?: unknown; aspectRatio?: unknown; imageModel?: unknown; cameraGrammar?: unknown };
+  repoRoot?: string;
+  body: {
+    story?: unknown;
+    aspectRatio?: unknown;
+    imageModel?: unknown;
+    cameraGrammar?: unknown;
+    subjectMediaId?: unknown;
+    subjectDescription?: unknown;
+  };
   generateImage: (request: ImageGenerationRequest) => Promise<GeneratedImage>;
+  editImage?: (request: ImageEditRequest) => Promise<GeneratedImage>;
   fetchOutput?: (url: string) => Promise<{ bytes: Buffer; contentType?: string }>;
 }): Promise<{
   mediaId: string;
@@ -220,12 +326,38 @@ export async function generateOpeningFrameImage(input: {
     elapsedMs: number;
     outputMediaId: string;
     outputUrl: string;
+    references?: CanonicalReferenceEvidence;
   };
 }> {
   const story = typeof input.body.story === "string" ? input.body.story.trim() : "";
-  const prompt = openingFrameGenerationPrompt(story, cameraGrammarFromUnknown(input.body.cameraGrammar));
+  const subjectMediaId = optionalMediaId(input.body.subjectMediaId);
+  const subjectDescription =
+    typeof input.body.subjectDescription === "string" ? input.body.subjectDescription.trim() : "";
+  const prompt = openingFrameGenerationPrompt(
+    story,
+    cameraGrammarFromUnknown(input.body.cameraGrammar),
+    subjectMediaId ? { description: subjectDescription } : undefined,
+  );
   const aspectRatio = GENERATED_OPENING_ASPECT_RATIO;
-  const generated = await input.generateImage({ prompt, aspectRatio });
+  const images =
+    subjectMediaId && input.repoRoot
+      ? canonicalReferenceImages({
+          repoRoot: input.repoRoot,
+          subjectMediaId,
+          repairMediaIds: [],
+        })
+      : [];
+  if (subjectMediaId && images.length === 0) {
+    throw new Error("Persistent subject reference requires a project root");
+  }
+  const references = canonicalReferenceEvidence(images, subjectDescription);
+  const generated = images.length > 0
+    ? await (input.editImage ?? missingOpeningEdit)({
+        sourceImage: images[0]!.image,
+        prompt,
+        aspectRatio,
+      })
+    : await input.generateImage({ prompt, aspectRatio });
   const fetchOutput = input.fetchOutput ?? fetchGeneratedOutputBytes;
   const output = await fetchOutput(generated.outputUrl);
   const registry = getActiveRuntimeMediaRegistry();
@@ -245,8 +377,13 @@ export async function generateOpeningFrameImage(input: {
         prompt,
         aspectRatio,
       },
+      references,
       ...imageRoutingEvidence(generated),
       outputMediaId: recorded.mediaId,
     },
   };
+}
+
+function missingOpeningEdit(): Promise<GeneratedImage> {
+  return Promise.reject(new Error("Opening frame generation requires editImage when a persistent subject reference is set"));
 }
