@@ -353,16 +353,18 @@ test("new project can plan, prepare, and shoot one journey", async ({ page }) =>
   await page.getByLabel("Workspace").getByRole("button", { name: "Agent" }).click();
   await expect(page.getByLabel("Generate all destinations")).toHaveCount(0);
   await expect(page.getByLabel("Generate all segments")).toHaveCount(0);
+  await page.getByRole("button", { name: "Options" }).click();
   await expect(page.getByLabel("Generate audio")).toBeVisible();
   await expect(page.getByLabel("Adaptive durations")).toBeVisible();
   await expect(page.getByLabel("Create journey")).toBeVisible();
   await page.getByLabel("Workspace").getByRole("button", { name: "Director" }).click();
+  await page.getByRole("button", { name: "Options" }).click();
   await expect(page.getByLabel("Generate all destinations")).toBeVisible();
   await expect(page.getByLabel("Generate all segments")).toBeVisible();
   await expect(page.getByLabel("Generate audio")).toBeVisible();
   await expect(page.getByLabel("Generate start destination")).toHaveCount(0);
 
-  await page.getByLabel("Production prompt").fill("Travel forward through an imagined interior at night.");
+  await page.getByLabel("Journey prompt").fill("Travel forward through an imagined interior at night.");
   await expect(page.getByLabel("Destination A actions")).toBeVisible();
   await expect(page.locator('[data-destination-drop="A"]')).toBeVisible();
   await expect(page.getByLabel("Generate destination A")).toBeVisible();
@@ -685,7 +687,7 @@ test("project image and video model selectors default to Nano Banana 2 and Pruna
 
 test("dropping a desktop image on a storyboard thumb uploads like the kebab", async ({ page }) => {
   await page.goto("/");
-  await page.getByLabel("Production prompt").fill("Travel forward through an imagined interior at night.");
+  await page.getByLabel("Journey prompt").fill("Travel forward through an imagined interior at night.");
   const thumb = page.locator('[data-destination-drop="A"]');
   await expect(thumb).toBeVisible();
   await thumb.evaluate((element, b64) => {

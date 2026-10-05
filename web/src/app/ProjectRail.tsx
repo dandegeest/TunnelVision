@@ -701,7 +701,31 @@ function PullForwardReferenceToggle() {
   );
 }
 
-function PersistentSubjectSettings() {
+function RequiredMark() {
+  return (
+    <abbr title="Required" className="ml-1 text-[#f0c2a8] no-underline">
+      *
+    </abbr>
+  );
+}
+
+function SubjectContactSheetThumb({ imageUrl }: { imageUrl?: string }) {
+  return (
+    <div className="aspect-video w-full">
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt="Persistent subject reference"
+          className="media-contain h-full w-full rounded border border-[#2a2620]"
+        />
+      ) : (
+        <div aria-label="Subject contact sheet placeholder" className="storyboard-fpo h-full w-full rounded" />
+      )}
+    </div>
+  );
+}
+
+function PersistentSubjectField() {
   const { project, setPersistentSubjectDescription, setPersistentSubjectImage } = useProject();
   const fileRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -709,10 +733,16 @@ function PersistentSubjectSettings() {
   const description = project.persistentSubject?.description ?? "";
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Persistent Subject</span>
-      <p className="text-[10px] leading-snug text-[#7a7266]">
-        One reference image sent with every canonical still. It defines who or what stays consistent. The previous canonical still defines where the journey is.
-      </p>
+      <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Subject</span>
+      <SubjectContactSheetThumb imageUrl={image?.imageUrl} />
+      <textarea
+        aria-label="Subject description"
+        value={description}
+        placeholder="Cream capsule body, orange stripe, ribbed arms."
+        rows={2}
+        className="w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[12px] leading-snug text-[#ece7df] outline-none placeholder:text-[#5c564e] focus-visible:border-[#ece7df]"
+        onChange={(event) => setPersistentSubjectDescription(event.target.value)}
+      />
       <input
         ref={fileRef}
         type="file"
@@ -736,44 +766,35 @@ function PersistentSubjectSettings() {
             });
         }}
       />
-      {image ? (
-        <img
-          src={image.imageUrl}
-          alt="Persistent subject reference"
-          className="media-contain h-24 w-full rounded border border-[#2a2620] bg-[#0c0b0a]"
-        />
-      ) : null}
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          disabled
+          aria-label="Generate subject contact sheet"
+          title="Future feature"
+          className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#ece7df] uppercase disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Generate
+        </button>
         <button
           type="button"
           className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#ece7df] uppercase hover:border-[#7a7266]"
           onClick={() => fileRef.current?.click()}
         >
-          {image ? "Change image" : "Upload image"}
+          {image ? "Change" : "Upload"}
         </button>
-        {image ? (
-          <button
-            type="button"
-            aria-label="Remove persistent subject image"
-            className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#9a8f7e] uppercase hover:border-[#7a7266] hover:text-[#ece7df]"
-            onClick={() => setPersistentSubjectImage(null)}
-          >
-            Remove image
-          </button>
-        ) : null}
       </div>
+      {image ? (
+        <button
+          type="button"
+          aria-label="Remove persistent subject image"
+          className="h-8 rounded border border-[#3a342c] px-2.5 text-[11px] tracking-[0.12em] text-[#9a8f7e] uppercase hover:border-[#7a7266] hover:text-[#ece7df]"
+          onClick={() => setPersistentSubjectImage(null)}
+        >
+          Remove
+        </button>
+      ) : null}
       {error ? <p className="text-[11px] leading-snug text-[#f0c2a8]">{error}</p> : null}
-      <label className="flex flex-col gap-1.5">
-        <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Subject description</span>
-        <textarea
-          aria-label="Subject description"
-          value={description}
-          placeholder="Giant golden puppy parade balloon with extremely long caramel floppy ears, cream muzzle and belly, red collar, and gold tag."
-          rows={4}
-          className="w-full resize-y rounded border border-[#3a342c] bg-[#161410] px-2.5 py-2 text-[12px] leading-snug text-[#ece7df] outline-none placeholder:text-[#5c564e] focus-visible:border-[#ece7df]"
-          onChange={(event) => setPersistentSubjectDescription(event.target.value)}
-        />
-      </label>
     </div>
   );
 }
@@ -830,7 +851,6 @@ function ProjectSettingsView({ busy }: { busy: boolean }) {
       ) : null}
       <DebugModeToggle />
       <PullForwardReferenceToggle />
-      <PersistentSubjectSettings />
     </div>
   );
 }
@@ -1086,19 +1106,142 @@ export function projectRailHeading(
   return agent ? "Project - Agent" : "Project - Directed";
 }
 
+function ProjectOptionsMenu({ busy }: { busy: boolean }) {
+  const {
+    project,
+    setAutoGenerateAllDestinations,
+    setAutoShoot,
+    setGenerateAudio,
+    setDurationMode,
+    setFixedDurationSeconds,
+    setAdaptivePace,
+  } = useProject();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  useDismissableMenu(open, () => setOpen(false), rootRef);
+  const directed = project.agency === "directed";
+  const fieldClass =
+    "flex h-8 w-full items-center justify-between gap-2 rounded border border-[#3a342c] bg-[#161410] px-2.5 text-left text-[11px] tracking-[0.08em] text-[#ece7df] uppercase outline-none focus-visible:border-[#ece7df]";
+  return (
+    <div ref={rootRef} className="flex flex-col gap-2">
+      <button
+        type="button"
+        aria-label="Options"
+        aria-expanded={open}
+        aria-controls="project-options"
+        title="Journey options"
+        className={fieldClass}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>Options</span>
+        <span aria-hidden="true">{open ? "▴" : "▾"}</span>
+      </button>
+      <div
+        id="project-options"
+        className={
+          open
+            ? "flex flex-col gap-3 rounded border border-[#3a342c] bg-[#161410] p-2.5"
+            : "hidden"
+        }
+      >
+        {directed ? (
+          <>
+            <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+              <input
+                type="checkbox"
+                checked={project.autoGenerateAllDestinations}
+                disabled={busy}
+                aria-label="Generate all destinations"
+                title={
+                  project.storyDurationLocked
+                    ? "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again."
+                    : "After PLAN JOURNEY plans the journey, generate each remaining destination in order."
+                }
+                className="mt-0.5 accent-[#ece7df]"
+                onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
+              />
+              Generate all destinations
+            </label>
+            <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+              <input
+                type="checkbox"
+                checked={project.autoShoot}
+                disabled={busy}
+                aria-label="Generate all segments"
+                title="After destinations exist, shoot every actual adjacent segment, including those with CM warnings."
+                className="mt-0.5 accent-[#ece7df]"
+                onChange={(event) => setAutoShoot(event.target.checked)}
+              />
+              Generate all segments
+            </label>
+          </>
+        ) : null}
+        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+          <input
+            type="checkbox"
+            checked={project.generateAudio}
+            disabled={busy}
+            aria-label="Generate audio"
+            title="Ask audio-capable video models (Veo, Seedance, Kling 3, Pruna) to generate sound on NEW TAKE."
+            className="mt-0.5 accent-[#ece7df]"
+            onChange={(event) => setGenerateAudio(event.target.checked)}
+          />
+          Generate audio
+        </label>
+        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+          <input
+            type="checkbox"
+            checked={durationModeFromProject(project) === "adaptive"}
+            disabled={busy}
+            aria-label="Adaptive durations"
+            title="When on, each traversal uses the Cinematographer's desired duration. When off, every traversal targets the fixed duration."
+            className="mt-0.5 accent-[#ece7df]"
+            onChange={(event) => setDurationMode(event.target.checked ? "adaptive" : "fixed")}
+          />
+          Adaptive durations
+        </label>
+        <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+          <input
+            type="checkbox"
+            checked={adaptivePaceFromProject(project)}
+            disabled={busy}
+            aria-label="Adaptive Pace"
+            title="ON: Cinematographer chooses pace per traversal. OFF: Cinematographer chooses one pace for the entire journey."
+            className="mt-0.5 accent-[#ece7df]"
+            onChange={(event) => setAdaptivePace(event.target.checked)}
+          />
+          Adaptive Pace
+        </label>
+        {durationModeFromProject(project) === "fixed" ? (
+          <label className="flex items-center gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
+            Fixed duration
+            <input
+              type="number"
+              min={MIN_FIXED_DURATION_SECONDS}
+              max={MAX_FIXED_DURATION_SECONDS}
+              step={1}
+              value={fixedDurationSecondsFromProject(project)}
+              disabled={busy}
+              aria-label="Fixed duration seconds"
+              title="Target this duration for every traversal. The selected video model maps it to a supported clip length."
+              className="w-14 rounded border border-[#3a342c] bg-transparent px-1.5 py-0.5 text-[11px] tracking-[0.08em] text-[#ece7df]"
+              onChange={(event) => setFixedDurationSeconds(Number(event.target.value))}
+            />
+            s
+          </label>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOpen?: boolean } = {}) {
   const {
     composerDraft,
     setComposerDraft,
     setStoryDurationInput,
     nudgeStoryDuration,
-    setAutoGenerateAllDestinations,
-    setAutoShoot,
-    setGenerateAudio,
     setCameraGrammar,
-    setDurationMode,
-    setFixedDurationSeconds,
-    setAdaptivePace,
     directorStatus,
     planStartError,
     journeyAgent,
@@ -1213,32 +1356,42 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                 </label>
                 <CopyToClipboardButton text={project.storyIdea ?? ""} label="Copy story idea" />
               </div>
-              <ClickToEditTextarea
-                id="project-story-idea"
-                rows={4}
-                value={project.storyIdea ?? ""}
-                placeholder="A walk in the redwood forest, 5 destinations…"
-                aria-label="Story idea"
-                disabled={busy}
-                className="tv-prompt min-h-[5.5rem] w-full overflow-auto leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
-                onChange={setStoryIdea}
-              />
-              <button
-                type="button"
-                className={`relative w-full overflow-hidden rounded border border-[#3a342c] px-3 py-2 text-[11px] tracking-[0.16em] uppercase text-[#ece7df] disabled:cursor-not-allowed disabled:text-[#9a8f7e]${
-                  writingStory ? " storyboard-generating" : ""
-                }`}
-                disabled={busy}
-                onClick={() => {
-                  const field = document.getElementById("project-story-idea");
-                  const idea = field instanceof HTMLTextAreaElement ? field.value : (project.storyIdea ?? "");
-                  void writeStoryFromIdea(idea);
-                }}
-              >
-                <span className={`relative z-[1]${writingStory ? " storyboard-generating-label" : ""}`}>
-                  {writingStory ? "Writing story…" : "Write story"}
-                </span>
-              </button>
+              <div className="relative">
+                <ClickToEditTextarea
+                  id="project-story-idea"
+                  rows={3}
+                  value={project.storyIdea ?? ""}
+                  placeholder="A walk in the redwood forest, 5 destinations…"
+                  aria-label="Story idea"
+                  disabled={busy}
+                  className="tv-prompt min-h-[4.5rem] w-full overflow-auto pb-9 pr-12 leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                  onChange={setStoryIdea}
+                />
+                <button
+                  type="button"
+                  aria-label="Create journey prompt"
+                  title="Create journey prompt"
+                  aria-busy={writingStory || undefined}
+                  disabled={busy}
+                  className="absolute right-2 bottom-2 flex h-7 w-7 items-center justify-center rounded-full border border-[#3a342c] bg-[#161410] text-[#ece7df] outline-none hover:border-[#7a7266] focus-visible:border-[#ece7df] disabled:cursor-not-allowed disabled:text-[#5c564c]"
+                  onClick={() => {
+                    const field = document.getElementById("project-story-idea");
+                    const idea = field instanceof HTMLTextAreaElement ? field.value : (project.storyIdea ?? "");
+                    void writeStoryFromIdea(idea);
+                  }}
+                >
+                  <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden>
+                    <path
+                      d="M8 12.5V3.5M8 3.5 4.25 7.25M8 3.5l3.75 3.75"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
@@ -1246,139 +1399,56 @@ export function ProjectRail({ initialSettingsOpen = false }: { initialSettingsOp
                   htmlFor="project-story"
                   className="min-w-0 flex-1 text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase"
                 >
-                  Production prompt
+                  Journey Prompt
+                  <RequiredMark />
                 </label>
-                <CopyToClipboardButton text={composerDraft} label="Copy production prompt" />
+                <CopyToClipboardButton text={composerDraft} label="Copy journey prompt" />
               </div>
               <ClickToEditTextarea
                 id="project-story"
-                rows={8}
+                rows={6}
                 value={composerDraft}
                 placeholder="Describe the journey…"
-                aria-label="Production prompt"
+                aria-label="Journey prompt"
+                required
                 disabled={busy}
-                className="tv-prompt min-h-[10rem] w-full overflow-auto leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
+                className="tv-prompt min-h-[7.5rem] w-full overflow-auto leading-relaxed text-[#ece7df] placeholder:text-[#9a8f7e]"
                 onChange={setComposerDraft}
               />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera</span>
-              <OptionMenu
-                ariaLabel="Camera"
-                title={
-                  cameraGrammarIsLocked(project)
-                    ? "Camera is fixed after the story is planned. Start a new project to choose a different camera."
-                    : "Whole-journey camera relationship. POV, FOLLOW, LEAD, or MOUNTED. Applies to every traversal in this project."
-                }
-                disabled={busy || cameraGrammarIsLocked(project)}
-                triggerClassName="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]"
-                value={cameraGrammarFromProject(project)}
-                options={CAMERA_GRAMMARS.map((grammar) => ({
-                  value: grammar,
-                  label: CAMERA_GRAMMAR_LABEL[grammar],
-                }))}
-                onChange={(next) => {
-                  if (isCameraGrammar(next)) {
-                    setCameraGrammar(next);
+            <div className="grid grid-cols-2 items-start gap-3">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Camera</span>
+                <OptionMenu
+                  ariaLabel="Camera"
+                  title={
+                    cameraGrammarIsLocked(project)
+                      ? "Camera is fixed after the story is planned. Start a new project to choose a different camera."
+                      : "Whole-journey camera relationship. POV, FOLLOW, LEAD, or MOUNTED. Applies to every traversal in this project."
                   }
-                }}
+                  disabled={busy || cameraGrammarIsLocked(project)}
+                  triggerClassName="h-8 w-full rounded border border-[#3a342c] bg-[#161410] px-2.5 text-[11px] tracking-[0.08em] text-[#ece7df] outline-none focus-visible:border-[#ece7df]"
+                  value={cameraGrammarFromProject(project)}
+                  options={CAMERA_GRAMMARS.map((grammar) => ({
+                    value: grammar,
+                    label: CAMERA_GRAMMAR_LABEL[grammar],
+                  }))}
+                  onChange={(next) => {
+                    if (isCameraGrammar(next)) {
+                      setCameraGrammar(next);
+                    }
+                  }}
+                />
+              </div>
+              <StoryDurationField
+                project={project}
+                disabled={busy}
+                onCommit={setStoryDurationInput}
+                onNudge={nudgeStoryDuration}
               />
             </div>
-            <StoryDurationField
-              project={project}
-              disabled={busy}
-              onCommit={setStoryDurationInput}
-              onNudge={nudgeStoryDuration}
-            />
-            <div className="flex flex-col gap-3">
-              <span className="text-[10px] tracking-[0.14em] text-[#9a8f7e] uppercase">Options</span>
-              {directed ? (
-                <>
-                  <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                    <input
-                      type="checkbox"
-                      checked={project.autoGenerateAllDestinations}
-                      disabled={busy}
-                      aria-label="Generate all destinations"
-                      title={
-                        project.storyDurationLocked
-                          ? "Generate remaining unfilled destinations from the existing plan. Does not ask the Director again."
-                          : "After PLAN JOURNEY plans the journey, generate each remaining destination in order."
-                      }
-                      className="mt-0.5 accent-[#ece7df]"
-                      onChange={(event) => setAutoGenerateAllDestinations(event.target.checked)}
-                    />
-                    Generate all destinations
-                  </label>
-                  <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                    <input
-                      type="checkbox"
-                      checked={project.autoShoot}
-                      disabled={busy}
-                      aria-label="Generate all segments"
-                      title="After destinations exist, shoot every actual adjacent segment, including those with CM warnings."
-                      className="mt-0.5 accent-[#ece7df]"
-                      onChange={(event) => setAutoShoot(event.target.checked)}
-                    />
-                    Generate all segments
-                  </label>
-                </>
-              ) : null}
-              <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                <input
-                  type="checkbox"
-                  checked={project.generateAudio}
-                  disabled={busy}
-                  aria-label="Generate audio"
-                  title="Ask audio-capable video models (Veo, Seedance, Kling 3, Pruna) to generate sound on NEW TAKE."
-                  className="mt-0.5 accent-[#ece7df]"
-                  onChange={(event) => setGenerateAudio(event.target.checked)}
-                />
-                Generate audio
-              </label>
-              <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                <input
-                  type="checkbox"
-                  checked={durationModeFromProject(project) === "adaptive"}
-                  disabled={busy}
-                  aria-label="Adaptive durations"
-                  title="When on, each traversal uses the Cinematographer's desired duration. When off, every traversal targets the fixed duration."
-                  className="mt-0.5 accent-[#ece7df]"
-                  onChange={(event) => setDurationMode(event.target.checked ? "adaptive" : "fixed")}
-                />
-                Adaptive durations
-              </label>
-              <label className="flex items-start gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                <input
-                  type="checkbox"
-                  checked={adaptivePaceFromProject(project)}
-                  disabled={busy}
-                  aria-label="Adaptive Pace"
-                  title="ON: Cinematographer chooses pace per traversal. OFF: Cinematographer chooses one pace for the entire journey."
-                  className="mt-0.5 accent-[#ece7df]"
-                  onChange={(event) => setAdaptivePace(event.target.checked)}
-                />
-                Adaptive Pace
-              </label>
-              {durationModeFromProject(project) === "fixed" ? (
-                <label className="flex items-center gap-2 text-[11px] leading-snug tracking-[0.08em] text-[#9a8f7e] uppercase">
-                  Fixed duration
-                  <input
-                    type="number"
-                    min={MIN_FIXED_DURATION_SECONDS}
-                    max={MAX_FIXED_DURATION_SECONDS}
-                    step={1}
-                    value={fixedDurationSecondsFromProject(project)}
-                    disabled={busy}
-                    aria-label="Fixed duration seconds"
-                    title="Target this duration for every traversal. The selected video model maps it to a supported clip length."
-                    className="w-14 rounded border border-[#3a342c] bg-transparent px-1.5 py-0.5 text-[11px] tracking-[0.08em] text-[#ece7df]"
-                    onChange={(event) => setFixedDurationSeconds(Number(event.target.value))}
-                  />
-                  s
-                </label>
-              ) : null}
-            </div>
+            <PersistentSubjectField />
+            <ProjectOptionsMenu busy={busy} />
             <div className="flex flex-col gap-2">
               <button
                 type="button"

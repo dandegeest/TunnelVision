@@ -128,8 +128,8 @@ describe("Plan project story", () => {
   it("edits project story from the Project panel without a Send control", () => {
     const html = renderPlan(undefined, { debug: false });
     expect(html).toContain('id="project-story"');
-    expect(html).toContain('aria-label="Production prompt"');
-    expect(html).not.toMatch(/aria-label="Production prompt"[^>]*readOnly=""/);
+    expect(html).toContain('aria-label="Journey prompt"');
+    expect(html).not.toMatch(/aria-label="Journey prompt"[^>]*readOnly=""/);
     expect(html).toContain("text-[11px]");
     expect(html).toContain("resize-y");
     expect(html).toContain("border-[#3a342c]/50");
@@ -1822,7 +1822,7 @@ describe("new-project Plan", () => {
     expect(html.indexOf('aria-label="Delete project"')).toBeLessThan(storyAt);
     expect(createAt).toBeGreaterThan(storyAt);
     expect(settingsAt).toBeGreaterThan(createAt);
-    expect(html).toContain(">Production prompt<");
+    expect(html).toContain(">Journey Prompt<");
     expect(html).toContain(">Options<");
     expect(html).not.toContain("DIRECT generates A from the story");
     expect(html).not.toContain(">Technical<");
@@ -1835,7 +1835,7 @@ describe("new-project Plan", () => {
     expect(html).not.toContain('aria-label="Auto blocking"');
     expect(html).toContain('aria-label="Generate all segments"');
     expect(html).toContain('aria-label="Generate audio"');
-    expect(html).toContain('aria-label="Copy production prompt"');
+    expect(html).toContain('aria-label="Copy journey prompt"');
     expect(html).toContain('aria-label="Adaptive durations"');
     expect(html).toMatch(
       /checked[^>]*aria-label="Adaptive durations"|aria-label="Adaptive durations"[^>]*checked/,

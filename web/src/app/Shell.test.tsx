@@ -107,7 +107,27 @@ describe("Shell header chrome", () => {
     expect(project).not.toContain('aria-label="Set consistency');
     expect(project.indexOf('aria-label="Journey progress"')).toBeGreaterThan(createAt);
     expect(settingsAt).toBeGreaterThan(createAt);
-    expect(project).toContain(">Production prompt<");
+    expect(project).toContain(">Journey Prompt<");
+    expect(project).toContain('aria-label="Create journey prompt"');
+    expect(project).toContain('title="Create journey prompt"');
+    expect(project).toContain(">Subject<");
+    expect(project).not.toContain(">Subject<abbr");
+    expect(project).toMatch(
+      /aria-label="Subject contact sheet placeholder"[^>]*storyboard-fpo|storyboard-fpo[^>]*aria-label="Subject contact sheet placeholder"/,
+    );
+    const sheetAt = project.indexOf('aria-label="Subject contact sheet placeholder"');
+    const descriptionAt = project.indexOf('aria-label="Subject description"');
+    const generateAt = project.indexOf('aria-label="Generate subject contact sheet"');
+    const uploadAt = project.indexOf(">Upload<");
+    expect(sheetAt).toBeGreaterThan(-1);
+    expect(sheetAt).toBeLessThan(descriptionAt);
+    expect(descriptionAt).toBeLessThan(generateAt);
+    expect(generateAt).toBeLessThan(uploadAt);
+    expect(project).toMatch(
+      /disabled[^>]*aria-label="Generate subject contact sheet"|aria-label="Generate subject contact sheet"[^>]*disabled/,
+    );
+    expect(project).toContain('title="Future feature"');
+    expect(project).toContain('aria-label="Upload persistent subject"');
     expect(project).toContain(">Camera<");
     expect(project).toContain(">Destinations<");
     expect(project.indexOf(">Camera<")).toBeLessThan(project.indexOf(">Destinations<"));
@@ -122,7 +142,7 @@ describe("Shell header chrome", () => {
     expect(project).toContain("Generate audio");
     expect(project).toContain("Adaptive durations");
     expect(project).toContain("Adaptive Pace");
-    expect(project).toContain('aria-label="Copy production prompt"');
+    expect(project).toContain('aria-label="Copy journey prompt"');
     expect(project).not.toContain("Fixed duration");
     expect(project).not.toContain("Auto generate");
     expect(project).not.toContain("Auto blocking");
@@ -194,9 +214,9 @@ describe("Shell header chrome", () => {
     expect(replicate).not.toContain("Pruna $");
     expect(html).toContain('aria-label="Debug mode"');
     expect(html).toContain('aria-label="Pull Forward Reference"');
-    expect(html).toContain('aria-label="Subject description"');
-    expect(html).toContain('aria-label="Upload persistent subject"');
-    expect(html).toContain(">Persistent Subject<");
+    expect(html).not.toContain('aria-label="Subject description"');
+    expect(html).not.toContain('aria-label="Upload persistent subject"');
+    expect(html).not.toContain(">Subject<");
     expect(html).toMatch(
       /checked[^>]*aria-label="Pull Forward Reference"|aria-label="Pull Forward Reference"[^>]*checked/,
     );
@@ -286,7 +306,7 @@ describe("Shell header chrome", () => {
     expect(project).toContain("Generate audio");
     expect(project).toContain("Adaptive durations");
     expect(project).toContain("Adaptive Pace");
-    expect(project).toContain('aria-label="Copy production prompt"');
+    expect(project).toContain('aria-label="Copy journey prompt"');
     expect(project).not.toContain("Generate all destinations");
     expect(project).not.toContain("Generate all segments");
     expect(project).not.toContain("Generate start destination");
