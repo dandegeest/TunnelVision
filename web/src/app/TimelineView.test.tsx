@@ -1088,17 +1088,13 @@ describe("Shoot from a real planned project", () => {
 });
 
 describe("Shoot cut playback", () => {
-  it("prebuffers the next selected Take during continuous playback", () => {
+  it("plays the selected takes as one continuous preview", () => {
     const forest = createForestProject();
-    const next = forest.journeys.find((journey) => journey.id === "B-C")?.videoUrl;
     const html = renderShoot(forest, { journeyId: "A-B", band: "footage" }, { cutPlaybackJourneyId: "A-B", playing: true });
-    expect(html).toContain('data-cut-slot="current"');
-    expect(html).toContain('data-cut-slot="next"');
+    expect(html).toContain('aria-label="Continuous preview"');
     expect(html).toContain('preload="auto"');
-    expect(html).toContain("Cut playback A-B");
-    if (next) {
-      expect(html).toContain(next);
-    }
+    expect(html).not.toContain('data-cut-slot="next"');
+    expect((html.match(/<video/g) ?? []).length).toBe(1);
   });
 });
 

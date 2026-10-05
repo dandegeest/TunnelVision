@@ -1901,8 +1901,8 @@ export function ProjectProvider({
     if (clips.length === 0) {
       return;
     }
-    const index = clips.findIndex(({ clip }) => clip.journeyId === cutPlaybackJourneyId);
-    const currentIndex = index < 0 ? 0 : index;
+    const index = clips.findIndex(({ laid }) => playheadTime < laid.endTime - 0.05);
+    const currentIndex = index < 0 ? clips.length - 1 : index;
     const atStart = playheadTime - (clips[currentIndex]?.laid.startTime ?? 0) < 1;
     const previous =
       currentIndex > 0 && atStart ? clips[currentIndex - 1]! : clips[currentIndex] ?? clips[0]!;
@@ -1912,22 +1912,38 @@ export function ProjectProvider({
     if (playing) {
       setPlaying(true);
     }
-  }, [cutPlaybackJourneyId, laidClipsForCut, playheadTime, playing]);
+  }, [laidClipsForCut, playheadTime, playing]);
 
   const seekCutNext = useCallback(() => {
     const clips = laidClipsForCut(projectRef.current);
     if (clips.length === 0) {
       return;
     }
-    const index = clips.findIndex(({ clip }) => clip.journeyId === cutPlaybackJourneyId);
-    const next = index >= 0 && index < clips.length - 1 ? clips[index + 1]! : clips[clips.length - 1]!;
+    const index = clips.findIndex(({ laid }) => playheadTime < laid.endTime - 0.05);
+    const currentIndex = index < 0 ? clips.length - 1 : index;
+    const next = currentIndex < clips.length - 1 ? clips[currentIndex + 1]! : clips[currentIndex]!;
     setCutPlaybackJourneyId(next.clip.journeyId);
     setCutStartOffset(0);
     setPlayheadTime(next.laid.startTime);
-    if (index >= clips.length - 1) {
+    if (currentIndex >= clips.length - 1) {
       setPlaying(false);
     }
-  }, [cutPlaybackJourneyId, laidClipsForCut]);
+  }, [laidClipsForCut, playheadTime]);
+
+  useEffect(() => {
+    if (!playing) {
+      return;
+    }
+    const clips = laidClipsForCut(projectRef.current);
+    if (clips.length === 0) {
+      return;
+    }
+    const index = clips.findIndex(({ laid }) => playheadTime < laid.endTime - 0.05);
+    const clip = clips[index < 0 ? clips.length - 1 : index];
+    if (clip && clip.clip.journeyId !== cutPlaybackJourneyId) {
+      setCutPlaybackJourneyId(clip.clip.journeyId);
+    }
+  }, [cutPlaybackJourneyId, laidClipsForCut, playheadTime, playing]);
 
   const advanceCutClip = useCallback(() => {
     const clips = laidClipsForCut(projectRef.current);

@@ -26,13 +26,8 @@ import {
   DiagnosticStill,
 } from "./CamotionOverlay";
 import type { OverlayLayers } from "../project/camotion-overlay";
-import {
-  currentCutClips,
-  cutPlaybackSlotFromClip,
-  nextCurrentCutClip,
-  reconcileCutPlaybackSlots,
-  type CutPlaybackSlot,
-} from "../project/current-cut";
+import { useContinuousCut } from "../playback/continuous-cut";
+import { mediaTimeForTimeline, timelineTimeForMedia } from "../playback/time-map";
 
 function PreviewMonitor({
   children,
@@ -262,136 +257,102 @@ export function JourneyCanonicalPair({
   );
 }
 
-function CutPlaybackVideos({
-  currentKey,
-  currentUrl,
-  nextClip,
-  startOffset,
-  seekNonce,
-  playing,
-  poster,
-  journeyId,
-  startTime,
-  onEnded,
-  onTimeUpdate,
-  onDuration,
-}: {
-  currentKey: string;
-  currentUrl: string;
-  nextClip: ReturnType<typeof nextCurrentCutClip>;
-  startOffset: number;
-  seekNonce: number;
-  playing: boolean;
-  poster?: string;
-  journeyId: string;
-  startTime: number;
-  onEnded: () => void;
-  onTimeUpdate: (time: number) => void;
-  onDuration: (duration: number) => void;
-}) {
-  const slot0Ref = useRef<HTMLVideoElement>(null);
-  const slot1Ref = useRef<HTMLVideoElement>(null);
-  const refs = [slot0Ref, slot1Ref] as const;
-  const [front, setFront] = useState<0 | 1>(0);
-  const [slots, setSlots] = useState<[CutPlaybackSlot, CutPlaybackSlot]>([
-    { key: currentKey, url: currentUrl },
-    cutPlaybackSlotFromClip(nextClip),
-  ]);
-  const nextSlot = cutPlaybackSlotFromClip(nextClip);
+function ContinuousCutVideo({ poster }: { poster?: string }) {
+  const { url, error, spans } = useContinuousCut();
+  const { playing, setPlaying, playheadTime, setPlayheadTime } = useProject();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const playheadFromVideo = useRef<number | null>(null);
+  const suppressPause = useRef(false);
+  /** Ignore the new file's time 0 until it has been seeked to the current playhead. */
+  const seekedUrl = useRef<string | null>(null);
 
-  useEffect(() => {
-    const reconciled = reconcileCutPlaybackSlots(front, slots, { key: currentKey, url: currentUrl }, nextSlot);
-    if (reconciled.front !== front) {
-      setFront(reconciled.front);
-    }
-    if (reconciled.slots[0].key !== slots[0].key || reconciled.slots[1].key !== slots[1].key
-      || reconciled.slots[0].url !== slots[0].url || reconciled.slots[1].url !== slots[1].url) {
-      setSlots(reconciled.slots);
-    }
-  }, [currentKey, currentUrl, front, nextSlot.key, nextSlot.url, slots]);
-
-  useEffect(() => {
-    const visible = refs[front].current;
-    if (!visible) {
+  const seekToPlayhead = () => {
+    const video = videoRef.current;
+    if (!video || spans.length === 0) {
       return;
     }
-    visible.muted = false;
+    const target = mediaTimeForTimeline(playheadTime, spans);
+    if (Number.isFinite(video.currentTime) && Math.abs(video.currentTime - target) > 0.08) {
+      suppressPause.current = true;
+      video.currentTime = target;
+    }
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !url) {
+      return;
+    }
     if (playing) {
-      void visible.play().catch(() => undefined);
+      void video.play().catch(() => undefined);
     } else {
-      visible.pause();
+      video.pause();
     }
-  }, [front, playing, currentKey]);
+  }, [playing, url]);
 
   useEffect(() => {
-    if (seekNonce === 0) {
+    if (seekedUrl.current !== url) {
+      playheadFromVideo.current = null;
+    }
+    const echoed = playheadFromVideo.current;
+    if (echoed != null && Math.abs(echoed - playheadTime) < 0.05) {
       return;
     }
-    const visible = refs[front].current;
-    if (!visible) {
-      return;
-    }
-    visible.currentTime = startOffset;
-  }, [front, seekNonce, startOffset]);
-
-  useEffect(() => {
-    const hidden = refs[front === 0 ? 1 : 0].current;
-    const standby = slots[front === 0 ? 1 : 0];
-    if (!hidden || !standby.url) {
-      return;
-    }
-    hidden.muted = true;
-    hidden.preload = "auto";
-    const warm = hidden.play();
-    if (warm) {
-      void warm
-        .then(() => {
-          hidden.pause();
-          hidden.currentTime = 0;
-        })
-        .catch(() => undefined);
-    }
-  }, [front, slots]);
+    seekToPlayhead();
+  }, [playheadTime, url, spans]);
 
   return (
     <div className="relative h-full w-full">
-      {slots.map((slot, index) => {
-        const visible = index === front;
-        return (
-          <video
-            key={slot.key || `empty-${index}`}
-            ref={refs[index]}
-            className={visible ? "rounded bg-black" : "pointer-events-none absolute h-0 w-0 opacity-0"}
-            src={slot.url || undefined}
-            poster={visible ? poster : undefined}
-            controls={false}
-            preload="auto"
-            playsInline
-            muted={!visible}
-            data-cut-slot={visible ? "current" : "next"}
-            data-cut-key={slot.key}
-            onEnded={() => {
-              if (visible) {
-                onEnded();
-              }
-            }}
-            onLoadedMetadata={(event) => {
-              if (visible) {
-                onDuration(event.currentTarget.duration);
-                if (startOffset > 0) {
-                  event.currentTarget.currentTime = startOffset;
-                }
-              }
-            }}
-            onTimeUpdate={(event) => {
-              if (visible) {
-                onTimeUpdate(startTime + event.currentTarget.currentTime);
-              }
-            }}
-          />
-        );
-      })}
-      <span className="sr-only">{`Cut playback ${journeyId}`}</span>
+      <video
+        ref={videoRef}
+        className="rounded bg-black"
+        src={url ?? undefined}
+        poster={poster}
+        controls
+        playsInline
+        preload="auto"
+        aria-label="Continuous preview"
+        onPlay={() => setPlaying(true)}
+        onPause={() => {
+          const video = videoRef.current;
+          if (suppressPause.current || video?.seeking) {
+            return;
+          }
+          setPlaying(false);
+        }}
+        onSeeked={() => {
+          if (!suppressPause.current) {
+            return;
+          }
+          suppressPause.current = false;
+          if (playing) {
+            void videoRef.current?.play().catch(() => undefined);
+          }
+        }}
+        onEnded={() => setPlaying(false)}
+        onLoadedMetadata={() => {
+          seekToPlayhead();
+          seekedUrl.current = url;
+          if (playing) {
+            void videoRef.current?.play().catch(() => undefined);
+          }
+        }}
+        onTimeUpdate={(event) => {
+          if (!url || seekedUrl.current !== url || spans.length === 0) {
+            return;
+          }
+          const next = timelineTimeForMedia(event.currentTarget.currentTime, spans);
+          playheadFromVideo.current = next;
+          setPlayheadTime(next);
+        }}
+      />
+      {!url ? (
+        <p
+          className={`pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center text-sm ${error ? "text-[#f0c2a8]" : "text-[#9a8f7e]"}`}
+        >
+          {error ?? "Assembling preview…"}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -400,18 +361,10 @@ export function Preview() {
   const {
     project,
     selection,
-    playing,
-    setPlaying,
     playheadTime,
-    setPlayheadTime,
-    syncJourneyClipDuration,
     cutPlaybackJourneyId,
-    cutStartOffset,
-    cutSeekNonce,
-    advanceCutClip,
     select,
   } = useProject();
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [overlay, setOverlay] = useState(true);
   const [layers, setLayers] = useState<OverlayLayers>(DEFAULT_OVERLAY_LAYERS);
   const [motionMode, setMotionMode] = useState<"canonical" | "primed">("canonical");
@@ -449,10 +402,6 @@ export function Preview() {
   const currentTake = playbackJourney ? selectedTake(playbackJourney) : undefined;
   const videoUrl = playbackJourney ? selectedTakeVideoUrl(playbackJourney) : undefined;
   const showVideo = Boolean(showFootage && playable && videoUrl && playbackJourney);
-  const currentCutClip = playbackJourney
-    ? currentCutClips(project).find((clip) => clip.journeyId === playbackJourney.id)
-    : undefined;
-  const currentCutSlot = cutPlaybackSlotFromClip(currentCutClip);
   const showStills = showMotion && canShowStills;
   const destination = startDestination;
   const shootEmpty = layout.occurrences.length === 0;
@@ -491,27 +440,6 @@ export function Preview() {
     showCamotionToggle && selection.kind === "destination"
       ? neighboringShootOccurrence(layout.occurrences, selection.occurrenceIndex, 1)
       : undefined;
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !showVideo) {
-      video?.pause();
-      return;
-    }
-    if (playing) {
-      void video.play();
-    } else {
-      video.pause();
-    }
-  }, [playing, showVideo, playbackJourney?.id, videoUrl]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || cutSeekNonce === 0) {
-      return;
-    }
-    video.currentTime = cutStartOffset;
-  }, [cutSeekNonce, cutStartOffset]);
 
   const title = shootEmpty
     ? "Preview"
@@ -620,51 +548,9 @@ export function Preview() {
             showVideo ? GENERATED_OPENING_ASPECT_RATIO : previewFrameAspectRatio(project, destination?.id)
           }
         >
-        {showVideo && videoUrl && playbackJourney && cutPlaybackJourneyId ? (
-          <CutPlaybackVideos
-            key={project.id}
-            currentKey={currentCutSlot.key}
-            currentUrl={currentCutSlot.url || videoUrl}
-            nextClip={nextCurrentCutClip(project, cutPlaybackJourneyId)}
-            startOffset={cutStartOffset}
-            seekNonce={cutSeekNonce}
-            playing={playing}
+        {showVideo && playbackJourney ? (
+          <ContinuousCutVideo
             poster={destinationById(project.destinations, playbackJourney.startDestinationId)?.image}
-            journeyId={playbackJourney.id}
-            startTime={layout.journeys.find((item) => item.journeyId === playbackJourney.id)?.startTime ?? 0}
-            onEnded={advanceCutClip}
-            onTimeUpdate={setPlayheadTime}
-            onDuration={(duration) => syncJourneyClipDuration(playbackJourney.id, duration)}
-          />
-        ) : showVideo && videoUrl && playbackJourney ? (
-          <video
-            ref={videoRef}
-            key={`${project.id}:${playbackJourney.id}:${currentTake?.id ?? currentTake?.number ?? "clip"}:${videoUrl}:${cutStartOffset}`}
-            className="rounded bg-black"
-            src={videoUrl}
-            poster={destinationById(project.destinations, playbackJourney.startDestinationId)?.image}
-            controls
-            preload="auto"
-            onPlay={() => setPlaying(true)}
-            onPause={() => {
-              setPlaying(false);
-            }}
-            onEnded={() => {
-              setPlaying(false);
-            }}
-            onLoadedMetadata={(event) => {
-              syncJourneyClipDuration(playbackJourney.id, event.currentTarget.duration);
-              if (cutStartOffset > 0) {
-                event.currentTarget.currentTime = cutStartOffset;
-              }
-            }}
-            onTimeUpdate={(event) => {
-              const laid = layout.journeys.find((item) => item.journeyId === playbackJourney.id);
-              if (!laid) {
-                return;
-              }
-              setPlayheadTime(laid.startTime + event.currentTarget.currentTime);
-            }}
           />
         ) : showFootage && playbackJourney ? (
           <p className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-[#9a8f7e]">

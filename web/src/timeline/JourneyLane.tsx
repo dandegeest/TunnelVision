@@ -527,6 +527,8 @@ export function JourneyLane({
 }) {
   const {
     project,
+    playing,
+    setPlaying,
     shootJourney,
     selectTake,
     selectTakeRow,
@@ -641,9 +643,14 @@ export function JourneyLane({
                 first={laid.journeyId === firstJourneyId}
                 last={laid.journeyId === lastJourneyId}
                 onSelectTake={() => {
+                  const keepPlaying = playing;
+                  const alreadySelected = take.id != null && take.id === current?.id;
                   onSelect(laid.journeyId, "footage");
-                  if (take.id) {
+                  if (take.id && !alreadySelected) {
                     selectTake(journey.id, take.id);
+                  }
+                  if (keepPlaying) {
+                    setPlaying(true);
                   }
                 }}
                 onDeleteTake={
